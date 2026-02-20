@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoachPilot — The Assistant Coach for Youth Sports</title>
+  <meta name="description" content="CoachPilot simplifies practice planning, team organization, and the everyday chaos of youth sports. Built for coaches, by coaches.">
+  <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #0A0E17;
+      color: #FFFFFF;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== UTILITY ===== */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .accent {
+      color: #F97316;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 20px 0;
+      transition: background-color 0.3s ease, padding 0.3s ease;
+    }
+
+    nav.scrolled {
+      background-color: rgba(10, 14, 23, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #FFFFFF;
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-logo span {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-cta {
+      display: inline-block;
+      padding: 10px 22px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-1px);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+    }
+
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 40px rgba(249, 115, 22, 0.2);
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    .hero-subtext {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-lines {
+      margin-bottom: 48px;
+    }
+
+    .hero-lines p {
+      font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+    }
+
+    .hero-lines p .accent {
+      color: #F97316;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 16px 40px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 24px rgba(249, 115, 22, 0.3);
+    }
+
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+    }
+
+    /* ===== SECTION SHARED ===== */
+    section {
+      padding: 100px 0;
+    }
+
+    @media (min-width: 768px) {
+      section {
+        padding: 140px 0;
+      }
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #F97316;
+      margin-bottom: 20px;
+    }
+
+    .section-heading {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 32px;
+    }
+
+    .section-body {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.8;
+      max-width: 580px;
+    }
+
+    /* ===== WHY COACHPILOT ===== */
+    .why-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .why-section .container {
+      max-width: 720px;
+    }
+
+    .why-list {
+      list-style: none;
+      margin: 40px 0;
+    }
+
+    .why-list li {
+      position: relative;
+      padding: 16px 0 16px 36px;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .why-list li:last-child {
+      border-bottom: none;
+    }
+
+    .why-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      background-color: #F97316;
+      border-radius: 50%;
+    }
+
+    .why-footer {
+      margin-top: 40px;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: rgba(255, 255, 255, 0.4);
+      font-style: italic;
+    }
+
+    /* ===== WHAT MAKES IT DIFFERENT ===== */
+    .different-section {
+      background-color: #111827;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .different-section .container {
+      max-width: 720px;
+      text-align: center;
+    }
+
+    .different-content p {
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+
+    .different-content p.highlight {
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: clamp(1.3rem, 3vw, 1.6rem);
+    }
+
+    .different-content p.tagline {
+      margin-top: 32px;
+      font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.02em;
+    }
+
+    .different-content p.tagline .accent {
+      color: #F97316;
+    }
+
+    /* ===== WHO IT'S FOR ===== */
+    .who-section .container {
+      max-width: 900px;
+    }
+
+    .who-section .section-heading {
+      text-align: center;
+    }
+
+    .who-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .who-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    @media (min-width: 600px) {
+      .who-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .who-card {
+      background-color: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .who-card:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .who-card-icon {
+      font-size: 28px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .who-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .who-card p {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.6;
+    }
+
+    /* ===== CTA / EMAIL CAPTURE ===== */
+    .cta-section {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      text-align: center;
+    }
+
+    .cta-section .container {
+      max-width: 600px;
+    }
+
+    .cta-heading {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+
+    .cta-subtext {
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .email-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 520px) {
+      .email-form {
+        flex-direction: row;
+      }
+    }
+
+    .email-form input[type="email"] {
+      flex: 1;
+      padding: 16px 20px;
+      background-color: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 100px;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .email-form input[type="email"]::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .email-form input[type="email"]:focus {
+      border-color: #F97316;
+    }
+
+    .email-form button {
+      padding: 16px 28px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .email-form button:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-1px);
+    }
+
+    .form-note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .form-success {
+      display: none;
+      padding: 20px;
+      background-color: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      border-radius: 16px;
+      text-align: center;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .form-success p {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .form-success .sub {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.5);
+      margin-top: 6px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 48px 0;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.3);
+      line-height: 1.8;
+    }
+
+    footer p strong {
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 600;
+    }
+
+    /* ===== DIVIDER / VISUAL TOUCHES ===== */
+    .gradient-line {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(249, 115, 22, 0.4) 50%, transparent 100%);
+      max-width: 200px;
+      margin: 0 auto 48px;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content > * {
+      animation: fadeInUp 0.9s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-content > *:nth-child(1) { animation-delay: 0.1s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.25s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.4s; }
+    .hero-content > *:nth-child(4) { animation-delay: 0.55s; }
+    .hero-content > *:nth-child(5) { animation-delay: 0.7s; }
+
+    /* ===== RESPONSIVE TWEAKS ===== */
+    @media (max-width: 480px) {
+      .hero {
+        padding: 100px 20px 60px;
+      }
+
+      .hero-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+      }
+
+      .who-card {
+        padding: 24px;
+      }
+
+      section {
+        padding: 80px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <a href="#early-access" class="nav-cta">Get early access</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <img src="CoachPilot-AppIcon.png" alt="CoachPilot App Icon" class="hero-icon" width="80" height="80">
+      <h1>Built for coaches.<br>Built by coaches.</h1>
+      <p class="hero-subtext">The assistant coach that simplifies practice planning, team organization, and the everyday chaos of youth sports.</p>
+      <div class="hero-lines">
+        <p>Less admin.</p>
+        <p><span class="accent">More coaching.</span></p>
+      </div>
+      <a href="#early-access" class="btn-primary">Get early access</a>
+    </div>
+  </section>
+
+  <!-- Why CoachPilot -->
+  <section class="why-section">
+    <div class="container fade-in">
+      <span class="section-label">Why CoachPilot</span>
+      <h2 class="section-heading">Coaching shouldn't feel like<br>a second full-time job.</h2>
+      <p class="section-body">CoachPilot helps you:</p>
+      <ul class="why-list">
+        <li>Plan practices in minutes</li>
+        <li>Stay organized without spreadsheets</li>
+        <li>Focus on kids &mdash; not logistics</li>
+        <li>Coach with clarity and confidence</li>
+      </ul>
+      <p class="why-footer">Built from real coaching experience.</p>
+    </div>
+  </section>
+
+  <!-- What Makes It Different -->
+  <section class="different-section">
+    <div class="container fade-in">
+      <span class="section-label">What Makes It Different</span>
+      <div class="different-content">
+        <p>Most tools weren't built by coaches.</p>
+        <p class="highlight">CoachPilot was.</p>
+        <p>Designed around real seasons, real teams, and real life &mdash; not corporate software.</p>
+        <p class="tagline">Simple. Fast. <span class="accent">Powerful.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who It's For -->
+  <section class="who-section">
+    <div class="container fade-in">
+      <span class="section-label">Who It's For</span>
+      <h2 class="section-heading">Built for coaches like you.</h2>
+      <div class="who-grid">
+        <div class="who-card">
+          <span class="who-card-icon" aria-hidden="true">&#9917;</span>
+          <h3>Youth sports coaches</h3>
+          <p>Running practices, managing rosters, and keeping parents informed across a full season.</p>
+        </div>
+        <div class="who-card">
+          <span class="who-card-icon" aria-hidden="true">&#9995;</span>
+          <h3>Volunteer coaches</h3>
+          <p>Stepped up for the team and need a simple way to stay organized without the learning curve.</p>
+        </div>
+        <div class="who-card">
+          <span class="who-card-icon" aria-hidden="true">&#128197;</span>
+          <h3>Busy parents who coach</h3>
+          <p>Balancing work, family, and coaching. Every minute of prep time needs to count.</p>
+        </div>
+        <div class="who-card">
+          <span class="who-card-icon" aria-hidden="true">&#10084;&#65039;</span>
+          <h3>Anyone who loves the game</h3>
+          <p>You love coaching. You just hate the admin that comes with it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Early Access CTA -->
+  <section class="cta-section" id="early-access">
+    <div class="container fade-in">
+      <div class="gradient-line"></div>
+      <h2 class="cta-heading">Be one of the first coaches<br>to try CoachPilot.</h2>
+      <p class="cta-subtext">Get updates, early features, and launch access.</p>
+      <form class="email-form" id="signup-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="New CoachPilot Early Access Signup">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
+        <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
+        <button type="submit">Join the early access list</button>
+      </form>
+      <p class="form-note">No spam. Just coaching.</p>
+      <div class="form-success" id="form-success">
+        <p>You're on the list.</p>
+        <p class="sub">We'll be in touch when CoachPilot is ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <p style="margin-top: 12px;"><a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="color: rgba(255,255,255,0.3); text-decoration: none; font-size: 13px;">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // === Navbar scroll effect ===
+    (function() {
+      var nav = document.getElementById('navbar');
+      var scrollThreshold = 60;
+
+      function handleScroll() {
+        if (window.scrollY > scrollThreshold) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      }
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    })();
+
+    // === Scroll-triggered fade-in ===
+    (function() {
+      var fadeElements = document.querySelectorAll('.fade-in');
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.15,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        fadeElements.forEach(function(el) {
+          observer.observe(el);
+        });
+      } else {
+        // Fallback: show everything immediately
+        fadeElements.forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }
+    })();
+
+    // === Form submission with fallback ===
+    (function() {
+      var form = document.getElementById('signup-form');
+      var success = document.getElementById('form-success');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(form);
+
+        fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        }).then(function(response) {
+          if (response.ok) {
+            form.style.display = 'none';
+            form.nextElementSibling.style.display = 'none'; // hide "No spam" note
+            success.style.display = 'block';
+          } else {
+            // Fallback to mailto
+            var email = formData.get('email');
+            window.location.href = 'mailto:coachpilotapp@gmail.com?subject=Early%20Access%20Request&body=Hi%2C%20I%27d%20like%20early%20access%20to%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+          }
+        }).catch(function() {
+          // Fallback to mailto on network error
+          var email = formData.get('email');
+          window.location.href = 'mailto:coachpilotapp@gmail.com?subject=Early%20Access%20Request&body=Hi%2C%20I%27d%20like%20early%20access%20to%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>
