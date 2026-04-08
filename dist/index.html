@@ -519,6 +519,70 @@
       pointer-events: none;
     }
 
+    /* ===== GAME DAY INTEREST FORM ===== */
+    .gameday-interest {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #F0F0F0;
+    }
+
+    .gameday-interest p {
+      font-size: 13px;
+      color: #64648C;
+      margin-bottom: 8px;
+    }
+
+    .gameday-interest-form {
+      display: flex;
+      gap: 6px;
+    }
+
+    .gameday-interest-form input[type="email"] {
+      flex: 1;
+      padding: 8px 14px;
+      border: 1.5px solid #E8E8E8;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #1A1A2E;
+      outline: none;
+      min-width: 0;
+      transition: border-color 0.2s ease;
+    }
+
+    .gameday-interest-form input[type="email"]::placeholder {
+      color: #BBBBC8;
+    }
+
+    .gameday-interest-form input[type="email"]:focus {
+      border-color: #F97316;
+    }
+
+    .gameday-interest-form button {
+      padding: 8px 14px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+    }
+
+    .gameday-interest-form button:hover {
+      background-color: #EA6C0B;
+    }
+
+    .gameday-interest-success {
+      display: none;
+      font-size: 13px;
+      color: #F97316;
+      font-weight: 600;
+    }
+
     /* ===== MISSION SECTION ===== */
     .mission-section {
       background-color: #FAFAFA;
@@ -929,8 +993,19 @@
           </div>
           <div class="tool-card-body">
             <h3>Game Day</h3>
-            <p>Fair lineups, batting orders, and position rotations. Every kid plays. Coming soon.</p>
-            <span class="tool-card-link disabled">Coming soon</span>
+            <p>Fair lineups, batting orders, and position rotations. Every kid plays.</p>
+            <a href="https://pwa-henna-ten.vercel.app" class="tool-card-link" target="_blank" rel="noopener">Try the demo &rarr;</a>
+            <div class="gameday-interest">
+              <p>Get notified when Game Day launches:</p>
+              <form class="gameday-interest-form" id="gameday-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="CoachPilot: Game Day Interest Signup">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://coachpilot.org/#gameday-thanks">
+                <input type="email" name="email" placeholder="Your email" required autocomplete="email" aria-label="Email for Game Day updates">
+                <button type="submit">Notify Me</button>
+              </form>
+              <p class="gameday-interest-success" id="gameday-success">You're on the list!</p>
+            </div>
           </div>
         </div>
       </div>
@@ -1115,7 +1190,36 @@
       });
     })();
 
-    // === Show success state if redirected back with #thanks ===
+    // === Game Day interest form submission ===
+    (function() {
+      var gdForm = document.getElementById('gameday-form');
+      var gdSuccess = document.getElementById('gameday-success');
+
+      if (gdForm) {
+        gdForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+
+          var formData = new FormData(gdForm);
+
+          fetch(gdForm.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Accept': 'application/json'
+            }
+          }).then(function(response) {
+            if (response.ok) {
+              gdForm.style.display = 'none';
+              gdSuccess.style.display = 'block';
+            }
+          }).catch(function() {
+            // Silent fail, form will fall back to native POST
+          });
+        });
+      }
+    })();
+
+    // === Show success state if redirected back with #thanks or #gameday-thanks ===
     (function() {
       if (window.location.hash === '#thanks') {
         var form = document.getElementById('signup-form');
@@ -1125,6 +1229,14 @@
           var note = form.nextElementSibling;
           if (note) note.style.display = 'none';
           success.style.display = 'block';
+        }
+      }
+      if (window.location.hash === '#gameday-thanks') {
+        var gdForm = document.getElementById('gameday-form');
+        var gdSuccess = document.getElementById('gameday-success');
+        if (gdForm && gdSuccess) {
+          gdForm.style.display = 'none';
+          gdSuccess.style.display = 'block';
         }
       }
     })();
