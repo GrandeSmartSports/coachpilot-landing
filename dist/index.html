@@ -435,8 +435,8 @@
 
     @media (min-width: 700px) {
       .tools-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 24px;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
       }
     }
 
@@ -472,6 +472,35 @@
     .tool-card-img-wrap {
       overflow: hidden;
       border-radius: 16px 16px 0 0;
+      position: relative;
+    }
+
+    /* ===== TOOL CARD BADGES ===== */
+    .tool-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+
+    .badge-live {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .badge-soon {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .badge-ios {
+      background: #EFF6FF;
+      color: #1E40AF;
     }
 
     .tool-card-body {
@@ -967,8 +996,10 @@
       <span class="section-label">Your Coaching Toolkit</span>
       <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
       <div class="tools-grid">
+        <!-- Card 1: Practice Plans -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-live">Free</span>
             <img src="images/card-practice.jpg" alt="Soccer ball on a practice field" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
@@ -977,26 +1008,30 @@
             <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
           </div>
         </div>
+        <!-- Card 2: OnDeck -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-ios">iOS</span>
             <img src="images/card-ondeck.jpg" alt="Youth baseball player at bat" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
-            <h3>OnDeck Walkup Music</h3>
-            <p>Walkup songs and announcer introductions for every player. Make every kid feel like a pro.</p>
-            <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on iOS &rarr;</a>
+            <h3>OnDeck</h3>
+            <p>Walkup songs and announcer introductions that make every kid feel like a pro. Live on the App Store.</p>
+            <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on App Store &rarr;</a>
           </div>
         </div>
+        <!-- Card 3: Game Plans -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-soon">In Development</span>
             <img src="images/card-gameday.jpg" alt="Sports team standing together on game day" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
-            <h3>Game Day</h3>
-            <p>Fair lineups, batting orders, and position rotations. Every kid plays.</p>
-            <a href="gameday.html" class="tool-card-link">Try the demo &rarr;</a>
+            <h3>Game Plans</h3>
+            <p>Fair lineups, batting orders, and position rotations. Every kid plays. Built with real coaches.</p>
+            <a href="gameday.html" class="tool-card-link">Sneak Peek &rarr;</a>
             <div class="gameday-interest">
-              <p>Get notified when Game Day launches:</p>
+              <p>Get notified when Game Plans launches:</p>
               <form class="gameday-interest-form" id="gameday-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
                 <input type="hidden" name="_subject" value="CoachPilot: Game Day Interest Signup">
                 <input type="hidden" name="_captcha" value="false">
@@ -1006,6 +1041,18 @@
               </form>
               <p class="gameday-interest-success" id="gameday-success">You're on the list!</p>
             </div>
+          </div>
+        </div>
+        <!-- Card 4: CoachPilot V2 -->
+        <div class="tool-card">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-ios">Coming to iOS</span>
+            <img src="images/card-v2.jpg" alt="Team coming together as one" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>CoachPilot V2</h3>
+            <p>Everything in one app. Practice plans, game day lineups, walkup music, and coaching tools. All together. Coming to iOS.</p>
+            <span class="tool-card-link disabled">Stay tuned &rarr;</span>
           </div>
         </div>
       </div>
