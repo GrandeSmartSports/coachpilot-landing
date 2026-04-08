@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoachPilot — Practice Plans for Youth Sports Coaches</title>
-  <meta name="description" content="Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed. 16 sports, 5,798 drills, AI-powered.">
-  <meta name="keywords" content="practice plan, youth sports, coaching app, softball practice, soccer practice, volunteer coach, youth coaching">
+  <title>CoachPilot — Free Tools for Youth Sports Coaches</title>
+  <meta name="description" content="Practice plans, walkup music, and game day tools — built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
+  <meta name="keywords" content="coaching tools, practice plan, youth sports, volunteer coach, walkup music, game day lineup, softball, soccer">
   <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,6 +96,38 @@
       letter-spacing: -0.02em;
     }
 
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links a:hover {
+      color: #F97316;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
     .nav-cta {
       display: inline-flex;
       align-items: center;
@@ -113,6 +145,70 @@
     .nav-cta:hover {
       background-color: #EA6C0B;
       transform: translateY(-1px);
+    }
+
+    /* Mobile menu button */
+    .nav-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .nav-menu-btn:hover {
+      background-color: #F5F5F5;
+    }
+
+    .nav-menu-btn svg {
+      width: 22px;
+      height: 22px;
+      color: #1A1A2E;
+    }
+
+    @media (min-width: 768px) {
+      .nav-menu-btn {
+        display: none;
+      }
+    }
+
+    /* Mobile nav dropdown */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 99;
+      padding: 100px 24px 40px;
+    }
+
+    .nav-mobile.open {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-mobile a {
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 600;
+      font-size: 18px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-mobile a:hover {
+      color: #F97316;
     }
 
     /* ===== HERO ===== */
@@ -149,20 +245,20 @@
     }
 
     .hero h1 {
-      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
       font-weight: 800;
       line-height: 1.08;
       letter-spacing: -0.035em;
       color: #1A1A2E;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .hero-subtext {
-      font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      font-size: clamp(1.05rem, 2.5vw, 1.2rem);
       color: #64648C;
-      line-height: 1.65;
-      margin-bottom: 44px;
-      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 580px;
       margin-left: auto;
       margin-right: auto;
     }
@@ -269,94 +365,149 @@
       max-width: 580px;
     }
 
-    /* ===== PROBLEM SECTION ===== */
-    .problem-section {
-      background-color: #FAFAFA;
-    }
-
-    .problem-section .container {
+    /* ===== TOOLS SECTION ===== */
+    .tools-section .container {
       max-width: 960px;
     }
 
-    .problem-section .section-heading {
+    .tools-section .section-heading {
       text-align: center;
       max-width: 600px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    .problem-section .section-label {
+    .tools-section .section-label {
       display: block;
       text-align: center;
     }
 
-    .problem-grid {
+    .tools-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 20px;
       margin-top: 48px;
     }
 
     @media (min-width: 700px) {
-      .problem-grid {
+      .tools-grid {
         grid-template-columns: 1fr 1fr 1fr;
         gap: 20px;
       }
     }
 
-    .problem-card {
+    .tool-card {
       background: #FFFFFF;
       border: 1px solid #F0F0F0;
       border-radius: 16px;
-      padding: 32px 28px;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      padding: 36px 28px 32px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
 
-    .problem-card:hover {
-      border-color: #E8E8E8;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    .tool-card:hover {
+      border-color: rgba(249, 115, 22, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+      transform: translateY(-3px);
     }
 
-    .problem-card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
+    .tool-card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
       background: #FFF7ED;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
-      font-size: 20px;
+      margin-bottom: 24px;
+      font-size: 24px;
     }
 
-    .problem-card h3 {
-      font-size: 1.05rem;
+    .tool-card h3 {
+      font-size: 1.15rem;
       font-weight: 700;
       color: #1A1A2E;
       letter-spacing: -0.01em;
-      line-height: 1.4;
+      line-height: 1.3;
+      margin-bottom: 10px;
     }
 
-    /* ===== SOLUTION SECTION ===== */
-    .solution-section .container {
-      max-width: 960px;
+    .tool-card p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 20px;
     }
 
-    .solution-section .section-heading {
-      text-align: center;
+    .tool-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #F97316;
+      text-decoration: none;
+      transition: gap 0.2s ease;
     }
 
-    .solution-section .section-label {
+    .tool-card-link:hover {
+      gap: 8px;
+    }
+
+    .tool-card-link.disabled {
+      color: #AAAABB;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* ===== MISSION SECTION ===== */
+    .mission-section {
+      background-color: #FAFAFA;
+    }
+
+    .mission-section .container {
+      max-width: 720px;
+    }
+
+    .mission-section .section-label {
       display: block;
       text-align: center;
+    }
+
+    .mission-section .section-heading {
+      text-align: center;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .mission-body {
+      margin-top: 32px;
+    }
+
+    .mission-body p {
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      color: #64648C;
+      line-height: 1.85;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .mission-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ===== STATS SECTION ===== */
+    .stats-section .container {
+      max-width: 960px;
     }
 
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 24px;
-      margin-top: 56px;
-      margin-bottom: 48px;
     }
 
     @media (min-width: 600px) {
@@ -387,220 +538,30 @@
       letter-spacing: -0.01em;
     }
 
-    .solution-description {
-      font-size: clamp(1rem, 2vw, 1.125rem);
-      color: #64648C;
-      line-height: 1.8;
-      text-align: center;
-      max-width: 640px;
-      margin: 0 auto;
-    }
-
-    /* ===== WHO IT'S FOR ===== */
-    .who-section {
-      background-color: #FAFAFA;
-    }
-
-    .who-section .container {
-      max-width: 960px;
-    }
-
-    .who-section .section-heading {
-      text-align: center;
-    }
-
-    .who-section .section-label {
-      display: block;
-      text-align: center;
-    }
-
-    .who-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-top: 48px;
-    }
-
-    @media (min-width: 600px) {
-      .who-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
-    }
-
-    .who-card {
-      background: #FFFFFF;
-      border: 1px solid #F0F0F0;
-      border-radius: 16px;
-      padding: 32px 28px;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    }
-
-    .who-card:hover {
-      border-color: rgba(249, 115, 22, 0.25);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
-      transform: translateY(-2px);
-    }
-
-    .who-card-icon {
-      font-size: 26px;
-      margin-bottom: 16px;
-      display: block;
-    }
-
-    .who-card h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #1A1A2E;
-      margin-bottom: 8px;
-      letter-spacing: -0.01em;
-    }
-
-    .who-card p {
-      font-size: 0.95rem;
-      color: #64648C;
-      line-height: 1.65;
-    }
-
-    /* ===== HOW IT WORKS ===== */
-    .how-section .container {
-      max-width: 800px;
-    }
-
-    .how-section .section-heading {
-      text-align: center;
-    }
-
-    .how-section .section-label {
-      display: block;
-      text-align: center;
-    }
-
-    .steps {
-      margin-top: 56px;
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .step {
-      display: flex;
-      gap: 24px;
-      align-items: flex-start;
-      position: relative;
-      padding-bottom: 48px;
-    }
-
-    .step:last-child {
-      padding-bottom: 0;
-    }
-
-    .step-indicator {
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .step-number {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: #FFF7ED;
-      border: 2px solid #FDBA74;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: #F97316;
-      flex-shrink: 0;
-    }
-
-    .step-line {
-      width: 2px;
-      flex: 1;
-      background: #F0F0F0;
-      margin-top: 8px;
-      min-height: 40px;
-    }
-
-    .step:last-child .step-line {
-      display: none;
-    }
-
-    .step-content {
-      padding-top: 10px;
-    }
-
-    .step-content h3 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #1A1A2E;
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
-    }
-
-    .step-content p {
-      font-size: 0.95rem;
-      color: #64648C;
-      line-height: 1.6;
-    }
-
-    /* ===== CTA SECTION ===== */
-    .cta-section {
+    /* ===== EMAIL CAPTURE SECTION ===== */
+    .email-section {
       background-color: #FAFAFA;
       text-align: center;
     }
 
-    .cta-section .container {
+    .email-section .container {
       max-width: 600px;
     }
 
-    .cta-heading {
+    .email-heading {
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.15;
       color: #1A1A2E;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
     }
 
-    .cta-download {
-      margin-bottom: 48px;
-    }
-
-    .cta-divider {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 40px;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .cta-divider::before,
-    .cta-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: #E0E0E0;
-    }
-
-    .cta-divider span {
-      font-size: 13px;
-      font-weight: 500;
-      color: #9999AA;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .cta-email-label {
-      font-size: 1rem;
+    .email-subtext {
+      font-size: clamp(1rem, 2vw, 1.1rem);
       color: #64648C;
-      margin-bottom: 20px;
-      line-height: 1.6;
+      line-height: 1.65;
+      margin-bottom: 32px;
     }
 
     .email-form {
@@ -705,13 +666,22 @@
       font-weight: 600;
     }
 
-    footer a {
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
       color: #9999AA;
       text-decoration: none;
       transition: color 0.2s ease;
     }
 
-    footer a:hover {
+    .footer-links a:hover {
       color: #F97316;
     }
 
@@ -746,13 +716,8 @@
         padding: 64px 0;
       }
 
-      .who-card,
-      .problem-card {
-        padding: 24px 22px;
-      }
-
-      .step {
-        padding-bottom: 36px;
+      .tool-card {
+        padding: 28px 22px 24px;
       }
     }
   </style>
@@ -766,170 +731,122 @@
         <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
         <span>CoachPilot</span>
       </a>
-      <a href="plans.html" class="nav-cta">
-        Try It Free
-      </a>
+      <ul class="nav-links">
+        <li><a href="plans.html">Practice Plans</a></li>
+        <li><a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a></li>
+        <li><a href="#tools">Tools</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="plans.html" class="nav-cta">Try It Free</a>
+        <button class="nav-menu-btn" id="menu-btn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
     </div>
   </nav>
+
+  <!-- Mobile nav overlay -->
+  <div class="nav-mobile" id="mobile-nav">
+    <a href="plans.html" onclick="closeMobileNav()">Practice Plans</a>
+    <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener" onclick="closeMobileNav()">OnDeck</a>
+    <a href="#tools" onclick="closeMobileNav()">Tools</a>
+    <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
+  </div>
 
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
-      <h1>Your First Practice<br>Starts Here</h1>
-      <p class="hero-subtext">Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed.</p>
+      <h1>You're Doing Great, Coach.</h1>
+      <p class="hero-subtext">Nobody tells volunteer coaches they're doing a good job. We're here to change that. Free tools for practice plans, walkup music, and game day &mdash; built by coaches, for coaches.</p>
       <div class="hero-actions">
         <a href="plans.html" class="btn-primary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Try It Free &mdash; No Download Needed
+          Build Your First Practice Plan
         </a>
-        <a href="https://apps.apple.com/app/coachpilot-practice-plans/id6740512641" class="btn-secondary" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          Or download the iOS app
+        <a href="#tools" class="btn-secondary">
+          See all tools
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- The Problem -->
-  <section class="problem-section">
+  <!-- Tools Section -->
+  <section class="tools-section" id="tools">
     <div class="container fade-in">
-      <span class="section-label">The Problem</span>
-      <h2 class="section-heading">Coaching shouldn't feel like a second full-time job</h2>
-      <div class="problem-grid">
-        <div class="problem-card">
-          <div class="problem-card-icon" aria-hidden="true">&#128337;</div>
-          <h3>Practice is tomorrow and you have no plan</h3>
+      <span class="section-label">Your Coaching Toolkit</span>
+      <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
+      <div class="tools-grid">
+        <div class="tool-card">
+          <div class="tool-card-icon" aria-hidden="true">&#128203;</div>
+          <h3>Practice Plans</h3>
+          <p>Generate a complete, age-appropriate practice plan in 30 seconds. 16 sports. 5,798 drills. Free.</p>
+          <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
         </div>
-        <div class="problem-card">
-          <div class="problem-card-icon" aria-hidden="true">&#128269;</div>
-          <h3>Every online drill looks the same and nothing fits your age group</h3>
+        <div class="tool-card">
+          <div class="tool-card-icon" aria-hidden="true">&#127925;</div>
+          <h3>OnDeck Walkup Music</h3>
+          <p>Walkup songs and announcer introductions for every player. Make every kid feel like a pro.</p>
+          <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on iOS &rarr;</a>
         </div>
-        <div class="problem-card">
-          <div class="problem-card-icon" aria-hidden="true">&#128203;</div>
-          <h3>You're spending more time on logistics than actually coaching</h3>
+        <div class="tool-card">
+          <div class="tool-card-icon" aria-hidden="true">&#128197;</div>
+          <h3>Game Day</h3>
+          <p>Fair lineups, batting orders, and position rotations. Every kid plays. Coming soon.</p>
+          <span class="tool-card-link disabled">Coming soon</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- The Solution -->
-  <section class="solution-section">
+  <!-- Mission Section -->
+  <section class="mission-section">
     <div class="container fade-in">
-      <span class="section-label">The Solution</span>
-      <h2 class="section-heading">One app. Any sport. Ready in seconds.</h2>
+      <span class="section-label">Why We Built This</span>
+      <h2 class="section-heading">For the coach who never had one</h2>
+      <div class="mission-body">
+        <p>Coaching isn't about wins and losses &mdash; it's about showing up for kids who need someone in their corner. But volunteering to coach doesn't come with a manual. There's no mentor in the dugout. No one tells you if you're doing it right.</p>
+        <p>CoachPilot is your sideline. Practice plans that work, tools that save time, and the confidence that comes from knowing you showed up prepared. Because every coach deserves to hear: you're doing a good job.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- By The Numbers -->
+  <section class="stats-section">
+    <div class="container fade-in">
       <div class="stats-grid">
         <div class="stat-item">
           <div class="stat-number">5,798</div>
-          <div class="stat-label">drills across every skill level</div>
+          <div class="stat-label">drills across 16 sports</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">16</div>
-          <div class="stat-label">sports supported</div>
+          <div class="stat-number">4</div>
+          <div class="stat-label">coaching tools, one platform</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">AI</div>
-          <div class="stat-label">adapts to your team</div>
-        </div>
-      </div>
-      <p class="solution-description">CoachPilot's AI generates complete practice plans tailored to YOUR team. Pick your sport, set your age group, and get a full practice &mdash; warmup, drills, scrimmage, cooldown &mdash; in 30 seconds.</p>
-    </div>
-  </section>
-
-  <!-- Who It's For -->
-  <section class="who-section">
-    <div class="container fade-in">
-      <span class="section-label">Who It's For</span>
-      <h2 class="section-heading">Built for coaches like you</h2>
-      <div class="who-grid">
-        <div class="who-card">
-          <span class="who-card-icon" aria-hidden="true">&#9917;</span>
-          <h3>Youth sports coaches</h3>
-          <p>Running practices, managing rosters, and keeping things organized across a full season.</p>
-        </div>
-        <div class="who-card">
-          <span class="who-card-icon" aria-hidden="true">&#9995;</span>
-          <h3>Volunteer coaches</h3>
-          <p>Got voluntold at the parent meeting. Need a plan by tomorrow. We've got you.</p>
-        </div>
-        <div class="who-card">
-          <span class="who-card-icon" aria-hidden="true">&#128197;</span>
-          <h3>Busy parents who coach</h3>
-          <p>Balancing work, family, and coaching. Every minute of prep time needs to count.</p>
-        </div>
-        <div class="who-card">
-          <span class="who-card-icon" aria-hidden="true">&#10084;&#65039;</span>
-          <h3>Anyone who loves the game</h3>
-          <p>You love coaching. You just hate the admin that comes with it.</p>
+          <div class="stat-number">Free</div>
+          <div class="stat-label">to get started</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How It Works -->
-  <section class="how-section" id="how-it-works">
+  <!-- Email Capture Section -->
+  <section class="email-section" id="get-started">
     <div class="container fade-in">
-      <span class="section-label">How It Works</span>
-      <h2 class="section-heading">Three steps. Done.</h2>
-      <div class="steps">
-        <div class="step">
-          <div class="step-indicator">
-            <div class="step-number">1</div>
-            <div class="step-line"></div>
-          </div>
-          <div class="step-content">
-            <h3>Pick your sport and age group</h3>
-            <p>Softball, soccer, flag football, basketball &mdash; 16 sports and every age group from 4U to 18U.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-indicator">
-            <div class="step-number">2</div>
-            <div class="step-line"></div>
-          </div>
-          <div class="step-content">
-            <h3>Tell us about your team</h3>
-            <p>Team size, skill level, what you want to work on. Takes about 10 seconds.</p>
-          </div>
-        </div>
-        <div class="step">
-          <div class="step-indicator">
-            <div class="step-number">3</div>
-            <div class="step-line"></div>
-          </div>
-          <div class="step-content">
-            <h3>Get your practice plan</h3>
-            <p>A complete plan &mdash; warmup, drills, scrimmage, cooldown &mdash; ready to print or use on your phone.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="cta-section" id="get-started">
-    <div class="container fade-in">
-      <h2 class="cta-heading">Ready to stop winging it?</h2>
-      <div class="cta-download">
-        <a href="https://apps.apple.com/app/coachpilot-practice-plans/id6740512641" class="btn-primary" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-          Download Free on the App Store
-        </a>
-      </div>
-      <div class="cta-divider">
-        <span>or</span>
-      </div>
-      <p class="cta-email-label">Get coaching tips and app updates</p>
+      <h2 class="email-heading">Join coaches who are building this together</h2>
+      <p class="email-subtext">We're building CoachPilot with real coaches. Get updates, new tools, and coaching tips.</p>
       <form class="email-form" id="signup-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="CoachPilot — New Email Signup">
+        <input type="hidden" name="_subject" value="CoachPilot — New Coach Signup">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
         <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
-        <button type="submit">Subscribe</button>
+        <button type="submit">Join the Team</button>
       </form>
       <p class="form-note">No spam. Just coaching.</p>
       <div class="form-success" id="form-success">
-        <p>You're on the list.</p>
-        <p class="sub">We'll send you coaching tips and app updates.</p>
+        <p>You're on the team.</p>
+        <p class="sub">We'll keep you posted on new tools and coaching tips.</p>
       </div>
     </div>
   </section>
@@ -939,7 +856,11 @@
     <div class="container">
       <p><strong>CoachPilot &copy; 2026</strong></p>
       <p>Built by coaches. For coaches.</p>
-      <p style="margin-top: 12px;"><a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="font-size: 13px;">Privacy Policy</a></p>
+      <div class="footer-links">
+        <a href="plans.html">Practice Plans</a>
+        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
     </div>
   </footer>
 
@@ -959,6 +880,27 @@
 
       window.addEventListener('scroll', handleScroll, { passive: true });
     })();
+
+    // === Mobile menu toggle ===
+    var menuBtn = document.getElementById('menu-btn');
+    var mobileNav = document.getElementById('mobile-nav');
+    var menuOpen = false;
+
+    function closeMobileNav() {
+      menuOpen = false;
+      mobileNav.classList.remove('open');
+      menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+    }
+
+    menuBtn.addEventListener('click', function() {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileNav.classList.add('open');
+        menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      } else {
+        closeMobileNav();
+      }
+    });
 
     // === Scroll-triggered fade-in ===
     (function() {
@@ -1017,6 +959,20 @@
           window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
         });
       });
+    })();
+
+    // === Show success state if redirected back with #thanks ===
+    (function() {
+      if (window.location.hash === '#thanks') {
+        var form = document.getElementById('signup-form');
+        var success = document.getElementById('form-success');
+        if (form && success) {
+          form.style.display = 'none';
+          var note = form.nextElementSibling;
+          if (note) note.style.display = 'none';
+          success.style.display = 'block';
+        }
+      }
     })();
   </script>
 
