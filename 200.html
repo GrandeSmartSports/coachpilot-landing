@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoachPilot — The Assistant Coach for Youth Sports</title>
-  <meta name="description" content="CoachPilot simplifies practice planning, team organization, and the everyday chaos of youth sports. Built for coaches, by coaches.">
+  <title>CoachPilot — Practice Plans for Youth Sports Coaches</title>
+  <meta name="description" content="Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed. 16 sports, 3,922 drills, AI-powered.">
+  <meta name="keywords" content="practice plan, youth sports, coaching app, softball practice, soccer practice, volunteer coach, youth coaching">
   <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,8 +25,8 @@
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background-color: #0A0E17;
-      color: #FFFFFF;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
       line-height: 1.6;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
@@ -34,24 +35,20 @@
 
     /* ===== UTILITY ===== */
     .container {
-      max-width: 1080px;
+      max-width: 1120px;
       margin: 0 auto;
       padding: 0 24px;
     }
 
     .fade-in {
       opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
     }
 
     .fade-in.visible {
       opacity: 1;
       transform: translateY(0);
-    }
-
-    .accent {
-      color: #F97316;
     }
 
     /* ===== NAVIGATION ===== */
@@ -61,16 +58,16 @@
       left: 0;
       right: 0;
       z-index: 100;
-      padding: 20px 0;
-      transition: background-color 0.3s ease, padding 0.3s ease;
+      padding: 18px 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: padding 0.3s ease, box-shadow 0.3s ease;
     }
 
     nav.scrolled {
-      background-color: rgba(10, 14, 23, 0.95);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      padding: 14px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px 0;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     }
 
     nav .container {
@@ -84,7 +81,7 @@
       align-items: center;
       gap: 10px;
       text-decoration: none;
-      color: #FFFFFF;
+      color: #1A1A2E;
     }
 
     .nav-logo img {
@@ -95,13 +92,15 @@
 
     .nav-logo span {
       font-weight: 700;
-      font-size: 18px;
+      font-size: 17px;
       letter-spacing: -0.02em;
     }
 
     .nav-cta {
-      display: inline-block;
-      padding: 10px 22px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
       background-color: #F97316;
       color: #FFFFFF;
       text-decoration: none;
@@ -118,77 +117,68 @@
 
     /* ===== HERO ===== */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      padding: 140px 24px 100px;
       text-align: center;
-      padding: 120px 24px 80px;
       position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        padding: 180px 24px 120px;
+      }
     }
 
     .hero::before {
       content: '';
       position: absolute;
-      top: -20%;
+      top: -100px;
       left: 50%;
       transform: translateX(-50%);
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, rgba(249, 115, 22, 0.08) 0%, transparent 70%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
       pointer-events: none;
     }
 
     .hero-content {
       position: relative;
       z-index: 1;
-      max-width: 680px;
-    }
-
-    .hero-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      margin-bottom: 40px;
-      box-shadow: 0 8px 40px rgba(249, 115, 22, 0.2);
+      max-width: 720px;
+      margin: 0 auto;
     }
 
     .hero h1 {
-      font-size: clamp(2.2rem, 6vw, 3.6rem);
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
       font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: #1A1A2E;
+      margin-bottom: 20px;
     }
 
     .hero-subtext {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.7;
-      margin-bottom: 48px;
-      max-width: 540px;
+      font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 44px;
+      max-width: 560px;
       margin-left: auto;
       margin-right: auto;
     }
 
-    .hero-lines {
-      margin-bottom: 48px;
-    }
-
-    .hero-lines p {
-      font-size: clamp(1.3rem, 3.5vw, 1.8rem);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.5;
-    }
-
-    .hero-lines p .accent {
-      color: #F97316;
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
     }
 
     .btn-primary {
-      display: inline-block;
-      padding: 16px 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
       background-color: #F97316;
       color: #FFFFFF;
       text-decoration: none;
@@ -198,34 +188,69 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 24px rgba(249, 115, 22, 0.3);
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
     }
 
     .btn-primary:hover {
       background-color: #EA6C0B;
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.4);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.35);
+    }
+
+    .btn-primary svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: #64648C;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      color: #F97316;
+    }
+
+    .btn-secondary svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-secondary:hover svg {
+      transform: translateY(2px);
     }
 
     /* ===== SECTION SHARED ===== */
     section {
-      padding: 100px 0;
+      padding: 80px 0;
     }
 
     @media (min-width: 768px) {
       section {
-        padding: 140px 0;
+        padding: 120px 0;
       }
     }
 
     .section-label {
       display: inline-block;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #F97316;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .section-heading {
@@ -233,101 +258,151 @@
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.15;
-      margin-bottom: 32px;
+      color: #1A1A2E;
+      margin-bottom: 20px;
     }
 
-    .section-body {
+    .section-subtext {
       font-size: clamp(1rem, 2vw, 1.125rem);
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.8;
+      color: #64648C;
+      line-height: 1.7;
       max-width: 580px;
     }
 
-    /* ===== WHY COACHPILOT ===== */
-    .why-section {
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    /* ===== PROBLEM SECTION ===== */
+    .problem-section {
+      background-color: #FAFAFA;
     }
 
-    .why-section .container {
-      max-width: 720px;
+    .problem-section .container {
+      max-width: 960px;
     }
 
-    .why-list {
-      list-style: none;
-      margin: 40px 0;
+    .problem-section .section-heading {
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
-    .why-list li {
-      position: relative;
-      padding: 16px 0 16px 36px;
-      font-size: clamp(1rem, 2vw, 1.125rem);
-      color: rgba(255, 255, 255, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .why-list li:last-child {
-      border-bottom: none;
-    }
-
-    .why-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
-      background-color: #F97316;
-      border-radius: 50%;
-    }
-
-    .why-footer {
-      margin-top: 40px;
-      font-size: clamp(1rem, 2vw, 1.125rem);
-      color: rgba(255, 255, 255, 0.4);
-      font-style: italic;
-    }
-
-    /* ===== WHAT MAKES IT DIFFERENT ===== */
-    .different-section {
-      background-color: #111827;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .different-section .container {
-      max-width: 720px;
+    .problem-section .section-label {
+      display: block;
       text-align: center;
     }
 
-    .different-content p {
-      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.8;
-      margin-bottom: 12px;
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 48px;
     }
 
-    .different-content p.highlight {
-      color: #FFFFFF;
+    @media (min-width: 700px) {
+      .problem-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+    }
+
+    .problem-card {
+      background: #FFFFFF;
+      border: 1px solid #F0F0F0;
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .problem-card:hover {
+      border-color: #E8E8E8;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .problem-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #FFF7ED;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .problem-card h3 {
+      font-size: 1.05rem;
       font-weight: 700;
-      font-size: clamp(1.3rem, 3vw, 1.6rem);
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
     }
 
-    .different-content p.tagline {
-      margin-top: 32px;
-      font-size: clamp(1.4rem, 3.5vw, 1.8rem);
+    /* ===== SOLUTION SECTION ===== */
+    .solution-section .container {
+      max-width: 960px;
+    }
+
+    .solution-section .section-heading {
+      text-align: center;
+    }
+
+    .solution-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 56px;
+      margin-bottom: 48px;
+    }
+
+    @media (min-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .stat-number {
+      font-size: clamp(2.4rem, 5vw, 3.2rem);
       font-weight: 800;
-      color: #FFFFFF;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      color: #F97316;
+      line-height: 1;
+      margin-bottom: 8px;
     }
 
-    .different-content p.tagline .accent {
-      color: #F97316;
+    .stat-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #64648C;
+      letter-spacing: -0.01em;
+    }
+
+    .solution-description {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: #64648C;
+      line-height: 1.8;
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto;
     }
 
     /* ===== WHO IT'S FOR ===== */
+    .who-section {
+      background-color: #FAFAFA;
+    }
+
     .who-section .container {
-      max-width: 900px;
+      max-width: 960px;
     }
 
     .who-section .section-heading {
@@ -349,44 +424,132 @@
     @media (min-width: 600px) {
       .who-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 16px;
       }
     }
 
     .who-card {
-      background-color: #111827;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: #FFFFFF;
+      border: 1px solid #F0F0F0;
       border-radius: 16px;
-      padding: 32px;
-      transition: border-color 0.3s ease, transform 0.3s ease;
+      padding: 32px 28px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
     }
 
     .who-card:hover {
-      border-color: rgba(249, 115, 22, 0.3);
+      border-color: rgba(249, 115, 22, 0.25);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
       transform: translateY(-2px);
     }
 
     .who-card-icon {
-      font-size: 28px;
+      font-size: 26px;
       margin-bottom: 16px;
       display: block;
     }
 
     .who-card h3 {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
+      color: #1A1A2E;
       margin-bottom: 8px;
       letter-spacing: -0.01em;
     }
 
     .who-card p {
       font-size: 0.95rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: #64648C;
+      line-height: 1.65;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-section .container {
+      max-width: 800px;
+    }
+
+    .how-section .section-heading {
+      text-align: center;
+    }
+
+    .how-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .steps {
+      margin-top: 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 48px;
+    }
+
+    .step:last-child {
+      padding-bottom: 0;
+    }
+
+    .step-indicator {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #FFF7ED;
+      border: 2px solid #FDBA74;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #F97316;
+      flex-shrink: 0;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: #F0F0F0;
+      margin-top: 8px;
+      min-height: 40px;
+    }
+
+    .step:last-child .step-line {
+      display: none;
+    }
+
+    .step-content {
+      padding-top: 10px;
+    }
+
+    .step-content h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .step-content p {
+      font-size: 0.95rem;
+      color: #64648C;
       line-height: 1.6;
     }
 
-    /* ===== CTA / EMAIL CAPTURE ===== */
+    /* ===== CTA SECTION ===== */
     .cta-section {
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background-color: #FAFAFA;
       text-align: center;
     }
 
@@ -398,14 +561,45 @@
       font-size: clamp(1.6rem, 4vw, 2.4rem);
       font-weight: 800;
       letter-spacing: -0.03em;
-      line-height: 1.2;
-      margin-bottom: 16px;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 24px;
     }
 
-    .cta-subtext {
-      font-size: clamp(1rem, 2vw, 1.1rem);
-      color: rgba(255, 255, 255, 0.5);
+    .cta-download {
+      margin-bottom: 48px;
+    }
+
+    .cta-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
       margin-bottom: 40px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-divider::before,
+    .cta-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #E0E0E0;
+    }
+
+    .cta-divider span {
+      font-size: 13px;
+      font-weight: 500;
+      color: #9999AA;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .cta-email-label {
+      font-size: 1rem;
+      color: #64648C;
+      margin-bottom: 20px;
       line-height: 1.6;
     }
 
@@ -425,11 +619,11 @@
 
     .email-form input[type="email"] {
       flex: 1;
-      padding: 16px 20px;
-      background-color: #111827;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 20px;
+      background-color: #FFFFFF;
+      border: 1.5px solid #E0E0E0;
       border-radius: 100px;
-      color: #FFFFFF;
+      color: #1A1A2E;
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       outline: none;
@@ -437,7 +631,7 @@
     }
 
     .email-form input[type="email"]::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: #AAAABB;
     }
 
     .email-form input[type="email"]:focus {
@@ -445,12 +639,12 @@
     }
 
     .email-form button {
-      padding: 16px 28px;
-      background-color: #F97316;
+      padding: 14px 24px;
+      background-color: #1A1A2E;
       color: #FFFFFF;
       font-family: 'Inter', sans-serif;
-      font-weight: 700;
-      font-size: 15px;
+      font-weight: 600;
+      font-size: 14px;
       border: none;
       border-radius: 100px;
       cursor: pointer;
@@ -459,21 +653,21 @@
     }
 
     .email-form button:hover {
-      background-color: #EA6C0B;
+      background-color: #2D2D4A;
       transform: translateY(-1px);
     }
 
     .form-note {
-      margin-top: 16px;
+      margin-top: 14px;
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.25);
+      color: #AAAABB;
     }
 
     .form-success {
       display: none;
       padding: 20px;
-      background-color: rgba(249, 115, 22, 0.1);
-      border: 1px solid rgba(249, 115, 22, 0.3);
+      background-color: #FFF7ED;
+      border: 1px solid #FDBA74;
       border-radius: 16px;
       text-align: center;
       max-width: 460px;
@@ -483,46 +677,49 @@
     .form-success p {
       font-weight: 600;
       font-size: 1.05rem;
+      color: #1A1A2E;
     }
 
     .form-success .sub {
       font-weight: 400;
       font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: #64648C;
       margin-top: 6px;
     }
 
     /* ===== FOOTER ===== */
     footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-top: 1px solid #F0F0F0;
       padding: 48px 0;
       text-align: center;
     }
 
     footer p {
       font-size: 14px;
-      color: rgba(255, 255, 255, 0.3);
+      color: #9999AA;
       line-height: 1.8;
     }
 
     footer p strong {
-      color: rgba(255, 255, 255, 0.5);
+      color: #64648C;
       font-weight: 600;
     }
 
-    /* ===== DIVIDER / VISUAL TOUCHES ===== */
-    .gradient-line {
-      height: 1px;
-      background: linear-gradient(90deg, transparent 0%, rgba(249, 115, 22, 0.4) 50%, transparent 100%);
-      max-width: 200px;
-      margin: 0 auto 48px;
+    footer a {
+      color: #9999AA;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #F97316;
     }
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp {
       from {
         opacity: 0;
-        transform: translateY(40px);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
@@ -531,35 +728,31 @@
     }
 
     .hero-content > * {
-      animation: fadeInUp 0.9s ease forwards;
+      animation: fadeInUp 0.8s ease forwards;
       opacity: 0;
     }
 
-    .hero-content > *:nth-child(1) { animation-delay: 0.1s; }
-    .hero-content > *:nth-child(2) { animation-delay: 0.25s; }
-    .hero-content > *:nth-child(3) { animation-delay: 0.4s; }
-    .hero-content > *:nth-child(4) { animation-delay: 0.55s; }
-    .hero-content > *:nth-child(5) { animation-delay: 0.7s; }
+    .hero-content > *:nth-child(1) { animation-delay: 0.05s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.15s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.3s; }
 
-    /* ===== RESPONSIVE TWEAKS ===== */
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 480px) {
       .hero {
-        padding: 100px 20px 60px;
-      }
-
-      .hero-icon {
-        width: 64px;
-        height: 64px;
-        border-radius: 16px;
-        margin-bottom: 32px;
-      }
-
-      .who-card {
-        padding: 24px;
+        padding: 120px 20px 72px;
       }
 
       section {
-        padding: 80px 0;
+        padding: 64px 0;
+      }
+
+      .who-card,
+      .problem-card {
+        padding: 24px 22px;
+      }
+
+      .step {
+        padding-bottom: 36px;
       }
     }
   </style>
@@ -573,50 +766,72 @@
         <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
         <span>CoachPilot</span>
       </a>
-      <a href="#early-access" class="nav-cta">Get early access</a>
+      <a href="https://apps.apple.com/app/coachpilot-practice-plans/id6740512641" class="nav-cta" target="_blank" rel="noopener">
+        Download Free
+      </a>
     </div>
   </nav>
 
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-content">
-      <img src="CoachPilot-AppIcon.png" alt="CoachPilot App Icon" class="hero-icon" width="80" height="80">
-      <h1>Built for coaches.<br>Built by coaches.</h1>
-      <p class="hero-subtext">The assistant coach that simplifies practice planning, team organization, and the everyday chaos of youth sports.</p>
-      <div class="hero-lines">
-        <p>Less admin.</p>
-        <p><span class="accent">More coaching.</span></p>
+      <h1>Your First Practice<br>Starts Here</h1>
+      <p class="hero-subtext">Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed.</p>
+      <div class="hero-actions">
+        <a href="https://apps.apple.com/app/coachpilot-practice-plans/id6740512641" class="btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download Free on the App Store
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          See how it works
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+        </a>
       </div>
-      <a href="#early-access" class="btn-primary">Get early access</a>
     </div>
   </section>
 
-  <!-- Why CoachPilot -->
-  <section class="why-section">
+  <!-- The Problem -->
+  <section class="problem-section">
     <div class="container fade-in">
-      <span class="section-label">Why CoachPilot</span>
-      <h2 class="section-heading">Coaching shouldn't feel like<br>a second full-time job.</h2>
-      <p class="section-body">CoachPilot helps you:</p>
-      <ul class="why-list">
-        <li>Plan practices in minutes</li>
-        <li>Stay organized without spreadsheets</li>
-        <li>Focus on kids &mdash; not logistics</li>
-        <li>Coach with clarity and confidence</li>
-      </ul>
-      <p class="why-footer">Built from real coaching experience.</p>
+      <span class="section-label">The Problem</span>
+      <h2 class="section-heading">Coaching shouldn't feel like a second full-time job</h2>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-card-icon" aria-hidden="true">&#128337;</div>
+          <h3>Practice is tomorrow and you have no plan</h3>
+        </div>
+        <div class="problem-card">
+          <div class="problem-card-icon" aria-hidden="true">&#128269;</div>
+          <h3>Every online drill looks the same and nothing fits your age group</h3>
+        </div>
+        <div class="problem-card">
+          <div class="problem-card-icon" aria-hidden="true">&#128203;</div>
+          <h3>You're spending more time on logistics than actually coaching</h3>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- What Makes It Different -->
-  <section class="different-section">
+  <!-- The Solution -->
+  <section class="solution-section">
     <div class="container fade-in">
-      <span class="section-label">What Makes It Different</span>
-      <div class="different-content">
-        <p>Most tools weren't built by coaches.</p>
-        <p class="highlight">CoachPilot was.</p>
-        <p>Designed around real seasons, real teams, and real life &mdash; not corporate software.</p>
-        <p class="tagline">Simple. Fast. <span class="accent">Powerful.</span></p>
+      <span class="section-label">The Solution</span>
+      <h2 class="section-heading">One app. Any sport. Ready in seconds.</h2>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">3,922</div>
+          <div class="stat-label">drills across every skill level</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">16</div>
+          <div class="stat-label">sports supported</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">AI</div>
+          <div class="stat-label">adapts to your team</div>
+        </div>
       </div>
+      <p class="solution-description">CoachPilot's AI generates complete practice plans tailored to YOUR team. Pick your sport, set your age group, and get a full practice &mdash; warmup, drills, scrimmage, cooldown &mdash; in 30 seconds.</p>
     </div>
   </section>
 
@@ -624,17 +839,17 @@
   <section class="who-section">
     <div class="container fade-in">
       <span class="section-label">Who It's For</span>
-      <h2 class="section-heading">Built for coaches like you.</h2>
+      <h2 class="section-heading">Built for coaches like you</h2>
       <div class="who-grid">
         <div class="who-card">
           <span class="who-card-icon" aria-hidden="true">&#9917;</span>
           <h3>Youth sports coaches</h3>
-          <p>Running practices, managing rosters, and keeping parents informed across a full season.</p>
+          <p>Running practices, managing rosters, and keeping things organized across a full season.</p>
         </div>
         <div class="who-card">
           <span class="who-card-icon" aria-hidden="true">&#9995;</span>
           <h3>Volunteer coaches</h3>
-          <p>Stepped up for the team and need a simple way to stay organized without the learning curve.</p>
+          <p>Got voluntold at the parent meeting. Need a plan by tomorrow. We've got you.</p>
         </div>
         <div class="who-card">
           <span class="who-card-icon" aria-hidden="true">&#128197;</span>
@@ -650,23 +865,71 @@
     </div>
   </section>
 
-  <!-- Early Access CTA -->
-  <section class="cta-section" id="early-access">
+  <!-- How It Works -->
+  <section class="how-section" id="how-it-works">
     <div class="container fade-in">
-      <div class="gradient-line"></div>
-      <h2 class="cta-heading">Be one of the first coaches<br>to try CoachPilot.</h2>
-      <p class="cta-subtext">Get updates, early features, and launch access.</p>
+      <span class="section-label">How It Works</span>
+      <h2 class="section-heading">Three steps. Done.</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Pick your sport and age group</h3>
+            <p>Softball, soccer, flag football, basketball &mdash; 16 sports and every age group from 4U to 18U.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Tell us about your team</h3>
+            <p>Team size, skill level, what you want to work on. Takes about 10 seconds.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">3</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Get your practice plan</h3>
+            <p>A complete plan &mdash; warmup, drills, scrimmage, cooldown &mdash; ready to print or use on your phone.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section" id="get-started">
+    <div class="container fade-in">
+      <h2 class="cta-heading">Ready to stop winging it?</h2>
+      <div class="cta-download">
+        <a href="https://apps.apple.com/app/coachpilot-practice-plans/id6740512641" class="btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download Free on the App Store
+        </a>
+      </div>
+      <div class="cta-divider">
+        <span>or</span>
+      </div>
+      <p class="cta-email-label">Get coaching tips and app updates</p>
       <form class="email-form" id="signup-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="New CoachPilot Early Access Signup">
+        <input type="hidden" name="_subject" value="CoachPilot — New Email Signup">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
         <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
-        <button type="submit">Join the early access list</button>
+        <button type="submit">Subscribe</button>
       </form>
       <p class="form-note">No spam. Just coaching.</p>
       <div class="form-success" id="form-success">
         <p>You're on the list.</p>
-        <p class="sub">We'll be in touch when CoachPilot is ready.</p>
+        <p class="sub">We'll send you coaching tips and app updates.</p>
       </div>
     </div>
   </section>
@@ -676,7 +939,7 @@
     <div class="container">
       <p><strong>CoachPilot &copy; 2026</strong></p>
       <p>Built by coaches. For coaches.</p>
-      <p style="margin-top: 12px;"><a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="color: rgba(255,255,255,0.3); text-decoration: none; font-size: 13px;">Privacy Policy</a></p>
+      <p style="margin-top: 12px;"><a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="font-size: 13px;">Privacy Policy</a></p>
     </div>
   </footer>
 
@@ -684,7 +947,7 @@
     // === Navbar scroll effect ===
     (function() {
       var nav = document.getElementById('navbar');
-      var scrollThreshold = 60;
+      var scrollThreshold = 40;
 
       function handleScroll() {
         if (window.scrollY > scrollThreshold) {
@@ -710,15 +973,14 @@
             }
           });
         }, {
-          threshold: 0.15,
-          rootMargin: '0px 0px -40px 0px'
+          threshold: 0.12,
+          rootMargin: '0px 0px -30px 0px'
         });
 
         fadeElements.forEach(function(el) {
           observer.observe(el);
         });
       } else {
-        // Fallback: show everything immediately
         fadeElements.forEach(function(el) {
           el.classList.add('visible');
         });
@@ -744,17 +1006,15 @@
         }).then(function(response) {
           if (response.ok) {
             form.style.display = 'none';
-            form.nextElementSibling.style.display = 'none'; // hide "No spam" note
+            form.nextElementSibling.style.display = 'none';
             success.style.display = 'block';
           } else {
-            // Fallback to mailto
             var email = formData.get('email');
-            window.location.href = 'mailto:coachpilotapp@gmail.com?subject=Early%20Access%20Request&body=Hi%2C%20I%27d%20like%20early%20access%20to%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+            window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
           }
         }).catch(function() {
-          // Fallback to mailto on network error
           var email = formData.get('email');
-          window.location.href = 'mailto:coachpilotapp@gmail.com?subject=Early%20Access%20Request&body=Hi%2C%20I%27d%20like%20early%20access%20to%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+          window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
         });
       });
     })();
