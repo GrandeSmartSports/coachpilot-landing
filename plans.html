@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Plan Generator — CoachPilot</title>
+  <meta name="description" content="Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed. 16 sports, 5,798 drills.">
+  <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== UTILITY ===== */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== BETA BANNER ===== */
+    .beta-banner {
+      background-color: #FFF7ED;
+      border-bottom: 1px solid #FED7AA;
+      padding: 10px 24px;
+      text-align: center;
+      font-size: 14px;
+      color: #9A3412;
+      font-weight: 500;
+    }
+
+    .beta-banner a {
+      color: #F97316;
+      font-weight: 600;
+      text-decoration: none;
+      margin-left: 8px;
+    }
+
+    .beta-banner a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 0;
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-logo span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #64648C;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-back:hover {
+      color: #F97316;
+    }
+
+    .nav-back svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header {
+      text-align: center;
+      padding: 48px 24px 32px;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #1A1A2E;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      font-size: clamp(0.95rem, 2vw, 1.1rem);
+      color: #64648C;
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ===== STEP SECTIONS ===== */
+    .step-section {
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 24px 40px;
+    }
+
+    .step-label {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #F97316;
+      margin-bottom: 14px;
+    }
+
+    .step-heading {
+      font-size: clamp(1.15rem, 3vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+    }
+
+    /* ===== SPORT GRID ===== */
+    .sport-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 480px) {
+      .sport-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (min-width: 720px) {
+      .sport-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+    }
+
+    .sport-card {
+      background: #FFFFFF;
+      border: 1.5px solid #F0F0F0;
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sport-card:hover {
+      border-color: #FDBA74;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .sport-card.selected {
+      border-color: #F97316;
+      background: #FFF7ED;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.12);
+    }
+
+    .sport-card-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block;
+      line-height: 1;
+    }
+
+    .sport-card-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+    }
+
+    .sport-card-count {
+      font-size: 12px;
+      color: #9999AA;
+      margin-top: 2px;
+    }
+
+    /* ===== CONFIG SECTION ===== */
+    .config-section {
+      display: none;
+      animation: slideDown 0.4s ease;
+    }
+
+    .config-section.active {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .config-group {
+      margin-bottom: 28px;
+    }
+
+    .config-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A2E;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .option-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .option-pill {
+      padding: 10px 18px;
+      background: #FFFFFF;
+      border: 1.5px solid #E8E8E8;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1A1A2E;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .option-pill:hover {
+      border-color: #FDBA74;
+    }
+
+    .option-pill.selected {
+      border-color: #F97316;
+      background: #FFF7ED;
+      color: #C2410C;
+      font-weight: 600;
+    }
+
+    .focus-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .focus-pill {
+      padding: 8px 16px;
+      background: #FFFFFF;
+      border: 1.5px solid #E8E8E8;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64648C;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .focus-pill:hover {
+      border-color: #FDBA74;
+      color: #1A1A2E;
+    }
+
+    .focus-pill.selected {
+      border-color: #F97316;
+      background: #FFF7ED;
+      color: #C2410C;
+      font-weight: 600;
+    }
+
+    /* ===== GENERATE BUTTON ===== */
+    .generate-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
+      margin-top: 8px;
+    }
+
+    .generate-btn:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.35);
+    }
+
+    .generate-btn:disabled {
+      background-color: #D4D4D4;
+      box-shadow: none;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .generate-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ===== PLAN OUTPUT ===== */
+    .plan-section {
+      display: none;
+      animation: slideDown 0.4s ease;
+    }
+
+    .plan-section.active {
+      display: block;
+    }
+
+    .plan-card {
+      background: #FFFFFF;
+      border: 1.5px solid #F0F0F0;
+      border-radius: 20px;
+      padding: 36px 32px;
+      max-width: 720px;
+      margin: 0 auto 32px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    .plan-title {
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #1A1A2E;
+      margin-bottom: 4px;
+    }
+
+    .plan-meta {
+      font-size: 14px;
+      color: #9999AA;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #F0F0F0;
+    }
+
+    .plan-block {
+      margin-bottom: 28px;
+    }
+
+    .plan-block:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .plan-block-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .plan-block-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .plan-block-icon.warmup { background: #FEF3C7; }
+    .plan-block-icon.skills { background: #DBEAFE; }
+    .plan-block-icon.team { background: #D1FAE5; }
+    .plan-block-icon.cooldown { background: #EDE9FE; }
+
+    .plan-block-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+    }
+
+    .plan-block-time {
+      font-size: 13px;
+      color: #9999AA;
+      font-weight: 500;
+    }
+
+    .drill-item {
+      background: #FAFAFA;
+      border: 1px solid #F0F0F0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 8px;
+    }
+
+    .drill-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .drill-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .drill-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1A1A2E;
+    }
+
+    .drill-duration {
+      font-size: 13px;
+      font-weight: 600;
+      color: #F97316;
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+
+    .drill-description {
+      font-size: 13px;
+      color: #64648C;
+      line-height: 1.55;
+    }
+
+    .plan-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px solid #F0F0F0;
+    }
+
+    .plan-total-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1A1A2E;
+    }
+
+    .plan-total-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #F97316;
+    }
+
+    .plan-note {
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #9A3412;
+      line-height: 1.5;
+      display: none;
+    }
+
+    .plan-note.visible {
+      display: block;
+    }
+
+    /* ===== PLAN ACTIONS ===== */
+    .plan-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .plan-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      border: none;
+    }
+
+    .plan-action-btn.primary {
+      background-color: #F97316;
+      color: #FFFFFF;
+      box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
+    }
+
+    .plan-action-btn.primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-1px);
+    }
+
+    .plan-action-btn.secondary {
+      background-color: #F8F8F8;
+      color: #1A1A2E;
+      border: 1.5px solid #E8E8E8;
+    }
+
+    .plan-action-btn.secondary:hover {
+      border-color: #D4D4D4;
+      background-color: #F0F0F0;
+    }
+
+    .plan-action-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== FEEDBACK ===== */
+    .feedback-section {
+      text-align: center;
+      padding: 24px 0 16px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .feedback-question {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1A1A2E;
+      margin-bottom: 12px;
+    }
+
+    .feedback-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .feedback-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 1.5px solid #E8E8E8;
+      background: #FFFFFF;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feedback-btn:hover {
+      border-color: #FDBA74;
+      transform: scale(1.1);
+    }
+
+    .feedback-btn.voted {
+      border-color: #F97316;
+      background: #FFF7ED;
+      transform: scale(1.1);
+    }
+
+    .feedback-btn.dimmed {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+
+    .feedback-thanks {
+      display: none;
+      font-size: 14px;
+      color: #9999AA;
+      font-weight: 500;
+    }
+
+    .feedback-thanks.visible {
+      display: block;
+    }
+
+    .feedback-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #F97316;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 8px;
+      transition: color 0.2s ease;
+    }
+
+    .feedback-link:hover {
+      color: #EA6C0B;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: #9999AA;
+      line-height: 1.8;
+    }
+
+    footer p strong {
+      color: #64648C;
+      font-weight: 600;
+    }
+
+    footer a {
+      color: #9999AA;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #F97316;
+    }
+
+    /* ===== LOADING ===== */
+    .loading-state {
+      text-align: center;
+      padding: 80px 24px;
+      display: none;
+    }
+
+    .loading-state.active {
+      display: block;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #F0F0F0;
+      border-top: 3px solid #F97316;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-size: 15px;
+      color: #64648C;
+      font-weight: 500;
+    }
+
+    /* ===== ERROR STATE ===== */
+    .error-state {
+      text-align: center;
+      padding: 60px 24px;
+      display: none;
+    }
+
+    .error-state.active {
+      display: block;
+    }
+
+    .error-state p {
+      font-size: 15px;
+      color: #64648C;
+      margin-bottom: 20px;
+    }
+
+    /* ===== PRINT STYLES ===== */
+    @media print {
+      .beta-banner,
+      nav,
+      .page-header,
+      #step-sport,
+      #step-config,
+      .plan-actions,
+      .feedback-section,
+      footer,
+      .plan-note {
+        display: none !important;
+      }
+
+      body {
+        background: #FFFFFF;
+        color: #000000;
+        font-size: 12pt;
+      }
+
+      .plan-section {
+        display: block !important;
+      }
+
+      .plan-card {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+      }
+
+      .plan-title {
+        font-size: 18pt;
+        color: #000000;
+      }
+
+      .plan-meta {
+        color: #666666;
+        border-bottom: 1px solid #CCCCCC;
+      }
+
+      .drill-item {
+        background: #FFFFFF;
+        border: 1px solid #DDDDDD;
+        break-inside: avoid;
+      }
+
+      .drill-name {
+        color: #000000;
+      }
+
+      .drill-duration {
+        color: #333333;
+      }
+
+      .drill-description {
+        color: #444444;
+      }
+
+      .plan-block-icon {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+
+      .plan-total {
+        border-top: 2px solid #CCCCCC;
+      }
+
+      .plan-total-value {
+        color: #000000;
+      }
+
+      .step-section {
+        padding: 0;
+      }
+
+      @page {
+        margin: 0.75in;
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .page-header {
+        padding: 32px 20px 24px;
+      }
+
+      .step-section {
+        padding: 0 20px 32px;
+      }
+
+      .plan-card {
+        padding: 24px 20px;
+        border-radius: 16px;
+      }
+
+      .drill-item {
+        padding: 14px 14px;
+      }
+
+      .plan-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .plan-action-btn {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Beta Banner -->
+  <div class="beta-banner">
+    CoachPilot Beta — Your feedback helps us build a better app for coaches everywhere.
+    <a href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback">Send Feedback</a>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <a href="index.html" class="nav-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back to Home
+      </a>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Practice Plan Generator</h1>
+    <p>Pick your sport. Set your options. Get a complete, print-ready practice plan in seconds.</p>
+  </div>
+
+  <!-- Loading State (initial data load) -->
+  <div class="loading-state" id="initial-loading">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading drills...</div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" id="error-state">
+    <p>Something went wrong loading the drill database. Please refresh the page and try again.</p>
+    <button class="generate-btn" onclick="location.reload()">Refresh Page</button>
+  </div>
+
+  <!-- Step 1: Pick Your Sport -->
+  <div class="step-section" id="step-sport" style="display: none;">
+    <span class="step-label">Step 1</span>
+    <h2 class="step-heading">Pick your sport</h2>
+    <div class="sport-grid" id="sport-grid">
+      <!-- Populated by JavaScript -->
+    </div>
+  </div>
+
+  <!-- Step 2: Configure Practice -->
+  <div class="step-section config-section" id="step-config">
+    <span class="step-label">Step 2</span>
+    <h2 class="step-heading">Configure your practice</h2>
+
+    <div class="config-group">
+      <label class="config-label">Age Group</label>
+      <div class="option-pills" id="age-pills">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label class="config-label">Practice Length</label>
+      <div class="option-pills" id="duration-pills">
+        <button class="option-pill" data-value="30">30 min</button>
+        <button class="option-pill" data-value="45">45 min</button>
+        <button class="option-pill selected" data-value="60">60 min</button>
+        <button class="option-pill" data-value="90">90 min</button>
+      </div>
+    </div>
+
+    <div class="config-group">
+      <label class="config-label">Skill Focus <span style="font-weight: 400; color: #9999AA;">(optional)</span></label>
+      <div class="focus-pills" id="focus-pills">
+        <!-- Populated by JavaScript -->
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generate-btn" onclick="generatePlan()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Generate My Practice Plan
+    </button>
+  </div>
+
+  <!-- Step 3: Your Practice Plan -->
+  <div class="step-section plan-section" id="step-plan">
+    <span class="step-label">Step 3</span>
+    <h2 class="step-heading">Your Practice Plan</h2>
+
+    <div class="plan-card" id="plan-card">
+      <!-- Populated by JavaScript -->
+    </div>
+
+    <div class="plan-actions" id="plan-actions">
+      <button class="plan-action-btn primary" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print This Plan
+      </button>
+      <a class="plan-action-btn secondary" id="email-plan-btn" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Share via Email
+      </a>
+      <button class="plan-action-btn secondary" onclick="generatePlan()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Generate Another
+      </button>
+      <button class="plan-action-btn secondary" onclick="resetAll()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        Start Over
+      </button>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback-section" id="feedback-section">
+      <p class="feedback-question">Was this plan helpful?</p>
+      <div class="feedback-buttons">
+        <button class="feedback-btn" id="feedback-up" onclick="voteFeedback('up')" aria-label="Thumbs up">&#128077;</button>
+        <button class="feedback-btn" id="feedback-down" onclick="voteFeedback('down')" aria-label="Thumbs down">&#128078;</button>
+      </div>
+      <p class="feedback-thanks" id="feedback-thanks">Thanks for the feedback!</p>
+      <a class="feedback-link" href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback">
+        Have more thoughts? Send us feedback
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <p style="margin-top: 8px;">
+        <a href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback" style="font-size: 13px;">Send Feedback</a>
+        &nbsp;&middot;&nbsp;
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="font-size: 13px;">Privacy Policy</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // ===== STATE =====
+    var drillDB = null;
+    var selectedSport = null;
+    var selectedAgeGroup = null;
+    var selectedDuration = 60;
+    var selectedFocus = null;
+    var currentPlanText = '';
+
+    // ===== SPORT DISPLAY CONFIG =====
+    var sportDisplay = {
+      softball: { icon: '\u{1F94E}', name: 'Softball' },
+      baseball: { icon: '\u26BE', name: 'Baseball' },
+      soccer: { icon: '\u26BD', name: 'Soccer' },
+      basketball: { icon: '\u{1F3C0}', name: 'Basketball' },
+      flagfootball: { icon: '\u{1F3C8}', name: 'Flag Football' },
+      football: { icon: '\u{1F3C8}', name: 'Football' },
+      volleyball: { icon: '\u{1F3D0}', name: 'Volleyball' },
+      lacrosse: { icon: '\u{1F94D}', name: 'Lacrosse' },
+      tennis: { icon: '\u{1F3BE}', name: 'Tennis' },
+      track: { icon: '\u{1F3C3}', name: 'Track & Field' },
+      swimming: { icon: '\u{1F3CA}', name: 'Swimming' },
+      wrestling: { icon: '\u{1F93C}', name: 'Wrestling' },
+      running: { icon: '\u{1F45F}', name: 'Running' },
+      fieldhockey: { icon: '\u{1F3D1}', name: 'Field Hockey' },
+      cheer: { icon: '\u{1F4E3}', name: 'Cheer' },
+      golf: { icon: '\u26F3', name: 'Golf' }
+    };
+
+    // Category display names and which ones map to which plan block
+    var categoryMappings = {
+      // Warmup categories
+      warmup: 'warmup',
+      'dynamic warmup': 'warmup',
+      flexibility: 'warmup',
+      'form drills': 'warmup',
+      'stance and motion': 'warmup',
+      fundamentals: 'warmup',
+
+      // Skill categories (by sport) - these are the main skill work
+      hitting: 'skills', fielding: 'skills', pitching: 'skills',
+      catching: 'skills', throwing: 'skills', baseRunning: 'skills',
+      dribbling: 'skills', passing: 'skills', shooting: 'skills',
+      defending: 'skills', goalkeeping: 'skills', possession: 'skills',
+      tactical: 'skills', setPlays: 'skills',
+      ballHandling: 'skills', rebounding: 'skills', defense: 'skills',
+      fastBreak: 'skills', teamOffense: 'skills', footwork: 'skills',
+      routeRunning: 'skills', flagPulling: 'skills', coverage: 'skills',
+      rushing: 'skills', receiving: 'skills', offense: 'skills',
+      blocking: 'skills', tackling: 'skills', defensiveLine: 'skills',
+      linebackers: 'skills', defensiveBack: 'skills', specialTeams: 'skills',
+      setting: 'skills', serving: 'skills',
+      'ground balls': 'skills', 'stick skills': 'skills', 'face-offs': 'skills',
+      clearing: 'skills',
+      groundstrokes: 'skills', volleys: 'skills', movement: 'skills',
+      'return': 'skills', doubles: 'skills',
+      sprints: 'skills', distance: 'skills', jumping: 'skills',
+      hurdles: 'skills',
+      freestyle: 'skills', backstroke: 'skills', breaststroke: 'skills',
+      butterfly: 'skills', 'individual medley': 'skills', 'starts and turns': 'skills',
+      endurance: 'skills',
+      takedowns: 'skills', escapes: 'skills', 'top control': 'skills',
+      'mat wrestling': 'skills',
+      'easy runs': 'skills', 'tempo runs': 'skills', intervals: 'skills',
+      'hill work': 'skills', 'long runs': 'skills', 'race strategy': 'skills',
+      'set pieces': 'skills', positioning: 'skills', 'game situations': 'skills',
+      jumps: 'skills', tumbling: 'skills', stunts: 'skills',
+      formations: 'skills', chants: 'skills',
+      driving: 'skills', 'iron play': 'skills', 'short game': 'skills',
+      putting: 'skills', 'course management': 'skills',
+
+      // Team / Scrimmage categories
+      scrimmage: 'team', teamDefense: 'team', teamPlay: 'team',
+      smallSidedGames: 'team', 'match play': 'team',
+      'live situations': 'team',
+      'new coach': 'skills',
+      losing: 'skills',
+      confidence: 'skills',
+      default: 'skills',
+
+      // Conditioning
+      conditioning: 'cooldown',
+      general: 'skills',
+      throwing: 'skills'
+    };
+
+    // Category display names
+    var categoryDisplayNames = {
+      warmup: 'Warm-Up', hitting: 'Hitting', fielding: 'Fielding',
+      pitching: 'Pitching', catching: 'Catching', baseRunning: 'Base Running',
+      throwing: 'Throwing', teamDefense: 'Team Defense', situational: 'Situational',
+      conditioning: 'Conditioning', scrimmage: 'Scrimmage',
+      dribbling: 'Dribbling', passing: 'Passing', shooting: 'Shooting',
+      defending: 'Defending', goalkeeping: 'Goalkeeping', possession: 'Possession',
+      tactical: 'Tactical', setPlays: 'Set Plays', smallSidedGames: 'Small-Sided Games',
+      ballHandling: 'Ball Handling', rebounding: 'Rebounding', defense: 'Defense',
+      fastBreak: 'Fast Break', teamOffense: 'Team Offense', footwork: 'Footwork',
+      routeRunning: 'Route Running', flagPulling: 'Flag Pulling',
+      coverage: 'Coverage', rushing: 'Rushing', receiving: 'Receiving',
+      offense: 'Offense', blocking: 'Blocking', tackling: 'Tackling',
+      defensiveLine: 'Defensive Line', linebackers: 'Linebackers',
+      defensiveBack: 'Defensive Backs', specialTeams: 'Special Teams',
+      teamPlay: 'Team Play', setting: 'Setting', serving: 'Serving',
+      'ground balls': 'Ground Balls', 'stick skills': 'Stick Skills',
+      'face-offs': 'Face-Offs', clearing: 'Clearing',
+      groundstrokes: 'Groundstrokes', volleys: 'Volleys', movement: 'Movement',
+      'return': 'Return', doubles: 'Doubles', 'match play': 'Match Play',
+      sprints: 'Sprints', distance: 'Distance', jumping: 'Jumping',
+      hurdles: 'Hurdles', general: 'General',
+      freestyle: 'Freestyle', backstroke: 'Backstroke',
+      breaststroke: 'Breaststroke', butterfly: 'Butterfly',
+      'individual medley': 'Individual Medley', 'starts and turns': 'Starts & Turns',
+      endurance: 'Endurance',
+      takedowns: 'Takedowns', escapes: 'Escapes', 'top control': 'Top Control',
+      'mat wrestling': 'Mat Wrestling', 'live situations': 'Live Situations',
+      'stance and motion': 'Stance & Motion',
+      'easy runs': 'Easy Runs', 'tempo runs': 'Tempo Runs', intervals: 'Intervals',
+      'hill work': 'Hill Work', 'long runs': 'Long Runs', 'race strategy': 'Race Strategy',
+      'form drills': 'Form Drills',
+      'set pieces': 'Set Pieces', positioning: 'Positioning',
+      'game situations': 'Game Situations',
+      jumps: 'Jumps', tumbling: 'Tumbling', stunts: 'Stunts',
+      formations: 'Formations', chants: 'Chants', flexibility: 'Flexibility',
+      driving: 'Driving', 'iron play': 'Iron Play', 'short game': 'Short Game',
+      putting: 'Putting', 'course management': 'Course Management',
+      default: 'General', fundamentals: 'Fundamentals',
+      losing: 'Resilience', confidence: 'Confidence', 'new coach': 'Basics'
+    };
+
+    // ===== LOAD DATA =====
+    (function loadDrillDatabase() {
+      var loadingEl = document.getElementById('initial-loading');
+      var errorEl = document.getElementById('error-state');
+      var sportEl = document.getElementById('step-sport');
+
+      loadingEl.classList.add('active');
+
+      fetch('data/DrillDatabase.json')
+        .then(function(response) {
+          if (!response.ok) throw new Error('Failed to load drill database');
+          return response.json();
+        })
+        .then(function(data) {
+          drillDB = data;
+          loadingEl.classList.remove('active');
+          sportEl.style.display = '';
+          renderSportGrid();
+        })
+        .catch(function(err) {
+          console.error('Error loading drills:', err);
+          loadingEl.classList.remove('active');
+          errorEl.classList.add('active');
+        });
+    })();
+
+    // ===== RENDER SPORT GRID =====
+    function renderSportGrid() {
+      var grid = document.getElementById('sport-grid');
+      var sports = drillDB.sports;
+      var html = '';
+
+      // Sort sports: softball first, then baseball, soccer, basketball, then rest alphabetical
+      var priority = ['softball', 'baseball', 'soccer', 'basketball', 'flagfootball', 'football'];
+      var sportKeys = Object.keys(sports);
+      sportKeys.sort(function(a, b) {
+        var ai = priority.indexOf(a);
+        var bi = priority.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b);
+      });
+
+      sportKeys.forEach(function(key) {
+        var display = sportDisplay[key] || { icon: '\u{1F3C6}', name: key };
+        var drills = sports[key].drills;
+        var count = 0;
+        Object.keys(drills).forEach(function(cat) {
+          if (Array.isArray(drills[cat])) count += drills[cat].length;
+        });
+
+        html += '<div class="sport-card" data-sport="' + key + '" onclick="selectSport(\'' + key + '\')">';
+        html += '<span class="sport-card-icon">' + display.icon + '</span>';
+        html += '<div class="sport-card-name">' + display.name + '</div>';
+        html += '<div class="sport-card-count">' + count + ' drills</div>';
+        html += '</div>';
+      });
+
+      grid.innerHTML = html;
+    }
+
+    // ===== SELECT SPORT =====
+    function selectSport(sportKey) {
+      selectedSport = sportKey;
+
+      // Update visual selection
+      document.querySelectorAll('.sport-card').forEach(function(card) {
+        card.classList.toggle('selected', card.getAttribute('data-sport') === sportKey);
+      });
+
+      // Show config section
+      var configEl = document.getElementById('step-config');
+      configEl.classList.add('active');
+
+      // Populate age groups from this sport's drills
+      var ageGroups = getAgeGroupsForSport(sportKey);
+      renderAgePills(ageGroups);
+
+      // Populate skill focus categories
+      var categories = getSkillCategoriesForSport(sportKey);
+      renderFocusPills(categories);
+
+      // Reset selections
+      selectedAgeGroup = null;
+      selectedFocus = null;
+
+      // Hide plan if showing
+      document.getElementById('step-plan').classList.remove('active');
+
+      // Scroll to config
+      setTimeout(function() {
+        configEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // ===== GET AGE GROUPS FOR SPORT =====
+    function getAgeGroupsForSport(sportKey) {
+      var drills = drillDB.sports[sportKey].drills;
+      var ageSet = {};
+      Object.keys(drills).forEach(function(cat) {
+        if (Array.isArray(drills[cat])) {
+          drills[cat].forEach(function(d) {
+            if (d.ageGroups) {
+              d.ageGroups.forEach(function(ag) { ageSet[ag] = true; });
+            }
+          });
+        }
+      });
+
+      // Order them properly
+      var order = ['6U', '8U', '10U', '12U', '14U', 'HS'];
+      return order.filter(function(ag) { return ageSet[ag]; });
+    }
+
+    // ===== GET SKILL CATEGORIES FOR SPORT =====
+    function getSkillCategoriesForSport(sportKey) {
+      var drills = drillDB.sports[sportKey].drills;
+      var cats = [];
+      var skip = ['warmup', 'conditioning', 'scrimmage', 'default', 'fundamentals', 'losing', 'confidence', 'new coach'];
+
+      Object.keys(drills).forEach(function(cat) {
+        if (skip.indexOf(cat) === -1 && Array.isArray(drills[cat]) && drills[cat].length > 0) {
+          cats.push(cat);
+        }
+      });
+
+      return cats;
+    }
+
+    // ===== RENDER AGE PILLS =====
+    function renderAgePills(ageGroups) {
+      var container = document.getElementById('age-pills');
+      var html = '';
+      ageGroups.forEach(function(ag) {
+        html += '<button class="option-pill" data-value="' + ag + '" onclick="selectAgeGroup(\'' + ag + '\')">' + ag + '</button>';
+      });
+      container.innerHTML = html;
+    }
+
+    // ===== RENDER FOCUS PILLS =====
+    function renderFocusPills(categories) {
+      var container = document.getElementById('focus-pills');
+      var html = '<button class="focus-pill selected" data-value="" onclick="selectFocus(\'\')">Balanced</button>';
+      categories.forEach(function(cat) {
+        var display = categoryDisplayNames[cat] || cat;
+        html += '<button class="focus-pill" data-value="' + cat + '" onclick="selectFocus(\'' + cat + '\')">' + display + '</button>';
+      });
+      container.innerHTML = html;
+    }
+
+    // ===== SELECT AGE GROUP =====
+    function selectAgeGroup(ag) {
+      selectedAgeGroup = ag;
+      document.querySelectorAll('#age-pills .option-pill').forEach(function(pill) {
+        pill.classList.toggle('selected', pill.getAttribute('data-value') === ag);
+      });
+    }
+
+    // ===== SELECT DURATION =====
+    document.getElementById('duration-pills').addEventListener('click', function(e) {
+      var pill = e.target.closest('.option-pill');
+      if (!pill) return;
+      selectedDuration = parseInt(pill.getAttribute('data-value'));
+      document.querySelectorAll('#duration-pills .option-pill').forEach(function(p) {
+        p.classList.toggle('selected', p === pill);
+      });
+    });
+
+    // ===== SELECT FOCUS =====
+    function selectFocus(cat) {
+      selectedFocus = cat || null;
+      document.querySelectorAll('#focus-pills .focus-pill').forEach(function(pill) {
+        pill.classList.toggle('selected', pill.getAttribute('data-value') === (cat || ''));
+      });
+    }
+
+    // ===== GENERATE PLAN =====
+    function generatePlan() {
+      if (!selectedSport) return;
+      if (!selectedAgeGroup) {
+        // Auto-select first age group if none chosen
+        var agePills = document.querySelectorAll('#age-pills .option-pill');
+        if (agePills.length > 0) {
+          agePills[0].click();
+        }
+      }
+
+      var sport = drillDB.sports[selectedSport];
+      var allDrills = sport.drills;
+      var duration = selectedDuration;
+
+      // Collect all drills, filtered by age group
+      var warmupDrills = [];
+      var skillDrills = [];
+      var teamDrills = [];
+      var cooldownDrills = [];
+
+      Object.keys(allDrills).forEach(function(cat) {
+        if (!Array.isArray(allDrills[cat])) return;
+
+        var filtered = allDrills[cat].filter(function(d) {
+          if (!selectedAgeGroup) return true;
+          if (d.ageGroups && d.ageGroups.indexOf(selectedAgeGroup) !== -1) return true;
+          if (!d.ageGroups) return true;
+          return false;
+        });
+
+        var block = categoryMappings[cat] || 'skills';
+
+        if (block === 'warmup') {
+          warmupDrills = warmupDrills.concat(filtered.map(function(d) { return Object.assign({}, d, { _cat: cat }); }));
+        } else if (block === 'team') {
+          teamDrills = teamDrills.concat(filtered.map(function(d) { return Object.assign({}, d, { _cat: cat }); }));
+        } else if (block === 'cooldown') {
+          cooldownDrills = cooldownDrills.concat(filtered.map(function(d) { return Object.assign({}, d, { _cat: cat }); }));
+        } else {
+          // If a focus is selected, prioritize those drills
+          if (selectedFocus && cat === selectedFocus) {
+            // Add with a priority marker
+            filtered.forEach(function(d) {
+              skillDrills.unshift(Object.assign({}, d, { _cat: cat, _priority: true }));
+            });
+          } else {
+            skillDrills = skillDrills.concat(filtered.map(function(d) { return Object.assign({}, d, { _cat: cat }); }));
+          }
+        }
+      });
+
+      // Time allocation
+      var warmupTime = Math.round(duration * 0.12);
+      var skillTime = Math.round(duration * 0.48);
+      var teamTime = Math.round(duration * 0.28);
+      var cooldownTime = duration - warmupTime - skillTime - teamTime;
+
+      // Younger = shorter individual drills
+      var maxDrillTime = duration;
+      if (selectedAgeGroup === '6U') maxDrillTime = 8;
+      else if (selectedAgeGroup === '8U') maxDrillTime = 10;
+      else if (selectedAgeGroup === '10U') maxDrillTime = 12;
+
+      // Shuffle function
+      function shuffle(arr) {
+        var a = arr.slice();
+        for (var i = a.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var temp = a[i]; a[i] = a[j]; a[j] = temp;
+        }
+        return a;
+      }
+
+      // Pick drills to fill a time block
+      function pickDrills(pool, targetMinutes, minCount, maxCount) {
+        if (pool.length === 0) return [];
+
+        // Separate priority and non-priority
+        var priorityPool = pool.filter(function(d) { return d._priority; });
+        var regularPool = pool.filter(function(d) { return !d._priority; });
+
+        var shuffledPriority = shuffle(priorityPool);
+        var shuffledRegular = shuffle(regularPool);
+        var combined = shuffledPriority.concat(shuffledRegular);
+
+        var selected = [];
+        var timeUsed = 0;
+        var usedIds = {};
+
+        for (var i = 0; i < combined.length && selected.length < maxCount; i++) {
+          var drill = combined[i];
+          if (usedIds[drill.id]) continue;
+
+          var drillTime = drill.durationMinutes || 5;
+          // Scale for younger ages
+          if (maxDrillTime < drillTime) drillTime = maxDrillTime;
+
+          if (timeUsed + drillTime <= targetMinutes + 3 || selected.length < minCount) {
+            selected.push(Object.assign({}, drill, { _assignedMinutes: drillTime }));
+            timeUsed += drillTime;
+            usedIds[drill.id] = true;
+          }
+        }
+
+        // If we need to adjust times to hit target
+        if (selected.length > 0 && timeUsed !== targetMinutes) {
+          var diff = targetMinutes - timeUsed;
+          var perDrill = Math.round(diff / selected.length);
+          selected.forEach(function(d) {
+            d._assignedMinutes = Math.max(2, d._assignedMinutes + perDrill);
+          });
+        }
+
+        return selected;
+      }
+
+      // Build plan
+      var plan = {
+        warmup: pickDrills(warmupDrills, warmupTime, 2, 3),
+        skills: pickDrills(skillDrills, skillTime, 3, 5),
+        team: pickDrills(teamDrills, teamTime, 1, 2),
+        cooldown: pickDrills(cooldownDrills, cooldownTime, 1, 1)
+      };
+
+      // If no warmup drills, create a generic warmup
+      if (plan.warmup.length === 0) {
+        plan.warmup = [{
+          name: 'Dynamic Warm-Up',
+          description: 'Jog, high knees, butt kicks, arm circles, and light stretching. Get the blood flowing and muscles loose.',
+          _assignedMinutes: warmupTime,
+          _cat: 'warmup'
+        }];
+      }
+
+      // If no team/scrimmage drills, create a generic one
+      if (plan.team.length === 0) {
+        plan.team = [{
+          name: 'Scrimmage / Game Play',
+          description: 'Divide into teams and play a controlled scrimmage. Focus on applying the skills practiced today in a game-like setting.',
+          _assignedMinutes: teamTime,
+          _cat: 'scrimmage'
+        }];
+      }
+
+      // If no cooldown drills, create a generic cooldown
+      if (plan.cooldown.length === 0) {
+        plan.cooldown = [{
+          name: 'Cool-Down & Team Huddle',
+          description: 'Light jog, static stretches, and a team huddle. Review what went well today and set one goal for next practice.',
+          _assignedMinutes: cooldownTime,
+          _cat: 'cooldown'
+        }];
+      }
+
+      // Calculate actual total
+      var totalMinutes = 0;
+      ['warmup', 'skills', 'team', 'cooldown'].forEach(function(block) {
+        plan[block].forEach(function(d) { totalMinutes += d._assignedMinutes; });
+      });
+
+      // Render the plan
+      renderPlan(plan, totalMinutes);
+    }
+
+    // ===== RENDER PLAN =====
+    function renderPlan(plan, totalMinutes) {
+      var sportName = (sportDisplay[selectedSport] || { name: selectedSport }).name;
+      var planCard = document.getElementById('plan-card');
+      var focusLabel = selectedFocus ? ' — ' + (categoryDisplayNames[selectedFocus] || selectedFocus) + ' Focus' : '';
+
+      var html = '';
+      html += '<h2 class="plan-title">' + sportName + ' Practice Plan</h2>';
+      html += '<p class="plan-meta">' + selectedAgeGroup + ' &middot; ' + selectedDuration + ' minutes' + focusLabel + ' &middot; Generated ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</p>';
+
+      // Track running time
+      var runningTime = 0;
+
+      // Render each block
+      var blocks = [
+        { key: 'warmup', title: 'Warm-Up', iconClass: 'warmup', icon: '\u{1F525}' },
+        { key: 'skills', title: 'Skill Development', iconClass: 'skills', icon: '\u{1F3AF}' },
+        { key: 'team', title: 'Team Activity', iconClass: 'team', icon: '\u{1F91D}' },
+        { key: 'cooldown', title: 'Cool-Down', iconClass: 'cooldown', icon: '\u{1F9CA}' }
+      ];
+
+      blocks.forEach(function(block) {
+        var drills = plan[block.key];
+        if (drills.length === 0) return;
+
+        var blockTime = 0;
+        drills.forEach(function(d) { blockTime += d._assignedMinutes; });
+
+        var startTime = runningTime;
+        html += '<div class="plan-block">';
+        html += '<div class="plan-block-header">';
+        html += '<div class="plan-block-icon ' + block.iconClass + '">' + block.icon + '</div>';
+        html += '<div>';
+        html += '<div class="plan-block-title">' + block.title + '</div>';
+        html += '<div class="plan-block-time">' + formatTime(startTime) + ' \u2013 ' + formatTime(startTime + blockTime) + ' (' + blockTime + ' min)</div>';
+        html += '</div>';
+        html += '</div>';
+
+        drills.forEach(function(d) {
+          html += '<div class="drill-item">';
+          html += '<div class="drill-item-header">';
+          html += '<span class="drill-name">' + escapeHtml(d.name) + '</span>';
+          html += '<span class="drill-duration">' + d._assignedMinutes + ' min</span>';
+          html += '</div>';
+          if (d.description) {
+            // Truncate long descriptions for readability
+            var desc = d.description;
+            if (desc.length > 200) desc = desc.substring(0, 197) + '...';
+            html += '<p class="drill-description">' + escapeHtml(desc) + '</p>';
+          }
+          html += '</div>';
+          runningTime += d._assignedMinutes;
+        });
+
+        // Update running time to end of this block (if we haven't tracked it above)
+        runningTime = startTime + blockTime;
+
+        html += '</div>';
+      });
+
+      // Total
+      html += '<div class="plan-total">';
+      html += '<span class="plan-total-label">Total Practice Time</span>';
+      html += '<span class="plan-total-value">' + totalMinutes + ' min</span>';
+      html += '</div>';
+
+      // Check for low drill count
+      var totalDrillCount = plan.warmup.length + plan.skills.length + plan.team.length + plan.cooldown.length;
+      var sportDrillTotal = 0;
+      var sportDrills = drillDB.sports[selectedSport].drills;
+      Object.keys(sportDrills).forEach(function(cat) {
+        if (Array.isArray(sportDrills[cat])) sportDrillTotal += sportDrills[cat].length;
+      });
+
+      if (sportDrillTotal < 20) {
+        html += '<div class="plan-note visible">This sport has a smaller drill library (' + sportDrillTotal + ' drills). Some drills may repeat if you generate multiple plans. We\'re adding more drills regularly!</div>';
+      }
+
+      planCard.innerHTML = html;
+
+      // Build plain text version for email
+      buildPlanText(plan, totalMinutes);
+
+      // Show plan section
+      var planSection = document.getElementById('step-plan');
+      planSection.classList.add('active');
+
+      // Reset feedback
+      document.getElementById('feedback-up').className = 'feedback-btn';
+      document.getElementById('feedback-down').className = 'feedback-btn';
+      document.getElementById('feedback-thanks').classList.remove('visible');
+
+      // Scroll to plan
+      setTimeout(function() {
+        planSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+
+    // ===== BUILD PLAN TEXT =====
+    function buildPlanText(plan, totalMinutes) {
+      var sportName = (sportDisplay[selectedSport] || { name: selectedSport }).name;
+      var focusLabel = selectedFocus ? ' - ' + (categoryDisplayNames[selectedFocus] || selectedFocus) + ' Focus' : '';
+      var lines = [];
+
+      lines.push(sportName + ' Practice Plan');
+      lines.push(selectedAgeGroup + ' | ' + selectedDuration + ' minutes' + focusLabel);
+      lines.push('Generated ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
+      lines.push('');
+
+      var blockNames = {
+        warmup: 'WARM-UP',
+        skills: 'SKILL DEVELOPMENT',
+        team: 'TEAM ACTIVITY',
+        cooldown: 'COOL-DOWN'
+      };
+
+      var runningTime = 0;
+
+      ['warmup', 'skills', 'team', 'cooldown'].forEach(function(key) {
+        var drills = plan[key];
+        if (drills.length === 0) return;
+
+        var blockTime = 0;
+        drills.forEach(function(d) { blockTime += d._assignedMinutes; });
+
+        lines.push('--- ' + blockNames[key] + ' (' + formatTime(runningTime) + ' - ' + formatTime(runningTime + blockTime) + ') ---');
+        lines.push('');
+
+        drills.forEach(function(d) {
+          lines.push('  ' + d.name + ' (' + d._assignedMinutes + ' min)');
+          if (d.description) {
+            var desc = d.description;
+            if (desc.length > 200) desc = desc.substring(0, 197) + '...';
+            lines.push('  ' + desc);
+          }
+          lines.push('');
+        });
+
+        runningTime += blockTime;
+      });
+
+      lines.push('Total Practice Time: ' + totalMinutes + ' minutes');
+      lines.push('');
+      lines.push('Generated by CoachPilot - coachpilot.org');
+
+      currentPlanText = lines.join('\n');
+
+      // Update email link
+      var emailBtn = document.getElementById('email-plan-btn');
+      var subject = encodeURIComponent(sportName + ' Practice Plan - ' + selectedAgeGroup + ' - ' + selectedDuration + ' min');
+      var body = encodeURIComponent(currentPlanText);
+      emailBtn.href = 'mailto:?subject=' + subject + '&body=' + body;
+    }
+
+    // ===== FORMAT TIME =====
+    function formatTime(minutes) {
+      if (minutes === 0) return '0:00';
+      var h = Math.floor(minutes / 60);
+      var m = minutes % 60;
+      if (h > 0) return h + ':' + (m < 10 ? '0' : '') + m;
+      return '0:' + (m < 10 ? '0' : '') + m;
+    }
+
+    // ===== ESCAPE HTML =====
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+
+    // ===== FEEDBACK =====
+    function voteFeedback(vote) {
+      var upBtn = document.getElementById('feedback-up');
+      var downBtn = document.getElementById('feedback-down');
+      var thanks = document.getElementById('feedback-thanks');
+
+      if (vote === 'up') {
+        upBtn.classList.add('voted');
+        downBtn.classList.add('dimmed');
+      } else {
+        downBtn.classList.add('voted');
+        upBtn.classList.add('dimmed');
+      }
+
+      thanks.classList.add('visible');
+
+      // Store in localStorage
+      try {
+        var feedback = JSON.parse(localStorage.getItem('coachpilot_feedback') || '{"up":0,"down":0}');
+        feedback[vote]++;
+        localStorage.setItem('coachpilot_feedback', JSON.stringify(feedback));
+      } catch(e) {}
+    }
+
+    // ===== RESET ALL =====
+    function resetAll() {
+      selectedSport = null;
+      selectedAgeGroup = null;
+      selectedDuration = 60;
+      selectedFocus = null;
+
+      document.querySelectorAll('.sport-card').forEach(function(card) {
+        card.classList.remove('selected');
+      });
+
+      document.getElementById('step-config').classList.remove('active');
+      document.getElementById('step-plan').classList.remove('active');
+
+      // Reset duration pills
+      document.querySelectorAll('#duration-pills .option-pill').forEach(function(p) {
+        p.classList.toggle('selected', p.getAttribute('data-value') === '60');
+      });
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>
