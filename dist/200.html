@@ -33,6 +33,19 @@
       -moz-osx-font-smoothing: grayscale;
     }
 
+    /* ===== ORANGE ACCENT BAR ===== */
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
     /* ===== UTILITY ===== */
     .container {
       max-width: 1120px;
@@ -51,10 +64,19 @@
       transform: translateY(0);
     }
 
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.2), transparent);
+      border: none;
+      margin: 0;
+    }
+
     /* ===== NAVIGATION ===== */
     nav {
       position: fixed;
-      top: 0;
+      top: 3px;
       left: 0;
       right: 0;
       z-index: 100;
@@ -211,35 +233,55 @@
       color: #F97316;
     }
 
-    /* ===== HERO ===== */
+    /* ===== HERO — Full-width photo background ===== */
     .hero {
-      padding: 140px 24px 100px;
-      text-align: center;
       position: relative;
       overflow: hidden;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 160px 24px 100px;
     }
 
     @media (min-width: 768px) {
       .hero {
+        min-height: 600px;
         padding: 180px 24px 120px;
       }
     }
 
-    .hero::before {
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 40%;
+      z-index: 0;
+    }
+
+    .hero::after {
       content: '';
       position: absolute;
-      top: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 500px;
-      background: radial-gradient(ellipse, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
-      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(26, 26, 46, 0.65) 0%,
+        rgba(26, 26, 46, 0.55) 50%,
+        rgba(26, 26, 46, 0.75) 100%
+      );
+      z-index: 1;
     }
 
     .hero-content {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       max-width: 720px;
       margin: 0 auto;
     }
@@ -249,18 +291,20 @@
       font-weight: 800;
       line-height: 1.08;
       letter-spacing: -0.035em;
-      color: #1A1A2E;
+      color: #FFFFFF;
       margin-bottom: 24px;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
     }
 
     .hero-subtext {
       font-size: clamp(1.05rem, 2.5vw, 1.2rem);
-      color: #64648C;
+      color: rgba(255, 255, 255, 0.9);
       line-height: 1.7;
       margin-bottom: 48px;
       max-width: 580px;
       margin-left: auto;
       margin-right: auto;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
     }
 
     .hero-actions {
@@ -284,13 +328,13 @@
       border: none;
       cursor: pointer;
       transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
     }
 
     .btn-primary:hover {
       background-color: #EA6C0B;
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.35);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.5);
     }
 
     .btn-primary svg {
@@ -306,7 +350,7 @@
       padding: 10px 20px;
       background: none;
       border: none;
-      color: #64648C;
+      color: rgba(255, 255, 255, 0.85);
       text-decoration: none;
       font-weight: 500;
       font-size: 15px;
@@ -315,7 +359,7 @@
     }
 
     .btn-secondary:hover {
-      color: #F97316;
+      color: #FFFFFF;
     }
 
     .btn-secondary svg {
@@ -385,43 +429,56 @@
     .tools-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 20px;
+      gap: 24px;
       margin-top: 48px;
     }
 
     @media (min-width: 700px) {
       .tools-grid {
         grid-template-columns: 1fr 1fr 1fr;
-        gap: 20px;
+        gap: 24px;
       }
     }
 
     .tool-card {
       background: #FFFFFF;
-      border: 1px solid #F0F0F0;
+      border: 1px solid #E8E8EE;
       border-radius: 16px;
-      padding: 36px 28px 32px;
+      overflow: hidden;
       transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     }
 
     .tool-card:hover {
-      border-color: rgba(249, 115, 22, 0.25);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
-      transform: translateY(-3px);
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
     }
 
-    .tool-card-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 14px;
-      background: #FFF7ED;
+    .tool-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .tool-card:hover .tool-card-img {
+      transform: scale(1.05);
+    }
+
+    .tool-card-img-wrap {
+      overflow: hidden;
+      border-radius: 16px 16px 0 0;
+    }
+
+    .tool-card-body {
+      padding: 28px 24px 24px;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      font-size: 24px;
+      flex-direction: column;
+      flex: 1;
     }
 
     .tool-card h3 {
@@ -465,38 +522,83 @@
     /* ===== MISSION SECTION ===== */
     .mission-section {
       background-color: #FAFAFA;
+      position: relative;
     }
 
     .mission-section .container {
-      max-width: 720px;
+      max-width: 1060px;
     }
 
-    .mission-section .section-label {
+    .mission-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .mission-layout {
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+      }
+    }
+
+    .mission-text .section-label {
       display: block;
-      text-align: center;
     }
 
-    .mission-section .section-heading {
-      text-align: center;
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
+    @media (max-width: 767px) {
+      .mission-text .section-label {
+        text-align: center;
+      }
+      .mission-text .section-heading {
+        text-align: center;
+      }
     }
 
     .mission-body {
-      margin-top: 32px;
+      margin-top: 24px;
     }
 
     .mission-body p {
       font-size: clamp(1rem, 2vw, 1.1rem);
       color: #64648C;
       line-height: 1.85;
-      text-align: center;
       margin-bottom: 24px;
+    }
+
+    @media (max-width: 767px) {
+      .mission-body p {
+        text-align: center;
+      }
     }
 
     .mission-body p:last-child {
       margin-bottom: 0;
+    }
+
+    .mission-img {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .mission-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      min-height: 300px;
+    }
+
+    @media (max-width: 767px) {
+      .mission-img {
+        order: -1;
+      }
+      .mission-img img {
+        min-height: 240px;
+        max-height: 320px;
+      }
     }
 
     /* ===== STATS SECTION ===== */
@@ -519,7 +621,11 @@
 
     .stat-item {
       text-align: center;
-      padding: 8px 0;
+      padding: 32px 20px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #F0F0F0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     .stat-number {
@@ -540,12 +646,27 @@
 
     /* ===== EMAIL CAPTURE SECTION ===== */
     .email-section {
-      background-color: #FAFAFA;
+      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
       text-align: center;
+      position: relative;
+    }
+
+    .email-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%),
+                         radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%);
+      pointer-events: none;
     }
 
     .email-section .container {
       max-width: 600px;
+      position: relative;
+      z-index: 1;
     }
 
     .email-heading {
@@ -588,7 +709,7 @@
       font-family: 'Inter', sans-serif;
       font-size: 15px;
       outline: none;
-      transition: border-color 0.2s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .email-form input[type="email"]::placeholder {
@@ -597,6 +718,7 @@
 
     .email-form input[type="email"]:focus {
       border-color: #F97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
     }
 
     .email-form button {
@@ -702,22 +824,22 @@
       opacity: 0;
     }
 
-    .hero-content > *:nth-child(1) { animation-delay: 0.05s; }
-    .hero-content > *:nth-child(2) { animation-delay: 0.15s; }
-    .hero-content > *:nth-child(3) { animation-delay: 0.3s; }
+    .hero-content > *:nth-child(1) { animation-delay: 0.15s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.35s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.55s; }
 
     /* ===== RESPONSIVE ===== */
     @media (max-width: 480px) {
       .hero {
-        padding: 120px 20px 72px;
+        padding: 140px 20px 72px;
       }
 
       section {
         padding: 64px 0;
       }
 
-      .tool-card {
-        padding: 28px 22px 24px;
+      .tool-card-body {
+        padding: 22px 20px 20px;
       }
     }
   </style>
@@ -753,8 +875,9 @@
     <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
   </div>
 
-  <!-- Hero Section -->
+  <!-- Hero Section — Cinematic photo background -->
   <section class="hero">
+    <img src="images/hero-bg.jpg" alt="Youth sports team playing at sunset" class="hero-bg">
     <div class="hero-content">
       <h1>You're Doing Great, Coach.</h1>
       <p class="hero-subtext">Nobody tells volunteer coaches they're doing a good job. We're here to change that. Free tools for practice plans, walkup music, and game day &mdash; built by coaches, for coaches.</p>
@@ -771,6 +894,9 @@
     </div>
   </section>
 
+  <!-- Divider -->
+  <hr class="section-divider">
+
   <!-- Tools Section -->
   <section class="tools-section" id="tools">
     <div class="container fade-in">
@@ -778,38 +904,63 @@
       <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
       <div class="tools-grid">
         <div class="tool-card">
-          <div class="tool-card-icon" aria-hidden="true">&#128203;</div>
-          <h3>Practice Plans</h3>
-          <p>Generate a complete, age-appropriate practice plan in 30 seconds. 16 sports. 5,798 drills. Free.</p>
-          <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
+          <div class="tool-card-img-wrap">
+            <img src="images/card-practice.jpg" alt="Soccer ball on a practice field" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Practice Plans</h3>
+            <p>Generate a complete, age-appropriate practice plan in 30 seconds. 16 sports. 5,798 drills. Free.</p>
+            <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
+          </div>
         </div>
         <div class="tool-card">
-          <div class="tool-card-icon" aria-hidden="true">&#127925;</div>
-          <h3>OnDeck Walkup Music</h3>
-          <p>Walkup songs and announcer introductions for every player. Make every kid feel like a pro.</p>
-          <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on iOS &rarr;</a>
+          <div class="tool-card-img-wrap">
+            <img src="images/card-ondeck.jpg" alt="Youth baseball player at bat" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>OnDeck Walkup Music</h3>
+            <p>Walkup songs and announcer introductions for every player. Make every kid feel like a pro.</p>
+            <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on iOS &rarr;</a>
+          </div>
         </div>
         <div class="tool-card">
-          <div class="tool-card-icon" aria-hidden="true">&#128197;</div>
-          <h3>Game Day</h3>
-          <p>Fair lineups, batting orders, and position rotations. Every kid plays. Coming soon.</p>
-          <span class="tool-card-link disabled">Coming soon</span>
+          <div class="tool-card-img-wrap">
+            <img src="images/card-gameday.jpg" alt="Sports team standing together on game day" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Game Day</h3>
+            <p>Fair lineups, batting orders, and position rotations. Every kid plays. Coming soon.</p>
+            <span class="tool-card-link disabled">Coming soon</span>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Mission Section -->
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- Mission Section — Side-by-side with photo -->
   <section class="mission-section">
     <div class="container fade-in">
-      <span class="section-label">Why We Built This</span>
-      <h2 class="section-heading">For the coach who never had one</h2>
-      <div class="mission-body">
-        <p>Coaching isn't about wins and losses &mdash; it's about showing up for kids who need someone in their corner. But volunteering to coach doesn't come with a manual. There's no mentor in the dugout. No one tells you if you're doing it right.</p>
-        <p>CoachPilot is your sideline. Practice plans that work, tools that save time, and the confidence that comes from knowing you showed up prepared. Because every coach deserves to hear: you're doing a good job.</p>
+      <div class="mission-layout">
+        <div class="mission-text">
+          <span class="section-label">Why We Built This</span>
+          <h2 class="section-heading">For the coach who never had one</h2>
+          <div class="mission-body">
+            <p>Coaching isn't about wins and losses &mdash; it's about showing up for kids who need someone in their corner. But volunteering to coach doesn't come with a manual. There's no mentor in the dugout. No one tells you if you're doing it right.</p>
+            <p>CoachPilot is your sideline. Practice plans that work, tools that save time, and the confidence that comes from knowing you showed up prepared. Because every coach deserves to hear: you're doing a good job.</p>
+          </div>
+        </div>
+        <div class="mission-img">
+          <img src="images/mission.jpg" alt="Kids having fun playing together outdoors" loading="lazy">
+        </div>
       </div>
     </div>
   </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
 
   <!-- By The Numbers -->
   <section class="stats-section">
@@ -830,6 +981,9 @@
       </div>
     </div>
   </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
 
   <!-- Email Capture Section -->
   <section class="email-section" id="get-started">
