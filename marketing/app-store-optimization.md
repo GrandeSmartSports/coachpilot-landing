@@ -1,4 +1,4 @@
-# App Store Optimization (ASO) — Draft Copy
+# App Store Optimization (ASO) - Draft Copy
 
 **For Coach to review. Nothing published until approved.**
 
@@ -21,14 +21,14 @@
 
 Your first practice starts here.
 
-CoachPilot generates complete, age-appropriate practice plans for youth sports coaches. Pick your sport, set your age group, and get a full practice — warmup, drills, scrimmage, cooldown — in seconds.
+CoachPilot generates complete, age-appropriate practice plans for youth sports coaches. Pick your sport, set your age group, and get a full practice (warmup, drills, scrimmage, cooldown) in seconds.
 
 No coaching experience needed. No signup required. Just open the app and go.
 
 WHAT YOU GET:
 - 5,798 drills across 16 sports
 - Age-appropriate plans from 6U to High School
-- Warmup, skill work, team activity, and cooldown — every plan is complete
+- Warmup, skill work, team activity, and cooldown. Every plan is complete
 - AI-powered drill selection that adapts to your team's needs
 - Print-ready plans you can take to the field
 
@@ -79,12 +79,12 @@ Free to try. Your team is waiting.
 
 Make every kid feel like a pro.
 
-OnDeck turns every at-bat into a big league moment. Assign walk-up songs to your players, and when it's their turn — tap, play, and watch them light up.
+OnDeck turns every at-bat into a big league moment. Assign walk-up songs to your players, and when it's their turn, tap, play, and watch them light up.
 
 HOW IT WORKS:
-1. Add your players — type names or build your roster
-2. Pick their songs — search and assign a walk-up song to each player
-3. Hit play on game day — tap a name, their song starts, the AI announcer introduces them
+1. Add your players. Type names or build your roster
+2. Pick their songs. Search and assign a walk-up song to each player
+3. Hit play on game day. Tap a name, their song starts, the AI announcer introduces them
 
 FEATURES:
 - Walk-up songs for every player on your roster
@@ -94,14 +94,14 @@ FEATURES:
 - Works offline at the field
 
 WHY KIDS LOVE IT:
-When a 7-year-old hears their name announced and their song start playing, something changes. They stand a little taller. They smile a little wider. For 30 seconds, they're not just a kid on a rec league team — they're the main character.
+When a 7-year-old hears their name announced and their song start playing, something changes. They stand a little taller. They smile a little wider. For 30 seconds, they're not just a kid on a rec league team. They're the main character.
 
 That's what OnDeck is for.
 
 SIMPLE PRICING:
 - Free to download with 3 announcer credits
 - Add more credits anytime: $0.99 (1), $2.99 (5), $4.99 (10), $9.99 (25)
-- Walk-up songs play unlimited — credits are for AI announcer only
+- Walk-up songs play unlimited. Credits are for AI announcer only
 
 PART OF COACHPILOT:
 OnDeck is part of the CoachPilot family of free coaching tools. Also check out our Practice Plan Generator at coachpilot.org.
@@ -114,7 +114,7 @@ Built by a coach who wanted game day to feel special for every kid on the team.
 ### What's New (for next update)
 `- Improved announcer voice quality
 - Better song search
-- Part of the CoachPilot coaching platform — visit coachpilot.org`
+- Part of the CoachPilot coaching platform. Visit coachpilot.org`
 
 ### Screenshot Text Overlays (5 screenshots)
 1. "Make every kid feel like a pro." (hero shot)
@@ -142,7 +142,7 @@ Built by a coach who wanted game day to feel special for every kid on the team.
 - "Voluntold" language resonates with target audience
 
 **Keyword gaps to target:**
-- "practice plan generator" — low competition, high intent
-- "youth coaching app" — moderate competition
-- "volunteer coach" — very low competition, perfect audience
-- "first practice" — low competition, high desperation (our buyer)
+- "practice plan generator" - low competition, high intent
+- "youth coaching app" - moderate competition
+- "volunteer coach" - very low competition, perfect audience
+- "first practice" - low competition, high desperation (our buyer)

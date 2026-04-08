@@ -1,8 +1,8 @@
-# CoachPilot Email Drip Sequence — 5-Day "Welcome Coach" Series
+# CoachPilot Email Drip Sequence - 5-Day "Welcome Coach" Series
 
 **Purpose:** When a coach signs up via email on coachpilot.org, they get this 5-day automated sequence. Goal: build trust, deliver value, drive them to the Practice Plan Generator and iOS apps.
 
-**Tone:** Like a text from a friend who's been coaching longer than you. Warm, practical, zero jargon. Short paragraphs. Every email gives something useful — no "just checking in" filler.
+**Tone:** Like a text from a friend who's been coaching longer than you. Warm, practical, zero jargon. Short paragraphs. Every email gives something useful. No "just checking in" filler.
 
 **Sender:** CoachPilot <coachpilotapp@gmail.com>
 **From name:** Coach Daniel @ CoachPilot
@@ -11,7 +11,7 @@
 - Buttondown (free up to 100 subscribers, clean, markdown-based)
 - MailerLite (free up to 1,000 subscribers, automation built in)
 - Brevo/Sendinblue (free up to 300 emails/day)
-- *Recommendation: MailerLite — free automations, drag-and-drop, good deliverability*
+- *Recommendation: MailerLite. Free automations, drag-and-drop, good deliverability*
 
 **NOTE: Coach needs to pick an email service and set up the account. This costs $0 but requires Coach's login/approval. Cortex flagging this for when Coach is back.**
 
@@ -20,19 +20,19 @@
 ## Email 1: Welcome (Sent immediately on signup)
 
 **Subject:** You're on the team, Coach.
-**Preview text:** Here's your first tool — no download needed.
+**Preview text:** Here's your first tool. No download needed.
 
 ---
 
 Hey Coach,
 
-Welcome to CoachPilot. You just joined a group of coaches who are building something together — free tools that make coaching easier and kids' experiences better.
+Welcome to CoachPilot. You just joined a group of coaches who are building something together. Free tools that make coaching easier and kids' experiences better.
 
 Here's your first one:
 
 **[Build a Practice Plan in 30 Seconds →](https://coachpilot.org/plans)**
 
-Pick your sport, set your age group, and get a complete practice plan — warmup, drills, scrimmage, cooldown. Free. No account needed.
+Pick your sport, set your age group, and get a complete practice plan: warmup, drills, scrimmage, cooldown. Free. No account needed.
 
 Over the next few days, I'll send you a few coaching tips that I wish someone had told me my first season. Short, practical, no fluff.
 
@@ -40,7 +40,7 @@ Talk soon,
 Coach Daniel
 CoachPilot
 
-P.S. — If you have feedback on the practice plan tool, just reply to this email. Seriously. I read every one.
+P.S. If you have feedback on the practice plan tool, just reply to this email. Seriously. I read every one.
 
 ---
 
@@ -61,7 +61,7 @@ I've done it. Spent 45 minutes on a whiteboard explaining defensive rotations to
 
 Here's what works: **one skill per practice.**
 
-Pick ONE thing — throwing, dribbling, serving, whatever. Build the whole practice around it. Warmup reinforces it. Drills practice it. Scrimmage uses it.
+Pick ONE thing: throwing, dribbling, serving, whatever. Build the whole practice around it. Warmup reinforces it. Drills practice it. Scrimmage uses it.
 
 By the end, every kid has improved at that one thing. That's a good practice.
 
@@ -69,7 +69,7 @@ Tomorrow I'll share the simplest practice structure that works for any sport.
 
 Coach Daniel
 
-P.S. — Need a plan for tomorrow? **[Generate one in 30 seconds →](https://coachpilot.org/plans)**
+P.S. Need a plan for tomorrow? **[Generate one in 30 seconds →](https://coachpilot.org/plans)**
 
 ---
 
@@ -86,10 +86,10 @@ Every good practice follows the same structure. Doesn't matter if it's softball,
 
 **The 60-Minute Template:**
 
-1. **Warm-Up (10 min)** — Jog, dynamic stretches, light version of today's skill
-2. **Skill Work (25 min)** — 2-3 drills focused on one skill
-3. **Game Play (20 min)** — Scrimmage or competitive game using that skill
-4. **Cool Down (5 min)** — Stretch, team huddle, one positive takeaway
+1. **Warm-Up (10 min):** Jog, dynamic stretches, light version of today's skill
+2. **Skill Work (25 min):** 2-3 drills focused on one skill
+3. **Game Play (20 min):** Scrimmage or competitive game using that skill
+4. **Cool Down (5 min):** Stretch, team huddle, one positive takeaway
 
 That's it. Memorize this and you can run a practice for any sport on zero notice.
 
@@ -124,9 +124,9 @@ Nine times out of ten, the "problem kid" is the one with the most energy and the
 
 Other tricks that work:
 - **Stand near them** during instructions (proximity = attention)
-- **Catch them being good** — "I love how you were first in line. That's leadership."
-- **Short activities** — if they lose focus in 3 minutes, don't run 10-minute drills
-- **Talk to them 1-on-1** after practice — "Hey, I need your help keeping the team focused. Can you do that for me?" Kids rise to expectations.
+- **Catch them being good.** "I love how you were first in line. That's leadership."
+- **Short activities.** If they lose focus in 3 minutes, don't run 10-minute drills
+- **Talk to them 1-on-1** after practice. "Hey, I need your help keeping the team focused. Can you do that for me?" Kids rise to expectations.
 
 The hardest kids to coach often become your favorites by the end of the season. I've seen it happen every year.
 
@@ -134,7 +134,7 @@ Tomorrow: the one thing that separates good coaches from great ones.
 
 Coach Daniel
 
-P.S. — Still planning practices from scratch? **[Try the free plan generator →](https://coachpilot.org/plans)** — 16 sports, 5,798 drills, 30 seconds.
+P.S. Still planning practices from scratch? **[Try the free plan generator →](https://coachpilot.org/plans)** with 16 sports, 5,798 drills, and 30 seconds flat.
 
 ---
 
@@ -151,7 +151,7 @@ I want to tell you something nobody else will:
 
 **You're doing a great job.**
 
-Seriously. The fact that you volunteered, that you're reading emails about how to be better, that you care enough to plan — you're already in the top 10% of youth coaches.
+Seriously. The fact that you volunteered, that you're reading emails about how to be better, that you care enough to plan, you're already in the top 10% of youth coaches.
 
 Here's the thing about coaching: there's no performance review. No boss telling you "nice work." The 8-year-olds aren't going to say "Coach, your practice structure was excellent today." The other parents are on their phones.
 
@@ -159,19 +159,19 @@ So let me say it: showing up matters. Being prepared matters. Making every kid f
 
 The one thing that separates good coaches from great ones? **They keep showing up.** Season after season. Getting a little better each time.
 
-That's what CoachPilot is for — to make showing up a little easier.
+That's what CoachPilot is for. To make showing up a little easier.
 
 **Your coaching toolkit:**
-- **[Practice Plan Generator](https://coachpilot.org/plans)** — Free plans for 16 sports
-- **[OnDeck Walkup Music](https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879)** — Make game day special for every kid
-- **[CoachPilot Practice Plans (iOS)](https://apps.apple.com/us/app/coachpilot-practice-plans/id6759437880)** — Plans on your phone, even offline
+- **[Practice Plan Generator](https://coachpilot.org/plans):** Free plans for 16 sports
+- **[OnDeck Walkup Music](https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879):** Make game day special for every kid
+- **[CoachPilot Practice Plans (iOS)](https://apps.apple.com/us/app/coachpilot-practice-plans/id6759437880):** Plans on your phone, even offline
 
 Thanks for being one of the good ones.
 
 Coach Daniel
 CoachPilot
 
-P.S. — Know another coach who could use these tools? Forward this email. We're all in this together.
+P.S. Know another coach who could use these tools? Forward this email. We're all in this together.
 
 ---
 
@@ -186,7 +186,7 @@ P.S. — Know another coach who could use these tools? Forward this email. We're
 - Open rate (target: 40%+ for sequence, coaches are engaged)
 - Click rate on Practice Plan Generator links
 - App Store clicks from Email 5
-- Reply rate (Coach Daniel reads replies — this is the feedback loop)
+- Reply rate (Coach Daniel reads replies, this is the feedback loop)
 
 **Setup needed from Coach:**
 1. Pick email service (recommend MailerLite, free)

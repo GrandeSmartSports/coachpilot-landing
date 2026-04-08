@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Practice Plan Generator — CoachPilot</title>
+  <title>Practice Plan Generator | CoachPilot</title>
   <meta name="description" content="Generate a complete, age-appropriate practice plan in 30 seconds. Free. No experience needed. 16 sports, 5,798 drills.">
   <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -883,7 +883,7 @@
 
   <!-- Beta Banner -->
   <div class="beta-banner">
-    CoachPilot Beta — Your feedback helps us build a better app for coaches everywhere.
+    CoachPilot Beta. Your feedback helps us build a better app for coaches everywhere.
     <a href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback">Send Feedback</a>
   </div>
 
@@ -1630,7 +1630,7 @@
         var focusNames = selectedFocuses.map(function(f) {
           return categoryDisplayNames[f] || f;
         });
-        focusLabel = ' — ' + focusNames.join(' + ') + ' Focus';
+        focusLabel = ' | ' + focusNames.join(' + ') + ' Focus';
       }
       var ageLabel = customAgeLabel || selectedAgeGroup;
 
@@ -1662,7 +1662,7 @@
         html += '<div class="plan-block-icon ' + block.iconClass + '">' + block.icon + '</div>';
         html += '<div>';
         html += '<div class="plan-block-title">' + block.title + '</div>';
-        html += '<div class="plan-block-time">' + formatTime(startTime) + ' \u2013 ' + formatTime(startTime + blockTime) + ' (' + blockTime + ' min)</div>';
+        html += '<div class="plan-block-time">' + formatTime(startTime) + ' - ' + formatTime(startTime + blockTime) + ' (' + blockTime + ' min)</div>';
         html += '</div>';
         html += '</div>';
 

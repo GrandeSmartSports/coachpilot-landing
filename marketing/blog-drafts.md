@@ -12,7 +12,7 @@
 **Target keyword:** first softball practice plan, youth softball practice
 **Word count target:** 800-1000
 
-It's 10 PM. You just realized your first practice is tomorrow and you have no plan. Deep breath — you're not the first coach to be here, and you won't be the last.
+It's 10 PM. You just realized your first practice is tomorrow and you have no plan. Deep breath. You're not the first coach to be here, and you won't be the last.
 
 Here's the thing nobody tells you: the kids don't care if it's perfect. They care that you showed up. The fact that you're reading this right now means you care more than you think.
 
@@ -30,7 +30,7 @@ Here's the thing nobody tells you: the kids don't care if it's perfect. They car
 
 **Game Time (20 min)**
 - Scrimmage or a simple game like "500" or coach-pitch rounds
-- Keep it fun — this is where they fall in love with the sport
+- Keep it fun. This is where they fall in love with the sport
 
 **Cool Down (5 min)**
 - Huddle up. Tell them one thing they did well. Ask them what was fun.
@@ -47,7 +47,7 @@ Don't have time to plan from scratch? [Generate a free practice plan in 30 secon
 **Target keyword:** volunteer soccer coach tips, first time coaching soccer
 **Word count target:** 800-1000
 
-You raised your hand at the parent meeting. Or worse — nobody else did, so they looked at you. Either way, congratulations: you're a soccer coach now.
+You raised your hand at the parent meeting. Or worse, nobody else did, so they looked at you. Either way, congratulations: you're a soccer coach now.
 
 Here's what you need to know: you don't need to be a soccer expert. You need to be organized, positive, and willing to show up. The bar is lower than you think, and you're already clearing it by reading this.
 
@@ -55,14 +55,14 @@ Here's what you need to know: you don't need to be a soccer expert. You need to 
 - Lots of touches on the ball (not lectures)
 - Short activities (5-8 minutes max before switching)
 - Positive reinforcement (catch them doing something right)
-- Water breaks (they will ask constantly — just build them in)
+- Water breaks (they will ask constantly, so just build them in)
 - A scrimmage at the end (this is why they came)
 
 **Your First Practice Cheat Sheet:**
 
 1. **Arrival game (5 min):** Put a ball at every kid's feet. "Dribble anywhere inside the cones. When I say freeze, stop the ball." That's it. They're playing.
 
-2. **Dribbling game (8 min):** "Sharks and Minnows" — one kid is the shark, everyone else dribbles across. If the shark kicks your ball out, you become a shark. They will scream. It's working.
+2. **Dribbling game (8 min):** "Sharks and Minnows." One kid is the shark, everyone else dribbles across. If the shark kicks your ball out, you become a shark. They will scream. It's working.
 
 3. **Passing pairs (8 min):** Partner up, 10 feet apart, pass back and forth. Inside of the foot. That's the whole instruction.
 
@@ -83,7 +83,7 @@ Here's what you need to know: you don't need to be a soccer expert. You need to 
 **Target keyword:** volunteer coach tips, first year coaching youth sports
 **Word count target:** 1000-1200
 
-Every year, thousands of parents volunteer to coach youth sports with zero training, zero materials, and zero idea what they're getting into. If that's you — welcome to the club. It's bigger than you think.
+Every year, thousands of parents volunteer to coach youth sports with zero training, zero materials, and zero idea what they're getting into. If that's you, welcome to the club. It's bigger than you think.
 
 Here's your survival guide for the first season.
 
@@ -91,7 +91,7 @@ Here's your survival guide for the first season.
 You don't need to be Coach K. You need to show up, be organized, and make it fun. That's it. If every kid is smiling at the end of practice, you won.
 
 **Rule 2: Plan your practices (even badly)**
-A bad plan is 10x better than no plan. Write down 4-5 activities, assign rough times, and you're set. The plan will fall apart by minute 15 — that's normal. Having one means you know what to do next instead of standing there.
+A bad plan is 10x better than no plan. Write down 4-5 activities, assign rough times, and you're set. The plan will fall apart by minute 15. That's normal. Having one means you know what to do next instead of standing there.
 
 **Rule 3: The 5-minute rule for young kids**
 Ages 4-8 have the attention span of a goldfish with a sugar rush. No drill should last more than 5-8 minutes. When their eyes glaze over, switch. Speed > depth.
@@ -106,10 +106,10 @@ Send one email before the season: practice schedule, what to bring, your coachin
 Especially at the rec level. Equal playing time. Rotate positions. Let the kid who's struggling have a moment. Twenty years from now, they won't remember the score. They'll remember how you made them feel.
 
 **Rule 7: Ask for help**
-Other parents can run a station. Your assistant coach doesn't need to know the sport — they just need to stand at second base and encourage kids. You are not alone unless you choose to be.
+Other parents can run a station. Your assistant coach doesn't need to know the sport. They just need to stand at second base and encourage kids. You are not alone unless you choose to be.
 
 **Rule 8: You're making a bigger impact than you know**
-Studies show that the coach is the #1 factor in whether a kid stays in sports. Not talent, not the team, not the league — the coach. You're literally shaping whether these kids love or hate sports for the rest of their lives. No pressure.
+Studies show that the coach is the #1 factor in whether a kid stays in sports. Not talent, not the team, not the league. The coach. You're literally shaping whether these kids love or hate sports for the rest of their lives. No pressure.
 
 Just kidding. The fact that you're reading a guide means you're already one of the good ones.
 
@@ -141,7 +141,7 @@ Welcome to youth basketball.
 
 5. **End strong.** Even if practice was chaos, end with something fun and a huddle. Their last memory of practice is what sticks.
 
-**The truth:** Even NBA coaches adjust their plans mid-practice. The plan isn't the point — having a starting point is.
+**The truth:** Even NBA coaches adjust their plans mid-practice. The plan isn't the point. Having a starting point is.
 
 [Generate a basketball practice plan that adapts to your team →](https://coachpilot.org/plans)
 
@@ -184,7 +184,7 @@ The #1 reason kids play sports: to have fun. The #1 reason kids quit sports: it 
 
 **The Fun Formula: Competition + Variety + Encouragement**
 
-**Add competition to everything.** "Who can make 5 passes in a row first?" Same drill, 10x more engagement. Kids are wired to compete — use it.
+**Add competition to everything.** "Who can make 5 passes in a row first?" Same drill, 10x more engagement. Kids are wired to compete, so use it.
 
 **Change activities every 5-10 minutes.** Especially for ages 4-10. Their brains need novelty. Even if the skill focus is the same, change the game.
 
@@ -192,10 +192,10 @@ The #1 reason kids play sports: to have fun. The #1 reason kids quit sports: it 
 
 **Let them make choices.** "Do you want to do relay races or scrimmage next?" Ownership = buy-in.
 
-**End with their favorite.** Whatever they love most — scrimmage, knockout, a silly game — save it for the end. Now they associate the end of practice with fun, and they want to come back.
+**End with their favorite.** Whatever they love most (scrimmage, knockout, a silly game), save it for the end. Now they associate the end of practice with fun, and they want to come back.
 
 **What "losing control" actually looks like:**
-It's not noise. It's not kids running around. It's when they stop listening to you completely. The fix isn't yelling — it's a routine.
+It's not noise. It's not kids running around. It's when they stop listening to you completely. The fix isn't yelling. It's a routine.
 
 **The Whistle Protocol:**
 - 1 whistle = freeze
@@ -214,13 +214,13 @@ Teach it at the first practice. Reinforce it every practice. By week 3, it's aut
 **Target keyword:** flag football practice plan, youth flag football drills
 **Word count target:** 800-1000
 
-Flag football is booming. NFL Flag leagues are everywhere. And you just got volunteered to coach a team of kids who've never played. No pads, no tackling — just flags, a ball, and a whole lot of energy.
+Flag football is booming. NFL Flag leagues are everywhere. And you just got volunteered to coach a team of kids who've never played. No pads, no tackling. Just flags, a ball, and a whole lot of energy.
 
 **The 60-minute beginner practice:**
 
 **Warm-Up (8 min)**
 - Jog and stretch
-- "Flag tag" — everyone wears flags, try to pull others' flags while protecting your own. Gets them used to the flag belt immediately.
+- "Flag tag." Everyone wears flags, try to pull others' flags while protecting your own. Gets them used to the flag belt immediately.
 
 **Catching & Throwing (12 min)**
 - Partner catch at short distance
@@ -239,7 +239,7 @@ Flag football is booming. NFL Flag leagues are everywhere. And you just got volu
 
 **Scrimmage (12 min)**
 - Use the 3 plays you just taught
-- Let the defense just play — no schemes yet
+- Let the defense just play, no schemes yet
 - Celebrate completions and flag pulls equally
 
 **Huddle (3 min)**
@@ -295,11 +295,11 @@ Hot take: your best players will be fine with or without your coaching. The kids
 
 **Practical tips:**
 
-1. **Pair strong with developing.** Put your best player with your newest player during partner drills. Both benefit — the strong player learns leadership, the new player gets a patient partner.
+1. **Pair strong with developing.** Put your best player with your newest player during partner drills. Both benefit. The strong player learns leadership, the new player gets a patient partner.
 
 2. **Rotate positions.** The best athlete wants to pitch every game. Don't let them. They'll survive playing right field for an inning. Meanwhile, the kid who's always in right field gets to experience something new.
 
-3. **Celebrate effort, not results.** "I love how hard you ran to that ball" matters more than "great catch" — because the kid who drops every ball still ran hard to it.
+3. **Celebrate effort, not results.** "I love how hard you ran to that ball" matters more than "great catch," because the kid who drops every ball still ran hard to it.
 
 4. **Check in with quiet kids.** Every practice, make a point to say something to the kid who never raises their hand. "Hey Alex, I noticed you've been getting your throws way more accurate. Keep it up." Watch what happens to their face.
 
@@ -338,12 +338,12 @@ Good news: youth volleyball is simpler than you think. At the rec level, you're 
 
 **Serving (10 min)**
 - Underhand serve: step, swing, contact
-- Move closer to the net for younger kids — let them feel success
+- Move closer to the net for younger kids so they feel success
 - "Serving targets": put hula hoops on the other side, try to land in them
 
 **Scrimmage (12 min)**
 - Modified rules: allow one bounce for beginners, rotate every 3 points
-- You call the score loud — it keeps them engaged
+- You call the score loud. It keeps them engaged
 
 **Huddle (3 min)**
 - "What's one thing you got better at today?" Let them answer.
