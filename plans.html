@@ -328,6 +328,46 @@
       font-weight: 600;
     }
 
+    /* ===== CUSTOM INLINE INPUTS ===== */
+    .custom-input-inline {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      animation: slideDown 0.3s ease;
+    }
+
+    .custom-input-inline.visible {
+      display: inline-flex;
+    }
+
+    .custom-input-inline input {
+      width: 80px;
+      padding: 9px 14px;
+      border: 1.5px solid #E8E8E8;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1A1A2E;
+      background: #FFFFFF;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .custom-input-inline input:focus {
+      border-color: #F97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.08);
+    }
+
+    .custom-input-inline input::placeholder {
+      color: #BBBBC8;
+      font-weight: 400;
+    }
+
+    .custom-input-inline.age-custom input {
+      width: 100px;
+    }
+
     /* ===== GENERATE BUTTON ===== */
     .generate-btn {
       display: inline-flex;
@@ -907,11 +947,15 @@
         <button class="option-pill" data-value="45">45 min</button>
         <button class="option-pill selected" data-value="60">60 min</button>
         <button class="option-pill" data-value="90">90 min</button>
+        <button class="option-pill" data-value="custom">Custom</button>
+        <span class="custom-input-inline" id="custom-duration-wrap">
+          <input type="number" id="custom-duration-input" placeholder="minutes" min="15" max="180" />
+        </span>
       </div>
     </div>
 
     <div class="config-group">
-      <label class="config-label">Skill Focus <span style="font-weight: 400; color: #9999AA;">(optional)</span></label>
+      <label class="config-label">Skill Focus <span style="font-weight: 400; color: #9999AA;">(select one or more)</span></label>
       <div class="focus-pills" id="focus-pills">
         <!-- Populated by JavaScript -->
       </div>
@@ -985,7 +1029,11 @@
     var selectedSport = null;
     var selectedAgeGroup = null;
     var selectedDuration = 60;
-    var selectedFocus = null;
+    var selectedFocuses = []; // multi-select array
+    var selectedFocus = null; // kept for backward compat in rendering
+    var customDuration = null;
+    var customAgeGroup = null;
+    var customAgeLabel = null;
     var currentPlanText = '';
 
     // ===== SPORT DISPLAY CONFIG =====
@@ -1194,6 +1242,8 @@
       // Reset selections
       selectedAgeGroup = null;
       selectedFocus = null;
+      selectedFocuses = [];
+      customAgeLabel = null;
 
       // Hide plan if showing
       document.getElementById('step-plan').classList.remove('active');
@@ -1245,7 +1295,18 @@
       ageGroups.forEach(function(ag) {
         html += '<button class="option-pill" data-value="' + ag + '" onclick="selectAgeGroup(\'' + ag + '\')">' + ag + '</button>';
       });
+      html += '<button class="option-pill" data-value="custom" onclick="selectAgeGroup(\'custom\')">Custom</button>';
+      html += '<span class="custom-input-inline age-custom" id="custom-age-wrap">';
+      html += '<input type="text" id="custom-age-input" placeholder="e.g. 7U, 16U" maxlength="10" />';
+      html += '</span>';
       container.innerHTML = html;
+
+      // Wire up the custom age input listener
+      document.getElementById('custom-age-input').addEventListener('input', function() {
+        customAgeLabel = this.value.trim();
+        // Map to closest standard age group for drill filtering
+        selectedAgeGroup = mapCustomAgeToStandard(customAgeLabel);
+      });
     }
 
     // ===== RENDER FOCUS PILLS =====
@@ -1261,33 +1322,143 @@
 
     // ===== SELECT AGE GROUP =====
     function selectAgeGroup(ag) {
-      selectedAgeGroup = ag;
+      var customWrap = document.getElementById('custom-age-wrap');
+      var customInput = document.getElementById('custom-age-input');
+
       document.querySelectorAll('#age-pills .option-pill').forEach(function(pill) {
         pill.classList.toggle('selected', pill.getAttribute('data-value') === ag);
       });
+
+      if (ag === 'custom') {
+        customWrap.classList.add('visible');
+        customInput.focus();
+        customAgeLabel = customInput.value.trim() || null;
+        selectedAgeGroup = mapCustomAgeToStandard(customAgeLabel || '');
+      } else {
+        customWrap.classList.remove('visible');
+        customInput.value = '';
+        customAgeLabel = null;
+        selectedAgeGroup = ag;
+      }
+    }
+
+    // ===== MAP CUSTOM AGE TO STANDARD =====
+    function mapCustomAgeToStandard(label) {
+      // Extract the number from a label like "7U", "16U", "13", etc.
+      var match = label.match(/(\d+)/);
+      if (!match) return '10U'; // default fallback
+      var age = parseInt(match[1]);
+      if (age < 8) return '6U';
+      if (age <= 9) return '8U';
+      if (age <= 11) return '10U';
+      if (age <= 13) return '12U';
+      return '14U';
     }
 
     // ===== SELECT DURATION =====
     document.getElementById('duration-pills').addEventListener('click', function(e) {
       var pill = e.target.closest('.option-pill');
       if (!pill) return;
-      selectedDuration = parseInt(pill.getAttribute('data-value'));
+      var val = pill.getAttribute('data-value');
+      var customWrap = document.getElementById('custom-duration-wrap');
+      var customInput = document.getElementById('custom-duration-input');
+
       document.querySelectorAll('#duration-pills .option-pill').forEach(function(p) {
         p.classList.toggle('selected', p === pill);
       });
+
+      if (val === 'custom') {
+        customWrap.classList.add('visible');
+        customInput.focus();
+        // Use whatever is in the input, or default
+        var cv = parseInt(customInput.value);
+        if (cv >= 15 && cv <= 180) {
+          selectedDuration = cv;
+        }
+      } else {
+        customWrap.classList.remove('visible');
+        customInput.value = '';
+        selectedDuration = parseInt(val);
+      }
     });
 
-    // ===== SELECT FOCUS =====
+    // Listen for changes on the custom duration input
+    document.getElementById('custom-duration-input').addEventListener('input', function() {
+      var val = parseInt(this.value);
+      if (val >= 15 && val <= 180) {
+        selectedDuration = val;
+      }
+    });
+
+    // ===== SELECT FOCUS (MULTI-SELECT) =====
     function selectFocus(cat) {
-      selectedFocus = cat || null;
+      if (cat === '') {
+        // "Balanced" selected — clear all specific focuses
+        selectedFocuses = [];
+        selectedFocus = null;
+      } else {
+        // Specific skill selected — remove "Balanced"
+        var idx = selectedFocuses.indexOf(cat);
+        if (idx !== -1) {
+          // Already selected — toggle off
+          selectedFocuses.splice(idx, 1);
+        } else {
+          // Add to selection
+          selectedFocuses.push(cat);
+        }
+        // If nothing selected, revert to Balanced
+        if (selectedFocuses.length === 0) {
+          selectedFocus = null;
+        } else {
+          selectedFocus = selectedFocuses[0]; // backward compat
+        }
+      }
+
+      // Update pill visuals
       document.querySelectorAll('#focus-pills .focus-pill').forEach(function(pill) {
-        pill.classList.toggle('selected', pill.getAttribute('data-value') === (cat || ''));
+        var pv = pill.getAttribute('data-value');
+        if (pv === '') {
+          // Balanced pill — active only when no focuses selected
+          pill.classList.toggle('selected', selectedFocuses.length === 0);
+        } else {
+          pill.classList.toggle('selected', selectedFocuses.indexOf(pv) !== -1);
+        }
       });
     }
 
     // ===== GENERATE PLAN =====
     function generatePlan() {
       if (!selectedSport) return;
+
+      // If custom duration is selected, validate
+      var customDurPill = document.querySelector('#duration-pills .option-pill[data-value="custom"]');
+      if (customDurPill && customDurPill.classList.contains('selected')) {
+        var cv = parseInt(document.getElementById('custom-duration-input').value);
+        if (!cv || cv < 15 || cv > 180) {
+          document.getElementById('custom-duration-input').focus();
+          document.getElementById('custom-duration-input').style.borderColor = '#EF4444';
+          setTimeout(function() {
+            document.getElementById('custom-duration-input').style.borderColor = '';
+          }, 2000);
+          return;
+        }
+        selectedDuration = cv;
+      }
+
+      // If custom age is selected, validate
+      var customAgePill = document.querySelector('#age-pills .option-pill[data-value="custom"]');
+      if (customAgePill && customAgePill.classList.contains('selected')) {
+        var ageInput = document.getElementById('custom-age-input');
+        if (!ageInput.value.trim()) {
+          ageInput.focus();
+          ageInput.style.borderColor = '#EF4444';
+          setTimeout(function() { ageInput.style.borderColor = ''; }, 2000);
+          return;
+        }
+        customAgeLabel = ageInput.value.trim();
+        selectedAgeGroup = mapCustomAgeToStandard(customAgeLabel);
+      }
+
       if (!selectedAgeGroup) {
         // Auto-select first age group if none chosen
         var agePills = document.querySelectorAll('#age-pills .option-pill');
@@ -1325,8 +1496,8 @@
         } else if (block === 'cooldown') {
           cooldownDrills = cooldownDrills.concat(filtered.map(function(d) { return Object.assign({}, d, { _cat: cat }); }));
         } else {
-          // If a focus is selected, prioritize those drills
-          if (selectedFocus && cat === selectedFocus) {
+          // If focuses are selected, prioritize drills from those categories
+          if (selectedFocuses.length > 0 && selectedFocuses.indexOf(cat) !== -1) {
             // Add with a priority marker
             filtered.forEach(function(d) {
               skillDrills.unshift(Object.assign({}, d, { _cat: cat, _priority: true }));
@@ -1454,11 +1625,18 @@
     function renderPlan(plan, totalMinutes) {
       var sportName = (sportDisplay[selectedSport] || { name: selectedSport }).name;
       var planCard = document.getElementById('plan-card');
-      var focusLabel = selectedFocus ? ' — ' + (categoryDisplayNames[selectedFocus] || selectedFocus) + ' Focus' : '';
+      var focusLabel = '';
+      if (selectedFocuses.length > 0) {
+        var focusNames = selectedFocuses.map(function(f) {
+          return categoryDisplayNames[f] || f;
+        });
+        focusLabel = ' — ' + focusNames.join(' + ') + ' Focus';
+      }
+      var ageLabel = customAgeLabel || selectedAgeGroup;
 
       var html = '';
       html += '<h2 class="plan-title">' + sportName + ' Practice Plan</h2>';
-      html += '<p class="plan-meta">' + selectedAgeGroup + ' &middot; ' + selectedDuration + ' minutes' + focusLabel + ' &middot; Generated ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</p>';
+      html += '<p class="plan-meta">' + escapeHtml(ageLabel) + ' &middot; ' + selectedDuration + ' minutes' + escapeHtml(focusLabel) + ' &middot; Generated ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</p>';
 
       // Track running time
       var runningTime = 0;
@@ -1551,11 +1729,18 @@
     // ===== BUILD PLAN TEXT =====
     function buildPlanText(plan, totalMinutes) {
       var sportName = (sportDisplay[selectedSport] || { name: selectedSport }).name;
-      var focusLabel = selectedFocus ? ' - ' + (categoryDisplayNames[selectedFocus] || selectedFocus) + ' Focus' : '';
+      var focusLabel = '';
+      if (selectedFocuses.length > 0) {
+        var focusNames = selectedFocuses.map(function(f) {
+          return categoryDisplayNames[f] || f;
+        });
+        focusLabel = ' - ' + focusNames.join(' + ') + ' Focus';
+      }
+      var ageLabel = customAgeLabel || selectedAgeGroup;
       var lines = [];
 
       lines.push(sportName + ' Practice Plan');
-      lines.push(selectedAgeGroup + ' | ' + selectedDuration + ' minutes' + focusLabel);
+      lines.push(ageLabel + ' | ' + selectedDuration + ' minutes' + focusLabel);
       lines.push('Generated ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }));
       lines.push('');
 
@@ -1599,7 +1784,7 @@
 
       // Update email link
       var emailBtn = document.getElementById('email-plan-btn');
-      var subject = encodeURIComponent(sportName + ' Practice Plan - ' + selectedAgeGroup + ' - ' + selectedDuration + ' min');
+      var subject = encodeURIComponent(sportName + ' Practice Plan - ' + ageLabel + ' - ' + selectedDuration + ' min');
       var body = encodeURIComponent(currentPlanText);
       emailBtn.href = 'mailto:?subject=' + subject + '&body=' + body;
     }
@@ -1650,6 +1835,10 @@
       selectedAgeGroup = null;
       selectedDuration = 60;
       selectedFocus = null;
+      selectedFocuses = [];
+      customDuration = null;
+      customAgeGroup = null;
+      customAgeLabel = null;
 
       document.querySelectorAll('.sport-card').forEach(function(card) {
         card.classList.remove('selected');
@@ -1662,6 +1851,13 @@
       document.querySelectorAll('#duration-pills .option-pill').forEach(function(p) {
         p.classList.toggle('selected', p.getAttribute('data-value') === '60');
       });
+
+      // Hide custom inputs
+      var customDurWrap = document.getElementById('custom-duration-wrap');
+      if (customDurWrap) {
+        customDurWrap.classList.remove('visible');
+        document.getElementById('custom-duration-input').value = '';
+      }
 
       // Scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
