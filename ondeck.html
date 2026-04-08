@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OnDeck — Walk-Up Music for Youth Sports | CoachPilot</title>
+  <meta name="description" content="Walk-up songs and AI announcer introductions that turn every at-bat into a big league moment. Make every kid feel like a pro.">
+  <meta name="keywords" content="walkup music, walk-up songs, youth sports, announcer app, softball, baseball, little league, rec league">
+  <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== UTILITY ===== */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: padding 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    nav.scrolled {
+      padding: 12px 0;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-logo span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-1px);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      padding: 140px 24px 100px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        padding: 180px 24px 120px;
+      }
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: #1A1A2E;
+      margin-bottom: 20px;
+    }
+
+    .hero-subtext {
+      font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 44px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.25);
+    }
+
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.35);
+    }
+
+    .btn-primary svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: #64648C;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      color: #F97316;
+    }
+
+    .btn-secondary svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-secondary:hover svg {
+      transform: translateY(2px);
+    }
+
+    /* ===== SECTION SHARED ===== */
+    section {
+      padding: 80px 0;
+    }
+
+    @media (min-width: 768px) {
+      section {
+        padding: 120px 0;
+      }
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #F97316;
+      margin-bottom: 16px;
+    }
+
+    .section-heading {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 20px;
+    }
+
+    .section-subtext {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: #64648C;
+      line-height: 1.7;
+      max-width: 580px;
+    }
+
+    /* ===== FEATURES SECTION ===== */
+    .features-section {
+      background-color: #FAFAFA;
+    }
+
+    .features-section .container {
+      max-width: 960px;
+    }
+
+    .features-section .section-heading {
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    @media (min-width: 700px) {
+      .features-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+      }
+    }
+
+    .feature-card {
+      background: #FFFFFF;
+      border: 1px solid #F0F0F0;
+      border-radius: 16px;
+      padding: 32px 28px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(249, 115, 22, 0.25);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+      transform: translateY(-2px);
+    }
+
+    .feature-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: #FFF7ED;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+    }
+
+    /* ===== HOW IT WORKS ===== */
+    .how-section .container {
+      max-width: 800px;
+    }
+
+    .how-section .section-heading {
+      text-align: center;
+    }
+
+    .how-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .steps {
+      margin-top: 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 48px;
+    }
+
+    .step:last-child {
+      padding-bottom: 0;
+    }
+
+    .step-indicator {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #FFF7ED;
+      border: 2px solid #FDBA74;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #F97316;
+      flex-shrink: 0;
+    }
+
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: #F0F0F0;
+      margin-top: 8px;
+      min-height: 40px;
+    }
+
+    .step:last-child .step-line {
+      display: none;
+    }
+
+    .step-content {
+      padding-top: 10px;
+    }
+
+    .step-content h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .step-content p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.6;
+    }
+
+    /* ===== THE MOMENT SECTION ===== */
+    .moment-section {
+      background-color: #FAFAFA;
+    }
+
+    .moment-section .container {
+      max-width: 720px;
+      text-align: center;
+    }
+
+    .moment-heading {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+    }
+
+    .moment-body {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: #64648C;
+      line-height: 1.8;
+    }
+
+    /* ===== PRICING SECTION ===== */
+    .pricing-section .container {
+      max-width: 640px;
+    }
+
+    .pricing-section .section-heading {
+      text-align: center;
+    }
+
+    .pricing-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .pricing-list {
+      list-style: none;
+      margin-top: 40px;
+      margin-bottom: 48px;
+    }
+
+    .pricing-list li {
+      padding: 16px 0;
+      border-bottom: 1px solid #F0F0F0;
+      font-size: 1rem;
+      color: #1A1A2E;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pricing-list li:first-child {
+      border-top: 1px solid #F0F0F0;
+    }
+
+    .pricing-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #FFF7ED;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pricing-check svg {
+      width: 13px;
+      height: 13px;
+      color: #F97316;
+    }
+
+    .pricing-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      background: #F97316;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-left: 8px;
+    }
+
+    .pricing-cta {
+      text-align: center;
+    }
+
+    /* ===== CROSS-PROMO ===== */
+    .promo-section {
+      background-color: #FAFAFA;
+    }
+
+    .promo-section .container {
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .promo-heading {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+
+    .promo-body {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+
+    .promo-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .promo-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #F97316;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: color 0.2s ease;
+    }
+
+    .promo-link:hover {
+      color: #EA6C0B;
+    }
+
+    .promo-link svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: #9999AA;
+      line-height: 1.8;
+    }
+
+    footer p strong {
+      color: #64648C;
+      font-weight: 600;
+    }
+
+    footer a {
+      color: #9999AA;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #F97316;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content > * {
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-content > *:nth-child(1) { animation-delay: 0.05s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.15s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.3s; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .hero {
+        padding: 120px 20px 72px;
+      }
+
+      section {
+        padding: 64px 0;
+      }
+
+      .feature-card {
+        padding: 24px 22px;
+      }
+
+      .step {
+        padding-bottom: 36px;
+      }
+
+      .pricing-list li {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="container">
+      <a href="index.html" class="nav-logo">
+        <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <a href="plans.html" class="nav-cta">
+        Try It Free
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Make Every Kid<br>Feel Like a Pro</h1>
+      <p class="hero-subtext">Walk-up songs and announcer introductions that turn every at-bat into a big league moment. Because the look on their face is worth it.</p>
+      <div class="hero-actions">
+        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download on the App Store
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          See how it works
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container fade-in">
+      <span class="section-label">What OnDeck Does</span>
+      <h2 class="section-heading">Game day, elevated</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon" aria-hidden="true">&#127925;</div>
+          <h3>Walk-Up Songs</h3>
+          <p>Assign a walk-up song to every player. When it's their turn, tap and play. Stadium vibes, rec league budget.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" aria-hidden="true">&#127908;</div>
+          <h3>AI Announcer</h3>
+          <p>Professional-sounding announcer voices introduce each player by name. No PA system needed &mdash; just your phone and a speaker.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon" aria-hidden="true">&#128203;</div>
+          <h3>Team Manager</h3>
+          <p>Build your roster, assign songs, and manage everything from one app. Works offline at the field.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-section" id="how-it-works">
+    <div class="container fade-in">
+      <span class="section-label">How It Works</span>
+      <h2 class="section-heading">Ready in minutes</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">1</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Add your players</h3>
+            <p>Type in names or import your roster. Takes about 2 minutes.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">2</div>
+            <div class="step-line"></div>
+          </div>
+          <div class="step-content">
+            <h3>Pick their songs</h3>
+            <p>Search for walk-up songs or let players choose their own. Save to their profile.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-indicator">
+            <div class="step-number">3</div>
+          </div>
+          <div class="step-content">
+            <h3>Hit play on game day</h3>
+            <p>Tap a player's name and their song starts. AI announcer introduces them. Watch them light up.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- The Moment Section -->
+  <section class="moment-section">
+    <div class="container fade-in">
+      <h2 class="moment-heading">It's not about the music.<br>It's about the moment.</h2>
+      <p class="moment-body">When a 7-year-old hears their name announced and their song start playing, something changes. They stand a little taller. They smile a little wider. For 30 seconds, they're not just a kid on a rec league team &mdash; they're the main character. That's what OnDeck is for.</p>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section">
+    <div class="container fade-in">
+      <span class="section-label">Simple Pricing</span>
+      <h2 class="section-heading">Start free. Add credits when you need them.</h2>
+      <ul class="pricing-list">
+        <li>
+          <span class="pricing-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          Free to download &mdash; includes 3 announcer credits
+        </li>
+        <li>
+          <span class="pricing-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          $0.99 for 1 credit
+        </li>
+        <li>
+          <span class="pricing-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          $2.99 for 5 credits
+        </li>
+        <li>
+          <span class="pricing-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          $4.99 for 10 credits
+        </li>
+        <li>
+          <span class="pricing-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          $9.99 for 25 credits <span class="pricing-badge">Best Value</span>
+        </li>
+      </ul>
+      <div class="pricing-cta">
+        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="btn-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          Download OnDeck
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cross-Promo Section -->
+  <section class="promo-section">
+    <div class="container fade-in">
+      <p class="promo-heading">Part of the CoachPilot family</p>
+      <p class="promo-body">OnDeck is one of the free tools from CoachPilot. Also check out:</p>
+      <div class="promo-links">
+        <a href="plans.html" class="promo-link">
+          Practice Plan Generator
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="index.html" class="promo-link">
+          CoachPilot Home
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <p style="margin-top: 12px;"><a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="font-size: 13px;">Privacy Policy</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // === Navbar scroll effect ===
+    (function() {
+      var nav = document.getElementById('navbar');
+      var scrollThreshold = 40;
+
+      function handleScroll() {
+        if (window.scrollY > scrollThreshold) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      }
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    })();
+
+    // === Scroll-triggered fade-in ===
+    (function() {
+      var fadeElements = document.querySelectorAll('.fade-in');
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.12,
+          rootMargin: '0px 0px -30px 0px'
+        });
+
+        fadeElements.forEach(function(el) {
+          observer.observe(el);
+        });
+      } else {
+        fadeElements.forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
