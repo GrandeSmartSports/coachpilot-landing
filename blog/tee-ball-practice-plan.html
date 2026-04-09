@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Run a Tee Ball Practice That Doesn't End in Chaos | CoachPilot</title>
+  <meta name="description" content="A complete 60-minute tee ball practice plan for 4-6 year olds. Station rotations, parent helpers, and short drills that actually hold their attention.">
+  <meta property="og:title" content="How to Run a Tee Ball Practice That Doesn't End in Chaos">
+  <meta property="og:description" content="A complete 60-minute tee ball practice plan for 4-6 year olds. Station rotations, parent helpers, and short drills that actually hold their attention.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://coachpilot.org/blog/tee-ball-practice-plan.html">
+  <meta property="og:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="author" content="Coach Daniel">
+  <link rel="canonical" href="https://coachpilot.org/blog/tee-ball-practice-plan.html">
+  <link rel="icon" type="image/png" href="../CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Orange accent bar */
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 3px; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .nav-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo span { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .nav-links a:hover { color: #F97316; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .nav-cta:hover { background-color: #EA6C0B; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+
+    /* Article */
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 24px 0;
+      text-align: center;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #9999AA;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .article-meta .author { color: #F97316; font-weight: 600; }
+    .article-meta .divider { color: #E0E0E0; }
+    .article-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+    }
+    .article-header .subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: #64648C;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 0;
+    }
+    .article-body p {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+    }
+    .article-body h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-top: 48px;
+      margin-bottom: 16px;
+    }
+    .article-body h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    .article-body ul, .article-body ol {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+    .article-body li { margin-bottom: 8px; }
+    .article-body strong { color: #1A1A2E; }
+    .article-body a { color: #F97316; text-decoration: none; font-weight: 600; }
+    .article-body a:hover { text-decoration: underline; }
+
+    .callout {
+      background-color: #FAFAFA;
+      border-left: 4px solid #F97316;
+      border-radius: 0 12px 12px 0;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+    .callout p { margin-bottom: 0; font-size: 17px; }
+    .callout strong { color: #F97316; }
+
+    /* CTA Section */
+    .article-cta {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .article-cta .cta-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
+      border-radius: 20px;
+      padding: 48px 32px;
+    }
+    .article-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .article-cta p {
+      font-size: 16px;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249,115,22,0.4);
+    }
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249,115,22,0.5);
+    }
+
+    /* More Articles */
+    .more-articles {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .more-articles h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .more-articles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 540px) {
+      .more-articles-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .more-articles-grid a {
+      display: block;
+      padding: 20px 24px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.45;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .more-articles-grid a:hover { background-color: #FFF7ED; transform: translateY(-2px); }
+    .more-articles-grid a span {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #F97316;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    /* Section Divider */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.2), transparent);
+      border: none;
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+    footer p { font-size: 14px; color: #9999AA; line-height: 1.8; }
+    footer p strong { color: #64648C; font-weight: 600; }
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      font-size: 13px; color: #9999AA; text-decoration: none; transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: #F97316; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-container">
+      <a href="https://coachpilot.org" class="nav-logo">
+        <img src="../CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="https://coachpilot.org/plans.html">Practice Plans</a></li>
+        <li><a href="https://coachpilot.org/blog/">Blog</a></li>
+      </ul>
+      <a href="https://coachpilot.org/plans.html" class="nav-cta">Try It Free</a>
+    </div>
+  </nav>
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="author">Coach Daniel</span>
+      <span class="divider">|</span>
+      <span>April 8, 2026</span>
+      <span class="divider">|</span>
+      <span>6 min read</span>
+    </div>
+    <h1>How to Run a Tee Ball Practice That Doesn't End in Chaos</h1>
+    <p class="subtitle">A station based 60 minute tee ball practice plan for 4 to 6 year olds. Short drills, parent helpers, and enough structure to keep the wheels on.</p>
+  </header>
+
+  <article class="article-body">
+    <p>Let's be honest. Coaching tee ball is less like coaching a sport and more like herding cats who occasionally pick up a glove. You've got kids picking dandelions in the outfield, one crying because their helmet is too heavy, and another one sprinting to third base after hitting the tee instead of the ball.</p>
+
+    <p>And you know what? That's completely normal.</p>
+
+    <p>The trick to a successful tee ball practice isn't having a drill for every minute. It's understanding one simple truth: these kids have the attention span of a goldfish with a sugar rush. You need short bursts. You need variety. And you need parent helpers.</p>
+
+    <p>Here's a 60 minute practice plan you can use tonight. It's built for 4 to 6 year olds and it actually works.</p>
+
+    <h2>Before You Start: Recruit the Parents</h2>
+
+    <p>This is the single most important thing I can tell you. Do not try to run tee ball practice alone. You need at least two or three parents on the field with you. Send a group text before practice: "Hey, I need 3 parent helpers tonight. You don't need to know softball. You just need to stand at a station and encourage kids. That's it."</p>
+
+    <p>Most parents are happy to help. They just need to be asked. And when you have helpers, you can run stations. Stations are the secret weapon of tee ball coaching because they keep kids moving and eliminate the standing around that leads to chaos.</p>
+
+    <h2>The 60 Minute Tee Ball Practice Plan</h2>
+
+    <h3>Station 1: Warm Up Races (10 minutes)</h3>
+
+    <p>Forget stretching with 5 year olds. They can't touch their toes and they don't want to try. Instead, get them moving with fun races.</p>
+
+    <ul>
+      <li><strong>Base path races:</strong> Line them up at home plate and race to first base. Then first to second. Make it a relay if you have enough kids.</li>
+      <li><strong>Animal runs:</strong> Bear crawl to the pitcher's mound. Crab walk back. Frog jumps along the baseline. They love this stuff.</li>
+      <li><strong>Freeze tag:</strong> If you still have time, play a quick round. Nothing warms kids up faster than running from whoever is "it."</li>
+    </ul>
+
+    <p>The goal here is simple. Burn some energy. Get the wiggles out. If they run hard for 10 minutes, they'll focus better for the rest of practice.</p>
+
+    <h3>Station 2: Throwing Pairs (10 minutes)</h3>
+
+    <p>Pair them up and space them about 10 to 15 feet apart. That's it. At this age, we're not worried about throwing mechanics. We're just trying to get them comfortable tossing a ball back and forth.</p>
+
+    <ul>
+      <li>Start with underhand tosses. Way easier for little arms.</li>
+      <li>Teach them to use two hands when they catch. "Alligator mouth" is the cue that works. Hands open like an alligator mouth, snap shut on the ball.</li>
+      <li>If a kid can't catch yet, that's fine. Roll the ball to them instead. The point is reps, not perfection.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Pro tip:</strong> Have a parent helper stand between two pairs. Their only job is to say "nice throw" and "good try" over and over. Encouragement at this age is more important than instruction.</p>
+    </div>
+
+    <h3>Station 3: Tee Hitting (15 minutes)</h3>
+
+    <p>This is why they showed up. Every kid wants to hit. Set up two or three tees if you have them. If you only have one, that's okay. Just keep the line short and give each kid 5 swings before rotating.</p>
+
+    <ul>
+      <li><strong>Tee height matters.</strong> Adjust it so the ball sits at the kid's belt line. Too high and they'll chop down. Too low and they'll scoop.</li>
+      <li><strong>One coaching cue at a time.</strong> Don't overload them. "Watch the ball" is plenty. Next practice you can add "swing level." But not today.</li>
+      <li><strong>Let them hit into a fence or net if possible.</strong> Chasing balls slows everything down. If you don't have a net, assign a parent to shag balls.</li>
+    </ul>
+
+    <p>The kids not hitting? Have them practice fielding the hit balls. Two birds, one stone. Nobody is standing around doing nothing.</p>
+
+    <h3>Station 4: Base Running Game (10 minutes)</h3>
+
+    <p>Base running at this age is pure joy. These kids want to run. Let them.</p>
+
+    <ul>
+      <li><strong>Home to first race:</strong> Line them up. Say "go." Time them if you want. They'll beg to do it again.</li>
+      <li><strong>Full diamond run:</strong> Can they run all four bases? Make it a time trial. "Let's see if you can beat 30 seconds!" (Spoiler: most can't. They don't care.)</li>
+      <li><strong>Red light, green light on the base paths:</strong> Coach calls green light, they run. Red light, they freeze. Anyone who moves is "out." This teaches them to stop on a base instead of just running forever.</li>
+    </ul>
+
+    <p>The red light, green light game is sneaky good. It actually teaches base running awareness in a way that feels like play, not practice.</p>
+
+    <h3>Station 5: Fun Closer (15 minutes)</h3>
+
+    <p>End every practice with something purely fun. This is the part they'll talk about at dinner. This is the part that makes them want to come back.</p>
+
+    <ul>
+      <li><strong>Coach pitch mini game:</strong> You pitch underhand, they hit, they run. No outs. Everyone scores. Pure chaos, pure joy.</li>
+      <li><strong>Pickle (rundown):</strong> Two bases, 20 feet apart. Kid runs back and forth while two players try to tag them. Even if they don't fully get the rules, they'll laugh the entire time.</li>
+      <li><strong>Water break awards:</strong> Gather them up. Give out silly awards. "Best smile today goes to Maya. Loudest cheerer was Jackson." End on a high note.</li>
+    </ul>
+
+    <h2>The 10 Minute Rule</h2>
+
+    <p>If you remember nothing else from this article, remember this. No activity should last more than 10 minutes for this age group. The second you see eyes glazing over, someone lying on the ground, or a kid wandering toward the parking lot, it's time to switch.</p>
+
+    <p>Ten minutes is the ceiling. Eight is better. Five is fine if they're losing interest. The rotation is what keeps them engaged. They don't need deep skill work. They need variety and energy.</p>
+
+    <h2>What Not to Do</h2>
+
+    <p>I've seen well meaning coaches make these mistakes. Don't be that coach.</p>
+
+    <ul>
+      <li><strong>Don't line them up for individual drills.</strong> If 8 kids are watching while 1 kid does something, you've lost 8 kids.</li>
+      <li><strong>Don't lecture.</strong> Any instruction longer than 30 seconds is too long. Show them, don't tell them.</li>
+      <li><strong>Don't worry about positions.</strong> At this age, everyone plays everywhere. Rotate them constantly. Let them try everything.</li>
+      <li><strong>Don't yell about mistakes.</strong> A kid who throws to the wrong base just needs a gentle redirect, not a correction in front of the team.</li>
+    </ul>
+
+    <h2>The Real Goal</h2>
+
+    <p>Here's the thing about tee ball. The goal is not to develop elite athletes. The goal is to give these kids a great first experience with sports. You want them to associate softball with fun, friends, and a coach who made them feel good about themselves.</p>
+
+    <p>If every kid leaves practice smiling, you won. Period.</p>
+
+    <p>And if the practice was a little chaotic? That's tee ball, Coach. That's how it's supposed to look.</p>
+
+    <p>Need a practice plan built for your exact age group and skill level? <a href="https://coachpilot.org/plans.html">CoachPilot generates a custom plan in 30 seconds</a>. Free. No signup. Just tell it what you need and go coach.</p>
+  </article>
+
+  <section class="article-cta">
+    <div class="cta-box">
+      <h2>Tee ball practice shouldn't require a PhD in child psychology.</h2>
+      <p>Tell CoachPilot your age group and how long you have. It builds a complete practice plan in seconds. Free. No account needed.</p>
+      <a href="https://coachpilot.org/plans.html" class="btn-primary">
+        Build Your Practice Plan
+      </a>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section class="more-articles">
+    <h2>More Coaching Articles</h2>
+    <div class="more-articles-grid">
+      <a href="/blog/first-softball-practice.html">
+        <span>Softball</span>
+        Your First Softball Practice Is Tomorrow. Here's Exactly What to Do.
+      </a>
+      <a href="/blog/kid-afraid-of-ball.html">
+        <span>Softball</span>
+        Your Kid Is Afraid of the Ball. Here's How to Fix It.
+      </a>
+      <a href="/blog/youth-softball-drills.html">
+        <span>Softball</span>
+        5 Drills Every Youth Softball Coach Should Know
+      </a>
+      <a href="/blog/volunteer-coach-survival-guide.html">
+        <span>All Sports</span>
+        The Volunteer Coach's Survival Guide
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <div class="footer-links">
+        <a href="https://coachpilot.org/plans.html">Practice Plans</a>
+        <a href="https://coachpilot.org/blog/">Blog</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Make a Batting Lineup When Every Parent Thinks Their Kid Should Bat First | CoachPilot</title>
+  <meta name="description" content="How to create a fair youth batting order that keeps parents happy and kids confident. Rotation system, sprinkle strategy, and making it policy from day one.">
+  <meta property="og:title" content="How to Make a Batting Lineup When Every Parent Thinks Their Kid Should Bat First">
+  <meta property="og:description" content="How to create a fair youth batting order that keeps parents happy and kids confident. Rotation system, sprinkle strategy, and making it policy from day one.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://coachpilot.org/blog/batting-lineup-guide.html">
+  <meta property="og:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="How to Make a Batting Lineup When Every Parent Thinks Their Kid Should Bat First">
+  <meta name="twitter:description" content="How to create a fair youth batting order that keeps parents happy and kids confident. Rotation system, sprinkle strategy, and making it policy from day one.">
+  <meta name="twitter:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
+  <meta name="author" content="Coach Daniel">
+  <link rel="canonical" href="https://coachpilot.org/blog/batting-lineup-guide.html">
+  <link rel="icon" type="image/png" href="../CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Orange accent bar */
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 3px; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .nav-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo span { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .nav-links a:hover { color: #F97316; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .nav-cta:hover { background-color: #EA6C0B; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+
+    /* Article */
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 24px 0;
+      text-align: center;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #9999AA;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .article-meta .author { color: #F97316; font-weight: 600; }
+    .article-meta .divider { color: #E0E0E0; }
+    .article-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+    }
+    .article-header .subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: #64648C;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 0;
+    }
+    .article-body p {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+    }
+    .article-body h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-top: 48px;
+      margin-bottom: 16px;
+    }
+    .article-body h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    .article-body ul, .article-body ol {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+    .article-body li { margin-bottom: 8px; }
+    .article-body strong { color: #1A1A2E; }
+    .article-body a { color: #F97316; text-decoration: none; font-weight: 600; }
+    .article-body a:hover { text-decoration: underline; }
+
+    .callout {
+      background-color: #FAFAFA;
+      border-left: 4px solid #F97316;
+      border-radius: 0 12px 12px 0;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+    .callout p { margin-bottom: 0; font-size: 17px; }
+    .callout strong { color: #F97316; }
+
+    /* CTA Section */
+    .article-cta {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .article-cta .cta-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
+      border-radius: 20px;
+      padding: 48px 32px;
+    }
+    .article-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .article-cta p {
+      font-size: 16px;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249,115,22,0.4);
+    }
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249,115,22,0.5);
+    }
+
+    /* More Articles */
+    .more-articles {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .more-articles h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .more-articles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 540px) {
+      .more-articles-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .more-articles-grid a {
+      display: block;
+      padding: 20px 24px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.45;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .more-articles-grid a:hover { background-color: #FFF7ED; transform: translateY(-2px); }
+    .more-articles-grid a span {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #F97316;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    /* Section Divider */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.2), transparent);
+      border: none;
+      margin: 0;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+    footer p { font-size: 14px; color: #9999AA; line-height: 1.8; }
+    footer p strong { color: #64648C; font-weight: 600; }
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      font-size: 13px; color: #9999AA; text-decoration: none; transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: #F97316; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-container">
+      <a href="https://coachpilot.org" class="nav-logo">
+        <img src="../CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="https://coachpilot.org/plans.html">Practice Plans</a></li>
+        <li><a href="https://coachpilot.org/blog/">Blog</a></li>
+      </ul>
+      <a href="https://coachpilot.org/plans.html" class="nav-cta">Try It Free</a>
+    </div>
+  </nav>
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="author">Coach Daniel</span>
+      <span class="divider">|</span>
+      <span>April 8, 2026</span>
+      <span class="divider">|</span>
+      <span>5 min read</span>
+    </div>
+    <h1>How to Make a Batting Lineup When Every Parent Thinks Their Kid Should Bat First</h1>
+    <p class="subtitle">The sprinkle strategy, the rotation system, and how to make it policy from day one so you don't have to explain it twelve different times in the parking lot.</p>
+  </header>
+
+  <article class="article-body">
+    <p>Let's be honest. You're going to get the email.</p>
+
+    <p>"Hey Coach, just wondering why Emma was batting eighth? She's been working really hard on her swing and we thought maybe she could move up in the order."</p>
+
+    <p>Or the more direct version: "Why isn't my kid batting third?"</p>
+
+    <p>Welcome to youth sports, where every parent thinks their kid is one batting spot away from a college scholarship. Deep breath. This is solvable.</p>
+
+    <h2>The Data Nobody Talks About</h2>
+
+    <p>Here's the truth that will set you free.</p>
+
+    <p>At 8U and below, batting order has almost zero statistical impact on whether you win or lose. The game is decided by walks, errors, and whether the pitcher can get the ball over the plate. Not by who bats leadoff.</p>
+
+    <p>Even at 10U, the difference between batting second and batting sixth is negligible over the course of a season. The kids get roughly the same number of at bats. The game moves too fast and innings end too unpredictably for batting order to matter the way it does in college or the pros.</p>
+
+    <p>So why does everyone care so much?</p>
+
+    <p>Because batting order feels like a report card. It feels like a ranking. And no parent wants to see their kid at the bottom of the list.</p>
+
+    <h2>The Sprinkle Strategy</h2>
+
+    <p>This is how you build a lineup that is both fair and functional.</p>
+
+    <p>Step one: mentally group your players into three tiers. Not based on who you like. Based on current skill level.</p>
+
+    <ul>
+      <li><strong>A tier:</strong> Your strongest hitters and most consistent contact makers.</li>
+      <li><strong>B tier:</strong> Solid players still developing consistency.</li>
+      <li><strong>C tier:</strong> Newer players or kids still learning the basics.</li>
+    </ul>
+
+    <p>Step two: sprinkle them throughout the lineup.</p>
+
+    <p>Don't stack all your best hitters at the top and all your struggling players at the bottom. That's how you create a batting order that looks like a hierarchy. Instead, distribute your A, B, and C players evenly through the nine spots.</p>
+
+    <p>For example:</p>
+
+    <ul>
+      <li>1: B player</li>
+      <li>2: A player</li>
+      <li>3: C player</li>
+      <li>4: A player</li>
+      <li>5: B player</li>
+      <li>6: C player</li>
+      <li>7: B player</li>
+      <li>8: A player</li>
+      <li>9: C player</li>
+    </ul>
+
+    <p>This does two things. It keeps the lineup balanced so you're not putting three outs in a row at the bottom. And it makes the batting order look less like a ranking and more like a strategic puzzle.</p>
+
+    <p>Parents stop seeing it as "my kid is eighth" and start seeing it as "my kid is in the middle of the order."</p>
+
+    <h2>The Rotation System (8U and Below)</h2>
+
+    <p>Here's the move that will save you a hundred headaches.</p>
+
+    <p>At 8U and below, rotate the batting order every single game.</p>
+
+    <p>Game one, Player A bats leadoff. Game two, Player B bats leadoff. Game three, Player C bats leadoff. Everyone gets a turn at every spot in the lineup over the course of the season.</p>
+
+    <p>This is not just fair. This is policy. And here's the key: you announce it in your preseason email before the first practice.</p>
+
+    <p>"We will rotate the batting order every game so that every player gets a chance to bat in different spots throughout the season. Our goal is development and equal opportunity."</p>
+
+    <p>Now when a parent asks why their kid is batting ninth, you don't have to defend a decision. You just point to the system. "We rotate every game. Emma will bat leadoff in two weeks."</p>
+
+    <p>Policy is your best friend. It removes you from the equation.</p>
+
+    <h2>At 10U and Up: Strategy Starts to Matter</h2>
+
+    <p>Once you hit 10U, the game changes. Pitchers throw strikes more consistently. Fielders make plays. Batting order starts to have a measurable impact.</p>
+
+    <p>At this level, you can start making strategic decisions. Your fastest runner might bat leadoff. Your most consistent contact hitter might bat second. Your power hitter might bat cleanup.</p>
+
+    <p>But here's the thing: you still rotate who bats in the premium spots.</p>
+
+    <p>Maybe you always put a fast runner at leadoff. But alternate between two or three players who fit that description. Same with cleanup. You're not locking one kid into the four hole for the entire season unless they're clearly the best option and everyone knows it.</p>
+
+    <p>The goal is to avoid creating a permanent hierarchy while still putting your team in the best position to win.</p>
+
+    <h2>How to Handle the Parent Question</h2>
+
+    <p>You're going to get asked. Here's the script.</p>
+
+    <p>"We rotate the batting order to give every player experience in different spots. At this age, development is the priority, and we want every kid to feel valued and have opportunities to contribute."</p>
+
+    <p>If they push back: "I understand you want what's best for your daughter. So do I. That's why we use a system that's fair for the whole team. She'll get her chance to bat at the top of the order in a few games."</p>
+
+    <p>Stay calm. Stay consistent. Don't get defensive.</p>
+
+    <p>The parent isn't trying to make your life harder. They just want their kid to feel successful. Give them the reassurance that you see their kid and you're giving them opportunities. Then move on.</p>
+
+    <div class="callout">
+      <p><strong>The key insight:</strong> Batting order matters way less than parents think and way more than you want to deal with. Make it policy, rotate it often, and take yourself out of the conversation.</p>
+    </div>
+
+    <h2>Make It Policy Before the First Practice</h2>
+
+    <p>The biggest mistake you can make is waiting until someone asks to figure out your system.</p>
+
+    <p>By then, you're on defense. You're explaining. You're justifying. And no matter what you say, it sounds like you're picking favorites.</p>
+
+    <p>Instead, make batting order part of your preseason communication. Put it in the welcome email. Mention it at the parent meeting. Make it clear that this is how your team operates before anyone has a chance to form an opinion.</p>
+
+    <p>"Every player will rotate through the batting order over the course of the season. We believe in development, equal opportunity, and giving every kid a chance to succeed in different roles."</p>
+
+    <p>Now it's not a conversation. It's just how things work.</p>
+
+    <h2>The Real Goal</h2>
+
+    <p>At the end of the day, the batting order doesn't determine who has fun. It doesn't determine who improves. And at 8U, it barely determines who wins.</p>
+
+    <p>What determines all of those things is whether every kid on your team feels like they matter. Like they have a role. Like they're part of something bigger than themselves.</p>
+
+    <p>The batting order is just a tool. Use it to create fairness, build confidence, and keep the focus where it belongs. On the kids. Not on the parking lot politics.</p>
+
+    <p>You've got this, Coach.</p>
+
+  </article>
+
+  <section class="article-cta">
+    <div class="cta-box">
+      <h2>Need a full practice plan to go with that lineup?</h2>
+      <p>Pick your sport, pick your age group, and CoachPilot builds a complete practice plan for you in 30 seconds. Free. No signup required.</p>
+      <a href="https://coachpilot.org/plans.html" class="btn-primary">
+        Build Your Practice Plan
+      </a>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section class="more-articles">
+    <h2>More Coaching Articles</h2>
+    <div class="more-articles-grid">
+      <a href="/blog/first-softball-practice.html">
+        <span>Softball</span>
+        Your First Softball Practice Is Tomorrow. Here's Exactly What to Do.
+      </a>
+      <a href="/blog/youth-softball-drills.html">
+        <span>Softball</span>
+        5 Drills Every Youth Softball Coach Should Know
+      </a>
+      <a href="/blog/preseason-parent-email.html">
+        <span>All Sports</span>
+        The Preseason Parent Email Every Youth Coach Should Send
+      </a>
+      <a href="/blog/different-skill-levels.html">
+        <span>All Sports</span>
+        How to Coach a Team Where Half the Kids Have Never Played Before
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <div class="footer-links">
+        <a href="https://coachpilot.org/plans.html">Practice Plans</a>
+        <a href="https://coachpilot.org/blog/">Blog</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
