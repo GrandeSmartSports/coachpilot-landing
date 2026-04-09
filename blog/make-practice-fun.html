@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Make Practice Fun (Without Losing Control) | CoachPilot Blog</title>
+  <meta name="description" content="The #1 reason kids play sports is to have fun. The #1 reason they quit is it stopped being fun. Here's how to keep practice productive AND enjoyable.">
+  <meta property="og:title" content="How to Make Practice Fun (Without Losing Control)">
+  <meta property="og:description" content="The #1 reason kids play sports is to have fun. The #1 reason they quit is it stopped being fun. Here's how to keep practice productive AND enjoyable.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://coachpilot.org/blog/make-practice-fun.html">
+  <link rel="icon" type="image/png" href="../CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 3px; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    }
+    nav .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo span { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .nav-links a:hover { color: #F97316; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .nav-cta:hover { background-color: #EA6C0B; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+
+    /* Article */
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 24px 0;
+      text-align: center;
+    }
+    .article-header .label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #F97316;
+      margin-bottom: 16px;
+    }
+    .article-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 16px;
+    }
+    .article-meta {
+      font-size: 15px;
+      color: #9999AA;
+      margin-bottom: 48px;
+    }
+    .article-meta span { color: #64648C; font-weight: 500; }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #333;
+    }
+    .article-body p { margin-bottom: 24px; }
+    .article-body h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .article-body h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1A1A2E;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    .article-body strong { color: #1A1A2E; }
+    .article-body ul, .article-body ol {
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+    .article-body li {
+      margin-bottom: 8px;
+    }
+    .article-body a { color: #F97316; text-decoration: underline; text-underline-offset: 2px; }
+    .article-body a:hover { color: #EA6C0B; }
+    .article-body blockquote {
+      background: #FAFAFA;
+      border-left: 4px solid #F97316;
+      padding: 20px 24px;
+      margin: 32px 0;
+      border-radius: 0 12px 12px 0;
+      font-style: italic;
+      color: #444;
+    }
+    .callout-box {
+      background: #FAFAFA;
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin: 32px 0;
+      border: 1px solid #F0F0F0;
+    }
+    .callout-box p { margin-bottom: 12px; }
+    .callout-box p:last-child { margin-bottom: 0; }
+
+    /* CTA Section */
+    .article-cta {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+      text-align: center;
+    }
+    .article-cta .cta-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 100%);
+      border: 1px solid #FDBA74;
+      border-radius: 16px;
+      padding: 40px 32px;
+    }
+    .article-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 12px;
+    }
+    .article-cta p {
+      font-size: 16px;
+      color: #64648C;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+    }
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.5);
+    }
+
+    /* More Articles */
+    .more-articles {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .more-articles h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+    .more-articles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 500px) {
+      .more-articles-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .more-articles-grid a {
+      display: block;
+      padding: 16px 20px;
+      background: #FAFAFA;
+      border: 1px solid #F0F0F0;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 500;
+      font-size: 15px;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+      line-height: 1.4;
+    }
+    .more-articles-grid a:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+    footer p { font-size: 14px; color: #9999AA; line-height: 1.8; }
+    footer p strong { color: #64648C; font-weight: 600; }
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      font-size: 13px; color: #9999AA; text-decoration: none; transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: #F97316; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="https://coachpilot.org" class="nav-logo">
+        <img src="../CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">Blog</a></li>
+        <li><a href="https://coachpilot.org/plans">Practice Plans</a></li>
+      </ul>
+      <a href="https://coachpilot.org/plans" class="nav-cta">Try It Free</a>
+    </div>
+  </nav>
+
+  <header class="article-header">
+    <span class="label">Coaching Tips</span>
+    <h1>How to Make Practice Fun (Without Losing Control)</h1>
+    <p class="article-meta">By <span>Coach Daniel</span> / April 2026</p>
+  </header>
+
+  <article class="article-body">
+    <p>The #1 reason kids play sports: to have fun. The #1 reason kids quit sports: it stopped being fun. As a coach, your job is to make practice productive AND enjoyable. Here's how to do both at the same time.</p>
+
+    <h2>The Fun Formula: Competition + Variety + Encouragement</h2>
+
+    <h3>Add competition to everything.</h3>
+    <p>"Who can make 5 passes in a row first?" Same drill, 10x more engagement. Kids are wired to compete, so lean into it. Turn any drill into a race, a challenge, or a countdown. Watch the energy level instantly change.</p>
+
+    <h3>Change activities every 5 to 10 minutes.</h3>
+    <p>Especially for ages 4 to 10. Their brains need novelty. Even if the skill focus stays the same, change the game. A new name, a new twist, a new partner. That's all it takes to reset their attention.</p>
+
+    <h3>Use names constantly.</h3>
+    <p>"Great hustle, Marcus!" hits different than "Good job, guys." Kids light up when you see THEM. Make it a goal to say every kid's name at least twice per practice. It costs you nothing and means everything to them.</p>
+
+    <h3>Let them make choices.</h3>
+    <p>"Do you want to do relay races or scrimmage next?" Ownership equals buy-in. When kids feel like they have a say, they invest more energy into whatever comes next.</p>
+
+    <h3>End with their favorite.</h3>
+    <p>Whatever they love most (scrimmage, knockout, a silly game), save it for the end. Now they associate the end of practice with fun, and they want to come back tomorrow.</p>
+
+    <h2>What "Losing Control" Actually Looks Like</h2>
+    <p>It's not noise. It's not kids running around. It's when they stop listening to you completely. The fix isn't yelling. It's a routine.</p>
+
+    <div class="callout-box">
+      <p><strong>The Whistle Protocol:</strong></p>
+      <ul>
+        <li>1 whistle = freeze</li>
+        <li>2 whistles = come to me</li>
+      </ul>
+      <p>Teach it at the first practice. Reinforce it every practice. By week 3, it's automatic. You never need to raise your voice again.</p>
+    </div>
+
+    <h2>The Uncomfortable Truth</h2>
+    <p>If kids are bored at practice, the practice is the problem, not the kids. You have the power to fix that. Competition, variety, encouragement, and a simple routine for transitions. That's the whole formula.</p>
+
+    <p>When practice is fun, kids try harder, listen better, and improve faster. Fun isn't the opposite of learning. Fun IS the learning.</p>
+  </article>
+
+  <section class="article-cta">
+    <div class="cta-box">
+      <h2>Ready to Build a Fun Practice Plan?</h2>
+      <p>Generate a free, age-appropriate practice plan in 30 seconds. Drills that keep kids engaged, learning, and smiling.</p>
+      <a href="https://coachpilot.org/plans" class="btn-primary">Generate a Free Practice Plan</a>
+    </div>
+  </section>
+
+  <section class="more-articles">
+    <h2>More Articles</h2>
+    <div class="more-articles-grid">
+      <a href="first-softball-practice.html">Your First Softball Practice Is Tomorrow. Here's Exactly What to Do.</a>
+      <a href="voluntold-soccer-coach.html">I Got Voluntold to Coach Soccer. Now What?</a>
+      <a href="volunteer-coach-survival-guide.html">The Volunteer Coach's Survival Guide</a>
+      <a href="basketball-practice-plan-falls-apart.html">What to Do When Your Basketball Practice Plan Falls Apart</a>
+      <a href="youth-softball-drills.html">5 Drills Every Youth Softball Coach Should Know</a>
+      <a href="flag-football-practice-plan.html">Flag Football Practice Plan for Kids Who've Never Played</a>
+      <a href="night-before-practice-plan.html">The Night-Before Practice Plan: 10 Minutes to Ready</a>
+      <a href="why-best-players-dont-need-most-attention.html">Why Your Best Players Don't Need the Most Attention</a>
+      <a href="volleyball-practice-plan.html">How to Run a Great Volleyball Practice</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <div class="footer-links">
+        <a href="https://coachpilot.org/plans">Practice Plans</a>
+        <a href="index.html">Blog</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
