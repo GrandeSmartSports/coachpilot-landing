@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Volunteer Coach's Survival Guide: First Season Edition | CoachPilot</title>
+  <meta name="description" content="8 rules every first year volunteer coach needs to know. From practice planning to positive coaching to parent communication. Your survival guide for the first season.">
+  <meta property="og:title" content="The Volunteer Coach's Survival Guide: First Season Edition">
+  <meta property="og:description" content="8 rules every first year volunteer coach needs to know. From practice planning to positive coaching to parent communication. Your survival guide for the first season.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://coachpilot.org/blog/volunteer-coach-survival-guide.html">
+  <meta name="author" content="Coach Daniel">
+  <link rel="canonical" href="https://coachpilot.org/blog/volunteer-coach-survival-guide.html">
+  <link rel="icon" type="image/png" href="../CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
+    nav {
+      position: fixed;
+      top: 3px; left: 0; right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255,255,255,0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .nav-container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+    .nav-logo img { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-logo span { font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 24px; list-style: none; }
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+    }
+    .nav-links a:hover { color: #F97316; }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .nav-cta:hover { background-color: #EA6C0B; transform: translateY(-1px); }
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+
+    .article-header {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 24px 0;
+      text-align: center;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #9999AA;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .article-meta .author { color: #F97316; font-weight: 600; }
+    .article-meta .divider { color: #E0E0E0; }
+    .article-header h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 24px;
+    }
+    .article-header .subtitle {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: #64648C;
+      line-height: 1.7;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .article-body {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px 0;
+    }
+    .article-body p {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+    }
+    .article-body h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-top: 48px;
+      margin-bottom: 16px;
+    }
+    .article-body h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    .article-body ul, .article-body ol {
+      font-size: 18px;
+      line-height: 1.75;
+      color: #3A3A5C;
+      margin-bottom: 24px;
+      padding-left: 24px;
+    }
+    .article-body li { margin-bottom: 8px; }
+    .article-body strong { color: #1A1A2E; }
+    .article-body a { color: #F97316; text-decoration: none; font-weight: 600; }
+    .article-body a:hover { text-decoration: underline; }
+
+    .callout {
+      background-color: #FAFAFA;
+      border-left: 4px solid #F97316;
+      border-radius: 0 12px 12px 0;
+      padding: 24px 28px;
+      margin: 32px 0;
+    }
+    .callout p { margin-bottom: 0; font-size: 17px; }
+    .callout strong { color: #F97316; }
+
+    .article-cta {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .article-cta .cta-box {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
+      border-radius: 20px;
+      padding: 48px 32px;
+    }
+    .article-cta h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .article-cta p {
+      font-size: 16px;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249,115,22,0.4);
+    }
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249,115,22,0.5);
+    }
+
+    .more-articles {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 24px 64px;
+    }
+    .more-articles h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1A1A2E;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .more-articles-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 540px) {
+      .more-articles-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .more-articles-grid a {
+      display: block;
+      padding: 20px 24px;
+      background: #FAFAFA;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 600;
+      font-size: 15px;
+      line-height: 1.45;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    .more-articles-grid a:hover { background-color: #FFF7ED; transform: translateY(-2px); }
+    .more-articles-grid a span {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #F97316;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 6px;
+    }
+
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249,115,22,0.2), transparent);
+      border: none;
+      margin: 0;
+    }
+
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+    footer p { font-size: 14px; color: #9999AA; line-height: 1.8; }
+    footer p strong { color: #64648C; font-weight: 600; }
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+    .footer-links a {
+      font-size: 13px; color: #9999AA; text-decoration: none; transition: color 0.2s ease;
+    }
+    .footer-links a:hover { color: #F97316; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-container">
+      <a href="https://coachpilot.org" class="nav-logo">
+        <img src="../CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="https://coachpilot.org/plans.html">Practice Plans</a></li>
+        <li><a href="https://coachpilot.org/blog/">Blog</a></li>
+      </ul>
+      <a href="https://coachpilot.org/plans.html" class="nav-cta">Try It Free</a>
+    </div>
+  </nav>
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="author">Coach Daniel</span>
+      <span class="divider">|</span>
+      <span>April 8, 2026</span>
+      <span class="divider">|</span>
+      <span>6 min read</span>
+    </div>
+    <h1>The Volunteer Coach's Survival Guide: First Season Edition</h1>
+    <p class="subtitle">Zero training, zero materials, zero idea what you're getting into. Welcome to the club. It's bigger than you think.</p>
+  </header>
+
+  <article class="article-body">
+    <p>Every year, thousands of parents volunteer to coach youth sports with zero training, zero materials, and zero idea what they're getting into. If that's you, welcome to the club. It's bigger than you think.</p>
+
+    <p>Here's your survival guide for the first season.</p>
+
+    <h2>Rule 1: Lower the Bar (Then Clear It)</h2>
+    <p>You don't need to be Coach K. You need to show up, be organized, and make it fun. That's it. If every kid is smiling at the end of practice, you won.</p>
+
+    <h2>Rule 2: Plan Your Practices (Even Badly)</h2>
+    <p>A bad plan is 10x better than no plan. Write down 4 to 5 activities, assign rough times, and you're set. The plan will fall apart by minute 15. That's normal. Having one means you know what to do next instead of standing there.</p>
+
+    <h2>Rule 3: The 5 Minute Rule for Young Kids</h2>
+    <p>Ages 4 to 8 have the attention span of a goldfish with a sugar rush. No drill should last more than 5 to 8 minutes. When their eyes glaze over, switch. Speed over depth.</p>
+
+    <h2>Rule 4: Positive Coaching Is Not Soft Coaching</h2>
+    <p>"Nice throw! Next time try stepping toward your target." That's coaching. "No, not like that!" That's why kids quit sports. The research is clear: positive coaching produces better athletes AND better people.</p>
+
+    <h2>Rule 5: Talk to Parents Early</h2>
+    <p>Send one email before the season: practice schedule, what to bring, your coaching philosophy (even if it's just "we're here to have fun and learn"). Sets expectations and prevents 90% of parent drama.</p>
+
+    <h2>Rule 6: It's About the Kids, Not the Scoreboard</h2>
+    <p>Especially at the rec level. Equal playing time. Rotate positions. Let the kid who's struggling have a moment. Twenty years from now, they won't remember the score. They'll remember how you made them feel.</p>
+
+    <h2>Rule 7: Ask for Help</h2>
+    <p>Other parents can run a station. Your assistant coach doesn't need to know the sport. They just need to stand at second base and encourage kids. You are not alone unless you choose to be.</p>
+
+    <h2>Rule 8: You're Making a Bigger Impact Than You Know</h2>
+    <p>Studies show that the coach is the #1 factor in whether a kid stays in sports. Not talent, not the team, not the league. The coach. You're literally shaping whether these kids love or hate sports for the rest of their lives. No pressure.</p>
+
+    <div class="callout">
+      <p>Just kidding. The fact that you're reading a guide means you're already one of the good ones.</p>
+    </div>
+
+    <p>Ready to plan your next practice? <a href="https://coachpilot.org/plans.html">Get free practice plans for 16 sports here.</a></p>
+  </article>
+
+  <section class="article-cta">
+    <div class="cta-box">
+      <h2>Free practice plans for 16 sports.</h2>
+      <p>Pick your sport, pick your age group, and get a plan that actually works. No experience required. No signup required.</p>
+      <a href="https://coachpilot.org/plans.html" class="btn-primary">
+        Build Your Practice Plan
+      </a>
+    </div>
+  </section>
+
+  <hr class="section-divider">
+
+  <section class="more-articles">
+    <h2>More Coaching Articles</h2>
+    <div class="more-articles-grid">
+      <a href="/blog/first-softball-practice.html">
+        <span>Softball</span>
+        Your First Softball Practice Is Tomorrow
+      </a>
+      <a href="/blog/voluntold-soccer-coach.html">
+        <span>Soccer</span>
+        I Got Voluntold to Coach Soccer. Now What?
+      </a>
+      <a href="/blog/basketball-practice-plan-falls-apart.html">
+        <span>Basketball</span>
+        What to Do When Your Practice Plan Falls Apart
+      </a>
+      <a href="/blog/youth-softball-drills.html">
+        <span>Softball</span>
+        5 Drills Every Youth Softball Coach Should Know
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <div class="footer-links">
+        <a href="https://coachpilot.org/plans.html">Practice Plans</a>
+        <a href="https://coachpilot.org/blog/">Blog</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
