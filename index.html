@@ -187,6 +187,30 @@
       transform: translateY(-1px);
     }
 
+    .nav-cueops {
+      font-size: 12px;
+      font-weight: 500;
+      color: #9999AA;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-cueops a {
+      color: #9999AA;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .nav-cueops a:hover {
+      color: #F97316;
+    }
+
+    @media (max-width: 767px) {
+      .nav-cueops {
+        display: none;
+      }
+    }
+
     /* Mobile menu button */
     .nav-menu-btn {
       display: flex;
@@ -991,6 +1015,7 @@
         <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
         <span>CoachPilot</span>
       </a>
+      <span class="nav-cueops">A <a href="https://cueops.io" target="_blank" rel="noopener">CueOps</a> Product</span>
       <ul class="nav-links">
         <li><a href="plans.html">Practice Plans</a></li>
         <li><a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a></li>
@@ -1177,6 +1202,7 @@
     <div class="container">
       <p><strong>CoachPilot &copy; 2026</strong></p>
       <p>Built by coaches. For coaches.</p>
+      <p style="margin-top: 6px; font-size: 13px; color: #BBBBC8;">Built by <a href="https://cueops.io" target="_blank" rel="noopener" style="color: #9999AA; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#F97316'" onmouseout="this.style.color='#9999AA'">CueOps</a> · AI consulting for businesses</p>
       <div class="footer-links">
         <a href="plans.html">Practice Plans</a>
         <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a>
