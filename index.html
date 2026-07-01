@@ -481,44 +481,6 @@
         gap: 28px;
       }
 
-      .tool-card-featured {
-        grid-column: 1 / -1;
-      }
-
-      .tool-card-featured .tool-card-body {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
-        gap: 0 24px;
-        align-items: start;
-      }
-
-      .tool-card-featured h3 {
-        grid-column: 1;
-        font-size: 1.3rem;
-      }
-
-      .tool-card-featured p {
-        grid-column: 1;
-      }
-
-      .tool-card-featured .tool-card-link {
-        grid-column: 2;
-        grid-row: 1 / 3;
-        align-self: center;
-        padding: 12px 28px;
-        background: #F97316;
-        color: #FFFFFF;
-        border-radius: 100px;
-        font-size: 15px;
-        transition: background-color 0.2s ease, transform 0.2s ease;
-      }
-
-      .tool-card-featured .tool-card-link:hover {
-        background: #EA6C0B;
-        transform: translateY(-2px);
-        gap: 4px;
-      }
     }
 
     .tool-card {
@@ -589,8 +551,86 @@
       color: #991B1B;
     }
 
-    .tool-card-featured {
-      border: 2px solid #F97316;
+    /* ===== EVENTS SECTION ===== */
+    .events-section {
+      background: #FAFAFA;
+    }
+
+    .events-grid {
+      margin-top: 32px;
+    }
+
+    .event-card {
+      display: block;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #E8E8EE;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      max-width: 640px;
+      margin: 0 auto;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .event-card:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+
+    .event-card-img-wrap {
+      position: relative;
+      aspect-ratio: 21 / 9;
+      overflow: hidden;
+    }
+
+    .event-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-card-img-wrap .tool-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+
+    .event-card-body {
+      padding: 24px;
+    }
+
+    .event-card-details {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .event-date {
+      color: #F97316;
+    }
+
+    .event-location {
+      color: #9999AA;
+    }
+
+    .event-card-body h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .event-card-body p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 16px;
     }
 
     .tool-card-body {
@@ -1108,25 +1148,41 @@
   <!-- Divider -->
   <hr class="section-divider">
 
+  <!-- Events Section -->
+  <section class="events-section" id="events">
+    <div class="container fade-in">
+      <span class="section-label">Upcoming Events</span>
+      <h2 class="section-heading">Clinics and camps happening now</h2>
+      <div class="events-grid">
+        <a href="https://clinics.coachpilot.org/signup.html" class="event-card">
+          <div class="event-card-img-wrap">
+            <span class="tool-card-badge badge-enrolling">Now Enrolling</span>
+            <img src="images/card-practice.jpg" alt="Youth softball players at a clinic" class="event-card-img" loading="lazy">
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-details">
+              <span class="event-date">August 2026</span>
+              <span class="event-location">Bonney Lake, WA</span>
+            </div>
+            <h3>Fall Softball Prep Clinic</h3>
+            <p>Four clinics for players ages 7 to 13. Rookie Ready, Game Ready, Intro to Pitching, and Next Level Pitching. 4 weeks, 90 minutes per session. Spots are limited.</p>
+            <span class="tool-card-link">Save Your Spot &rarr;</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
   <!-- Tools Section -->
   <section class="tools-section" id="tools">
     <div class="container fade-in">
       <span class="section-label">Your Coaching Toolkit</span>
       <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
       <div class="tools-grid">
-        <!-- Card 1: Fall Softball Prep Clinic (Flagship) -->
-        <div class="tool-card tool-card-featured">
-          <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-enrolling">Now Enrolling</span>
-            <img src="images/card-practice.jpg" alt="Youth softball players at a clinic" class="tool-card-img" loading="lazy">
-          </div>
-          <div class="tool-card-body">
-            <h3>Fall Softball Prep Clinic</h3>
-            <p>Four clinics for players ages 7 to 13 in Bonney Lake, WA. Rookie Ready, Game Ready, Intro to Pitching, and Next Level Pitching. 4 weeks in August, 90 minutes per session. Spots are limited.</p>
-            <a href="https://clinics.coachpilot.org/signup.html" class="tool-card-link">Save Your Spot &rarr;</a>
-          </div>
-        </div>
-        <!-- Card 2: Practice Plans -->
+        <!-- Card 1: Practice Plans -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
             <span class="tool-card-badge badge-live">Free</span>
