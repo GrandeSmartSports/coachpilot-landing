@@ -480,6 +480,45 @@
         grid-template-columns: 1fr 1fr;
         gap: 28px;
       }
+
+      .tool-card-featured {
+        grid-column: 1 / -1;
+      }
+
+      .tool-card-featured .tool-card-body {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 0 24px;
+        align-items: start;
+      }
+
+      .tool-card-featured h3 {
+        grid-column: 1;
+        font-size: 1.3rem;
+      }
+
+      .tool-card-featured p {
+        grid-column: 1;
+      }
+
+      .tool-card-featured .tool-card-link {
+        grid-column: 2;
+        grid-row: 1 / 3;
+        align-self: center;
+        padding: 12px 28px;
+        background: #F97316;
+        color: #FFFFFF;
+        border-radius: 100px;
+        font-size: 15px;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+      }
+
+      .tool-card-featured .tool-card-link:hover {
+        background: #EA6C0B;
+        transform: translateY(-2px);
+        gap: 4px;
+      }
     }
 
     .tool-card {
@@ -543,6 +582,15 @@
     .badge-ios {
       background: #EFF6FF;
       color: #1E40AF;
+    }
+
+    .badge-enrolling {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .tool-card-featured {
+      border: 2px solid #F97316;
     }
 
     .tool-card-body {
@@ -1018,7 +1066,7 @@
       <span class="nav-cueops">A <a href="https://cueops.io" target="_blank" rel="noopener">CueOps</a> Product</span>
       <ul class="nav-links">
         <li><a href="plans.html">Practice Plans</a></li>
-        <li><a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a></li>
+        <li><a href="ondeck.html">OnDeck</a></li>
         <li><a href="#tools">Tools</a></li>
       </ul>
       <div class="nav-right">
@@ -1033,7 +1081,7 @@
   <!-- Mobile nav overlay -->
   <div class="nav-mobile" id="mobile-nav">
     <a href="plans.html" onclick="closeMobileNav()">Practice Plans</a>
-    <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener" onclick="closeMobileNav()">OnDeck</a>
+    <a href="ondeck.html" onclick="closeMobileNav()">OnDeck</a>
     <a href="#tools" onclick="closeMobileNav()">Tools</a>
     <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
   </div>
@@ -1066,7 +1114,19 @@
       <span class="section-label">Your Coaching Toolkit</span>
       <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
       <div class="tools-grid">
-        <!-- Card 1: Practice Plans -->
+        <!-- Card 1: Fall Softball Prep Clinic (Flagship) -->
+        <div class="tool-card tool-card-featured">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-enrolling">Now Enrolling</span>
+            <img src="images/card-practice.jpg" alt="Youth softball players at a clinic" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Fall Softball Prep Clinic</h3>
+            <p>Four clinics for players ages 7 to 13 in Bonney Lake, WA. Rookie Ready, Game Ready, Intro to Pitching, and Next Level Pitching. 4 weeks in August, 90 minutes per session. Spots are limited.</p>
+            <a href="https://clinics.coachpilot.org/signup.html" class="tool-card-link">Save Your Spot &rarr;</a>
+          </div>
+        </div>
+        <!-- Card 2: Practice Plans -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
             <span class="tool-card-badge badge-live">Free</span>
@@ -1078,19 +1138,19 @@
             <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
           </div>
         </div>
-        <!-- Card 2: OnDeck -->
+        <!-- Card 3: OnDeck -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-ios">iOS</span>
+            <span class="tool-card-badge badge-soon">By Request</span>
             <img src="images/card-ondeck.jpg" alt="Youth baseball player at bat" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
             <h3>OnDeck</h3>
-            <p>Walkup songs and announcer introductions that make every kid feel like a pro. Live on the App Store.</p>
-            <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" class="tool-card-link" target="_blank" rel="noopener">Download on App Store &rarr;</a>
+            <p>Walk-up songs and AI announcer introductions that make every kid feel like a pro. Currently available by request for trial coaches. $10 to test on your team and keep for life.</p>
+            <a href="ondeck.html" class="tool-card-link">Learn More &rarr;</a>
           </div>
         </div>
-        <!-- Card 3: Game Plans -->
+        <!-- Card 4: Game Plans -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
             <span class="tool-card-badge badge-soon">In Development</span>
@@ -1098,31 +1158,20 @@
           </div>
           <div class="tool-card-body">
             <h3>Game Plans</h3>
-            <p>Fair lineups, batting orders, and position rotations. Every kid plays. Built with real coaches.</p>
+            <p>Fair lineups, batting orders, position rotations, and playing time tracking. Every kid plays. One season of testing complete. Available for trial by request.</p>
             <a href="gameday.html" class="tool-card-link">Sneak Peek &rarr;</a>
-            <div class="gameday-interest">
-              <p>Get notified when Game Plans launches:</p>
-              <form class="gameday-interest-form" id="gameday-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
-                <input type="hidden" name="_subject" value="CoachPilot: Game Day Interest Signup">
-                <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_next" value="https://coachpilot.org/#gameday-thanks">
-                <input type="email" name="email" placeholder="Your email" required autocomplete="email" aria-label="Email for Game Day updates">
-                <button type="submit">Notify Me</button>
-              </form>
-              <p class="gameday-interest-success" id="gameday-success">You're on the list!</p>
-            </div>
           </div>
         </div>
-        <!-- Card 4: CoachPilot V2 -->
+        <!-- Card 5: Calling All Coaches -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-ios">Coming to iOS</span>
-            <img src="images/card-v2.jpg" alt="Team coming together as one" class="tool-card-img" loading="lazy">
+            <span class="tool-card-badge badge-soon">Coming Soon</span>
+            <img src="images/card-v2.jpg" alt="Coaches building community together" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
-            <h3>CoachPilot V2</h3>
-            <p>Everything in one app. Practice plans, game day lineups, walkup music, and coaching tools. All together. Coming to iOS.</p>
-            <span class="tool-card-link disabled">Stay tuned &rarr;</span>
+            <h3>Calling All Coaches</h3>
+            <p>The platform that lets any local coach run paid clinics without dealing with the business side. Insurance, fields, marketing, payments, waivers. We handle it. You just coach.</p>
+            <span class="tool-card-link disabled">Stay Tuned &rarr;</span>
           </div>
         </div>
       </div>
@@ -1163,8 +1212,8 @@
           <div class="stat-label">drills across 16 sports</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">4</div>
-          <div class="stat-label">coaching tools, one platform</div>
+          <div class="stat-number">5</div>
+          <div class="stat-label">tools for coaches, one platform</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">Free</div>
@@ -1182,7 +1231,7 @@
     <div class="container fade-in">
       <h2 class="email-heading">Join coaches who are building this together</h2>
       <p class="email-subtext">We're building CoachPilot with real coaches. Get updates, new tools, and coaching tips.</p>
-      <form class="email-form" id="signup-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
+      <form class="email-form" id="signup-form" action="https://formsubmit.co/daniel@cueops.io" method="POST">
         <input type="hidden" name="_subject" value="CoachPilot - New Coach Signup">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
@@ -1205,7 +1254,7 @@
       <p style="margin-top: 6px; font-size: 13px; color: #BBBBC8;">Built by <a href="https://cueops.io" target="_blank" rel="noopener" style="color: #9999AA; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#F97316'" onmouseout="this.style.color='#9999AA'">CueOps</a> · AI consulting for businesses</p>
       <div class="footer-links">
         <a href="plans.html">Practice Plans</a>
-        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a>
+        <a href="ondeck.html">OnDeck</a>
         <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
       </div>
       <div class="social-links">
@@ -1303,45 +1352,16 @@
             success.style.display = 'block';
           } else {
             var email = formData.get('email');
-            window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+            window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
           }
         }).catch(function() {
           var email = formData.get('email');
-          window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+          window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
         });
       });
     })();
 
-    // === Game Day interest form submission ===
-    (function() {
-      var gdForm = document.getElementById('gameday-form');
-      var gdSuccess = document.getElementById('gameday-success');
-
-      if (gdForm) {
-        gdForm.addEventListener('submit', function(e) {
-          e.preventDefault();
-
-          var formData = new FormData(gdForm);
-
-          fetch(gdForm.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-              'Accept': 'application/json'
-            }
-          }).then(function(response) {
-            if (response.ok) {
-              gdForm.style.display = 'none';
-              gdSuccess.style.display = 'block';
-            }
-          }).catch(function() {
-            // Silent fail, form will fall back to native POST
-          });
-        });
-      }
-    })();
-
-    // === Show success state if redirected back with #thanks or #gameday-thanks ===
+    // === Show success state if redirected back with #thanks ===
     (function() {
       if (window.location.hash === '#thanks') {
         var form = document.getElementById('signup-form');
@@ -1351,14 +1371,6 @@
           var note = form.nextElementSibling;
           if (note) note.style.display = 'none';
           success.style.display = 'block';
-        }
-      }
-      if (window.location.hash === '#gameday-thanks') {
-        var gdForm = document.getElementById('gameday-form');
-        var gdSuccess = document.getElementById('gameday-success');
-        if (gdForm && gdSuccess) {
-          gdForm.style.display = 'none';
-          gdSuccess.style.display = 'block';
         }
       }
     })();

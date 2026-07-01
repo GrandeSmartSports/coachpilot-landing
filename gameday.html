@@ -1072,7 +1072,7 @@
       </a>
       <ul class="nav-links">
         <li><a href="plans.html">Practice Plans</a></li>
-        <li><a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a></li>
+        <li><a href="ondeck.html">OnDeck</a></li>
         <li><a href="index.html#tools">Tools</a></li>
       </ul>
       <div class="nav-right">
@@ -1087,7 +1087,7 @@
   <!-- Mobile nav overlay -->
   <div class="nav-mobile" id="mobile-nav">
     <a href="plans.html" onclick="closeMobileNav()">Practice Plans</a>
-    <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener" onclick="closeMobileNav()">OnDeck</a>
+    <a href="ondeck.html" onclick="closeMobileNav()">OnDeck</a>
     <a href="index.html#tools" onclick="closeMobileNav()">Tools</a>
     <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
   </div>
@@ -1097,7 +1097,7 @@
     <img src="images/hero-gameday.jpg" alt="Coach huddled with youth sports team on game day" class="hero-bg">
     <div class="hero-content">
       <h1>The Next Coach<br><span class="accent">Deserves Better.</span></h1>
-      <p class="hero-subtext">Every season, thousands of parents volunteer to coach with no tools, no training, and no one showing them the ropes. We've been there. Now we're building what we wish we had. And we need your help to get it right.</p>
+      <p class="hero-subtext">Every season, thousands of parents volunteer to coach with no tools, no training, and no one showing them the ropes. We have been there. Now we are building what we wish we had. One season of testing complete. Still in active development.</p>
       <a href="#demo" class="hero-cta">See What We're Building</a>
     </div>
   </section>
@@ -1230,8 +1230,8 @@
   <section class="email-section" id="get-notified">
     <div class="container fade-in">
       <h2 class="email-heading">Help Us Build This</h2>
-      <p class="email-subtext">Join coaches who are shaping Game Day from the ground up. Tell us what works, what doesn't, and what you wish existed. Your feedback builds the next version.</p>
-      <form class="email-form" id="interest-form" action="https://formsubmit.co/coachpilotapp@gmail.com" method="POST">
+      <p class="email-subtext">Available for trial by request. Interested coaches can test it this season and help shape what comes next. Tell us what works, what is missing, and what you wish existed.</p>
+      <form class="email-form" id="interest-form" action="https://formsubmit.co/daniel@cueops.io" method="POST">
         <input type="hidden" name="_subject" value="CoachPilot: Game Day Interest Signup">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://coachpilot.org/gameday.html#thanks">
@@ -1265,12 +1265,12 @@
             <span class="promo-link">Try it free &rarr;</span>
           </div>
         </a>
-        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener" class="promo-card">
+        <a href="ondeck.html" class="promo-card">
           <div class="promo-icon">&#127925;</div>
           <div class="promo-text">
             <h3>OnDeck Walkup Music</h3>
             <p>Walkup songs and announcer intros for every player. Make every kid feel like a pro.</p>
-            <span class="promo-link">Download on iOS &rarr;</span>
+            <span class="promo-link">Learn More &rarr;</span>
           </div>
         </a>
       </div>
@@ -1285,7 +1285,7 @@
       <div class="footer-links">
         <a href="index.html">Home</a>
         <a href="plans.html">Practice Plans</a>
-        <a href="https://apps.apple.com/us/app/ondeck-walkup-music/id6761078879" target="_blank" rel="noopener">OnDeck</a>
+        <a href="ondeck.html">OnDeck</a>
         <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
       <div class="social-links">
         <a href="https://www.facebook.com/profile.php?id=61588253262433" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</a>
@@ -1663,11 +1663,11 @@
             success.style.display = 'block';
           } else {
             var email = formData.get('email');
-            window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Game%20Day%20Interest&body=Hi%2C%20I%27d%20like%20to%20know%20when%20Game%20Day%20launches.%20My%20email%3A%20' + encodeURIComponent(email);
+            window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Game%20Day%20Interest&body=Hi%2C%20I%27d%20like%20to%20know%20when%20Game%20Day%20launches.%20My%20email%3A%20' + encodeURIComponent(email);
           }
         }).catch(function() {
           var email = formData.get('email');
-          window.location.href = 'mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Game%20Day%20Interest&body=Hi%2C%20I%27d%20like%20to%20know%20when%20Game%20Day%20launches.%20My%20email%3A%20' + encodeURIComponent(email);
+          window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Game%20Day%20Interest&body=Hi%2C%20I%27d%20like%20to%20know%20when%20Game%20Day%20launches.%20My%20email%3A%20' + encodeURIComponent(email);
         });
       });
     })();

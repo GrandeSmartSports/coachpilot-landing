@@ -919,7 +919,7 @@
   <!-- Beta Banner -->
   <div class="beta-banner">
     CoachPilot Beta. Your feedback helps us build a better app for coaches everywhere.
-    <a href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback">Send Feedback</a>
+    <a href="mailto:daniel@cueops.io?subject=CoachPilot%20Feedback">Send Feedback</a>
   </div>
 
   <!-- Navigation -->
@@ -1038,7 +1038,7 @@
         <button class="feedback-btn" id="feedback-down" onclick="voteFeedback('down')" aria-label="Thumbs down">&#128078;</button>
       </div>
       <p class="feedback-thanks" id="feedback-thanks">Thanks for the feedback!</p>
-      <a class="feedback-link" href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback">
+      <a class="feedback-link" href="mailto:daniel@cueops.io?subject=CoachPilot%20Practice%20Plan%20Feedback">
         Have more thoughts? Send us feedback
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M7 17l9.2-9.2M17 17V7H7"/></svg>
       </a>
@@ -1051,7 +1051,7 @@
       <p><strong>CoachPilot &copy; 2026</strong></p>
       <p>Built by coaches. For coaches.</p>
       <p style="margin-top: 8px;">
-        <a href="mailto:coachpilotapp@gmail.com?subject=CoachPilot%20Beta%20Feedback" style="font-size: 13px;">Send Feedback</a>
+        <a href="mailto:daniel@cueops.io?subject=CoachPilot%20Feedback" style="font-size: 13px;">Send Feedback</a>
         &nbsp;&middot;&nbsp;
         <a href="https://grandesmartsports.github.io/coachpilot-privacy/" style="font-size: 13px;">Privacy Policy</a>
       </p>
@@ -1859,6 +1859,15 @@
       }
 
       thanks.classList.add('visible');
+
+      // Send to Google Analytics
+      if (typeof gtag === 'function') {
+        gtag('event', 'practice_plan_feedback', {
+          'event_category': 'feedback',
+          'event_label': vote,
+          'value': vote === 'up' ? 1 : 0
+        });
+      }
 
       // Store in localStorage
       try {
