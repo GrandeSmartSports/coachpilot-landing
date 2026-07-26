@@ -142,6 +142,22 @@ h2.sec-t{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6vw,58px);lett
 .road p{font-size:13.5px;color:#a39d8b;line-height:1.7;margin:0;}
 .road a{color:var(--gold);font-weight:800;}
 
+/* ============ JOIN ============ */
+.join{background:var(--coal);border-top:1px solid #2c2a20;border-bottom:1px solid #2c2a20;}
+.join .inner{max-width:760px;margin:0 auto;padding:92px 26px;}
+.join p.jlead{font-size:17px;line-height:1.9;color:#c9c4b4;margin:0 0 30px;max-width:640px;}
+.join p.jlead b{color:#fff;}
+.jform{background:#131311;border:1px solid #35321f;border-radius:16px;padding:28px;}
+.jf{margin-bottom:16px;}
+.jf label{display:block;font-size:10.5px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;color:#9b9584;margin-bottom:6px;}
+.jf input,.jf select,.jf textarea{width:100%;font-family:'Inter',sans-serif;font-size:15px;background:#0d0d0b;border:1px solid #35321f;border-radius:9px;color:#eae6da;padding:13px 14px;outline:none;}
+.jf input:focus,.jf select:focus,.jf textarea:focus{border-color:var(--gold);}
+.jf textarea{min-height:90px;resize:vertical;}
+.jrow{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:560px){.jrow{grid-template-columns:1fr;}}
+.jbtn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#111;border:none;padding:16px;font-family:'Inter',sans-serif;font-size:15px;font-weight:900;letter-spacing:1px;text-transform:uppercase;border-radius:10px;cursor:pointer;margin-top:4px;}
+.jthanks{display:none;background:#15200f;border:1px solid #2e7d5b;color:#8fd6ae;border-radius:10px;padding:16px;font-size:14.5px;line-height:1.7;margin-bottom:18px;}
+
 /* ============ CLOSE ============ */
 .close{position:relative;text-align:center;padding:110px 26px 100px;isolation:isolate;}
 .close::before{content:"";position:absolute;inset:0;z-index:-2;background:url('images/celebrate-highfive.jpg') center/cover no-repeat;}
@@ -166,6 +182,7 @@ footer a{color:var(--gold);}
     <a href="#programs">Programs</a>
     <a href="#coach">Meet Coach</a>
     <a href="coaches.html">For Coaches</a>
+    <a href="#join">Get Involved</a>
     <a class="nav-cta" href="https://clinics.coachpilot.org">Sign Up</a>
   </div>
 </nav>
@@ -313,12 +330,49 @@ footer a{color:var(--gold);}
   </div>
 </div>
 
+<!-- JOIN -->
+<div class="join" id="join">
+  <div class="inner">
+    <div class="rv">
+      <div class="chnum">GET INVOLVED</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6.4vw,62px);letter-spacing:2px;line-height:.98;color:#fff;margin:10px 0 22px;">BE PART <em style="font-style:normal;color:var(--gold);">OF THIS</em></h2>
+      <p class="jlead">One thing we have learned about this community: <b>a lot of people genuinely care and want to help.</b> Coaches, parents, former players, local businesses. If any part of this page felt like it was talking to you, it was. Tell us who you are and we will find the right spot for you.</p>
+      <div class="jthanks" id="jthanks">Got it. Thank you for raising a hand. Coach Daniel reads every one of these and will get back to you personally.</div>
+      <form class="jform" action="https://formsubmit.co/daniel@cueops.io" method="POST">
+        <input type="hidden" name="_subject" value="CoachPilot: someone wants to be part of this">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://coachpilot.org/?joined=1#join">
+        <div class="jrow">
+          <div class="jf"><label>Your name</label><input name="name" required></div>
+          <div class="jf"><label>Email</label><input name="email" type="email" required></div>
+        </div>
+        <div class="jrow">
+          <div class="jf"><label>Phone (optional)</label><input name="phone"></div>
+          <div class="jf"><label>I want to...</label>
+            <select name="interest" required>
+              <option value="" disabled selected>Pick one</option>
+              <option>Volunteer at clinics</option>
+              <option>Help coach</option>
+              <option>Sponsor or donate equipment</option>
+              <option>Bring CoachPilot to my league or sport</option>
+              <option>Just learn more / stay in the loop</option>
+            </select>
+          </div>
+        </div>
+        <div class="jf"><label>Anything you want us to know</label><textarea name="message" placeholder="Who you are, what you coach or play, how you want to help..."></textarea></div>
+        <button class="jbtn" type="submit">Count Me In</button>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- CLOSE -->
 <div class="close">
   <div class="rv">
     <h2>THIS IS OUR <em>HOME FIELD</em> NOW.</h2>
     <p>We are new here, and we are all in. Come find us at Tehaleh Heights on a Wednesday night. Listen for the loudest field in Bonney Lake.</p>
     <a class="btn gold" href="https://clinics.coachpilot.org">🥎 Get Her Signed Up</a>
+    <a class="btn ghost" style="margin-left:10px;" href="#join">I Want to Help</a>
   </div>
 </div>
 
@@ -326,7 +380,7 @@ footer a{color:var(--gold);}
   <div class="flogo">COACH<span>PILOT</span></div>
   <p>CoachPilot LLC · Bonney Lake, Washington · Fully licensed and insured<br>
   (623) 332-2251 · <a href="mailto:Daniel.Grande@ymail.com">Daniel.Grande@ymail.com</a><br>
-  <a href="https://clinics.coachpilot.org">Clinics &amp; Registration</a> · <a href="https://clinics.coachpilot.org/coaching.html">1-on-1 Coaching</a> · <a href="https://clinics.coachpilot.org/volunteer.html">Volunteer With Us</a> · <a href="coaches.html">For Coaches</a> · <a href="blog/">Blog</a></p>
+  <a href="https://clinics.coachpilot.org">Clinics &amp; Registration</a> · <a href="https://clinics.coachpilot.org/coaching.html">1-on-1 Coaching</a> · <a href="https://clinics.coachpilot.org/volunteer.html">Volunteer With Us</a> · <a href="coaches.html">For Coaches</a> · <a href="#join">Get Involved</a> · <a href="blog/">Blog</a></p>
   <p style="margin-top:10px;font-size:11px;color:#57534a;">© 2026 CoachPilot LLC</p>
 </footer>
 
@@ -334,6 +388,7 @@ footer a{color:var(--gold);}
 <script>
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
+if(new URLSearchParams(location.search).get('joined')){const t=document.getElementById('jthanks');if(t)t.style.display='block';}
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>
