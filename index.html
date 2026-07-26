@@ -25,6 +25,7 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{--gold:#f5c342;--gold-dark:#d4a017;--gold-deep:#b8890f;--ink:#111110;--coal:#191917;--paper:#f4f1ea;}
 html{scroll-behavior:smooth;}
+[id]{scroll-margin-top:76px;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--ink);color:#eae6da;line-height:1.6;overflow-x:hidden;}
 img{max-width:100%;display:block;}
 a{text-decoration:none;color:inherit;}
@@ -406,9 +407,9 @@ const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
 if(new URLSearchParams(location.search).get('joined')){const t=document.getElementById('jthanks');if(t)t.style.display='block';}
 const mb=document.getElementById('menuBtn'),mn=document.getElementById('mnav');
-mb.onclick=()=>mn.classList.toggle('open');
+mb.addEventListener('click',e=>{e.stopPropagation();mn.classList.toggle('open');});
 mn.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mn.classList.remove('open')));
-addEventListener('scroll',()=>mn.classList.remove('open'),{passive:true});
+document.addEventListener('click',e=>{if(!mn.contains(e.target)&&e.target!==mb)mn.classList.remove('open');});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>
