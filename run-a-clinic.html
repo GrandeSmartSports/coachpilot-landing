@@ -221,10 +221,7 @@ footer a{color:var(--gold);}
     <h2 class="t rv">TELL US ABOUT YOU</h2>
     <p class="sub rv">No commitment. Send this over and Coach Daniel will personally reach out to talk it through and see if it is a fit.</p>
     <div class="thanks rv" id="thanks">Got it. Thank you for reaching out. Coach Daniel reads every one of these and will contact you personally to talk it through.</div>
-    <form class="form rv" action="https://formsubmit.co/daniel@cueops.io" method="POST">
-      <input type="hidden" name="_subject" value="CoachPilot: a coach wants to run a clinic">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_next" value="https://coachpilot.org/run-a-clinic.html?applied=1#apply">
+    <form class="form rv" id="applyForm">
       <div class="frow">
         <div class="f"><label>Your name</label><input name="name" required></div>
         <div class="f"><label>Email</label><input name="email" type="email" required></div>
@@ -254,7 +251,22 @@ footer a{color:var(--gold);}
 </footer>
 
 <script>
-if(new URLSearchParams(location.search).get('applied')){const t=document.getElementById('thanks');if(t)t.style.display='block';}
+const LEAD_URL='https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/submit-lead';
+const LEAD_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cGhha2d0c3Z0YWFzd212dm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MzQwMjgsImV4cCI6MjA5MzIxMDAyOH0.5QhiwIFNe1gvzUo18QR23ua5lj8lMkDIgLDCob9d0u0';
+const applyForm=document.getElementById('applyForm');
+applyForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=applyForm.querySelector('button[type=submit]');
+  btn.disabled=true;const orig=btn.textContent;btn.textContent='Sending...';
+  const d=Object.fromEntries(new FormData(applyForm).entries());
+  d.source='coach-partner';
+  try{
+    const r=await fetch(LEAD_URL,{method:'POST',headers:{'Content-Type':'application/json',apikey:LEAD_KEY,Authorization:'Bearer '+LEAD_KEY},body:JSON.stringify(d)});
+    if(!r.ok)throw new Error('send failed');
+    applyForm.style.display='none';
+    const t=document.getElementById('thanks');t.style.display='block';t.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){btn.disabled=false;btn.textContent=orig;alert('Something went wrong sending that. Please try again, or text Coach Daniel at (623) 332-2251.');}
+});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>

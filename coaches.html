@@ -1221,13 +1221,13 @@
         <!-- Card 5: Calling All Coaches -->
         <div class="tool-card">
           <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-soon">Coming Soon</span>
+            <span class="tool-card-badge badge-live">Now Open</span>
             <img src="images/card-v2.jpg" alt="Coaches building community together" class="tool-card-img" loading="lazy">
           </div>
           <div class="tool-card-body">
             <h3>Calling All Coaches</h3>
-            <p>The platform that lets any local coach run paid clinics without dealing with the business side. Insurance, fields, marketing, payments, waivers. We handle it. You just coach.</p>
-            <span class="tool-card-link disabled">Stay Tuned &rarr;</span>
+            <p>The platform that lets any local coach run paid clinics without dealing with the business side. Insurance, fields, marketing, payments, waivers. We handle it. You just coach, and you keep 70% of the profit.</p>
+            <a href="run-a-clinic.html" class="tool-card-link">Run a Clinic &rarr;</a>
           </div>
         </div>
       </div>
@@ -1287,10 +1287,7 @@
     <div class="container fade-in">
       <h2 class="email-heading">Join coaches who are building this together</h2>
       <p class="email-subtext">We're building CoachPilot with real coaches. Get updates, new tools, and coaching tips.</p>
-      <form class="email-form" id="signup-form" action="https://formsubmit.co/daniel@cueops.io" method="POST">
-        <input type="hidden" name="_subject" value="CoachPilot - New Coach Signup">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
+      <form class="email-form" id="signup-form">
         <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
         <button type="submit">Join the Team</button>
       </form>
@@ -1390,29 +1387,25 @@
       var form = document.getElementById('signup-form');
       var success = document.getElementById('form-success');
 
+      var LEAD_URL = 'https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/submit-lead';
+      var LEAD_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cGhha2d0c3Z0YWFzd212dm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MzQwMjgsImV4cCI6MjA5MzIxMDAyOH0.5QhiwIFNe1gvzUo18QR23ua5lj8lMkDIgLDCob9d0u0';
       form.addEventListener('submit', function(e) {
         e.preventDefault();
-
-        var formData = new FormData(form);
-
-        fetch(form.action, {
+        var email = new FormData(form).get('email');
+        var btn = form.querySelector('button[type=submit]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+        fetch(LEAD_URL, {
           method: 'POST',
-          body: formData,
-          headers: {
-            'Accept': 'application/json'
-          }
-        }).then(function(response) {
-          if (response.ok) {
-            form.style.display = 'none';
-            form.nextElementSibling.style.display = 'none';
-            success.style.display = 'block';
-          } else {
-            var email = formData.get('email');
-            window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
-          }
+          headers: { 'Content-Type': 'application/json', 'apikey': LEAD_KEY, 'Authorization': 'Bearer ' + LEAD_KEY },
+          body: JSON.stringify({ source: 'coach-newsletter', email: email })
+        }).then(function(r) {
+          if (!r.ok) throw new Error('fail');
+          form.style.display = 'none';
+          if (form.nextElementSibling) form.nextElementSibling.style.display = 'none';
+          success.style.display = 'block';
         }).catch(function() {
-          var email = formData.get('email');
-          window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+          if (btn) { btn.disabled = false; btn.textContent = 'Join the Team'; }
+          alert('Something went wrong. Please try again, or text Coach Daniel at (623) 332-2251.');
         });
       });
     })();

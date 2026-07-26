@@ -355,10 +355,7 @@ footer a{color:var(--gold);}
       <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6.4vw,62px);letter-spacing:2px;line-height:.98;color:#fff;margin:10px 0 22px;">BE PART <em style="font-style:normal;color:var(--gold);">OF THIS</em></h2>
       <p class="jlead">One thing we have learned about this community: <b>a lot of people genuinely care and want to help.</b> Coaches, parents, former players, local businesses. If any part of this page felt like it was talking to you, it was. Tell us who you are and we will find the right spot for you.</p>
       <div class="jthanks" id="jthanks">Got it. Thank you for raising a hand. Coach Daniel reads every one of these and will get back to you personally.</div>
-      <form class="jform" action="https://formsubmit.co/daniel@cueops.io" method="POST">
-        <input type="hidden" name="_subject" value="CoachPilot: someone wants to be part of this">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://coachpilot.org/?joined=1#join">
+      <form class="jform" id="joinForm">
         <div class="jrow">
           <div class="jf"><label>Your name</label><input name="name" required></div>
           <div class="jf"><label>Email</label><input name="email" type="email" required></div>
@@ -405,7 +402,19 @@ footer a{color:var(--gold);}
 <script>
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
-if(new URLSearchParams(location.search).get('joined')){const t=document.getElementById('jthanks');if(t)t.style.display='block';}
+const LEAD_URL='https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/submit-lead';
+const LEAD_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cGhha2d0c3Z0YWFzd212dm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MzQwMjgsImV4cCI6MjA5MzIxMDAyOH0.5QhiwIFNe1gvzUo18QR23ua5lj8lMkDIgLDCob9d0u0';
+const joinForm=document.getElementById('joinForm');
+if(joinForm)joinForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const btn=joinForm.querySelector('button[type=submit]');btn.disabled=true;const orig=btn.textContent;btn.textContent='Sending...';
+  const d=Object.fromEntries(new FormData(joinForm).entries());d.source='get-involved';
+  try{
+    const r=await fetch(LEAD_URL,{method:'POST',headers:{'Content-Type':'application/json',apikey:LEAD_KEY,Authorization:'Bearer '+LEAD_KEY},body:JSON.stringify(d)});
+    if(!r.ok)throw new Error('fail');
+    joinForm.style.display='none';const t=document.getElementById('jthanks');t.style.display='block';t.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(err){btn.disabled=false;btn.textContent=orig;alert('Something went wrong sending that. Please try again, or text Coach Daniel at (623) 332-2251.');}
+});
 const mb=document.getElementById('menuBtn'),mn=document.getElementById('mnav');
 mb.addEventListener('click',e=>{e.stopPropagation();mn.classList.toggle('open');});
 mn.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mn.classList.remove('open')));
