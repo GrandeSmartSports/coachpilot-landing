@@ -43,7 +43,13 @@ nav.solid{background:rgba(10,10,9,.96);border-bottom:1px solid #2a2820;}
 .nav-links a{font-size:13px;font-weight:700;color:#c9c4b4;letter-spacing:.6px;}
 .nav-links a:hover{color:var(--gold);}
 .nav-cta{background:var(--gold);color:#111!important;font-weight:900;padding:10px 20px;border-radius:8px;letter-spacing:.5px;}
-@media(max-width:820px){.nav-links a:not(.nav-cta){display:none;}}
+.menuBtn{display:none;background:none;border:1px solid #4a4536;color:var(--gold);font-size:20px;border-radius:8px;padding:6px 12px;cursor:pointer;line-height:1;}
+.mnav{display:none;position:fixed;top:62px;left:12px;right:12px;z-index:95;background:#141311;border:1px solid #35321f;border-radius:14px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8);padding:10px;}
+.mnav.open{display:block;}
+.mnav a{display:block;padding:14px 16px;font-size:15px;font-weight:800;color:#e8e3d4;border-radius:9px;letter-spacing:.4px;}
+.mnav a:active,.mnav a:hover{background:#1f1d16;color:var(--gold);}
+.mnav a.gold{background:var(--gold);color:#111;text-align:center;margin-top:6px;}
+@media(max-width:820px){.nav-links a:not(.nav-cta){display:none;}.menuBtn{display:block;}}
 
 /* ============ OPENING ============ */
 .open{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;padding:110px 24px 80px;isolation:isolate;}
@@ -184,8 +190,18 @@ footer a{color:var(--gold);}
     <a href="coaches.html">For Coaches</a>
     <a href="#join">Get Involved</a>
     <a class="nav-cta" href="https://clinics.coachpilot.org">Sign Up</a>
+    <button class="menuBtn" id="menuBtn" aria-label="Menu">☰</button>
   </div>
 </nav>
+<div class="mnav" id="mnav">
+  <a href="#programs">Programs</a>
+  <a href="#story">Our Story</a>
+  <a href="#night">A Night With Us</a>
+  <a href="#coach">Meet Coach</a>
+  <a href="coaches.html">For Coaches</a>
+  <a href="#join">Get Involved</a>
+  <a class="gold" href="https://clinics.coachpilot.org">🥎 Clinic Sign-Ups</a>
+</div>
 
 <!-- OPENING -->
 <div class="open">
@@ -389,6 +405,10 @@ footer a{color:var(--gold);}
 const nav=document.getElementById('nav');
 addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
 if(new URLSearchParams(location.search).get('joined')){const t=document.getElementById('jthanks');if(t)t.style.display='block';}
+const mb=document.getElementById('menuBtn'),mn=document.getElementById('mnav');
+mb.onclick=()=>mn.classList.toggle('open');
+mn.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>mn.classList.remove('open')));
+addEventListener('scroll',()=>mn.classList.remove('open'),{passive:true});
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
 </script>
