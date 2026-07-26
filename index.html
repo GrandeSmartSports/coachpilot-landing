@@ -1,1437 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WV7985BYLC"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-WV7985BYLC');
-  </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CoachPilot | Free Tools for Youth Sports Coaches</title>
-  <meta name="description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
-  <meta name="keywords" content="coaching tools, practice plan, youth sports, volunteer coach, walkup music, game day lineup, softball, soccer">
-  <meta property="og:title" content="CoachPilot | Free Tools for Youth Sports Coaches">
-  <meta property="og:description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://coachpilot.org">
-  <meta property="og:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CoachPilot | Free Tools for Youth Sports Coaches">
-  <meta name="twitter:description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
-  <meta name="twitter:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
-  <link rel="canonical" href="https://coachpilot.org">
-  <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    /* ===== RESET & BASE ===== */
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background-color: #FFFFFF;
-      color: #1A1A2E;
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ===== ORANGE ACCENT BAR ===== */
-    body::before {
-      content: '';
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
-      z-index: 200;
-    }
-
-    /* ===== UTILITY ===== */
-    .container {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    .fade-in {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-
-    .fade-in.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* ===== SECTION DIVIDER ===== */
-    .section-divider {
-      width: 100%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.2), transparent);
-      border: none;
-      margin: 0;
-    }
-
-    /* ===== NAVIGATION ===== */
-    nav {
-      position: fixed;
-      top: 3px;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 18px 0;
-      background-color: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      transition: padding 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    nav.scrolled {
-      padding: 12px 0;
-      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-    }
-
-    nav .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: #1A1A2E;
-    }
-
-    .nav-logo img {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-    }
-
-    .nav-logo span {
-      font-weight: 700;
-      font-size: 17px;
-      letter-spacing: -0.02em;
-    }
-
-    .nav-links {
-      display: none;
-      align-items: center;
-      gap: 32px;
-      list-style: none;
-    }
-
-    @media (min-width: 768px) {
-      .nav-links {
-        display: flex;
-      }
-    }
-
-    .nav-links a {
-      text-decoration: none;
-      color: #64648C;
-      font-weight: 500;
-      font-size: 14px;
-      transition: color 0.2s ease;
-      letter-spacing: -0.01em;
-    }
-
-    .nav-links a:hover {
-      color: #F97316;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .nav-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      background-color: #F97316;
-      color: #FFFFFF;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-      border-radius: 100px;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .nav-cta:hover {
-      background-color: #EA6C0B;
-      transform: translateY(-1px);
-    }
-
-    .nav-cueops {
-      font-size: 12px;
-      font-weight: 500;
-      color: #9999AA;
-      letter-spacing: 0.01em;
-    }
-
-    .nav-cueops a {
-      color: #9999AA;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.2s ease;
-    }
-
-    .nav-cueops a:hover {
-      color: #F97316;
-    }
-
-    @media (max-width: 767px) {
-      .nav-cueops {
-        display: none;
-      }
-    }
-
-    /* Mobile menu button */
-    .nav-menu-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: background-color 0.2s ease;
-    }
-
-    .nav-menu-btn:hover {
-      background-color: #F5F5F5;
-    }
-
-    .nav-menu-btn svg {
-      width: 22px;
-      height: 22px;
-      color: #1A1A2E;
-    }
-
-    @media (min-width: 768px) {
-      .nav-menu-btn {
-        display: none;
-      }
-    }
-
-    /* Mobile nav dropdown */
-    .nav-mobile {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      z-index: 99;
-      padding: 100px 24px 40px;
-    }
-
-    .nav-mobile.open {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 28px;
-    }
-
-    .nav-mobile a {
-      text-decoration: none;
-      color: #1A1A2E;
-      font-weight: 600;
-      font-size: 18px;
-      transition: color 0.2s ease;
-    }
-
-    .nav-mobile a:hover {
-      color: #F97316;
-    }
-
-    /* ===== HERO — Full-width photo background ===== */
-    .hero {
-      position: relative;
-      overflow: hidden;
-      min-height: 520px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 160px 24px 100px;
-    }
-
-    @media (min-width: 768px) {
-      .hero {
-        min-height: 600px;
-        padding: 180px 24px 120px;
-      }
-    }
-
-    .hero-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 40%;
-      z-index: 0;
-    }
-
-    .hero::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-        to bottom,
-        rgba(26, 26, 46, 0.65) 0%,
-        rgba(26, 26, 46, 0.55) 50%,
-        rgba(26, 26, 46, 0.75) 100%
-      );
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      max-width: 720px;
-      margin: 0 auto;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.4rem, 6vw, 3.8rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.035em;
-      color: #FFFFFF;
-      margin-bottom: 24px;
-      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-subtext {
-      font-size: clamp(1.05rem, 2.5vw, 1.2rem);
-      color: rgba(255, 255, 255, 0.9);
-      line-height: 1.7;
-      margin-bottom: 48px;
-      max-width: 580px;
-      margin-left: auto;
-      margin-right: auto;
-      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 36px;
-      background-color: #F97316;
-      color: #FFFFFF;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 16px;
-      border-radius: 100px;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
-    }
-
-    .btn-primary:hover {
-      background-color: #EA6C0B;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.5);
-    }
-
-    .btn-primary svg {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-    }
-
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.85);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 15px;
-      cursor: pointer;
-      transition: color 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-      color: #FFFFFF;
-    }
-
-    .btn-secondary svg {
-      width: 16px;
-      height: 16px;
-      transition: transform 0.2s ease;
-    }
-
-    .btn-secondary:hover svg {
-      transform: translateY(2px);
-    }
-
-    /* ===== SECTION SHARED ===== */
-    section {
-      padding: 80px 0;
-    }
-
-    @media (min-width: 768px) {
-      section {
-        padding: 120px 0;
-      }
-    }
-
-    .section-label {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #F97316;
-      margin-bottom: 16px;
-    }
-
-    .section-heading {
-      font-size: clamp(1.6rem, 4vw, 2.6rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      color: #1A1A2E;
-      margin-bottom: 20px;
-    }
-
-    .section-subtext {
-      font-size: clamp(1rem, 2vw, 1.125rem);
-      color: #64648C;
-      line-height: 1.7;
-      max-width: 580px;
-    }
-
-    /* ===== TOOLS SECTION ===== */
-    .tools-section .container {
-      max-width: 960px;
-    }
-
-    .tools-section .section-heading {
-      text-align: center;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .tools-section .section-label {
-      display: block;
-      text-align: center;
-    }
-
-    .tools-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-      margin-top: 48px;
-    }
-
-    @media (min-width: 700px) {
-      .tools-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 28px;
-      }
-
-    }
-
-    .tool-card {
-      background: #FFFFFF;
-      border: 1px solid #E8E8EE;
-      border-radius: 16px;
-      overflow: hidden;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    }
-
-    .tool-card:hover {
-      border-color: rgba(249, 115, 22, 0.3);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-      transform: translateY(-4px);
-    }
-
-    .tool-card-img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-      transition: transform 0.4s ease;
-    }
-
-    .tool-card:hover .tool-card-img {
-      transform: scale(1.05);
-    }
-
-    .tool-card-img-wrap {
-      overflow: hidden;
-      border-radius: 16px 16px 0 0;
-      position: relative;
-    }
-
-    /* ===== TOOL CARD BADGES ===== */
-    .tool-card-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      padding: 4px 12px;
-      border-radius: 100px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      z-index: 2;
-    }
-
-    .badge-live {
-      background: #D1FAE5;
-      color: #065F46;
-    }
-
-    .badge-soon {
-      background: #FEF3C7;
-      color: #92400E;
-    }
-
-    .badge-ios {
-      background: #EFF6FF;
-      color: #1E40AF;
-    }
-
-    .badge-enrolling {
-      background: #FEE2E2;
-      color: #991B1B;
-    }
-
-    /* ===== EVENTS SECTION ===== */
-    .events-section {
-      background: #FAFAFA;
-    }
-
-    .events-grid {
-      margin-top: 32px;
-    }
-
-    .event-card {
-      display: block;
-      background: #FFFFFF;
-      border-radius: 16px;
-      border: 1px solid #E8E8EE;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-      overflow: hidden;
-      text-decoration: none;
-      color: inherit;
-      max-width: 640px;
-      margin: 0 auto;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    }
-
-    .event-card:hover {
-      border-color: rgba(249, 115, 22, 0.3);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-      transform: translateY(-4px);
-    }
-
-    .event-card-img-wrap {
-      position: relative;
-      aspect-ratio: 21 / 9;
-      overflow: hidden;
-    }
-
-    .event-card-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .event-card-img-wrap .tool-card-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-    }
-
-    .event-card-body {
-      padding: 24px;
-    }
-
-    .event-card-details {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .event-date {
-      color: #F97316;
-    }
-
-    .event-location {
-      color: #9999AA;
-    }
-
-    .event-card-body h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #1A1A2E;
-      letter-spacing: -0.01em;
-      margin-bottom: 8px;
-    }
-
-    .event-card-body p {
-      font-size: 0.95rem;
-      color: #64648C;
-      line-height: 1.65;
-      margin-bottom: 16px;
-    }
-
-    .tool-card-body {
-      padding: 28px 24px 24px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .tool-card h3 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #1A1A2E;
-      letter-spacing: -0.01em;
-      line-height: 1.3;
-      margin-bottom: 10px;
-    }
-
-    .tool-card p {
-      font-size: 0.95rem;
-      color: #64648C;
-      line-height: 1.65;
-      flex: 1;
-      margin-bottom: 20px;
-    }
-
-    .tool-card-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #F97316;
-      text-decoration: none;
-      transition: gap 0.2s ease;
-    }
-
-    .tool-card-link:hover {
-      gap: 8px;
-    }
-
-    .tool-card-link.disabled {
-      color: #AAAABB;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    /* ===== GAME DAY INTEREST FORM ===== */
-    .gameday-interest {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #F0F0F0;
-    }
-
-    .gameday-interest p {
-      font-size: 13px;
-      color: #64648C;
-      margin-bottom: 8px;
-    }
-
-    .gameday-interest-form {
-      display: flex;
-      gap: 6px;
-    }
-
-    .gameday-interest-form input[type="email"] {
-      flex: 1;
-      padding: 8px 14px;
-      border: 1.5px solid #E8E8E8;
-      border-radius: 100px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      color: #1A1A2E;
-      outline: none;
-      min-width: 0;
-      transition: border-color 0.2s ease;
-    }
-
-    .gameday-interest-form input[type="email"]::placeholder {
-      color: #BBBBC8;
-    }
-
-    .gameday-interest-form input[type="email"]:focus {
-      border-color: #F97316;
-    }
-
-    .gameday-interest-form button {
-      padding: 8px 14px;
-      background-color: #F97316;
-      color: #FFFFFF;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 12px;
-      border: none;
-      border-radius: 100px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background-color 0.2s ease;
-    }
-
-    .gameday-interest-form button:hover {
-      background-color: #EA6C0B;
-    }
-
-    .gameday-interest-success {
-      display: none;
-      font-size: 13px;
-      color: #F97316;
-      font-weight: 600;
-    }
-
-    /* ===== MISSION SECTION ===== */
-    .mission-section {
-      background-color: #FAFAFA;
-      position: relative;
-    }
-
-    .mission-section .container {
-      max-width: 1060px;
-    }
-
-    .mission-layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 40px;
-      align-items: center;
-    }
-
-    @media (min-width: 768px) {
-      .mission-layout {
-        grid-template-columns: 1fr 1fr;
-        gap: 64px;
-      }
-    }
-
-    .mission-text .section-label {
-      display: block;
-    }
-
-    @media (max-width: 767px) {
-      .mission-text .section-label {
-        text-align: center;
-      }
-      .mission-text .section-heading {
-        text-align: center;
-      }
-    }
-
-    .mission-body {
-      margin-top: 24px;
-    }
-
-    .mission-body p {
-      font-size: clamp(1rem, 2vw, 1.1rem);
-      color: #64648C;
-      line-height: 1.85;
-      margin-bottom: 24px;
-    }
-
-    @media (max-width: 767px) {
-      .mission-body p {
-        text-align: center;
-      }
-    }
-
-    .mission-body p:last-child {
-      margin-bottom: 0;
-    }
-
-    .mission-img {
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-    }
-
-    .mission-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      min-height: 300px;
-    }
-
-    @media (max-width: 767px) {
-      .mission-img {
-        order: -1;
-      }
-      .mission-img img {
-        min-height: 240px;
-        max-height: 320px;
-      }
-    }
-
-    /* ===== STATS SECTION ===== */
-    .stats-section .container {
-      max-width: 960px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    @media (min-width: 600px) {
-      .stats-grid {
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 32px;
-      }
-    }
-
-    .stat-item {
-      text-align: center;
-      padding: 32px 20px;
-      background: #FFFFFF;
-      border-radius: 16px;
-      border: 1px solid #F0F0F0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-    }
-
-    .stat-number {
-      font-size: clamp(2.4rem, 5vw, 3.2rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #F97316;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-
-    .stat-label {
-      font-size: 15px;
-      font-weight: 500;
-      color: #64648C;
-      letter-spacing: -0.01em;
-    }
-
-    /* ===== EMAIL CAPTURE SECTION ===== */
-    .email-section {
-      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
-      text-align: center;
-      position: relative;
-    }
-
-    .email-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: radial-gradient(circle at 20% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%),
-                         radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%);
-      pointer-events: none;
-    }
-
-    .email-section .container {
-      max-width: 600px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .email-heading {
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      color: #1A1A2E;
-      margin-bottom: 16px;
-    }
-
-    .email-subtext {
-      font-size: clamp(1rem, 2vw, 1.1rem);
-      color: #64648C;
-      line-height: 1.65;
-      margin-bottom: 32px;
-    }
-
-    .email-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 460px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 520px) {
-      .email-form {
-        flex-direction: row;
-      }
-    }
-
-    .email-form input[type="email"] {
-      flex: 1;
-      padding: 14px 20px;
-      background-color: #FFFFFF;
-      border: 1.5px solid #E0E0E0;
-      border-radius: 100px;
-      color: #1A1A2E;
-      font-family: 'Inter', sans-serif;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .email-form input[type="email"]::placeholder {
-      color: #AAAABB;
-    }
-
-    .email-form input[type="email"]:focus {
-      border-color: #F97316;
-      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-    }
-
-    .email-form button {
-      padding: 14px 24px;
-      background-color: #1A1A2E;
-      color: #FFFFFF;
-      font-family: 'Inter', sans-serif;
-      font-weight: 600;
-      font-size: 14px;
-      border: none;
-      border-radius: 100px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background-color 0.2s ease, transform 0.2s ease;
-    }
-
-    .email-form button:hover {
-      background-color: #2D2D4A;
-      transform: translateY(-1px);
-    }
-
-    .form-note {
-      margin-top: 14px;
-      font-size: 13px;
-      color: #AAAABB;
-    }
-
-    .form-success {
-      display: none;
-      padding: 20px;
-      background-color: #FFF7ED;
-      border: 1px solid #FDBA74;
-      border-radius: 16px;
-      text-align: center;
-      max-width: 460px;
-      margin: 0 auto;
-    }
-
-    .form-success p {
-      font-weight: 600;
-      font-size: 1.05rem;
-      color: #1A1A2E;
-    }
-
-    .form-success .sub {
-      font-weight: 400;
-      font-size: 0.9rem;
-      color: #64648C;
-      margin-top: 6px;
-    }
-
-    /* ===== FOOTER ===== */
-    footer {
-      border-top: 1px solid #F0F0F0;
-      padding: 48px 0;
-      text-align: center;
-    }
-
-    footer p {
-      font-size: 14px;
-      color: #9999AA;
-      line-height: 1.8;
-    }
-
-    footer p strong {
-      color: #64648C;
-      font-weight: 600;
-    }
-
-    .footer-links {
-      margin-top: 16px;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 8px 24px;
-    }
-
-    .footer-links a {
-      font-size: 13px;
-      color: #9999AA;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .footer-links a:hover {
-      color: #F97316;
-    }
-
-    .social-links {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .social-links a {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-      color: #9999AA;
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .social-links a:hover {
-      color: #F97316;
-    }
-
-    .social-links svg {
-      width: 18px;
-      height: 18px;
-      fill: currentColor;
-    }
-
-    /* ===== ANIMATIONS ===== */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .hero-content > * {
-      animation: fadeInUp 0.8s ease forwards;
-      opacity: 0;
-    }
-
-    .hero-content > *:nth-child(1) { animation-delay: 0.15s; }
-    .hero-content > *:nth-child(2) { animation-delay: 0.35s; }
-    .hero-content > *:nth-child(3) { animation-delay: 0.55s; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 480px) {
-      .hero {
-        padding: 140px 20px 72px;
-      }
-
-      section {
-        padding: 64px 0;
-      }
-
-      .tool-card-body {
-        padding: 22px 20px 20px;
-      }
-    }
-  </style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WV7985BYLC"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WV7985BYLC');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoachPilot — Every Kid Deserves a Coach | Bonney Lake, WA</title>
+<meta name="description" content="CoachPilot is local coaches filling a gap: affordable youth sports clinics and coaching in Bonney Lake, WA, so every kid can get out, try sports, and fall in love with the game.">
+<meta property="og:title" content="CoachPilot — Every Kid Deserves a Coach">
+<meta property="og:description" content="Local coaches. Small groups. Prices every family can afford. Youth sports clinics and 1-on-1 coaching in Bonney Lake, WA.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://coachpilot.org">
+<meta property="og:image" content="https://coachpilot.org/images/hero-batting.jpg">
+<link rel="canonical" href="https://coachpilot.org">
+<link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{--gold:#f5c342;--gold-dark:#d4a017;--gold-deep:#b8890f;--ink:#111110;--coal:#191917;--paper:#f4f1ea;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--ink);color:#eae6da;line-height:1.6;overflow-x:hidden;}
+img{max-width:100%;display:block;}
+a{text-decoration:none;color:inherit;}
+::selection{background:var(--gold);color:#111;}
+
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s ease,transform .8s ease;}
+.rv.in{opacity:1;transform:none;}
+
+/* ============ NAV ============ */
+nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;align-items:center;gap:20px;padding:16px 24px;background:linear-gradient(180deg,rgba(10,10,9,.92),rgba(10,10,9,0));transition:background .3s;}
+nav.solid{background:rgba(10,10,9,.96);border-bottom:1px solid #2a2820;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:2.5px;color:var(--gold);}
+.logo span{color:#fff;}
+.nav-links{margin-left:auto;display:flex;gap:22px;align-items:center;}
+.nav-links a{font-size:13px;font-weight:700;color:#c9c4b4;letter-spacing:.6px;}
+.nav-links a:hover{color:var(--gold);}
+.nav-cta{background:var(--gold);color:#111!important;font-weight:900;padding:10px 20px;border-radius:8px;letter-spacing:.5px;}
+@media(max-width:820px){.nav-links a:not(.nav-cta){display:none;}}
+
+/* ============ OPENING ============ */
+.open{min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;padding:110px 24px 80px;isolation:isolate;}
+.open .bgimg{position:absolute;inset:0;z-index:-2;background:url('images/hero-batting.jpg') center 30%/cover no-repeat;}
+.open::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,10,9,.82) 0%,rgba(10,10,9,.62) 45%,var(--ink) 96%);}
+.open .whisper{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(17px,2.6vw,23px);color:var(--gold);letter-spacing:.5px;}
+.open h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(58px,11vw,132px);line-height:.94;letter-spacing:3px;color:#fff;margin:18px 0 8px;text-shadow:0 8px 40px rgba(0,0,0,.6);}
+.open h1 em{font-style:normal;color:var(--gold);}
+.open .where{font-size:13px;font-weight:800;letter-spacing:4px;color:#b6b0a0;text-transform:uppercase;margin-top:14px;}
+.open .ctas{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:38px;}
+.btn{display:inline-block;padding:17px 32px;border-radius:10px;font-weight:900;font-size:15px;letter-spacing:.6px;transition:transform .15s;}
+.btn:hover{transform:translateY(-2px);}
+.btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#111;box-shadow:0 14px 40px -12px rgba(212,160,23,.7);}
+.btn.ghost{border:2px solid #56513f;color:#efe9d8;}
+.btn.ghost:hover{border-color:var(--gold);color:var(--gold);}
+.open .scrollhint{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:3px;color:#8a8472;text-transform:uppercase;animation:bob 2.4s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+
+/* ============ TICKER ============ */
+.ticker{background:var(--gold);color:#141310;padding:14px 22px;text-align:center;font-weight:800;font-size:14.5px;letter-spacing:.3px;}
+.ticker a{text-decoration:underline;text-underline-offset:3px;font-weight:900;}
+
+/* ============ STORY CHAPTERS ============ */
+.chapter{max-width:880px;margin:0 auto;padding:92px 26px 20px;}
+.chnum{font-family:'Bebas Neue',sans-serif;color:var(--gold-deep);font-size:15px;letter-spacing:4px;}
+.chapter h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6.4vw,62px);letter-spacing:2px;line-height:.98;color:#fff;margin:10px 0 26px;}
+.chapter h2 em{font-style:normal;color:var(--gold);}
+.chapter p{font-size:17px;line-height:1.9;color:#c9c4b4;margin-bottom:20px;max-width:720px;}
+.chapter p b{color:#fff;font-weight:700;}
+.bigquote{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(24px,4vw,34px);line-height:1.4;color:#fff;border-left:5px solid var(--gold);padding:10px 0 10px 28px;margin:44px 0;}
+.bigquote small{display:block;font-family:'Inter';font-style:normal;font-size:12px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-top:14px;text-transform:uppercase;}
+
+/* numbers strip */
+.numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:880px;margin:40px auto 0;padding:0 26px;}
+@media(max-width:720px){.numbers{grid-template-columns:repeat(2,1fr);}}
+.num{background:var(--coal);border:1px solid #2c2a20;border-radius:14px;padding:24px 12px;text-align:center;}
+.num b{display:block;font-family:'Bebas Neue',sans-serif;font-size:46px;line-height:1;color:var(--gold);}
+.num span{font-size:11px;font-weight:800;letter-spacing:1.6px;color:#9b9584;text-transform:uppercase;display:block;margin-top:8px;line-height:1.5;}
+
+/* ============ A NIGHT WITH US ============ */
+.night{background:var(--coal);margin-top:90px;border-top:1px solid #2c2a20;border-bottom:1px solid #2c2a20;}
+.night .inner{max-width:980px;margin:0 auto;padding:88px 26px;}
+.night .lead{max-width:720px;}
+.moments{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:44px;}
+@media(max-width:760px){.moments{grid-template-columns:1fr;}}
+.moment{background:#131311;border:1px solid #2c2a20;border-left:4px solid var(--gold);border-radius:12px;padding:24px 24px 20px;}
+.moment h4{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1.6px;color:var(--gold);margin-bottom:8px;}
+.moment p{font-size:14.5px;color:#b8b3a2;line-height:1.75;}
+.moment p b{color:#fff;}
+
+/* ============ PROGRAMS ============ */
+.programs{max-width:1020px;margin:0 auto;padding:96px 26px;}
+.sec-k{font-size:12px;font-weight:900;letter-spacing:3.5px;color:var(--gold-deep);text-transform:uppercase;text-align:center;}
+h2.sec-t{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6vw,58px);letter-spacing:2px;text-align:center;color:#fff;margin:10px 0 46px;}
+.pcards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+@media(max-width:860px){.pcards{grid-template-columns:1fr;}}
+.pcard{background:var(--paper);color:#181712;border-radius:16px;padding:30px 28px;display:flex;flex-direction:column;position:relative;}
+.pcard.hot{outline:3px solid var(--gold);box-shadow:0 22px 60px -22px rgba(245,195,66,.5);}
+.pcard .ptag{position:absolute;top:-13px;left:26px;background:var(--gold);color:#111;font-size:10.5px;font-weight:900;letter-spacing:1.6px;padding:6px 13px;border-radius:99px;text-transform:uppercase;}
+.pcard h3{font-family:'Bebas Neue',sans-serif;font-size:29px;letter-spacing:1.6px;}
+.pcard .pp{font-weight:900;color:var(--gold-deep);margin:4px 0 12px;font-size:15px;}
+.pcard p{font-size:14.5px;color:#4c483d;line-height:1.75;margin-bottom:20px;}
+.pcard .go{margin-top:auto;text-align:center;background:#161511;color:var(--gold);font-weight:900;font-size:13px;letter-spacing:1.4px;padding:15px;border-radius:10px;text-transform:uppercase;}
+.pcard.hot .go{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#111;}
+.pcard .soon{margin-top:auto;text-align:center;border:2px dashed #c9c2ae;color:#8d8878;font-weight:800;font-size:12px;letter-spacing:1.4px;padding:14px;border-radius:10px;text-transform:uppercase;}
+
+/* ============ COACH ============ */
+.coachsec{background:var(--coal);border-top:1px solid #2c2a20;border-bottom:1px solid #2c2a20;}
+.coach-grid{max-width:1020px;margin:0 auto;padding:96px 26px;display:grid;grid-template-columns:340px 1fr;gap:52px;align-items:start;}
+@media(max-width:860px){.coach-grid{grid-template-columns:1fr;gap:34px;}}
+.headshot-wrap{position:sticky;top:96px;}
+.headshot{border-radius:18px;overflow:hidden;border:1px solid #35321f;box-shadow:0 30px 70px -30px rgba(0,0,0,.8);position:relative;}
+.headshot img{width:100%;aspect-ratio:4/5;object-fit:cover;object-position:center 20%;}
+.headshot .cap{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,transparent,rgba(10,10,9,.94) 70%);padding:44px 20px 16px;}
+.headshot .cap b{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.6px;color:#fff;display:block;line-height:1;}
+.headshot .cap span{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);text-transform:uppercase;}
+.coach-copy .chnum{margin-bottom:6px;display:block;}
+.coach-copy h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5.4vw,54px);letter-spacing:2px;color:#fff;line-height:1;margin-bottom:24px;}
+.coach-copy p{font-size:16px;line-height:1.9;color:#c9c4b4;margin-bottom:18px;}
+.coach-copy p b{color:#fff;}
+.coach-copy .fp{font-family:'Playfair Display',serif;font-style:italic;font-size:19px;color:var(--gold);margin-top:6px;}
+.creds{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px;}
+.cred{background:#131311;border:1px solid #35321f;color:#d8c98a;font-size:11.5px;font-weight:800;padding:7px 13px;border-radius:99px;letter-spacing:.4px;}
+.crew-line{max-width:1020px;margin:0 auto;padding:0 26px 88px;text-align:center;font-size:15px;color:#9b9584;line-height:1.8;}
+.crew-line b{color:#e6e1d0;}
+
+/* ============ VISION ============ */
+.vision{max-width:880px;margin:0 auto;padding:96px 26px;}
+.vision p{font-size:17px;line-height:1.9;color:#c9c4b4;margin-bottom:20px;max-width:720px;}
+.vision p b{color:#fff;}
+.roadgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px;}
+@media(max-width:760px){.roadgrid{grid-template-columns:1fr;}}
+.road{background:var(--coal);border:1px solid #2c2a20;border-radius:14px;padding:24px;}
+.road .rn{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--gold);}
+.road h4{font-size:15.5px;font-weight:900;color:#fff;margin:8px 0 8px;}
+.road p{font-size:13.5px;color:#a39d8b;line-height:1.7;margin:0;}
+.road a{color:var(--gold);font-weight:800;}
+
+/* ============ CLOSE ============ */
+.close{position:relative;text-align:center;padding:110px 26px 100px;isolation:isolate;}
+.close::before{content:"";position:absolute;inset:0;z-index:-2;background:url('images/celebrate-highfive.jpg') center/cover no-repeat;}
+.close::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--ink) 0%,rgba(10,10,9,.78) 40%,rgba(10,10,9,.9) 100%);}
+.close h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,7vw,72px);letter-spacing:2.5px;color:#fff;line-height:.98;}
+.close h2 em{font-style:normal;color:var(--gold);}
+.close p{font-size:16px;color:#cfcaba;max-width:560px;margin:18px auto 34px;line-height:1.8;}
+footer{background:#0b0b0a;padding:46px 24px 38px;text-align:center;border-top:3px solid var(--gold-dark);}
+footer .flogo{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2.5px;color:var(--gold);}
+footer .flogo span{color:#fff;}
+footer p{font-size:13px;color:#8a8472;margin-top:12px;line-height:2;}
+footer a{color:var(--gold);}
+</style>
 </head>
 <body>
 
-  <!-- Navigation -->
-  <nav id="navbar">
-    <div class="container">
-      <a href="#" class="nav-logo">
-        <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
-        <span>CoachPilot</span>
-      </a>
-      <span class="nav-cueops">A <a href="https://cueops.io" target="_blank" rel="noopener">CueOps</a> Product</span>
-      <ul class="nav-links">
-        <li><a href="plans.html">Practice Plans</a></li>
-        <li><a href="ondeck.html">OnDeck</a></li>
-        <li><a href="#tools">Tools</a></li>
-      </ul>
-      <div class="nav-right">
-        <a href="plans.html" class="nav-cta">Try It Free</a>
-        <button class="nav-menu-btn" id="menu-btn" aria-label="Open menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Mobile nav overlay -->
-  <div class="nav-mobile" id="mobile-nav">
-    <a href="plans.html" onclick="closeMobileNav()">Practice Plans</a>
-    <a href="ondeck.html" onclick="closeMobileNav()">OnDeck</a>
-    <a href="#tools" onclick="closeMobileNav()">Tools</a>
-    <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
+<nav id="nav">
+  <a href="/" class="logo">COACH<span>PILOT</span></a>
+  <div class="nav-links">
+    <a href="#story">Our Story</a>
+    <a href="#night">A Night With Us</a>
+    <a href="#programs">Programs</a>
+    <a href="#coach">Meet Coach</a>
+    <a href="coaches.html">For Coaches</a>
+    <a class="nav-cta" href="https://clinics.coachpilot.org">Sign Up</a>
   </div>
+</nav>
 
-  <!-- Hero Section — Cinematic photo background -->
-  <section class="hero">
-    <img src="images/hero-bg.jpg" alt="Youth sports team playing at sunset" class="hero-bg">
-    <div class="hero-content">
-      <h1>You're Doing Great, Coach.</h1>
-      <p class="hero-subtext">Nobody tells volunteer coaches they're doing a good job. We're here to change that. Free tools for practice plans, walkup music, and game day. Built by coaches, for coaches.</p>
-      <div class="hero-actions">
-        <a href="plans.html" class="btn-primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-          Build Your First Practice Plan
-        </a>
-        <a href="#tools" class="btn-secondary">
-          See all tools
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </a>
+<!-- OPENING -->
+<div class="open">
+  <div class="bgimg"></div>
+  <div class="whisper">Bonney Lake, Washington</div>
+  <h1>EVERY KID<br>DESERVES <em>A SHOT.</em></h1>
+  <div class="where">Affordable clinics · Real coaching · Community volunteers</div>
+  <div class="ctas">
+    <a class="btn gold" href="https://clinics.coachpilot.org">🥎 Join a Clinic</a>
+    <a class="btn ghost" href="https://clinics.coachpilot.org/coaching.html">Book 1-on-1 Coaching</a>
+  </div>
+  <div class="scrollhint">▼ our story</div>
+</div>
+
+<div class="ticker">
+  ON THE FIELD NOW: Fall Softball Prep · 4 Wednesdays, July 29 to Aug 19 · Tehaleh Heights Elementary · $50 for the month · <a href="https://clinics.coachpilot.org">grab a spot</a>
+</div>
+
+<!-- CHAPTER 1 -->
+<div class="chapter" id="story">
+  <div class="rv">
+    <div class="chnum">CHAPTER 01</div>
+    <h2>IT STARTED WITH <em>A BILL.</em></h2>
+    <p>Last summer, a Bonney Lake dad signed his two daughters up for softball camps. The total came to more than a thousand dollars. He paid it, because that is what parents do. But it stuck with him.</p>
+    <p>Youth sports has quietly become a luxury product. Camps in the hundreds. Private lessons at eighty dollars an hour. Travel programs with four-figure seasons. And around here, if you could not swing that? <b>There was nothing.</b> No affordable option. No middle ground. Kids were getting priced out of the games that shape them.</p>
+    <div class="bigquote">"Parents should never have to choose between signing their kid up for a sport and everything else a family needs. And that is where this was headed."<small>Coach Daniel · Founder</small></div>
+  </div>
+</div>
+
+<!-- CHAPTER 2 -->
+<div class="chapter">
+  <div class="rv">
+    <div class="chnum">CHAPTER 02</div>
+    <h2>SO WE <em>BUILT THE THING</em> THAT WAS MISSING.</h2>
+    <p>That dad happens to be a coach. Twenty years of it, five sports, and a stubborn belief that the development years are the most important years in sports: they are where a kid either falls in love with the game or walks away for good.</p>
+    <p>So he formed <b>CoachPilot LLC</b> and started making calls. And people showed up: dedicated volunteers, experienced adults and high school players from area programs, willing to give their summer nights to these girls because they believe what he believes. The school district approved the fields. The insurance got bought. The nets got built in a garage.</p>
+    <p>Then the families showed up. <b>More than forty girls</b> signed up for the first clinics before a single whistle blew.</p>
+  </div>
+  <div class="numbers rv">
+    <div class="num"><b>$50</b><span>for a full month of coaching</span></div>
+    <div class="num"><b>40+</b><span>girls in our first clinics</span></div>
+    <div class="num"><b>5+</b><span>dedicated volunteers on the field</span></div>
+    <div class="num"><b>100%</b><span>insured, licensed, background checked</span></div>
+  </div>
+</div>
+
+<!-- A NIGHT WITH US -->
+<div class="night" id="night">
+  <div class="inner">
+    <div class="rv lead">
+      <div class="chnum">CHAPTER 03</div>
+      <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6.4vw,62px);letter-spacing:2px;line-height:.98;color:#fff;margin:10px 0 26px;">WHAT A NIGHT WITH US <em style="font-style:normal;color:var(--gold);">ACTUALLY LOOKS LIKE</em></h2>
+      <p style="font-size:17px;line-height:1.9;color:#c9c4b4;">Anyone can rent a field and run lines. Ours run different, on purpose. Every session is planned to the minute, every drill scales to the kid in front of it, and every girl goes home with something to tell her mom about.</p>
+    </div>
+    <div class="moments">
+      <div class="moment rv"><h4>THE BIG CIRCLE</h4><p>Every clinic opens with everyone in one circle, stretching while we talk: why we are here, the rules, and the promise that <b>this field is a place to try things.</b></p></div>
+      <div class="moment rv"><h4>BE LOUD</h4><p>Watch softball at the highest level: the dugout is on its feet start to finish. We teach field voice like a skill, because <b>girls play better when their team is behind them.</b></p></div>
+      <div class="moment rv"><h4>THE BRACELET BUCKET</h4><p>Do something that catches a coach's eye or ear, hustle, a gutsy call, cheering a teammate, and you earn a bracelet from the bucket. <b>We say why, out loud, every time.</b></p></div>
+      <div class="moment rv"><h4>EVERY GIRL LEVELS UP</h4><p>Drills run on ladders: three clean reps and you move back a cone, get a faster feed, a smaller target. <b>Nobody is stuck in a beginner group.</b> You climb the drill at your own speed.</p></div>
+      <div class="moment rv"><h4>SMALL GROUPS, REAL REPS</h4><p>Groups of four to six, run by a coach or a high school player who lives the game. We count reps per girl per night, because <b>standing in line is not development.</b></p></div>
+      <div class="moment rv"><h4>ONE WIN, EVERY NIGHT</h4><p>Our closing huddle rule: every girl leaves with one named win. Her first clean catch, her loudest call, her best swing. <b>She will remember it longer than we will.</b></p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRAMS -->
+<div class="programs" id="programs">
+  <div class="sec-k rv">Programs</div>
+  <h2 class="sec-t rv">PICK HER STARTING POINT</h2>
+  <div class="pcards">
+    <div class="pcard hot rv">
+      <div class="ptag">Enrolling Now</div>
+      <h3>GROUP CLINICS</h3>
+      <div class="pp">$50 for the full 4-week session</div>
+      <p>Skills-first clinics for ages 7 to 13. Throwing, fielding, hitting, baserunning, plus a dedicated pitching track. A real curriculum that builds week to week.</p>
+      <a class="go" href="https://clinics.coachpilot.org">See Clinics &amp; Register</a>
+    </div>
+    <div class="pcard rv">
+      <h3>1-ON-1 COACHING</h3>
+      <div class="pp">$60 founding rate · packages available</div>
+      <p>Private sessions built around one player. Video recaps sent home after every lesson, highlight clips, the full training toolkit, and a plan that builds week over week. Local lessons run $80 to $95 an hour; founding families keep $60.</p>
+      <a class="go" href="https://clinics.coachpilot.org/coaching.html">Book a Session</a>
+    </div>
+    <div class="pcard rv">
+      <h3>WINTER PREP</h3>
+      <div class="pp">Winter 2026-27</div>
+      <p>Indoor skills programs before spring tryouts, because the girls who train in January own March. Details announced after the fall season wraps.</p>
+      <div class="soon">Announcing This Fall</div>
+    </div>
+  </div>
+</div>
+
+<!-- COACH -->
+<div class="coachsec" id="coach">
+  <div class="coach-grid">
+    <div class="headshot-wrap rv">
+      <div class="headshot">
+        <img src="images/coach-daniel.jpg" alt="Coach Daniel Grande">
+        <div class="cap"><span>Founder &amp; Head Coach</span><b>COACH DANIEL GRANDE</b></div>
       </div>
     </div>
-  </section>
-
-  <!-- Divider -->
-  <hr class="section-divider">
-
-  <!-- Events Section -->
-  <section class="events-section" id="events">
-    <div class="container fade-in">
-      <span class="section-label">Upcoming Events</span>
-      <h2 class="section-heading">Clinics and camps happening now</h2>
-      <div class="events-grid">
-        <a href="https://clinics.coachpilot.org/signup.html" class="event-card">
-          <div class="event-card-img-wrap">
-            <span class="tool-card-badge badge-enrolling">Now Enrolling</span>
-            <img src="images/card-practice.jpg" alt="Youth softball players at a clinic" class="event-card-img" loading="lazy">
-          </div>
-          <div class="event-card-body">
-            <div class="event-card-details">
-              <span class="event-date">August 2026</span>
-              <span class="event-location">Bonney Lake, WA</span>
-            </div>
-            <h3>Fall Softball Prep Clinic</h3>
-            <p>Four clinics for players ages 7 to 13. Rookie Ready, Game Ready, Intro to Pitching, and Next Level Pitching. 4 weeks, 90 minutes per session. Spots are limited.</p>
-            <span class="tool-card-link">Save Your Spot &rarr;</span>
-          </div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Divider -->
-  <hr class="section-divider">
-
-  <!-- Tools Section -->
-  <section class="tools-section" id="tools">
-    <div class="container fade-in">
-      <span class="section-label">Your Coaching Toolkit</span>
-      <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
-      <div class="tools-grid">
-        <!-- Card 1: Practice Plans -->
-        <div class="tool-card">
-          <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-live">Free</span>
-            <img src="images/card-practice.jpg" alt="Soccer ball on a practice field" class="tool-card-img" loading="lazy">
-          </div>
-          <div class="tool-card-body">
-            <h3>Practice Plans</h3>
-            <p>Generate a complete, age-appropriate practice plan in 30 seconds. 16 sports. 5,798 drills. Free.</p>
-            <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
-          </div>
-        </div>
-        <!-- Card 3: OnDeck -->
-        <div class="tool-card">
-          <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-soon">By Request</span>
-            <img src="images/card-ondeck.jpg" alt="Youth baseball player at bat" class="tool-card-img" loading="lazy">
-          </div>
-          <div class="tool-card-body">
-            <h3>OnDeck</h3>
-            <p>Walk-up songs and AI announcer introductions that make every kid feel like a pro. Currently available by request for trial coaches. $10 to test on your team and keep for life.</p>
-            <a href="ondeck.html" class="tool-card-link">Learn More &rarr;</a>
-          </div>
-        </div>
-        <!-- Card 4: Game Plans -->
-        <div class="tool-card">
-          <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-soon">In Development</span>
-            <img src="images/card-gameday.jpg" alt="Sports team standing together on game day" class="tool-card-img" loading="lazy">
-          </div>
-          <div class="tool-card-body">
-            <h3>Game Plans</h3>
-            <p>Fair lineups, batting orders, position rotations, and playing time tracking. Every kid plays. One season of testing complete. Available for trial by request.</p>
-            <a href="gameday.html" class="tool-card-link">Sneak Peek &rarr;</a>
-          </div>
-        </div>
-        <!-- Card 5: Calling All Coaches -->
-        <div class="tool-card">
-          <div class="tool-card-img-wrap">
-            <span class="tool-card-badge badge-soon">Coming Soon</span>
-            <img src="images/card-v2.jpg" alt="Coaches building community together" class="tool-card-img" loading="lazy">
-          </div>
-          <div class="tool-card-body">
-            <h3>Calling All Coaches</h3>
-            <p>The platform that lets any local coach run paid clinics without dealing with the business side. Insurance, fields, marketing, payments, waivers. We handle it. You just coach.</p>
-            <span class="tool-card-link disabled">Stay Tuned &rarr;</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Divider -->
-  <hr class="section-divider">
-
-  <!-- Mission Section — Side-by-side with photo -->
-  <section class="mission-section">
-    <div class="container fade-in">
-      <div class="mission-layout">
-        <div class="mission-text">
-          <span class="section-label">Why We Built This</span>
-          <h2 class="section-heading">For the coach who never had one</h2>
-          <div class="mission-body">
-            <p>Coaching isn't about wins and losses. It's about showing up for kids who need someone in their corner. But volunteering to coach doesn't come with a manual. There's no mentor in the dugout. No one tells you if you're doing it right.</p>
-            <p>CoachPilot is your sideline. Practice plans that work, tools that save time, and the confidence that comes from knowing you showed up prepared. Because every coach deserves to hear: you're doing a good job.</p>
-          </div>
-        </div>
-        <div class="mission-img">
-          <img src="images/mission.jpg" alt="Kids having fun playing together outdoors" loading="lazy">
+    <div class="coach-copy">
+      <div class="rv">
+        <span class="chnum">CHAPTER 04</span>
+        <h2>NEVER THE ALL-STAR.<br>ALWAYS THE COACH.</h2>
+        <p>Daniel has been on a field or a court since he was five years old, with no break since: baseball through high school, football and wrestling from sixth grade on. He will tell you himself that he was never the all-star. <b>He was the kid with the eye for coaching,</b> and he knew it early. By his own high school years he was already coaching middle school wrestlers, and he spent his twenties coaching and refereeing high school wrestling.</p>
+        <p>Then his daughters were born, and everything found its place. He discovered the level of the game he loves most: <b>the development years,</b> rec sports, where everything is raw and everything matters. He has coached rec soccer, basketball, volleyball, and softball, and at this level he will tell you the skills transfer everywhere. But his love lives on the diamond, in the red clay. It was baseball first. Two daughters made it softball.</p>
+        <p>His coaching is simple to describe because he actually lives it: loud and positive, reps over lectures, fair as a level line. <b>At this age everyone plays.</b> Spots get earned later; falling in love with the game comes first.</p>
+        <p class="fp">Daniel, his wife, and their two girls moved to Bonney Lake from Arizona in the fall of 2025. If he is not on a field, he is standing in a river with a fly rod.</p>
+        <div class="creds">
+          <span class="cred">USA Softball ACE Certified</span>
+          <span class="cred">20+ Years Coaching</span>
+          <span class="cred">5 Sports Coached</span>
+          <span class="cred">Girl Dad ×2</span>
         </div>
       </div>
     </div>
-  </section>
+  </div>
+  <p class="crew-line rv">He does not do it alone. A group of <b>dedicated volunteers</b>, adults and high school athletes who share the same values he coaches by, help run every session so the groups stay small and every girl gets seen. Volunteer spotlights coming as the season rolls.</p>
+</div>
 
-  <!-- Divider -->
-  <hr class="section-divider">
+<!-- VISION -->
+<div class="vision" id="vision">
+  <div class="rv">
+    <div class="chnum">CHAPTER 05</div>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,6.4vw,62px);letter-spacing:2px;line-height:.98;color:#fff;margin:10px 0 26px;">WHERE THIS IS <em style="font-style:normal;color:var(--gold);">REALLY GOING</em></h2>
+    <p>Here is the quiet truth about youth sports. At the level that matters most, your kid's season depends on whichever volunteer raised a hand: usually a parent handed a bag of balls, no training, and a good luck. Some kids win that lottery. Most don't.</p>
+    <p><b>We think the coaches deserve better too.</b> The parents who give up their evenings to coach are the backbone of every league in America, and almost nobody trains them, equips them, or even says thank you. Fix the coach, and you fix the season for twelve kids at once.</p>
+    <p>Clinics are chapter one. This is the rest of the book:</p>
+  </div>
+  <div class="roadgrid">
+    <div class="road rv"><div class="rn">TODAY</div><h4>Clinics + free coach tools</h4><p>Affordable clinics for kids, and free tools we already build for volunteer coaches: <a href="coaches.html">GameDay, walkup music, and ready-made practice plans</a>.</p></div>
+    <div class="road rv"><div class="rn">NEXT</div><h4>Preseason coach training</h4><p>Hands-on training sessions and materials for volunteer coaches before each season, so no kid's year depends on luck.</p></div>
+    <div class="road rv"><div class="rn">THE GOAL</div><h4>Every coach, equipped</h4><p>Curriculum, drills, and support for anyone brave enough to raise a hand and coach. Any sport. Any level. That is CoachPilot.</p></div>
+  </div>
+  <div class="rv" style="text-align:center;margin-top:38px;">
+    <a class="btn gold" href="coaches.html">🧢 Coaches: This Part Is For You</a>
+    <p style="font-size:13px;color:#8a8472;margin-top:12px;">Free practice plans, GameDay, walkup music, and everything we build for volunteer coaches.</p>
+  </div>
+</div>
 
-  <!-- By The Numbers -->
-  <section class="stats-section">
-    <div class="container fade-in">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number">5,798</div>
-          <div class="stat-label">drills across 16 sports</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">5</div>
-          <div class="stat-label">tools for coaches, one platform</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">Free</div>
-          <div class="stat-label">to get started</div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- CLOSE -->
+<div class="close">
+  <div class="rv">
+    <h2>THIS IS OUR <em>HOME FIELD</em> NOW.</h2>
+    <p>We are new here, and we are all in. Come find us at Tehaleh Heights on a Wednesday night. Listen for the loudest field in Bonney Lake.</p>
+    <a class="btn gold" href="https://clinics.coachpilot.org">🥎 Get Her Signed Up</a>
+  </div>
+</div>
 
-  <!-- Divider -->
-  <hr class="section-divider">
+<footer>
+  <div class="flogo">COACH<span>PILOT</span></div>
+  <p>CoachPilot LLC · Bonney Lake, Washington · Fully licensed and insured<br>
+  (623) 332-2251 · <a href="mailto:Daniel.Grande@ymail.com">Daniel.Grande@ymail.com</a><br>
+  <a href="https://clinics.coachpilot.org">Clinics &amp; Registration</a> · <a href="https://clinics.coachpilot.org/coaching.html">1-on-1 Coaching</a> · <a href="https://clinics.coachpilot.org/volunteer.html">Volunteer With Us</a> · <a href="coaches.html">For Coaches</a> · <a href="blog/">Blog</a></p>
+  <p style="margin-top:10px;font-size:11px;color:#57534a;">© 2026 CoachPilot LLC</p>
+</footer>
 
-  <!-- Email Capture Section -->
-  <section class="email-section" id="get-started">
-    <div class="container fade-in">
-      <h2 class="email-heading">Join coaches who are building this together</h2>
-      <p class="email-subtext">We're building CoachPilot with real coaches. Get updates, new tools, and coaching tips.</p>
-      <form class="email-form" id="signup-form" action="https://formsubmit.co/daniel@cueops.io" method="POST">
-        <input type="hidden" name="_subject" value="CoachPilot - New Coach Signup">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
-        <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
-        <button type="submit">Join the Team</button>
-      </form>
-      <p class="form-note">No spam. Just coaching.</p>
-      <div class="form-success" id="form-success">
-        <p>You're on the team.</p>
-        <p class="sub">We'll keep you posted on new tools and coaching tips.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <p><strong>CoachPilot &copy; 2026</strong></p>
-      <p>Built by coaches. For coaches.</p>
-      <p style="margin-top: 6px; font-size: 13px; color: #BBBBC8;">Built by <a href="https://cueops.io" target="_blank" rel="noopener" style="color: #9999AA; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#F97316'" onmouseout="this.style.color='#9999AA'">CueOps</a> · AI consulting for businesses</p>
-      <div class="footer-links">
-        <a href="plans.html">Practice Plans</a>
-        <a href="ondeck.html">OnDeck</a>
-        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
-      </div>
-      <div class="social-links">
-        <a href="https://www.facebook.com/profile.php?id=61588253262433" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</a>
-        <a href="https://www.instagram.com/coachpilotapp/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // === Navbar scroll effect ===
-    (function() {
-      var nav = document.getElementById('navbar');
-      var scrollThreshold = 40;
-
-      function handleScroll() {
-        if (window.scrollY > scrollThreshold) {
-          nav.classList.add('scrolled');
-        } else {
-          nav.classList.remove('scrolled');
-        }
-      }
-
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    })();
-
-    // === Mobile menu toggle ===
-    var menuBtn = document.getElementById('menu-btn');
-    var mobileNav = document.getElementById('mobile-nav');
-    var menuOpen = false;
-
-    function closeMobileNav() {
-      menuOpen = false;
-      mobileNav.classList.remove('open');
-      menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
-    }
-
-    menuBtn.addEventListener('click', function() {
-      menuOpen = !menuOpen;
-      if (menuOpen) {
-        mobileNav.classList.add('open');
-        menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-      } else {
-        closeMobileNav();
-      }
-    });
-
-    // === Scroll-triggered fade-in ===
-    (function() {
-      var fadeElements = document.querySelectorAll('.fade-in');
-
-      if ('IntersectionObserver' in window) {
-        var observer = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, {
-          threshold: 0.12,
-          rootMargin: '0px 0px -30px 0px'
-        });
-
-        fadeElements.forEach(function(el) {
-          observer.observe(el);
-        });
-      } else {
-        fadeElements.forEach(function(el) {
-          el.classList.add('visible');
-        });
-      }
-    })();
-
-    // === Form submission with fallback ===
-    (function() {
-      var form = document.getElementById('signup-form');
-      var success = document.getElementById('form-success');
-
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        var formData = new FormData(form);
-
-        fetch(form.action, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Accept': 'application/json'
-          }
-        }).then(function(response) {
-          if (response.ok) {
-            form.style.display = 'none';
-            form.nextElementSibling.style.display = 'none';
-            success.style.display = 'block';
-          } else {
-            var email = formData.get('email');
-            window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
-          }
-        }).catch(function() {
-          var email = formData.get('email');
-          window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
-        });
-      });
-    })();
-
-    // === Show success state if redirected back with #thanks ===
-    (function() {
-      if (window.location.hash === '#thanks') {
-        var form = document.getElementById('signup-form');
-        var success = document.getElementById('form-success');
-        if (form && success) {
-          form.style.display = 'none';
-          var note = form.nextElementSibling;
-          if (note) note.style.display = 'none';
-          success.style.display = 'block';
-        }
-      }
-    })();
-  </script>
-
-<script src="/tracking.js"></script>
+<script src="tracking.js" defer></script>
+<script>
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>

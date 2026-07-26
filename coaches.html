@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-WV7985BYLC"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-WV7985BYLC');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoachPilot | Free Tools for Youth Sports Coaches</title>
+  <meta name="description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
+  <meta name="keywords" content="coaching tools, practice plan, youth sports, volunteer coach, walkup music, game day lineup, softball, soccer">
+  <meta property="og:title" content="CoachPilot | Free Tools for Youth Sports Coaches">
+  <meta property="og:description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://coachpilot.org">
+  <meta property="og:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CoachPilot | Free Tools for Youth Sports Coaches">
+  <meta name="twitter:description" content="Practice plans, walkup music, and game day tools. Built by coaches, for coaches. Free to get started. 16 sports. 5,798 drills.">
+  <meta name="twitter:image" content="https://coachpilot.org/CoachPilot-AppIcon.png">
+  <link rel="canonical" href="https://coachpilot.org">
+  <link rel="icon" type="image/png" href="CoachPilot-AppIcon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #FFFFFF;
+      color: #1A1A2E;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== ORANGE ACCENT BAR ===== */
+    body::before {
+      content: '';
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+      z-index: 200;
+    }
+
+    /* ===== UTILITY ===== */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ===== SECTION DIVIDER ===== */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.2), transparent);
+      border: none;
+      margin: 0;
+    }
+
+    /* ===== NAVIGATION ===== */
+    nav {
+      position: fixed;
+      top: 3px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 18px 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: padding 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    nav.scrolled {
+      padding: 12px 0;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #1A1A2E;
+    }
+
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
+
+    .nav-logo span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #64648C;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s ease;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links a:hover {
+      color: #F97316;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 100px;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-cta:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-1px);
+    }
+
+    .nav-cueops {
+      font-size: 12px;
+      font-weight: 500;
+      color: #9999AA;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-cueops a {
+      color: #9999AA;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .nav-cueops a:hover {
+      color: #F97316;
+    }
+
+    @media (max-width: 767px) {
+      .nav-cueops {
+        display: none;
+      }
+    }
+
+    /* Mobile menu button */
+    .nav-menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .nav-menu-btn:hover {
+      background-color: #F5F5F5;
+    }
+
+    .nav-menu-btn svg {
+      width: 22px;
+      height: 22px;
+      color: #1A1A2E;
+    }
+
+    @media (min-width: 768px) {
+      .nav-menu-btn {
+        display: none;
+      }
+    }
+
+    /* Mobile nav dropdown */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 99;
+      padding: 100px 24px 40px;
+    }
+
+    .nav-mobile.open {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-mobile a {
+      text-decoration: none;
+      color: #1A1A2E;
+      font-weight: 600;
+      font-size: 18px;
+      transition: color 0.2s ease;
+    }
+
+    .nav-mobile a:hover {
+      color: #F97316;
+    }
+
+    /* ===== HERO — Full-width photo background ===== */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 160px 24px 100px;
+    }
+
+    @media (min-width: 768px) {
+      .hero {
+        min-height: 600px;
+        padding: 180px 24px 120px;
+      }
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 40%;
+      z-index: 0;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        rgba(26, 26, 46, 0.65) 0%,
+        rgba(26, 26, 46, 0.55) 50%,
+        rgba(26, 26, 46, 0.75) 100%
+      );
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      color: #FFFFFF;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero-subtext {
+      font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.7;
+      margin-bottom: 48px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border-radius: 100px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+    }
+
+    .btn-primary:hover {
+      background-color: #EA6C0B;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(249, 115, 22, 0.5);
+    }
+
+    .btn-primary svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      color: #FFFFFF;
+    }
+
+    .btn-secondary svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-secondary:hover svg {
+      transform: translateY(2px);
+    }
+
+    /* ===== SECTION SHARED ===== */
+    section {
+      padding: 80px 0;
+    }
+
+    @media (min-width: 768px) {
+      section {
+        padding: 120px 0;
+      }
+    }
+
+    .section-label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #F97316;
+      margin-bottom: 16px;
+    }
+
+    .section-heading {
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 20px;
+    }
+
+    .section-subtext {
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      color: #64648C;
+      line-height: 1.7;
+      max-width: 580px;
+    }
+
+    /* ===== TOOLS SECTION ===== */
+    .tools-section .container {
+      max-width: 960px;
+    }
+
+    .tools-section .section-heading {
+      text-align: center;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tools-section .section-label {
+      display: block;
+      text-align: center;
+    }
+
+    .tools-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    @media (min-width: 700px) {
+      .tools-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+
+    }
+
+    .tool-card {
+      background: #FFFFFF;
+      border: 1px solid #E8E8EE;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .tool-card:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+
+    .tool-card-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .tool-card:hover .tool-card-img {
+      transform: scale(1.05);
+    }
+
+    .tool-card-img-wrap {
+      overflow: hidden;
+      border-radius: 16px 16px 0 0;
+      position: relative;
+    }
+
+    /* ===== TOOL CARD BADGES ===== */
+    .tool-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+
+    .badge-live {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .badge-soon {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .badge-ios {
+      background: #EFF6FF;
+      color: #1E40AF;
+    }
+
+    .badge-enrolling {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    /* ===== EVENTS SECTION ===== */
+    .events-section {
+      background: #FAFAFA;
+    }
+
+    .events-grid {
+      margin-top: 32px;
+    }
+
+    .event-card {
+      display: block;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #E8E8EE;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      max-width: 640px;
+      margin: 0 auto;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .event-card:hover {
+      border-color: rgba(249, 115, 22, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+      transform: translateY(-4px);
+    }
+
+    .event-card-img-wrap {
+      position: relative;
+      aspect-ratio: 21 / 9;
+      overflow: hidden;
+    }
+
+    .event-card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .event-card-img-wrap .tool-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+
+    .event-card-body {
+      padding: 24px;
+    }
+
+    .event-card-details {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .event-date {
+      color: #F97316;
+    }
+
+    .event-location {
+      color: #9999AA;
+    }
+
+    .event-card-body h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+
+    .event-card-body p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 16px;
+    }
+
+    .tool-card-body {
+      padding: 28px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .tool-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+
+    .tool-card p {
+      font-size: 0.95rem;
+      color: #64648C;
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    .tool-card-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #F97316;
+      text-decoration: none;
+      transition: gap 0.2s ease;
+    }
+
+    .tool-card-link:hover {
+      gap: 8px;
+    }
+
+    .tool-card-link.disabled {
+      color: #AAAABB;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* ===== GAME DAY INTEREST FORM ===== */
+    .gameday-interest {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #F0F0F0;
+    }
+
+    .gameday-interest p {
+      font-size: 13px;
+      color: #64648C;
+      margin-bottom: 8px;
+    }
+
+    .gameday-interest-form {
+      display: flex;
+      gap: 6px;
+    }
+
+    .gameday-interest-form input[type="email"] {
+      flex: 1;
+      padding: 8px 14px;
+      border: 1.5px solid #E8E8E8;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: #1A1A2E;
+      outline: none;
+      min-width: 0;
+      transition: border-color 0.2s ease;
+    }
+
+    .gameday-interest-form input[type="email"]::placeholder {
+      color: #BBBBC8;
+    }
+
+    .gameday-interest-form input[type="email"]:focus {
+      border-color: #F97316;
+    }
+
+    .gameday-interest-form button {
+      padding: 8px 14px;
+      background-color: #F97316;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+    }
+
+    .gameday-interest-form button:hover {
+      background-color: #EA6C0B;
+    }
+
+    .gameday-interest-success {
+      display: none;
+      font-size: 13px;
+      color: #F97316;
+      font-weight: 600;
+    }
+
+    /* ===== MISSION SECTION ===== */
+    .mission-section {
+      background-color: #FAFAFA;
+      position: relative;
+    }
+
+    .mission-section .container {
+      max-width: 1060px;
+    }
+
+    .mission-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    @media (min-width: 768px) {
+      .mission-layout {
+        grid-template-columns: 1fr 1fr;
+        gap: 64px;
+      }
+    }
+
+    .mission-text .section-label {
+      display: block;
+    }
+
+    @media (max-width: 767px) {
+      .mission-text .section-label {
+        text-align: center;
+      }
+      .mission-text .section-heading {
+        text-align: center;
+      }
+    }
+
+    .mission-body {
+      margin-top: 24px;
+    }
+
+    .mission-body p {
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      color: #64648C;
+      line-height: 1.85;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 767px) {
+      .mission-body p {
+        text-align: center;
+      }
+    }
+
+    .mission-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .mission-img {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .mission-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      min-height: 300px;
+    }
+
+    @media (max-width: 767px) {
+      .mission-img {
+        order: -1;
+      }
+      .mission-img img {
+        min-height: 240px;
+        max-height: 320px;
+      }
+    }
+
+    /* ===== STATS SECTION ===== */
+    .stats-section .container {
+      max-width: 960px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 32px;
+      }
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 32px 20px;
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid #F0F0F0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .stat-number {
+      font-size: clamp(2.4rem, 5vw, 3.2rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #F97316;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: #64648C;
+      letter-spacing: -0.01em;
+    }
+
+    /* ===== EMAIL CAPTURE SECTION ===== */
+    .email-section {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FAFAFA 50%, #FFF7ED 100%);
+      text-align: center;
+      position: relative;
+    }
+
+    .email-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: radial-gradient(circle at 20% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%),
+                         radial-gradient(circle at 80% 50%, rgba(249, 115, 22, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .email-section .container {
+      max-width: 600px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .email-heading {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1A1A2E;
+      margin-bottom: 16px;
+    }
+
+    .email-subtext {
+      font-size: clamp(1rem, 2vw, 1.1rem);
+      color: #64648C;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    .email-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 520px) {
+      .email-form {
+        flex-direction: row;
+      }
+    }
+
+    .email-form input[type="email"] {
+      flex: 1;
+      padding: 14px 20px;
+      background-color: #FFFFFF;
+      border: 1.5px solid #E0E0E0;
+      border-radius: 100px;
+      color: #1A1A2E;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .email-form input[type="email"]::placeholder {
+      color: #AAAABB;
+    }
+
+    .email-form input[type="email"]:focus {
+      border-color: #F97316;
+      box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    }
+
+    .email-form button {
+      padding: 14px 24px;
+      background-color: #1A1A2E;
+      color: #FFFFFF;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .email-form button:hover {
+      background-color: #2D2D4A;
+      transform: translateY(-1px);
+    }
+
+    .form-note {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #AAAABB;
+    }
+
+    .form-success {
+      display: none;
+      padding: 20px;
+      background-color: #FFF7ED;
+      border: 1px solid #FDBA74;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 460px;
+      margin: 0 auto;
+    }
+
+    .form-success p {
+      font-weight: 600;
+      font-size: 1.05rem;
+      color: #1A1A2E;
+    }
+
+    .form-success .sub {
+      font-weight: 400;
+      font-size: 0.9rem;
+      color: #64648C;
+      margin-top: 6px;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid #F0F0F0;
+      padding: 48px 0;
+      text-align: center;
+    }
+
+    footer p {
+      font-size: 14px;
+      color: #9999AA;
+      line-height: 1.8;
+    }
+
+    footer p strong {
+      color: #64648C;
+      font-weight: 600;
+    }
+
+    .footer-links {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: #9999AA;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: #F97316;
+    }
+
+    .social-links {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #9999AA;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .social-links a:hover {
+      color: #F97316;
+    }
+
+    .social-links svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-content > * {
+      animation: fadeInUp 0.8s ease forwards;
+      opacity: 0;
+    }
+
+    .hero-content > *:nth-child(1) { animation-delay: 0.15s; }
+    .hero-content > *:nth-child(2) { animation-delay: 0.35s; }
+    .hero-content > *:nth-child(3) { animation-delay: 0.55s; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .hero {
+        padding: 140px 20px 72px;
+      }
+
+      section {
+        padding: 64px 0;
+      }
+
+      .tool-card-body {
+        padding: 22px 20px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <div class="container">
+      <a href="#" class="nav-logo">
+        <img src="CoachPilot-AppIcon.png" alt="CoachPilot" width="32" height="32">
+        <span>CoachPilot</span>
+      </a>
+      <span class="nav-cueops">A <a href="https://cueops.io" target="_blank" rel="noopener">CueOps</a> Product</span>
+      <ul class="nav-links">
+        <li><a href="plans.html">Practice Plans</a></li>
+        <li><a href="ondeck.html">OnDeck</a></li>
+        <li><a href="#tools">Tools</a></li>
+      </ul>
+      <div class="nav-right">
+        <a href="plans.html" class="nav-cta">Try It Free</a>
+        <button class="nav-menu-btn" id="menu-btn" aria-label="Open menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile nav overlay -->
+  <div class="nav-mobile" id="mobile-nav">
+    <a href="plans.html" onclick="closeMobileNav()">Practice Plans</a>
+    <a href="ondeck.html" onclick="closeMobileNav()">OnDeck</a>
+    <a href="#tools" onclick="closeMobileNav()">Tools</a>
+    <a href="plans.html" onclick="closeMobileNav()">Try It Free</a>
+  </div>
+
+  <!-- Hero Section — Cinematic photo background -->
+  <section class="hero">
+    <img src="images/hero-bg.jpg" alt="Youth sports team playing at sunset" class="hero-bg">
+    <div class="hero-content">
+      <h1>You're Doing Great, Coach.</h1>
+      <p class="hero-subtext">Nobody tells volunteer coaches they're doing a good job. We're here to change that. Free tools for practice plans, walkup music, and game day. Built by coaches, for coaches.</p>
+      <div class="hero-actions">
+        <a href="plans.html" class="btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Build Your First Practice Plan
+        </a>
+        <a href="#tools" class="btn-secondary">
+          See all tools
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- Events Section -->
+  <section class="events-section" id="events">
+    <div class="container fade-in">
+      <span class="section-label">Upcoming Events</span>
+      <h2 class="section-heading">Clinics and camps happening now</h2>
+      <div class="events-grid">
+        <a href="https://clinics.coachpilot.org/signup.html" class="event-card">
+          <div class="event-card-img-wrap">
+            <span class="tool-card-badge badge-enrolling">Now Enrolling</span>
+            <img src="images/card-practice.jpg" alt="Youth softball players at a clinic" class="event-card-img" loading="lazy">
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-details">
+              <span class="event-date">August 2026</span>
+              <span class="event-location">Bonney Lake, WA</span>
+            </div>
+            <h3>Fall Softball Prep Clinic</h3>
+            <p>Four clinics for players ages 7 to 13. Rookie Ready, Game Ready, Intro to Pitching, and Next Level Pitching. 4 weeks, 90 minutes per session. Spots are limited.</p>
+            <span class="tool-card-link">Save Your Spot &rarr;</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- Tools Section -->
+  <section class="tools-section" id="tools">
+    <div class="container fade-in">
+      <span class="section-label">Your Coaching Toolkit</span>
+      <h2 class="section-heading">Everything you need. Nothing you don't.</h2>
+      <div class="tools-grid">
+        <!-- Card 1: Practice Plans -->
+        <div class="tool-card">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-live">Free</span>
+            <img src="images/card-practice.jpg" alt="Soccer ball on a practice field" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Practice Plans</h3>
+            <p>Generate a complete, age-appropriate practice plan in 30 seconds. 16 sports. 5,798 drills. Free.</p>
+            <a href="plans.html" class="tool-card-link">Try it free &rarr;</a>
+          </div>
+        </div>
+        <!-- Card 3: OnDeck -->
+        <div class="tool-card">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-soon">By Request</span>
+            <img src="images/card-ondeck.jpg" alt="Youth baseball player at bat" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>OnDeck</h3>
+            <p>Walk-up songs and AI announcer introductions that make every kid feel like a pro. Currently available by request for trial coaches. $10 to test on your team and keep for life.</p>
+            <a href="ondeck.html" class="tool-card-link">Learn More &rarr;</a>
+          </div>
+        </div>
+        <!-- Card 4: Game Plans -->
+        <div class="tool-card">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-soon">In Development</span>
+            <img src="images/card-gameday.jpg" alt="Sports team standing together on game day" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Game Plans</h3>
+            <p>Fair lineups, batting orders, position rotations, and playing time tracking. Every kid plays. One season of testing complete. Available for trial by request.</p>
+            <a href="gameday.html" class="tool-card-link">Sneak Peek &rarr;</a>
+          </div>
+        </div>
+        <!-- Card 5: Calling All Coaches -->
+        <div class="tool-card">
+          <div class="tool-card-img-wrap">
+            <span class="tool-card-badge badge-soon">Coming Soon</span>
+            <img src="images/card-v2.jpg" alt="Coaches building community together" class="tool-card-img" loading="lazy">
+          </div>
+          <div class="tool-card-body">
+            <h3>Calling All Coaches</h3>
+            <p>The platform that lets any local coach run paid clinics without dealing with the business side. Insurance, fields, marketing, payments, waivers. We handle it. You just coach.</p>
+            <span class="tool-card-link disabled">Stay Tuned &rarr;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- Mission Section — Side-by-side with photo -->
+  <section class="mission-section">
+    <div class="container fade-in">
+      <div class="mission-layout">
+        <div class="mission-text">
+          <span class="section-label">Why We Built This</span>
+          <h2 class="section-heading">For the coach who never had one</h2>
+          <div class="mission-body">
+            <p>Coaching isn't about wins and losses. It's about showing up for kids who need someone in their corner. But volunteering to coach doesn't come with a manual. There's no mentor in the dugout. No one tells you if you're doing it right.</p>
+            <p>CoachPilot is your sideline. Practice plans that work, tools that save time, and the confidence that comes from knowing you showed up prepared. Because every coach deserves to hear: you're doing a good job.</p>
+          </div>
+        </div>
+        <div class="mission-img">
+          <img src="images/mission.jpg" alt="Kids having fun playing together outdoors" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- By The Numbers -->
+  <section class="stats-section">
+    <div class="container fade-in">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">5,798</div>
+          <div class="stat-label">drills across 16 sports</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">5</div>
+          <div class="stat-label">tools for coaches, one platform</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">Free</div>
+          <div class="stat-label">to get started</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <hr class="section-divider">
+
+  <!-- Email Capture Section -->
+  <section class="email-section" id="get-started">
+    <div class="container fade-in">
+      <h2 class="email-heading">Join coaches who are building this together</h2>
+      <p class="email-subtext">We're building CoachPilot with real coaches. Get updates, new tools, and coaching tips.</p>
+      <form class="email-form" id="signup-form" action="https://formsubmit.co/daniel@cueops.io" method="POST">
+        <input type="hidden" name="_subject" value="CoachPilot - New Coach Signup">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://coachpilot.org/#thanks">
+        <input type="email" name="email" placeholder="Your email address" required autocomplete="email" aria-label="Email address">
+        <button type="submit">Join the Team</button>
+      </form>
+      <p class="form-note">No spam. Just coaching.</p>
+      <div class="form-success" id="form-success">
+        <p>You're on the team.</p>
+        <p class="sub">We'll keep you posted on new tools and coaching tips.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p><strong>CoachPilot &copy; 2026</strong></p>
+      <p>Built by coaches. For coaches.</p>
+      <p style="margin-top: 6px; font-size: 13px; color: #BBBBC8;">Built by <a href="https://cueops.io" target="_blank" rel="noopener" style="color: #9999AA; text-decoration: none; font-weight: 600; transition: color 0.2s ease;" onmouseover="this.style.color='#F97316'" onmouseout="this.style.color='#9999AA'">CueOps</a> · AI consulting for businesses</p>
+      <div class="footer-links">
+        <a href="plans.html">Practice Plans</a>
+        <a href="ondeck.html">OnDeck</a>
+        <a href="https://grandesmartsports.github.io/coachpilot-privacy/">Privacy Policy</a>
+      </div>
+      <div class="social-links">
+        <a href="https://www.facebook.com/profile.php?id=61588253262433" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>Facebook</a>
+        <a href="https://www.instagram.com/coachpilotapp/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // === Navbar scroll effect ===
+    (function() {
+      var nav = document.getElementById('navbar');
+      var scrollThreshold = 40;
+
+      function handleScroll() {
+        if (window.scrollY > scrollThreshold) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      }
+
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    })();
+
+    // === Mobile menu toggle ===
+    var menuBtn = document.getElementById('menu-btn');
+    var mobileNav = document.getElementById('mobile-nav');
+    var menuOpen = false;
+
+    function closeMobileNav() {
+      menuOpen = false;
+      mobileNav.classList.remove('open');
+      menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>';
+    }
+
+    menuBtn.addEventListener('click', function() {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileNav.classList.add('open');
+        menuBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      } else {
+        closeMobileNav();
+      }
+    });
+
+    // === Scroll-triggered fade-in ===
+    (function() {
+      var fadeElements = document.querySelectorAll('.fade-in');
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.12,
+          rootMargin: '0px 0px -30px 0px'
+        });
+
+        fadeElements.forEach(function(el) {
+          observer.observe(el);
+        });
+      } else {
+        fadeElements.forEach(function(el) {
+          el.classList.add('visible');
+        });
+      }
+    })();
+
+    // === Form submission with fallback ===
+    (function() {
+      var form = document.getElementById('signup-form');
+      var success = document.getElementById('form-success');
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var formData = new FormData(form);
+
+        fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        }).then(function(response) {
+          if (response.ok) {
+            form.style.display = 'none';
+            form.nextElementSibling.style.display = 'none';
+            success.style.display = 'block';
+          } else {
+            var email = formData.get('email');
+            window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+          }
+        }).catch(function() {
+          var email = formData.get('email');
+          window.location.href = 'mailto:daniel@cueops.io?subject=CoachPilot%20Signup&body=Hi%2C%20I%27d%20like%20updates%20for%20CoachPilot.%20My%20email%3A%20' + encodeURIComponent(email);
+        });
+      });
+    })();
+
+    // === Show success state if redirected back with #thanks ===
+    (function() {
+      if (window.location.hash === '#thanks') {
+        var form = document.getElementById('signup-form');
+        var success = document.getElementById('form-success');
+        if (form && success) {
+          form.style.display = 'none';
+          var note = form.nextElementSibling;
+          if (note) note.style.display = 'none';
+          success.style.display = 'block';
+        }
+      }
+    })();
+  </script>
+
+<script src="/tracking.js"></script>
+</body>
+</html>
