@@ -1913,5 +1913,13 @@
   </script>
 
 <script src="/tracking.js"></script>
+<script>
+    // Log a page view so we can tell "nobody saw it" from "saw it, didn't sign up"
+    fetch('https://xyphakgtsvtaaswmvvol.supabase.co/rest/v1/cac_page_views', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cGhha2d0c3Z0YWFzd212dm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MzQwMjgsImV4cCI6MjA5MzIxMDAyOH0.5QhiwIFNe1gvzUo18QR23ua5lj8lMkDIgLDCob9d0u0', 'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5cGhha2d0c3Z0YWFzd212dm9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MzQwMjgsImV4cCI6MjA5MzIxMDAyOH0.5QhiwIFNe1gvzUo18QR23ua5lj8lMkDIgLDCob9d0u0', 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ page: 'org-plans', referrer: document.referrer || null, user_agent: navigator.userAgent })
+    }).catch(() => {});
+</script>
 </body>
 </html>
