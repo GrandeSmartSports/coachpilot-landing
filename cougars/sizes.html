@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
-<title>Cougars Jersey Sizes — Fall 2026</title>
+<title>Cougars Jersey Sizes, Fall 2026</title>
 <style>
   :root {
     --navy: #0d2748;
@@ -263,10 +263,7 @@
           <div class="req" id="pReq">Youth-Small</div>
         </div>
 
-        <p class="explain">
-          Jerseys are ordered in <b>Protime girls / women's cut</b> sizes, and those run by
-          <b>chest measurement</b> (not youth age). Here's the chart so you can pick the right fit.
-        </p>
+        <p class="explain">Jerseys run by chest size. Chart below.</p>
 
         <h2 class="sec">Size chart (by chest)</h2>
         <div class="chart-scroll">
@@ -277,19 +274,12 @@
             <tbody id="chartBody"></tbody>
           </table>
         </div>
-        <p class="explain" style="margin-top:10px; font-size:13.5px;">
-          A quick guide: Youth-Small usually lands around GS, Youth-Medium around GM,
-          Youth-Large around GL, Adult-Medium around WM. The chest measurement is what decides.
-        </p>
 
         <h2 class="sec">Tap the size to order</h2>
         <div class="chips" id="chips"></div>
 
         <div class="card" style="margin-top:18px;">
-          <label class="field-label" for="fits">Anything we should know about fit? <span style="font-weight:500;color:var(--muted)">(optional)</span></label>
-          <textarea id="fits" placeholder="e.g. she likes it roomy, or between sizes"></textarea>
-
-          <label class="field-label" for="parent" style="margin-top:16px;">Your name</label>
+          <label class="field-label" for="parent">Your name</label>
           <input type="text" id="parent" placeholder="Parent or guardian name" autocomplete="name" />
         </div>
 
@@ -345,7 +335,6 @@
   var elChips = document.getElementById("chips");
   var elConfirm = document.getElementById("confirmBtn");
   var elParent = document.getElementById("parent");
-  var elFits = document.getElementById("fits");
   var elSubmitErr = document.getElementById("submitErr");
   var elLoadErr = document.getElementById("loadErr");
 
@@ -435,7 +424,6 @@
       body: JSON.stringify({
         player_id: selectedPlayer.id,
         confirmed_size: selectedSize,
-        fits_check: elFits.value.trim(),
         parent_name: elParent.value.trim()
       })
     })
@@ -462,7 +450,7 @@
 
   document.getElementById("againBtn").addEventListener("click", function () {
     selectedPlayer = null; selectedSize = null;
-    elSelect.value = ""; elParent.value = ""; elFits.value = "";
+    elSelect.value = ""; elParent.value = "";
     elDetail.classList.add("hidden");
     elConfirm.disabled = true; elConfirm.textContent = "Confirm jersey size";
     document.getElementById("successStage").classList.add("hidden");
