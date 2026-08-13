@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
 <title>Cougars Admin, Coach View</title>
+<link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
@@ -23,7 +25,9 @@
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
   .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
 
-  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .wordmark { display: flex; align-items: center; gap: 11px; }
+  .wordmark .logo { height: 36px; width: auto; display: block; }
   .wordmark .mark { font-size: 28px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--ice); }
@@ -96,7 +100,7 @@
 </head>
 <body>
   <header>
-    <div class="wordmark"><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+    <div class="wordmark"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
     <span class="season">Coach View</span>
   </header>
   <div class="ribbon"></div>
@@ -139,7 +143,7 @@
         <div class="topbar"><h2>Hoodie sizes</h2><span class="count-pill" id="sPill">&mdash;</span></div>
         <div id="sOut" class="outstanding hidden"><h3 id="sOutHead"></h3><div class="names" id="sOutNames"></div></div>
         <div class="table-scroll">
-          <table class="rep"><thead><tr><th>Player</th><th>Confirmed</th><th>Status</th><th>Parent</th><th>At</th></tr></thead><tbody id="sBody"></tbody></table>
+          <table class="rep"><thead><tr><th>Player</th><th>Size</th><th>Back</th><th>Status</th><th>Parent</th><th>At</th></tr></thead><tbody id="sBody"></tbody></table>
         </div>
         <div class="actions"><button class="btn" data-copy="sweat">Copy order list</button><span class="copied hidden" id="sCopied">Copied</span></div>
       </div>
@@ -164,6 +168,12 @@
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
   var pin = "";
   var data = { jersey: null, sweat: null, vol: null };
+
+  var SWEAT_LABELS = {
+    YXS: "Youth XS", YS: "Youth S", YM: "Youth M", YL: "Youth L", YXL: "Youth XL",
+    AXS: "Adult XS", AS: "Adult S"
+  };
+  function sweatLabel(code) { return code ? (SWEAT_LABELS[code] || code) : null; }
 
   var CAT_LABELS = {
     field_setup: "Field setup", teardown: "Teardown", dugout_accessories: "Dugout accessories",
@@ -229,16 +239,18 @@
     } else box.classList.add("hidden");
   }
 
-  function sizeRows(d, withRequested) {
+  function sizeRows(d, withRequested, isSweat) {
     var rows = d.report.slice().sort(function (a, b) {
       if (a.responded !== b.responded) return a.responded ? 1 : -1;
       return a.first_name.localeCompare(b.first_name);
     });
     return rows.map(function (r) {
       var status = r.responded ? '<span class="badge ok">Confirmed</span>' : '<span class="badge wait">Waiting</span>';
+      var sizeText = isSweat ? sweatLabel(r.confirmed_size) : r.confirmed_size;
       var cells = '<td class="player-cell">' + esc(r.first_name) + " " + esc(initial(r.last_name)) + '.</td>';
       if (withRequested) cells += '<td class="size-req">' + esc(r.jersey_size_requested || "") + "</td>";
-      cells += '<td class="size-conf">' + (r.confirmed_size ? esc(r.confirmed_size) : "&mdash;") + "</td>";
+      cells += '<td class="size-conf">' + (sizeText ? esc(sizeText) : "&mdash;") + "</td>";
+      if (isSweat) cells += '<td class="size-conf">' + (r.back_name ? esc(r.back_name) : "&mdash;") + "</td>";
       cells += "<td>" + status + "</td>";
       cells += "<td>" + esc(r.parent_name || "") + "</td>";
       cells += '<td class="when">' + esc(fmtWhen(r.submitted_at)) + "</td>";
@@ -255,7 +267,7 @@
     // sweat
     pill(document.getElementById("sPill"), data.sweat);
     outbox(document.getElementById("sOut"), document.getElementById("sOutHead"), document.getElementById("sOutNames"), data.sweat);
-    document.getElementById("sBody").innerHTML = sizeRows(data.sweat, false);
+    document.getElementById("sBody").innerHTML = sizeRows(data.sweat, false, true);
     document.getElementById("tabnSweat").textContent = data.sweat.confirmed_count + "/" + data.sweat.total;
     // vol
     var v = data.vol;
@@ -294,9 +306,13 @@
     var rows = d.report.slice().sort(function (a, b) { return a.first_name.localeCompare(b.first_name); });
     rows.forEach(function (r) {
       var name = (r.first_name + " " + (r.last_name || "")).trim();
-      if (r.confirmed_size) lines.push(name + " - " + r.confirmed_size);
-      else if (kind === "jersey") lines.push(name + " - " + (r.jersey_size_requested || "?") + " (UNCONFIRMED)");
-      else lines.push(name + " — UNCONFIRMED");
+      if (kind === "jersey") {
+        if (r.confirmed_size) lines.push(name + " - " + r.confirmed_size);
+        else lines.push(name + " - " + (r.jersey_size_requested || "?") + " (UNCONFIRMED)");
+      } else {
+        if (r.confirmed_size) lines.push(name + " - " + sweatLabel(r.confirmed_size) + " - Back: " + (r.back_name || "?"));
+        else lines.push(name + " - UNCONFIRMED");
+      }
     });
     lines.push("");
     lines.push(d.confirmed_count + " of " + d.total + " confirmed.");

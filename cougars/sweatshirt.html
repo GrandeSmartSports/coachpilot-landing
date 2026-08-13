@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
 <title>Cougars Team Hoodie, Fall 2026</title>
+<link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
@@ -21,7 +23,9 @@
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
   .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
 
-  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .wordmark { display: flex; align-items: center; gap: 11px; }
+  .wordmark .logo { height: 38px; width: auto; display: block; }
   .wordmark .mark { font-size: 30px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
@@ -57,11 +61,21 @@
 
   .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .chip { border: 1.5px solid var(--line); background: var(--white); border-radius: 14px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all .12s ease; user-select: none; }
-  .chip .code { font-size: 19px; font-weight: 800; color: var(--navy); display: block; }
+  .chip .code { font-size: 15.5px; font-weight: 800; color: var(--navy); display: block; }
   .chip .chest { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
   .chip[aria-pressed="true"] { border-color: var(--red); background: var(--red); box-shadow: 0 6px 16px rgba(200, 16, 46, 0.22); }
   .chip[aria-pressed="true"] .code { color: #fff; }
   .chip[aria-pressed="true"] .chest { color: #f6c9d0; }
+  .chip.suggest { border-color: var(--red-line); }
+  .chip.suggest::after { content: "Suggested"; display: block; font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red); margin-top: 3px; }
+  .chip[aria-pressed="true"].suggest::after { color: #f6c9d0; }
+  table.chart tbody tr.suggest { background: var(--red-soft); }
+  table.chart .tag { display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.08em; color: var(--red); text-transform: uppercase; vertical-align: middle; }
+  .sub-head { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin: 16px 0 8px; }
+  table.chart.adult { font-size: 13px; }
+  table.chart.adult td.size { color: var(--ink); }
+  .chart-note { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+  .hint-line { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
 
   .btn { display: block; width: 100%; margin-top: 20px; background: var(--red); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.02em; border: none; border-radius: 14px; padding: 17px; cursor: pointer; transition: transform .08s ease, background .15s ease; }
   .btn:hover { background: var(--red-dark); }
@@ -83,7 +97,7 @@
 </head>
 <body>
   <header>
-    <div class="wordmark"><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+    <div class="wordmark"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
     <span class="season">Fall 2026</span>
   </header>
   <div class="ribbon"></div>
@@ -108,21 +122,32 @@
           <div class="sub">$20 each.</div>
         </div>
 
-        <p class="explain">These run adult unisex. Chart below.</p>
+        <p class="explain">Youth cut for the girls. Chart below.</p>
 
         <h2 class="sec">Size chart (inches)</h2>
         <div class="chart-scroll">
           <table class="chart">
-            <thead><tr><th>Size</th><th>Chest</th><th>Length</th></tr></thead>
+            <thead><tr><th>Size</th><th>Chest (flat)</th><th>Length</th></tr></thead>
             <tbody id="chartBody"></tbody>
           </table>
         </div>
+        <p class="sub-head">Adult sizes</p>
+        <div class="chart-scroll">
+          <table class="chart adult">
+            <tbody id="chartBodyAdult"></tbody>
+          </table>
+        </div>
+        <p class="chart-note">Sizes can run about 1 inch either way.</p>
 
         <h2 class="sec">Tap the size to order</h2>
         <div class="chips" id="chips"></div>
 
         <div class="card" style="margin-top:18px;">
-          <label class="field-label" for="parent">Your name</label>
+          <label class="field-label" for="backName">Name on the back</label>
+          <input type="text" id="backName" maxlength="20" placeholder="Name to print" autocomplete="off" />
+          <p class="hint-line">Exactly how it should be printed.</p>
+
+          <label class="field-label" for="parent" style="margin-top:16px;">Your name</label>
           <input type="text" id="parent" placeholder="Parent or guardian name" autocomplete="name" />
         </div>
 
@@ -136,8 +161,8 @@
         <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2>Got it.</h2>
         <p><span id="sName">Your player</span>'s hoodie will be ordered in</p>
-        <div class="final-size" id="sSize">M</div>
-        <p style="margin-top:12px;">Thanks. See you at the field.</p>
+        <div class="final-size" id="sSize">Youth M</div>
+        <p style="margin-top:12px;">with <b id="sBack" style="color:var(--ink)">NAME</b> on the back.</p>
         <a class="link-again" id="againBtn">Order for another player</a>
       </div>
     </div>
@@ -148,17 +173,19 @@
 <script>
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
 
+  // Gildan 18500B youth heavy blend (primary) + two adult carryover sizes.
+  // "chest" here is the laid-flat width in inches.
   var SIZES = [
-    { code: "XS",  chest: '36"', length: '26"' },
-    { code: "S",   chest: '40"', length: '27"' },
-    { code: "M",   chest: '44"', length: '28"' },
-    { code: "L",   chest: '48"', length: '29"' },
-    { code: "XL",  chest: '52"', length: '30"' },
-    { code: "2XL", chest: '56"', length: '31"' },
-    { code: "3XL", chest: '60"', length: '32"' },
-    { code: "4XL", chest: '64"', length: '33"' },
-    { code: "5XL", chest: '68"', length: '34"' }
+    { code: "YXS", label: "Youth XS", chest: '16"', length: '19.75"', group: "youth" },
+    { code: "YS",  label: "Youth S",  chest: '17"', length: '21.25"', group: "youth" },
+    { code: "YM",  label: "Youth M",  chest: '18"', length: '22.5"',  group: "youth" },
+    { code: "YL",  label: "Youth L",  chest: '19"', length: '24"',    group: "youth" },
+    { code: "YXL", label: "Youth XL", chest: '20"', length: '25.5"',  group: "youth" },
+    { code: "AXS", label: "Adult XS", chest: '18"', length: '26"',    group: "adult" },
+    { code: "AS",  label: "Adult S",  chest: '20"', length: '27"',    group: "adult" }
   ];
+  var SUGGEST = { "Youth-Small": "YS", "Youth-Medium": "YM", "Youth-Large": "YL", "Adult-Medium": "AS" };
+  var LABEL = {}; SIZES.forEach(function (s) { LABEL[s.code] = s.label; });
 
   var players = [];
   var selectedPlayer = null;
@@ -167,9 +194,11 @@
   var elSelect = document.getElementById("player");
   var elDetail = document.getElementById("detail");
   var elChartBody = document.getElementById("chartBody");
+  var elChartBodyAdult = document.getElementById("chartBodyAdult");
   var elChips = document.getElementById("chips");
   var elConfirm = document.getElementById("confirmBtn");
   var elParent = document.getElementById("parent");
+  var elBack = document.getElementById("backName");
   var elSubmitErr = document.getElementById("submitErr");
   var elLoadErr = document.getElementById("loadErr");
 
@@ -189,25 +218,30 @@
       .catch(function () { elLoadErr.classList.remove("hidden"); });
   }
 
-  function buildChart() {
+  function buildChart(reqSize) {
+    var suggested = SUGGEST[reqSize] || null;
     elChartBody.innerHTML = "";
+    elChartBodyAdult.innerHTML = "";
     SIZES.forEach(function (s) {
       var tr = document.createElement("tr");
-      tr.innerHTML = '<td class="size">' + s.code + "</td><td>" + s.chest + "</td><td>" + s.length + "</td>";
-      elChartBody.appendChild(tr);
+      if (s.code === suggested) tr.className = "suggest";
+      var tag = (s.code === suggested) ? ' <span class="tag">Suggested</span>' : "";
+      tr.innerHTML = '<td class="size">' + s.label + tag + "</td><td>" + s.chest + "</td><td>" + s.length + "</td>";
+      (s.group === "adult" ? elChartBodyAdult : elChartBody).appendChild(tr);
     });
   }
 
-  function buildChips() {
+  function buildChips(reqSize) {
+    var suggested = SUGGEST[reqSize] || null;
     elChips.innerHTML = "";
     selectedSize = null;
     SIZES.forEach(function (s) {
       var b = document.createElement("div");
-      b.className = "chip";
+      b.className = "chip" + (s.code === suggested ? " suggest" : "");
       b.setAttribute("role", "button");
       b.setAttribute("aria-pressed", "false");
       b.setAttribute("data-code", s.code);
-      b.innerHTML = '<span class="code">' + s.code + '</span><span class="chest">chest ' + s.chest + "</span>";
+      b.innerHTML = '<span class="code">' + s.label + '</span><span class="chest">chest ' + s.chest + "</span>";
       b.addEventListener("click", function () { pickSize(s.code); });
       elChips.appendChild(b);
     });
@@ -223,15 +257,17 @@
   }
 
   function updateConfirm() {
-    elConfirm.disabled = !(selectedSize && elParent.value.trim().length > 0);
+    elConfirm.disabled = !(selectedSize && elParent.value.trim().length > 0 && elBack.value.trim().length > 0);
   }
 
   elSelect.addEventListener("change", function () {
     var id = elSelect.value;
     selectedPlayer = players.filter(function (p) { return p.id === id; })[0] || null;
     if (!selectedPlayer) { elDetail.classList.add("hidden"); return; }
-    buildChart();
-    buildChips();
+    buildChart(selectedPlayer.jersey_size_requested);
+    buildChips(selectedPlayer.jersey_size_requested);
+    // convenience default: her first name; fully editable, families often print a nickname
+    elBack.value = selectedPlayer.first_name || "";
     elDetail.classList.remove("hidden");
     elSubmitErr.classList.add("hidden");
     updateConfirm();
@@ -239,6 +275,7 @@
   });
 
   elParent.addEventListener("input", updateConfirm);
+  elBack.addEventListener("input", updateConfirm);
 
   elConfirm.addEventListener("click", function () {
     if (!selectedPlayer || !selectedSize) return;
@@ -248,12 +285,12 @@
     fetch(API + "?action=submit_sweatshirt", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ player_id: selectedPlayer.id, confirmed_size: selectedSize, parent_name: elParent.value.trim() })
+      body: JSON.stringify({ player_id: selectedPlayer.id, confirmed_size: selectedSize, parent_name: elParent.value.trim(), back_name: elBack.value.trim() })
     })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         if (!res.ok || !res.j.ok) throw new Error(res.j && res.j.error ? res.j.error : "failed");
-        showSuccess(selectedPlayer.first_name, selectedSize);
+        showSuccess(selectedPlayer.first_name, selectedSize, elBack.value.trim());
       })
       .catch(function () {
         elConfirm.disabled = false;
@@ -263,9 +300,10 @@
       });
   });
 
-  function showSuccess(name, size) {
+  function showSuccess(name, code, back) {
     document.getElementById("sName").textContent = name;
-    document.getElementById("sSize").textContent = size;
+    document.getElementById("sSize").textContent = LABEL[code] || code;
+    document.getElementById("sBack").textContent = back;
     document.getElementById("formStage").classList.add("hidden");
     document.getElementById("successStage").classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -273,7 +311,7 @@
 
   document.getElementById("againBtn").addEventListener("click", function () {
     selectedPlayer = null; selectedSize = null;
-    elSelect.value = ""; elParent.value = "";
+    elSelect.value = ""; elParent.value = ""; elBack.value = "";
     elDetail.classList.add("hidden");
     elConfirm.disabled = true; elConfirm.textContent = "Confirm hoodie size";
     document.getElementById("successStage").classList.add("hidden");

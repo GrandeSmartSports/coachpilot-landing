@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
 <title>Cougars Team Hub, Fall 2026</title>
+<link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
@@ -23,7 +25,9 @@
   .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
 
   header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 22px 20px 20px; }
-  .head-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .wordmark { display: flex; align-items: center; gap: 12px; }
+  .wordmark .logo { height: 44px; width: auto; display: block; }
   .wordmark .mark { font-size: 34px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
@@ -64,7 +68,7 @@
 <body>
   <header>
     <div class="head-row">
-      <div class="wordmark"><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+      <div class="wordmark"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
       <span class="season">Fall 2026</span>
     </div>
     <p class="tagline">Your one stop for everything Cougars this season.</p>
