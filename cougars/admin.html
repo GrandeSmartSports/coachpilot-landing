@@ -7,11 +7,16 @@
 <title>Cougars Admin, Coach View</title>
 <style>
   :root {
-    --navy: #0d2748; --navy-deep: #081a33; --ice: #3aa6e0;
-    --ice-soft: #e8f4fc; --ice-line: #c9e6f7; --ink: #12253d;
-    --muted: #5b7089; --line: #e2e8f0; --bg: #f5f8fb; --white: #ffffff;
-    --warn-bg: #fff5e8; --warn-line: #f4d19a; --warn-ink: #9a6212;
-    --good: #17915a; --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+    /* BLS Cougars brand: red, white, black, grey */
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
+    --black: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
+    --bg: #f4f5f6; --white: #ffffff;
+    /* legacy aliases mapped to the red/black brand */
+    --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
+    --ice-soft: #fbe9ec; --ice-line: #f3c7ce;
+    /* outstanding / waiting reads as red attention; confirmed reads calm neutral */
+    --warn-bg: #fbe9ec; --warn-line: #f3c7ce; --warn-ink: #a50d26;
+    --good: #1f2326; --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
@@ -22,7 +27,7 @@
   .wordmark .mark { font-size: 28px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--ice); }
-  .ribbon { height: 4px; background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice)); }
+  .ribbon { height: 4px; background: var(--red); }
 
   .wrap { max-width: 760px; margin: 0 auto; padding: 22px 16px 60px; }
   .hidden { display: none !important; }
@@ -42,13 +47,13 @@
   .tabbar { display: flex; gap: 8px; margin-bottom: 16px; }
   .tab { flex: 1 1 0; text-align: center; padding: 12px 6px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--white); font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; }
   .tab .n { display: inline-block; min-width: 20px; margin-left: 4px; font-size: 12px; color: var(--muted); }
-  .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-  .tab.active .n { color: var(--ice); }
+  .tab.active { background: var(--red); color: #fff; border-color: var(--red); }
+  .tab.active .n { color: #f6c9d0; }
 
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
   .topbar h2 { font-size: 18px; color: var(--navy); }
   .count-pill { background: var(--ice-soft); border: 1px solid var(--ice-line); color: var(--navy); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; }
-  .count-pill.done { background: #e7f6ee; border-color: #b9e4cc; color: var(--good); }
+  .count-pill.done { background: #eef0f1; border-color: #e0e2e4; color: var(--good); }
 
   .outstanding { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
   .outstanding h3 { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--warn-ink); margin-bottom: 8px; }
@@ -63,7 +68,7 @@
   .size-req { color: var(--muted); }
   .size-conf { font-weight: 800; color: var(--navy); }
   .badge { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
-  .badge.ok { background: #e7f6ee; color: var(--good); }
+  .badge.ok { background: #eef0f1; color: var(--good); }
   .badge.wait { background: var(--warn-bg); color: var(--warn-ink); }
   .when { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
 
@@ -78,7 +83,8 @@
   .empty { text-align: center; color: var(--muted); font-size: 14.5px; padding: 30px 10px; }
 
   .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-  .btn { background: var(--navy); color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; padding: 13px 18px; cursor: pointer; }
+  .btn { background: var(--red); color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; padding: 13px 18px; cursor: pointer; }
+  .btn:hover { background: var(--red-dark); }
   .btn:active { transform: translateY(1px); }
   .btn.sec { background: var(--white); color: var(--navy); border: 1.5px solid var(--line); }
   .copied { color: var(--good); font-weight: 700; font-size: 14px; align-self: center; }

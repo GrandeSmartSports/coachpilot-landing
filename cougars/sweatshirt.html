@@ -7,10 +7,14 @@
 <title>Cougars Team Hoodie, Fall 2026</title>
 <style>
   :root {
-    --navy: #0d2748; --navy-deep: #081a33; --ice: #3aa6e0;
-    --ice-soft: #e8f4fc; --ice-line: #c9e6f7; --ink: #12253d;
-    --muted: #5b7089; --line: #e2e8f0; --bg: #f5f8fb; --white: #ffffff;
-    --good: #17915a; --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+    /* BLS Cougars brand: red, white, black, grey */
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
+    --black: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
+    --bg: #f4f5f6; --white: #ffffff;
+    /* legacy aliases mapped to the red/black brand */
+    --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
+    --ice-soft: #fbe9ec; --ice-line: #f3c7ce; --good: #1f2326;
+    --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
@@ -21,7 +25,7 @@
   .wordmark .mark { font-size: 30px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
-  .ribbon { height: 4px; background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice)); }
+  .ribbon { height: 4px; background: var(--red); }
 
   .wrap { max-width: 560px; margin: 0 auto; padding: 22px 18px 60px; }
   .kicker { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ice); font-weight: 800; margin-bottom: 6px; }
@@ -31,7 +35,7 @@
   .card { background: var(--white); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 20px 18px; margin-top: 18px; }
   label.field-label { display: block; font-weight: 700; color: var(--navy); font-size: 14px; margin-bottom: 8px; }
   select, input[type="text"] { width: 100%; font-size: 17px; font-family: inherit; color: var(--ink); background: var(--white); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 14px; appearance: none; }
-  select:focus, input:focus { outline: none; border-color: var(--ice); box-shadow: 0 0 0 3px rgba(58, 166, 224, 0.18); }
+  select:focus, input:focus { outline: none; border-color: var(--red); box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.16); }
   .select-shell { position: relative; }
   .select-shell::after { content: ""; position: absolute; right: 16px; top: 50%; width: 9px; height: 9px; margin-top: -6px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); pointer-events: none; }
 
@@ -48,18 +52,19 @@
   table.chart { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 320px; }
   table.chart th, table.chart td { padding: 9px 12px; text-align: left; }
   table.chart thead th { background: var(--navy); color: #fff; font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
-  table.chart tbody tr:nth-child(even) { background: #f8fbfe; }
+  table.chart tbody tr:nth-child(even) { background: #fafafb; }
   table.chart td.size { font-weight: 800; color: var(--navy); }
 
   .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .chip { border: 1.5px solid var(--line); background: var(--white); border-radius: 14px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all .12s ease; user-select: none; }
   .chip .code { font-size: 19px; font-weight: 800; color: var(--navy); display: block; }
   .chip .chest { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
-  .chip[aria-pressed="true"] { border-color: var(--ice); background: var(--navy); box-shadow: 0 6px 16px rgba(13, 39, 72, 0.22); }
+  .chip[aria-pressed="true"] { border-color: var(--red); background: var(--red); box-shadow: 0 6px 16px rgba(200, 16, 46, 0.22); }
   .chip[aria-pressed="true"] .code { color: #fff; }
-  .chip[aria-pressed="true"] .chest { color: var(--ice); }
+  .chip[aria-pressed="true"] .chest { color: #f6c9d0; }
 
-  .btn { display: block; width: 100%; margin-top: 20px; background: var(--navy); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.02em; border: none; border-radius: 14px; padding: 17px; cursor: pointer; transition: transform .08s ease, opacity .2s ease; }
+  .btn { display: block; width: 100%; margin-top: 20px; background: var(--red); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.02em; border: none; border-radius: 14px; padding: 17px; cursor: pointer; transition: transform .08s ease, background .15s ease; }
+  .btn:hover { background: var(--red-dark); }
   .btn:active { transform: translateY(1px); }
   .btn:disabled { opacity: 0.45; cursor: default; }
   .err { color: #b3261e; font-size: 14px; margin-top: 12px; text-align: center; }
@@ -69,7 +74,7 @@
   .check svg { width: 30px; height: 30px; }
   .success h2 { font-size: 23px; color: var(--navy); margin-bottom: 8px; }
   .success p { color: var(--muted); font-size: 15.5px; }
-  .success .final-size { display: inline-block; margin: 14px 0 4px; background: var(--navy); color: #fff; font-weight: 800; font-size: 18px; padding: 8px 18px; border-radius: 12px; letter-spacing: 0.04em; }
+  .success .final-size { display: inline-block; margin: 14px 0 4px; background: var(--red); color: #fff; font-weight: 800; font-size: 18px; padding: 8px 18px; border-radius: 12px; letter-spacing: 0.04em; }
   .link-again { display: inline-block; margin-top: 18px; color: var(--ice); font-weight: 700; font-size: 14px; text-decoration: none; cursor: pointer; }
 
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 26px 20px 34px; }
@@ -128,7 +133,7 @@
 
     <div id="successStage" class="card hidden">
       <div class="success">
-        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#17915a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <h2>Got it.</h2>
         <p><span id="sName">Your player</span>'s hoodie will be ordered in</p>
         <div class="final-size" id="sSize">M</div>

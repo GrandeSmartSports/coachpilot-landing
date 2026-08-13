@@ -7,18 +7,25 @@
 <title>Cougars Jersey Sizes, Fall 2026</title>
 <style>
   :root {
-    --navy: #0d2748;
-    --navy-deep: #081a33;
-    --ice: #3aa6e0;
-    --ice-soft: #e8f4fc;
-    --ice-line: #c9e6f7;
-    --ink: #12253d;
-    --muted: #5b7089;
-    --line: #e2e8f0;
-    --bg: #f5f8fb;
+    /* BLS Cougars brand: red, white, black, grey */
+    --red: #c8102e;
+    --red-dark: #a50d26;
+    --red-soft: #fbe9ec;
+    --red-line: #f3c7ce;
+    --black: #1a1a1c;
+    --ink: #1f2326;
+    --muted: #7a8087;
+    --line: #e4e6e8;
+    --bg: #f4f5f6;
     --white: #ffffff;
-    --good: #17915a;
-    --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+    /* legacy aliases mapped to the red/black brand so existing rules recolor cleanly */
+    --navy: #1f2326;
+    --navy-deep: #1a1a1c;
+    --ice: #c8102e;
+    --ice-soft: #fbe9ec;
+    --ice-line: #f3c7ce;
+    --good: #1f2326;
+    --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
@@ -63,7 +70,7 @@
   }
   .ribbon {
     height: 4px;
-    background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice));
+    background: var(--red);
   }
 
   /* Layout */
@@ -112,8 +119,8 @@
     appearance: none;
   }
   select:focus, input:focus, textarea:focus {
-    outline: none; border-color: var(--ice);
-    box-shadow: 0 0 0 3px rgba(58, 166, 224, 0.18);
+    outline: none; border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.16);
   }
   .select-shell { position: relative; }
   .select-shell::after {
@@ -149,7 +156,7 @@
     background: var(--navy); color: #fff; font-weight: 700;
     font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
   }
-  table.chart tbody tr:nth-child(even) { background: #f8fbfe; }
+  table.chart tbody tr:nth-child(even) { background: #fafafb; }
   table.chart tbody tr.suggest { background: var(--ice-soft); }
   table.chart td.size { font-weight: 800; color: var(--navy); }
   table.chart .tag {
@@ -173,12 +180,12 @@
     letter-spacing: 0.06em; text-transform: uppercase; color: var(--ice); margin-top: 3px;
   }
   .chip[aria-pressed="true"] {
-    border-color: var(--ice); background: var(--navy);
-    box-shadow: 0 6px 16px rgba(13, 39, 72, 0.22);
+    border-color: var(--red); background: var(--red);
+    box-shadow: 0 6px 16px rgba(200, 16, 46, 0.22);
   }
   .chip[aria-pressed="true"] .code { color: #fff; }
-  .chip[aria-pressed="true"] .chest { color: var(--ice); }
-  .chip[aria-pressed="true"].suggest::after { color: var(--ice); }
+  .chip[aria-pressed="true"] .chest { color: #f6c9d0; }
+  .chip[aria-pressed="true"].suggest::after { color: #f6c9d0; }
 
   textarea {
     width: 100%; font-size: 16px; font-family: inherit; color: var(--ink);
@@ -188,11 +195,12 @@
 
   .btn {
     display: block; width: 100%; margin-top: 20px;
-    background: var(--navy); color: #fff;
+    background: var(--red); color: #fff;
     font-size: 17px; font-weight: 800; letter-spacing: 0.02em;
     border: none; border-radius: 14px; padding: 17px; cursor: pointer;
-    transition: transform .08s ease, opacity .2s ease;
+    transition: transform .08s ease, background .15s ease;
   }
+  .btn:hover { background: var(--red-dark); }
   .btn:active { transform: translateY(1px); }
   .btn:disabled { opacity: 0.45; cursor: default; }
 
@@ -210,7 +218,7 @@
   .success p { color: var(--muted); font-size: 15.5px; }
   .success .final-size {
     display: inline-block; margin: 14px 0 4px;
-    background: var(--navy); color: #fff; font-weight: 800; font-size: 18px;
+    background: var(--red); color: #fff; font-weight: 800; font-size: 18px;
     padding: 8px 18px; border-radius: 12px; letter-spacing: 0.04em;
   }
   .link-again {
@@ -292,7 +300,7 @@
     <div id="successStage" class="card hidden">
       <div class="success">
         <div class="check">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#17915a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#c8102e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
         <h2>Got it.</h2>
         <p><span id="sName">Your player</span>'s jersey will be ordered as</p>

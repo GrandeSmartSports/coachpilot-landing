@@ -7,10 +7,14 @@
 <title>Cougars Team Hub, Fall 2026</title>
 <style>
   :root {
-    --navy: #0d2748; --navy-deep: #081a33; --ice: #3aa6e0;
-    --ice-soft: #e8f4fc; --ice-line: #c9e6f7; --ink: #12253d;
-    --muted: #5b7089; --line: #e2e8f0; --bg: #f5f8fb; --white: #ffffff;
-    --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+    /* BLS Cougars brand: red, white, black, grey */
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
+    --black: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
+    --bg: #f4f5f6; --white: #ffffff;
+    /* legacy aliases mapped to the red/black brand */
+    --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
+    --ice-soft: #fbe9ec; --ice-line: #f3c7ce;
+    --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
@@ -23,8 +27,8 @@
   .wordmark .mark { font-size: 34px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
-  .tagline { margin-top: 10px; color: #cfe4f4; font-size: 15px; }
-  .ribbon { height: 4px; background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice)); }
+  .tagline { margin-top: 10px; color: #c9cacc; font-size: 15px; }
+  .ribbon { height: 4px; background: var(--red); }
 
   .wrap { max-width: 560px; margin: 0 auto; padding: 20px 18px 40px; }
   .sec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ice); font-weight: 800; margin: 6px 2px 12px; }
@@ -46,11 +50,11 @@
   .info .row .v { color: var(--ink); }
   .info .note { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
 
-  .clinic { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: linear-gradient(135deg, var(--navy), #14375f); color: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .clinic { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: var(--black); color: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
   .clinic .emoji { font-size: 22px; }
   .clinic .body { flex: 1 1 auto; }
   .clinic .title { font-size: 15.5px; font-weight: 800; }
-  .clinic .sub { font-size: 13px; color: #cfe4f4; margin-top: 2px; }
+  .clinic .sub { font-size: 13px; color: #c9cacc; margin-top: 2px; }
   .clinic .go { flex: 0 0 auto; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ice); }
 
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px 34px; }
@@ -71,7 +75,7 @@
     <div class="sec-label">This week</div>
     <div class="actions">
       <a class="action" href="sizes.html">
-        <span class="emoji">&#9989;</span>
+        <span class="emoji">&#128085;</span>
         <span class="body">
           <span class="title">Confirm jersey size</span>
           <span class="sub">Order goes in Monday. Confirm by Sunday 6 PM.</span>
