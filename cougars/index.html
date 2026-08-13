@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Cougars Team Hub, Fall 2026</title>
+<style>
+  :root {
+    --navy: #0d2748; --navy-deep: #081a33; --ice: #3aa6e0;
+    --ice-soft: #e8f4fc; --ice-line: #c9e6f7; --ink: #12253d;
+    --muted: #5b7089; --line: #e2e8f0; --bg: #f5f8fb; --white: #ffffff;
+    --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
+
+  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 22px 20px 20px; }
+  .head-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .wordmark .mark { font-size: 34px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
+  .wordmark .claw { color: var(--ice); }
+  .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
+  .tagline { margin-top: 10px; color: #cfe4f4; font-size: 15px; }
+  .ribbon { height: 4px; background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice)); }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 18px 40px; }
+  .sec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ice); font-weight: 800; margin: 6px 2px 12px; }
+
+  .actions { display: flex; flex-direction: column; gap: 12px; }
+  .action { display: flex; align-items: center; gap: 15px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 16px; transition: transform .08s ease; }
+  .action:active { transform: scale(0.99); }
+  .action .emoji { flex: 0 0 46px; width: 46px; height: 46px; border-radius: 12px; background: var(--ice-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .action .body { flex: 1 1 auto; min-width: 0; }
+  .action .title { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .action .sub { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+  .action .chev { flex: 0 0 auto; color: var(--ice-line); }
+  .action .chev svg { width: 12px; height: 12px; }
+
+  .info { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px; margin-top: 22px; }
+  .info h3 { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin-bottom: 10px; }
+  .info .row { display: flex; gap: 10px; font-size: 15px; padding: 3px 0; }
+  .info .row .k { color: var(--navy); font-weight: 700; flex: 0 0 92px; }
+  .info .row .v { color: var(--ink); }
+  .info .note { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+
+  .clinic { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: linear-gradient(135deg, var(--navy), #14375f); color: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
+  .clinic .emoji { font-size: 22px; }
+  .clinic .body { flex: 1 1 auto; }
+  .clinic .title { font-size: 15.5px; font-weight: 800; }
+  .clinic .sub { font-size: 13px; color: #cfe4f4; margin-top: 2px; }
+  .clinic .go { flex: 0 0 auto; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ice); }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px 34px; }
+  footer .fmark { color: var(--navy); font-weight: 800; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="head-row">
+      <div class="wordmark"><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+      <span class="season">Fall 2026</span>
+    </div>
+    <p class="tagline">Your one stop for everything Cougars this season.</p>
+  </header>
+  <div class="ribbon"></div>
+
+  <div class="wrap">
+    <div class="sec-label">This week</div>
+    <div class="actions">
+      <a class="action" href="sizes.html">
+        <span class="emoji">&#9989;</span>
+        <span class="body">
+          <span class="title">Confirm jersey size</span>
+          <span class="sub">Order goes in Monday. Confirm by Sunday 6 PM.</span>
+        </span>
+        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+
+      <a class="action" href="sweatshirt.html">
+        <span class="emoji">&#129405;</span>
+        <span class="body">
+          <span class="title">Sweatshirt size</span>
+          <span class="sub">Team hoodies, $20, name on the back.</span>
+        </span>
+        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+
+      <a class="action" href="volunteer.html">
+        <span class="emoji">&#128587;</span>
+        <span class="body">
+          <span class="title">Get involved</span>
+          <span class="sub">Tell me how you want to help this season.</span>
+        </span>
+        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+    </div>
+
+    <div class="info">
+      <h3>The season</h3>
+      <div class="row"><span class="k">Practices</span><span class="v">Thursdays, starting next week.</span></div>
+      <div class="row"><span class="k">Games</span><span class="v">Saturdays.</span></div>
+      <p class="note">Full schedule drops here the moment I have it.</p>
+    </div>
+
+    <a class="clinic" href="https://clinics.coachpilot.org">
+      <span class="emoji">&#127939;</span>
+      <span class="body">
+        <span class="title">Softball clinics, final session Wednesday Aug 19</span>
+        <span class="sub">Several Cougars already attend. Everyone welcome.</span>
+      </span>
+      <span class="go">Go</span>
+    </a>
+  </div>
+
+  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026</footer>
+</body>
+</html>

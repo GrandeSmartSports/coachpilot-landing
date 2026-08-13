@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Cougars Admin, Coach View</title>
+<style>
+  :root {
+    --navy: #0d2748; --navy-deep: #081a33; --ice: #3aa6e0;
+    --ice-soft: #e8f4fc; --ice-line: #c9e6f7; --ink: #12253d;
+    --muted: #5b7089; --line: #e2e8f0; --bg: #f5f8fb; --white: #ffffff;
+    --warn-bg: #fff5e8; --warn-line: #f4d19a; --warn-ink: #9a6212;
+    --good: #17915a; --shadow: 0 10px 30px rgba(13, 39, 72, 0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
+  .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
+
+  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .wordmark .mark { font-size: 28px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
+  .wordmark .claw { color: var(--ice); }
+  .season { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--ice); }
+  .ribbon { height: 4px; background: linear-gradient(90deg, var(--ice), #7fd0f4, var(--ice)); }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 22px 16px 60px; }
+  .hidden { display: none !important; }
+
+  .pin-card { background: var(--white); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); padding: 26px 20px; max-width: 340px; margin: 30px auto; text-align: center; }
+  .pin-card h1 { font-size: 20px; color: var(--navy); margin-bottom: 4px; }
+  .pin-card p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+  .pin-dots span { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ice-line); background: var(--white); }
+  .pin-dots span.on { background: var(--navy); border-color: var(--navy); }
+  .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .pad button { font-size: 22px; font-weight: 700; color: var(--navy); background: var(--white); border: 1.5px solid var(--line); border-radius: 14px; padding: 16px 0; cursor: pointer; }
+  .pad button:active { background: var(--ice-soft); }
+  .pad button.ghost { border: none; background: transparent; font-size: 15px; color: var(--muted); font-weight: 600; }
+  .pin-err { color: #b3261e; font-size: 13.5px; margin-top: 12px; min-height: 18px; }
+
+  .tabbar { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab { flex: 1 1 0; text-align: center; padding: 12px 6px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--white); font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; }
+  .tab .n { display: inline-block; min-width: 20px; margin-left: 4px; font-size: 12px; color: var(--muted); }
+  .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .tab.active .n { color: var(--ice); }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .topbar h2 { font-size: 18px; color: var(--navy); }
+  .count-pill { background: var(--ice-soft); border: 1px solid var(--ice-line); color: var(--navy); font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px; }
+  .count-pill.done { background: #e7f6ee; border-color: #b9e4cc; color: var(--good); }
+
+  .outstanding { background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; }
+  .outstanding h3 { font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--warn-ink); margin-bottom: 8px; }
+  .outstanding .names { color: var(--navy); font-weight: 600; font-size: 15px; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
+  table.rep { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 560px; }
+  table.rep thead th { background: var(--navy); color: #fff; text-align: left; padding: 11px 12px; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700; white-space: nowrap; }
+  table.rep td { padding: 11px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+  table.rep tr.pending td { background: var(--warn-bg); }
+  .player-cell { font-weight: 700; color: var(--navy); white-space: nowrap; }
+  .size-req { color: var(--muted); }
+  .size-conf { font-weight: 800; color: var(--navy); }
+  .badge { display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+  .badge.ok { background: #e7f6ee; color: var(--good); }
+  .badge.wait { background: var(--warn-bg); color: var(--warn-ink); }
+  .when { color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+
+  .vol-list { display: flex; flex-direction: column; gap: 12px; }
+  .vol-card { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px; }
+  .vol-card .vhead { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .vol-card .fam { font-weight: 800; color: var(--navy); font-size: 15.5px; }
+  .vol-card .who2 { font-size: 13px; color: var(--muted); }
+  .vol-card .cats { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .vol-card .cat { background: var(--ice-soft); border: 1px solid var(--ice-line); color: var(--navy); font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; }
+  .vol-card .other { margin-top: 10px; font-size: 14px; color: var(--ink); border-left: 3px solid var(--ice); padding-left: 10px; }
+  .empty { text-align: center; color: var(--muted); font-size: 14.5px; padding: 30px 10px; }
+
+  .actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn { background: var(--navy); color: #fff; font-size: 15px; font-weight: 700; border: none; border-radius: 12px; padding: 13px 18px; cursor: pointer; }
+  .btn:active { transform: translateY(1px); }
+  .btn.sec { background: var(--white); color: var(--navy); border: 1.5px solid var(--line); }
+  .copied { color: var(--good); font-weight: 700; font-size: 14px; align-self: center; }
+  .hint { color: var(--muted); font-size: 12.5px; margin-top: 12px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 26px 20px 34px; }
+  footer .fmark { color: var(--navy); font-weight: 800; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="wordmark"><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+    <span class="season">Coach View</span>
+  </header>
+  <div class="ribbon"></div>
+
+  <div class="wrap">
+    <div id="pinStage" class="pin-card">
+      <h1>Coach access</h1>
+      <p>Enter your PIN.</p>
+      <div class="pin-dots"><span id="d0"></span><span id="d1"></span><span id="d2"></span><span id="d3"></span></div>
+      <div class="pad">
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+        <button class="ghost" data-k="clear">Clear</button>
+        <button data-k="0">0</button>
+        <button class="ghost" data-k="back">&#9003;</button>
+      </div>
+      <div class="pin-err" id="pinErr"></div>
+    </div>
+
+    <div id="appStage" class="hidden">
+      <div class="tabbar">
+        <div class="tab active" data-tab="jersey">Jerseys<span class="n" id="tabnJersey"></span></div>
+        <div class="tab" data-tab="sweat">Hoodies<span class="n" id="tabnSweat"></span></div>
+        <div class="tab" data-tab="vol">Helpers<span class="n" id="tabnVol"></span></div>
+      </div>
+
+      <!-- JERSEY -->
+      <div class="panel" id="panel-jersey">
+        <div class="topbar"><h2>Jersey sizes</h2><span class="count-pill" id="jPill">&mdash;</span></div>
+        <div id="jOut" class="outstanding hidden"><h3 id="jOutHead"></h3><div class="names" id="jOutNames"></div></div>
+        <div class="table-scroll">
+          <table class="rep"><thead><tr><th>Player</th><th>Requested</th><th>Confirmed</th><th>Status</th><th>Parent</th><th>At</th></tr></thead><tbody id="jBody"></tbody></table>
+        </div>
+        <div class="actions"><button class="btn" data-copy="jersey">Copy order list</button><span class="copied hidden" id="jCopied">Copied</span></div>
+      </div>
+
+      <!-- SWEAT -->
+      <div class="panel hidden" id="panel-sweat">
+        <div class="topbar"><h2>Hoodie sizes</h2><span class="count-pill" id="sPill">&mdash;</span></div>
+        <div id="sOut" class="outstanding hidden"><h3 id="sOutHead"></h3><div class="names" id="sOutNames"></div></div>
+        <div class="table-scroll">
+          <table class="rep"><thead><tr><th>Player</th><th>Confirmed</th><th>Status</th><th>Parent</th><th>At</th></tr></thead><tbody id="sBody"></tbody></table>
+        </div>
+        <div class="actions"><button class="btn" data-copy="sweat">Copy order list</button><span class="copied hidden" id="sCopied">Copied</span></div>
+      </div>
+
+      <!-- VOL -->
+      <div class="panel hidden" id="panel-vol">
+        <div class="topbar"><h2>Helpers</h2><span class="count-pill" id="vPill">&mdash;</span></div>
+        <div id="vList" class="vol-list"></div>
+        <div id="vEmpty" class="empty hidden">No sign ups yet. As games and practices get scheduled, more will come in.</div>
+      </div>
+
+      <div class="actions" style="margin-top:18px;">
+        <button class="btn sec" id="refreshBtn">Refresh</button>
+      </div>
+      <p class="hint">Order lists use each player's confirmed size. Anyone who has not confirmed is marked UNCONFIRMED so you can chase them or order their league-sheet size.</p>
+    </div>
+  </div>
+
+  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Coach tools</footer>
+
+<script>
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var pin = "";
+  var data = { jersey: null, sweat: null, vol: null };
+
+  var CAT_LABELS = {
+    field_setup: "Field setup", teardown: "Teardown", dugout_accessories: "Dugout accessories",
+    bows: "Bows", socks: "Socks", cheer_crew: "Cheer crew"
+  };
+
+  var dots = [document.getElementById("d0"), document.getElementById("d1"), document.getElementById("d2"), document.getElementById("d3")];
+  var pinErr = document.getElementById("pinErr");
+  function renderDots() { for (var i = 0; i < 4; i++) dots[i].className = i < pin.length ? "on" : ""; }
+
+  document.querySelectorAll(".pad button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var k = b.getAttribute("data-k");
+      pinErr.textContent = "";
+      if (k === "clear") pin = "";
+      else if (k === "back") pin = pin.slice(0, -1);
+      else if (pin.length < 4) pin += k;
+      renderDots();
+      if (pin.length === 4) loadAll();
+    });
+  });
+
+  function api(action) {
+    return fetch(API + "?action=" + action, { headers: { "x-admin-pin": pin } }).then(function (r) {
+      if (r.status === 401) throw new Error("bad-pin");
+      if (!r.ok) throw new Error("fail");
+      return r.json();
+    });
+  }
+
+  function loadAll() {
+    Promise.all([api("size_report"), api("sweatshirt_report"), api("volunteer_report")])
+      .then(function (res) {
+        data.jersey = res[0]; data.sweat = res[1]; data.vol = res[2];
+        document.getElementById("pinStage").classList.add("hidden");
+        document.getElementById("appStage").classList.remove("hidden");
+        renderAll();
+      })
+      .catch(function (e) {
+        pin = ""; renderDots();
+        pinErr.textContent = e.message === "bad-pin" ? "That PIN didn't match. Try again." : "Could not load. Check connection.";
+      });
+  }
+
+  function esc(s) { return (s == null ? "" : String(s)).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function initial(ln) { return (ln || "").charAt(0); }
+  function fmtWhen(iso) {
+    if (!iso) return "";
+    var dt = new Date(iso);
+    return dt.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ", " + dt.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  }
+
+  function pill(el, d) {
+    if (d.outstanding_count === 0) { el.textContent = "All " + d.total + " confirmed"; el.className = "count-pill done"; }
+    else { el.textContent = d.outstanding_count + " of " + d.total + " to go"; el.className = "count-pill"; }
+  }
+
+  function outbox(box, head, names, d) {
+    if (d.outstanding_count > 0) {
+      box.classList.remove("hidden");
+      head.textContent = d.outstanding_count + " still to confirm";
+      names.textContent = d.outstanding.map(function (o) { return o.first_name + " " + initial(o.last_name) + "."; }).join("  ·  ");
+    } else box.classList.add("hidden");
+  }
+
+  function sizeRows(d, withRequested) {
+    var rows = d.report.slice().sort(function (a, b) {
+      if (a.responded !== b.responded) return a.responded ? 1 : -1;
+      return a.first_name.localeCompare(b.first_name);
+    });
+    return rows.map(function (r) {
+      var status = r.responded ? '<span class="badge ok">Confirmed</span>' : '<span class="badge wait">Waiting</span>';
+      var cells = '<td class="player-cell">' + esc(r.first_name) + " " + esc(initial(r.last_name)) + '.</td>';
+      if (withRequested) cells += '<td class="size-req">' + esc(r.jersey_size_requested || "") + "</td>";
+      cells += '<td class="size-conf">' + (r.confirmed_size ? esc(r.confirmed_size) : "&mdash;") + "</td>";
+      cells += "<td>" + status + "</td>";
+      cells += "<td>" + esc(r.parent_name || "") + "</td>";
+      cells += '<td class="when">' + esc(fmtWhen(r.submitted_at)) + "</td>";
+      return '<tr' + (r.responded ? "" : ' class="pending"') + ">" + cells + "</tr>";
+    }).join("");
+  }
+
+  function renderAll() {
+    // jersey
+    pill(document.getElementById("jPill"), data.jersey);
+    outbox(document.getElementById("jOut"), document.getElementById("jOutHead"), document.getElementById("jOutNames"), data.jersey);
+    document.getElementById("jBody").innerHTML = sizeRows(data.jersey, true);
+    document.getElementById("tabnJersey").textContent = data.jersey.confirmed_count + "/" + data.jersey.total;
+    // sweat
+    pill(document.getElementById("sPill"), data.sweat);
+    outbox(document.getElementById("sOut"), document.getElementById("sOutHead"), document.getElementById("sOutNames"), data.sweat);
+    document.getElementById("sBody").innerHTML = sizeRows(data.sweat, false);
+    document.getElementById("tabnSweat").textContent = data.sweat.confirmed_count + "/" + data.sweat.total;
+    // vol
+    var v = data.vol;
+    document.getElementById("vPill").textContent = v.count + (v.count === 1 ? " sign up" : " sign ups");
+    document.getElementById("tabnVol").textContent = v.count;
+    var list = document.getElementById("vList"), empty = document.getElementById("vEmpty");
+    if (v.count === 0) { list.innerHTML = ""; empty.classList.remove("hidden"); }
+    else {
+      empty.classList.add("hidden");
+      list.innerHTML = v.submissions.map(function (s) {
+        var cats = (s.categories || []).map(function (c) { return '<span class="cat">' + esc(CAT_LABELS[c] || c) + "</span>"; }).join("");
+        var who = s.player_label ? '<span class="who2">for ' + esc(s.player_label) + "</span>" : "";
+        var other = s.other_text ? '<div class="other">' + esc(s.other_text) + "</div>" : "";
+        return '<div class="vol-card"><div class="vhead"><span class="fam">' + esc(s.parent_name || "Someone") + "</span>" + who +
+               '</div>' + (cats ? '<div class="cats">' + cats + "</div>" : "") + other +
+               '<div class="when" style="margin-top:10px;">' + esc(fmtWhen(s.submitted_at)) + "</div></div>";
+      }).join("");
+    }
+  }
+
+  // tabs
+  document.querySelectorAll(".tab").forEach(function (t) {
+    t.addEventListener("click", function () {
+      document.querySelectorAll(".tab").forEach(function (x) { x.classList.remove("active"); });
+      t.classList.add("active");
+      document.querySelectorAll(".panel").forEach(function (p) { p.classList.add("hidden"); });
+      document.getElementById("panel-" + t.getAttribute("data-tab")).classList.remove("hidden");
+    });
+  });
+
+  // copy order lists
+  function buildOrderText(kind) {
+    var d = kind === "jersey" ? data.jersey : data.sweat;
+    var title = kind === "jersey" ? "BLS Cougars - Jersey Order - Fall 2026" : "BLS Cougars - Hoodie Order - Fall 2026";
+    var lines = [title, ""];
+    var rows = d.report.slice().sort(function (a, b) { return a.first_name.localeCompare(b.first_name); });
+    rows.forEach(function (r) {
+      var name = (r.first_name + " " + (r.last_name || "")).trim();
+      if (r.confirmed_size) lines.push(name + " - " + r.confirmed_size);
+      else if (kind === "jersey") lines.push(name + " - " + (r.jersey_size_requested || "?") + " (UNCONFIRMED)");
+      else lines.push(name + " — UNCONFIRMED");
+    });
+    lines.push("");
+    lines.push(d.confirmed_count + " of " + d.total + " confirmed.");
+    return lines.join("\n");
+  }
+
+  document.querySelectorAll("[data-copy]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var kind = btn.getAttribute("data-copy");
+      var text = buildOrderText(kind);
+      var msg = document.getElementById(kind === "jersey" ? "jCopied" : "sCopied");
+      function ok() { msg.classList.remove("hidden"); setTimeout(function () { msg.classList.add("hidden"); }, 2500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, function () { fallbackCopy(text, ok); });
+      else fallbackCopy(text, ok);
+    });
+  });
+
+  function fallbackCopy(text, done) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { alert(text); }
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById("refreshBtn").addEventListener("click", loadAll);
+  renderDots();
+</script>
+</body>
+</html>
