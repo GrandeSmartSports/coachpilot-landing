@@ -146,8 +146,8 @@
 
         <div class="card" style="margin-top:18px;">
           <label class="field-label" for="backName">Name on the back</label>
-          <input type="text" id="backName" maxlength="20" placeholder="Name to print" autocomplete="off" />
-          <p class="hint-line">Exactly how it should be printed.</p>
+          <p class="hint-line" style="margin:-2px 0 9px;">Most girls go with their last name, some go with a nickname.</p>
+          <input type="text" id="backName" maxlength="20" placeholder="Exactly how it should be printed" autocomplete="off" />
 
           <label class="field-label" for="parent" style="margin-top:16px;">Your name</label>
           <input type="text" id="parent" placeholder="Parent or guardian name" autocomplete="name" />
@@ -269,8 +269,8 @@
     if (!selectedPlayer) { elDetail.classList.add("hidden"); return; }
     buildChart(selectedPlayer.jersey_size_requested);
     buildChips(selectedPlayer.jersey_size_requested);
-    // convenience default: her first name; fully editable, families often print a nickname
-    elBack.value = selectedPlayer.first_name || "";
+    // blank by default; parent types exactly what goes on the back
+    elBack.value = "";
     elDetail.classList.remove("hidden");
     elSubmitErr.classList.add("hidden");
     updateConfirm();
