@@ -17,138 +17,170 @@
 </script>
 <link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
 <link rel="apple-touch-icon" href="/cougars/assets/cougars-logo-mark.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
     --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
-    --black: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
-    --bg: #f4f5f6; --white: #ffffff;
-    /* legacy aliases mapped to the red/black brand */
-    --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
-    --ice-soft: #fbe9ec; --ice-line: #f3c7ce;
-    --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
+    --black: #141416; --coal: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
+    --bg: #f2f3f4; --white: #ffffff;
+    --shadow: 0 10px 30px rgba(20, 20, 22, 0.08);
+    --shadow-lift: 0 16px 40px rgba(20, 20, 22, 0.14);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
   a { color: inherit; text-decoration: none; }
-  .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
 
-  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 22px 20px 20px; }
-  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .wordmark { display: flex; align-items: center; gap: 12px; }
-  .wordmark .logo { height: 44px; width: auto; display: block; }
-  .wordmark .mark { font-size: 34px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
-  .wordmark .claw { color: var(--ice); }
-  .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
-  .tagline { margin-top: 10px; color: #c9cacc; font-size: 15px; }
-  .ribbon { height: 4px; background: var(--red); }
+  /* ============ HERO ============ */
+  .hero { position: relative; background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; overflow: hidden; }
+  .hero .badge-wm { position: absolute; right: -40px; top: 50%; transform: translateY(-50%) rotate(-8deg); height: 300px; opacity: 0.09; pointer-events: none; filter: grayscale(1) brightness(2.2); }
+  .hero-inner { position: relative; max-width: 1020px; margin: 0 auto; padding: 40px 22px 34px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--red); }
+  .kicker .dot { color: #55575c; }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(52px, 9vw, 84px); line-height: 0.98; letter-spacing: 0.015em; text-transform: uppercase; margin-top: 6px; }
+  .hero h1 .o { color: var(--red); }
+  .hero .tag { margin-top: 10px; color: #a9acb2; font-size: 15.5px; max-width: 480px; }
+  .hero .markrow { display: flex; align-items: center; gap: 14px; }
+  .hero .markrow img { height: 74px; width: auto; display: block; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .slash-notch { max-width: 1020px; margin: -6px auto 0; padding: 0 22px; }
+  .slash-notch span { display: block; width: 92px; height: 6px; background: #fff; transform: skewX(-30deg) translateX(18px); }
 
-  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 18px 40px; }
-  .sec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ice); font-weight: 800; margin: 6px 2px 12px; }
+  /* ============ LAYOUT ============ */
+  .shell { max-width: 1020px; margin: 0 auto; padding: 30px 22px 56px; display: grid; grid-template-columns: 1fr; gap: 28px; }
+  @media (min-width: 900px) { .shell { grid-template-columns: 1.15fr 0.85fr; align-items: start; gap: 34px; padding-top: 38px; } }
 
-  .actions { display: flex; flex-direction: column; gap: 12px; }
-  .action { display: flex; align-items: center; gap: 15px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 16px; transition: transform .08s ease; }
-  .action:active { transform: scale(0.99); }
-  .action .emoji { flex: 0 0 46px; width: 46px; height: 46px; border-radius: 12px; background: var(--ice-soft); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .sec-label { font-family: var(--disp); font-weight: 600; font-size: 13.5px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink); margin: 0 2px 14px; display: flex; align-items: center; gap: 12px; }
+  .sec-label::after { content: ""; height: 3px; flex: 0 0 34px; background: var(--red); transform: skewX(-30deg); }
+
+  /* ============ ACTION CARDS ============ */
+  .actions { display: flex; flex-direction: column; gap: 14px; }
+  .action { position: relative; display: flex; align-items: center; gap: 16px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px 18px; transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; overflow: hidden; }
+  .action::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--red); transform: scaleY(0); transition: transform .16s ease; transform-origin: top; }
+  .action:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: #d6d9db; }
+  .action:hover::before { transform: scaleY(1); }
+  .action:active { transform: scale(0.995); }
+  .tile { flex: 0 0 52px; width: 52px; height: 52px; border-radius: 12px; background: var(--black); border-bottom: 3px solid var(--red); display: flex; align-items: center; justify-content: center; font-family: var(--disp); font-weight: 700; font-size: 24px; color: #fff; }
   .action .body { flex: 1 1 auto; min-width: 0; }
-  .action .title { font-size: 17px; font-weight: 800; color: var(--navy); }
-  .action .sub { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
-  .action .chev { flex: 0 0 auto; color: var(--ice-line); }
-  .action .chev svg { width: 12px; height: 12px; }
+  .action .title { display: block; font-family: var(--disp); font-weight: 600; font-size: 19px; letter-spacing: 0.02em; color: var(--ink); }
+  .action .sub { display: block; font-size: 14px; color: var(--muted); margin-top: 3px; }
+  .action .chev { flex: 0 0 auto; color: #c9ccce; transition: color .14s ease, transform .14s ease; }
+  .action:hover .chev { color: var(--red); transform: translateX(3px); }
+  .action .chev svg { width: 13px; height: 13px; }
+  .action.done { opacity: 0.88; }
+  .action.done .tile { background: #21622f; border-bottom-color: #2f9e5b; font-size: 22px; }
+  .action.done .title::after { content: " \2713"; color: #2f9e5b; }
 
-  .info { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px; margin-top: 22px; }
-  .info h3 { font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin-bottom: 10px; }
-  .info .row { display: flex; gap: 10px; font-size: 15px; padding: 3px 0; }
-  .info .row .k { color: var(--navy); font-weight: 700; flex: 0 0 92px; }
-  .info .row .v { color: var(--ink); }
-  .info .note { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+  /* ============ RIGHT RAIL ============ */
+  .rail { display: flex; flex-direction: column; gap: 18px; }
+  .season-card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .season-card .bar { background: var(--black); color: #fff; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .season-card .bar h3 { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.22em; text-transform: uppercase; }
+  .season-card .bar .yr { font-family: var(--disp); font-size: 12px; letter-spacing: 0.2em; color: var(--red); font-weight: 600; }
+  .season-card .rows { padding: 14px 18px 16px; }
+  .season-card .row { display: flex; gap: 12px; font-size: 14.5px; padding: 6px 0; border-bottom: 1px dashed #eef0f1; }
+  .season-card .row:last-of-type { border-bottom: none; }
+  .season-card .row .k { font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); flex: 0 0 92px; padding-top: 2px; }
+  .season-card .row .v { color: #33383d; }
+  .season-card .note { margin: 10px 18px 16px; font-size: 13px; color: var(--muted); }
 
-  .clinic { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: var(--black); color: #fff; border-radius: 16px; padding: 16px 18px; box-shadow: var(--shadow); }
-  .clinic .emoji { font-size: 22px; }
+  .clinic { display: flex; align-items: center; gap: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; border-radius: 16px; padding: 17px 18px; box-shadow: var(--shadow); transition: transform .14s ease, box-shadow .14s ease; }
+  .clinic:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
   .clinic .body { flex: 1 1 auto; }
-  .clinic .title { font-size: 15.5px; font-weight: 800; }
-  .clinic .sub { font-size: 13px; color: #c9cacc; margin-top: 2px; }
-  .clinic .go { flex: 0 0 auto; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ice); }
+  .clinic .title { font-family: var(--disp); font-weight: 600; font-size: 16.5px; letter-spacing: 0.02em; }
+  .clinic .sub { font-size: 13px; color: #ffd3da; margin-top: 3px; }
+  .clinic .go { flex: 0 0 auto; font-family: var(--disp); background: #fff; color: var(--red); font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 20px; padding: 7px 14px; }
 
-  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px 34px; }
-  footer .fmark { color: var(--navy); font-weight: 800; letter-spacing: 0.06em; }
-  .action.done { opacity: 0.78; }
-  .action.done .emoji { background: #e7f3eb; }
-  .action.done .title::after { content: " \2713"; color: #2f9e5b; font-weight: 800; }
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 8px 20px 40px; }
+  footer .fmark { font-family: var(--disp); color: var(--ink); font-weight: 600; letter-spacing: 0.14em; }
+  footer a { color: var(--muted); text-decoration: underline; }
 </style>
 </head>
 <body>
-  <header>
-    <div class="head-row">
-      <a class="wordmark" href="/cougars/"><img class="logo" src="/cougars/assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></a>
-      <span class="season">Fall 2026</span>
+  <div class="hero">
+    <img class="badge-wm" src="/cougars/assets/cougars-logo.png" alt="" aria-hidden="true" />
+    <div class="hero-inner">
+      <div class="kicker">BLS Fastpitch <span class="dot">&bull;</span> Fall 2026</div>
+      <div class="markrow">
+        <img src="/cougars/assets/cougars-logo-mark.png" alt="BLS Cougars" />
+        <h1>C<span class="o">O</span>UGARS</h1>
+      </div>
+      <p class="tag">Your one stop for everything Cougars this season.</p>
     </div>
-    <p class="tagline">Your one stop for everything Cougars this season.</p>
-  </header>
-  <div class="ribbon"></div>
+  </div>
+  <div class="slash"></div>
+  <div class="slash-notch"><span></span></div>
 
-  <div class="wrap">
-    <div class="sec-label">This week</div>
-    <div class="actions">
-      <a class="action" href="/cougars/sizes.html">
-        <span class="emoji">&#128085;</span>
-        <span class="body">
-          <span class="title">Confirm jersey size</span>
-          <span class="sub">Order goes in Monday. Confirm by Sunday 6 PM.</span>
-        </span>
-        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
+  <div class="shell">
+    <div>
+      <div class="sec-label">This week</div>
+      <div class="actions">
+        <a class="action" href="/cougars/sizes.html">
+          <span class="tile">1</span>
+          <span class="body">
+            <span class="title">Confirm jersey size</span>
+            <span class="sub">Order goes in Monday. Confirm by Sunday 6 PM.</span>
+          </span>
+          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
 
-      <a class="action" href="/cougars/sweatshirt.html">
-        <span class="emoji">&#129405;</span>
-        <span class="body">
-          <span class="title">Sweatshirt size</span>
-          <span class="sub">Team hoodies, $20, name on the back.</span>
-        </span>
-        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
+        <a class="action" href="/cougars/sweatshirt.html">
+          <span class="tile">2</span>
+          <span class="body">
+            <span class="title">Sweatshirt size</span>
+            <span class="sub">Team hoodies, $20, name on the back.</span>
+          </span>
+          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
 
-      <a class="action" href="/cougars/volunteer.html">
-        <span class="emoji">&#128587;</span>
-        <span class="body">
-          <span class="title">Get involved</span>
-          <span class="sub">Tell me how you want to help this season.</span>
-        </span>
-        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
+        <a class="action" href="/cougars/volunteer.html">
+          <span class="tile">3</span>
+          <span class="body">
+            <span class="title">Get involved</span>
+            <span class="sub">Tell me how you want to help this season.</span>
+          </span>
+          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
 
-      <a class="action" href="/cougars/practice.html">
-        <span class="emoji">&#129358;</span>
-        <span class="body">
-          <span class="title">Practice info</span>
-          <span class="sub">Days, times, what to bring, and what each night covers.</span>
-        </span>
-        <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
-    </div>
-
-    <div class="info">
-      <h3>The season</h3>
-      <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake</span></div>
-      <div class="row"><span class="k">Practices</span><span class="v">Tuesdays and Thursdays, 6:00 to 7:30 PM. Optional 5:30 early start for skills work.</span></div>
-      <div class="row"><span class="k">First week</span><span class="v">Thursday only. Wednesday warm up option below.</span></div>
-      <div class="row"><span class="k">Games</span><span class="v">Saturdays, starting September 12.</span></div>
-      <p class="note">Once games start, practices drop to Thursdays only. Extras like batting cages and pop up events are always optional.</p>
+        <a class="action" href="/cougars/practice.html">
+          <span class="tile">4</span>
+          <span class="body">
+            <span class="title">Practice info</span>
+            <span class="sub">Days, times, what to bring, and what each night covers.</span>
+          </span>
+          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </a>
+      </div>
     </div>
 
-    <a class="clinic" href="https://clinics.coachpilot.org">
-      <span class="emoji">&#127939;</span>
-      <span class="body">
-        <span class="title">Softball clinics, final session Wednesday Aug 19</span>
-        <span class="sub">Several Cougars already attend. Everyone welcome.</span>
-      </span>
-      <span class="go">Go</span>
-    </a>
+    <div class="rail">
+      <div class="season-card">
+        <div class="bar"><h3>The Season</h3><span class="yr">Fall 2026</span></div>
+        <div class="rows">
+          <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake</span></div>
+          <div class="row"><span class="k">Practices</span><span class="v">Tuesdays and Thursdays, 6:00 to 7:30 PM. Optional 5:30 early start for skills work.</span></div>
+          <div class="row"><span class="k">First week</span><span class="v">Thursday only. Wednesday warm up option below.</span></div>
+          <div class="row"><span class="k">Games</span><span class="v">Saturdays, starting September 12.</span></div>
+        </div>
+        <p class="note">Once games start, practices drop to Thursdays only. Extras like batting cages and pop up events are always optional.</p>
+      </div>
+
+      <a class="clinic" href="https://clinics.coachpilot.org">
+        <span class="body">
+          <span class="title">Final clinic session &middot; Wednesday Aug 19</span>
+          <span class="sub">Our first warm up. Same field, 5:00 or 7:00. Everyone welcome.</span>
+        </span>
+        <span class="go">Go</span>
+      </a>
+    </div>
   </div>
 
-  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="/cougars/welcome.html" style="color:#7a8087; text-decoration:underline;">Coach's welcome</a></footer>
-<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"hub"}),keepalive:true}).catch(function(){})}catch(e){}</script>
+  <footer><span class="fmark">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="/cougars/welcome.html">Coach's welcome</a></footer>
+
 <script>
 (function () {
   try {
@@ -159,8 +191,8 @@
       a.classList.add("done");
       var sub = a.querySelector(".sub");
       if (sub) sub.textContent = txt;
-      var em = a.querySelector(".emoji");
-      if (em) em.textContent = "\u2705";
+      var t = a.querySelector(".tile");
+      if (t) t.textContent = "✓";
     }
     if (d.jersey && d.jersey.length) mark("/cougars/sizes.html", "Done: " + d.jersey.join(", ") + ". Tap to update or add a player.");
     if (d.sweatshirt && d.sweatshirt.length) mark("/cougars/sweatshirt.html", "Done: " + d.sweatshirt.join(", ") + ". Tap to update or add a player.");
@@ -168,5 +200,6 @@
   } catch (e) {}
 })();
 </script>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"hub"}),keepalive:true}).catch(function(){})}catch(e){}</script>
 </body>
 </html>

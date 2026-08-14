@@ -128,6 +128,7 @@
         <div class="tab active" data-tab="jersey">Jerseys<span class="n" id="tabnJersey"></span></div>
         <div class="tab" data-tab="sweat">Hoodies<span class="n" id="tabnSweat"></span></div>
         <div class="tab" data-tab="vol">Helpers<span class="n" id="tabnVol"></span></div>
+        <div class="tab" data-tab="visits">Visits<span class="n" id="tabnVisits"></span></div>
       </div>
 
       <!-- JERSEY -->
@@ -155,6 +156,15 @@
         <div class="topbar"><h2>Helpers</h2><span class="count-pill" id="vPill">&mdash;</span></div>
         <div id="vList" class="vol-list"></div>
         <div id="vEmpty" class="empty hidden">No sign ups yet. As games and practices get scheduled, more will come in.</div>
+      </div>
+
+      <!-- VISITS -->
+      <div class="panel hidden" id="panel-visits">
+        <div class="topbar"><h2>Site visits</h2><span class="count-pill" id="visPill">&mdash;</span></div>
+        <div class="table-scroll">
+          <table class="rep"><thead><tr><th>Page</th><th>Today</th><th>7 days</th><th>Total</th><th>Last visit</th></tr></thead><tbody id="visBody"></tbody></table>
+        </div>
+        <p class="hint">Counts are page loads. Anonymous, page name only, nothing that identifies anyone.</p>
       </div>
 
       <div class="actions" style="margin-top:18px;">
@@ -208,9 +218,9 @@
   }
 
   function loadAll() {
-    Promise.all([api("size_report"), api("sweatshirt_report"), api("volunteer_report")])
+    Promise.all([api("size_report"), api("sweatshirt_report"), api("volunteer_report"), api("visits_report")])
       .then(function (res) {
-        data.jersey = res[0]; data.sweat = res[1]; data.vol = res[2];
+        data.jersey = res[0]; data.sweat = res[1]; data.vol = res[2]; data.visits = res[3];
         document.getElementById("pinStage").classList.add("hidden");
         document.getElementById("appStage").classList.remove("hidden");
         renderAll();
@@ -262,6 +272,20 @@
   }
 
   function renderAll() {
+    // visits
+    if (data.visits && data.visits.pages) {
+      var vOrder = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "practice", "admin"];
+      var vLabels = { hub: "App home", welcome: "Coach's welcome", sizes: "Jersey form", sweatshirt: "Hoodie form", volunteer: "Get involved", practice: "Practice info", admin: "Coach view" };
+      var vp = document.getElementById("visPill");
+      vp.textContent = data.visits.total + " total";
+      vp.className = "count-pill done";
+      document.getElementById("visBody").innerHTML = vOrder.map(function (p) {
+        var b = data.visits.pages[p] || { today: 0, week: 0, total: 0, last: null };
+        return '<tr><td class="player-cell">' + vLabels[p] + "</td><td>" + b.today + "</td><td>" + b.week + "</td><td>" + b.total + '</td><td class="when">' + esc(fmtWhen(b.last)) + "</td></tr>";
+      }).join("");
+      document.getElementById("tabnVisits").textContent = String(data.visits.total);
+    }
+
     // jersey
     pill(document.getElementById("jPill"), data.jersey);
     outbox(document.getElementById("jOut"), document.getElementById("jOutHead"), document.getElementById("jOutNames"), data.jersey);
