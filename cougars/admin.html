@@ -26,8 +26,10 @@
   .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
 
   header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-  .wordmark { display: flex; align-items: center; gap: 11px; }
+  .wordmark { display: flex; align-items: center; gap: 11px; text-decoration: none; }
   .wordmark .logo { height: 36px; width: auto; display: block; }
+  .app-home { display: inline-block; color: var(--muted); font-weight: 700; font-size: 13.5px; text-decoration: none; }
+  .app-home:hover { color: var(--ink); }
   .wordmark .mark { font-size: 28px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
   .season { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; color: var(--ice); }
@@ -100,7 +102,7 @@
 </head>
 <body>
   <header>
-    <div class="wordmark"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></div>
+    <a class="wordmark" href="/cougars/"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></a>
     <span class="season">Coach View</span>
   </header>
   <div class="ribbon"></div>
@@ -162,7 +164,7 @@
     </div>
   </div>
 
-  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Coach tools</footer>
+  <footer><div style="margin-bottom:12px;"><a class="app-home" href="/cougars/">Back to the Cougars App</a></div><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Coach tools</footer>
 
 <script>
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
