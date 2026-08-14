@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Welcome to Cougars Fall Ball</title>
+<link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
+    --black: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
+    --bg: #f4f5f6; --white: #ffffff;
+    --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
+    --ice-soft: #fbe9ec; --ice-line: #f3c7ce;
+    --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.55; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
+
+  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 22px 20px 20px; }
+  .head-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .wordmark { display: flex; align-items: center; gap: 12px; }
+  .wordmark .logo { height: 44px; width: auto; display: block; }
+  .wordmark .mark { font-size: 34px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
+  .wordmark .claw { color: var(--ice); }
+  .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
+  .ribbon { height: 4px; background: var(--red); }
+
+  .wrap { max-width: 560px; margin: 0 auto; padding: 26px 18px 40px; }
+  h1 { font-size: 26px; color: var(--ink); margin-bottom: 6px; }
+  .hello { font-size: 16px; color: var(--ink); margin-bottom: 22px; }
+  .sec-label { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); font-weight: 800; margin: 26px 2px 10px; }
+  p.body { font-size: 15.5px; color: #3d4247; margin-bottom: 13px; }
+
+  .way { background: var(--black); color: #fff; border-radius: 16px; padding: 18px 20px; margin: 24px 0 4px; box-shadow: var(--shadow); }
+  .way .lbl { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); font-weight: 800; margin-bottom: 8px; }
+  .way p { font-size: 15.5px; line-height: 1.65; }
+
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px; }
+  .card .row { display: flex; gap: 10px; font-size: 15px; padding: 5px 0; }
+  .card .row .k { color: var(--ink); font-weight: 800; flex: 0 0 96px; }
+  .card .row .v { color: #3d4247; }
+
+  .warm { background: var(--red-soft); border: 1px solid var(--red-line); border-radius: 16px; padding: 16px 18px; }
+  .warm p { font-size: 15px; color: #3d4247; margin-bottom: 10px; }
+  .warm p:last-child { margin-bottom: 0; }
+  .warm b { color: var(--ink); }
+
+  .cta { display: block; text-align: center; background: var(--red); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.03em; border-radius: 14px; padding: 17px 20px; margin: 26px 0 14px; box-shadow: var(--shadow); }
+  .cta:active { background: var(--red-dark); }
+  .sign { font-size: 15.5px; color: var(--ink); margin-top: 18px; }
+  .sign .nm { font-weight: 800; }
+  .sign .team { color: var(--muted); font-size: 13.5px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px 34px; }
+  footer .fmark { color: var(--ink); font-weight: 800; letter-spacing: 0.06em; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="head-row">
+      <a class="wordmark" href="index.html?stay=1"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></a>
+      <span class="season">Fall 2026</span>
+    </div>
+  </header>
+  <div class="ribbon"></div>
+
+  <div class="wrap">
+    <h1>Welcome to Cougars Fall Ball</h1>
+    <p class="hello">Hey Cougars families,</p>
+
+    <div class="sec-label">About your coach</div>
+    <p class="body">My name is Coach Daniel. My wife Heidi, my daughters Lucy and Lily, and I moved to Washington a year ago in October, and we are still learning what it means to play ball in the wet and the cold. We were not used to it. We are loving every second of it.</p>
+    <p class="body">I have coached minors softball for the past 5 seasons, 3 down in Arizona and the last 2 here in Washington, and I have been coaching my daughters' teams since they were 4 years old. Girls soccer, basketball, and volleyball too, all at the rec level. It is my favorite place to coach, because this is where kids fall in love with sports.</p>
+    <p class="body">I am high energy and I focus on the positive. We may win, we may not, and that is ok, because at this age we are focusing on building the skills to be competitive later on. I will put all my focus on making sure that when these girls move up to the next level, where wins and losses actually matter, they are ready to compete.</p>
+    <p class="body">When I am not on the field, I am behind a computer building software and AI tools. That spills over into my coaching, hopefully in a good way, as you are about to see. Fair warning: I tend to over communicate and post information in several places. If you ever feel like you are missing something, please reach out.</p>
+
+    <div class="way">
+      <div class="lbl">The Cougar Way</div>
+      <p>We go big. Walk up music for every girl. A dugout that never goes quiet. Parents who show up loud behind them. Yes, it is fall ball. We are going to make it something they remember.</p>
+    </div>
+
+    <div class="sec-label">Communication</div>
+    <p class="body"><b>GameChanger chat</b> is our channel for the day to day. Rain rolling in, somebody forgot a piece of equipment, that goes in GameChanger.</p>
+    <p class="body">Once a week I will drop a link in GameChanger that opens the <b>Cougars App</b>: lineups, volunteer sign ups, snack sign ups, practice schedules, and notes, all in one place. I am hoping to add individual player notes this season too. This app has been growing for a couple of seasons now, and it will keep getting better as we go.</p>
+
+    <div class="sec-label">Attendance</div>
+    <p class="body">I am really laid back on this one. Life happens, and I am running late 99% of the time myself. Make it when you can. Just let me know ahead of time, especially for games, so I can plan accordingly. You can mark attendance right in the GameChanger app.</p>
+
+    <div class="sec-label">Schedule</div>
+    <p class="body">We have our schedule.</p>
+    <div class="card">
+      <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake, WA 98391</span></div>
+      <div class="row"><span class="k">Practices</span><span class="v">Tuesdays and Thursdays, 6:00 to 7:30 PM. Optional 5:30 early start for skills work.</span></div>
+      <div class="row"><span class="k">First week</span><span class="v">We will only be practicing Thursday the first week. Wednesday option below.</span></div>
+      <div class="row"><span class="k">Games</span><span class="v">Saturdays, starting September 12. Once games start we have only been given one official practice day, so we will drop to Thursdays only.</span></div>
+      <div class="row"><span class="k">Extras</span><span class="v">Optional batting cages and pop up events here and there, always optional.</span></div>
+    </div>
+
+    <div class="sec-label">This Wednesday: our first warm up</div>
+    <div class="warm">
+      <p>The other coaches and I are hosting the final Fall Ball Prep Clinic this Wednesday at the same field we practice on, and <b>7 of our 12 Cougars are already out there</b>. Come use it as our first warm up practice.</p>
+      <p><b>Two sessions: 5:00 to 6:30 and 7:00 to 8:30.</b> Come to one or both.</p>
+      <p>No need to sign in when you arrive. Just find a coach and introduce yourself. Every coach on the field in a <b>blue shirt</b> is a Cougars coach this season.</p>
+      <p>No pressure either way. As you will find out, I throw out more events than is humanly possible to attend. If even one more girl makes it, it is worth it.</p>
+    </div>
+
+    <div class="sec-label">Coaches</div>
+    <p class="body">Coaching with me this fall: <b>Coach Diana</b>, <b>Coach Russell</b>, and <b>Coach Sarah</b>.</p>
+
+    <p class="body" style="margin-top:22px;">That is the season. Ready to jump in? Everything I mentioned lives here, and the first sign ups are already open:</p>
+
+    <a class="cta" id="goApp" href="index.html?stay=1">GO TO THE COUGARS APP</a>
+
+    <p class="sign">See you on the field,<br /><span class="nm">Coach Daniel</span><br /><span class="team">BLS Cougars Fastpitch</span></p>
+  </div>
+
+  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026</footer>
+
+  <script>
+    (function () {
+      function markWelcomed() {
+        try { localStorage.setItem('cougars_welcomed', '1'); } catch (e) {}
+      }
+      document.getElementById('goApp').addEventListener('click', markWelcomed);
+      document.querySelector('.wordmark').addEventListener('click', markWelcomed);
+    })();
+  </script>
+</body>
+</html>

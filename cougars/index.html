@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex" />
 <title>Cougars Team Hub, Fall 2026</title>
+<script>
+  // First visit on this device: show Coach's welcome walkthrough once, then straight to the app forever.
+  (function () {
+    try {
+      if (!localStorage.getItem('cougars_welcomed') && location.search.indexOf('stay') === -1) {
+        location.replace('welcome.html');
+      }
+    } catch (e) { /* storage blocked: never trap anyone, just show the app */ }
+  })();
+</script>
 <link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
 <link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
 <style>
@@ -108,9 +118,11 @@
 
     <div class="info">
       <h3>The season</h3>
-      <div class="row"><span class="k">Practices</span><span class="v">Start next week. Shooting for Thursdays, but not official yet.</span></div>
-      <div class="row"><span class="k">Games</span><span class="v">Saturdays.</span></div>
-      <p class="note">Full schedule drops here the moment I have it.</p>
+      <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake</span></div>
+      <div class="row"><span class="k">Practices</span><span class="v">Tuesdays and Thursdays, 6:00 to 7:30 PM. Optional 5:30 early start for skills work.</span></div>
+      <div class="row"><span class="k">First week</span><span class="v">Thursday only. Wednesday warm up option below.</span></div>
+      <div class="row"><span class="k">Games</span><span class="v">Saturdays, starting September 12.</span></div>
+      <p class="note">Once games start, practices drop to Thursdays only. Extras like batting cages and pop up events are always optional.</p>
     </div>
 
     <a class="clinic" href="https://clinics.coachpilot.org">
@@ -123,6 +135,6 @@
     </a>
   </div>
 
-  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026</footer>
+  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="welcome.html" style="color:#7a8087; text-decoration:underline;">Coach's welcome</a></footer>
 </body>
 </html>
