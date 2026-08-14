@@ -304,6 +304,7 @@
   });
 
   function showSuccess(name, code, back) {
+    try { var _d = JSON.parse(localStorage.getItem("cougars_done") || "{}"); _d.sweatshirt = _d.sweatshirt || []; if (_d.sweatshirt.indexOf(name) < 0) _d.sweatshirt.push(name); localStorage.setItem("cougars_done", JSON.stringify(_d)); } catch (e) {}
     document.getElementById("sName").textContent = name;
     document.getElementById("sSize").textContent = LABEL[code] || code;
     document.getElementById("sBack").textContent = back;
@@ -324,5 +325,6 @@
 
   loadPlayers();
 </script>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"sweatshirt"}),keepalive:true}).catch(function(){})}catch(e){}</script>
 </body>
 </html>

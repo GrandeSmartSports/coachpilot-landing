@@ -73,6 +73,9 @@
 
   footer { text-align: center; color: var(--muted); font-size: 12px; padding: 28px 20px 34px; }
   footer .fmark { color: var(--navy); font-weight: 800; letter-spacing: 0.06em; }
+  .action.done { opacity: 0.78; }
+  .action.done .emoji { background: #e7f3eb; }
+  .action.done .title::after { content: " \2713"; color: #2f9e5b; font-weight: 800; }
 </style>
 </head>
 <body>
@@ -145,5 +148,25 @@
   </div>
 
   <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="/cougars/welcome.html" style="color:#7a8087; text-decoration:underline;">Coach's welcome</a></footer>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"hub"}),keepalive:true}).catch(function(){})}catch(e){}</script>
+<script>
+(function () {
+  try {
+    var d = JSON.parse(localStorage.getItem("cougars_done") || "{}");
+    function mark(href, txt) {
+      var a = document.querySelector('.action[href="' + href + '"]');
+      if (!a) return;
+      a.classList.add("done");
+      var sub = a.querySelector(".sub");
+      if (sub) sub.textContent = txt;
+      var em = a.querySelector(".emoji");
+      if (em) em.textContent = "\u2705";
+    }
+    if (d.jersey && d.jersey.length) mark("/cougars/sizes.html", "Done: " + d.jersey.join(", ") + ". Tap to update or add a player.");
+    if (d.sweatshirt && d.sweatshirt.length) mark("/cougars/sweatshirt.html", "Done: " + d.sweatshirt.join(", ") + ". Tap to update or add a player.");
+    if (d.volunteer) mark("/cougars/volunteer.html", "You are on the list. Tap to add more anytime.");
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>

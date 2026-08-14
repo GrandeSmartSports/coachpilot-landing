@@ -360,7 +360,7 @@
     fetch(API + "?action=players")
       .then(function (r) { if (!r.ok) throw new Error("bad"); return r.json(); })
       .then(function (d) {
-        players = (d.players || []);
+        players = (d.players || []).filter(function (p) { return !!p.jersey_size_requested; });
         players.forEach(function (p) {
           var o = document.createElement("option");
           o.value = p.id; o.textContent = label(p);
@@ -457,6 +457,7 @@
   });
 
   function showSuccess(name, size) {
+    try { var _d = JSON.parse(localStorage.getItem("cougars_done") || "{}"); _d.jersey = _d.jersey || []; if (_d.jersey.indexOf(name) < 0) _d.jersey.push(name); localStorage.setItem("cougars_done", JSON.stringify(_d)); } catch (e) {}
     document.getElementById("sName").textContent = name;
     document.getElementById("sSize").textContent = size;
     document.getElementById("formStage").classList.add("hidden");
@@ -476,5 +477,6 @@
 
   loadPlayers();
 </script>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"sizes"}),keepalive:true}).catch(function(){})}catch(e){}</script>
 </body>
 </html>

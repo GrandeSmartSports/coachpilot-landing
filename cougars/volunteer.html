@@ -214,6 +214,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (res) {
         if (!res.ok || !res.j.ok) throw new Error(res.j && res.j.error ? res.j.error : "failed");
+        try { var _d = JSON.parse(localStorage.getItem("cougars_done") || "{}"); _d.volunteer = true; localStorage.setItem("cougars_done", JSON.stringify(_d)); } catch (e) {}
         document.getElementById("formStage").classList.add("hidden");
         document.getElementById("successStage").classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -239,5 +240,6 @@
   buildOpts();
   loadPlayers();
 </script>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"volunteer"}),keepalive:true}).catch(function(){})}catch(e){}</script>
 </body>
 </html>
