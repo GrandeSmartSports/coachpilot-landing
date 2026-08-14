@@ -7,6 +7,9 @@
 <title>Get Involved with the Cougars, Fall 2026</title>
 <link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
 <link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
@@ -17,25 +20,28 @@
     --navy: #1f2326; --navy-deep: #1a1a1c; --ice: #c8102e;
     --ice-soft: #fbe9ec; --ice-line: #f3c7ce; --good: #1f2326;
     --shadow: 0 8px 26px rgba(20, 20, 22, 0.07);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--bg); color: var(--ink); }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
-  .cond { font-family: "Helvetica Neue", "Arial Narrow", system-ui, sans-serif; font-stretch: condensed; text-transform: uppercase; letter-spacing: 0.02em; font-weight: 800; }
+  .cond { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; }
 
-  header { background: linear-gradient(135deg, var(--navy-deep), var(--navy)); color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  header { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .wordmark { display: flex; align-items: center; gap: 11px; text-decoration: none; }
   .wordmark .logo { height: 38px; width: auto; display: block; }
   .app-home { display: inline-block; color: var(--muted); font-weight: 700; font-size: 13.5px; text-decoration: none; }
   .app-home:hover { color: var(--ink); }
   .wordmark .mark { font-size: 30px; line-height: 0.9; letter-spacing: 0.06em; color: #fff; }
   .wordmark .claw { color: var(--ice); }
-  .season { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 700; color: var(--ice); white-space: nowrap; }
-  .ribbon { height: 4px; background: var(--red); }
+  .season { font-family: var(--disp); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; color: var(--ice); white-space: nowrap; }
+  .ribbon { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .notch { max-width: 560px; margin: -6px auto 0; padding: 0 18px; }
+  .notch span { display: block; width: 72px; height: 6px; background: var(--bg); transform: skewX(-30deg) translateX(14px); }
 
   .wrap { max-width: 560px; margin: 0 auto; padding: 22px 18px 60px; }
-  .kicker { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ice); font-weight: 800; margin-bottom: 6px; }
-  h1 { font-size: 26px; line-height: 1.15; color: var(--navy); margin-bottom: 10px; }
+  .kicker { font-family: var(--disp); font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ice); font-weight: 600; margin-bottom: 6px; }
+  h1 { font-family: var(--disp); font-weight: 700; text-transform: uppercase; letter-spacing: 0.015em; font-size: 30px; line-height: 1.08; color: var(--navy); margin-bottom: 10px; }
   .lede { color: var(--muted); font-size: 15.5px; }
   .lede b { color: var(--navy); }
 
@@ -47,7 +53,8 @@
   .select-shell { position: relative; }
   .select-shell::after { content: ""; position: absolute; right: 16px; top: 50%; width: 9px; height: 9px; margin-top: -6px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); pointer-events: none; }
 
-  h2.sec { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin: 4px 0 12px; }
+  h2.sec { font-family: var(--disp); font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); font-weight: 600; margin: 4px 0 12px; display: flex; align-items: center; gap: 10px; }
+  h2.sec::after { content: ""; height: 3px; flex: 0 0 28px; background: var(--red); transform: skewX(-30deg); }
 
   .opts { display: flex; flex-direction: column; gap: 10px; }
   .opt { display: flex; align-items: center; gap: 14px; border: 1.5px solid var(--line); background: var(--white); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .12s ease; user-select: none; }
@@ -59,7 +66,7 @@
   .opt[aria-pressed="true"] .box svg { opacity: 1; }
 
   .hidden { display: none !important; }
-  .btn { display: block; width: 100%; margin-top: 20px; background: var(--red); color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.02em; border: none; border-radius: 14px; padding: 17px; cursor: pointer; transition: transform .08s ease, background .15s ease; }
+  .btn { display: block; width: 100%; margin-top: 20px; background: var(--red); color: #fff; font-family: var(--disp); font-size: 18px; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; border: none; border-radius: 14px; padding: 17px; cursor: pointer; transition: transform .08s ease, background .15s ease; }
   .btn:hover { background: var(--red-dark); }
   .btn:active { transform: translateY(1px); }
   .btn:disabled { opacity: 0.45; cursor: default; }
@@ -83,6 +90,7 @@
     <span class="season">Fall 2026</span>
   </header>
   <div class="ribbon"></div>
+  <div class="notch"><span></span></div>
 
   <div class="wrap">
     <div class="kicker">Get Involved</div>
