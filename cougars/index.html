@@ -10,13 +10,13 @@
   (function () {
     try {
       if (!localStorage.getItem('cougars_welcomed') && location.search.indexOf('stay') === -1) {
-        location.replace('welcome.html');
+        location.replace('/cougars/welcome.html');
       }
     } catch (e) { /* storage blocked: never trap anyone, just show the app */ }
   })();
 </script>
-<link rel="icon" type="image/png" href="assets/cougars-favicon.png" />
-<link rel="apple-touch-icon" href="assets/cougars-logo-mark.png" />
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="/cougars/assets/cougars-logo-mark.png" />
 <style>
   :root {
     /* BLS Cougars brand: red, white, black, grey */
@@ -78,7 +78,7 @@
 <body>
   <header>
     <div class="head-row">
-      <a class="wordmark" href="/cougars/"><img class="logo" src="assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></a>
+      <a class="wordmark" href="/cougars/"><img class="logo" src="/cougars/assets/cougars-logo-mark.png" alt="BLS Cougars" /><span class="cond mark">C<span class="claw">O</span>UGARS</span></a>
       <span class="season">Fall 2026</span>
     </div>
     <p class="tagline">Your one stop for everything Cougars this season.</p>
@@ -88,7 +88,7 @@
   <div class="wrap">
     <div class="sec-label">This week</div>
     <div class="actions">
-      <a class="action" href="sizes.html">
+      <a class="action" href="/cougars/sizes.html">
         <span class="emoji">&#128085;</span>
         <span class="body">
           <span class="title">Confirm jersey size</span>
@@ -97,7 +97,7 @@
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </a>
 
-      <a class="action" href="sweatshirt.html">
+      <a class="action" href="/cougars/sweatshirt.html">
         <span class="emoji">&#129405;</span>
         <span class="body">
           <span class="title">Sweatshirt size</span>
@@ -106,7 +106,7 @@
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </a>
 
-      <a class="action" href="volunteer.html">
+      <a class="action" href="/cougars/volunteer.html">
         <span class="emoji">&#128587;</span>
         <span class="body">
           <span class="title">Get involved</span>
@@ -135,6 +135,6 @@
     </a>
   </div>
 
-  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="welcome.html" style="color:#7a8087; text-decoration:underline;">Coach's welcome</a></footer>
+  <footer><span class="fmark cond">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="/cougars/welcome.html" style="color:#7a8087; text-decoration:underline;">Coach's welcome</a></footer>
 </body>
 </html>
