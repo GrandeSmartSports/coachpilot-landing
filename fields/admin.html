@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Field Command — League Admin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #fff;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--chalk); color: var(--ink); }
+  body { font-family: "Barlow", system-ui, sans-serif; line-height: 1.45; padding-bottom: 60px; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  header { background: linear-gradient(160deg, var(--pine), var(--pine-2)); color: var(--chalk); padding: 16px 18px; }
+  .head-inner { max-width: 1180px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  header h1 { font-family: var(--disp); font-weight: 700; font-size: 25px; text-transform: uppercase; letter-spacing: 0.04em; }
+  header h1 span { color: #ffd9b8; }
+  header a.back { font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #b7cfc2; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 46px, var(--chalk) 46px 58px); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 18px 14px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (min-width: 800px) { .tiles { grid-template-columns: repeat(5, 1fr); } }
+  .tile { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; }
+  .tile .n { font-family: var(--disp); font-weight: 700; font-size: 30px; line-height: 1; color: var(--pine); }
+  .tile .l { font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 4px; }
+
+  .panels { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 900px) { .panels { grid-template-columns: 1fr 1fr; } .span2 { grid-column: span 2; } }
+  .panel { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .panel .bar { background: var(--pine); color: var(--chalk); padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .panel .bar h2 { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .panel .body { padding: 14px 16px 16px; }
+  .hint { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+
+  input, select { font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 11px; background: var(--white); color: var(--ink); }
+  input:focus, select:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201,111,47,0.15); }
+  .btn { font-family: var(--disp); font-weight: 600; font-size: 14.5px; letter-spacing: 0.07em; text-transform: uppercase; border: none; border-radius: 9px; padding: 9px 16px; background: var(--pine); color: var(--chalk); }
+  .btn.clay { background: var(--clay); }
+  .btn.ghost { background: var(--chalk-2); color: var(--ink); }
+  .btn.danger { background: #b3432b; color: #fff; }
+  .btn.sm { font-size: 12.5px; padding: 5px 10px; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  table.list { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.list th { text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 5px 8px; border-bottom: 1px solid var(--line); }
+  table.list td { padding: 6px 8px; border-bottom: 1px solid #efede4; }
+  .scroll { max-height: 380px; overflow-y: auto; }
+  .chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 12px; padding: 2px 9px; }
+  .chip.on { background: #dcefe2; color: #21622f; }
+  .chip.off { background: #eceadf; color: var(--muted); }
+  .chip.lock { background: #fbe4dc; color: #a33c1b; }
+
+  .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; transition: border-color .15s; }
+  .drop:hover, .drop.over { border-color: var(--clay); color: var(--clay); }
+  .preview { margin-top: 12px; }
+  .sheetcard { border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; margin-bottom: 10px; background: #fbfaf5; }
+  .sheetcard h4 { font-family: var(--disp); font-size: 16px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .sheetcard .meta { font-size: 12.5px; color: var(--muted); margin: 3px 0 8px; }
+  .ok { color: #21622f; } .warn { color: #a33c1b; }
+  .result { margin-top: 10px; font-size: 13.5px; background: #dcefe2; color: #21622f; border-radius: 9px; padding: 9px 12px; }
+  .err { margin-top: 10px; font-size: 13.5px; background: #fbe4dc; color: #a33c1b; border-radius: 9px; padding: 9px 12px; }
+
+  .log { font-size: 12.5px; }
+  .log .li { padding: 6px 2px; border-bottom: 1px solid #efede4; display: flex; gap: 8px; }
+  .log .t { color: var(--muted); white-space: nowrap; }
+  .log .a { font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.06em; color: var(--clay); padding-top: 2px; }
+
+  #gate { position: fixed; inset: 0; background: var(--pine); display: flex; align-items: center; justify-content: center; z-index: 99; }
+  .gatebox { background: var(--white); border-radius: 16px; padding: 28px; width: 92%; max-width: 360px; text-align: center; }
+  .gatebox h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .gatebox p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; }
+  .gatebox input { width: 100%; text-align: center; font-size: 24px; letter-spacing: 0.4em; }
+  .gatebox .btn { width: 100%; margin-top: 12px; font-size: 17px; padding: 12px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="gate">
+    <div class="gatebox">
+      <h2>League Admin</h2>
+      <p>Enter the admin PIN to manage fields, teams, windows, and imports.</p>
+      <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" />
+      <button class="btn" id="pinGo">Open the console</button>
+      <p id="pinErr" class="warn hidden" style="margin-top:10px;">That PIN didn't work.</p>
+    </div>
+  </div>
+
+  <header>
+    <div class="head-inner">
+      <h1>Field <span>Command</span> — Admin</h1>
+      <a class="back" href="/fields/">&larr; Schedule</a>
+    </div>
+  </header>
+  <div class="chalkline"></div>
+
+  <div class="wrap">
+    <div class="tiles" id="tiles"></div>
+
+    <div class="panels">
+      <div class="panel span2">
+        <div class="bar"><h2>Import from Excel</h2></div>
+        <div class="body">
+          <p class="hint">Drop in the league spreadsheet (.xlsx). Schedule tabs and coach-contact tabs are detected automatically — new fields, teams, and coaches are created as needed, so it works even as the league grows.</p>
+          <div class="drop" id="drop">Tap to choose a file, or drag the spreadsheet here</div>
+          <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden" />
+          <div class="preview" id="preview"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h2>Schedule windows</h2></div>
+        <div class="body">
+          <p class="hint">Coaches claim inside a window. Lock a window to freeze it (view-only).</p>
+          <div id="seasonList"></div>
+          <div class="row" style="margin-top:10px;">
+            <input id="nsLabel" placeholder="New window, e.g. Nov 1 – Dec 20" style="flex:1;min-width:170px;" />
+            <button class="btn" id="nsAdd">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h2>League settings</h2></div>
+        <div class="body">
+          <label style="font-size:13px;font-weight:600;">League name</label>
+          <input id="setName" style="width:100%;margin:5px 0 12px;" />
+          <label style="font-size:13px;font-weight:600;">Guideline banner (shown to every coach)</label>
+          <input id="setRules" style="width:100%;margin:5px 0 12px;" />
+          <button class="btn" id="setSave">Save settings</button>
+          <span id="setMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Saved</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h2>Fields</h2><button class="btn sm clay" id="fAdd">+ Field</button></div>
+        <div class="body scroll" id="fieldList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h2>Teams &amp; coaches</h2><button class="btn sm clay" id="tAdd">+ Team</button></div>
+        <div class="body scroll" id="teamList"></div>
+      </div>
+
+      <div class="panel span2">
+        <div class="bar"><h2>Activity</h2><button class="btn sm ghost" id="csvBtn">Download schedule CSV</button></div>
+        <div class="body scroll log" id="logList"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+var PIN = sessionStorage.getItem("flm_pin") || "";
+var D = null;
+var DAY_LABELS = { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday", sat_9_11: "Saturday 9-11", sat_11_1: "Saturday 11-1", sat_1_3: "Saturday 1-3", sat_3_5: "Saturday 3-5" };
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function admin(action, body) {
+  return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: JSON.stringify(body || {}) })
+    .then(function (r) { return r.json().then(function (j) { if (!j.ok) throw new Error(j.error || "failed"); return j; }); });
+}
+
+function boot() {
+  fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) {
+      if (r.status === 401) throw new Error("pin");
+      return r.json();
+    })
+    .then(function (act) {
+      sessionStorage.setItem("flm_pin", PIN);
+      document.getElementById("gate").classList.add("hidden");
+      renderLog(act.activity || []);
+      refresh();
+    })
+    .catch(function () {
+      document.getElementById("pinErr").classList.remove("hidden");
+      sessionStorage.removeItem("flm_pin");
+    });
+}
+document.getElementById("pinGo").addEventListener("click", function () { PIN = document.getElementById("pin").value.trim(); boot(); });
+document.getElementById("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") { PIN = e.target.value.trim(); boot(); } });
+if (PIN) boot();
+
+function refresh() {
+  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+    D = d;
+    renderTiles(); renderSeasons(); renderFields(); renderTeams();
+    document.getElementById("setName").value = d.settings.league_name || "";
+    document.getElementById("setRules").value = d.settings.rules || "";
+  });
+  fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (a) { renderLog(a.activity || []); });
+}
+
+function renderTiles() {
+  var slotBySeason = {};
+  D.slots.forEach(function (s) { slotBySeason[s.season_id] = (slotBySeason[s.season_id] || 0) + 1; });
+  var openNow = 0;
+  D.seasons.forEach(function (sn) {
+    var used = {};
+    D.slots.filter(function (s) { return s.season_id === sn.id; }).forEach(function (s) { used[s.day_key + "|" + s.field_id] = 1; });
+    openNow += (9 * D.fields.filter(function (f) { return f.is_active; }).length) - Object.keys(used).length;
+  });
+  var html = "";
+  html += tile(D.fields.filter(function (f) { return f.is_active; }).length, "Fields");
+  html += tile(D.teams.filter(function (t) { return t.is_active; }).length, "Teams");
+  D.seasons.slice(0, 2).forEach(function (sn) { html += tile(slotBySeason[sn.id] || 0, "Slots · " + sn.label); });
+  html += tile(openNow, "Open field-slots");
+  document.getElementById("tiles").innerHTML = html;
+  function tile(n, l) { return '<div class="tile"><div class="n">' + n + '</div><div class="l">' + esc(l) + "</div></div>"; }
+}
+
+function renderSeasons() {
+  var box = document.getElementById("seasonList");
+  box.innerHTML = D.seasons.map(function (sn) {
+    return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;">' +
+      '<div style="flex:1;font-weight:600;">' + esc(sn.label) + '</div>' +
+      '<span class="chip ' + (sn.locked ? "lock" : "on") + '">' + (sn.locked ? "Locked" : "Open") + "</span>" +
+      '<button class="btn sm ghost" data-lock="' + sn.id + '">' + (sn.locked ? "Unlock" : "Lock") + "</button>" +
+      '<button class="btn sm danger" data-del="' + sn.id + '">Delete</button></div>';
+  }).join("");
+  box.querySelectorAll("[data-lock]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var sn = D.seasons.filter(function (x) { return x.id === b.getAttribute("data-lock"); })[0];
+      admin("admin_upsert_season", { id: sn.id, locked: !sn.locked }).then(refresh);
+    });
+  });
+  box.querySelectorAll("[data-del]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var sn = D.seasons.filter(function (x) { return x.id === b.getAttribute("data-del"); })[0];
+      if (confirm('Delete the window "' + sn.label + '" and ALL its slots? This cannot be undone.')) {
+        admin("admin_delete_season", { id: sn.id }).then(refresh);
+      }
+    });
+  });
+}
+document.getElementById("nsAdd").addEventListener("click", function () {
+  var v = document.getElementById("nsLabel").value.trim();
+  if (!v) return;
+  admin("admin_upsert_season", { label: v, sort: D.seasons.length }).then(function () { document.getElementById("nsLabel").value = ""; refresh(); });
+});
+
+document.getElementById("setSave").addEventListener("click", function () {
+  admin("admin_settings", { league_name: document.getElementById("setName").value.trim(), rules: document.getElementById("setRules").value.trim() })
+    .then(function () { var m = document.getElementById("setMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 1800); refresh(); });
+});
+
+function renderFields() {
+  var box = document.getElementById("fieldList");
+  box.innerHTML = '<table class="list"><tbody>' + D.fields.map(function (f) {
+    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + "</td>" +
+      '<td><span class="chip ' + (f.is_active ? "on" : "off") + '">' + (f.is_active ? "Active" : "Hidden") + "</span></td>" +
+      '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-ren="' + f.id + '">Rename</button> ' +
+      '<button class="btn sm ghost" data-tog="' + f.id + '">' + (f.is_active ? "Hide" : "Show") + "</button></td></tr>";
+  }).join("") + "</tbody></table>";
+  box.querySelectorAll("[data-ren]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-ren"); })[0];
+      var nv = prompt("Rename field:", f.name);
+      if (nv && nv.trim() && nv.trim() !== f.name) admin("admin_upsert_field", { id: f.id, name: nv.trim() }).then(refresh);
+    });
+  });
+  box.querySelectorAll("[data-tog]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-tog"); })[0];
+      admin("admin_upsert_field", { id: f.id, name: f.name, is_active: !f.is_active }).then(refresh);
+    });
+  });
+}
+document.getElementById("fAdd").addEventListener("click", function () {
+  var nv = prompt("New field name (e.g. AY#6, VICTOR FALLS SOUTH):");
+  if (nv && nv.trim()) admin("admin_upsert_field", { name: nv.trim(), sort: D.fields.length }).then(refresh);
+});
+
+function renderTeams() {
+  var box = document.getElementById("teamList");
+  box.innerHTML = '<table class="list"><thead><tr><th>Team</th><th>Coach</th><th>Division</th><th></th></tr></thead><tbody>' +
+    D.teams.map(function (t) {
+      return "<tr><td style=\"font-weight:600;\">" + esc(t.name) + "</td><td>" + esc(t.coach_name) + (t.coach_phone ? "<br /><span style=\"color:var(--muted)\">" + esc(t.coach_phone) + "</span>" : "") + "</td><td>" + esc(t.division) + "</td>" +
+        '<td style="text-align:right;"><button class="btn sm ghost" data-edit="' + t.id + '">Edit</button></td></tr>';
+    }).join("") + "</tbody></table>";
+  box.querySelectorAll("[data-edit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var t = D.teams.filter(function (x) { return x.id === b.getAttribute("data-edit"); })[0];
+      var name = prompt("Team name:", t.name); if (name == null) return;
+      var coach = prompt("Coach name:", t.coach_name); if (coach == null) return;
+      var phone = prompt("Coach phone:", t.coach_phone); if (phone == null) return;
+      var div = prompt("Division (e.g. Majors BB, Minors A SB):", t.division); if (div == null) return;
+      admin("admin_upsert_team", { id: t.id, name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
+    });
+  });
+}
+document.getElementById("tAdd").addEventListener("click", function () {
+  var name = prompt("Team name (e.g. Smith — Minors BB):"); if (!name || !name.trim()) return;
+  var coach = prompt("Coach name:") || "";
+  var phone = prompt("Coach phone:") || "";
+  var div = prompt("Division (e.g. Majors BB, Minors A SB):") || "";
+  admin("admin_upsert_team", { name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
+});
+
+function renderLog(items) {
+  document.getElementById("logList").innerHTML = items.map(function (a) {
+    var t = new Date(a.created_at);
+    return '<div class="li"><span class="t">' + t.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + '</span><span class="a">' + esc(a.action) + "</span><span>" + esc(a.detail) + "</span></div>";
+  }).join("") || '<div class="hint">No activity yet.</div>';
+}
+
+/* ---------- CSV export ---------- */
+document.getElementById("csvBtn").addEventListener("click", function () {
+  if (!D) return;
+  var rows = [["Window", "Day", "Field", "Team", "Coach", "Phone", "Division", "Note"]];
+  D.seasons.forEach(function (sn) {
+    D.slots.filter(function (s) { return s.season_id === sn.id; }).forEach(function (s) {
+      var f = D.fields.filter(function (x) { return x.id === s.field_id; })[0] || {};
+      var t = D.teams.filter(function (x) { return x.id === s.team_id; })[0] || {};
+      rows.push([sn.label, DAY_LABELS[s.day_key] || s.day_key, f.name || "", t.name || s.label, t.coach_name || "", t.coach_phone || "", t.division || "", s.note || ""]);
+    });
+  });
+  var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "field-schedule.csv";
+  a.click();
+});
+
+/* ---------- Excel import ---------- */
+var drop = document.getElementById("drop"), fileInput = document.getElementById("file");
+drop.addEventListener("click", function () { fileInput.click(); });
+drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", function () { drop.classList.remove("over"); });
+drop.addEventListener("drop", function (e) { e.preventDefault(); drop.classList.remove("over"); if (e.dataTransfer.files[0]) parseFile(e.dataTransfer.files[0]); });
+fileInput.addEventListener("change", function () { if (fileInput.files[0]) parseFile(fileInput.files[0]); });
+
+var DAY_MAP = { monday: "mon", tuesday: "tue", wednesday: "wed", thursday: "thu", friday: "fri" };
+function satKey(txt) {
+  var t = txt.replace(/\s/g, "").toLowerCase();
+  if (/9-?11/.test(t)) return "sat_9_11";
+  if (/11-?1(pm)?$/.test(t) || /11-?1pm/.test(t)) return "sat_11_1";
+  if (/\b1-?3/.test(t) || /y1-?3/.test(t)) return "sat_1_3";
+  if (/3-?5/.test(t)) return "sat_3_5";
+  return null;
+}
+
+function parseFile(file) {
+  var reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      var wbk = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
+      var parsed = wbk.SheetNames.map(function (name) { return parseSheet(name, XLSX.utils.sheet_to_json(wbk.Sheets[name], { header: 1, defval: null })); });
+      renderPreview(parsed);
+    } catch (err) {
+      document.getElementById("preview").innerHTML = '<div class="err">Could not read that file: ' + esc(err.message) + "</div>";
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function parseSheet(name, rows) {
+  if (!rows.length) return { name: name, type: "empty" };
+  var head = (rows[0] || []).map(function (c) { return c == null ? "" : String(c).trim(); });
+  // Contact-list sheet: has Division / Head Coach headers
+  if (head.some(function (h) { return /head\s*coach/i.test(h); }) || /division/i.test(head[0] || "")) {
+    var contacts = [], division = "";
+    rows.slice(1).forEach(function (r) {
+      var a = r[0] != null ? String(r[0]).trim() : "", b = r[1] != null ? String(r[1]).trim() : "", c = r[2] != null ? String(r[2]).trim() : "";
+      if (a) division = a;
+      if (b) contacts.push({ coach_name: b, coach_phone: c, division: division, name: b.split(" ").pop() + " — " + division });
+    });
+    return { name: name, type: "contacts", contacts: contacts };
+  }
+  // Schedule sheet: first header cell says Date (or first column holds day names)
+  var fields = [], colField = {};
+  head.forEach(function (h, i) { if (i > 0 && h) { fields.push(h); colField[i] = h; } });
+  var slots = [];
+  rows.slice(1).forEach(function (r) {
+    var day = r[0] != null ? String(r[0]).trim().toLowerCase() : "";
+    var dk = DAY_MAP[day] || (day.indexOf("saturday") === 0 ? satKey(day) : null);
+    if (!dk) return;
+    r.forEach(function (cell, i) {
+      if (i > 0 && cell != null && String(cell).trim() && colField[i]) {
+        slots.push({ day_key: dk, field_name: colField[i], label: String(cell).trim().replace(/\s+/g, " ") });
+      }
+    });
+  });
+  if (!slots.length && !fields.length) return { name: name, type: "empty" };
+  return { name: name, type: "schedule", fields: fields, slots: slots };
+}
+
+function matchTeams(slots) {
+  // best-effort link each label to an existing team: exact name, then coach-surname containment
+  var teams = (D && D.teams) || [];
+  slots.forEach(function (s) {
+    var n = s.label.toLowerCase();
+    var hit = teams.filter(function (t) { return t.name.toLowerCase() === n; })[0];
+    if (!hit) {
+      hit = teams.filter(function (t) {
+        if (!t.coach_name) return false;
+        var last = t.coach_name.split(" ").pop().toLowerCase();
+        if (last.length < 4 || n.indexOf(last) < 0) return false;
+        // baseball/softball disambiguation when the label says so
+        var isSB = /\bsb\b/.test(n) || /softball/.test(n);
+        var isBB = /\bbb\b/.test(n) || /baseball/.test(n);
+        if (isSB && /BB/.test(t.division)) return false;
+        if (isBB && /SB/.test(t.division)) return false;
+        return true;
+      })[0];
+    }
+    if (!hit) {
+      hit = teams.filter(function (t) { var w = t.name.split(" — ")[0].toLowerCase(); return w.length > 3 && n.indexOf(w) === 0; })[0];
+    }
+    s.team_name = hit ? hit.name : "";
+  });
+  return slots;
+}
+
+function renderPreview(parsed) {
+  var box = document.getElementById("preview");
+  var html = "";
+  parsed.forEach(function (p, idx) {
+    if (p.type === "empty") return;
+    if (p.type === "contacts") {
+      html += '<div class="sheetcard"><h4>' + esc(p.name) + " — coach contact list</h4>" +
+        '<div class="meta">' + p.contacts.length + " coaches with phone numbers. Existing teams update, new coaches get a team card.</div>" +
+        '<button class="btn clay" data-imp-contacts="' + idx + '">Import coaches</button><span class="hidden ok" data-done="' + idx + '" style="margin-left:8px;">Done</span></div>';
+    } else {
+      var linked = matchTeams(p.slots).filter(function (s) { return s.team_name; }).length;
+      html += '<div class="sheetcard"><h4>' + esc(p.name) + " — schedule grid</h4>" +
+        '<div class="meta">' + p.slots.length + " filled slots across " + p.fields.length + " fields. " + linked + " matched to existing teams" + (p.slots.length - linked ? ", <span class=\"warn\">" + (p.slots.length - linked) + " new</span>" : "") + ".</div>" +
+        '<div class="row">' +
+        '<input data-label="' + idx + '" value="' + esc(p.name) + '" title="Window name" style="min-width:150px;" />' +
+        '<select data-mode="' + idx + '"><option value="replace">Replace this window\'s schedule</option><option value="merge">Add on top (merge)</option></select>' +
+        '<button class="btn clay" data-imp-sched="' + idx + '">Import schedule</button><span class="hidden ok" data-done="' + idx + '"></span>' +
+        "</div></div>";
+    }
+  });
+  box.innerHTML = html || '<div class="err">No usable tabs found in that file.</div>';
+  box.querySelectorAll("[data-imp-contacts]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var p = parsed[+b.getAttribute("data-imp-contacts")];
+      b.disabled = true; b.textContent = "Importing…";
+      admin("admin_import", { contacts_only: true, teams: p.contacts })
+        .then(function (r) { b.textContent = "Imported"; showDone(b, r.summary); refresh(); })
+        .catch(function (e) { b.disabled = false; b.textContent = "Import coaches"; alert(e.message); });
+    });
+  });
+  box.querySelectorAll("[data-imp-sched]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var idx = +b.getAttribute("data-imp-sched");
+      var p = parsed[idx];
+      var label = box.querySelector('[data-label="' + idx + '"]').value.trim() || p.name;
+      var mode = box.querySelector('[data-mode="' + idx + '"]').value;
+      if (mode === "replace" && !confirm('Replace the whole schedule for "' + label + '" with this sheet?')) return;
+      b.disabled = true; b.textContent = "Importing…";
+      admin("admin_import", { season: { label: label }, mode: mode, fields: p.fields, slots: p.slots })
+        .then(function (r) { b.textContent = "Imported"; showDone(b, r.summary); refresh(); })
+        .catch(function (e) { b.disabled = false; b.textContent = "Import schedule"; alert(e.message); });
+    });
+  });
+  function showDone(btn, s) {
+    var el = btn.parentElement.querySelector("[data-done]") || btn.nextElementSibling;
+    if (el) { el.classList.remove("hidden"); el.textContent = " +" + (s.slots_created || 0) + " slots, +" + (s.fields_created || 0) + " fields, +" + (s.teams_created || 0) + " teams" + (s.slots_removed ? ", " + s.slots_removed + " replaced" : ""); }
+  }
+}
+</script>
+</body>
+</html>

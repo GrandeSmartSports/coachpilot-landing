@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Field Command — League Field Manager</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --clay-dark: #a8571d;
+    --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #ffffff;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--chalk); color: var(--ink); }
+  body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  header { background: linear-gradient(160deg, var(--pine) 0%, var(--pine-2) 100%); color: var(--chalk); padding: 18px 18px 14px; }
+  .head-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .diamond { width: 40px; height: 40px; flex: 0 0 40px; }
+  .brand h1 { font-family: var(--disp); font-weight: 700; font-size: 30px; line-height: 0.95; letter-spacing: 0.03em; text-transform: uppercase; }
+  .brand .sub { font-family: var(--disp); font-weight: 500; font-size: 13.5px; letter-spacing: 0.22em; text-transform: uppercase; color: #b7cfc2; }
+  .me { display: flex; align-items: center; gap: 8px; }
+  .me .who { background: rgba(244,241,232,0.12); border: 1px solid rgba(244,241,232,0.25); color: var(--chalk); border-radius: 22px; padding: 8px 16px; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .me .who b { color: #ffd9b8; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 46px, var(--chalk) 46px 58px); }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 16px 14px 60px; }
+
+  .rules { background: var(--white); border: 1px solid var(--line); border-left: 5px solid var(--clay); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 15px; font-size: 14px; color: #3c463f; margin-bottom: 14px; }
+  .rules b { color: var(--ink); }
+
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--white); color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; }
+  .tab.on { background: var(--pine); color: var(--chalk); border-color: var(--pine); }
+  .tab .lock { font-size: 12px; }
+  .views { display: flex; gap: 6px; }
+  .vbtn { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+  .vbtn.on { background: var(--clay); border-color: var(--clay); color: #fff; }
+
+  .legend { display: flex; gap: 6px 12px; flex-wrap: wrap; margin: 2px 2px 12px; }
+  .lg { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .lg i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  /* ---------- GRID VIEW ---------- */
+  .grid-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
+  table.grid { border-collapse: separate; border-spacing: 0; min-width: 100%; }
+  table.grid th, table.grid td { border-bottom: 1px solid #eceadf; border-right: 1px solid #eceadf; padding: 0; vertical-align: top; }
+  table.grid thead th { background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 10px; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+  table.grid thead th:first-child { left: 0; z-index: 3; }
+  table.grid td.day, table.grid th.day { position: sticky; left: 0; background: var(--chalk-2); font-family: var(--disp); font-weight: 700; font-size: 14.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink); padding: 12px 12px; white-space: nowrap; z-index: 1; border-right: 2px solid var(--line); }
+  td.cell { min-width: 128px; max-width: 170px; }
+  .cellbox { min-height: 52px; padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+  .chip { border-radius: 8px; padding: 5px 8px 4px; font-size: 12.5px; font-weight: 600; line-height: 1.25; border-left: 4px solid var(--muted); background: #f1f0ea; color: var(--ink); cursor: pointer; }
+  .chip small { display: block; font-weight: 500; font-size: 10.5px; color: var(--muted); }
+  .chip.mine { outline: 2px solid var(--clay); }
+  .open { border: 1.5px dashed #cfcaba; border-radius: 8px; color: #b9b3a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; padding: 8px 4px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; }
+  .open:hover { border-color: var(--clay); color: var(--clay); }
+  body.locked .open { cursor: default; }
+  body.locked .open:hover { border-color: #cfcaba; color: #b9b3a0; }
+
+  /* ---------- DAY VIEW ---------- */
+  .daypick { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; }
+  .dp { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--white); color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 8px 13px; white-space: nowrap; }
+  .dp.on { background: var(--pine); color: var(--chalk); border-color: var(--pine); }
+  .fieldlist { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  @media (min-width: 760px) { .fieldlist { grid-template-columns: 1fr 1fr; } }
+  .frow { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 14px; display: flex; align-items: center; gap: 12px; }
+  .frow .fname { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.03em; text-transform: uppercase; flex: 1 1 40%; min-width: 0; }
+  .frow .occ { flex: 1 1 60%; display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .frow .occ .chip { width: 100%; text-align: left; }
+  .frow .occ .open { width: 100%; }
+
+  /* ---------- TEAMS VIEW ---------- */
+  .teamgrid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 680px) { .teamgrid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1020px) { .teamgrid { grid-template-columns: 1fr 1fr 1fr; } }
+  .tcard { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 13px 15px; border-top: 4px solid var(--muted); }
+  .tcard .tname { font-family: var(--disp); font-weight: 700; font-size: 18px; letter-spacing: 0.02em; }
+  .tcard .tmeta { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+  .tcard ul { list-style: none; margin-top: 8px; }
+  .tcard li { font-size: 13.5px; padding: 2px 0; color: #3c463f; }
+  .tcard li b { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.03em; }
+  .status { display: inline-block; margin-top: 9px; font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 14px; padding: 3px 11px; }
+  .status.ok { background: #dcefe2; color: #21622f; }
+  .status.under { background: #fdf1dc; color: #8a5a12; }
+  .status.over { background: #fbe4dc; color: #a33c1b; }
+  .status.none { background: #eceadf; color: var(--muted); }
+
+  /* ---------- MODAL ---------- */
+  .veil { position: fixed; inset: 0; background: rgba(20, 32, 26, 0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  @media (min-width: 640px) { .veil { align-items: center; } }
+  .modal { background: var(--white); border-radius: 18px 18px 0 0; width: 100%; max-width: 480px; padding: 20px 20px 26px; }
+  @media (min-width: 640px) { .modal { border-radius: 18px; } }
+  .modal h3 { font-family: var(--disp); font-weight: 700; font-size: 21px; letter-spacing: 0.02em; text-transform: uppercase; margin-bottom: 4px; }
+  .modal .ctx { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+  .modal label { display: block; font-weight: 600; font-size: 13.5px; margin: 12px 0 6px; }
+  .modal select, .modal input { width: 100%; font-size: 16px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; background: var(--white); color: var(--ink); }
+  .modal select:focus, .modal input:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201, 111, 47, 0.18); }
+  .mbtns { display: flex; gap: 9px; margin-top: 18px; }
+  .mb { flex: 1; font-family: var(--disp); font-weight: 600; font-size: 16.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 11px; padding: 13px; border: none; }
+  .mb.go { background: var(--pine); color: var(--chalk); }
+  .mb.warn { background: var(--clay); color: #fff; }
+  .mb.quiet { background: var(--chalk-2); color: var(--ink); }
+  .mb.danger { background: #b3432b; color: #fff; }
+  .merr { color: #b3261e; font-size: 13.5px; margin-top: 10px; }
+  .shared-note { background: #fdf1dc; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: #6b4a12; margin-top: 12px; }
+
+  .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; padding: 11px 22px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 60; }
+
+  .hidden { display: none !important; }
+  footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 30px 16px 40px; }
+  footer .f1 { font-family: var(--disp); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--grass); }
+  .loading { text-align: center; color: var(--muted); padding: 60px 0; font-family: var(--disp); font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="head-inner">
+      <div class="brand">
+        <svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0b2e24"/><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="#f4f1e8" stroke-width="5"/><path d="M50 38 L62 50 L50 62 L38 50 Z" fill="#c96f2f"/></svg>
+        <div>
+          <h1 id="leagueName">Field Command</h1>
+          <div class="sub">League Field Manager</div>
+        </div>
+      </div>
+      <div class="me"><button class="who" id="whoBtn">I'm a coach — pick my team</button></div>
+    </div>
+  </header>
+  <div class="chalkline"></div>
+
+  <div class="wrap">
+    <div class="rules" id="rulesBox" style="display:none"></div>
+
+    <div class="bar">
+      <div class="tabs" id="seasonTabs"></div>
+      <div class="views">
+        <button class="vbtn" data-view="days">By day</button>
+        <button class="vbtn" data-view="grid">Full grid</button>
+        <button class="vbtn" data-view="teams">Teams</button>
+      </div>
+    </div>
+
+    <div class="legend" id="legend"></div>
+
+    <div id="loading" class="loading">Loading the fields&hellip;</div>
+    <div id="viewGrid" class="hidden"><div class="grid-scroll"><table class="grid" id="gridTable"></table></div></div>
+    <div id="viewDays" class="hidden">
+      <div class="daypick" id="dayPick"></div>
+      <div class="fieldlist" id="fieldList"></div>
+    </div>
+    <div id="viewTeams" class="hidden"><div class="teamgrid" id="teamGrid"></div></div>
+  </div>
+
+  <footer><span class="f1">Field Command</span><br />Built for our league by CoachPilot &middot; <a href="/fields/admin.html" style="text-decoration:underline">League admin</a></footer>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+var DAYS = [
+  { k: "mon", label: "Monday", sat: false }, { k: "tue", label: "Tuesday", sat: false },
+  { k: "wed", label: "Wednesday", sat: false }, { k: "thu", label: "Thursday", sat: false },
+  { k: "fri", label: "Friday", sat: false },
+  { k: "sat_9_11", label: "Saturday 9–11", sat: true }, { k: "sat_11_1", label: "Saturday 11–1", sat: true },
+  { k: "sat_1_3", label: "Saturday 1–3", sat: true }, { k: "sat_3_5", label: "Saturday 3–5", sat: true }
+];
+var DIV_COLORS = {
+  "Majors BB": "#1d4ed8", "Minors BB": "#0e7490", "AA BB": "#7c3aed", "CP BB": "#475569",
+  "TBall": "#92400e", "Majors SB": "#be185d", "Minors A SB": "#c2410c", "Minors B SB": "#ca8a04", "": "#6d7a72"
+};
+var S = { data: null, season: null, view: localStorage.getItem("flm_view") || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: localStorage.getItem("flm_team") || "" };
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function divColor(team) { return DIV_COLORS[team && team.division ? team.division : ""] || DIV_COLORS[""]; }
+function tint(hex) { return hex + "1a"; }
+function teamById(id) { return (S.data.teams || []).filter(function (t) { return t.id === id; })[0] || null; }
+function fieldById(id) { return (S.data.fields || []).filter(function (f) { return f.id === id; })[0] || null; }
+function seasonObj() { return (S.data.seasons || []).filter(function (x) { return x.id === S.season; })[0] || null; }
+function dayLabel(k) { var d = DAYS.filter(function (x) { return x.k === k; })[0]; return d ? d.label : k; }
+function slotsFor(dayK, fieldId) {
+  return (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.day_key === dayK && s.field_id === fieldId; });
+}
+
+function load() {
+  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+    if (!d.ok) throw new Error("bad state");
+    S.data = d;
+    if (!S.season || !d.seasons.some(function (x) { return x.id === S.season; })) {
+      var remembered = localStorage.getItem("flm_season");
+      S.season = (d.seasons.some(function (x) { return x.id === remembered; }) ? remembered : (d.seasons[0] || {}).id) || null;
+    }
+    document.getElementById("loading").classList.add("hidden");
+    renderAll();
+  }).catch(function () {
+    document.getElementById("loading").textContent = "Could not load. Check your connection and refresh.";
+  });
+}
+
+function renderAll() {
+  var d = S.data;
+  document.getElementById("leagueName").textContent = d.settings.league_name || "Field Command";
+  document.title = (d.settings.league_name || "Field Command") + " — Field Manager";
+  var rb = document.getElementById("rulesBox");
+  if (d.settings.rules) { rb.style.display = ""; rb.innerHTML = "<b>League guideline:</b> " + esc(d.settings.rules); }
+  renderWho(); renderSeasons(); renderLegend(); renderView();
+  var sn = seasonObj();
+  document.body.classList.toggle("locked", !!(sn && sn.locked));
+}
+
+function renderWho() {
+  var btn = document.getElementById("whoBtn");
+  var t = teamById(S.myTeam);
+  btn.innerHTML = t ? "Coaching: <b>" + esc(t.name) + "</b>" : "I'm a coach — pick my team";
+}
+
+function renderSeasons() {
+  var box = document.getElementById("seasonTabs");
+  box.innerHTML = "";
+  (S.data.seasons || []).forEach(function (sn) {
+    var b = document.createElement("button");
+    b.className = "tab" + (sn.id === S.season ? " on" : "");
+    b.innerHTML = esc(sn.label) + (sn.locked ? ' <span class="lock">🔒</span>' : "");
+    b.addEventListener("click", function () { S.season = sn.id; localStorage.setItem("flm_season", sn.id); renderAll(); });
+    box.appendChild(b);
+  });
+  var vb = document.querySelectorAll(".vbtn");
+  for (var i = 0; i < vb.length; i++) {
+    vb[i].classList.toggle("on", vb[i].getAttribute("data-view") === S.view);
+    vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); localStorage.setItem("flm_view", S.view); renderAll(); }; })(vb[i]);
+  }
+}
+
+function renderLegend() {
+  var used = {};
+  (S.data.teams || []).forEach(function (t) { if (t.division) used[t.division] = 1; });
+  var box = document.getElementById("legend");
+  box.innerHTML = Object.keys(DIV_COLORS).filter(function (k) { return k && used[k]; })
+    .map(function (k) { return '<span class="lg"><i style="background:' + DIV_COLORS[k] + '"></i>' + esc(k) + "</span>"; }).join("");
+}
+
+function chipHtml(slot) {
+  var t = teamById(slot.team_id);
+  var c = divColor(t);
+  var mine = S.myTeam && slot.team_id === S.myTeam;
+  var extra = slot.note ? "<small>" + esc(slot.note) + "</small>" : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? "<small>" + esc(t.coach_name) + "</small>" : "");
+  return '<div class="chip' + (mine ? " mine" : "") + '" data-slot="' + slot.id + '" style="border-left-color:' + c + ";background:" + tint(c) + '">' + esc(t ? t.name : slot.label) + extra + "</div>";
+}
+
+function bindCells(root) {
+  root.querySelectorAll(".chip[data-slot]").forEach(function (el) {
+    el.addEventListener("click", function () { openSlotModal(el.getAttribute("data-slot")); });
+  });
+  root.querySelectorAll(".open[data-day]").forEach(function (el) {
+    el.addEventListener("click", function () { openClaimModal(el.getAttribute("data-day"), el.getAttribute("data-field")); });
+  });
+}
+
+function renderView() {
+  ["viewGrid", "viewDays", "viewTeams"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
+  if (!S.data || !S.season) return;
+  if (S.view === "grid") renderGrid();
+  else if (S.view === "days") renderDays();
+  else renderTeams();
+}
+
+function renderGrid() {
+  var el = document.getElementById("viewGrid");
+  el.classList.remove("hidden");
+  var fields = (S.data.fields || []).filter(function (f) { return f.is_active; });
+  var html = "<thead><tr><th class=\"day\">Day</th>";
+  fields.forEach(function (f) { html += "<th>" + esc(f.name) + "</th>"; });
+  html += "</tr></thead><tbody>";
+  DAYS.forEach(function (d) {
+    html += '<tr><td class="day">' + d.label + "</td>";
+    fields.forEach(function (f) {
+      var ss = slotsFor(d.k, f.id);
+      html += '<td class="cell"><div class="cellbox">';
+      ss.forEach(function (s) { html += chipHtml(s); });
+      html += '<div class="open" data-day="' + d.k + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open") + "</div>";
+      html += "</div></td>";
+    });
+    html += "</tr>";
+  });
+  html += "</tbody>";
+  document.getElementById("gridTable").innerHTML = html;
+  bindCells(el);
+}
+
+function renderDays() {
+  var el = document.getElementById("viewDays");
+  el.classList.remove("hidden");
+  var dp = document.getElementById("dayPick");
+  dp.innerHTML = "";
+  DAYS.forEach(function (d) {
+    var b = document.createElement("button");
+    b.className = "dp" + (d.k === S.day ? " on" : "");
+    b.textContent = d.label;
+    b.addEventListener("click", function () { S.day = d.k; renderDays(); });
+    dp.appendChild(b);
+  });
+  var list = document.getElementById("fieldList");
+  var html = "";
+  (S.data.fields || []).filter(function (f) { return f.is_active; }).forEach(function (f) {
+    var ss = slotsFor(S.day, f.id);
+    html += '<div class="frow"><div class="fname">' + esc(f.name) + '</div><div class="occ">';
+    ss.forEach(function (s) { html += chipHtml(s); });
+    html += '<div class="open" data-day="' + S.day + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open — tap to claim") + "</div>";
+    html += "</div></div>";
+  });
+  list.innerHTML = html;
+  bindCells(el);
+}
+
+function teamCompliance(teamId) {
+  var mine = (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.team_id === teamId; });
+  var wk = {}, sat = 0;
+  mine.forEach(function (s) { if (s.day_key.indexOf("sat") === 0) sat++; else wk[s.day_key] = 1; });
+  var wkN = Object.keys(wk).length, total = mine.length;
+  if (total === 0) return { cls: "none", txt: "No slots yet", slots: mine };
+  var monFri = wk.mon && wk.fri && wkN === 2 && sat === 0;
+  if ((wkN === 1 && sat === 1 && total === 2) || (monFri && total === 2)) return { cls: "ok", txt: "On guideline (2 slots)", slots: mine };
+  if (total < 2) return { cls: "under", txt: wkN ? "Needs a Saturday (or Mon+Fri)" : "Needs a weekday", slots: mine };
+  return { cls: "over", txt: total + " slots — above the guideline", slots: mine };
+}
+
+function renderTeams() {
+  var el = document.getElementById("viewTeams");
+  el.classList.remove("hidden");
+  var box = document.getElementById("teamGrid");
+  var html = "";
+  (S.data.teams || []).filter(function (t) { return t.is_active; }).forEach(function (t) {
+    var c = teamCompliance(t.id);
+    if (c.cls === "none" && !t.coach_name) return;
+    var lis = c.slots.map(function (s) {
+      var f = fieldById(s.field_id);
+      return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> — " + esc(f ? f.name : "?") + (s.note ? " <span style=\"color:var(--muted)\">(" + esc(s.note) + ")</span>" : "") + "</li>";
+    }).join("");
+    html += '<div class="tcard" style="border-top-color:' + divColor(t) + '">' +
+      '<div class="tname">' + esc(t.name) + "</div>" +
+      '<div class="tmeta">' + esc([t.division, t.coach_name, t.coach_phone].filter(Boolean).join(" · ")) + "</div>" +
+      "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots this window.</li>') + "</ul>" +
+      '<span class="status ' + c.cls + '">' + c.txt + "</span></div>";
+  });
+  box.innerHTML = html;
+}
+
+/* ---------- modals ---------- */
+function modal(html) {
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  veil.innerHTML = '<div class="modal">' + html + "</div>";
+  veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+  document.body.appendChild(veil);
+  return veil;
+}
+function toast(msg) {
+  var t = document.createElement("div");
+  t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function () { t.remove(); }, 2600);
+}
+
+function pickTeamModal(next) {
+  var opts = (S.data.teams || []).filter(function (t) { return t.is_active; })
+    .map(function (t) { return '<option value="' + t.id + '"' + (t.id === S.myTeam ? " selected" : "") + ">" + esc(t.name + (t.coach_name ? " — " + t.coach_name : "")) + "</option>"; }).join("");
+  var v = modal("<h3>Who are you coaching?</h3><div class=\"ctx\">Pick your team once — this device remembers it. Every claim is logged with your team name.</div>" +
+    '<select id="mTeam"><option value="">Select your team</option>' + opts + "</select>" +
+    '<div class="mbtns"><button class="mb quiet" id="mCancel">Cancel</button><button class="mb go" id="mSave">That\'s me</button></div>');
+  v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#mSave").addEventListener("click", function () {
+    var val = v.querySelector("#mTeam").value;
+    if (!val) return;
+    S.myTeam = val; localStorage.setItem("flm_team", val);
+    v.remove(); renderAll();
+    if (next) next();
+  });
+}
+
+function openClaimModal(dayK, fieldId) {
+  var sn = seasonObj();
+  if (sn && sn.locked) { toast("This window is locked by the league"); return; }
+  if (!S.myTeam || !teamById(S.myTeam)) { pickTeamModal(function () { openClaimModal(dayK, fieldId); }); return; }
+  var t = teamById(S.myTeam), f = fieldById(fieldId);
+  var existing = slotsFor(dayK, fieldId);
+  var shareNote = existing.length ? '<div class="shared-note">This slot already has <b>' + esc(existing.map(function (s) { var tt = teamById(s.team_id); return tt ? tt.name : s.label; }).join(", ")) + "</b>. Claiming it means sharing the field — the league encourages joint practices and scrimmages within your division.</div>" : "";
+  var v = modal("<h3>Claim this slot</h3><div class=\"ctx\"><b>" + esc(t.name) + "</b> &rarr; " + esc(dayLabel(dayK)) + " at <b>" + esc(f ? f.name : "") + "</b></div>" +
+    shareNote +
+    '<label for="mNote">Note (optional)</label><input id="mNote" maxlength="60" placeholder="e.g. @ 5:30, starting 8/26" />' +
+    '<div class="mbtns"><button class="mb quiet" id="mCancel">Cancel</button><button class="mb ' + (existing.length ? "warn" : "go") + '" id="mGo">' + (existing.length ? "Share the field" : "Claim it") + "</button></div><div class=\"merr hidden\" id=\"mErr\"></div>");
+  v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#mGo").addEventListener("click", function () {
+    var btn = v.querySelector("#mGo"); btn.disabled = true; btn.textContent = "Saving…";
+    fetch(API + "?action=claim", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error || "failed");
+        v.remove(); toast("Slot claimed — you're on the schedule");
+        load();
+      })
+      .catch(function (e) {
+        btn.disabled = false; btn.textContent = existing.length ? "Share the field" : "Claim it";
+        var err = v.querySelector("#mErr"); err.textContent = String(e.message || e).replace("Error: ", ""); err.classList.remove("hidden");
+      });
+  });
+}
+
+function openSlotModal(slotId) {
+  var slot = (S.data.slots || []).filter(function (s) { return s.id === slotId; })[0];
+  if (!slot) return;
+  var t = teamById(slot.team_id), f = fieldById(slot.field_id);
+  var mine = S.myTeam && slot.team_id === S.myTeam;
+  var sn = seasonObj();
+  var body = "<h3>" + esc(t ? t.name : slot.label) + "</h3><div class=\"ctx\">" + esc(dayLabel(slot.day_key)) + " at <b>" + esc(f ? f.name : "") + "</b>" +
+    (slot.note ? "<br />Note: " + esc(slot.note) : "") +
+    (t && t.coach_name ? "<br />Coach: " + esc(t.coach_name) + (t.coach_phone ? " &middot; <a href=\"tel:" + esc(t.coach_phone) + "\" style=\"text-decoration:underline\">" + esc(t.coach_phone) + "</a>" : "") : "") + "</div>";
+  if (mine && !(sn && sn.locked)) {
+    body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button><button class="mb danger" id="mRel">Release this slot</button></div>';
+  } else {
+    body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button></div>';
+  }
+  var v = modal(body);
+  v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
+  var rel = v.querySelector("#mRel");
+  if (rel) rel.addEventListener("click", function () {
+    rel.disabled = true; rel.textContent = "Releasing…";
+    fetch(API + "?action=release", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slot_id: slot.id, team_id: S.myTeam }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (!d.ok) throw new Error(d.error || "failed"); v.remove(); toast("Slot released"); load(); })
+      .catch(function () { rel.disabled = false; rel.textContent = "Release this slot"; });
+  });
+}
+
+document.getElementById("whoBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
+load();
+</script>
+</body>
+</html>
