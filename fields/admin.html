@@ -91,7 +91,7 @@
   <div id="gate">
     <div class="gatebox">
       <h2>League Admin</h2>
-      <p>Enter the admin PIN to manage fields, teams, windows, and imports.</p>
+      <p>Enter the admin PIN to import the schedule and manage the windows.</p>
       <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" />
       <button class="btn" id="pinGo">Open the console</button>
       <p id="pinErr" class="warn hidden" style="margin-top:10px;">That PIN didn't work.</p>
@@ -107,8 +107,6 @@
   <div class="chalkline"></div>
 
   <div class="wrap">
-    <div class="tiles" id="tiles"></div>
-
     <div class="panels">
       <div class="panel span2">
         <div class="bar"><h2>Import from Excel</h2></div>
@@ -144,20 +142,6 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="bar"><h2>Fields</h2><button class="btn sm clay" id="fAdd">+ Field</button></div>
-        <div class="body scroll" id="fieldList"></div>
-      </div>
-
-      <div class="panel">
-        <div class="bar"><h2>Teams &amp; coaches</h2><button class="btn sm clay" id="tAdd">+ Team</button></div>
-        <div class="body scroll" id="teamList"></div>
-      </div>
-
-      <div class="panel span2">
-        <div class="bar"><h2>Activity</h2><button class="btn sm ghost" id="csvBtn">Download schedule CSV</button></div>
-        <div class="body scroll log" id="logList"></div>
-      </div>
     </div>
   </div>
 
@@ -179,10 +163,9 @@ function boot() {
       if (r.status === 401) throw new Error("pin");
       return r.json();
     })
-    .then(function (act) {
+    .then(function () {
       sessionStorage.setItem("flm_pin", PIN);
       document.getElementById("gate").classList.add("hidden");
-      renderLog(act.activity || []);
       refresh();
     })
     .catch(function () {
@@ -197,29 +180,10 @@ if (PIN) boot();
 function refresh() {
   fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams();
+    renderSeasons();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
   });
-  fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (a) { renderLog(a.activity || []); });
-}
-
-function renderTiles() {
-  var slotBySeason = {};
-  D.slots.forEach(function (s) { slotBySeason[s.season_id] = (slotBySeason[s.season_id] || 0) + 1; });
-  var openNow = 0;
-  D.seasons.forEach(function (sn) {
-    var used = {};
-    D.slots.filter(function (s) { return s.season_id === sn.id; }).forEach(function (s) { used[s.day_key + "|" + s.field_id] = 1; });
-    openNow += (9 * D.fields.filter(function (f) { return f.is_active; }).length) - Object.keys(used).length;
-  });
-  var html = "";
-  html += tile(D.fields.filter(function (f) { return f.is_active; }).length, "Fields");
-  html += tile(D.teams.filter(function (t) { return t.is_active; }).length, "Teams");
-  D.seasons.slice(0, 2).forEach(function (sn) { html += tile(slotBySeason[sn.id] || 0, "Slots · " + sn.label); });
-  html += tile(openNow, "Open field-slots");
-  document.getElementById("tiles").innerHTML = html;
-  function tile(n, l) { return '<div class="tile"><div class="n">' + n + '</div><div class="l">' + esc(l) + "</div></div>"; }
 }
 
 function renderSeasons() {
@@ -255,84 +219,6 @@ document.getElementById("nsAdd").addEventListener("click", function () {
 document.getElementById("setSave").addEventListener("click", function () {
   admin("admin_settings", { league_name: document.getElementById("setName").value.trim(), rules: document.getElementById("setRules").value.trim() })
     .then(function () { var m = document.getElementById("setMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 1800); refresh(); });
-});
-
-function renderFields() {
-  var box = document.getElementById("fieldList");
-  box.innerHTML = '<table class="list"><tbody>' + D.fields.map(function (f) {
-    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + "</td>" +
-      '<td><span class="chip ' + (f.is_active ? "on" : "off") + '">' + (f.is_active ? "Active" : "Hidden") + "</span></td>" +
-      '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-ren="' + f.id + '">Rename</button> ' +
-      '<button class="btn sm ghost" data-tog="' + f.id + '">' + (f.is_active ? "Hide" : "Show") + "</button></td></tr>";
-  }).join("") + "</tbody></table>";
-  box.querySelectorAll("[data-ren]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-ren"); })[0];
-      var nv = prompt("Rename field:", f.name);
-      if (nv && nv.trim() && nv.trim() !== f.name) admin("admin_upsert_field", { id: f.id, name: nv.trim() }).then(refresh);
-    });
-  });
-  box.querySelectorAll("[data-tog]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-tog"); })[0];
-      admin("admin_upsert_field", { id: f.id, name: f.name, is_active: !f.is_active }).then(refresh);
-    });
-  });
-}
-document.getElementById("fAdd").addEventListener("click", function () {
-  var nv = prompt("New field name (e.g. AY#6, VICTOR FALLS SOUTH):");
-  if (nv && nv.trim()) admin("admin_upsert_field", { name: nv.trim(), sort: D.fields.length }).then(refresh);
-});
-
-function renderTeams() {
-  var box = document.getElementById("teamList");
-  box.innerHTML = '<table class="list"><thead><tr><th>Team</th><th>Coach</th><th>Division</th><th></th></tr></thead><tbody>' +
-    D.teams.map(function (t) {
-      return "<tr><td style=\"font-weight:600;\">" + esc(t.name) + "</td><td>" + esc(t.coach_name) + (t.coach_phone ? "<br /><span style=\"color:var(--muted)\">" + esc(t.coach_phone) + "</span>" : "") + "</td><td>" + esc(t.division) + "</td>" +
-        '<td style="text-align:right;"><button class="btn sm ghost" data-edit="' + t.id + '">Edit</button></td></tr>';
-    }).join("") + "</tbody></table>";
-  box.querySelectorAll("[data-edit]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var t = D.teams.filter(function (x) { return x.id === b.getAttribute("data-edit"); })[0];
-      var name = prompt("Team name:", t.name); if (name == null) return;
-      var coach = prompt("Coach name:", t.coach_name); if (coach == null) return;
-      var phone = prompt("Coach phone:", t.coach_phone); if (phone == null) return;
-      var div = prompt("Division (e.g. Majors BB, Minors A SB):", t.division); if (div == null) return;
-      admin("admin_upsert_team", { id: t.id, name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
-    });
-  });
-}
-document.getElementById("tAdd").addEventListener("click", function () {
-  var name = prompt("Team name (e.g. Smith — Minors BB):"); if (!name || !name.trim()) return;
-  var coach = prompt("Coach name:") || "";
-  var phone = prompt("Coach phone:") || "";
-  var div = prompt("Division (e.g. Majors BB, Minors A SB):") || "";
-  admin("admin_upsert_team", { name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
-});
-
-function renderLog(items) {
-  document.getElementById("logList").innerHTML = items.map(function (a) {
-    var t = new Date(a.created_at);
-    return '<div class="li"><span class="t">' + t.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + '</span><span class="a">' + esc(a.action) + "</span><span>" + esc(a.detail) + "</span></div>";
-  }).join("") || '<div class="hint">No activity yet.</div>';
-}
-
-/* ---------- CSV export ---------- */
-document.getElementById("csvBtn").addEventListener("click", function () {
-  if (!D) return;
-  var rows = [["Window", "Day", "Field", "Team", "Coach", "Phone", "Division", "Note"]];
-  D.seasons.forEach(function (sn) {
-    D.slots.filter(function (s) { return s.season_id === sn.id; }).forEach(function (s) {
-      var f = D.fields.filter(function (x) { return x.id === s.field_id; })[0] || {};
-      var t = D.teams.filter(function (x) { return x.id === s.team_id; })[0] || {};
-      rows.push([sn.label, DAY_LABELS[s.day_key] || s.day_key, f.name || "", t.name || s.label, t.coach_name || "", t.coach_phone || "", t.division || "", s.note || ""]);
-    });
-  });
-  var csv = rows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(","); }).join("\n");
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  a.download = "field-schedule.csv";
-  a.click();
 });
 
 /* ---------- Excel import ---------- */
