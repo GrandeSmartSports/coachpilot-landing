@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Email Studio — CoachPilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #d4a017;
+    --gold-bright: #f5c342;
+    --ink: #1a1a1a;
+    --cream: #f2f0eb;
+    --paper: #ffffff;
+    --muted: #777;
+    --line: #e5e2da;
+    --green: #2e7d32;
+    --red: #b3261e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', -apple-system, sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  header {
+    background: var(--ink); color: #fff; padding: 14px 20px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  header .brand { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--gold-bright); }
+  header .sub { font-size: 12px; color: #aaa; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* PIN gate */
+  #gate { max-width: 320px; margin: 18vh auto; text-align: center; }
+  #gate .card { background: var(--paper); border-radius: 12px; padding: 32px 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  #gate h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; margin-bottom: 16px; }
+  #gate input { width: 100%; font-size: 22px; text-align: center; letter-spacing: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 8px; }
+  #gate button { margin-top: 14px; width: 100%; }
+  #gate .err { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 16px; }
+
+  .btn {
+    font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: .5px;
+    border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer; transition: transform .06s, box-shadow .15s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-gold { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); color: var(--ink); }
+  .btn-dark { background: var(--ink); color: var(--gold-bright); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); }
+  .btn[disabled] { opacity: .5; cursor: default; }
+
+  main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; display: none; }
+
+  /* Draft picker */
+  .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tab {
+    background: var(--paper); border: 2px solid var(--line); border-radius: 10px; padding: 10px 16px;
+    cursor: pointer; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .tab.active { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,160,23,.25); }
+  .chip { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; border-radius: 20px; padding: 3px 10px; }
+  .chip.draft { background: #eee; color: #666; }
+  .chip.edited { background: #fff3d6; color: #8a6a00; }
+  .chip.submitted { background: #e3f2e4; color: var(--green); }
+
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .hold {
+    background: #fff8e6; border: 1px solid #f0d998; border-left: 4px solid var(--gold);
+    border-radius: 8px; padding: 12px 14px; font-size: 13.5px; line-height: 1.5; margin-bottom: 16px;
+  }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+
+  .panel { background: var(--paper); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,.05); overflow: hidden; }
+  .panel-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel-body { padding: 16px; }
+
+  #preview-frame { width: 100%; border: 0; min-height: 780px; background: var(--cream); }
+
+  label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 14px 0 5px; }
+  label:first-child { margin-top: 0; }
+  input[type=text], textarea {
+    width: 100%; font-family: 'Barlow', sans-serif; font-size: 15px; line-height: 1.55;
+    border: 2px solid var(--line); border-radius: 8px; padding: 10px 12px; background: #fdfcfa;
+  }
+  input[type=text]:focus, textarea:focus { outline: none; border-color: var(--gold); }
+  #f-body { min-height: 380px; resize: vertical; }
+  #f-notes { min-height: 70px; resize: vertical; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+  .actions .btn { flex: 1; min-width: 140px; }
+  #save-msg { font-size: 13.5px; font-weight: 600; margin-top: 10px; min-height: 18px; }
+  #save-msg.ok { color: var(--green); }
+  #save-msg.bad { color: var(--red); }
+
+  .loading { text-align: center; color: var(--muted); padding: 60px 0; font-size: 15px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">COACHPILOT</span>
+  <span class="sub">Email Studio</span>
+</header>
+
+<div id="gate">
+  <div class="card">
+    <h1>Email Studio</h1>
+    <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off">
+    <button class="btn btn-gold" onclick="unlock()">Open</button>
+    <div class="err" id="gate-err"></div>
+  </div>
+</div>
+
+<main id="app">
+  <div class="tabs" id="tabs"></div>
+  <div class="meta" id="meta"></div>
+  <div class="hold" id="hold" style="display:none;"></div>
+
+  <div class="cols">
+    <div class="panel">
+      <div class="panel-title">WHAT IT WILL LOOK LIKE <span style="font-size:12px;font-family:'Barlow';letter-spacing:0;color:var(--muted);font-weight:600;">updates as you type</span></div>
+      <iframe id="preview-frame" title="Email preview"></iframe>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">MAKE YOUR EDITS</div>
+      <div class="panel-body">
+        <label for="f-subject">Subject line</label>
+        <input type="text" id="f-subject">
+
+        <label for="f-kicker">Small gold line (top)</label>
+        <input type="text" id="f-kicker">
+
+        <label for="f-heading">Big heading</label>
+        <input type="text" id="f-heading">
+
+        <label for="f-body">Email body</label>
+        <textarea id="f-body" spellcheck="true"></textarea>
+        <div class="hint">Blank line = new paragraph. A line like <b>BUTTON: Label | link</b> becomes a gold button. Placeholder links (no https) show dashed until they are real.</div>
+
+        <label for="f-notes">Notes to Cortex (anything you want changed or checked)</label>
+        <textarea id="f-notes" placeholder="Optional. Example: tighten paragraph 2, swap the subject line, hold until Thursday."></textarea>
+
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="save(false)" id="btn-save">Save Edits</button>
+          <button class="btn btn-gold" onclick="save(true)" id="btn-submit">Submit to Cortex</button>
+        </div>
+        <div id="save-msg"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+var API = 'https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/email-studio-gateway';
+var PIN_KEY = 'email-studio-pin';
+var drafts = [];
+var current = null;
+
+function unlock() {
+  var pin = document.getElementById('pin').value.trim();
+  if (!pin) return;
+  localStorage.setItem(PIN_KEY, pin);
+  boot();
+}
+
+function apiHeaders() {
+  return { 'x-studio-pin': localStorage.getItem(PIN_KEY) || '', 'Content-Type': 'application/json' };
+}
+
+function boot() {
+  if (!localStorage.getItem(PIN_KEY)) return;
+  document.getElementById('gate-err').textContent = '';
+  fetch(API, { headers: apiHeaders() })
+    .then(function(r) {
+      if (r.status === 401) { localStorage.removeItem(PIN_KEY); throw new Error('Wrong PIN'); }
+      if (!r.ok) throw new Error('Could not load drafts (' + r.status + ')');
+      return r.json();
+    })
+    .then(function(d) {
+      drafts = d.drafts || [];
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      renderTabs();
+      if (drafts.length) select(drafts[0].slug);
+    })
+    .catch(function(e) {
+      document.getElementById('gate').style.display = 'block';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('gate-err').textContent = e.message;
+    });
+}
+
+function renderTabs() {
+  var t = document.getElementById('tabs');
+  t.innerHTML = '';
+  drafts.forEach(function(d) {
+    var b = document.createElement('div');
+    b.className = 'tab' + (current && current.slug === d.slug ? ' active' : '');
+    b.innerHTML = escHtml(d.title) + ' <span class="chip ' + escHtml(d.status) + '">' + escHtml(d.status) + '</span>';
+    b.onclick = function() { select(d.slug); };
+    t.appendChild(b);
+  });
+}
+
+function select(slug) {
+  current = drafts.find(function(d) { return d.slug === slug; });
+  if (!current) return;
+  renderTabs();
+  document.getElementById('meta').textContent = 'Going to: ' + (current.audience || 'not set');
+  var hold = document.getElementById('hold');
+  if (current.hold_note) { hold.style.display = 'block'; hold.textContent = '⚠ ' + current.hold_note; }
+  else { hold.style.display = 'none'; }
+  document.getElementById('f-subject').value = current.subject || '';
+  document.getElementById('f-kicker').value = current.kicker || '';
+  document.getElementById('f-heading').value = current.heading || '';
+  document.getElementById('f-body').value = current.body || '';
+  document.getElementById('f-notes').value = current.coach_notes || '';
+  document.getElementById('save-msg').textContent = '';
+  renderPreview();
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function bodyToHtml(text) {
+  var blocks = String(text || '').split(/\n\s*\n/);
+  return blocks.map(function(block) {
+    block = block.trim();
+    if (!block) return '';
+    var m = block.match(/^BUTTON:\s*(.+?)\s*\|\s*(.+)$/);
+    if (m) {
+      var label = escHtml(m[1]);
+      var url = m[2].trim();
+      var placeholder = url.indexOf('http') !== 0;
+      var style = 'display:inline-block;background:linear-gradient(90deg,#d4a017,#f5c342);color:#1a1a1a;font-weight:700;font-size:15px;text-decoration:none;padding:12px 28px;border-radius:8px;' +
+        (placeholder ? 'outline:2px dashed #b3261e;outline-offset:3px;' : '');
+      var note = placeholder ? '<div style="font-size:11px;color:#b3261e;margin-top:6px;">placeholder link — not live yet</div>' : '';
+      return '<div style="text-align:center;margin:8px 0 20px;"><a href="' + escHtml(placeholder ? '#' : url) + '" style="' + style + '">' + label + '</a>' + note + '</div>';
+    }
+    return '<p style="font-size:15px;color:#555;line-height:1.7;margin:0 0 16px;">' + escHtml(block).replace(/\n/g, '<br>') + '</p>';
+  }).join('');
+}
+
+function renderPreview() {
+  if (!current) return;
+  var html = current.template_html
+    .replace('{{KICKER}}', escHtml(document.getElementById('f-kicker').value))
+    .replace('{{HEADING}}', escHtml(document.getElementById('f-heading').value))
+    .replace('{{BODY}}', bodyToHtml(document.getElementById('f-body').value))
+    .replace('{{FOOTER_LINE}}', escHtml(document.getElementById('f-footer') ? document.getElementById('f-footer').value : current.footer_line));
+  var subjectBar = '<div style="max-width:600px;margin:0 auto 10px;font-family:-apple-system,sans-serif;background:#fff;border:1px solid #e5e2da;border-radius:8px;padding:10px 16px;font-size:13px;color:#555;"><b style="color:#1a1a1a;">Subject:</b> ' + escHtml(document.getElementById('f-subject').value) + '</div>';
+  html = html.replace('<table', subjectBar + '<table');
+  document.getElementById('preview-frame').srcdoc = html;
+}
+
+['f-subject', 'f-kicker', 'f-heading', 'f-body'].forEach(function(id) {
+  document.addEventListener('input', function(e) { if (e.target && e.target.id === id) renderPreview(); });
+});
+
+function save(submit) {
+  if (!current) return;
+  var msg = document.getElementById('save-msg');
+  msg.className = ''; msg.textContent = submit ? 'Submitting…' : 'Saving…';
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-submit').disabled = true;
+  fetch(API, {
+    method: 'POST',
+    headers: apiHeaders(),
+    body: JSON.stringify({
+      slug: current.slug,
+      subject: document.getElementById('f-subject').value,
+      kicker: document.getElementById('f-kicker').value,
+      heading: document.getElementById('f-heading').value,
+      body: document.getElementById('f-body').value,
+      coach_notes: document.getElementById('f-notes').value,
+      submit: submit === true
+    })
+  })
+    .then(function(r) { if (!r.ok) throw new Error('Save failed (' + r.status + ')'); return r.json(); })
+    .then(function(d) {
+      current.subject = document.getElementById('f-subject').value;
+      current.kicker = document.getElementById('f-kicker').value;
+      current.heading = document.getElementById('f-heading').value;
+      current.body = document.getElementById('f-body').value;
+      current.coach_notes = document.getElementById('f-notes').value;
+      current.status = d.saved.status;
+      renderTabs();
+      msg.className = 'ok';
+      msg.textContent = submit
+        ? '✓ Submitted. Cortex will pick this up — tell it "check the studio" any time.'
+        : '✓ Saved.';
+    })
+    .catch(function(e) { msg.className = 'bad'; msg.textContent = e.message + ' — try again.'; })
+    .finally(function() {
+      document.getElementById('btn-save').disabled = false;
+      document.getElementById('btn-submit').disabled = false;
+    });
+}
+
+document.getElementById('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') unlock(); });
+boot();
+</script>
+</body>
+</html>
