@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Practice Studio — CoachPilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #d4a017; --gold-bright: #f5c342; --ink: #1a1a1a; --cream: #f2f0eb;
+    --paper: #fff; --muted: #777; --line: #e5e2da; --green: #2e7d32; --red: #b3261e; --blue: #1565c0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', -apple-system, sans-serif; background: var(--cream); color: var(--ink); min-height: 100vh; }
+
+  header { background: var(--ink); color: #fff; padding: 14px 20px; display: flex; align-items: center; gap: 12px; }
+  header .brand { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 2px; color: var(--gold-bright); }
+  header .sub { font-size: 12px; color: #aaa; letter-spacing: 1px; text-transform: uppercase; }
+
+  #gate { max-width: 320px; margin: 18vh auto; text-align: center; }
+  #gate .card { background: var(--paper); border-radius: 12px; padding: 32px 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  #gate h1 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; margin-bottom: 16px; }
+  #gate input { width: 100%; font-size: 22px; text-align: center; letter-spacing: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 8px; }
+  #gate button { margin-top: 14px; width: 100%; }
+  #gate .err { color: var(--red); font-size: 13px; margin-top: 10px; min-height: 16px; }
+
+  .btn { font-family: 'Barlow', sans-serif; font-weight: 700; font-size: 14px; border: 0; border-radius: 8px; padding: 12px 18px; cursor: pointer; }
+  .btn:active { transform: scale(.98); }
+  .btn-gold { background: linear-gradient(90deg, var(--gold), var(--gold-bright)); color: var(--ink); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 2px solid var(--line); }
+  .btn[disabled] { opacity: .5; }
+
+  main { max-width: 760px; margin: 0 auto; padding: 16px 12px 80px; display: none; }
+
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .tab { background: var(--paper); border: 2px solid var(--line); border-radius: 10px; padding: 8px 14px; cursor: pointer; font-weight: 600; font-size: 14px; }
+  .tab.active { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212,160,23,.25); }
+  .chip { font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; border-radius: 20px; padding: 2px 8px; margin-left: 6px; }
+  .chip.draft { background: #eee; color: #666; } .chip.edited { background: #fff3d6; color: #8a6a00; } .chip.submitted { background: #e3f2e4; color: var(--green); }
+
+  .meta { font-size: 13px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
+
+  .totalbar {
+    position: sticky; top: 0; z-index: 5; background: var(--ink); color: #fff; border-radius: 10px;
+    padding: 10px 16px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;
+    font-weight: 600; font-size: 14px;
+  }
+  .totalbar .num { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--gold-bright); }
+  .totalbar.over .num { color: #ff8a80; }
+
+  .block {
+    background: var(--paper); border-radius: 12px; box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    margin-bottom: 10px; border-left: 5px solid var(--gold); overflow: hidden;
+  }
+  .block.kind-warmup { border-left-color: var(--gold); }
+  .block.kind-station { border-left-color: var(--green); }
+  .block.kind-game { border-left-color: var(--red); }
+  .block.kind-break { border-left-color: var(--blue); }
+  .block.kind-wrap { border-left-color: var(--ink); }
+  .block.dragging { opacity: .45; }
+  .block.dragover { outline: 3px dashed var(--gold); outline-offset: -3px; }
+
+  .block-head { display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 6px; }
+  .handle { cursor: grab; color: #bbb; font-size: 18px; padding: 6px 4px; touch-action: none; user-select: none; }
+  .times { min-width: 96px; text-align: center; }
+  .times .clock { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1px; line-height: 1.15; }
+  .times .clock.late { color: var(--muted); font-size: 13px; }
+  .b-title { flex: 1; font-weight: 700; font-size: 15px; border: 0; background: transparent; min-width: 0; }
+  .b-title:focus { outline: 2px solid var(--gold); border-radius: 6px; }
+
+  .mins { display: flex; align-items: center; gap: 2px; }
+  .mins button { width: 30px; height: 30px; border-radius: 8px; border: 2px solid var(--line); background: var(--paper); font-size: 16px; font-weight: 700; cursor: pointer; }
+  .mins .val { min-width: 46px; text-align: center; font-weight: 700; font-size: 14px; }
+
+  .arrows { display: flex; flex-direction: column; gap: 2px; }
+  .arrows button, .del { width: 30px; height: 24px; border-radius: 6px; border: 2px solid var(--line); background: var(--paper); cursor: pointer; font-size: 12px; line-height: 1; }
+  .del { height: 30px; color: var(--red); font-weight: 700; }
+
+  .b-detail { width: 100%; border: 0; border-top: 1px dashed var(--line); padding: 10px 14px; font-family: 'Barlow'; font-size: 13.5px; line-height: 1.55; color: #555; resize: none; background: #fdfcfa; min-height: 34px; }
+  .b-detail:focus { outline: 2px solid var(--gold); }
+
+  .addrow { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 20px; }
+  .addrow .btn { flex: 1; min-width: 100px; padding: 10px 6px; font-size: 13px; }
+
+  label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 14px 0 5px; }
+  #f-notes { width: 100%; min-height: 64px; border: 2px solid var(--line); border-radius: 8px; padding: 10px 12px; font-family: 'Barlow'; font-size: 15px; background: #fdfcfa; }
+  #f-notes:focus { outline: none; border-color: var(--gold); }
+
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .actions .btn { flex: 1; }
+  #save-msg { font-size: 13.5px; font-weight: 600; margin-top: 10px; min-height: 18px; }
+  #save-msg.ok { color: var(--green); } #save-msg.bad { color: var(--red); }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">COACHPILOT</span>
+  <span class="sub">Practice Studio</span>
+</header>
+
+<div id="gate">
+  <div class="card">
+    <h1>Practice Studio</h1>
+    <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off">
+    <button class="btn btn-gold" onclick="unlock()">Open</button>
+    <div class="err" id="gate-err"></div>
+  </div>
+</div>
+
+<main id="app">
+  <div class="tabs" id="tabs"></div>
+  <div class="meta" id="meta"></div>
+
+  <div class="totalbar" id="totalbar">
+    <span>Plan time</span>
+    <span><span class="num" id="total-min">0</span> / <span id="target-min">90</span> min</span>
+  </div>
+
+  <div id="blocks"></div>
+
+  <div class="addrow">
+    <button class="btn btn-ghost" onclick="addBlock('game')">+ Game</button>
+    <button class="btn btn-ghost" onclick="addBlock('station')">+ Station</button>
+    <button class="btn btn-ghost" onclick="addBlock('break')">+ Break</button>
+    <button class="btn btn-ghost" onclick="addBlock('warmup')">+ Other</button>
+  </div>
+
+  <label for="f-notes">Notes to Cortex</label>
+  <textarea id="f-notes" placeholder="Optional. Example: tighten stations to 20, add a hitting block."></textarea>
+
+  <div class="actions">
+    <button class="btn btn-ghost" id="btn-save" onclick="save(false)">Save</button>
+    <button class="btn btn-gold" id="btn-submit" onclick="save(true)">Submit to Cortex</button>
+  </div>
+  <div id="save-msg"></div>
+</main>
+
+<script>
+var API = 'https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/practice-studio-gateway';
+var PIN_KEY = 'email-studio-pin'; // shared with Email Studio so Coach signs in once
+var plans = [];
+var current = null;
+var dragIdx = null;
+
+function unlock() {
+  var pin = document.getElementById('pin').value.trim();
+  if (!pin) return;
+  localStorage.setItem(PIN_KEY, pin);
+  boot();
+}
+function apiHeaders() {
+  return { 'x-studio-pin': localStorage.getItem(PIN_KEY) || '', 'Content-Type': 'application/json' };
+}
+function boot() {
+  if (!localStorage.getItem(PIN_KEY)) return;
+  document.getElementById('gate-err').textContent = '';
+  fetch(API, { headers: apiHeaders() })
+    .then(function(r) {
+      if (r.status === 401) { localStorage.removeItem(PIN_KEY); throw new Error('Wrong PIN'); }
+      if (!r.ok) throw new Error('Could not load plans (' + r.status + ')');
+      return r.json();
+    })
+    .then(function(d) {
+      plans = d.plans || [];
+      document.getElementById('gate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      renderTabs();
+      if (plans.length) select(plans[0].slug);
+    })
+    .catch(function(e) {
+      document.getElementById('gate').style.display = 'block';
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('gate-err').textContent = e.message;
+    });
+}
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderTabs() {
+  var t = document.getElementById('tabs');
+  t.innerHTML = '';
+  plans.forEach(function(p) {
+    var b = document.createElement('div');
+    b.className = 'tab' + (current && current.slug === p.slug ? ' active' : '');
+    b.innerHTML = escHtml(p.title) + '<span class="chip ' + escHtml(p.status) + '">' + escHtml(p.status) + '</span>';
+    b.onclick = function() { select(p.slug); };
+    t.appendChild(b);
+  });
+}
+
+function select(slug) {
+  current = plans.find(function(p) { return p.slug === slug; });
+  if (!current) return;
+  if (!Array.isArray(current.blocks)) current.blocks = [];
+  renderTabs();
+  document.getElementById('meta').textContent = current.session_info || '';
+  document.getElementById('target-min').textContent = current.target_minutes || 90;
+  document.getElementById('f-notes').value = current.coach_notes || '';
+  document.getElementById('save-msg').textContent = '';
+  renderBlocks();
+}
+
+function parseStart(s) {
+  var m = String(s).match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+  if (!m) return null;
+  var h = parseInt(m[1], 10) % 12;
+  if ((m[3] || '').toUpperCase() === 'PM') h += 12;
+  return h * 60 + parseInt(m[2], 10);
+}
+function fmt(mins) {
+  var h = Math.floor(mins / 60) % 24, mm = mins % 60;
+  var h12 = h % 12 === 0 ? 12 : h % 12;
+  return h12 + ':' + String(mm).padStart(2, '0');
+}
+
+function renderBlocks() {
+  var wrap = document.getElementById('blocks');
+  wrap.innerHTML = '';
+  var starts = (current.start_times || []).map(parseStart).filter(function(x){ return x != null; });
+  var offset = 0, total = 0;
+  current.blocks.forEach(function(b, i) {
+    total += (b.minutes || 0);
+    var clocks = starts.map(function(st, si) {
+      var cls = si === 0 ? 'clock' : 'clock late';
+      return '<div class="' + cls + '">' + fmt(st + offset) + '&ndash;' + fmt(st + offset + (b.minutes || 0)) + '</div>';
+    }).join('');
+    offset += (b.minutes || 0);
+
+    var el = document.createElement('div');
+    el.className = 'block kind-' + (b.kind || 'game');
+    el.setAttribute('draggable', 'true');
+    el.dataset.idx = i;
+    el.innerHTML =
+      '<div class="block-head">' +
+        '<span class="handle" title="Drag to reorder">&#8942;&#8942;</span>' +
+        '<div class="times">' + clocks + '</div>' +
+        '<input class="b-title" value="' + escHtml(b.title) + '" onchange="upd(' + i + ',\'title\',this.value)">' +
+        '<div class="mins">' +
+          '<button onclick="bump(' + i + ',-1)">&minus;</button>' +
+          '<span class="val">' + (b.minutes || 0) + 'm</span>' +
+          '<button onclick="bump(' + i + ',1)">+</button>' +
+        '</div>' +
+        '<div class="arrows">' +
+          '<button onclick="move(' + i + ',-1)">&#9650;</button>' +
+          '<button onclick="move(' + i + ',1)">&#9660;</button>' +
+        '</div>' +
+        '<button class="del" onclick="removeBlock(' + i + ')">&times;</button>' +
+      '</div>' +
+      '<textarea class="b-detail" placeholder="Details..." rows="1" onchange="upd(' + i + ',\'detail\',this.value)">' + escHtml(b.detail) + '</textarea>';
+
+    el.addEventListener('dragstart', function(e) { dragIdx = i; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+    el.addEventListener('dragend', function() { dragIdx = null; el.classList.remove('dragging'); });
+    el.addEventListener('dragover', function(e) { e.preventDefault(); el.classList.add('dragover'); });
+    el.addEventListener('dragleave', function() { el.classList.remove('dragover'); });
+    el.addEventListener('drop', function(e) {
+      e.preventDefault(); el.classList.remove('dragover');
+      if (dragIdx === null || dragIdx === i) return;
+      var moved = current.blocks.splice(dragIdx, 1)[0];
+      current.blocks.splice(i, 0, moved);
+      renderBlocks();
+    });
+    wrap.appendChild(el);
+  });
+
+  // auto-size detail boxes
+  wrap.querySelectorAll('.b-detail').forEach(function(t) {
+    t.style.height = 'auto'; t.style.height = Math.max(34, t.scrollHeight) + 'px';
+    t.addEventListener('input', function() { t.style.height = 'auto'; t.style.height = Math.max(34, t.scrollHeight) + 'px'; });
+  });
+
+  document.getElementById('total-min').textContent = total;
+  var target = current.target_minutes || 90;
+  document.getElementById('totalbar').className = 'totalbar' + (total > target ? ' over' : '');
+}
+
+function upd(i, field, val) { current.blocks[i][field] = val; }
+function bump(i, dir) {
+  current.blocks[i].minutes = Math.max(1, (current.blocks[i].minutes || 0) + dir);
+  renderBlocks();
+}
+function move(i, dir) {
+  var j = i + dir;
+  if (j < 0 || j >= current.blocks.length) return;
+  var tmp = current.blocks[i]; current.blocks[i] = current.blocks[j]; current.blocks[j] = tmp;
+  renderBlocks();
+}
+function removeBlock(i) {
+  var b = current.blocks[i];
+  if (!confirm('Remove "' + (b.title || 'block') + '"?')) return;
+  current.blocks.splice(i, 1);
+  renderBlocks();
+}
+function addBlock(kind) {
+  var names = { game: 'New game', station: 'New station', break: 'Water break', warmup: 'New block' };
+  current.blocks.push({ title: names[kind] || 'New block', minutes: kind === 'break' ? 3 : 10, kind: kind, detail: '' });
+  renderBlocks();
+  window.scrollTo({ top: document.getElementById('blocks').getBoundingClientRect().bottom + window.scrollY, behavior: 'smooth' });
+}
+
+function save(submit) {
+  if (!current) return;
+  var msg = document.getElementById('save-msg');
+  msg.className = ''; msg.textContent = submit ? 'Submitting…' : 'Saving…';
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('btn-submit').disabled = true;
+  // pull latest inline values (inputs fire onchange, but catch in-focus edits too)
+  document.querySelectorAll('#blocks .b-title').forEach(function(inp, i) { if (current.blocks[i]) current.blocks[i].title = inp.value; });
+  document.querySelectorAll('#blocks .b-detail').forEach(function(ta, i) { if (current.blocks[i]) current.blocks[i].detail = ta.value; });
+  fetch(API, {
+    method: 'POST', headers: apiHeaders(),
+    body: JSON.stringify({ slug: current.slug, blocks: current.blocks, coach_notes: document.getElementById('f-notes').value, submit: submit === true })
+  })
+    .then(function(r) { if (!r.ok) throw new Error('Save failed (' + r.status + ')'); return r.json(); })
+    .then(function(d) {
+      current.status = d.saved.status;
+      current.coach_notes = document.getElementById('f-notes').value;
+      renderTabs();
+      msg.className = 'ok';
+      msg.textContent = submit ? '✓ Submitted. Cortex has it — say "check the studio" any time.' : '✓ Saved.';
+    })
+    .catch(function(e) { msg.className = 'bad'; msg.textContent = e.message + ' — try again.'; })
+    .finally(function() {
+      document.getElementById('btn-save').disabled = false;
+      document.getElementById('btn-submit').disabled = false;
+    });
+}
+
+document.getElementById('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') unlock(); });
+boot();
+</script>
+</body>
+</html>
