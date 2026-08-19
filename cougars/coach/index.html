@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Coach HQ — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 980px; margin: 0 auto; padding: 24px 22px 20px; display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 6vw, 42px); text-transform: uppercase; line-height: 1; }
+  .hero h1 .o { color: var(--red); }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+
+  #gate { max-width: 320px; margin: 16vh auto; text-align: center; padding: 0 20px; }
+  #gate .card { background: var(--white); border-radius: 16px; padding: 30px 22px; box-shadow: var(--shadow); }
+  #gate h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 14px; }
+  #gate input { width: 100%; font-size: 22px; text-align: center; letter-spacing: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; }
+  #gate button { margin-top: 12px; width: 100%; }
+  #gate .err { color: var(--red); font-size: 13px; margin-top: 8px; min-height: 16px; }
+
+  .btn { font-weight: 700; font-size: 14px; border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; font-family: var(--disp); letter-spacing: .05em; text-transform: uppercase; }
+  .btn-red { background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; }
+  .btn-ghost { background: var(--white); color: var(--ink); border: 2px solid var(--line); }
+  .btn[disabled] { opacity: .5; }
+
+  main { max-width: 980px; margin: 0 auto; padding: 22px 18px 70px; display: none; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 860px) { .grid { grid-template-columns: 1fr 1fr; align-items: start; } }
+
+  .panel { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+  .panel .bar { background: var(--black); color: #fff; padding: 11px 16px; display: flex; justify-content: space-between; align-items: center; }
+  .panel .bar h3 { font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: .2em; text-transform: uppercase; }
+  .panel .bd { padding: 14px 16px 16px; }
+
+  .counts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .cnt { border-radius: 20px; padding: 4px 12px; font-weight: 700; font-size: 13px; }
+  .cnt.yes { background: #ecf6ee; color: var(--green); }
+  .cnt.maybe { background: #fff7e0; color: #8a6a00; }
+  .cnt.no { background: #fbe9ec; color: var(--red); }
+  .cnt.silent { background: #eee; color: #666; }
+  .roll { font-size: 14px; }
+  .roll .p { display: flex; justify-content: space-between; gap: 8px; padding: 5px 0; border-bottom: 1px dashed #eef0f1; }
+  .roll .p:last-child { border-bottom: 0; }
+  .roll .s { font-weight: 700; font-size: 12px; text-transform: uppercase; }
+  .roll .s.yes { color: var(--green); } .roll .s.no { color: var(--red); } .roll .s.maybe { color: #8a6a00; } .roll .s.silent { color: #999; }
+  .roll .n { color: var(--muted); font-size: 12px; }
+
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 10px 0 6px; }
+  input[type=text], textarea { width: 100%; font-size: 15px; padding: 11px 12px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; background: #fdfdfd; }
+  input:focus, textarea:focus { outline: none; border-color: var(--red); }
+  .row-btn { margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .m { font-size: 13px; font-weight: 600; min-height: 16px; }
+  .m.ok { color: var(--green); } .m.bad { color: var(--red); }
+
+  .uplist { margin-top: 12px; font-size: 13.5px; }
+  .uplist .u { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px dashed #eef0f1; }
+  .uplist .u .d { font-weight: 700; color: var(--red); white-space: nowrap; }
+  .uplist .u .t { flex: 1; color: #33383d; }
+  .uplist .u button { border: 1px solid var(--line); background: #fff; border-radius: 8px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: var(--muted); }
+
+  .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tool { display: block; background: var(--black); color: #fff; border-radius: 12px; padding: 14px; border-bottom: 3px solid var(--red); }
+  .tool .t { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .04em; }
+  .tool .s { font-size: 12px; color: #a9acb2; margin-top: 2px; }
+  .tool:active { transform: scale(.98); }
+
+  .links .lk { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px dashed #eef0f1; font-size: 14px; }
+  .links .lk:last-child { border-bottom: 0; }
+  .links .lk .u { flex: 1; color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .links .lk button { border: 2px solid var(--line); background: #fff; border-radius: 8px; font-size: 12px; font-weight: 700; padding: 5px 10px; cursor: pointer; }
+  .links .lk button.copied { border-color: var(--green); color: var(--green); }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div><div class="kicker">Coach side &bull; PIN required</div><h1>C<span class="o">O</span>ACH HQ</h1></div>
+  </div></div>
+  <div class="slash"></div>
+
+  <div id="gate">
+    <div class="card">
+      <h2>Coach HQ</h2>
+      <input id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off" />
+      <button class="btn btn-red" onclick="unlock()">Open</button>
+      <div class="err" id="gate-err"></div>
+    </div>
+  </div>
+
+  <main id="app">
+    <div class="grid">
+      <div class="panel">
+        <div class="bar"><h3>Headcount</h3><span id="ev-label" style="font-size:12px;color:#f3c7ce;"></span></div>
+        <div class="bd">
+          <div class="counts" id="counts"></div>
+          <div class="roll" id="roll">Loading…</div>
+          <label for="new-event">Point attendance at a new practice or game</label>
+          <input type="text" id="new-event" placeholder='e.g. "Thursday practice, Aug 27"' />
+          <div class="row-btn"><button class="btn btn-ghost" onclick="setEvent()">Set it</button><span class="m" id="ev-msg"></span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h3>Post a weekly update</h3></div>
+        <div class="bd">
+          <textarea id="up-body" rows="3" placeholder="Plain and short. Example: Practice Thursday 6:00 at Tehaleh Heights. Bring cleats and water."></textarea>
+          <div class="row-btn"><button class="btn btn-red" onclick="postUpdate()">Post to parents</button><span class="m" id="up-msg"></span></div>
+          <div class="uplist" id="uplist"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h3>Tools</h3></div>
+        <div class="bd tools">
+          <a class="tool" href="https://coachpilot.org/email-studio/" target="_blank"><span class="t">Email Studio</span><span class="s">Review + edit emails</span></a>
+          <a class="tool" href="https://coachpilot.org/practice-studio/" target="_blank"><span class="t">Practice Studio</span><span class="s">Drag-and-drop plans</span></a>
+          <a class="tool" href="/cougars/admin.html" target="_blank"><span class="t">Reports</span><span class="s">Jerseys, hoodies, visits</span></a>
+          <a class="tool" href="https://pwa-henna-ten.vercel.app" target="_blank"><span class="t">Game Day</span><span class="s">Lineups, fairness, walk-ups</span></a>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h3>Parent links — drop into GameChanger</h3></div>
+        <div class="bd links">
+          <div class="lk"><b>Hub</b><span class="u">coachpilot.org/cougars</span><button onclick="cp(this,'https://coachpilot.org/cougars/')">Copy</button></div>
+          <div class="lk"><b>Attendance</b><span class="u">coachpilot.org/cougars/attendance.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/attendance.html')">Copy</button></div>
+          <div class="lk"><b>Updates</b><span class="u">coachpilot.org/cougars/updates.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/updates.html')">Copy</button></div>
+          <div class="lk"><b>Practice info</b><span class="u">coachpilot.org/cougars/practice.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/practice.html')">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+var PIN_KEY = "cougars-coach-pin";
+
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function pinHeaders() { return { "x-admin-pin": localStorage.getItem(PIN_KEY) || "", "Content-Type": "application/json" }; }
+
+function unlock() {
+  var pin = document.getElementById("pin").value.trim();
+  if (!pin) return;
+  localStorage.setItem(PIN_KEY, pin);
+  boot();
+}
+
+function boot() {
+  if (!localStorage.getItem(PIN_KEY)) return;
+  fetch(API + "?action=attendance_report", { headers: pinHeaders() })
+    .then(function (r) {
+      if (r.status === 401) { localStorage.removeItem(PIN_KEY); throw new Error("Wrong PIN"); }
+      if (!r.ok) throw new Error("Load failed (" + r.status + ")");
+      return r.json();
+    })
+    .then(function (d) {
+      document.getElementById("gate").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      renderHeadcount(d);
+      loadUpdates();
+    })
+    .catch(function (e) {
+      document.getElementById("gate").style.display = "block";
+      document.getElementById("app").style.display = "none";
+      document.getElementById("gate-err").textContent = e.message;
+    });
+}
+
+function renderHeadcount(d) {
+  document.getElementById("ev-label").textContent = d.label || "no event set";
+  var s = d.summary || { yes: 0, no: 0, maybe: 0, silent: 0 };
+  document.getElementById("counts").innerHTML =
+    '<span class="cnt yes">' + s.yes + " yes</span>" +
+    '<span class="cnt maybe">' + s.maybe + " maybe</span>" +
+    '<span class="cnt no">' + s.no + " no</span>" +
+    '<span class="cnt silent">' + s.silent + " silent</span>";
+  var rows = (d.report || []).map(function (p) {
+    var st = p.status || "silent";
+    return '<div class="p"><span>' + esc(p.first_name + " " + p.last_name) + (p.note ? ' <span class="n">— ' + esc(p.note) + "</span>" : "") + '</span><span class="s ' + st + '">' + st + "</span></div>";
+  }).join("");
+  document.getElementById("roll").innerHTML = rows || "No players found.";
+}
+
+function setEvent() {
+  var label = document.getElementById("new-event").value.trim();
+  var m = document.getElementById("ev-msg");
+  if (!label) { m.className = "m bad"; m.textContent = "Type a name for it."; return; }
+  m.className = "m"; m.textContent = "Setting…";
+  fetch(API + "?action=set_event", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ label: label }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () {
+      m.className = "m ok"; m.textContent = "Set. Parents now answer for: " + label;
+      document.getElementById("new-event").value = "";
+      return fetch(API + "?action=attendance_report", { headers: pinHeaders() }).then(function (r) { return r.json(); }).then(renderHeadcount);
+    })
+    .catch(function () { m.className = "m bad"; m.textContent = "Failed. Try again."; });
+}
+
+function postUpdate() {
+  var body = document.getElementById("up-body").value.trim();
+  var m = document.getElementById("up-msg");
+  if (!body) { m.className = "m bad"; m.textContent = "Write the update first."; return; }
+  m.className = "m"; m.textContent = "Posting…";
+  fetch(API + "?action=post_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ body: body }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () {
+      m.className = "m ok"; m.textContent = "Posted. Parents see it on the Updates page.";
+      document.getElementById("up-body").value = "";
+      loadUpdates();
+    })
+    .catch(function () { m.className = "m bad"; m.textContent = "Failed. Try again."; });
+}
+
+function loadUpdates() {
+  fetch(API + "?action=updates")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var ups = d.updates || [];
+      document.getElementById("uplist").innerHTML = ups.slice(0, 6).map(function (u) {
+        return '<div class="u"><span class="d">' + esc(u.update_date) + '</span><span class="t">' + esc(u.body) + '</span><button onclick="unpub(\'' + esc(u.id) + '\')">hide</button></div>';
+      }).join("");
+    }).catch(function () {});
+}
+
+function unpub(id) {
+  if (!confirm("Hide this update from parents?")) return;
+  fetch(API + "?action=unpublish_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
+    .then(function () { loadUpdates(); });
+}
+
+function cp(btn, url) {
+  navigator.clipboard.writeText(url).then(function () {
+    btn.textContent = "Copied";
+    btn.className = "copied";
+    setTimeout(function () { btn.textContent = "Copy"; btn.className = ""; }, 1600);
+  });
+}
+
+document.getElementById("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") unlock(); });
+try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "coach" }), keepalive: true }).catch(function () {}); } catch (e) {}
+boot();
+</script>
+</body>
+</html>

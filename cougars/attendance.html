@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Attendance — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 640px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 44px); text-transform: uppercase; line-height: 1.05; margin-top: 4px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 640px; margin: 0 auto; padding: 24px 22px 56px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 20px 18px; }
+  .event { font-family: var(--disp); font-weight: 600; font-size: 17px; margin-bottom: 14px; }
+  .lbl { font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 16px 0 8px; }
+  select, input[type=text], textarea {
+    width: 100%; font-size: 16px; padding: 12px; border: 2px solid var(--line); border-radius: 10px; background: #fdfdfd; font-family: inherit;
+  }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--red); }
+  .statuses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .status { border: 2px solid var(--line); border-radius: 12px; background: var(--white); padding: 14px 4px; text-align: center; font-family: var(--disp); font-weight: 600; font-size: 16px; cursor: pointer; text-transform: uppercase; letter-spacing: .04em; }
+  .status.sel-yes { border-color: var(--green); background: #ecf6ee; color: var(--green); }
+  .status.sel-no { border-color: var(--red); background: #fbe9ec; color: var(--red); }
+  .status.sel-maybe { border-color: #b98a00; background: #fff7e0; color: #8a6a00; }
+  .go { width: 100%; margin-top: 18px; border: 0; border-radius: 12px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; padding: 15px; cursor: pointer; }
+  .go[disabled] { opacity: .5; }
+  .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
+  .msg.ok { color: var(--green); } .msg.bad { color: var(--red); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; font-size: 15px; }
+  .back { display: inline-block; margin-top: 20px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Fall 2026</div>
+    <h1>Will she be there?</h1>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+    <div class="card" id="card"><div class="empty">Loading…</div></div>
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var eventKey = null, chosen = null;
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  Promise.all([
+    fetch(API + "?action=current_event").then(function (r) { return r.json(); }),
+    fetch(API + "?action=players").then(function (r) { return r.json(); }),
+  ]).then(function (res) {
+    var ev = res[0], players = (res[1].players || []);
+    var card = document.getElementById("card");
+    if (!ev.event_key) { card.innerHTML = '<div class="empty">Nothing to answer right now. Coach will post here when the next practice or game needs a headcount.</div>'; return; }
+    eventKey = ev.event_key;
+    card.innerHTML =
+      '<div class="event">' + esc(ev.label) + "</div>" +
+      '<div class="lbl">Player</div>' +
+      '<select id="player"><option value="">Pick your player…</option>' +
+      players.map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.first_name + " " + (p.last_initial ? p.last_initial + "." : "")) + "</option>"; }).join("") +
+      "</select>" +
+      '<div class="lbl">Will she be there?</div>' +
+      '<div class="statuses">' +
+      '<div class="status" data-s="yes" onclick="pick(this)">Yes</div>' +
+      '<div class="status" data-s="maybe" onclick="pick(this)">Maybe</div>' +
+      '<div class="status" data-s="no" onclick="pick(this)">No</div>' +
+      "</div>" +
+      '<div class="lbl">Your name (optional)</div><input type="text" id="parent" placeholder="So Coach knows who answered">' +
+      '<div class="lbl">Note (optional)</div><textarea id="note" rows="2" placeholder="Late arrival, leaving early, anything Coach should know"></textarea>' +
+      '<button class="go" id="go" onclick="submitIt()">Send it in</button>' +
+      '<div class="msg" id="msg"></div>';
+  }).catch(function () {
+    document.getElementById("card").innerHTML = '<div class="empty">Could not load. Try again in a minute.</div>';
+  });
+
+  window.pick = function (el) {
+    chosen = el.getAttribute("data-s");
+    document.querySelectorAll(".status").forEach(function (s) { s.className = "status"; });
+    el.className = "status sel-" + chosen;
+  };
+
+  window.submitIt = function () {
+    var msg = document.getElementById("msg");
+    var pid = document.getElementById("player").value;
+    if (!pid) { msg.className = "msg bad"; msg.textContent = "Pick your player first."; return; }
+    if (!chosen) { msg.className = "msg bad"; msg.textContent = "Tap yes, maybe, or no."; return; }
+    document.getElementById("go").disabled = true;
+    msg.className = "msg"; msg.textContent = "Sending…";
+    fetch(API + "?action=submit_attendance", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_key: eventKey, player_id: pid, status: chosen,
+        parent_name: document.getElementById("parent").value,
+        note: document.getElementById("note").value,
+      }),
+    })
+      .then(function (r) { if (!r.ok) throw new Error("send failed"); return r.json(); })
+      .then(function (d) {
+        msg.className = "msg ok";
+        msg.textContent = "Got it. " + d.first_name + " is marked “" + d.status + "”. You can change your answer any time, just submit again.";
+        document.getElementById("go").disabled = false;
+      })
+      .catch(function () { msg.className = "msg bad"; msg.textContent = "Could not send. Try again."; document.getElementById("go").disabled = false; });
+  };
+
+  try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "attendance" }), keepalive: true }).catch(function () {}); } catch (e) {}
+})();
+</script>
+</body>
+</html>
