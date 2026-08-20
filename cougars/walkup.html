@@ -36,6 +36,12 @@
   .rec input { display: none; }
   .rec .btn-pick { display: inline-block; font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--black); border-radius: 10px; padding: 10px 16px; cursor: pointer; }
   .rec .picked { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--green); }
+  .rec .btn-rec { display: inline-block; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; }
+  .rec .btn-rec.recording { background: var(--black); }
+  .rec .timer { font-family: var(--disp); font-size: 15px; font-weight: 600; margin-top: 8px; color: var(--red); min-height: 20px; }
+  .rec audio { width: 100%; margin-top: 10px; }
+  .rec .redo { background: none; border: none; color: var(--muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; margin-top: 6px; }
+  .rec .fallback { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); text-decoration: underline; cursor: pointer; }
   .go { width: 100%; margin-top: 20px; border: 0; border-radius: 12px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; padding: 15px; cursor: pointer; }
   .go[disabled] { opacity: .5; }
   .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
@@ -77,9 +83,13 @@
 
       <div class="lbl">How to say her name</div>
       <input type="text" id="phonetic" placeholder="Phonetic spelling, e.g. juh-NEE-sek (optional)" />
-      <div class="hint" style="margin-bottom:8px;">Even better: attach a quick voice memo of your daughter saying her name loud and clear (you can record it yourself instead). That makes the PA announcement perfect.</div>
+      <div class="hint" style="margin-bottom:8px;">Even better: tap record and have your daughter say her name loud and clear (or say it yourself). Takes five seconds and makes the PA announcement perfect.</div>
       <div class="rec">
-        <label class="btn-pick" for="recording">Attach name recording</label>
+        <button type="button" class="btn-rec" id="rec-btn" onclick="toggleRec()">&#9679; Record her name</button>
+        <div class="timer" id="rec-timer"></div>
+        <audio id="rec-play" controls style="display:none;"></audio>
+        <button type="button" class="redo" id="rec-redo" style="display:none;" onclick="redoRec()">Record again</button>
+        <label class="fallback" for="recording">or attach an audio file instead</label>
         <input type="file" id="recording" accept="audio/*" />
         <div class="picked" id="picked"></div>
       </div>
@@ -155,8 +165,63 @@
   document.getElementById("song").addEventListener("input", checkDup);
   document.getElementById("player").addEventListener("change", checkDup);
 
+  var recordedBlob = null, mediaRec = null, recChunks = [], recTimerInt = null, recStart = 0;
+
+  window.toggleRec = function () {
+    var btn = document.getElementById("rec-btn");
+    if (mediaRec && mediaRec.state === "recording") { mediaRec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      document.getElementById("rec-timer").textContent = "Recording not supported here. Use attach below.";
+      return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+      recChunks = [];
+      recordedBlob = null;
+      mediaRec = new MediaRecorder(stream);
+      mediaRec.ondataavailable = function (e) { if (e.data.size) recChunks.push(e.data); };
+      mediaRec.onstop = function () {
+        stream.getTracks().forEach(function (t) { t.stop(); });
+        clearInterval(recTimerInt);
+        recordedBlob = new Blob(recChunks, { type: mediaRec.mimeType || "audio/webm" });
+        var play = document.getElementById("rec-play");
+        play.src = URL.createObjectURL(recordedBlob);
+        play.style.display = "block";
+        document.getElementById("rec-redo").style.display = "inline";
+        document.getElementById("rec-timer").textContent = "";
+        document.getElementById("picked").textContent = "✓ Recording saved. Listen back above.";
+        btn.className = "btn-rec";
+        btn.innerHTML = "&#9679; Record her name";
+        document.getElementById("recording").value = "";
+      };
+      mediaRec.start();
+      recStart = Date.now();
+      btn.className = "btn-rec recording";
+      btn.innerHTML = "&#9632; Stop";
+      recTimerInt = setInterval(function () {
+        var sec = Math.floor((Date.now() - recStart) / 1000);
+        document.getElementById("rec-timer").textContent = "Recording… " + sec + "s (tap Stop when done)";
+        if (sec >= 15 && mediaRec.state === "recording") mediaRec.stop();
+      }, 250);
+    }).catch(function () {
+      document.getElementById("rec-timer").textContent = "Microphone blocked. Use attach below instead.";
+    });
+  };
+
+  window.redoRec = function () {
+    recordedBlob = null;
+    document.getElementById("rec-play").style.display = "none";
+    document.getElementById("rec-redo").style.display = "none";
+    document.getElementById("picked").textContent = "";
+    window.toggleRec();
+  };
+
   document.getElementById("recording").addEventListener("change", function () {
     var f = this.files && this.files[0];
+    if (f) {
+      recordedBlob = null;
+      document.getElementById("rec-play").style.display = "none";
+      document.getElementById("rec-redo").style.display = "none";
+    }
     document.getElementById("picked").textContent = f ? "✓ " + f.name : "";
   });
 
@@ -167,7 +232,11 @@
     if (!pid) { msg.className = "msg bad"; msg.textContent = "Pick your player first."; return; }
     if (!song) { msg.className = "msg bad"; msg.textContent = "We need the song title."; return; }
     var f = document.getElementById("recording").files[0];
-    if (f && f.size > 8 * 1024 * 1024) { msg.className = "msg bad"; msg.textContent = "Recording is too big (8MB max). A short voice memo is plenty."; return; }
+    if (recordedBlob) {
+      var rext = (recordedBlob.type.indexOf("mp4") >= 0) ? "m4a" : (recordedBlob.type.indexOf("ogg") >= 0 ? "ogg" : "webm");
+      f = new File([recordedBlob], "name-recording." + rext, { type: recordedBlob.type.split(";")[0] || "audio/webm" });
+    }
+    if (f && f.size > 8 * 1024 * 1024) { msg.className = "msg bad"; msg.textContent = "Recording is too big (8MB max). A short clip is plenty."; return; }
 
     var fd = new FormData();
     fd.append("player_id", pid);
