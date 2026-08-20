@@ -40,6 +40,9 @@
   .go[disabled] { opacity: .5; }
   .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
   .msg.ok { color: var(--green); } .msg.bad { color: var(--red); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .chip-song { border: 2px solid var(--line); background: #fdfdfd; border-radius: 20px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #33383d; }
+  .chip-song:active { border-color: var(--red); color: var(--red); }
   .note { background: #fbe9ec; border-left: 4px solid var(--red); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 16px; line-height: 1.5; }
   .back { display: inline-block; margin-top: 20px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
   .empty { text-align: center; color: var(--muted); padding: 30px 0; }
@@ -63,6 +66,10 @@
         <input type="text" id="start" placeholder="Start at 0:45" inputmode="numeric" />
       </div>
       <div class="hint">"Start at" is the spot in the song where her clip should begin — usually the best 15 seconds, like the chorus. Guess is fine, we can tune it later.</div>
+
+      <div class="lbl">Need ideas? Hits from past Cougars teams</div>
+      <div class="chips" id="chips"></div>
+      <div class="hint">Tap one to use it, or pick your own above.</div>
 
       <div class="lbl">How to say her name</div>
       <input type="text" id="phonetic" placeholder="Phonetic spelling, e.g. juh-NEE-sek (optional)" />
@@ -97,6 +104,33 @@
       o.textContent = p.first_name + " " + (p.last_initial ? p.last_initial + "." : "");
       sel.appendChild(o);
     });
+  });
+
+  var IDEAS = [
+    ["Pretty Girls Walk", "Big Boss Vette"],
+    ["Big Girl Talk", "CJ Beaty"],
+    ["Little Miss", "GIRLSET"],
+    ["Titi Me Pregunto", "Bad Bunny"],
+    ["Row My Boat", "CJ Beaty"],
+    ["The Real Slim Shady", "Eminem"],
+    ["Hard Work God First", "Zauntee"],
+    ["Stateside", "PinkPantheress"],
+    ["Thunder", "Imagine Dragons"],
+    ["Hall of Fame", "The Script"],
+    ["Somethin Bad", "Miranda Lambert"],
+    ["1, 2 Step", "Ciara ft. Missy Elliott"]
+  ];
+  var chipWrap = document.getElementById("chips");
+  IDEAS.forEach(function (t) {
+    var c = document.createElement("div");
+    c.className = "chip-song";
+    c.textContent = t[0] + " · " + t[1];
+    c.onclick = function () {
+      document.getElementById("song").value = t[0];
+      document.getElementById("artist").value = t[1];
+      document.getElementById("song").scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    chipWrap.appendChild(c);
   });
 
   document.getElementById("recording").addEventListener("change", function () {
