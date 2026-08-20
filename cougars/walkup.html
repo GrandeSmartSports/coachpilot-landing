@@ -43,6 +43,9 @@
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .chip-song { border: 2px solid var(--line); background: #fdfdfd; border-radius: 20px; padding: 7px 13px; font-size: 12.5px; font-weight: 600; cursor: pointer; color: #33383d; }
   .chip-song:active { border-color: var(--red); color: var(--red); }
+  .warn { display: none; background: #fff7e0; border-left: 4px solid #b98a00; border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 10px; line-height: 1.5; color: #6d5600; }
+  .warn.show { display: block; }
+  .chip-song .listen { margin-left: 7px; color: var(--red); font-weight: 700; text-decoration: none; }
   .note { background: #fbe9ec; border-left: 4px solid var(--red); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 16px; line-height: 1.5; }
   .back { display: inline-block; margin-top: 20px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
   .empty { text-align: center; color: var(--muted); padding: 30px 0; }
@@ -66,6 +69,7 @@
         <input type="text" id="start" placeholder="Start at 0:45" inputmode="numeric" />
       </div>
       <div class="hint">"Start at" is the spot in the song where her clip should begin — usually the best 15 seconds, like the chorus. Guess is fine, we can tune it later.</div>
+      <div class="warn" id="dup-warn"><b>Heads up:</b> another Cougar already picked this song. Matching is totally fine if you are both okay sharing it — or pick something all hers.</div>
 
       <div class="lbl">Need ideas? Hits from past Cougars teams</div>
       <div class="chips" id="chips"></div>
@@ -124,14 +128,32 @@
   IDEAS.forEach(function (t) {
     var c = document.createElement("div");
     c.className = "chip-song";
-    c.textContent = t[0] + " · " + t[1];
+    c.innerHTML = esc(t[0] + " · " + t[1]) + '<a class="listen" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(t[0] + " " + t[1]) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">&#9654; listen</a>';
     c.onclick = function () {
       document.getElementById("song").value = t[0];
       document.getElementById("artist").value = t[1];
+      checkDup();
       document.getElementById("song").scrollIntoView({ behavior: "smooth", block: "center" });
     };
     chipWrap.appendChild(c);
   });
+
+  var takenSongs = [];
+  fetch(API + "?action=taken_songs").then(function (r) { return r.json(); }).then(function (d) {
+    takenSongs = d.songs || [];
+    checkDup();
+  }).catch(function () {});
+
+  function norm(t) { return String(t || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+  function checkDup() {
+    var title = norm(document.getElementById("song").value);
+    var pid = document.getElementById("player").value;
+    var dup = title && takenSongs.some(function (x) { return norm(x.song_title) === title && x.player_id !== pid; });
+    document.getElementById("dup-warn").className = dup ? "warn show" : "warn";
+  }
+  window.checkDup = checkDup;
+  document.getElementById("song").addEventListener("input", checkDup);
+  document.getElementById("player").addEventListener("change", checkDup);
 
   document.getElementById("recording").addEventListener("change", function () {
     var f = this.files && this.files[0];
