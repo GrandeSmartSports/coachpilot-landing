@@ -15,6 +15,7 @@
     } catch (e) { /* storage blocked: never trap anyone, just show the app */ }
   })();
 </script>
+<link rel="manifest" href="/cougars/manifest.json" />
 <link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
 <link rel="apple-touch-icon" href="/cougars/assets/cougars-logo-mark.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -95,6 +96,18 @@
   .clinic .sub { font-size: 13px; color: #ffd3da; margin-top: 3px; }
   .clinic .go { flex: 0 0 auto; font-family: var(--disp); background: #fff; color: var(--red); font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 20px; padding: 7px 14px; }
 
+  .notify { max-width: 1020px; margin: 0 auto 8px; padding: 0 22px 26px; }
+  .notify-card { background: var(--black); color: #fff; border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+  .notify-card h3 { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .notify-card p { font-size: 14px; color: #a9acb2; margin-top: 6px; line-height: 1.55; }
+  .notify-card .nbtn { margin-top: 12px; width: 100%; border: 0; border-radius: 12px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; padding: 14px; cursor: pointer; }
+  .notify-card .nbtn[disabled] { opacity: .55; }
+  .notify-card .nstatus { font-size: 13px; font-weight: 600; margin-top: 8px; min-height: 16px; color: #ffd3da; }
+  .notify-card details { margin-top: 12px; }
+  .notify-card summary { cursor: pointer; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #fff; }
+  .notify-card .howto { margin-top: 10px; font-size: 13.5px; color: #d5d7da; line-height: 1.6; }
+  .notify-card .howto b { color: var(--red); font-family: var(--disp); letter-spacing: .1em; text-transform: uppercase; display: block; margin-top: 10px; }
+  .notify-card .howto ol { margin: 4px 0 0 18px; }
   footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 8px 20px 40px; }
   footer .fmark { font-family: var(--disp); color: var(--ink); font-weight: 600; letter-spacing: 0.14em; }
   footer a { color: var(--muted); text-decoration: underline; }
@@ -197,6 +210,37 @@
     </div>
   </div>
 
+  <div class="notify">
+    <div class="notify-card">
+      <h3>&#128276; Get Notified</h3>
+      <p>Wish to receive notifications when Coach makes a change or posts a lineup? Add the Cougars app to your phone and enable notifications.</p>
+      <button class="nbtn" id="notify-btn" onclick="enablePush()">Enable Notifications</button>
+      <div class="nstatus" id="notify-status"></div>
+      <details>
+        <summary>Walk-thru: add the app to your phone</summary>
+        <div class="howto">
+          <b>iPhone / iPad (Apple)</b>
+          <ol>
+            <li>Open this page in Safari.</li>
+            <li>Tap the Share button (the square with the arrow).</li>
+            <li>Scroll down and tap <i>Add to Home Screen</i>, then <i>Add</i>.</li>
+            <li>Open the new Cougars app from your home screen.</li>
+            <li>Scroll back to this spot, tap Enable Notifications, then Allow.</li>
+          </ol>
+          <div style="margin-top:4px;font-size:12px;color:#8b8e94;">Needs iOS 16.4 or newer. On iPhone, notifications only work from the home-screen app, not the browser.</div>
+          <b>Android</b>
+          <ol>
+            <li>Open this page in Chrome.</li>
+            <li>Tap the &#8942; menu in the top corner.</li>
+            <li>Tap <i>Add to Home screen</i> (or <i>Install app</i>), then <i>Add</i>.</li>
+            <li>Open the Cougars app from your home screen.</li>
+            <li>Tap Enable Notifications, then Allow.</li>
+          </ol>
+        </div>
+      </details>
+    </div>
+  </div>
+
   <footer><span class="fmark">BLS COUGARS</span> &nbsp;&middot;&nbsp; Fastpitch &middot; Fall 2026<br /><a href="/cougars/welcome.html">Coach's welcome</a></footer>
 
 <script>
@@ -218,6 +262,71 @@
     if (d.walkup && d.walkup.length) mark("/cougars/walkup.html", "Done: " + d.walkup.join(", ") + ". Tap to change her song anytime.");
     if (d.snack) mark("/cougars/snacks.html", "You have " + d.snack + ". Thank you!");
   } catch (e) {}
+})();
+</script>
+<script>
+(function () {
+  var PUSH = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-push";
+  var btn = document.getElementById("notify-btn");
+  var st = document.getElementById("notify-status");
+
+  function b64ToU8(base64) {
+    var pad = "=".repeat((4 - (base64.length % 4)) % 4);
+    var b64 = (base64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+    var raw = atob(b64);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
+
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  var standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+    if (isIOS && !standalone) {
+      st.textContent = "On iPhone: add the app to your home screen first (walk-thru below), then enable inside the app.";
+    } else {
+      st.textContent = "This browser does not support notifications.";
+    }
+    btn.disabled = true;
+  } else if (Notification.permission === "granted") {
+    navigator.serviceWorker.register("/cougars/push-sw.js", { scope: "/cougars/" }).then(function (reg) {
+      return reg.pushManager.getSubscription();
+    }).then(function (sub) {
+      if (sub) { btn.textContent = "Notifications On"; btn.disabled = true; st.textContent = "You are set. Coach's updates will ping this device."; }
+    }).catch(function () {});
+  }
+
+  window.enablePush = function () {
+    btn.disabled = true;
+    st.textContent = "Setting up\u2026";
+    navigator.serviceWorker.register("/cougars/push-sw.js", { scope: "/cougars/" })
+      .then(function (reg) {
+        return Notification.requestPermission().then(function (perm) {
+          if (perm !== "granted") throw new Error("blocked");
+          return fetch(PUSH + "?action=key").then(function (r) { return r.json(); }).then(function (k) {
+            return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(k.public_key) });
+          });
+        });
+      })
+      .then(function (sub) {
+        return fetch(PUSH + "?action=subscribe", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sub: sub.toJSON() }),
+        });
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error("save failed");
+        btn.textContent = "Notifications On";
+        st.textContent = "You are set. Coach's updates will ping this device.";
+      })
+      .catch(function (e) {
+        btn.disabled = false;
+        st.textContent = e.message === "blocked"
+          ? "Notifications are blocked. Allow them in your phone settings for this app, then try again."
+          : "Could not set up notifications. Try again in a minute.";
+      });
+  };
 })();
 </script>
 <script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"hub"}),keepalive:true}).catch(function(){})}catch(e){}</script>

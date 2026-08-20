@@ -102,10 +102,11 @@
   <main id="app">
     <div class="grid">
       <div class="panel">
-        <div class="bar"><h3>Post a weekly update</h3></div>
+        <div class="bar"><h3>Updates &mdash; draft first, publish when ready</h3></div>
         <div class="bd">
           <textarea id="up-body" rows="3" placeholder="Plain and short. Example: Practice Thursday 6:00 at Tehaleh Heights. Bring cleats and water."></textarea>
-          <div class="row-btn"><button class="btn btn-red" onclick="postUpdate()">Post to parents</button><span class="m" id="up-msg"></span></div>
+          <div class="row-btn"><button class="btn btn-ghost" onclick="postUpdate()">Save Draft</button><span class="m" id="up-msg"></span></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">Drafts are checked out: parents cannot see them and no notifications go out. Publishing makes it live and sends ONE notification.</div>
           <div class="uplist" id="uplist"></div>
         </div>
       </div>
@@ -171,40 +172,68 @@ function postUpdate() {
   var body = document.getElementById("up-body").value.trim();
   var m = document.getElementById("up-msg");
   if (!body) { m.className = "m bad"; m.textContent = "Write the update first."; return; }
-  m.className = "m"; m.textContent = "Posting…";
-  fetch(API + "?action=post_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ body: body }) })
+  m.className = "m"; m.textContent = "Saving draft\u2026";
+  fetch(API + "?action=post_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ body: body, published: false }) })
     .then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function () {
-      m.className = "m ok"; m.textContent = "Posted. Parents see it on the Updates page.";
-      var blurb = "\uD83D\uDCE3 New team update posted: " + (body.length > 80 ? body.slice(0, 80) + "\u2026" : body) + " Read it: https://coachpilot.org/cougars/updates.html";
-      var gcBtn = document.getElementById("gc-blurb-btn");
-      if (!gcBtn) {
-        gcBtn = document.createElement("button");
-        gcBtn.id = "gc-blurb-btn";
-        gcBtn.className = "btn btn-ghost";
-        gcBtn.style.marginTop = "8px";
-        gcBtn.textContent = "Copy GameChanger blurb";
-        document.getElementById("up-msg").parentNode.appendChild(gcBtn);
-      }
-      gcBtn.onclick = function () {
-        navigator.clipboard.writeText(blurb).then(function () {
-          gcBtn.textContent = "Copied - paste in GC chat";
-          setTimeout(function () { gcBtn.textContent = "Copy GameChanger blurb"; }, 2500);
-        });
-      };
+      m.className = "m ok"; m.textContent = "Draft saved. Parents cannot see it yet.";
       document.getElementById("up-body").value = "";
       loadUpdates();
     })
     .catch(function () { m.className = "m bad"; m.textContent = "Failed. Try again."; });
 }
 
+var PUSH_API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-push";
+
+function publishUpdate(id) {
+  if (!confirm("Publish this update? It goes live for parents and sends ONE notification to every subscribed phone.")) return;
+  var m = document.getElementById("up-msg");
+  m.className = "m"; m.textContent = "Publishing\u2026";
+  fetch(API + "?action=publish_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) {
+      var snippet = d.body.length > 90 ? d.body.slice(0, 90) + "\u2026" : d.body;
+      return fetch(PUSH_API + "?action=notify", {
+        method: "POST", headers: pinHeaders(),
+        body: JSON.stringify({ title: "Cougars Update", body: snippet, url: "https://coachpilot.org/cougars/updates.html" }),
+      }).then(function (r) { return r.json(); }).then(function (n) {
+        m.className = "m ok";
+        m.textContent = "Published. Notification sent to " + (n.sent || 0) + " phone" + ((n.sent || 0) === 1 ? "" : "s") + ".";
+        var blurb = "\uD83D\uDCE3 New team update: " + snippet + " Read it: https://coachpilot.org/cougars/updates.html";
+        var gcBtn = document.getElementById("gc-blurb-btn");
+        if (!gcBtn) {
+          gcBtn = document.createElement("button");
+          gcBtn.id = "gc-blurb-btn";
+          gcBtn.className = "btn btn-ghost";
+          gcBtn.style.marginTop = "8px";
+          document.getElementById("up-msg").parentNode.appendChild(gcBtn);
+        }
+        gcBtn.textContent = "Copy GameChanger blurb";
+        gcBtn.onclick = function () {
+          navigator.clipboard.writeText(blurb).then(function () {
+            gcBtn.textContent = "Copied - paste in GC chat";
+            setTimeout(function () { gcBtn.textContent = "Copy GameChanger blurb"; }, 2500);
+          });
+        };
+        loadUpdates();
+      });
+    })
+    .catch(function () { m.className = "m bad"; m.textContent = "Publish failed. Try again."; });
+}
+
 function loadUpdates() {
-  fetch(API + "?action=updates")
+  fetch(API + "?action=all_updates", { headers: pinHeaders() })
     .then(function (r) { return r.json(); })
     .then(function (d) {
       var ups = d.updates || [];
-      document.getElementById("uplist").innerHTML = ups.slice(0, 6).map(function (u) {
-        return '<div class="u"><span class="d">' + esc(u.update_date) + '</span><span class="t">' + esc(u.body) + '</span><button onclick="unpub(\'' + esc(u.id) + '\')">hide</button></div>';
+      document.getElementById("uplist").innerHTML = ups.slice(0, 8).map(function (u) {
+        var chip = u.published
+          ? '<span style="font-size:10px;font-weight:700;color:#21622f;background:#ecf6ee;border-radius:10px;padding:2px 8px;">LIVE</span>'
+          : '<span style="font-size:10px;font-weight:700;color:#8a6a00;background:#fff7e0;border-radius:10px;padding:2px 8px;">DRAFT</span>';
+        var act = u.published
+          ? '<button onclick="unpub(\'' + esc(u.id) + '\')">hide</button>'
+          : '<button style="border-color:#c8102e;color:#c8102e;font-weight:700;" onclick="publishUpdate(\'' + esc(u.id) + '\')">PUBLISH</button>';
+        return '<div class="u"><span class="d">' + esc(u.update_date) + '</span>' + chip + '<span class="t">' + esc(u.body) + '</span>' + act + '</div>';
       }).join("");
     }).catch(function () {});
 }
