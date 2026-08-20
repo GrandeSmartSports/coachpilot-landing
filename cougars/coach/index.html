@@ -176,6 +176,22 @@ function postUpdate() {
     .then(function (r) { if (!r.ok) throw 0; return r.json(); })
     .then(function () {
       m.className = "m ok"; m.textContent = "Posted. Parents see it on the Updates page.";
+      var blurb = "\uD83D\uDCE3 New team update posted: " + (body.length > 80 ? body.slice(0, 80) + "\u2026" : body) + " Read it: https://coachpilot.org/cougars/updates.html";
+      var gcBtn = document.getElementById("gc-blurb-btn");
+      if (!gcBtn) {
+        gcBtn = document.createElement("button");
+        gcBtn.id = "gc-blurb-btn";
+        gcBtn.className = "btn btn-ghost";
+        gcBtn.style.marginTop = "8px";
+        gcBtn.textContent = "Copy GameChanger blurb";
+        document.getElementById("up-msg").parentNode.appendChild(gcBtn);
+      }
+      gcBtn.onclick = function () {
+        navigator.clipboard.writeText(blurb).then(function () {
+          gcBtn.textContent = "Copied - paste in GC chat";
+          setTimeout(function () { gcBtn.textContent = "Copy GameChanger blurb"; }, 2500);
+        });
+      };
       document.getElementById("up-body").value = "";
       loadUpdates();
     })
