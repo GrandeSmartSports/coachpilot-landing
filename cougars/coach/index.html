@@ -102,17 +102,6 @@
   <main id="app">
     <div class="grid">
       <div class="panel">
-        <div class="bar"><h3>Headcount</h3><span id="ev-label" style="font-size:12px;color:#f3c7ce;"></span></div>
-        <div class="bd">
-          <div class="counts" id="counts"></div>
-          <div class="roll" id="roll">Loading…</div>
-          <label for="new-event">Point attendance at a new practice or game</label>
-          <input type="text" id="new-event" placeholder='e.g. "Thursday practice, Aug 27"' />
-          <div class="row-btn"><button class="btn btn-ghost" onclick="setEvent()">Set it</button><span class="m" id="ev-msg"></span></div>
-        </div>
-      </div>
-
-      <div class="panel">
         <div class="bar"><h3>Post a weekly update</h3></div>
         <div class="bd">
           <textarea id="up-body" rows="3" placeholder="Plain and short. Example: Practice Thursday 6:00 at Tehaleh Heights. Bring cleats and water."></textarea>
@@ -135,7 +124,6 @@
         <div class="bar"><h3>Parent links — drop into GameChanger</h3></div>
         <div class="bd links">
           <div class="lk"><b>Hub</b><span class="u">coachpilot.org/cougars</span><button onclick="cp(this,'https://coachpilot.org/cougars/')">Copy</button></div>
-          <div class="lk"><b>Attendance</b><span class="u">coachpilot.org/cougars/attendance.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/attendance.html')">Copy</button></div>
           <div class="lk"><b>Updates</b><span class="u">coachpilot.org/cougars/updates.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/updates.html')">Copy</button></div>
           <div class="lk"><b>Practice info</b><span class="u">coachpilot.org/cougars/practice.html</span><button onclick="cp(this,'https://coachpilot.org/cougars/practice.html')">Copy</button></div>
         </div>
@@ -159,7 +147,7 @@ function unlock() {
 
 function boot() {
   if (!localStorage.getItem(PIN_KEY)) return;
-  fetch(API + "?action=attendance_report", { headers: pinHeaders() })
+  fetch(API + "?action=visits_report", { headers: pinHeaders() })
     .then(function (r) {
       if (r.status === 401) { localStorage.removeItem(PIN_KEY); throw new Error("Wrong PIN"); }
       if (!r.ok) throw new Error("Load failed (" + r.status + ")");
@@ -168,7 +156,6 @@ function boot() {
     .then(function (d) {
       document.getElementById("gate").style.display = "none";
       document.getElementById("app").style.display = "block";
-      renderHeadcount(d);
       loadUpdates();
     })
     .catch(function (e) {
@@ -178,35 +165,7 @@ function boot() {
     });
 }
 
-function renderHeadcount(d) {
-  document.getElementById("ev-label").textContent = d.label || "no event set";
-  var s = d.summary || { yes: 0, no: 0, maybe: 0, silent: 0 };
-  document.getElementById("counts").innerHTML =
-    '<span class="cnt yes">' + s.yes + " yes</span>" +
-    '<span class="cnt maybe">' + s.maybe + " maybe</span>" +
-    '<span class="cnt no">' + s.no + " no</span>" +
-    '<span class="cnt silent">' + s.silent + " silent</span>";
-  var rows = (d.report || []).map(function (p) {
-    var st = p.status || "silent";
-    return '<div class="p"><span>' + esc(p.first_name + " " + p.last_name) + (p.note ? ' <span class="n">— ' + esc(p.note) + "</span>" : "") + '</span><span class="s ' + st + '">' + st + "</span></div>";
-  }).join("");
-  document.getElementById("roll").innerHTML = rows || "No players found.";
-}
 
-function setEvent() {
-  var label = document.getElementById("new-event").value.trim();
-  var m = document.getElementById("ev-msg");
-  if (!label) { m.className = "m bad"; m.textContent = "Type a name for it."; return; }
-  m.className = "m"; m.textContent = "Setting…";
-  fetch(API + "?action=set_event", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ label: label }) })
-    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function () {
-      m.className = "m ok"; m.textContent = "Set. Parents now answer for: " + label;
-      document.getElementById("new-event").value = "";
-      return fetch(API + "?action=attendance_report", { headers: pinHeaders() }).then(function (r) { return r.json(); }).then(renderHeadcount);
-    })
-    .catch(function () { m.className = "m bad"; m.textContent = "Failed. Try again."; });
-}
 
 function postUpdate() {
   var body = document.getElementById("up-body").value.trim();
