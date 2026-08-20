@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Walk-Up Song — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 640px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 44px); text-transform: uppercase; line-height: 1.05; margin-top: 4px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 640px; margin: 0 auto; padding: 24px 22px 56px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 20px 18px; }
+  .lbl { font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin: 16px 0 6px; }
+  .lbl:first-child { margin-top: 0; }
+  select, input[type=text], textarea {
+    width: 100%; font-size: 16px; padding: 12px; border: 2px solid var(--line); border-radius: 10px; background: #fdfdfd; font-family: inherit;
+  }
+  select:focus, input:focus, textarea:focus { outline: none; border-color: var(--red); }
+  .hint { font-size: 12.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; }
+  .split { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+  .rec { border: 2px dashed var(--line); border-radius: 12px; padding: 14px; text-align: center; background: #fdfdfd; }
+  .rec input { display: none; }
+  .rec .btn-pick { display: inline-block; font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; border: 2px solid var(--black); border-radius: 10px; padding: 10px 16px; cursor: pointer; }
+  .rec .picked { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--green); }
+  .go { width: 100%; margin-top: 20px; border: 0; border-radius: 12px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: .06em; text-transform: uppercase; padding: 15px; cursor: pointer; }
+  .go[disabled] { opacity: .5; }
+  .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
+  .msg.ok { color: var(--green); } .msg.bad { color: var(--red); }
+  .note { background: #fbe9ec; border-left: 4px solid var(--red); border-radius: 8px; padding: 10px 12px; font-size: 13px; margin-top: 16px; line-height: 1.5; }
+  .back { display: inline-block; margin-top: 20px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .empty { text-align: center; color: var(--muted); padding: 30px 0; }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Game Days</div>
+    <h1>Pick her walk-up song</h1>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+    <div class="card">
+      <div class="lbl">Player</div>
+      <select id="player"><option value="">Pick your player…</option></select>
+
+      <div class="lbl">Her walk-up song</div>
+      <input type="text" id="song" placeholder="Song title" />
+      <div style="margin-top:10px;" class="split">
+        <input type="text" id="artist" placeholder="Artist" />
+        <input type="text" id="start" placeholder="Start at 0:45" inputmode="numeric" />
+      </div>
+      <div class="hint">"Start at" is the spot in the song where her clip should begin — usually the best 15 seconds, like the chorus. Guess is fine, we can tune it later.</div>
+
+      <div class="lbl">How to say her name</div>
+      <input type="text" id="phonetic" placeholder="Phonetic spelling, e.g. juh-NEE-sek (optional)" />
+      <div class="hint" style="margin-bottom:8px;">Even better: attach a quick voice memo of your daughter saying her name loud and clear (you can record it yourself instead). That makes the PA announcement perfect.</div>
+      <div class="rec">
+        <label class="btn-pick" for="recording">Attach name recording</label>
+        <input type="file" id="recording" accept="audio/*" />
+        <div class="picked" id="picked"></div>
+      </div>
+
+      <div class="lbl">Your name</div>
+      <input type="text" id="parent" placeholder="Parent or guardian name" />
+
+      <div class="note"><b>Clean versions only.</b> Songs play over the speakers at a Little League field, so radio edits it is.</div>
+
+      <button class="go" id="go" onclick="submitIt()">Submit her song</button>
+      <div class="msg" id="msg"></div>
+    </div>
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  fetch(API + "?action=players").then(function (r) { return r.json(); }).then(function (d) {
+    var sel = document.getElementById("player");
+    (d.players || []).forEach(function (p) {
+      var o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.first_name + " " + (p.last_initial ? p.last_initial + "." : "");
+      sel.appendChild(o);
+    });
+  });
+
+  document.getElementById("recording").addEventListener("change", function () {
+    var f = this.files && this.files[0];
+    document.getElementById("picked").textContent = f ? "✓ " + f.name : "";
+  });
+
+  window.submitIt = function () {
+    var msg = document.getElementById("msg");
+    var pid = document.getElementById("player").value;
+    var song = document.getElementById("song").value.trim();
+    if (!pid) { msg.className = "msg bad"; msg.textContent = "Pick your player first."; return; }
+    if (!song) { msg.className = "msg bad"; msg.textContent = "We need the song title."; return; }
+    var f = document.getElementById("recording").files[0];
+    if (f && f.size > 8 * 1024 * 1024) { msg.className = "msg bad"; msg.textContent = "Recording is too big (8MB max). A short voice memo is plenty."; return; }
+
+    var fd = new FormData();
+    fd.append("player_id", pid);
+    fd.append("song_title", song);
+    fd.append("song_artist", document.getElementById("artist").value);
+    fd.append("song_start", document.getElementById("start").value);
+    fd.append("phonetic", document.getElementById("phonetic").value);
+    fd.append("parent_name", document.getElementById("parent").value);
+    if (f) fd.append("name_recording", f);
+
+    document.getElementById("go").disabled = true;
+    msg.className = "msg"; msg.textContent = f ? "Uploading…" : "Sending…";
+    fetch(API + "?action=submit_walkup", { method: "POST", body: fd })
+      .then(function (r) { if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || "failed"); }); return r.json(); })
+      .then(function (d) {
+        msg.className = "msg ok";
+        msg.textContent = "Got it! " + d.first_name + "'s song is in" + (d.has_recording ? ", recording and all." : ".") + " You can resubmit any time to change it.";
+        document.getElementById("go").disabled = false;
+      })
+      .catch(function (e) {
+        msg.className = "msg bad"; msg.textContent = "Could not send (" + e.message + "). Try again.";
+        document.getElementById("go").disabled = false;
+      });
+  };
+
+  try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "walkup" }), keepalive: true }).catch(function () {}); } catch (e) {}
+})();
+</script>
+</body>
+</html>
