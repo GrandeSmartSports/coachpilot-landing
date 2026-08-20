@@ -255,6 +255,12 @@
         msg.className = "msg ok";
         msg.textContent = "Got it! " + d.first_name + "'s song is in" + (d.has_recording ? ", recording and all." : ".") + " You can resubmit any time to change it.";
         document.getElementById("go").disabled = false;
+        try {
+          var done = JSON.parse(localStorage.getItem("cougars_done") || "{}");
+          done.walkup = done.walkup || [];
+          if (done.walkup.indexOf(d.first_name) < 0) done.walkup.push(d.first_name);
+          localStorage.setItem("cougars_done", JSON.stringify(done));
+        } catch (e) {}
       })
       .catch(function (e) {
         msg.className = "msg bad"; msg.textContent = "Could not send (" + e.message + "). Try again.";

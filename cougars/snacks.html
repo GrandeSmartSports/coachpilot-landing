@@ -104,7 +104,14 @@
         if (!r.ok) throw new Error("Could not claim. Try again.");
         return r.json();
       })
-      .then(function () { load(); })
+      .then(function (d) {
+        try {
+          var done = JSON.parse(localStorage.getItem("cougars_done") || "{}");
+          done.snack = d.game_label;
+          localStorage.setItem("cougars_done", JSON.stringify(done));
+        } catch (e) {}
+        load();
+      })
       .catch(function (e) { m.className = "m bad"; m.textContent = e.message; });
   };
 
