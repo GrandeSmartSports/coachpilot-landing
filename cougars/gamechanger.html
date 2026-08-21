@@ -38,6 +38,14 @@
   .cta { display: block; text-align: center; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; border-radius: 12px; padding: 14px; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; margin-top: 8px; }
   .tip { background: #fff8e6; border-left: 4px solid #b98a00; border-radius: 8px; padding: 9px 12px; font-size: 13.5px; margin: 8px 0; }
   .back { display: inline-block; margin-top: 10px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+  #app { display: none; }
+  #sk-gate { max-width: 320px; margin: 12vh auto; text-align: center; padding: 0 20px; }
+  #sk-gate .card { padding: 30px 22px; }
+  #sk-gate h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: .1em; color: var(--ink); font-size: 18px; margin-bottom: 6px; }
+  #sk-gate .hint { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  #sk-gate input { width: 100%; font-size: 22px; text-align: center; letter-spacing: 8px; padding: 10px; border: 2px solid var(--line); border-radius: 10px; }
+  #sk-gate button { margin-top: 12px; width: 100%; font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: .05em; text-transform: uppercase; border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; }
+  #sk-gate .err { color: var(--red); font-size: 13px; margin-top: 8px; min-height: 16px; }
 </style>
 </head>
 <body>
@@ -47,7 +55,18 @@
     <p class="tag">Everything you need to run GameChanger for the Cougars. You've got the most important seat in the stands.</p>
   </div></div>
   <div class="slash"></div>
-  <div class="shell">
+
+  <div id="sk-gate">
+    <div class="card">
+      <h2>Scorekeepers Only</h2>
+      <p class="hint">Enter the scorekeeper PIN from Coach.</p>
+      <input id="sk-pin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN" autocomplete="off" />
+      <button onclick="skUnlock()">Open</button>
+      <div class="err" id="sk-gate-err"></div>
+    </div>
+  </div>
+
+  <div class="shell" id="app">
 
     <div class="card">
       <h2>Learn it — free, at your own pace</h2>
@@ -94,6 +113,34 @@
 
     <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
   </div>
+<script>
+var SK_PIN = "0912";
+var SK_KEY = "cougars-sk-pin";
+
+function skBoot() {
+  var ok = false;
+  try { ok = localStorage.getItem(SK_KEY) === SK_PIN; } catch (e) {}
+  document.getElementById("sk-gate").style.display = ok ? "none" : "block";
+  document.getElementById("app").style.display = ok ? "block" : "none";
+}
+
+function skUnlock() {
+  var el = document.getElementById("sk-pin");
+  var pin = el.value.trim();
+  if (!pin) return;
+  if (pin === SK_PIN) {
+    try { localStorage.setItem(SK_KEY, pin); } catch (e) {}
+    document.getElementById("sk-gate-err").textContent = "";
+    skBoot();
+  } else {
+    el.value = "";
+    document.getElementById("sk-gate-err").textContent = "Wrong PIN. Try again.";
+  }
+}
+
+document.getElementById("sk-pin").addEventListener("keydown", function (e) { if (e.key === "Enter") skUnlock(); });
+skBoot();
+</script>
 <script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"practice"}),keepalive:true}).catch(function(){})}catch(e){}</script>
 </body>
 </html>
