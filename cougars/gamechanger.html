@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Scorekeeper HQ — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.55; }
+  a { color: inherit; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 680px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 44px); text-transform: uppercase; line-height: 1.05; margin-top: 4px; }
+  .hero .tag { margin-top: 8px; color: #a9acb2; font-size: 14px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 680px; margin: 0 auto; padding: 24px 22px 56px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 14px; }
+  .card h2 { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  .card p { font-size: 14.5px; color: #33383d; margin-bottom: 8px; }
+  .card ol, .card ul { margin: 4px 0 8px 20px; font-size: 14.5px; color: #33383d; }
+  .card li { padding: 3px 0; }
+  .flow { counter-reset: step; }
+  .step { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #eef0f1; }
+  .step:last-child { border-bottom: 0; }
+  .step .n { flex: 0 0 34px; height: 34px; border-radius: 10px; background: var(--black); border-bottom: 3px solid var(--red); color: #fff; font-family: var(--disp); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .step .b { flex: 1; font-size: 14.5px; color: #33383d; }
+  .step .b b { display: block; font-family: var(--disp); font-size: 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+  .cta { display: block; text-align: center; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; border-radius: 12px; padding: 14px; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; margin-top: 8px; }
+  .tip { background: #fff8e6; border-left: 4px solid #b98a00; border-radius: 8px; padding: 9px 12px; font-size: 13.5px; margin: 8px 0; }
+  .back { display: inline-block; margin-top: 10px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Game Days</div>
+    <h1>Scorekeeper HQ</h1>
+    <p class="tag">Everything you need to run GameChanger for the Cougars. You've got the most important seat in the stands.</p>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+
+    <div class="card">
+      <h2>Learn it — free, at your own pace</h2>
+      <p>GameChanger's own scorekeeping course covers every screen you'll touch. Do it on the couch, takes an evening, no pressure.</p>
+      <a class="cta" href="https://gc.com/gamechanger-university/scorekeeping-baseball-softball" target="_blank" rel="noopener">Open GameChanger University</a>
+    </div>
+
+    <div class="card">
+      <h2>The lineup — solved before you leave home</h2>
+      <p>The old way was the hard way: scrambling to enter the lineup at the field. Here's our way:</p>
+      <div class="flow">
+        <div class="step"><span class="n">1</span><span class="b"><b>Coach publishes the lineup early</b> — game morning, well before first pitch, it goes out through the Cougars app.</span></div>
+        <div class="step"><span class="n">2</span><span class="b"><b>Your phone pings you</b> — as long as notifications are on in the Cougars app (bottom of the team hub: add the app, tap Enable Notifications).</span></div>
+        <div class="step"><span class="n">3</span><span class="b"><b>Enter it into GameChanger from home</b> — open the game in GC, set the batting order and positions right off the published lineup card. Ten calm minutes at the kitchen table.</span></div>
+        <div class="step"><span class="n">4</span><span class="b"><b>At the field: confirm, don't create</b> — check with Coach for any late scratches, adjust the one or two names, done before warmups end.</span></div>
+      </div>
+      <div class="tip"><b>The lineup card always lives at:</b> the Cougars Game Day app — you'll see every girl's batting spot and position by inning, exactly what Coach published.</div>
+    </div>
+
+    <div class="card">
+      <h2>Game-day tips &amp; tricks</h2>
+      <ul>
+        <li><b>You can fix anything.</b> Tapped the wrong thing? Every play can be edited after the fact. Get the outs and runners right in the moment; polish later.</li>
+        <li><b>When a play confuses you,</b> just record the result — who's out, who's on base. Perfect scoring is a bonus, not the job.</li>
+        <li><b>Tag team it.</b> One of you watches the field, the other taps. Trading innings keeps it fun.</li>
+        <li><b>Charge up.</b> Full battery + a backup pack. Scoring drains phones.</li>
+        <li><b>Sit where you can see the plate.</b> Behind the backstop beats the bleacher corner.</li>
+        <li><b>Ask Coach anything between innings.</b> Seriously. Anytime.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Your game-day checklist</h2>
+      <ol>
+        <li>Night before: phone charged, GC app updated, logged into the team.</li>
+        <li>Morning: lineup notification arrives → enter it in GC from home.</li>
+        <li>Arrive: confirm scratches with Coach, adjust lineup.</li>
+        <li>During: score it, edit freely, have fun with it.</li>
+        <li>After: tap end game — that's it. Stats sync automatically.</li>
+      </ol>
+      <p style="margin-top:6px;">Questions anytime: text Coach Daniel at <b>623-332-2251</b>.</p>
+    </div>
+
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+<script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"practice"}),keepalive:true}).catch(function(){})}catch(e){}</script>
+</body>
+</html>
