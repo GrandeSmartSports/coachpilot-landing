@@ -42,7 +42,7 @@ const mustContain = [
   'Kicking off this November',
   '$150',
   'Siblings are $100 a month each',
-  'small group sessions and individual sessions',
+  'individual sessions and small group sessions',
   'JOIN THE INTEREST LIST',
   'No payment now',
   'You are on the list. Coach Daniel will reach out as soon as the night is set',
