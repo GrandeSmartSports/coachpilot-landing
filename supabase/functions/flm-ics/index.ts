@@ -39,13 +39,18 @@ Deno.serve(async (req: Request) => {
     else if (url.searchParams.get("team")) sel.team = url.searchParams.get("team")!;
     else if (url.searchParams.get("division")) sel.division = url.searchParams.get("division")!;
 
-    const [games, teams, fields, exts, lg] = await Promise.all([
-      db.from("flm_games").select("id,created_at,division,home_team_id,away_team_id,ext_team_id,field_id,venue_text,game_date,start_time,end_time,status,notes").neq("status", "draft").order("game_date").order("start_time"),
+    const [games, teams, fields, exts, lg, seasons] = await Promise.all([
+      db.from("flm_games").select("id,created_at,season_id,division,home_team_id,away_team_id,ext_team_id,field_id,venue_text,game_date,start_time,end_time,status,notes").neq("status", "draft").order("game_date").order("start_time"),
       db.from("flm_teams").select("id,name,division"),
       db.from("flm_fields").select("id,name"),
       db.from("flm_ext_teams").select("id,league_name,team_name"),
       db.from("flm_settings").select("value").eq("key", "league_name").maybeSingle(),
+      db.from("flm_seasons").select("id,archived"),
     ]);
+    // Phase 5: archived seasons never feed calendars. Subscribers only ever
+    // see the active season's games.
+    const archived = new Set((seasons.data ?? []).filter((s: { archived: boolean }) => s.archived).map((s: { id: string }) => s.id));
+    const liveGames = (games.data ?? []).filter((g: { season_id: string }) => !archived.has(g.season_id));
     const league = lg.data?.value || "Field Command";
     let name = league + " games";
     if (sel.team) {
@@ -54,7 +59,7 @@ Deno.serve(async (req: Request) => {
     } else if (sel.division) {
       name = sel.division + " games (" + league + ")";
     }
-    const shown = filterGames(games.data ?? [], sel);
+    const shown = filterGames(liveGames, sel);
     const ics = buildIcs(shown, { teams: teams.data ?? [], fields: fields.data ?? [], ext_teams: exts.data ?? [] }, { name });
     return new Response(ics, { headers: HEADERS });
   } catch (e) {

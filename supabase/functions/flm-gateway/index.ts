@@ -1,4 +1,4 @@
-// Field Command gateway (v11). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v12). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -199,7 +199,9 @@ Deno.serve(async (req: Request) => {
         db.from("flm_settings").select("key,value"),
         db.from("flm_seasons").select("*").order("sort"),
         db.from("flm_fields").select("*").order("sort"),
-        db.from("flm_teams").select(PUBLIC_TEAM_COLS).order("name"),
+        // Admin console gets full team rows (coach_email for the edit modal);
+        // the public portal keeps the trimmed column list.
+        db.from("flm_teams").select(showDrafts ? "*" : PUBLIC_TEAM_COLS).order("name"),
         db.from("flm_slots").select("*"),
         db.from("flm_announcements").select("id,created_at,title,body,severity").eq("active", true).order("created_at", { ascending: false }).limit(10),
         gamesQ,
@@ -209,7 +211,18 @@ Deno.serve(async (req: Request) => {
       (settings.data ?? []).forEach((r: { key: string; value: string }) => {
         if (r.key !== "admin_pin" && r.key !== "cron_key") s[r.key] = r.value;
       });
-      const out: Record<string, unknown> = { ok: true, settings: s, seasons: seasons.data, fields: fields.data, teams: teams.data, slots: slots.data, announcements: announcements.data, games: games.data, ext_teams: extTeams.data };
+      // Phase 5: archived seasons (and their games and practice slots) drop out
+      // of the public portal and stay reachable only in the admin console.
+      let seasonRows = seasons.data ?? [];
+      let gameRows = games.data ?? [];
+      let slotRows = slots.data ?? [];
+      if (!showDrafts) {
+        const archived = new Set(seasonRows.filter((x: { archived?: boolean }) => x.archived).map((x: { id: string }) => x.id));
+        seasonRows = seasonRows.filter((x: { archived?: boolean }) => !x.archived);
+        gameRows = gameRows.filter((g: { season_id: string }) => !archived.has(g.season_id));
+        slotRows = slotRows.filter((sl: { season_id: string }) => !archived.has(sl.season_id));
+      }
+      const out: Record<string, unknown> = { ok: true, settings: s, seasons: seasonRows, fields: fields.data, teams: teams.data, slots: slotRows, announcements: announcements.data, games: gameRows, ext_teams: extTeams.data };
       // Umpire roster + assignments ride on state ONLY for the admin console.
       // The public portal never receives an umps key at all.
       if (showDrafts) {
@@ -552,6 +565,30 @@ Deno.serve(async (req: Request) => {
         }
         await db.from("flm_settings").upsert({ key: "ump_defaults", value: b.ump_defaults }, { onConflict: "key" });
       }
+      // Phase 5 keys: standings_divisions = per-division standings settings
+      // ({ "Majors BB": { "show": true, "count_interlock": true } });
+      // sg_unplaced = the last generation's unplaced matchups, persisted so the
+      // review list survives a reload.
+      if (typeof b.standings_divisions === "string") {
+        try {
+          const o = JSON.parse(b.standings_divisions);
+          if (!o || typeof o !== "object" || Array.isArray(o) || Object.values(o).some((v) => !v || typeof v !== "object" || Array.isArray(v))) {
+            return json({ ok: false, error: "standings_divisions must map divisions to settings objects" }, 400);
+          }
+        } catch (_e) {
+          return json({ ok: false, error: "standings_divisions must be valid JSON" }, 400);
+        }
+        await db.from("flm_settings").upsert({ key: "standings_divisions", value: b.standings_divisions }, { onConflict: "key" });
+      }
+      if (typeof b.sg_unplaced === "string") {
+        try {
+          const a = JSON.parse(b.sg_unplaced);
+          if (!Array.isArray(a) || a.length > 100) return json({ ok: false, error: "sg_unplaced must be a list of at most 100 items" }, 400);
+        } catch (_e) {
+          return json({ ok: false, error: "sg_unplaced must be valid JSON" }, 400);
+        }
+        await db.from("flm_settings").upsert({ key: "sg_unplaced", value: b.sg_unplaced }, { onConflict: "key" });
+      }
       for (const key of ["league_name", "rules", "practice_rules", "season_gen_config"]) {
         if (typeof b[key] === "string") {
           if (key === "practice_rules") {
@@ -744,6 +781,7 @@ Deno.serve(async (req: Request) => {
       if (b.sort !== undefined) row.sort = b.sort;
       if (b.locked !== undefined) row.locked = !!b.locked;
       if (b.is_active !== undefined) row.is_active = !!b.is_active;
+      if (b.archived !== undefined) row.archived = !!b.archived;
       let res;
       if (b.id) res = await db.from("flm_seasons").update(row).eq("id", b.id).select().single();
       else {
@@ -760,6 +798,55 @@ Deno.serve(async (req: Request) => {
       await db.from("flm_seasons").delete().eq("id", b.id);
       await log("season", `Deleted window ${s?.label ?? b.id} (and its slots)`, "admin");
       return json({ ok: true });
+    }
+
+    // Phase 5: "Start next season". One confirmed action: create the new
+    // window, archive every window that is live today (their games and
+    // standings stay viewable in admin, but coaches, parents, and calendar
+    // feeds only see the new season), optionally copy one old window's
+    // practice grid, and point the saved season generator setup at the new
+    // window. Fields and teams are league-wide and stay as they are.
+    if (action === "admin_season_clone") {
+      const label = String(b.label ?? "").trim().slice(0, 80);
+      if (!label) return json({ ok: false, error: "Give the new season a name first." }, 400);
+      const { data: allSeasons } = await db.from("flm_seasons").select("id,label,archived,sort").order("sort");
+      const live = (allSeasons ?? []).filter((x: { archived: boolean }) => !x.archived);
+      const maxSort = (allSeasons ?? []).reduce((m: number, x: { sort: number }) => Math.max(m, x.sort ?? 0), 0);
+      const ins = await db.from("flm_seasons").insert({
+        label,
+        start_date: b.start_date || null,
+        end_date: b.end_date || null,
+        sort: maxSort + 1,
+      }).select().single();
+      if (ins.error) return json({ ok: false, error: ins.error.message }, 500);
+      const season = ins.data;
+      if (live.length) {
+        await db.from("flm_seasons").update({ archived: true, locked: true }).in("id", live.map((x: { id: string }) => x.id));
+      }
+      let copied = 0;
+      if (b.copy_slots_from) {
+        const { data: slots } = await db.from("flm_slots").select("day_key,field_id,team_id,label,note").eq("season_id", b.copy_slots_from);
+        if ((slots ?? []).length) {
+          const rows = (slots ?? []).map((sl: Record<string, unknown>) => ({ ...sl, season_id: season.id, claimed_by: "admin" }));
+          const cp = await db.from("flm_slots").insert(rows).select("id");
+          copied = (cp.data ?? []).length;
+        }
+      }
+      // Carry the season generator setup over: same divisions, days, and
+      // fields, pointed at the new window with its new date range.
+      const { data: cfgRow } = await db.from("flm_settings").select("value").eq("key", "season_gen_config").maybeSingle();
+      if (cfgRow?.value) {
+        try {
+          const cfg = JSON.parse(cfgRow.value);
+          cfg.season_id = season.id;
+          cfg.start_date = b.start_date || "";
+          cfg.end_date = b.end_date || "";
+          await db.from("flm_settings").upsert({ key: "season_gen_config", value: JSON.stringify(cfg) }, { onConflict: "key" });
+        } catch (_e) { /* an unreadable config is left alone */ }
+      }
+      const archivedLabels = live.map((x: { label: string }) => x.label);
+      await log("season", `Started next season "${label}". Archived ${archivedLabels.length ? archivedLabels.join(", ") : "no old windows"}${copied ? `, copied ${copied} practice slots over` : ""}. The old schedule stays viewable in admin.`, "admin");
+      return json({ ok: true, season, copied_slots: copied, archived: archivedLabels });
     }
 
     if (action === "admin_slot") {
@@ -817,6 +904,18 @@ Deno.serve(async (req: Request) => {
           const n = +b.umps_needed;
           if (!Number.isInteger(n) || n < 0 || n > 6) return json({ ok: false, error: "umpires needed must be a number from 0 to 6" }, 400);
           row.umps_needed = n;
+        }
+      }
+      // Phase 5: final scores. Entering both scores normally rides along with
+      // status "completed"; scores stay editable afterward.
+      for (const k of ["home_score", "away_score"]) {
+        if (b[k] !== undefined) {
+          if (b[k] === null || b[k] === "") row[k] = null;
+          else {
+            const n = +b[k];
+            if (!Number.isInteger(n) || n < 0 || n > 200) return json({ ok: false, error: "scores must be whole numbers from 0 to 200" }, 400);
+            row[k] = n;
+          }
         }
       }
       if (row.home_team_id && row.home_team_id === row.away_team_id) return json({ ok: false, error: "home and away must be different teams" }, 400);

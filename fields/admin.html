@@ -155,6 +155,8 @@
   .log .t { color: var(--muted); white-space: nowrap; }
   .log .a { font-weight: 700; text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.06em; color: var(--clay); padding-top: 2px; }
 
+  .wizlbl { display: block; font-size: 13.5px; font-weight: 600; margin: 12px 0 4px; }
+
   #gate { position: fixed; inset: 0; background: var(--pine); display: flex; align-items: center; justify-content: center; z-index: 99; }
   .gatebox { background: var(--white); border-radius: 16px; padding: 28px; width: 92%; max-width: 360px; text-align: center; }
   .gatebox h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
@@ -187,7 +189,15 @@
     <div class="tiles" id="tiles"></div>
 
     <div class="panels">
-      <div class="panel span2">
+      <div class="panel span2" id="panelAttn">
+        <div class="bar"><h2>What needs attention</h2><button class="btn sm clay" id="wizardBtn">Set up your league</button></div>
+        <div class="body">
+          <p class="hint">Your to-do list, built from the schedule itself. Each line jumps to the right place.</p>
+          <div id="attnList"></div>
+        </div>
+      </div>
+
+      <div class="panel span2" id="panelComp">
         <div class="bar"><h2>Practice compliance</h2></div>
         <div class="body">
           <p class="hint" id="compHint"></p>
@@ -196,7 +206,7 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelGames">
         <div class="bar"><h2>Games</h2></div>
         <div class="body">
           <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. For interlock games against another league (Auburn LL, Kent LL, and so on) switch the opponent to that league's team and, for road games, type in their venue. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
@@ -224,7 +234,7 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelExt">
         <div class="bar"><h2>Interlock opponents (other leagues)</h2></div>
         <div class="body">
           <p class="hint">Teams from other leagues that we play interlock games against, like Auburn LL or Kent LL. They live on their own list: they never show up in coach pickers, practice claiming, or compliance. Give each one the division name it matches on our side so the season generator can build the right pool.</p>
@@ -241,10 +251,19 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelGen">
         <div class="bar"><h2>Season generator</h2></div>
         <div class="body">
-          <p class="hint">Build a whole season of games in one shot. Set up each division, hit Generate, and the games land as drafts that only you can see. Review the drafts, fix anything by hand, then Publish to put them on the coach portal. Publishing never emails anyone.</p>
+          <p class="hint">Build a whole season of games in one shot. Set up each division, hit Generate, and the games land as drafts. Drafts are schedule ideas only you can see; coaches and parents see nothing until you hit Publish. Publishing never emails anyone.</p>
+          <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Quick start templates</label>
+            <p class="hint" style="margin:4px 0 8px;">Not sure where to begin? Pick a template and every division below gets filled in with a typical setup. You can change anything afterward.</p>
+            <div class="row">
+              <button class="btn sm ghost" data-sgpreset="saturday">Typical Saturday league: every team plays Saturdays, 10 games</button>
+              <button class="btn sm ghost" data-sgpreset="satweek">Saturday plus one weeknight</button>
+              <button class="btn sm ghost" data-sgpreset="custom">Custom: start from a blank setup</button>
+            </div>
+          </div>
           <div class="row" style="margin-bottom:10px;">
             <select id="sgSeason"></select>
             <label style="font-size:12.5px;">From <input id="sgStart" type="date" /></label>
@@ -308,10 +327,10 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelBoard">
         <div class="bar"><h2>Season board</h2></div>
         <div class="body">
-          <p class="hint">Every game on the schedule, week by week. Drag a game to a different day, or use its Move button to see open times that fit with no clashes. Rain out one game with its button, or pick a date and rain out that whole day in one go. Rained out games wait in the makeup tray until you give them a new time. Nothing here emails anyone.</p>
+          <p class="hint">Every game on the schedule, week by week. Drag a game to a different day, or use its Move button to see open times that fit with no clashes. Rain out one game with its button, or pick a date and rain out that whole day in one go. Rained out games wait in the makeup tray until you give them a new time. When a game is over, hit Final score to record it. Nothing here emails anyone.</p>
           <div class="row" style="margin-bottom:10px;">
             <select id="bdSeason"></select>
             <select id="bdDiv"><option value="">All divisions</option></select>
@@ -325,7 +344,26 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelStand">
+        <div class="bar"><h2>Scores &amp; standings</h2></div>
+        <div class="body">
+          <p class="hint">Standings build themselves from the final scores you enter on the Season board. Wins, losses, ties, and run difference per division. You choose which divisions show their standings on the parent-facing portal; many leagues keep the younger divisions off on purpose.</p>
+          <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">What shows on the portal</label>
+            <div id="stSettings" style="margin-top:6px;"></div>
+            <div class="row" style="margin-top:8px;">
+              <button class="btn sm" id="stSave">Save standings settings</button>
+              <span id="stMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+            </div>
+          </div>
+          <div class="row" style="margin-bottom:8px;">
+            <select id="stSeason"></select>
+          </div>
+          <div id="stTables"></div>
+        </div>
+      </div>
+
+      <div class="panel span2" id="panelUmps">
         <div class="bar"><h2>Umpires</h2><button class="btn sm clay" id="uAdd">+ Umpire</button></div>
         <div class="body">
           <div id="umpKill"></div>
@@ -344,7 +382,7 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelAnnounce">
         <div class="bar"><h2>League announcements</h2></div>
         <div class="body">
           <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
@@ -359,29 +397,29 @@
         </div>
       </div>
 
-      <div class="panel span2">
+      <div class="panel span2" id="panelImport">
         <div class="bar"><h2>Import from Excel</h2></div>
         <div class="body">
-          <p class="hint">Drop in the league spreadsheet (.xlsx). Schedule tabs and coach-contact tabs are detected automatically — new fields, teams, and coaches are created as needed, so it works even as the league grows.</p>
+          <p class="hint">Already keep the league in a spreadsheet? Drop the .xlsx file here. Practice-schedule tabs and coach-contact tabs are found automatically, and new fields, teams, and coaches are created as needed. Nothing imports until you review each tab and press its Import button.</p>
           <div class="drop" id="drop">Tap to choose a file, or drag the spreadsheet here</div>
           <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden" />
           <div class="preview" id="preview"></div>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="bar"><h2>Schedule windows</h2></div>
+      <div class="panel" id="panelWindows">
+        <div class="bar"><h2>Schedule windows</h2><button class="btn sm clay" id="cloneSeasonBtn">Start next season</button></div>
         <div class="body">
-          <p class="hint">Coaches claim inside a window. Lock a window to freeze it (view-only).</p>
+          <p class="hint">A window is a stretch of the season, like "Sept 8 to Oct 31". Coaches claim practice slots inside it. Lock a window to freeze it (view-only). When the season ends, Start next season carries your setup into a fresh one and files the old schedule away.</p>
           <div id="seasonList"></div>
           <div class="row" style="margin-top:10px;">
-            <input id="nsLabel" placeholder="New window, e.g. Nov 1 – Dec 20" style="flex:1;min-width:170px;" />
+            <input id="nsLabel" placeholder="New window, e.g. Nov 1 to Dec 20" style="flex:1;min-width:170px;" />
             <button class="btn" id="nsAdd">Add</button>
           </div>
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="panelSettings">
         <div class="bar"><h2>League settings</h2></div>
         <div class="body">
           <label style="font-size:13px;font-weight:600;">League name</label>
@@ -403,14 +441,20 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="panelFields">
         <div class="bar"><h2>Fields</h2><button class="btn sm clay" id="fAdd">+ Field</button></div>
-        <div class="body scroll" id="fieldList"></div>
+        <div class="body scroll">
+          <p class="hint">Every place your league plays or practices. Tag a field with divisions and the schedule tools only put those divisions on it; no tags means any division may use it.</p>
+          <div id="fieldList"></div>
+        </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="panelTeams">
         <div class="bar"><h2>Teams &amp; coaches</h2><button class="btn sm clay" id="tAdd">+ Team</button></div>
-        <div class="body scroll" id="teamList"></div>
+        <div class="body scroll">
+          <p class="hint">Every team, its coach, and the division it plays in. The division name groups teams for schedules and standings, so spell it the same way everywhere.</p>
+          <div id="teamList"></div>
+        </div>
       </div>
 
       <div class="panel span2">
@@ -432,6 +476,77 @@ function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function
 function admin(action, body) {
   return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: JSON.stringify(body || {}) })
     .then(function (r) { return r.json().then(function (j) { if (!j.ok) throw new Error(j.error || "failed"); return j; }); });
+}
+
+/* ---------- Phase 5 helpers ---------- */
+function activeSeasons() { return ((D && D.seasons) || []).filter(function (s) { return !s.archived; }); }
+function seasonById(id) { return ((D && D.seasons) || []).filter(function (s) { return s.id === id; })[0] || null; }
+function isArchivedSeason(id) { var s = seasonById(id); return !!(s && s.archived); }
+function scrollToPanel(id) { var p = document.getElementById(id); if (p) p.scrollIntoView({ behavior: "smooth", block: "start" }); }
+
+/* Shared form modal: every add/edit in this console uses this one form style.
+   fields: [{ key, label, hint, type (text|number|date|select|checkbox|checks),
+   options ([{value,label}] for select/checks), value, placeholder, attrs }].
+   onSave(values) returns a promise; throw an Error to show it inline; resolve
+   true to keep the modal open. */
+function formModal(opts) {
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  var fieldsHtml = opts.fields.map(function (f, i) {
+    var id = "fm-" + i;
+    var hint = f.hint ? '<p class="hint" style="margin:3px 0 0;">' + esc(f.hint) + "</p>" : "";
+    if (f.type === "checkbox") {
+      return '<label style="display:block;font-size:13.5px;font-weight:600;margin:10px 0 0;"><input type="checkbox" id="' + id + '"' + (f.value ? " checked" : "") + ' style="width:auto;margin-right:6px;" />' + esc(f.label) + "</label>" + hint;
+    }
+    var input;
+    if (f.type === "select") {
+      input = '<select id="' + id + '" style="width:100%;">' + (f.options || []).map(function (o) {
+        return '<option value="' + esc(o.value) + '"' + (o.value === f.value ? " selected" : "") + ">" + esc(o.label) + "</option>";
+      }).join("") + "</select>";
+    } else if (f.type === "checks") {
+      input = '<div class="row" id="' + id + '" style="gap:4px 14px;">' + (f.options || []).map(function (o) {
+        return '<label style="font-size:13px;font-weight:500;white-space:nowrap;"><input type="checkbox" value="' + esc(o.value) + '"' + ((f.value || []).indexOf(o.value) >= 0 ? " checked" : "") + ' style="width:auto;margin-right:4px;" />' + esc(o.label) + "</label>";
+      }).join("") + "</div>";
+    } else {
+      input = '<input id="' + id + '" type="' + (f.type || "text") + '" value="' + esc(f.value == null ? "" : f.value) + '"' + (f.placeholder ? ' placeholder="' + esc(f.placeholder) + '"' : "") + (f.attrs || "") + ' style="width:100%;" />';
+    }
+    return '<label style="display:block;font-size:13.5px;font-weight:600;margin:10px 0 4px;">' + esc(f.label) + "</label>" + input + hint;
+  }).join("");
+  veil.innerHTML = '<div class="modal"><h3>' + esc(opts.title) + "</h3>" +
+    (opts.ctx ? '<div class="ctx">' + opts.ctx + "</div>" : "") +
+    fieldsHtml +
+    '<div class="err hidden" id="fmErr"></div>' +
+    '<div class="row" style="margin-top:16px;">' +
+    '<button class="btn clay" id="fmSave">' + esc(opts.saveLabel || "Save") + "</button>" +
+    '<button class="btn ghost" id="fmCancel">Cancel</button></div></div>';
+  veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+  document.body.appendChild(veil);
+  function values() {
+    var out = {};
+    opts.fields.forEach(function (f, i) {
+      var box = veil.querySelector("#fm-" + i);
+      if (f.type === "checkbox") out[f.key] = box.checked;
+      else if (f.type === "checks") {
+        var list = [];
+        box.querySelectorAll("input:checked").forEach(function (cb) { list.push(cb.value); });
+        out[f.key] = list;
+      } else out[f.key] = box.value;
+    });
+    return out;
+  }
+  veil.querySelector("#fmCancel").addEventListener("click", function () { veil.remove(); });
+  veil.querySelector("#fmSave").addEventListener("click", function () {
+    var btn = veil.querySelector("#fmSave");
+    var err = veil.querySelector("#fmErr");
+    err.classList.add("hidden");
+    btn.disabled = true;
+    Promise.resolve().then(function () { return opts.onSave(values()); })
+      .then(function (keepOpen) { if (keepOpen === true) btn.disabled = false; else veil.remove(); })
+      .catch(function (e) { btn.disabled = false; err.textContent = String((e && e.message) || e); err.classList.remove("hidden"); });
+  });
+  var first = veil.querySelector("input:not([type=checkbox]), select");
+  if (first) first.focus();
+  return veil;
 }
 
 function boot() {
@@ -462,7 +577,7 @@ function refresh() {
      The public portal calls state without a PIN and never sees drafts. */
   fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps(); renderStandings(); renderAttention();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -498,7 +613,7 @@ function renderCompliance() {
   document.getElementById("compHint").textContent = FLM_RULES.describe(rules) + " Red means over the guideline. Amber means the team still has room.";
   var cards = [];
   var noneNotes = [];
-  D.seasons.forEach(function (sn) {
+  activeSeasons().forEach(function (sn) {
     var noneCount = 0;
     D.teams.filter(function (t) { return t.is_active; }).forEach(function (t) {
       var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
@@ -545,7 +660,7 @@ function extLeagues() {
 
 function fillGameSelects() {
   var keep = { gSeason: el("gSeason").value, gDiv: el("gDiv").value, gHome: el("gHome").value, gAway: el("gAway").value, gExt: el("gExt").value, gField: el("gField").value };
-  el("gSeason").innerHTML = D.seasons.map(function (sn) { return '<option value="' + sn.id + '">' + esc(sn.label) + "</option>"; }).join("");
+  el("gSeason").innerHTML = activeSeasons().map(function (sn) { return '<option value="' + sn.id + '">' + esc(sn.label) + "</option>"; }).join("");
   el("gDiv").innerHTML = '<option value="">Division</option>' + divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
   el("gField").innerHTML = '<option value="">Field</option>' + D.fields.filter(function (f) { return f.is_active; }).map(function (f) {
     return '<option value="' + f.id + '">' + esc(f.name + ((f.divisions || []).length ? " (" + f.divisions.join(", ") + ")" : "")) + "</option>";
@@ -670,13 +785,16 @@ function startEditGame(g) {
 function renderGames() {
   fillGameSelects();
   var box = el("gameList");
-  var games = D.games || [];
+  /* archived seasons' games live on under the Season board's season picker,
+     not in this working list */
+  var games = (D.games || []).filter(function (g) { return !isArchivedSeason(g.season_id); });
   box.innerHTML = games.map(function (g) {
     var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : (g.status === "draft" ? "draft" : "on")) + '">' + esc(g.status) + "</span>";
     if (g.ext_team_id) st += ' <span class="chip il">' + esc(gameLeague(g) || "interlock") + "</span>";
+    var fin = FLM_RULES.gameHasFinal(g) ? " · Final " + g.home_score + " to " + g.away_score : "";
     return '<div class="row" style="padding:7px 0;border-bottom:1px solid #efede4;">' +
       '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameOppName(g)) + "</b>" + st +
-      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameVenueName(g)) + (g.division ? " · " + esc(g.division) : "") + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
+      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameVenueName(g)) + (g.division ? " · " + esc(g.division) : "") + esc(fin) + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
       '<select data-gstatus="' + g.id + '">' + (g.status === "draft" ? ["draft"] : []).concat(["scheduled", "postponed", "cancelled", "completed"]).map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
       '<button class="btn sm ghost" data-gedit="' + g.id + '">Edit</button>' +
       '<button class="btn sm danger" data-gdel="' + g.id + '">Delete</button></div>';
@@ -721,11 +839,21 @@ function renderExtTeams() {
   box.querySelectorAll("[data-xl-edit]").forEach(function (b) {
     b.addEventListener("click", function () {
       var x = extById(b.getAttribute("data-xl-edit"));
-      var lg = prompt("League:", x.league_name); if (lg == null) return;
-      var nm = prompt("Team name:", x.team_name); if (nm == null) return;
-      var dv = prompt("Division it matches on our side:", x.division); if (dv == null) return;
-      var nt = prompt("Notes (optional):", x.notes || ""); if (nt == null) return;
-      admin("admin_ext_team", { id: x.id, league_name: lg.trim(), team_name: nm.trim(), division: dv.trim(), notes: nt.trim() }).then(refresh).catch(function (e) { alert(e.message); });
+      formModal({
+        title: "Edit interlock team",
+        ctx: esc(x.team_name) + " (" + esc(x.league_name) + ")",
+        fields: [
+          { key: "league_name", label: "Their league", value: x.league_name, placeholder: "e.g. Auburn LL" },
+          { key: "team_name", label: "Team name", value: x.team_name, placeholder: "e.g. Storm" },
+          { key: "division", label: "Division it matches on our side", value: x.division || "", placeholder: "e.g. Majors BB", hint: "The season generator uses this to build the right opponent pool." },
+          { key: "notes", label: "Notes (optional)", value: x.notes || "" }
+        ],
+        saveLabel: "Save team",
+        onSave: function (v) {
+          if (!v.league_name.trim() || !v.team_name.trim()) throw new Error("The league and the team name are both needed.");
+          return admin("admin_ext_team", { id: x.id, league_name: v.league_name.trim(), team_name: v.team_name.trim(), division: v.division.trim(), notes: v.notes.trim() }).then(refresh);
+        }
+      });
     });
   });
   box.querySelectorAll("[data-xl-del]").forEach(function (b) {
@@ -792,11 +920,51 @@ function sgFlash(msg) {
 }
 function sgChunks(arr, n) { var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
 
+/* Unplaced matchups from the LAST generation survive a page reload: they are
+   persisted to flm_settings key sg_unplaced and re-read here. */
+function sgUnplacedList() {
+  if ((SG.unplaced || []).length) return SG.unplaced;
+  try {
+    var a = JSON.parse((D && D.settings ? D.settings.sg_unplaced : "") || "[]");
+    return Array.isArray(a) ? a : [];
+  } catch (e) { return []; }
+}
+function sgSaveUnplaced(list) {
+  return admin("admin_settings", { sg_unplaced: JSON.stringify((list || []).slice(0, 100)) }).catch(function () {});
+}
+
+/* Quick start templates: one click fills every division with a typical setup.
+   Everything stays editable, and nothing generated or published changes. */
+document.querySelectorAll("[data-sgpreset]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var kind = b.getAttribute("data-sgpreset");
+    var cfg = sgLoadCfg();
+    var msg = kind === "custom"
+      ? "Start from a blank setup? Every division below turns off so you can set days, games, and fields yourself. Nothing already generated or published changes."
+      : "Fill in the setup below from the template? Every division gets 10 games per team on Saturdays" + (kind === "satweek" ? " plus one weeknight (Tuesdays at 5:30 PM)" : "") + ", 2 hour games, on every field it may use. You can change anything before generating. Nothing already generated or published changes.";
+    if (!confirm(msg)) return;
+    cfg.divisions = {};
+    if (kind !== "custom") {
+      divisionList().forEach(function (div) {
+        var days = { sat: ["09:00", "11:30", "14:00"] };
+        if (kind === "satweek") days.tue = ["17:30"];
+        cfg.divisions[div] = {
+          games_per_team: 10, game_minutes: 120, days: days,
+          fields: sgEligibleFields(div).map(function (f) { return f.id; })
+        };
+      });
+    }
+    sgRenderDivs();
+    sgFlash(kind === "custom" ? "Blank setup ready. Turn on the divisions you want." : "Template filled in. Adjust anything, then hit Generate.");
+    scrollToPanel("panelGen");
+  });
+});
+
 function sgBuildOnce() {
   if (SG.built) return;
   SG.built = true;
   var cfg = sgLoadCfg();
-  el("sgSeason").innerHTML = D.seasons.map(function (sn) {
+  el("sgSeason").innerHTML = activeSeasons().map(function (sn) {
     return '<option value="' + sn.id + '"' + (sn.id === cfg.season_id ? " selected" : "") + ">" + esc(sn.label) + "</option>";
   }).join("");
   function seasonDates() {
@@ -986,14 +1154,17 @@ function sgGenerate(newSeed) {
   btns.forEach(function (b) { b.disabled = true; });
   var done = function () { btns.forEach(function (b) { b.disabled = false; }); };
   var cfgJson = JSON.stringify(cfg);
-  ((D.settings || {}).season_gen_config === cfgJson ? Promise.resolve() : admin("admin_settings", { season_gen_config: cfgJson }))
+  /* run the engine first so the setup AND the unplaced list save together */
+  var res = FLM_GEN.generate(cfg, {
+    teams: D.teams, fields: D.fields, slots: D.slots, ext_teams: D.ext_teams || [],
+    games: (D.games || []).filter(function (g) { return g.status !== "draft"; })
+  });
+  SG.unplaced = res.unplaced;
+  var setBody = { sg_unplaced: JSON.stringify(res.unplaced.slice(0, 100)) };
+  if ((D.settings || {}).season_gen_config !== cfgJson) setBody.season_gen_config = cfgJson;
+  admin("admin_settings", setBody)
     .then(function () { return drafts.length ? admin("admin_games_bulk", { op: "discard", season_id: drafts[0].season_id }) : null; })
     .then(function () {
-      var res = FLM_GEN.generate(cfg, {
-        teams: D.teams, fields: D.fields, slots: D.slots, ext_teams: D.ext_teams || [],
-        games: (D.games || []).filter(function (g) { return g.status !== "draft"; })
-      });
-      SG.unplaced = res.unplaced;
       if (!res.games.length) {
         done(); refresh();
         alert("No games could be placed with this setup. Check the game days, fields, and date range." + (res.unplaced.length ? " " + res.unplaced.length + " matchups had nowhere to go." : ""));
@@ -1019,9 +1190,10 @@ el("sgRegen").addEventListener("click", function () { sgGenerate(true); });
 el("sgDiscard").addEventListener("click", function () {
   var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
   if (!drafts.length) return;
-  if (!confirm("Throw away all " + drafts.length + " draft games? Your setup stays saved, nothing published changes.")) return;
+  if (!confirm("Throw away all " + drafts.length + " draft games? They are deleted for good, but coaches and parents never saw them, nothing published changes, and your setup stays saved so you can generate again.")) return;
   admin("admin_games_bulk", { op: "discard", season_id: drafts[0].season_id })
-    .then(function () { SG.unplaced = []; refresh(); })
+    .then(function () { SG.unplaced = []; return sgSaveUnplaced([]); })
+    .then(function () { refresh(); })
     .catch(function (e) { alert(e.message); });
 });
 
@@ -1030,24 +1202,26 @@ el("sgPublish").addEventListener("click", function () {
   if (!drafts.length) return;
   if (!confirm("Publish " + drafts.length + " draft games to the live schedule? Coaches and parents will see them right away. Publishing does not email or notify anyone; announcements are a separate step.")) return;
   admin("admin_games_bulk", { op: "publish", season_id: drafts[0].season_id })
-    .then(function (r) { SG.unplaced = []; sgFlash("Published " + r.published + " games. They are live on the coach portal now."); refresh(); })
+    .then(function (r) { SG.unplaced = []; sgFlash("Published " + r.published + " games. They are live on the coach portal now."); return sgSaveUnplaced([]); })
+    .then(function () { refresh(); })
     .catch(function (e) { alert(e.message); });
 });
 
 function renderSeasonGen() {
   sgBuildOnce();
   var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
+  var unplaced = sgUnplacedList();
   var box = el("sgReview");
-  if (!drafts.length && !(SG.unplaced || []).length) { box.classList.add("hidden"); return; }
+  if (!drafts.length && !unplaced.length) { box.classList.add("hidden"); return; }
   box.classList.remove("hidden");
   el("sgDraftCount").textContent = drafts.length + " draft games";
   el("sgPublish").disabled = !drafts.length;
-  el("sgUnplaced").innerHTML = (SG.unplaced || []).map(function (u) {
+  el("sgUnplaced").innerHTML = unplaced.map(function (u) {
     return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameOppName(u)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : (u.crossover ? ", crossover" : "")) + "). " + esc(u.reason) + " Schedule it by hand in the Games panel or loosen the setup and regenerate.</div>";
   }).join("");
 
   /* summary stats: games per team with home/away, per-field load */
-  var stats = FLM_GEN.summarize(drafts, SG.unplaced || [], D);
+  var stats = FLM_GEN.summarize(drafts, unplaced, D);
   var teamRows = Object.keys(stats.perTeam).map(function (id) {
     var t = D.teams.filter(function (x) { return x.id === id; })[0] || { name: "?", division: "" };
     return { name: t.name, division: t.division || "", s: stats.perTeam[id] };
@@ -1293,12 +1467,43 @@ function bdMoveModal(g, opts) {
 }
 
 function bdSetPark(g) {
-  var v = prompt("Where is this game played? Type the real park, for example Brannan Park, Auburn.", g.venue_text || "");
-  if (v == null) return;
-  v = v.trim();
-  if (!v) { alert("The venue cannot be empty. Keep the league name until you know the park."); return; }
-  admin("admin_game", { id: g.id, venue_text: v, activity_note: "Set the venue for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + " to " + v + "." })
-    .then(refresh).catch(function (e) { alert(e.message); });
+  formModal({
+    title: "Set the real park",
+    ctx: esc(bdMatchup(g)) + " &middot; " + esc(fmtDate(g.game_date)) + "<br />This away game still shows the other league's name as its place. Once they tell you the park, put it here so families know where to drive.",
+    fields: [
+      { key: "venue", label: "Where is this game played?", value: g.venue_text || "", placeholder: "e.g. Brannan Park, Auburn" }
+    ],
+    saveLabel: "Save the park",
+    onSave: function (v) {
+      var park = v.venue.trim();
+      if (!park) throw new Error("The place cannot be empty. Keep the league name until you know the park.");
+      return admin("admin_game", { id: g.id, venue_text: park, activity_note: "Set the venue for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + " to " + park + "." }).then(refresh);
+    }
+  });
+}
+
+/* ---------- Phase 5: final scores ---------- */
+function scoreModal(g) {
+  var homeN = gameTeamName(g.home_team_id), oppN = gameOppName(g);
+  var editing = g.status === "completed";
+  formModal({
+    title: editing ? "Edit the final score" : "Enter the final score",
+    ctx: esc(bdMatchup(g)) + " &middot; " + esc(fmtDate(g.game_date)) +
+      (editing ? "" : "<br />Saving marks this game as played. The final shows on the parent portal and counts in the standings."),
+    fields: [
+      { key: "hs", label: homeN + " (home) runs", type: "number", value: typeof g.home_score === "number" ? g.home_score : "", attrs: ' min="0" max="200" inputmode="numeric"' },
+      { key: "as", label: oppN + " runs", type: "number", value: typeof g.away_score === "number" ? g.away_score : "", attrs: ' min="0" max="200" inputmode="numeric"' }
+    ],
+    saveLabel: "Save final score",
+    onSave: function (v) {
+      var hs = v.hs === "" ? NaN : Math.round(+v.hs), as = v.as === "" ? NaN : Math.round(+v.as);
+      if (!isFinite(hs) || !isFinite(as) || hs < 0 || as < 0) throw new Error("Enter both scores as whole numbers.");
+      return admin("admin_game", {
+        id: g.id, home_score: hs, away_score: as, status: "completed",
+        activity_note: "Final score for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + ": " + homeN + " " + hs + ", " + oppN + " " + as + "."
+      }).then(refresh);
+    }
+  });
 }
 
 function bdCardHtml(g, inTray) {
@@ -1307,6 +1512,7 @@ function bdCardHtml(g, inTray) {
     ? "Was " + fmtDate(g.game_date) + " at " + FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "")
     : FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "");
   if (!inTray && g.status !== "scheduled") meta += " &middot; " + g.status;
+  if (FLM_RULES.gameHasFinal(g)) meta += " &middot; Final " + g.home_score + " to " + g.away_score;
   /* Phase 4: glanceable ump state on every scheduled card. Green initials =
      accepted, amber = offer waiting on an answer, red = spot still open. */
   var uline = "";
@@ -1330,14 +1536,18 @@ function bdCardHtml(g, inTray) {
     (!inTray && movable ? '<button data-bd-move="' + g.id + '">Move</button>' : "") +
     (!inTray && g.status === "scheduled" ? '<button class="rain" data-bd-rain="' + g.id + '">Rain out</button>' : "") +
     (!inTray && g.status === "scheduled" ? '<button data-bd-umps="' + g.id + '">Umps</button>' : "") +
+    (g.status === "scheduled" || g.status === "postponed" ? '<button data-bd-score="' + g.id + '">Final score</button>' : "") +
+    (g.status === "completed" ? '<button data-bd-score="' + g.id + '">Edit score</button>' : "") +
     (bdPlaceholderPark(g) ? '<button class="park" data-bd-park="' + g.id + '">Set the real park</button>' : "") +
     "</div></div>";
 }
 
 function renderBoard() {
   var keepSeason = el("bdSeason").value || BD.season, keepDiv = el("bdDiv").value || BD.div;
-  el("bdSeason").innerHTML = '<option value="">All windows</option>' + D.seasons.map(function (sn) {
-    return '<option value="' + sn.id + '"' + (sn.id === keepSeason ? " selected" : "") + ">" + esc(sn.label) + "</option>";
+  /* the season picker doubles as the archive switcher: archived windows stay
+     pickable here (labelled), but the default view shows the live season only */
+  el("bdSeason").innerHTML = '<option value="">All current windows</option>' + D.seasons.map(function (sn) {
+    return '<option value="' + sn.id + '"' + (sn.id === keepSeason ? " selected" : "") + ">" + esc(sn.label + (sn.archived ? " (archived)" : "")) + "</option>";
   }).join("");
   el("bdDiv").innerHTML = '<option value="">All divisions</option>' + divisionList().map(function (d) {
     return '<option value="' + esc(d) + '"' + (d === keepDiv ? " selected" : "") + ">" + esc(d) + "</option>";
@@ -1345,7 +1555,9 @@ function renderBoard() {
   BD.season = el("bdSeason").value; BD.div = el("bdDiv").value;
 
   var sel = (D.games || []).filter(function (g) {
-    return (!BD.season || g.season_id === BD.season) && (!BD.div || g.division === BD.div);
+    if (BD.season) { if (g.season_id !== BD.season) return false; }
+    else if (isArchivedSeason(g.season_id)) return false;
+    return !BD.div || g.division === BD.div;
   });
   var tray = sel.filter(function (g) { return g.status === "postponed"; });
   var onBoard = sel.filter(function (g) { return g.status !== "postponed"; });
@@ -1427,6 +1639,7 @@ function renderBoard() {
   bindBtn("data-bd-rain", bdRainOne);
   bindBtn("data-bd-park", bdSetPark);
   bindBtn("data-bd-umps", umpAssignModal);
+  bindBtn("data-bd-score", scoreModal);
 }
 el("bdSeason").addEventListener("change", function () { BD.season = el("bdSeason").value; renderBoard(); });
 el("bdDiv").addEventListener("change", function () { BD.div = el("bdDiv").value; renderBoard(); });
@@ -1508,25 +1721,27 @@ function renderUmps() {
       }).join("") + "</tbody></table>"
     : '<p class="hint">No umpires yet. Hit + Umpire to add your first one; you will get a PIN to hand them.</p>';
   el("umpList").querySelectorAll("[data-uedit]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var u = umpU(b.getAttribute("data-uedit"));
-      var row = umpPrompts(u);
-      if (!row) return;
-      row.id = u.id;
-      admin("admin_ump", row).then(refresh).catch(function (e) { alert(e.message); });
-    });
+    b.addEventListener("click", function () { umpModal(umpU(b.getAttribute("data-uedit"))); });
   });
   el("umpList").querySelectorAll("[data-upin]").forEach(function (b) {
     b.addEventListener("click", function () {
       var u = umpU(b.getAttribute("data-upin"));
-      var np = prompt("New 4 digit PIN for " + u.name + ":", String(Math.floor(1000 + Math.random() * 9000)));
-      if (np == null) return;
-      np = np.trim();
-      if (!/^\d{4}$/.test(np)) { alert("The PIN must be exactly 4 digits."); return; }
-      admin("admin_ump", { id: u.id, pin: np }).then(function () {
-        alert("PIN for " + u.name + " is now " + np + ". Share it with them.");
-        refresh();
-      }).catch(function (e) { alert(e.message); });
+      formModal({
+        title: "Reset PIN",
+        ctx: esc(u.name) + " signs in to the umpire page with this 4 digit PIN.",
+        fields: [
+          { key: "pin", label: "New 4 digit PIN", value: String(Math.floor(1000 + Math.random() * 9000)), attrs: ' inputmode="numeric" maxlength="4"' }
+        ],
+        saveLabel: "Reset the PIN",
+        onSave: function (v) {
+          var np = v.pin.trim();
+          if (!/^\d{4}$/.test(np)) throw new Error("The PIN must be exactly 4 digits.");
+          return admin("admin_ump", { id: u.id, pin: np }).then(function () {
+            alert("PIN for " + u.name + " is now " + np + ". Share it with them.");
+            refresh();
+          });
+        }
+      });
     });
   });
   el("umpList").querySelectorAll("[data-utog]").forEach(function (b) {
@@ -1538,41 +1753,50 @@ function renderUmps() {
   });
 }
 
-function umpPrompts(u) {
+/* One form for adding and editing an umpire. Levels come from the division
+   list so a volunteer never has to type division names from memory. */
+function umpModal(u) {
+  var isNew = !u;
   u = u || {};
-  var name = prompt("Umpire name:", u.name || ""); if (name == null || !name.trim()) return null;
-  var email = prompt("Email (used for offers and reminders):", u.email || ""); if (email == null) return null;
-  var phone = prompt("Phone (admin eyes only):", u.phone || ""); if (phone == null) return null;
-  var levels = prompt("Levels they may work (comma separated, e.g. Majors BB, AA BB):", (u.levels || []).join(", ")); if (levels == null) return null;
-  var minor = confirm("Is " + name.trim() + " a minor (under 18)? OK = yes, Cancel = no. Minors get their parent cc'd on every email.");
-  var parent = String(u.parent_email || "");
-  if (minor) {
-    parent = prompt("Parent email (required for a minor, cc'd on every email):", parent);
-    if (parent == null) return null;
-    if (parent.indexOf("@") < 0) { alert("A minor umpire needs a real parent email."); return null; }
-  }
-  return {
-    name: name.trim(), email: email.trim(), phone: phone.trim(),
-    levels: levels.split(",").map(function (t) { return t.trim(); }).filter(function (t) { return t; }),
-    is_minor: minor, parent_email: minor ? parent.trim() : ""
-  };
+  var lvlOpts = divisionList().map(function (d) { return { value: d, label: d }; });
+  ((u.levels || [])).forEach(function (d) {
+    if (!lvlOpts.some(function (o) { return o.value === d; })) lvlOpts.push({ value: d, label: d });
+  });
+  var fields = [
+    { key: "name", label: "Umpire name", value: u.name || "" },
+    { key: "email", label: "Email", value: u.email || "", hint: "Game offers and reminders go here. Never shown on public pages." },
+    { key: "phone", label: "Phone", value: u.phone || "", hint: "Admin eyes only." },
+    { key: "levels", label: "Levels they may work", type: "checks", options: lvlOpts, value: u.levels || [], hint: "They only see and get games in these divisions." },
+    { key: "is_minor", label: "Under 18 (their parent gets a copy of every email)", type: "checkbox", value: !!u.is_minor },
+    { key: "parent_email", label: "Parent email (needed when under 18)", value: u.parent_email || "" }
+  ];
+  if (isNew) fields.push({ key: "pin", label: "4 digit PIN (leave blank and one is made up for you)", value: "", attrs: ' inputmode="numeric" maxlength="4"' });
+  formModal({
+    title: isNew ? "Add an umpire" : "Edit umpire",
+    ctx: isNew ? "They sign in on the umpire page with their name and a 4 digit PIN you hand them." : esc(u.name),
+    fields: fields,
+    saveLabel: isNew ? "Add umpire" : "Save umpire",
+    onSave: function (v) {
+      if (!v.name.trim()) throw new Error("Give the umpire a name first.");
+      if (v.is_minor && v.parent_email.indexOf("@") < 0) throw new Error("An umpire under 18 needs a real parent email. Every email to them copies the parent.");
+      var row = {
+        name: v.name.trim(), email: v.email.trim(), phone: v.phone.trim(),
+        levels: v.levels, is_minor: v.is_minor, parent_email: v.is_minor ? v.parent_email.trim() : ""
+      };
+      if (isNew && v.pin.trim()) {
+        if (!/^\d{4}$/.test(v.pin.trim())) throw new Error("The PIN must be exactly 4 digits.");
+        row.pin = v.pin.trim();
+      }
+      if (!isNew) row.id = u.id;
+      return admin("admin_ump", row).then(function (r) {
+        if (isNew) alert("Added " + r.ump.name + ". Their PIN is " + r.ump.pin + ". Share it with them; they sign in with it on the umpire page.");
+        refresh();
+      });
+    }
+  });
 }
 
-document.getElementById("uAdd").addEventListener("click", function () {
-  var row = umpPrompts(null);
-  if (!row) return;
-  var pin = prompt("4 digit PIN for them (leave blank and one is made up for you):", "");
-  if (pin == null) return;
-  pin = pin.trim();
-  if (pin) {
-    if (!/^\d{4}$/.test(pin)) { alert("The PIN must be exactly 4 digits."); return; }
-    row.pin = pin;
-  }
-  admin("admin_ump", row).then(function (r) {
-    alert("Added " + r.ump.name + ". Their PIN is " + r.ump.pin + ". Share it with them; they sign in with it on the umpire page.");
-    refresh();
-  }).catch(function (e) { alert(e.message); });
-});
+document.getElementById("uAdd").addEventListener("click", function () { umpModal(null); });
 
 document.getElementById("umpDefsSave").addEventListener("click", function () {
   var o = {};
@@ -1690,13 +1914,20 @@ function renderAnnouncements(items) {
   box.querySelectorAll("[data-an-test]").forEach(function (b) {
     b.addEventListener("click", function () {
       var a = items.filter(function (x) { return x.id === b.getAttribute("data-an-test"); })[0];
-      var to = prompt("Send a test of this announcement to one address:", "");
-      if (!to || to.indexOf("@") < 0) return;
-      b.disabled = true; b.textContent = "Sending...";
-      admin("admin_announcement_email", { id: a.id, test_to: to.trim() }).then(function () {
-        alert("Test sent to " + to.trim());
-        loadAnnouncements();
-      }).catch(function (e) { alert(e.message); loadAnnouncements(); });
+      formModal({
+        title: "Send a test email",
+        ctx: "One copy of \"" + esc(a.title) + "\" goes to the address below so you can see it before emailing every coach.",
+        fields: [{ key: "to", label: "Send the test to", type: "email", value: "", placeholder: "you@example.com" }],
+        saveLabel: "Send the test",
+        onSave: function (v) {
+          var to = v.to.trim();
+          if (to.indexOf("@") < 0) throw new Error("That does not look like an email address.");
+          return admin("admin_announcement_email", { id: a.id, test_to: to }).then(function () {
+            alert("Test sent to " + to);
+            loadAnnouncements();
+          });
+        }
+      });
     });
   });
   box.querySelectorAll("[data-an-del]").forEach(function (b) {
@@ -1744,7 +1975,7 @@ function renderTiles() {
   var slotBySeason = {};
   D.slots.forEach(function (s) { slotBySeason[s.season_id] = (slotBySeason[s.season_id] || 0) + 1; });
   var openNow = 0;
-  D.seasons.forEach(function (sn) {
+  activeSeasons().forEach(function (sn) {
     var used = {};
     D.slots.filter(function (s) { return s.season_id === sn.id; }).forEach(function (s) { used[s.day_key + "|" + s.field_id] = 1; });
     openNow += (9 * D.fields.filter(function (f) { return f.is_active; }).length) - Object.keys(used).length;
@@ -1752,7 +1983,7 @@ function renderTiles() {
   var html = "";
   html += tile(D.fields.filter(function (f) { return f.is_active; }).length, "Fields");
   html += tile(D.teams.filter(function (t) { return t.is_active; }).length, "Teams");
-  D.seasons.slice(0, 2).forEach(function (sn) { html += tile(slotBySeason[sn.id] || 0, "Slots · " + sn.label); });
+  activeSeasons().slice(0, 2).forEach(function (sn) { html += tile(slotBySeason[sn.id] || 0, "Slots · " + sn.label); });
   html += tile(openNow, "Open field-slots");
   document.getElementById("tiles").innerHTML = html;
   renderVisitTiles();
@@ -1762,6 +1993,12 @@ function renderTiles() {
 function renderSeasons() {
   var box = document.getElementById("seasonList");
   box.innerHTML = D.seasons.map(function (sn) {
+    if (sn.archived) {
+      return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;opacity:0.7;">' +
+        '<div style="flex:1;font-weight:600;">' + esc(sn.label) + '</div>' +
+        '<span class="chip off">Archived</span>' +
+        '<button class="btn sm ghost" data-unarch="' + sn.id + '">Bring back</button></div>';
+    }
     return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;">' +
       '<div style="flex:1;font-weight:600;">' + esc(sn.label) + '</div>' +
       '<span class="chip ' + (sn.locked ? "lock" : "on") + '">' + (sn.locked ? "Locked" : "Open") + "</span>" +
@@ -1770,19 +2007,72 @@ function renderSeasons() {
   }).join("");
   box.querySelectorAll("[data-lock]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var sn = D.seasons.filter(function (x) { return x.id === b.getAttribute("data-lock"); })[0];
+      var sn = seasonById(b.getAttribute("data-lock"));
       admin("admin_upsert_season", { id: sn.id, locked: !sn.locked }).then(refresh);
+    });
+  });
+  box.querySelectorAll("[data-unarch]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var sn = seasonById(b.getAttribute("data-unarch"));
+      if (!confirm('Bring "' + sn.label + '" back to the live portal? Coaches, parents, and calendar feeds will see its schedule and games again.')) return;
+      admin("admin_upsert_season", { id: sn.id, archived: false, locked: false }).then(refresh).catch(function (e) { alert(e.message); });
     });
   });
   box.querySelectorAll("[data-del]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var sn = D.seasons.filter(function (x) { return x.id === b.getAttribute("data-del"); })[0];
-      if (confirm('Delete the window "' + sn.label + '" and ALL its slots? This cannot be undone.')) {
-        admin("admin_delete_season", { id: sn.id }).then(refresh);
+      var sn = seasonById(b.getAttribute("data-del"));
+      var nGames = (D.games || []).filter(function (g) { return g.season_id === sn.id; }).length;
+      var nSlots = (D.slots || []).filter(function (s) { return s.season_id === sn.id; }).length;
+      if (confirm('Delete the window "' + sn.label + '" for good? Its ' + nSlots + ' practice slots' + (nGames ? " and " + nGames + " games" : "") + ' are deleted too and cannot be brought back. If you just want it off the portal, use Start next season instead, which archives it safely.')) {
+        admin("admin_delete_season", { id: sn.id }).then(refresh).catch(function (e) { alert(e.message); });
       }
     });
   });
 }
+
+/* ---------- Phase 5: start next season (clone + archive) ---------- */
+document.getElementById("cloneSeasonBtn").addEventListener("click", function () {
+  var live = activeSeasons();
+  var srcOpts = [{ value: "", label: "Do not copy practice slots" }].concat(live.map(function (sn) {
+    var n = (D.slots || []).filter(function (s) { return s.season_id === sn.id; }).length;
+    return { value: sn.id, label: "Copy the practice grid from " + sn.label + " (" + n + " slots)" };
+  }));
+  formModal({
+    title: "Start next season",
+    ctx: "Sets up a fresh season and files the old one away. Fields, teams, and coaches stay exactly as they are. Nothing is deleted.",
+    fields: [
+      { key: "label", label: "New season name", placeholder: "e.g. Spring 2027" },
+      { key: "start", label: "First day of the season", type: "date" },
+      { key: "end", label: "Last day of the season", type: "date" },
+      { key: "src", label: "Practice slots", type: "select", options: srcOpts, value: live.length ? live[live.length - 1].id : "" }
+    ],
+    saveLabel: "Start next season",
+    onSave: function (v) {
+      var label = v.label.trim();
+      if (!label) throw new Error("Give the new season a name first.");
+      if (v.start && v.end && v.end < v.start) throw new Error("The last day is before the first day.");
+      var liveLabels = live.map(function (s) { return s.label; });
+      var msg = "Start the next season now? Here is exactly what happens:\n\n" +
+        '1. A new window "' + label + '" is created and becomes the live season.\n' +
+        (live.length
+          ? "2. " + liveLabels.join(" and ") + (live.length === 1 ? " is" : " are") + " archived and locked. Coaches, parents, and calendar feeds stop seeing " + (live.length === 1 ? "it" : "them") + ". Every game, score, and standing stays viewable here in admin under the Season board's season picker.\n"
+          : "2. There is no live window to archive.\n") +
+        (v.src
+          ? "3. The practice grid from " + ((seasonById(v.src) || {}).label || "the old window") + " is copied into the new window. Teams keep the same days and fields until they change them.\n"
+          : "3. No practice slots are copied. Coaches claim fresh ones.\n") +
+        "4. The season generator setup is pointed at the new window, ready to build the new schedule.\n\n" +
+        "Nothing is deleted and nothing emails anyone.";
+      if (!confirm(msg)) return true;
+      return admin("admin_season_clone", { label: label, start_date: v.start || "", end_date: v.end || "", copy_slots_from: v.src || null })
+        .then(function (r) {
+          alert('New season "' + r.season.label + '" is live.' +
+            (r.copied_slots ? " " + r.copied_slots + " practice slots copied over." : "") +
+            (r.archived.length ? " Archived: " + r.archived.join(", ") + "." : ""));
+          location.reload();
+        });
+    }
+  });
+});
 document.getElementById("nsAdd").addEventListener("click", function () {
   var v = document.getElementById("nsLabel").value.trim();
   if (!v) return;
@@ -1800,37 +2090,45 @@ function renderFields() {
     var tags = (f.divisions || []).length ? '<br /><span style="color:var(--muted);font-size:11.5px;">' + esc(f.divisions.join(", ")) + "</span>" : "";
     return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + tags + "</td>" +
       '<td><span class="chip ' + (f.is_active ? "on" : "off") + '">' + (f.is_active ? "Active" : "Hidden") + "</span></td>" +
-      '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-ren="' + f.id + '">Rename</button> ' +
-      '<button class="btn sm ghost" data-divs="' + f.id + '">Divisions</button> ' +
+      '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-fedit="' + f.id + '">Edit</button> ' +
       '<button class="btn sm ghost" data-tog="' + f.id + '">' + (f.is_active ? "Hide" : "Show") + "</button></td></tr>";
   }).join("") + "</tbody></table>";
-  box.querySelectorAll("[data-divs]").forEach(function (b) {
+  box.querySelectorAll("[data-fedit]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-divs"); })[0];
-      var nv = prompt("Divisions that may play games on " + f.name + " (comma separated, blank = any division):", (f.divisions || []).join(", "));
-      if (nv == null) return;
-      var list = nv.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-      admin("admin_upsert_field", { id: f.id, name: f.name, divisions: list }).then(refresh);
-    });
-  });
-  box.querySelectorAll("[data-ren]").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-ren"); })[0];
-      var nv = prompt("Rename field:", f.name);
-      if (nv && nv.trim() && nv.trim() !== f.name) admin("admin_upsert_field", { id: f.id, name: nv.trim() }).then(refresh);
+      fieldModal(D.fields.filter(function (x) { return x.id === b.getAttribute("data-fedit"); })[0]);
     });
   });
   box.querySelectorAll("[data-tog]").forEach(function (b) {
     b.addEventListener("click", function () {
       var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-tog"); })[0];
+      if (f.is_active && !confirm("Hide " + f.name + "? It disappears from the portal and the schedule tools. Its slots and games stay saved, and you can Show it again any time.")) return;
       admin("admin_upsert_field", { id: f.id, name: f.name, is_active: !f.is_active }).then(refresh);
     });
   });
 }
-document.getElementById("fAdd").addEventListener("click", function () {
-  var nv = prompt("New field name (e.g. AY#6, VICTOR FALLS SOUTH):");
-  if (nv && nv.trim()) admin("admin_upsert_field", { name: nv.trim(), sort: D.fields.length }).then(refresh);
-});
+function fieldModal(f) {
+  var isNew = !f;
+  var divOpts = divisionList().map(function (d) { return { value: d, label: d }; });
+  ((f && f.divisions) || []).forEach(function (d) {
+    if (!divOpts.some(function (o) { return o.value === d; })) divOpts.push({ value: d, label: d });
+  });
+  formModal({
+    title: isNew ? "Add a field" : "Edit field",
+    ctx: isNew ? "A field is any place teams practice or play." : esc(f.name),
+    fields: [
+      { key: "name", label: "Field name", value: f ? f.name : "", placeholder: "e.g. AY#6 or VICTOR FALLS SOUTH" },
+      { key: "divisions", label: "Divisions that may use this field", type: "checks", options: divOpts, value: f ? (f.divisions || []) : [], hint: "Check none and any division may use it. Checking boxes reserves it for those divisions in the schedule tools." }
+    ],
+    saveLabel: isNew ? "Add field" : "Save field",
+    onSave: function (v) {
+      if (!v.name.trim()) throw new Error("Give the field a name first.");
+      var body = { name: v.name.trim(), divisions: v.divisions };
+      if (isNew) body.sort = D.fields.length; else body.id = f.id;
+      return admin("admin_upsert_field", body).then(refresh);
+    }
+  });
+}
+document.getElementById("fAdd").addEventListener("click", function () { fieldModal(null); });
 
 function renderTeams() {
   var box = document.getElementById("teamList");
@@ -1841,22 +2139,33 @@ function renderTeams() {
     }).join("") + "</tbody></table>";
   box.querySelectorAll("[data-edit]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var t = D.teams.filter(function (x) { return x.id === b.getAttribute("data-edit"); })[0];
-      var name = prompt("Team name:", t.name); if (name == null) return;
-      var coach = prompt("Coach name:", t.coach_name); if (coach == null) return;
-      var phone = prompt("Coach phone:", t.coach_phone); if (phone == null) return;
-      var div = prompt("Division (e.g. Majors BB, Minors A SB):", t.division); if (div == null) return;
-      admin("admin_upsert_team", { id: t.id, name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
+      teamModal(D.teams.filter(function (x) { return x.id === b.getAttribute("data-edit"); })[0]);
     });
   });
 }
-document.getElementById("tAdd").addEventListener("click", function () {
-  var name = prompt("Team name (e.g. Smith — Minors BB):"); if (!name || !name.trim()) return;
-  var coach = prompt("Coach name:") || "";
-  var phone = prompt("Coach phone:") || "";
-  var div = prompt("Division (e.g. Majors BB, Minors A SB):") || "";
-  admin("admin_upsert_team", { name: name.trim(), coach_name: coach.trim(), coach_phone: phone.trim(), division: div.trim() }).then(refresh);
-});
+function teamModal(t) {
+  var isNew = !t;
+  var divs = divisionList();
+  formModal({
+    title: isNew ? "Add a team" : "Edit team",
+    ctx: isNew ? "One card per team: its name, its coach, and the division it plays in." : esc(t.name),
+    fields: [
+      { key: "name", label: "Team name", value: t ? t.name : "", placeholder: "e.g. Cougars or Smith" },
+      { key: "coach_name", label: "Coach name", value: t ? (t.coach_name || "") : "" },
+      { key: "coach_phone", label: "Coach phone", value: t ? (t.coach_phone || "") : "" },
+      { key: "coach_email", label: "Coach email", value: t ? (t.coach_email || "") : "", hint: "Used when you email an announcement to all coaches." },
+      { key: "division", label: "Division", value: t ? (t.division || "") : "", placeholder: "e.g. Majors BB", hint: divs.length ? "Spell it exactly like the others. Current divisions: " + divs.join(", ") + "." : "For example Majors BB or Minors A SB." }
+    ],
+    saveLabel: isNew ? "Add team" : "Save team",
+    onSave: function (v) {
+      if (!v.name.trim()) throw new Error("Give the team a name first.");
+      var body = { name: v.name.trim(), coach_name: v.coach_name.trim(), coach_phone: v.coach_phone.trim(), coach_email: v.coach_email.trim(), division: v.division.trim() };
+      if (!isNew) body.id = t.id;
+      return admin("admin_upsert_team", body).then(refresh);
+    }
+  });
+}
+document.getElementById("tAdd").addEventListener("click", function () { teamModal(null); });
 
 function renderLog(items) {
   document.getElementById("logList").innerHTML = items.map(function (a) {
@@ -1864,6 +2173,208 @@ function renderLog(items) {
     return '<div class="li"><span class="t">' + t.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + t.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + '</span><span class="a">' + esc(a.action) + "</span><span>" + esc(a.detail) + "</span></div>";
   }).join("") || '<div class="hint">No activity yet.</div>';
 }
+
+/* ---------- Phase 5: scores & standings panel ---------- */
+var ST = { season: "" };
+function standCfg() { return FLM_RULES.standingsSettings((D.settings || {}).standings_divisions); }
+function renderStandings() {
+  var divs = divisionList();
+  var cfg = standCfg();
+  el("stSettings").innerHTML = divs.map(function (d) {
+    return '<div class="row" style="padding:3px 0;font-size:13px;">' +
+      '<b style="min-width:110px;">' + esc(d) + "</b>" +
+      '<label style="font-weight:500;"><input type="checkbox" class="st-show" data-div="' + esc(d) + '"' + (FLM_RULES.standingsShow(cfg, d) ? " checked" : "") + ' style="width:auto;margin-right:4px;" />Show standings on the portal</label>' +
+      '<label style="font-weight:500;"><input type="checkbox" class="st-il" data-div="' + esc(d) + '"' + (FLM_RULES.standingsCountInterlock(cfg, d) ? " checked" : "") + ' style="width:auto;margin-right:4px;" />Count games against other leagues</label>' +
+      "</div>";
+  }).join("") || '<p class="hint">Add teams with divisions first.</p>';
+
+  var keep = el("stSeason").value || ST.season;
+  el("stSeason").innerHTML = '<option value="">Current season</option>' + D.seasons.map(function (sn) {
+    return '<option value="' + sn.id + '"' + (sn.id === keep ? " selected" : "") + ">" + esc(sn.label + (sn.archived ? " (archived)" : "")) + "</option>";
+  }).join("");
+  ST.season = el("stSeason").value;
+
+  var games = (D.games || []).filter(function (g) {
+    if (ST.season) return g.season_id === ST.season;
+    return !isArchivedSeason(g.season_id);
+  });
+  var tables = FLM_RULES.standings(games, D.teams || [], cfg);
+  var shown = divs.filter(function (d) { return (tables[d] || []).length; });
+  el("stTables").innerHTML = shown.length ? shown.map(function (d) {
+    var pub = FLM_RULES.standingsShow(cfg, d);
+    return '<div style="margin-bottom:14px;"><div class="sgweek" style="padding-top:4px;">' + esc(d) +
+      ' <span class="chip ' + (pub ? "on" : "off") + '" style="vertical-align:middle;">' + (pub ? "On the portal" : "Admin only") + "</span></div>" +
+      '<table class="list"><thead><tr><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">T</th><th class="num">Runs +/-</th></tr></thead><tbody>' +
+      tables[d].map(function (r) {
+        return "<tr><td style=\"font-weight:600;\">" + esc(r.name) + '</td><td class="num">' + r.w + '</td><td class="num">' + r.l + '</td><td class="num">' + r.t + '</td><td class="num">' + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+  }).join("") : '<p class="hint">No final scores yet. Enter one from a game\'s Final score button on the Season board and the table builds itself.</p>';
+}
+el("stSeason").addEventListener("change", function () { ST.season = el("stSeason").value; renderStandings(); });
+el("stSave").addEventListener("click", function () {
+  var o = {};
+  el("stSettings").querySelectorAll(".st-show").forEach(function (cb) {
+    var d = cb.getAttribute("data-div");
+    o[d] = o[d] || {};
+    o[d].show = cb.checked;
+  });
+  el("stSettings").querySelectorAll(".st-il").forEach(function (cb) {
+    var d = cb.getAttribute("data-div");
+    o[d] = o[d] || {};
+    o[d].count_interlock = cb.checked;
+  });
+  admin("admin_settings", { standings_divisions: JSON.stringify(o) }).then(function () {
+    var m = el("stMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 1800);
+    refresh();
+  }).catch(function (e) { alert(e.message); });
+});
+
+/* ---------- Phase 5: what needs attention ---------- */
+function renderAttention() {
+  var items = [];
+  function add(n, txt, panel) { items.push({ n: n, txt: txt, panel: panel }); }
+  var today = bdToday();
+  var liveGames = (D.games || []).filter(function (g) { return !isArchivedSeason(g.season_id); });
+
+  var drafts = liveGames.filter(function (g) { return g.status === "draft"; });
+  if (drafts.length) add(drafts.length, "draft games are waiting. Coaches cannot see them until you publish.", "panelGen");
+
+  var unp = sgUnplacedList();
+  if (unp.length) add(unp.length, "matchups had nowhere to go in the last generation. Schedule them by hand or loosen the setup and regenerate.", "panelGen");
+
+  var upcoming = liveGames.filter(function (g) { return g.status === "scheduled" && g.game_date >= today; });
+  var needUmp = 0, offersOut = 0;
+  upcoming.forEach(function (g) {
+    var f = umpFillFor(g);
+    if (f.needed > 0 && f.missing > 0) needUmp++;
+    if (f.offered.length) offersOut++;
+  });
+  if (needUmp) add(needUmp, "upcoming games still need an umpire.", "panelUmps");
+  if (offersOut) add(offersOut, "games have umpire offers waiting on an answer.", "panelUmps");
+
+  var tray = liveGames.filter(function (g) { return g.status === "postponed"; });
+  if (tray.length) add(tray.length, "rained out games are waiting in the makeup tray for a new time.", "panelBoard");
+
+  var pastNoFinal = liveGames.filter(function (g) { return g.status === "scheduled" && g.game_date < today; });
+  if (pastNoFinal.length) add(pastNoFinal.length, "games already happened but have no final score yet.", "panelBoard");
+
+  var over = 0;
+  var rules = leagueRules();
+  activeSeasons().forEach(function (sn) {
+    D.teams.filter(function (t) { return t.is_active; }).forEach(function (t) {
+      var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
+      if (FLM_RULES.evaluate(rules, mine).status === "over") over++;
+    });
+  });
+  if (over) add(over, "teams are over the practice guideline.", "panelComp");
+
+  if (divisionList().length > 1) {
+    var untagged = D.fields.filter(function (f) { return f.is_active && !(f.divisions || []).length; }).length;
+    if (untagged) add(untagged, "fields have no division tags, so any division can be scheduled on them. Tag the ones that are division-only.", "panelFields");
+  }
+
+  if (!String((D.settings || {}).league_name || "").trim()) {
+    add(1, "league name is not set. Emails and calendar feeds say Field Command until you set it in League settings.", "panelSettings");
+  }
+
+  el("attnList").innerHTML = items.length ? items.map(function (it, i) {
+    return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;font-size:13.5px;">' +
+      '<span class="chip ' + (it.panel === "panelFields" || it.panel === "panelSettings" ? "amber" : "lock") + '">' + it.n + "</span>" +
+      '<div style="flex:1;min-width:220px;">' + esc(it.txt) + "</div>" +
+      '<button class="btn sm ghost" data-attn="' + esc(it.panel) + '">Take me there</button></div>';
+  }).join("") : '<p class="hint" style="margin:0;color:#21622f;font-weight:600;">Nothing needs your attention. The schedule is in good shape.</p>';
+  el("attnList").querySelectorAll("[data-attn]").forEach(function (b) {
+    b.addEventListener("click", function () { scrollToPanel(b.getAttribute("data-attn")); });
+  });
+}
+
+/* ---------- Phase 5: set up your league wizard ---------- */
+/* Guidance over plumbing: every step uses the same panels and actions the
+   console already has, so nothing the wizard does is special or hidden. */
+function wizardModal() {
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  veil.id = "wizard";
+  document.body.appendChild(veil);
+  var step = 0;
+  function counts() {
+    return {
+      teams: (D.teams || []).filter(function (t) { return t.is_active; }).length,
+      fields: (D.fields || []).filter(function (f) { return f.is_active; }).length,
+      windows: activeSeasons().length,
+      slots: (D.slots || []).filter(function (s) { return !isArchivedSeason(s.season_id); }).length,
+      divisions: divisionList().length
+    };
+  }
+  function go(n) { step = Math.max(0, Math.min(6, n)); render(); }
+  function jump(panel) { veil.remove(); scrollToPanel(panel); }
+  function render() {
+    var c = counts();
+    var steps = [
+      { t: "Welcome", body: "This wizard walks you through setting up your league, one small step at a time. Every step can be skipped and done later; nothing here is one-way. You can reopen this any time from the button at the top of the page." +
+        '<label class="wizlbl">League name</label><input id="wzName" value="' + esc((D.settings || {}).league_name || "") + '" placeholder="e.g. Dieringer Youth Baseball" style="width:100%;" />' +
+        '<p class="hint" style="margin-top:4px;">Shows on the parent portal, calendar feeds, and every email.</p>' },
+      { t: "Season dates", body: (c.windows ? "You already have " + c.windows + " schedule window" + (c.windows === 1 ? "" : "s") + " set up. Skip ahead unless you want another." : "A schedule window is a stretch of the season, like Sept 8 to Oct 31. Practices and games live inside it.") +
+        '<label class="wizlbl">Window name (leave blank to skip)</label><input id="wzWin" placeholder="e.g. Fall 2026" style="width:100%;" />' +
+        '<div class="row" style="margin-top:8px;"><label style="font-size:12.5px;">First day <input id="wzStart" type="date" /></label><label style="font-size:12.5px;">Last day <input id="wzEnd" type="date" /></label></div>' },
+      { t: "Divisions and teams", body: "You have <b>" + c.teams + " teams</b> in <b>" + c.divisions + " divisions</b>. Two ways to add them:" +
+        '<ul style="margin:8px 0 8px 18px;font-size:13.5px;"><li><b>One at a time:</b> the + Team button. Name, coach, phone, and the division it plays in.</li>' +
+        "<li><b>All at once:</b> drop your league's Excel sheet in Import from Excel. Coach lists and schedule grids are found automatically.</li></ul>" +
+        "The division name (like Majors BB) is how teams get grouped for schedules and standings, so spell it the same way on every team." +
+        '<div class="row" style="margin-top:10px;"><button class="btn sm" id="wzAddTeam">Add a team now</button><button class="btn sm ghost" id="wzGoImport">Take me to Excel import</button></div>' },
+      { t: "Fields", body: "You have <b>" + c.fields + " fields</b>. Add every place your league practices or plays. If a field is only for some divisions (say, 46/60 fields for the older kids), tag it with those divisions and the schedule tools respect that." +
+        '<div class="row" style="margin-top:10px;"><button class="btn sm" id="wzAddField">Add a field now</button></div>' },
+      { t: "Practice times", body: "There are <b>" + c.slots + " practice slots</b> claimed right now. Practices work like a sign-up sheet: the weekly grid has a spot for every field on every weekday evening and Saturday block, and coaches claim their own spots on the coach portal. You can also place teams yourself, or import a finished grid from Excel." +
+        '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoRules">Set the practice guideline</button><button class="btn sm ghost" id="wzGoImport2">Import a grid from Excel</button></div>' },
+      { t: "Games", body: "When teams and fields are in, the Season generator builds the whole game schedule for you: pick a quick start template, hit Generate, and review the draft. Drafts are schedule ideas only you can see. Publish when it looks right, and parents can put every game on their phone calendar with one tap." +
+        '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoGen">Take me to the generator</button></div>' },
+      { t: "Done", body: "That is the whole setup. From here the What needs attention panel at the top keeps a running to-do list for you: drafts to publish, games needing umpires, rainouts to make up. When this season ends, the Start next season button carries everything over." }
+    ];
+    var s = steps[step];
+    veil.innerHTML = '<div class="modal"><h3>Set up your league</h3>' +
+      '<div class="ctx">Step ' + (step + 1) + " of " + steps.length + " &middot; " + esc(s.t) + "</div>" +
+      '<div style="font-size:14px;color:#3c463f;" id="wizBody">' + s.body + "</div>" +
+      '<div class="row" style="margin-top:16px;">' +
+      (step > 0 ? '<button class="btn ghost" id="wzBack">Back</button>' : "") +
+      (step < steps.length - 1 ? '<button class="btn clay" id="wzNext">' + (step === 0 || step === 1 ? "Save and continue" : "Next") + "</button>" : "") +
+      (step < steps.length - 1 ? '<button class="btn ghost" id="wzSkip">Skip this step</button>' : "") +
+      (step === steps.length - 1 ? '<button class="btn clay" id="wzDone">Finish</button>' : "") +
+      "</div></div>";
+    veil.onclick = function (e) { if (e.target === veil) veil.remove(); };
+    var q = function (id) { return veil.querySelector("#" + id); };
+    if (q("wzBack")) q("wzBack").onclick = function () { go(step - 1); };
+    if (q("wzSkip")) q("wzSkip").onclick = function () { go(step + 1); };
+    if (q("wzDone")) q("wzDone").onclick = function () { veil.remove(); };
+    if (q("wzNext")) q("wzNext").onclick = function () {
+      if (step === 0) {
+        var nm = q("wzName").value.trim();
+        if (nm !== ((D.settings || {}).league_name || "")) {
+          admin("admin_settings", { league_name: nm }).then(function () { refresh(); go(1); }).catch(function (e) { alert(e.message); });
+          return;
+        }
+        go(1); return;
+      }
+      if (step === 1) {
+        var label = q("wzWin").value.trim();
+        if (label) {
+          admin("admin_upsert_season", { label: label, start_date: q("wzStart").value || "", end_date: q("wzEnd").value || "", sort: D.seasons.length })
+            .then(function () { refresh(); go(2); }).catch(function (e) { alert(e.message); });
+          return;
+        }
+        go(2); return;
+      }
+      go(step + 1);
+    };
+    if (q("wzAddTeam")) q("wzAddTeam").onclick = function () { teamModal(null); };
+    if (q("wzAddField")) q("wzAddField").onclick = function () { fieldModal(null); };
+    if (q("wzGoImport")) q("wzGoImport").onclick = function () { jump("panelImport"); };
+    if (q("wzGoImport2")) q("wzGoImport2").onclick = function () { jump("panelImport"); };
+    if (q("wzGoRules")) q("wzGoRules").onclick = function () { jump("panelSettings"); };
+    if (q("wzGoGen")) q("wzGoGen").onclick = function () { jump("panelGen"); };
+  }
+  render();
+}
+document.getElementById("wizardBtn").addEventListener("click", function () { if (D) wizardModal(); });
 
 /* ---------- CSV export ---------- */
 document.getElementById("csvBtn").addEventListener("click", function () {

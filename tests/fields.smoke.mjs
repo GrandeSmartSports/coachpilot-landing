@@ -474,7 +474,7 @@ for (const line of ['All quiet right now. No league announcements.', 'Pick your 
 // ------- 3. Admin hooks -------
 section('fields/admin.html: required hooks');
 const adminHtml = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
-for (const s of ['Practice compliance', 'id="compGrid"', 'League announcements', 'id="anTitle"', 'id="anPost"', 'admin_announcement_email', 'preview: true', 'id="ruleWk"', 'id="ruleMonFri"', 'src="flm-rules.js"', 'Email all coaches', 'id="gSave"', 'admin_game', 'FLM_RULES.gameConflicts', 'data-gstatus', 'data-divs', 'Save this game anyway?']) {
+for (const s of ['Practice compliance', 'id="compGrid"', 'League announcements', 'id="anTitle"', 'id="anPost"', 'admin_announcement_email', 'preview: true', 'id="ruleWk"', 'id="ruleMonFri"', 'src="flm-rules.js"', 'Email all coaches', 'id="gSave"', 'admin_game', 'FLM_RULES.gameConflicts', 'data-gstatus', 'data-fedit', 'Save this game anyway?']) {
   if (adminHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
@@ -887,13 +887,147 @@ for (const [s, why] of [
   ['Deactivate', 'deactivate flow'],
   ['Eligible and free', 'assign modal filters to eligible umps'],
   ['FLM_RULES.umpIneligibleReason', 'eligibility uses the shared engine'],
-  ['cc\'d on every email', 'parent cc surfaced in the admin flow'],
+  ['gets a copy of every email', 'parent cc surfaced in the admin flow (ump modal)'],
 ]) {
   if (adminHtml4.includes(s)) ok(why);
   else fail('MISSING (' + why + '): ' + s);
 }
 
 // ------- 5. Live gateway (read-only) -------
+// ------- 4c. Phase 5: scores, standings, archive, volunteer pass -------
+section('standings engine: W-L-T, ties, run diff');
+{
+  const teams = [
+    { id: 'A', name: 'Cougars', division: 'Majors BB' },
+    { id: 'B', name: 'Storm', division: 'Majors BB' },
+    { id: 'C', name: 'Hawks', division: 'Majors BB' },
+    { id: 'D', name: 'Bees', division: 'Minors BB' },
+  ];
+  const fg = (over) => Object.assign({ status: 'completed', home_team_id: 'A', away_team_id: 'B', ext_team_id: null, home_score: 7, away_score: 4 }, over);
+  const games = [
+    fg({}),                                                                       // Cougars beat Storm 7-4
+    fg({ home_team_id: 'B', away_team_id: 'C', home_score: 3, away_score: 3 }),   // Storm tie Hawks 3-3
+    fg({ home_team_id: 'C', away_team_id: 'A', home_score: 2, away_score: 5 }),   // Cougars win again on the road
+    fg({ status: 'scheduled' }),                                                  // not completed -> ignored
+    fg({ status: 'completed', home_score: null, away_score: null }),              // completed but no score -> ignored
+  ];
+  const st = FLM.standings(games, teams, {});
+  const M = st['Majors BB'] || [];
+  const row = (id) => M.find((r) => r.team_id === id) || {};
+  const a = row('A'), b = row('B'), c = row('C');
+  if (a.w === 2 && a.l === 0 && a.t === 0 && a.gp === 2) ok('two wins counted (home and away)');
+  else fail('win counting broken: ' + JSON.stringify(a));
+  if (b.t === 1 && b.l === 1 && c.t === 1 && c.l === 1) ok('a tie counts as a tie for BOTH teams');
+  else fail('tie counting broken: ' + JSON.stringify([b, c]));
+  if (a.rf === 12 && a.ra === 6 && a.diff === 6) ok('run difference math (12 for, 6 against, +6)');
+  else fail('run diff broken: ' + JSON.stringify(a));
+  if (M[0] && M[0].team_id === 'A') ok('table sorted by win share: Cougars first');
+  else fail('sort broken: ' + JSON.stringify(M.map((r) => r.name)));
+  if (a.pct === 1 && Math.abs(b.pct - 0.25) < 1e-9) ok('win share includes ties as half a win');
+  else fail('pct broken: ' + a.pct + ' / ' + b.pct);
+  if (!st['Minors BB']) ok('teams with no completed games get no standings row');
+  else fail('empty division leaked into standings');
+}
+
+section('standings engine: interlock counting per setting');
+{
+  const teams = [{ id: 'A', name: 'Cougars', division: 'Majors BB' }];
+  const il = { status: 'completed', home_team_id: 'A', away_team_id: null, ext_team_id: 'X1', home_score: 9, away_score: 1 };
+  const on = FLM.standings([il], teams, {});
+  if (on['Majors BB'] && on['Majors BB'][0].w === 1 && on['Majors BB'][0].gp === 1) ok('interlock final counts for our team by default');
+  else fail('interlock default-on broken: ' + JSON.stringify(on));
+  const off = FLM.standings([il], teams, { 'Majors BB': { count_interlock: false } });
+  if (!off['Majors BB']) ok('count_interlock=false leaves the interlock game out');
+  else fail('interlock toggle broken: ' + JSON.stringify(off));
+  const rows = on['Majors BB'] || [];
+  if (rows.length === 1) ok('the external team itself never lands in our standings');
+  else fail('external team leaked into standings');
+}
+
+section('standings engine: crossover games land in each team\'s own division');
+{
+  const teams = [
+    { id: 'A', name: 'Cougars', division: 'Majors BB' },
+    { id: 'D', name: 'Bees', division: 'Minors BB' },
+  ];
+  const x = { status: 'completed', home_team_id: 'A', away_team_id: 'D', ext_team_id: null, home_score: 4, away_score: 6, division: 'Majors BB' };
+  const st = FLM.standings([x], teams, {});
+  if (st['Majors BB'] && st['Majors BB'][0].l === 1 && st['Minors BB'] && st['Minors BB'][0].w === 1) ok('crossover: loss in Majors table, win in Minors table');
+  else fail('crossover attribution broken: ' + JSON.stringify(st));
+}
+
+section('standings engine: public toggle + finals');
+{
+  if (FLM.standingsShow({}, 'Majors BB') === false) ok('standings default to HIDDEN on the portal');
+  else fail('default show should be false');
+  if (FLM.standingsShow({ 'Majors BB': { show: true } }, 'Majors BB') === true) ok('per-division show toggle turns a table on');
+  else fail('show toggle broken');
+  if (FLM.standingsCountInterlock({}, 'Majors BB') === true) ok('interlock counting defaults ON');
+  else fail('count_interlock default broken');
+  const s = FLM.standingsSettings('not json');
+  if (s && typeof s === 'object' && Object.keys(s).length === 0) ok('bad settings JSON falls back to empty config');
+  else fail('standingsSettings fallback broken');
+  const done = { status: 'completed', home_score: 7, away_score: 4 };
+  if (FLM.gameHasFinal(done) && !FLM.gameHasFinal({ status: 'completed', home_score: 7, away_score: null }) && !FLM.gameHasFinal({ status: 'scheduled', home_score: 7, away_score: 4 })) ok('a final = completed AND both scores entered');
+  else fail('gameHasFinal broken');
+  if (FLM.finalLine(done, 'Cougars', 'Storm') === 'Final: Cougars 7, Storm 4') ok('final line puts the winner first');
+  else fail('finalLine winner-first broken: ' + FLM.finalLine(done, 'Cougars', 'Storm'));
+  if (FLM.finalLine({ status: 'completed', home_score: 2, away_score: 5 }, 'Cougars', 'Storm') === 'Final: Storm 5, Cougars 2') ok('away winner listed first');
+  else fail('finalLine away-winner broken');
+  if (FLM.finalLine({ status: 'completed', home_score: 3, away_score: 3 }, 'Cougars', 'Storm') === 'Final: Cougars 3, Storm 3 (tie)') ok('ties say (tie)');
+  else fail('finalLine tie broken');
+}
+
+section('fields/admin.html: volunteer pass (no prompt chains, Phase 5 hooks)');
+{
+  const adminSrc = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
+  const prompts = (adminSrc.match(/prompt\(/g) || []).length;
+  if (prompts === 0) ok('ZERO prompt() calls left in the admin console');
+  else fail(prompts + ' prompt() calls still in admin.html');
+  const hooks = [
+    'function formModal', 'id="attnList"', 'id="wizardBtn"', 'function wizardModal', 'Step ',
+    'data-sgpreset="saturday"', 'data-sgpreset="satweek"', 'data-sgpreset="custom"',
+    'id="cloneSeasonBtn"', 'admin_season_clone', 'data-bd-score', 'function scoreModal',
+    'id="stSettings"', 'id="stTables"', 'standings_divisions', 'sg_unplaced',
+    'function renderAttention', 'Nothing needs your attention', 'id="panelGen"', 'id="panelUmps"', 'id="panelBoard"',
+    'FLM_RULES.standings', 'FLM_RULES.gameHasFinal', '(archived)', 'data-unarch',
+  ];
+  const missing = hooks.filter((h) => !adminSrc.includes(h));
+  if (missing.length === 0) ok('wizard, templates, attention panel, score modal, standings, clone, and archive hooks all present');
+  else fail('missing Phase 5 admin hooks: ' + missing.join(', '));
+  const wiz = adminSrc.slice(adminSrc.indexOf('function wizardModal'), adminSrc.indexOf('document.getElementById("wizardBtn")'));
+  if (wiz.includes('teamModal') && wiz.includes('fieldModal') && wiz.includes('admin_upsert_season') && wiz.includes('admin_settings')) ok('wizard reuses the existing panels and actions (guidance, not new plumbing)');
+  else fail('wizard looks like it grew its own plumbing');
+}
+
+section('gateway source: Phase 5 actions + archive rules');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  const hooks = ['admin_season_clone', 'home_score', 'away_score', 'archived', 'standings_divisions', 'sg_unplaced', 'copy_slots_from', 'v12'];
+  const missing = hooks.filter((h) => !gwSrc.includes(h));
+  if (missing.length === 0) ok('gateway v12 carries scores, standings settings, unplaced persistence, and the season clone');
+  else fail('gateway missing: ' + missing.join(', '));
+  const stateBlock = gwSrc.slice(gwSrc.indexOf('action === "state"'), gwSrc.indexOf('action === "claim"'));
+  if (stateBlock.includes('!showDrafts') && stateBlock.includes('archived')) ok('public state filters archived seasons, games, and slots; admin PIN sees everything');
+  else fail('public archive filtering missing from state');
+}
+
+section('flm-ics source: archived seasons never feed calendars');
+{
+  const icsSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'index.ts'), 'utf8');
+  if (icsSrc.includes('flm_seasons') && icsSrc.includes('archived') && icsSrc.includes('liveGames')) ok('feed builder drops games from archived seasons');
+  else fail('ics archive filter missing');
+}
+
+section('fields/index.html: standings + finals hooks');
+{
+  const portalSrc = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
+  const hooks = ['id="standBox"', 'FLM_RULES.standings', 'standingsShow', 'finalLine', 'gfinal', 'class="standings"'];
+  const missing = hooks.filter((h) => !portalSrc.includes(h));
+  if (missing.length === 0) ok('portal standings table and Final lines wired in');
+  else fail('missing portal Phase 5 hooks: ' + missing.join(', '));
+}
+
 section('gateway: live read-only checks');
 try {
   const r = await fetch(GATEWAY + '?action=state');

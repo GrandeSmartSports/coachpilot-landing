@@ -293,5 +293,91 @@
     return mv && mv[0] === status ? mv[1] : null;
   }
 
-  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts, bulkRainoutTargets: bulkRainoutTargets, appendTrail: appendTrail, umpParseDefaults: umpParseDefaults, umpNeeded: umpNeeded, umpFill: umpFill, umpAvailable: umpAvailable, umpDayClash: umpDayClash, umpIneligibleReason: umpIneligibleReason, umpOpenGames: umpOpenGames, umpTransition: umpTransition };
+  /* ---------- Phase 5: scores + standings ---------- */
+  /* Per-division standings settings live in flm_settings key
+     "standings_divisions" (JSON): { "Majors BB": { "show": true, "count_interlock": true } }
+     show: whether the division's standings appear on the public portal
+           (default FALSE: younger divisions often do not post standings).
+     count_interlock: whether completed games against other leagues count in
+           the table (default TRUE; they count for our team only). */
+  function standingsSettings(raw) {
+    try {
+      var o = typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+      return o && typeof o === "object" && !(o instanceof Array) ? o : {};
+    } catch (e) { return {}; }
+  }
+  function standingsShow(cfg, division) {
+    var d = (cfg || {})[division];
+    return !!(d && d.show);
+  }
+  function standingsCountInterlock(cfg, division) {
+    var d = (cfg || {})[division];
+    return !d || d.count_interlock !== false;
+  }
+  /* A game has a final when it is completed and both scores are entered. */
+  function gameHasFinal(g) {
+    return g && g.status === "completed" &&
+      typeof g.home_score === "number" && typeof g.away_score === "number";
+  }
+  /* Build standings from completed games. Each team's results land in that
+     TEAM'S OWN division (so crossover games count for both sides, each in its
+     own table). Interlock games (ext_team_id) count for our home team only,
+     and only when the division's count_interlock setting allows.
+     Returns { divisionName: [ { team_id, name, w, l, t, gp, rf, ra, diff, pct } ] },
+     each division sorted by win share, then run difference, then name. */
+  function standings(games, teams, cfg) {
+    var divOf = {}, nameOf = {};
+    (teams || []).forEach(function (t) { divOf[t.id] = t.division || ""; nameOf[t.id] = t.name; });
+    var rows = {}; /* team_id -> row */
+    function row(id) {
+      if (!rows[id]) rows[id] = { team_id: id, name: nameOf[id] || "?", w: 0, l: 0, t: 0, gp: 0, rf: 0, ra: 0, diff: 0, pct: 0 };
+      return rows[id];
+    }
+    function add(id, scored, allowed) {
+      var r = row(id);
+      r.gp++; r.rf += scored; r.ra += allowed; r.diff = r.rf - r.ra;
+      if (scored > allowed) r.w++;
+      else if (scored < allowed) r.l++;
+      else r.t++;
+    }
+    (games || []).forEach(function (g) {
+      if (!gameHasFinal(g)) return;
+      var hs = g.home_score, as = g.away_score;
+      if (g.ext_team_id) {
+        /* interlock: our team's result only, gated by its division's setting */
+        if (standingsCountInterlock(cfg, divOf[g.home_team_id])) add(g.home_team_id, hs, as);
+        return;
+      }
+      if (!g.away_team_id) return;
+      add(g.home_team_id, hs, as);
+      add(g.away_team_id, as, hs);
+    });
+    var byDiv = {};
+    Object.keys(rows).forEach(function (id) {
+      var r = rows[id];
+      r.pct = r.gp ? (r.w + r.t * 0.5) / r.gp : 0;
+      var d = divOf[id] || "";
+      (byDiv[d] = byDiv[d] || []).push(r);
+    });
+    Object.keys(byDiv).forEach(function (d) {
+      byDiv[d].sort(function (a, b) {
+        if (b.pct !== a.pct) return b.pct - a.pct;
+        if (b.w !== a.w) return b.w - a.w;
+        if (b.diff !== a.diff) return b.diff - a.diff;
+        return String(a.name).localeCompare(String(b.name));
+      });
+    });
+    return byDiv;
+  }
+  /* Plain final line for cards and modals: "Final: Cougars 7, Storm 4". */
+  function finalLine(g, homeName, awayName) {
+    if (!gameHasFinal(g)) return "";
+    var hs = g.home_score, as = g.away_score;
+    if (hs === as) return "Final: " + homeName + " " + hs + ", " + awayName + " " + as + " (tie)";
+    return hs > as
+      ? "Final: " + homeName + " " + hs + ", " + awayName + " " + as
+      : "Final: " + awayName + " " + as + ", " + homeName + " " + hs;
+  }
+
+  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts, bulkRainoutTargets: bulkRainoutTargets, appendTrail: appendTrail, umpParseDefaults: umpParseDefaults, umpNeeded: umpNeeded, umpFill: umpFill, umpAvailable: umpAvailable, umpDayClash: umpDayClash, umpIneligibleReason: umpIneligibleReason, umpOpenGames: umpOpenGames, umpTransition: umpTransition, standingsSettings: standingsSettings, standingsShow: standingsShow, standingsCountInterlock: standingsCountInterlock, gameHasFinal: gameHasFinal, standings: standings, finalLine: finalLine };
 });

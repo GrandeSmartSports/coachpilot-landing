@@ -155,6 +155,17 @@
   .gstatus.cancelled { background: #fbe4dc; color: #a33c1b; }
   .gstatus.completed { background: #dcefe2; color: #21622f; }
   .gweek { grid-column: 1 / -1; font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); border-bottom: 2px solid var(--line); padding: 10px 2px 4px; }
+  .gfinal { display: inline-block; margin-top: 7px; font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pine); background: #dcefe2; border-radius: 12px; padding: 2px 11px; }
+
+  /* ---------- STANDINGS (divisions the league turns on) ---------- */
+  .standings { background: var(--white); border: 1px solid var(--line); border-top: 4px solid var(--grass); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; margin-bottom: 10px; }
+  .standings h4 { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--grass); margin-bottom: 6px; }
+  .standings table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .standings th { text-align: left; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 3px 6px; border-bottom: 1px solid var(--line); }
+  .standings th.num, .standings td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .standings td { padding: 4px 6px; border-bottom: 1px solid #efede4; }
+  .standings tr:last-child td { border-bottom: none; }
+  .standings td.tm { font-weight: 600; }
 
   /* ---------- MODAL ---------- */
   .veil { position: fixed; inset: 0; background: rgba(20, 32, 26, 0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
@@ -273,6 +284,7 @@
         <select id="schedTeam"></select>
       </div>
       <div class="schedcal" id="schedCal"></div>
+      <div id="standBox"></div>
       <div class="gcards" id="schedList"></div>
       <p class="hint hidden" id="schedNone" style="color:var(--muted);padding:20px 4px;">No games on this schedule yet.</p>
     </div>
@@ -655,6 +667,26 @@ function renderSched() {
   document.getElementById("schedCal").innerHTML = "Put " + esc(feedLabel) + " on your phone calendar. It updates by itself when the schedule changes.<br />" +
     '<a class="calbtn" href="' + esc(icsWebcal(feedPath)) + '">Add to calendar</a>' +
     '<button class="calbtn ghost" data-copycal="' + esc(icsUrl(feedPath)) + '">Copy the link</button>';
+  /* Phase 5: standings for divisions the league turned on. Built from final
+     scores; a division with standings off, or no finals yet, shows nothing. */
+  var stHtml = "";
+  if (FLM_RULES.standings) {
+    var stCfg = FLM_RULES.standingsSettings(S.data.settings.standings_divisions);
+    var stTables = FLM_RULES.standings(games, S.data.teams || [], stCfg);
+    var stDivs = Object.keys(divs).sort().filter(function (d) {
+      if (!FLM_RULES.standingsShow(stCfg, d)) return false;
+      if (keepDiv && d !== keepDiv) return false;
+      if (keepTeam) { var t = teamById(keepTeam); if (!t || t.division !== d) return false; }
+      return (stTables[d] || []).length > 0;
+    });
+    stHtml = stDivs.map(function (d) {
+      return '<div class="standings"><h4>' + esc(d) + ' standings</h4><table><thead><tr><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">T</th><th class="num">Runs +/-</th></tr></thead><tbody>' +
+        stTables[d].map(function (r) {
+          return '<tr><td class="tm">' + esc(r.name) + '</td><td class="num">' + r.w + '</td><td class="num">' + r.l + '</td><td class="num">' + r.t + '</td><td class="num">' + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+    }).join("");
+  }
+  document.getElementById("standBox").innerHTML = stHtml;
   /* Full seasons get long: group by week so the list stays scannable. A week
      header only appears when games span more than one week. */
   shown.sort(function (a, b) { return (a.game_date + a.start_time).localeCompare(b.game_date + b.start_time); });
@@ -681,11 +713,13 @@ function renderSched() {
     var h = teamById(g.home_team_id), opp = gameOpp(g);
     var mine = S.myTeam && (g.home_team_id === S.myTeam || g.away_team_id === S.myTeam);
     var dim = g.status === "cancelled" || g.status === "postponed";
+    /* completed games with a score show the final instead of a bare status */
+    var fin = FLM_RULES.finalLine ? FLM_RULES.finalLine(g, h ? h.name : "?", opp.name) : "";
     return '<div class="gcard' + (mine ? " mine" : "") + (dim ? " dim" : "") + '" data-game="' + g.id + '" style="cursor:pointer;">' +
       '<div class="gwhen">' + esc(fmtGameDate(g.game_date) + " · " + FLM_RULES.fmtTime(g.start_time) + " to " + FLM_RULES.fmtTime(g.end_time)) + "</div>" +
       '<div class="gmatch">' + esc(h ? h.name : "?") + " <span>vs</span> " + esc(opp.name) + (opp.ext ? ' <span class="gleague">' + esc(opp.league) + "</span>" : "") + "</div>" +
       '<div class="gmeta">' + esc([gameVenue(g), g.division, g.notes].filter(Boolean).join(" · ")) + "</div>" +
-      (g.status !== "scheduled" ? '<span class="gstatus ' + esc(g.status) + '">' + esc(g.status) + "</span>" : "") +
+      (fin ? '<span class="gfinal">' + esc(fin) + "</span>" : (g.status !== "scheduled" ? '<span class="gstatus ' + esc(g.status) + '">' + esc(g.status) + "</span>" : "")) +
       "</div>";
   }
   el.querySelectorAll(".gcard[data-game]").forEach(function (c) {
@@ -698,11 +732,12 @@ function openGameModal(gameId) {
   if (!g) return;
   var h = teamById(g.home_team_id), opp = gameOpp(g);
   var where = g.field_id ? "at <b>" + esc(gameVenue(g)) + "</b>" : "<b>" + esc(gameVenue(g)) + "</b>";
+  var fin = FLM_RULES.finalLine ? FLM_RULES.finalLine(g, h ? h.name : "?", opp.name) : "";
   var body = "<h3>" + esc((h ? h.name : "?") + " vs " + opp.name + (opp.ext ? " (" + opp.league + ")" : "")) + "</h3>" +
     '<div class="ctx">' + esc(fmtGameDate(g.game_date)) + ", " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " " + where +
     (opp.ext ? "<br />Interlock game against " + esc(opp.league) : "") +
     (g.division ? "<br />Division: " + esc(g.division) : "") +
-    (g.status !== "scheduled" ? "<br />Status: <b>" + esc(g.status) + "</b>" : "") +
+    (fin ? "<br /><b>" + esc(fin) + "</b>" : (g.status !== "scheduled" ? "<br />Status: <b>" + esc(g.status) + "</b>" : "")) +
     (g.notes ? "<br />Note: " + esc(g.notes) : "") + "</div>" +
     '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button></div>';
   var v = modal(body);
