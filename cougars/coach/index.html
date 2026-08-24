@@ -112,6 +112,15 @@
       </div>
 
       <div class="panel">
+        <div class="bar"><h3>Cougar Funds &mdash; edit totals</h3></div>
+        <div class="bd">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Dollar amounts. Leave the goal blank for an open fund. Saving updates the parent funds page right away.</div>
+          <div id="fundlist"></div>
+          <span class="m" id="fund-msg"></span>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="bar"><h3>Tools</h3></div>
         <div class="bd tools">
           <a class="tool" href="https://coachpilot.org/email-studio/" target="_blank"><span class="t">Email Studio</span><span class="s">Review + edit emails</span></a>
@@ -158,6 +167,7 @@ function boot() {
       document.getElementById("gate").style.display = "none";
       document.getElementById("app").style.display = "block";
       loadUpdates();
+      loadFunds();
     })
     .catch(function (e) {
       document.getElementById("gate").style.display = "block";
@@ -242,6 +252,52 @@ function unpub(id) {
   if (!confirm("Hide this update from parents?")) return;
   fetch(API + "?action=unpublish_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
     .then(function () { loadUpdates(); });
+}
+
+function dollarsIn(cents) {
+  if (cents == null) return "";
+  var n = Math.max(0, Math.round(Number(cents) || 0));
+  return n % 100 === 0 ? String(n / 100) : (n / 100).toFixed(2);
+}
+
+function loadFunds() {
+  fetch(API + "?action=funds", { headers: pinHeaders() })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var funds = d.funds || [];
+      document.getElementById("fundlist").innerHTML = funds.map(function (f) {
+        return '<div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;padding:8px 0;border-bottom:1px dashed #eef0f1;" data-fund="' + esc(f.id) + '">' +
+          '<div style="flex:1 1 130px;min-width:120px;"><div style="font-weight:700;font-size:13.5px;">' + esc(f.name) + (f.active ? "" : ' <span style="color:var(--muted);font-weight:400;">(hidden)</span>') + "</div></div>" +
+          '<div><label style="margin:0 0 2px;">Raised $</label><input type="text" inputmode="decimal" data-raised value="' + esc(dollarsIn(f.raised_cents)) + '" style="width:84px;padding:7px 8px;font-size:14px;" /></div>' +
+          '<div><label style="margin:0 0 2px;">Goal $</label><input type="text" inputmode="decimal" data-goal placeholder="open" value="' + esc(f.goal_cents == null ? "" : dollarsIn(f.goal_cents)) + '" style="width:84px;padding:7px 8px;font-size:14px;" /></div>' +
+          '<button class="btn btn-ghost" style="padding:8px 12px;font-size:12px;" onclick="saveFund(\'' + esc(f.id) + '\')">Save</button>' +
+          "</div>";
+      }).join("");
+    })
+    .catch(function () {
+      document.getElementById("fund-msg").className = "m bad";
+      document.getElementById("fund-msg").textContent = "Could not load funds.";
+    });
+}
+
+function saveFund(id) {
+  var row = document.querySelector('[data-fund="' + id + '"]');
+  var m = document.getElementById("fund-msg");
+  if (!row) return;
+  var raisedStr = row.querySelector("[data-raised]").value.trim().replace(/[$,]/g, "");
+  var goalStr = row.querySelector("[data-goal]").value.trim().replace(/[$,]/g, "");
+  var raised = raisedStr === "" ? 0 : Number(raisedStr);
+  if (!isFinite(raised) || raised < 0) { m.className = "m bad"; m.textContent = "Raised amount needs to be a number."; return; }
+  var goal = goalStr === "" ? null : Number(goalStr);
+  if (goal !== null && (!isFinite(goal) || goal < 0)) { m.className = "m bad"; m.textContent = "Goal needs to be a number, or blank for open."; return; }
+  m.className = "m"; m.textContent = "Saving…";
+  fetch(API + "?action=admin_funds", {
+    method: "POST", headers: pinHeaders(),
+    body: JSON.stringify({ id: id, raised_cents: Math.round(raised * 100), goal_cents: goal === null ? null : Math.round(goal * 100) }),
+  })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () { m.className = "m ok"; m.textContent = "Saved. The funds page shows it now."; loadFunds(); })
+    .catch(function () { m.className = "m bad"; m.textContent = "Save failed. Try again."; });
 }
 
 function cp(btn, url) {

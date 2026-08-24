@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Cougar Funds — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 760px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(34px, 7vw, 48px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 4px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 760px; margin: 0 auto; padding: 22px 22px 56px; }
+
+  .promise { background: var(--black); color: #fff; border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow); margin-bottom: 18px; }
+  .promise h2 { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .promise p { font-size: 14.5px; color: #d5d7da; margin-top: 6px; }
+  .promise b { color: #fff; }
+
+  .fund { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+  .fund .top { padding: 16px 18px 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .fund h3 { font-family: var(--disp); font-weight: 600; font-size: 20px; letter-spacing: .02em; color: var(--ink); }
+  .chipnote { flex: 0 0 auto; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--red); background: var(--red-soft); border-radius: 20px; padding: 4px 12px; margin-top: 2px; }
+  .fund .blurb { padding: 4px 18px 0; font-size: 14px; color: var(--muted); }
+  .prog { padding: 12px 18px 0; }
+  .prog .amt { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .04em; color: var(--ink); margin-bottom: 6px; }
+  .bar { height: 12px; border-radius: 8px; background: #eceeef; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 8px; background: linear-gradient(90deg, var(--red), var(--red-dark)); transition: width .4s ease; }
+  .bar.open .fill { width: 100% !important; background: repeating-linear-gradient(120deg, var(--red) 0 12px, var(--red-dark) 12px 24px); opacity: .35; }
+  .prog .openline { font-size: 12.5px; color: var(--muted); margin-top: 5px; }
+  .pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 14px 18px 6px; }
+  .paybtn { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border: 0; border-radius: 12px; font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; text-align: center; }
+  .paybtn:active { transform: scale(.98); }
+  .venmo { background: #008cff; color: #fff; }
+  .zelle { background: #6d1ed4; color: #fff; }
+  .zelle.copied { background: var(--green); }
+  .payhint { padding: 0 18px 16px; font-size: 13px; color: var(--muted); }
+  .payhint b { color: var(--ink); }
+
+  .empty { text-align: center; color: var(--muted); padding: 48px 0; font-size: 15px; }
+  .back { display: inline-block; margin-top: 16px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .back:hover { color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Fall 2026</div>
+    <h1>C<span style="color:var(--red)">O</span>UGAR FUNDS</h1>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+    <div class="promise">
+      <h2>Read this first</h2>
+      <p>Contributions are completely optional and anonymous. Chip in if you want to, skip it if you want to. <b>No girl will ever be left out, no matter what.</b></p>
+    </div>
+
+    <div id="funds"><div class="empty">Loading&hellip;</div></div>
+
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+
+<script type="module">
+  import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
+
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var VENMO = "https://venmo.com/u/DanielGrande88";
+  var ZELLE = "623-332-2251";
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+  function fundCard(f) {
+    var p = fundProgress(f);
+    var chip = f.per_note ? '<span class="chipnote">' + esc(f.per_note) + "</span>" : "";
+    var blurb = f.blurb ? '<p class="blurb">' + esc(f.blurb) + "</p>" : "";
+    var bar = p.open
+      ? '<div class="bar open"><div class="fill" style="width:100%"></div></div><div class="openline">Open fund, no set target. Every bit goes to cage time.</div>'
+      : '<div class="bar"><div class="fill" style="width:' + p.pct + '%"></div></div>';
+    return (
+      '<div class="fund" data-fund="' + esc(f.id) + '">' +
+        '<div class="top"><h3>' + esc(f.name) + "</h3>" + chip + "</div>" +
+        blurb +
+        '<div class="prog"><div class="amt">' + esc(p.label) + "</div>" + bar + "</div>" +
+        '<div class="pay">' +
+          '<a class="paybtn venmo" href="' + VENMO + '" target="_blank" rel="noopener">Venmo</a>' +
+          '<button class="paybtn zelle" type="button" data-zelle>Zelle: copy number</button>' +
+        "</div>" +
+        '<p class="payhint">Zelle: <b>' + ZELLE + "</b>. In your banking app, send with Zelle to this phone number. Add the fund name in the payment note so Coach counts it toward the right fund.</p>" +
+      "</div>"
+    );
+  }
+
+  function wireZelle(root) {
+    root.querySelectorAll("[data-zelle]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        function done() {
+          btn.classList.add("copied");
+          btn.textContent = "Copied " + ZELLE;
+          setTimeout(function () { btn.classList.remove("copied"); btn.textContent = "Zelle: copy number"; }, 2400);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ZELLE).then(done).catch(function () { fallbackCopy(); done(); });
+        } else { fallbackCopy(); done(); }
+      });
+    });
+    function fallbackCopy() {
+      var ta = document.createElement("textarea");
+      ta.value = ZELLE;
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  var box = document.getElementById("funds");
+  fetch(API + "?action=funds")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var funds = parseFunds(d.funds).filter(function (f) { return f.active; });
+      if (!funds.length) {
+        box.innerHTML = '<div class="empty">No funds are set up right now. Check back soon.</div>';
+        return;
+      }
+      box.innerHTML = funds.map(fundCard).join("");
+      wireZelle(box);
+    })
+    .catch(function () {
+      box.innerHTML = '<div class="empty">Could not load the funds. Try again in a minute.</div>';
+    });
+
+  try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "funds" }), keepalive: true }).catch(function () {}); } catch (e) {}
+</script>
+</body>
+</html>
