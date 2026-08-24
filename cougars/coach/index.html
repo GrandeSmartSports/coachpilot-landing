@@ -121,6 +121,14 @@
       </div>
 
       <div class="panel">
+        <div class="bar"><h3>Cage night vote</h3></div>
+        <div class="bd">
+          <div class="counts" id="cage-counts"></div>
+          <div class="roll" id="cage-roll"></div>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="bar"><h3>Tools</h3></div>
         <div class="bd tools">
           <a class="tool" href="https://coachpilot.org/email-studio/" target="_blank"><span class="t">Email Studio</span><span class="s">Review + edit emails</span></a>
@@ -168,6 +176,7 @@ function boot() {
       document.getElementById("app").style.display = "block";
       loadUpdates();
       loadFunds();
+      loadCageVote();
     })
     .catch(function (e) {
       document.getElementById("gate").style.display = "block";
@@ -252,6 +261,27 @@ function unpub(id) {
   if (!confirm("Hide this update from parents?")) return;
   fetch(API + "?action=unpublish_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
     .then(function () { loadUpdates(); });
+}
+
+function loadCageVote() {
+  fetch(API + "?action=cage_vote_report", { headers: pinHeaders() })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var c = d.counts || { monday: 0, tuesday: 0, wednesday: 0 };
+      document.getElementById("cage-counts").innerHTML =
+        '<span class="cnt yes">Mon ' + (c.monday || 0) + "</span>" +
+        '<span class="cnt maybe">Tue ' + (c.tuesday || 0) + "</span>" +
+        '<span class="cnt no">Wed ' + (c.wednesday || 0) + "</span>" +
+        '<span class="cnt silent">No vote ' + (d.not_voted || []).length + "</span>";
+      var day = { monday: "Mon", tuesday: "Tue", wednesday: "Wed" };
+      var rows = (d.voted || []).map(function (v) {
+        return '<div class="p"><span>' + esc(v.first_name + " " + (v.last_name || "").charAt(0) + ".") + '</span><span class="s">' + day[v.choice] + "</span></div>";
+      }).join("");
+      document.getElementById("cage-roll").innerHTML = rows || '<div class="p"><span class="n">No votes yet.</span></div>';
+    })
+    .catch(function () {
+      document.getElementById("cage-roll").innerHTML = '<div class="p"><span class="n">Could not load the vote tally.</span></div>';
+    });
 }
 
 function dollarsIn(cents) {

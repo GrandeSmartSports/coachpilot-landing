@@ -57,7 +57,7 @@ for (const s of mustContain) {
 // ------- 2. Forbidden chars in parent-facing files -------
 section('parent-facing: no em/en dashes or curly quotes');
 const forbidden = { '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '‘': 'curly-apos-l', '“': 'curly-quote-l', '”': 'curly-quote-r' };
-const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs'];
+const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs', 'cougars/cagevote.html'];
 let charHits = 0;
 for (const rel of parentFiles) {
   const body = fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -110,6 +110,10 @@ else {
     'DRAFT PREVIEW for Coach only',
     'Week of August 24',
     'nobody wants me in charge of anything fashion related',
+    'Looking ahead',
+    'cagevote.html',
+    'scrimmage with the Bears for Thursday, September 10',
+    'which comes out to far less',
     'renderBody',
     'noindex, nofollow',
   ];
@@ -138,7 +142,7 @@ try {
   else fail('sweatshirts wrong: ' + JSON.stringify(sw));
   if (!byId['socks'] && !byId['bows']) ok('no socks or bows funds present'); else fail('socks/bows still present in funds');
   const cage = byId['cage'];
-  if (cage && cage.name === 'Mike and Terrys Cage Fund' && cage.goal_cents === null && (cage.blurb || '').includes('$80 an hour')) ok('cage: open goal + blurb correct');
+  if (cage && cage.name === 'Mike and Terrys Cage Fund' && cage.goal_cents === null && (cage.blurb || '').includes('which comes out to far less')) ok('cage: open goal + corrected token blurb');
   else fail('cage wrong: ' + JSON.stringify(cage));
 } catch (e) { fail('funds fetch threw: ' + e.message); }
 
@@ -150,6 +154,81 @@ try {
   });
   if (r.status === 401) ok('admin_funds without PIN rejected 401'); else fail('admin_funds no-PIN should be 401, got ' + r.status);
 } catch (e) { fail('admin_funds no-PIN threw: ' + e.message); }
+
+// ------- Cage-night vote page + gateway -------
+section('cage vote: page + gateway');
+const VOTE_PAGE = path.join(ROOT, 'cougars', 'cagevote.html');
+if (!fs.existsSync(VOTE_PAGE)) { fail('cougars/cagevote.html missing'); }
+else {
+  const voteHtml = fs.readFileSync(VOTE_PAGE, 'utf8');
+  const voteMust = [
+    'Cage Night Vote',
+    'Optional, come if you can',
+    'Most votes wins',
+    'Details come next week',
+    'Changed your mind? Vote again, your newest vote counts.',
+    'data-choice="monday"',
+    'data-choice="tuesday"',
+    'data-choice="wednesday"',
+    'action=submit_cage_vote',
+    'action=players',
+    'page: "cagevote"',
+    'noindex',
+  ];
+  for (const s of voteMust) {
+    if (voteHtml.includes(s)) ok('vote page contains: ' + s.slice(0, 50));
+    else fail('vote page MISSING: ' + s);
+  }
+}
+const coachHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'coach', 'index.html'), 'utf8');
+if (coachHtml.includes('cage_vote_report') && coachHtml.includes('cage-counts')) ok('Coach HQ has cage vote tally panel');
+else fail('Coach HQ missing cage vote tally panel');
+
+try {
+  const r = await fetch(GATEWAY + '?action=cage_vote_report');
+  if (r.status === 401) ok('cage_vote_report without PIN rejected 401'); else fail('cage_vote_report no-PIN should be 401, got ' + r.status);
+} catch (e) { fail('cage_vote_report no-PIN threw: ' + e.message); }
+
+try {
+  const pr = await fetch(GATEWAY + '?action=players');
+  const pd = await pr.json();
+  const player = (pd.players || [])[0];
+  if (!player) { fail('no roster players available for vote test'); }
+  else {
+    const bad = await fetch(GATEWAY + '?action=submit_cage_vote', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id, choice: 'friday' }),
+    });
+    if (bad.status === 400) ok('invalid choice rejected 400'); else fail('invalid choice should be 400, got ' + bad.status);
+
+    if (PIN) {
+      // Latest-wins live flow. NOTE: creates ZZTEST-tagged rows in cage_vote_2026sep;
+      // scrub afterwards (delete cougars_form_responses where form_key=cage_vote_2026sep and submitted_by like 'ZZTEST%').
+      const v1 = await fetch(GATEWAY + '?action=submit_cage_vote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player_id: player.id, choice: 'monday', parent_name: 'ZZTEST smoke' }),
+      });
+      const v1d = await v1.json();
+      if (v1.ok && v1d.ok && v1d.choice === 'monday') ok('vote accepted (monday)'); else fail('vote 1 failed: ' + JSON.stringify(v1d));
+      const v2 = await fetch(GATEWAY + '?action=submit_cage_vote', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ player_id: player.id, choice: 'wednesday', parent_name: 'ZZTEST smoke' }),
+      });
+      const v2d = await v2.json();
+      if (v2.ok && v2d.ok && v2d.choice === 'wednesday') ok('revote accepted (wednesday)'); else fail('vote 2 failed: ' + JSON.stringify(v2d));
+      const t = await fetch(GATEWAY + '?action=cage_vote_report', { headers: { 'x-admin-pin': PIN } });
+      const td = await t.json();
+      const mine = (td.voted || []).find((v) => v.player_id === player.id);
+      if (mine && mine.choice === 'wednesday') ok('latest vote wins: tally shows wednesday for the test family');
+      else fail('latest-wins broken: ' + JSON.stringify(mine));
+      const countedOnce = (td.voted || []).filter((v) => v.player_id === player.id).length === 1;
+      if (countedOnce) ok('family counted exactly once in tally'); else fail('family counted more than once');
+      console.log('  NOTE  ZZTEST cage votes left for player ' + player.id + '; scrub via MCP after the run.');
+    } else {
+      console.log('  NOTE  COUGARS_PIN not set; skipped live vote flow.');
+    }
+  }
+} catch (e) { fail('cage vote flow threw: ' + e.message); }
 
 // ------- 5. Drafts law -------
 section('drafts law: weekly draft invisible to parents');
