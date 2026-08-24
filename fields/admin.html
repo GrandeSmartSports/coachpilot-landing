@@ -202,6 +202,25 @@ function refresh() {
     document.getElementById("setRules").value = d.settings.rules || "";
   });
   fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (a) { renderLog(a.activity || []); });
+  loadVisits();
+}
+
+var EV = null;
+function loadVisits() {
+  fetch(API + "?action=events_summary", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { return r.json(); })
+    .then(function (v) { if (v.ok) { EV = v; renderVisitTiles(); } })
+    .catch(function () {});
+}
+
+function renderVisitTiles() {
+  if (!EV) return;
+  var box = document.getElementById("tiles");
+  box.querySelectorAll("[data-ev]").forEach(function (el) { el.remove(); });
+  var html = '<div class="tile" data-ev title="' + EV.views_7d_public + ' coach page / ' + EV.views_7d_admin + ' admin"><div class="n">' + EV.views_7d + '</div><div class="l">Visits &middot; 7 days</div></div>' +
+    '<div class="tile" data-ev><div class="n">' + EV.views_total + '</div><div class="l">Visits &middot; all time</div></div>';
+  if (EV.errors_7d > 0) html += '<div class="tile" data-ev><div class="n" style="color:#a33c1b;">' + EV.errors_7d + '</div><div class="l">JS errors &middot; 7 days</div></div>';
+  box.insertAdjacentHTML("beforeend", html);
 }
 
 function renderTiles() {
@@ -219,6 +238,7 @@ function renderTiles() {
   D.seasons.slice(0, 2).forEach(function (sn) { html += tile(slotBySeason[sn.id] || 0, "Slots · " + sn.label); });
   html += tile(openNow, "Open field-slots");
   document.getElementById("tiles").innerHTML = html;
+  renderVisitTiles();
   function tile(n, l) { return '<div class="tile"><div class="n">' + n + '</div><div class="l">' + esc(l) + "</div></div>"; }
 }
 
@@ -473,6 +493,26 @@ function renderPreview(parsed) {
     if (el) { el.classList.remove("hidden"); el.textContent = " +" + (s.slots_created || 0) + " slots, +" + (s.fields_created || 0) + " fields, +" + (s.teams_created || 0) + " teams" + (s.slots_removed ? ", " + s.slots_removed + " replaced" : ""); }
   }
 }
+
+/* ---------- usage beacon (fire-and-forget, never blocks the page) ---------- */
+(function () {
+  var EV_URL = "https://geigvuysptjvvqanumld.supabase.co/rest/v1/flm_events";
+  var EV_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlaWd2dXlzcHRqdnZxYW51bWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMzIxODIsImV4cCI6MjA5MDgwODE4Mn0.DlzXoU3XUa7kAD9oN6hJ1MBXnC_KxzviqpL2vQxWSX8";
+  function track(ev, detail) {
+    try {
+      fetch(EV_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": EV_KEY, "Authorization": "Bearer " + EV_KEY, "Prefer": "return=minimal" },
+        body: JSON.stringify({ page: "fields-admin", event: ev, detail: detail || null }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  track("page_view", { referrer: document.referrer || "direct" });
+  window.addEventListener("error", function (e) {
+    track("js_error", { message: String((e && e.message) || "").slice(0, 300), source: String((e && e.filename) || "").slice(0, 200), line: (e && e.lineno) || 0 });
+  });
+})();
 </script>
 </body>
 </html>

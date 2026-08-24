@@ -443,6 +443,26 @@ function openSlotModal(slotId) {
 
 document.getElementById("whoBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
 load();
+
+/* ---------- usage beacon (fire-and-forget, never blocks the page) ---------- */
+(function () {
+  var EV_URL = "https://geigvuysptjvvqanumld.supabase.co/rest/v1/flm_events";
+  var EV_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlaWd2dXlzcHRqdnZxYW51bWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMzIxODIsImV4cCI6MjA5MDgwODE4Mn0.DlzXoU3XUa7kAD9oN6hJ1MBXnC_KxzviqpL2vQxWSX8";
+  function track(ev, detail) {
+    try {
+      fetch(EV_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": EV_KEY, "Authorization": "Bearer " + EV_KEY, "Prefer": "return=minimal" },
+        body: JSON.stringify({ page: "fields", event: ev, detail: detail || null }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  track("page_view", { referrer: document.referrer || "direct" });
+  window.addEventListener("error", function (e) {
+    track("js_error", { message: String((e && e.message) || "").slice(0, 300), source: String((e && e.filename) || "").slice(0, 200), line: (e && e.lineno) || 0 });
+  });
+})();
 </script>
 </body>
 </html>
