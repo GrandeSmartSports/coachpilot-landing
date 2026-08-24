@@ -31,9 +31,14 @@
   select:focus { outline: none; border-color: var(--red); }
 
   .votes { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
-  .votebtn { min-height: 62px; border: 0; border-radius: 14px; background: var(--black); color: #fff; border-bottom: 4px solid var(--red); font-family: var(--disp); font-weight: 600; font-size: 20px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
-  .votebtn:active { transform: scale(.98); }
-  .votebtn[disabled] { opacity: .5; }
+  .nightbtn { min-height: 58px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); font-family: var(--disp); font-weight: 600; font-size: 19px; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; position: relative; }
+  .nightbtn:active { transform: scale(.98); }
+  .nightbtn.sel { background: var(--black); color: #fff; border-color: var(--black); border-bottom: 4px solid var(--red); }
+  .nightbtn.sel::after { content: "\2713"; position: absolute; right: 16px; color: var(--red); font-size: 20px; }
+
+  .submitbtn { margin-top: 14px; width: 100%; min-height: 58px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+  .submitbtn:active { transform: scale(.98); }
+  .submitbtn[disabled] { opacity: .5; }
 
   .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
   .msg.ok { color: var(--green); }
@@ -53,14 +58,15 @@
   <div class="slash"></div>
   <div class="shell">
     <div class="card">
-      <p style="font-size:14.5px;color:#33383d;margin-bottom:14px;">Pick the evening that works best for your family. Most votes wins. Details come next week.</p>
+      <p style="font-size:14.5px;color:#33383d;margin-bottom:14px;">Pick every evening that works for your family. Coach will go with the night that gets the most votes. Details come next week.</p>
       <label for="player">Your player</label>
       <select id="player"><option value="">Loading the roster&hellip;</option></select>
       <div class="votes">
-        <button class="votebtn" data-choice="monday">Monday</button>
-        <button class="votebtn" data-choice="tuesday">Tuesday</button>
-        <button class="votebtn" data-choice="wednesday">Wednesday</button>
+        <button class="nightbtn" type="button" data-choice="monday" aria-pressed="false">Monday</button>
+        <button class="nightbtn" type="button" data-choice="tuesday" aria-pressed="false">Tuesday</button>
+        <button class="nightbtn" type="button" data-choice="wednesday" aria-pressed="false">Wednesday</button>
       </div>
+      <button class="submitbtn" type="button" id="submit">Submit votes</button>
       <div class="msg" id="msg"></div>
       <p class="revote">Changed your mind? Vote again, your newest vote counts.</p>
     </div>
@@ -71,8 +77,10 @@
 (function () {
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
   var LABELS = { monday: "Monday", tuesday: "Tuesday", wednesday: "Wednesday" };
+  var ORDER = ["monday", "tuesday", "wednesday"];
   var sel = document.getElementById("player");
   var msg = document.getElementById("msg");
+  var submitBtn = document.getElementById("submit");
   var busy = false;
 
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -90,36 +98,55 @@
       sel.innerHTML = '<option value="">Could not load the roster. Refresh to try again.</option>';
     });
 
-  document.querySelectorAll(".votebtn").forEach(function (btn) {
+  document.querySelectorAll(".nightbtn").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      if (busy) return;
-      var playerId = sel.value;
-      var choice = btn.getAttribute("data-choice");
-      if (!playerId) {
-        msg.className = "msg bad";
-        msg.textContent = "Pick her name first, then tap a night.";
-        sel.focus();
-        return;
-      }
-      busy = true;
-      msg.className = "msg";
-      msg.textContent = "Saving your vote…";
-      fetch(API + "?action=submit_cage_vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ player_id: playerId, choice: choice }),
-      })
-        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-        .then(function (d) {
-          msg.className = "msg ok";
-          msg.textContent = "Got it. " + LABELS[choice] + " is your vote for " + d.first_name + "'s family.";
-        })
-        .catch(function () {
-          msg.className = "msg bad";
-          msg.textContent = "That did not go through. Try again in a minute.";
-        })
-        .finally(function () { busy = false; });
+      var on = btn.classList.toggle("sel");
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
     });
+  });
+
+  function picked() {
+    return ORDER.filter(function (c) {
+      var b = document.querySelector('.nightbtn[data-choice="' + c + '"]');
+      return b && b.classList.contains("sel");
+    });
+  }
+
+  submitBtn.addEventListener("click", function () {
+    if (busy) return;
+    var playerId = sel.value;
+    var choices = picked();
+    if (!playerId) {
+      msg.className = "msg bad";
+      msg.textContent = "Pick her name first.";
+      sel.focus();
+      return;
+    }
+    if (choices.length === 0) {
+      msg.className = "msg bad";
+      msg.textContent = "Tap at least one night, then submit.";
+      return;
+    }
+    busy = true;
+    submitBtn.disabled = true;
+    msg.className = "msg";
+    msg.textContent = "Saving your votes…";
+    fetch(API + "?action=submit_cage_vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player_id: playerId, choices: choices }),
+    })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) {
+        var names = (d.choices || choices).map(function (c) { return LABELS[c]; }).join(" + ");
+        msg.className = "msg ok";
+        msg.textContent = "Got it. " + names + " for " + d.first_name + "'s family.";
+      })
+      .catch(function () {
+        msg.className = "msg bad";
+        msg.textContent = "That did not go through. Try again in a minute.";
+      })
+      .finally(function () { busy = false; submitBtn.disabled = false; });
   });
 
   try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "cagevote" }), keepalive: true }).catch(function () {}); } catch (e) {}

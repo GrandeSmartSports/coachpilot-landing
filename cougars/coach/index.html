@@ -275,7 +275,8 @@ function loadCageVote() {
         '<span class="cnt silent">No vote ' + (d.not_voted || []).length + "</span>";
       var day = { monday: "Mon", tuesday: "Tue", wednesday: "Wed" };
       var rows = (d.voted || []).map(function (v) {
-        return '<div class="p"><span>' + esc(v.first_name + " " + (v.last_name || "").charAt(0) + ".") + '</span><span class="s">' + day[v.choice] + "</span></div>";
+        var picks = (v.choices || []).map(function (c) { return day[c]; }).join(" + ");
+        return '<div class="p"><span>' + esc(v.first_name + " " + (v.last_name || "").charAt(0) + ".") + '</span><span class="s">' + esc(picks) + "</span></div>";
       }).join("");
       document.getElementById("cage-roll").innerHTML = rows || '<div class="p"><span class="n">No votes yet.</span></div>';
     })

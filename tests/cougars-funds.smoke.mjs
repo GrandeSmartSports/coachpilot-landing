@@ -112,6 +112,7 @@ else {
     'nobody wants me in charge of anything fashion related',
     'Looking ahead',
     'cagevote.html',
+    'Vote for every evening that works for your family',
     'scrimmage with the Bears for Thursday, September 10',
     'which comes out to far less',
     'renderBody',
@@ -164,12 +165,14 @@ else {
   const voteMust = [
     'Cage Night Vote',
     'Optional, come if you can',
-    'Most votes wins',
+    'Pick every evening that works for your family',
+    'Coach will go with the night that gets the most votes',
     'Details come next week',
     'Changed your mind? Vote again, your newest vote counts.',
     'data-choice="monday"',
     'data-choice="tuesday"',
     'data-choice="wednesday"',
+    'Submit votes',
     'action=submit_cage_vote',
     'action=players',
     'page: "cagevote"',
@@ -197,32 +200,39 @@ try {
   else {
     const bad = await fetch(GATEWAY + '?action=submit_cage_vote', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ player_id: player.id, choice: 'friday' }),
+      body: JSON.stringify({ player_id: player.id, choices: ['friday'] }),
     });
-    if (bad.status === 400) ok('invalid choice rejected 400'); else fail('invalid choice should be 400, got ' + bad.status);
+    if (bad.status === 400) ok('invalid night rejected 400'); else fail('invalid night should be 400, got ' + bad.status);
+    const empty = await fetch(GATEWAY + '?action=submit_cage_vote', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id, choices: [] }),
+    });
+    if (empty.status === 400) ok('empty choices rejected 400'); else fail('empty choices should be 400, got ' + empty.status);
 
     if (PIN) {
-      // Latest-wins live flow. NOTE: creates ZZTEST-tagged rows in cage_vote_2026sep;
+      // Multi-select latest-wins live flow. NOTE: creates ZZTEST-tagged rows in cage_vote_2026sep;
       // scrub afterwards (delete cougars_form_responses where form_key=cage_vote_2026sep and submitted_by like 'ZZTEST%').
       const v1 = await fetch(GATEWAY + '?action=submit_cage_vote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player_id: player.id, choice: 'monday', parent_name: 'ZZTEST smoke' }),
+        body: JSON.stringify({ player_id: player.id, choices: ['monday'], parent_name: 'ZZTEST smoke' }),
       });
       const v1d = await v1.json();
-      if (v1.ok && v1d.ok && v1d.choice === 'monday') ok('vote accepted (monday)'); else fail('vote 1 failed: ' + JSON.stringify(v1d));
+      if (v1.ok && v1d.ok && JSON.stringify(v1d.choices) === '["monday"]') ok('vote accepted (monday)'); else fail('vote 1 failed: ' + JSON.stringify(v1d));
       const v2 = await fetch(GATEWAY + '?action=submit_cage_vote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ player_id: player.id, choice: 'wednesday', parent_name: 'ZZTEST smoke' }),
+        body: JSON.stringify({ player_id: player.id, choices: ['tuesday', 'wednesday'], parent_name: 'ZZTEST smoke' }),
       });
       const v2d = await v2.json();
-      if (v2.ok && v2d.ok && v2d.choice === 'wednesday') ok('revote accepted (wednesday)'); else fail('vote 2 failed: ' + JSON.stringify(v2d));
+      if (v2.ok && v2d.ok && JSON.stringify(v2d.choices) === '["tuesday","wednesday"]') ok('revote accepted (tuesday + wednesday)'); else fail('vote 2 failed: ' + JSON.stringify(v2d));
       const t = await fetch(GATEWAY + '?action=cage_vote_report', { headers: { 'x-admin-pin': PIN } });
       const td = await t.json();
       const mine = (td.voted || []).find((v) => v.player_id === player.id);
-      if (mine && mine.choice === 'wednesday') ok('latest vote wins: tally shows wednesday for the test family');
+      if (mine && JSON.stringify(mine.choices) === '["tuesday","wednesday"]') ok('latest submission fully replaces: tally shows tue + wed only');
       else fail('latest-wins broken: ' + JSON.stringify(mine));
       const countedOnce = (td.voted || []).filter((v) => v.player_id === player.id).length === 1;
-      if (countedOnce) ok('family counted exactly once in tally'); else fail('family counted more than once');
+      if (countedOnce) ok('family listed exactly once in tally'); else fail('family listed more than once');
+      if (td.counts && td.counts.tuesday >= 1 && td.counts.wednesday >= 1) ok('counts include one per chosen night for the family');
+      else fail('counts wrong: ' + JSON.stringify(td.counts));
       console.log('  NOTE  ZZTEST cage votes left for player ' + player.id + '; scrub via MCP after the run.');
     } else {
       console.log('  NOTE  COUGARS_PIN not set; skipped live vote flow.');
