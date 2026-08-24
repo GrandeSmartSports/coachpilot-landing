@@ -64,6 +64,11 @@
   .chip.lock { background: #fbe4dc; color: #a33c1b; }
   .chip.draft { background: #e9e4f6; color: #52418f; }
   .chip.il { background: #ddebf3; color: #1d5a80; }
+  .chip.amber { background: #fdf1dc; color: #8a5a12; }
+  .uchip { display: inline-block; font-family: var(--disp); font-weight: 700; font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 10px; padding: 1px 8px; }
+  .uchip.need { background: #fbe4dc; color: #a33c1b; }
+  .uchip.wait { background: #fdf1dc; color: #8a5a12; }
+  .uchip.got { background: #dcefe2; color: #21622f; }
 
   .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; transition: border-color .15s; }
   .drop:hover, .drop.over { border-color: var(--clay); color: var(--clay); }
@@ -321,6 +326,25 @@
       </div>
 
       <div class="panel span2">
+        <div class="bar"><h2>Umpires</h2><button class="btn sm clay" id="uAdd">+ Umpire</button></div>
+        <div class="body">
+          <div id="umpKill"></div>
+          <p class="hint">Volunteers who call games. Each umpire has their own PIN and only works the levels you give them. They pick up games and answer offers at <a href="/fields/umpire.html" style="text-decoration:underline">the umpire page</a>. Contact info stays here in admin. It is never shown on public pages.</p>
+          <div id="umpSummary" style="margin-bottom:12px;"></div>
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px;">
+            <label style="font-size:13px;font-weight:600;">Umpires needed per game (by division)</label>
+            <p class="hint" style="margin:4px 0 8px;">The default is 1, the plate umpire. Set a division to 2 to also staff a base umpire. A single game can be overridden from its Umps button on the season board.</p>
+            <div class="row" id="umpDefs"></div>
+            <div class="row" style="margin-top:8px;">
+              <button class="btn sm" id="umpDefsSave">Save defaults</button>
+              <span id="umpDefsMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+            </div>
+          </div>
+          <div id="umpList"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
         <div class="bar"><h2>League announcements</h2></div>
         <div class="body">
           <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
@@ -438,7 +462,7 @@ function refresh() {
      The public portal calls state without a PIN and never sees drafts. */
   fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -1283,13 +1307,29 @@ function bdCardHtml(g, inTray) {
     ? "Was " + fmtDate(g.game_date) + " at " + FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "")
     : FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "");
   if (!inTray && g.status !== "scheduled") meta += " &middot; " + g.status;
+  /* Phase 4: glanceable ump state on every scheduled card. Green initials =
+     accepted, amber = offer waiting on an answer, red = spot still open. */
+  var uline = "";
+  if (!inTray && g.status === "scheduled") {
+    var uf = umpFillFor(g);
+    if (uf.needed > 0) {
+      var chips = uf.accepted.map(function (a) {
+        var u = umpU(a.ump_id);
+        return '<span class="uchip got" title="' + esc(u ? u.name : "") + '">' + esc(u ? umpInitials(u.name) : "?") + "</span>";
+      }).join(" ");
+      if (uf.offered.length) chips += ' <span class="uchip wait">offer out</span>';
+      if (uf.missing > 0) chips += ' <span class="uchip need">needs ump</span>';
+      uline = '<span class="bdmeta">' + chips + "</span>";
+    }
+  }
   return '<div class="bdcard st-' + esc(g.status) + '"' + (!inTray && movable ? ' draggable="true"' : "") + ' data-bdg="' + g.id + '">' +
     "<b>" + esc(bdMatchup(g)) + "</b>" +
-    '<span class="bdmeta">' + meta + "</span>" +
+    '<span class="bdmeta">' + meta + "</span>" + uline +
     '<div class="bdbtns">' +
     (inTray ? '<button data-bd-makeup="' + g.id + '">Find makeup slot</button>' : "") +
     (!inTray && movable ? '<button data-bd-move="' + g.id + '">Move</button>' : "") +
     (!inTray && g.status === "scheduled" ? '<button class="rain" data-bd-rain="' + g.id + '">Rain out</button>' : "") +
+    (!inTray && g.status === "scheduled" ? '<button data-bd-umps="' + g.id + '">Umps</button>' : "") +
     (bdPlaceholderPark(g) ? '<button class="park" data-bd-park="' + g.id + '">Set the real park</button>' : "") +
     "</div></div>";
 }
@@ -1386,9 +1426,219 @@ function renderBoard() {
   bindBtn("data-bd-makeup", function (g) { bdMoveModal(g, { makeup: true }); });
   bindBtn("data-bd-rain", bdRainOne);
   bindBtn("data-bd-park", bdSetPark);
+  bindBtn("data-bd-umps", umpAssignModal);
 }
 el("bdSeason").addEventListener("change", function () { BD.season = el("bdSeason").value; renderBoard(); });
 el("bdDiv").addEventListener("change", function () { BD.div = el("bdDiv").value; renderBoard(); });
+
+/* ---------- umpires (Phase 4) ---------- */
+function umpDefs() { return FLM_RULES.umpParseDefaults((D.settings || {}).ump_defaults); }
+function umpU(id) { return (D.umps || []).filter(function (u) { return u.id === id; })[0] || null; }
+function umpInitials(name) {
+  return String(name || "").trim().split(/\s+/).map(function (w) { return w.charAt(0).toUpperCase(); }).slice(0, 2).join("");
+}
+function umpFillFor(g) { return FLM_RULES.umpFill(g, D.ump_assignments || [], umpDefs()); }
+
+function renderUmpKill() {
+  var on = (D.settings || {}).email_enabled === "true";
+  el("umpKill").innerHTML = on
+    ? '<div class="result" style="margin:0 0 10px;">Email is ON. Game offers, daily reminders, and turn-back alerts really send. Minor umpires always get their parent cc\'d. <button class="btn sm ghost" id="umpKillBtn" style="margin-left:8px;">Turn email off</button></div>'
+    : '<div class="err" style="margin:0 0 10px;">Email is off. Reminders are logged but not sent. Offers and turn-back alerts are logged too, so you can try everything safely. <button class="btn sm ghost" id="umpKillBtn" style="margin-left:8px;">Turn email on</button></div>';
+  el("umpKillBtn").addEventListener("click", function () {
+    var msg = on
+      ? "Turn email OFF? Offers, reminders, and alerts will be logged in Activity instead of sent."
+      : "Turn email ON? Game offers, daily reminders, and turn-back alerts will really email umpires (parents cc'd for minors).";
+    if (!confirm(msg)) return;
+    admin("admin_settings", { email_enabled: on ? "false" : "true" }).then(refresh).catch(function (e) { alert(e.message); });
+  });
+}
+
+function renderUmps() {
+  renderUmpKill();
+  var defs = umpDefs();
+  el("umpDefs").innerHTML = divisionList().map(function (div) {
+    var v = typeof defs[div] === "number" ? defs[div] : 1;
+    return '<label style="font-size:12.5px;">' + esc(div) + ' <input class="ud-n" data-div="' + esc(div) + '" type="number" min="0" max="6" value="' + v + '" style="width:56px;" /></label>';
+  }).join("") || '<p class="hint">Add teams with divisions first.</p>';
+
+  /* 5-second read: what still needs a person in stripes? */
+  var today = bdToday();
+  var upcoming = (D.games || []).filter(function (g) { return g.status === "scheduled" && g.game_date >= today; });
+  var lacking = [], waiting = 0, covered = 0;
+  upcoming.forEach(function (g) {
+    var f = umpFillFor(g);
+    if (f.needed === 0) return;
+    if (f.missing > 0) lacking.push([g, f]); else covered++;
+    if (f.offered.length) waiting++;
+  });
+  var html = '<div class="row" style="margin-bottom:8px;">' +
+    '<span class="chip lock">' + lacking.length + " games need an ump</span>" +
+    '<span class="chip amber">' + waiting + " with offers waiting</span>" +
+    '<span class="chip on">' + covered + " covered</span></div>";
+  if (lacking.length) {
+    lacking.sort(function (a, b) { return (a[0].game_date + a[0].start_time).localeCompare(b[0].game_date + b[0].start_time); });
+    html += lacking.map(function (p) {
+      var g = p[0], f = p[1];
+      return '<div class="row" style="padding:5px 0;border-bottom:1px solid #efede4;font-size:13.5px;">' +
+        '<div style="flex:1;min-width:220px;"><b>' + esc(bdMatchup(g)) + '</b> <span style="color:var(--muted)">' + esc(fmtDate(g.game_date)) + " &middot; " + esc(FLM_RULES.fmtTime(g.start_time)) + " &middot; " + esc(bdWhere(g)) + (g.division ? " &middot; " + esc(g.division) : "") + '</span> <span class="uchip need">needs ' + f.missing + "</span></div>" +
+        '<button class="btn sm clay" data-uassign="' + g.id + '">Assign</button></div>';
+    }).join("");
+  } else if (upcoming.length) {
+    html += '<p class="hint">Every upcoming game has its umpires covered.</p>';
+  } else {
+    html += '<p class="hint">No upcoming published games yet. Publish a schedule and its umpire needs show up here.</p>';
+  }
+  el("umpSummary").innerHTML = html;
+  el("umpSummary").querySelectorAll("[data-uassign]").forEach(function (b) {
+    b.addEventListener("click", function () { umpAssignModal(bdById(b.getAttribute("data-uassign"))); });
+  });
+
+  var umps = D.umps || [];
+  el("umpList").innerHTML = umps.length
+    ? '<table class="list"><thead><tr><th>Umpire</th><th>Levels</th><th>Contact (admin only)</th><th></th></tr></thead><tbody>' +
+      umps.map(function (u) {
+        return "<tr" + (u.active ? "" : ' style="opacity:0.55;"') + '><td style="font-weight:600;">' + esc(u.name) +
+          (u.is_minor ? ' <span class="chip il">minor</span>' : "") +
+          (u.active ? "" : ' <span class="chip off">off</span>') + "</td>" +
+          "<td>" + esc((u.levels || []).join(", ") || "none set") + "</td>" +
+          '<td style="font-size:12.5px;color:var(--muted);">' + esc([u.email, u.phone].filter(Boolean).join(" · ")) + (u.is_minor && u.parent_email ? "<br />Parent: " + esc(u.parent_email) : "") + "</td>" +
+          '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-uedit="' + u.id + '">Edit</button> ' +
+          '<button class="btn sm ghost" data-upin="' + u.id + '">Reset PIN</button> ' +
+          '<button class="btn sm ghost" data-utog="' + u.id + '">' + (u.active ? "Deactivate" : "Reactivate") + "</button></td></tr>";
+      }).join("") + "</tbody></table>"
+    : '<p class="hint">No umpires yet. Hit + Umpire to add your first one; you will get a PIN to hand them.</p>';
+  el("umpList").querySelectorAll("[data-uedit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var u = umpU(b.getAttribute("data-uedit"));
+      var row = umpPrompts(u);
+      if (!row) return;
+      row.id = u.id;
+      admin("admin_ump", row).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+  el("umpList").querySelectorAll("[data-upin]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var u = umpU(b.getAttribute("data-upin"));
+      var np = prompt("New 4 digit PIN for " + u.name + ":", String(Math.floor(1000 + Math.random() * 9000)));
+      if (np == null) return;
+      np = np.trim();
+      if (!/^\d{4}$/.test(np)) { alert("The PIN must be exactly 4 digits."); return; }
+      admin("admin_ump", { id: u.id, pin: np }).then(function () {
+        alert("PIN for " + u.name + " is now " + np + ". Share it with them.");
+        refresh();
+      }).catch(function (e) { alert(e.message); });
+    });
+  });
+  el("umpList").querySelectorAll("[data-utog]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var u = umpU(b.getAttribute("data-utog"));
+      if (u.active && !confirm("Deactivate " + u.name + "? They can no longer sign in or take games. Their history stays.")) return;
+      admin("admin_ump", { id: u.id, active: !u.active }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+}
+
+function umpPrompts(u) {
+  u = u || {};
+  var name = prompt("Umpire name:", u.name || ""); if (name == null || !name.trim()) return null;
+  var email = prompt("Email (used for offers and reminders):", u.email || ""); if (email == null) return null;
+  var phone = prompt("Phone (admin eyes only):", u.phone || ""); if (phone == null) return null;
+  var levels = prompt("Levels they may work (comma separated, e.g. Majors BB, AA BB):", (u.levels || []).join(", ")); if (levels == null) return null;
+  var minor = confirm("Is " + name.trim() + " a minor (under 18)? OK = yes, Cancel = no. Minors get their parent cc'd on every email.");
+  var parent = String(u.parent_email || "");
+  if (minor) {
+    parent = prompt("Parent email (required for a minor, cc'd on every email):", parent);
+    if (parent == null) return null;
+    if (parent.indexOf("@") < 0) { alert("A minor umpire needs a real parent email."); return null; }
+  }
+  return {
+    name: name.trim(), email: email.trim(), phone: phone.trim(),
+    levels: levels.split(",").map(function (t) { return t.trim(); }).filter(function (t) { return t; }),
+    is_minor: minor, parent_email: minor ? parent.trim() : ""
+  };
+}
+
+document.getElementById("uAdd").addEventListener("click", function () {
+  var row = umpPrompts(null);
+  if (!row) return;
+  var pin = prompt("4 digit PIN for them (leave blank and one is made up for you):", "");
+  if (pin == null) return;
+  pin = pin.trim();
+  if (pin) {
+    if (!/^\d{4}$/.test(pin)) { alert("The PIN must be exactly 4 digits."); return; }
+    row.pin = pin;
+  }
+  admin("admin_ump", row).then(function (r) {
+    alert("Added " + r.ump.name + ". Their PIN is " + r.ump.pin + ". Share it with them; they sign in with it on the umpire page.");
+    refresh();
+  }).catch(function (e) { alert(e.message); });
+});
+
+document.getElementById("umpDefsSave").addEventListener("click", function () {
+  var o = {};
+  el("umpDefs").querySelectorAll(".ud-n").forEach(function (inp) {
+    o[inp.getAttribute("data-div")] = Math.max(0, Math.min(6, Math.round(+inp.value || 0)));
+  });
+  admin("admin_settings", { ump_defaults: JSON.stringify(o) }).then(function () {
+    var m = el("umpDefsMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 1800);
+    refresh();
+  }).catch(function (e) { alert(e.message); });
+});
+
+/* Assign flow: pick the game, see who is on it, offer it to an eligible and
+   free ump. Offers wait as amber until the ump accepts on their page. */
+function umpAssignModal(g) {
+  if (!g) return;
+  var f = umpFillFor(g);
+  var active = (D.ump_assignments || []).filter(function (a) {
+    return a.game_id === g.id && (a.status === "accepted" || a.status === "offered");
+  });
+  var onGame = active.map(function (a) {
+    var u = umpU(a.ump_id);
+    return '<div class="row" style="padding:4px 0;font-size:13.5px;"><div style="flex:1;"><b>' + esc(u ? u.name : "?") + "</b> &middot; " + esc(a.role) + " &middot; " +
+      (a.status === "accepted" ? '<span class="uchip got">accepted</span>' : '<span class="uchip wait">offer waiting</span>') +
+      '</div><button class="btn sm ghost" data-uwd="' + a.id + '">Withdraw</button></div>';
+  }).join("") || '<p class="hint">Nobody is on this game yet.</p>';
+  var eligible = (D.umps || []).filter(function (u) {
+    return u.active && FLM_RULES.umpIneligibleReason(u, g, D.ump_assignments || [], D.games || []) === "";
+  });
+  var elHtml = eligible.length ? eligible.map(function (u) {
+    return '<div class="row" style="padding:4px 0;font-size:13.5px;"><div style="flex:1;"><b>' + esc(u.name) + '</b> <span style="color:var(--muted)">' + esc((u.levels || []).join(", ")) + "</span></div>" +
+      '<button class="btn sm clay" data-uoffer="' + u.id + '">Offer</button></div>';
+  }).join("") : '<p class="hint">Nobody is eligible and free for this one. Check levels, availability, and same-day games, or add another umpire.</p>';
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  veil.innerHTML = '<div class="modal"><h3>Umpires for this game</h3>' +
+    '<div class="ctx">' + esc(bdMatchup(g)) + " &middot; " + esc(fmtDate(g.game_date)) + " at " + esc(FLM_RULES.fmtTime(g.start_time)) + " on " + esc(bdWhere(g)) + "</div>" +
+    '<div class="row" style="margin-bottom:10px;"><label style="font-size:12.5px;">Umpires needed for this game <input id="uNeed" type="number" min="0" max="6" value="' + f.needed + '" style="width:56px;" /></label><button class="btn sm" id="uNeedSave">Save</button></div>' +
+    '<p style="font-size:13px;font-weight:600;">On the game now</p>' + onGame +
+    '<p style="font-size:13px;font-weight:600;margin-top:10px;">Eligible and free (level match, available that day, no time clash)</p>' + elHtml +
+    '<div class="row" style="margin-top:12px;"><button class="btn ghost" id="uClose">Close</button></div></div>';
+  veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+  document.body.appendChild(veil);
+  veil.querySelector("#uClose").addEventListener("click", function () { veil.remove(); });
+  veil.querySelector("#uNeedSave").addEventListener("click", function () {
+    var n = Math.max(0, Math.min(6, Math.round(+veil.querySelector("#uNeed").value || 0)));
+    admin("admin_game", { id: g.id, umps_needed: n, activity_note: "Set umpires needed for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + " to " + n + "." })
+      .then(function () { veil.remove(); refresh(); }).catch(function (e) { alert(e.message); });
+  });
+  veil.querySelectorAll("[data-uwd]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!confirm("Take this umpire off the game? The spot opens again.")) return;
+      admin("admin_ump_assign", { delete_id: b.getAttribute("data-uwd") })
+        .then(function () { veil.remove(); refresh(); }).catch(function (e) { alert(e.message); });
+    });
+  });
+  veil.querySelectorAll("[data-uoffer]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var u = umpU(b.getAttribute("data-uoffer"));
+      var role = active.some(function (a) { return a.role === "plate"; }) ? "base" : "plate";
+      if (!confirm("Offer " + u.name + " the " + role + " spot for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + "? They accept or decline on the umpire page." + ((D.settings || {}).email_enabled === "true" ? " An offer email goes out now." : " Email is off, so the offer is logged, not emailed."))) return;
+      admin("admin_ump_assign", { game_id: g.id, ump_id: u.id, role: role })
+        .then(function () { veil.remove(); refresh(); }).catch(function (e) { alert(e.message); });
+    });
+  });
+}
 
 /* ---------- announcements ---------- */
 function loadAnnouncements() {

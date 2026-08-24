@@ -709,12 +709,189 @@ section('flm-rules.js + flm-schedule-gen.js + ics files: no em/en dashes or curl
 const rulesSrc = fs.readFileSync(path.join(ROOT, 'fields', 'flm-rules.js'), 'utf8')
   + fs.readFileSync(path.join(ROOT, 'fields', 'flm-schedule-gen.js'), 'utf8')
   + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'ics-core.mjs'), 'utf8')
-  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'index.ts'), 'utf8');
+  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'index.ts'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'fields', 'umpire.html'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-reminders', 'reminders-core.mjs'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-reminders', 'index.ts'), 'utf8');
 let charHits = 0;
 for (const [ch, name] of Object.entries({ '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '“': 'curly-quote-l', '”': 'curly-quote-r' })) {
   if (rulesSrc.includes(ch)) { fail('found ' + name); charHits++; }
 }
 if (charHits === 0) ok('clean');
+
+// ------- 4b. Phase 4: umpire engine (flm-rules.js) -------
+section('umpire engine: needed-vs-filled math');
+const UDEFS = FLM.umpParseDefaults('{"Majors BB":2,"Minors BB":1}');
+function ug(over) {
+  return Object.assign({ id: 'UG1', season_id: 'sn1', division: 'Majors BB', home_team_id: 'A', away_team_id: 'B', field_id: 'F1', game_date: '2026-09-15', start_time: '17:00', end_time: '19:00', status: 'scheduled', umps_needed: null }, over);
+}
+if (FLM.umpNeeded(ug({ division: 'AA BB' }), UDEFS) === 1) ok('no default for the division -> 1 plate ump');
+else fail('base default broken');
+if (FLM.umpNeeded(ug(), UDEFS) === 2) ok('division default from ump_defaults honored (Majors BB -> 2)');
+else fail('division default broken');
+if (FLM.umpNeeded(ug({ umps_needed: 3 }), UDEFS) === 3 && FLM.umpNeeded(ug({ umps_needed: 0 }), UDEFS) === 0) ok('per-game override beats the division default, zero included');
+else fail('per-game override broken');
+if (FLM.umpParseDefaults('not json')['Majors BB'] === undefined && FLM.umpNeeded(ug(), FLM.umpParseDefaults('not json')) === 1) ok('bad ump_defaults JSON falls back to 1');
+else fail('bad defaults fallback broken');
+const UAS = [
+  { id: 'a1', game_id: 'UG1', ump_id: 'U9', status: 'accepted', role: 'plate' },
+  { id: 'a2', game_id: 'UG1', ump_id: 'U8', status: 'offered', role: 'base' },
+  { id: 'a3', game_id: 'UG1', ump_id: 'U7', status: 'declined', role: 'base' },
+  { id: 'a4', game_id: 'UG1', ump_id: 'U6', status: 'turned_back', role: 'base' },
+  { id: 'a5', game_id: 'OTHER', ump_id: 'U9', status: 'accepted', role: 'plate' },
+];
+{
+  const f = FLM.umpFill(ug(), UAS, UDEFS);
+  if (f.needed === 2 && f.accepted.length === 1 && f.offered.length === 1 && f.missing === 1) ok('fill math: 1 accepted + 1 offered of 2 needed -> 1 missing; declined and turned_back do not count');
+  else fail('fill math broken: ' + JSON.stringify({ needed: f.needed, a: f.accepted.length, o: f.offered.length, m: f.missing }));
+  const f2 = FLM.umpFill(ug(), UAS.filter((a) => a.id !== 'a1').concat([{ id: 'a1b', game_id: 'UG1', ump_id: 'U9', status: 'turned_back', role: 'plate' }]), UDEFS);
+  if (f2.accepted.length === 0 && f2.missing === 2) ok('turn-back reopens the spot (accepted drops, missing grows)');
+  else fail('turn-back reopen broken');
+}
+
+section('umpire engine: eligibility filter');
+function mkUmp(over) {
+  return Object.assign({ id: 'U1', name: 'Uma Piree', active: true, levels: ['Majors BB'], availability: { days: { mon: true, tue: true, wed: true, thu: true, fri: true, sat: true, sun: true }, blocked: [] } }, over);
+}
+if (FLM.umpIneligibleReason(mkUmp(), ug(), [], []) === '') ok('level match + available + free -> eligible');
+else fail('clean eligibility broken: ' + FLM.umpIneligibleReason(mkUmp(), ug(), [], []));
+if (FLM.umpIneligibleReason(mkUmp({ levels: ['TBall'] }), ug(), [], []).indexOf('does not work') === 0) ok('level mismatch is filtered out');
+else fail('level filter broken');
+if (FLM.umpIneligibleReason(mkUmp({ availability: { days: { tue: false }, blocked: [] } }), ug(), [], []) === 'unavailable that day') ok('weekday toggle off filters that day (9/15 is a Tuesday)');
+else fail('weekday availability broken');
+if (FLM.umpIneligibleReason(mkUmp({ availability: { days: {}, blocked: ['2026-09-15'] } }), ug(), [], []) === 'unavailable that day') ok('one-off blocked date filters that date');
+else fail('blocked date broken');
+{
+  const other = ug({ id: 'UG2', start_time: '18:00', end_time: '20:00' });
+  const asg = [{ id: 'b1', game_id: 'UG2', ump_id: 'U1', status: 'accepted', role: 'plate' }];
+  if (FLM.umpIneligibleReason(mkUmp(), ug(), asg, [other, ug()]) === 'has a game at that time already') ok('same-day overlapping assignment clashes');
+  else fail('same-day clash broken');
+  const backToBack = ug({ id: 'UG3', start_time: '19:00', end_time: '21:00' });
+  const asg2 = [{ id: 'b2', game_id: 'UG3', ump_id: 'U1', status: 'accepted', role: 'plate' }];
+  if (FLM.umpIneligibleReason(mkUmp(), ug(), asg2, [backToBack, ug()]) === '') ok('back-to-back games the same day do not clash');
+  else fail('back-to-back wrongly clashed');
+  const already = [{ id: 'b3', game_id: 'UG1', ump_id: 'U1', status: 'offered', role: 'plate' }];
+  if (FLM.umpIneligibleReason(mkUmp(), ug(), already, [ug()]) === 'already has this game') ok('an ump already offered the game is not offered twice');
+  else fail('already-has-it broken');
+}
+{
+  const games = [
+    ug({ id: 'open1', game_date: '2026-09-15' }),
+    ug({ id: 'drafted', status: 'draft' }),
+    ug({ id: 'gone', status: 'cancelled' }),
+    ug({ id: 'past', game_date: '2026-09-01' }),
+    ug({ id: 'full', umps_needed: 1 }),
+    ug({ id: 'wrongdiv', division: 'TBall' }),
+    ug({ id: 'blockedday', game_date: '2026-09-16' }),
+  ];
+  const asg = [{ id: 'c1', game_id: 'full', ump_id: 'U9', status: 'accepted', role: 'plate' }];
+  const u = mkUmp({ availability: { days: {}, blocked: ['2026-09-16'] } });
+  const open = FLM.umpOpenGames(u, games, asg, UDEFS, '2026-09-10');
+  if (open.length === 1 && open[0].id === 'open1') ok('Open Games: only published, future, level-matched, unfilled, available-day games (1 of 7)');
+  else fail('open games filter broken: ' + JSON.stringify(open.map((g) => g.id)));
+}
+
+section('umpire engine: self-claim vs offer state machine');
+if (FLM.umpTransition('offered', 'accept') === 'accepted') ok('offered -> accept -> accepted');
+else fail('accept transition broken');
+if (FLM.umpTransition('offered', 'decline') === 'declined') ok('offered -> decline -> declined');
+else fail('decline transition broken');
+if (FLM.umpTransition('accepted', 'turn_back') === 'turned_back') ok('accepted -> turn back -> turned_back');
+else fail('turn-back transition broken');
+if (FLM.umpTransition('accepted', 'accept') === null && FLM.umpTransition('declined', 'accept') === null && FLM.umpTransition('offered', 'turn_back') === null) ok('every other move is refused (no double-accept, no reviving a decline, no turning back an offer)');
+else fail('state machine allows an illegal move');
+
+// ------- 4c. Reminders core (the exact file the flm-reminders edge fn ships) -------
+section('reminders: date targeting, kill switch, parent cc');
+const REM = await import(pathToFileURL(path.join(ROOT, 'supabase', 'functions', 'flm-reminders', 'reminders-core.mjs')).href);
+if (REM.addDays('2026-09-30', 1) === '2026-10-01' && REM.addDays('2026-12-31', 1) === '2027-01-01') ok('addDays rolls months and years');
+else fail('addDays broken');
+{
+  const games = [
+    { id: 'today', game_date: '2026-09-12', status: 'scheduled', start_time: '10:00' },
+    { id: 'tomorrow', game_date: '2026-09-13', status: 'scheduled', start_time: '12:00' },
+    { id: 'later', game_date: '2026-09-14', status: 'scheduled', start_time: '12:00' },
+    { id: 'rained', game_date: '2026-09-12', status: 'postponed', start_time: '10:00' },
+  ];
+  const asg = [
+    { id: 'r1', game_id: 'today', ump_id: 'U1', status: 'accepted', role: 'plate' },
+    { id: 'r2', game_id: 'tomorrow', ump_id: 'U2', status: 'accepted', role: 'plate' },
+    { id: 'r3', game_id: 'later', ump_id: 'U1', status: 'accepted', role: 'plate' },
+    { id: 'r4', game_id: 'rained', ump_id: 'U1', status: 'accepted', role: 'plate' },
+    { id: 'r5', game_id: 'today', ump_id: 'U3', status: 'offered', role: 'base' },
+  ];
+  const t = REM.targetsFor(asg, games, '2026-09-12');
+  const kinds = t.map((x) => x.assignment.id + ':' + x.kind).sort();
+  if (kinds.length === 2 && kinds[0] === 'r1:morning_of' && kinds[1] === 'r2:day_before') ok('targets: today -> morning_of, tomorrow -> day_before; later dates, postponed games, and unanswered offers never remind');
+  else fail('reminder targeting broken: ' + JSON.stringify(kinds));
+  const off = REM.plan(false, t);
+  if (off.send.length === 0 && off.logOnly.length === 2) ok('kill switch OFF: every reminder is logged intent, zero sends');
+  else fail('kill switch suppression broken');
+  const on = REM.plan(true, t);
+  if (on.send.length === 2 && on.logOnly.length === 0) ok('kill switch ON: every reminder goes to the send list');
+  else fail('kill switch on-path broken');
+}
+{
+  const minor = { name: 'Kid Ump', email: 'kid@example.com', is_minor: true, parent_email: 'parent@example.com' };
+  const adult = { name: 'Adult Ump', email: 'adult@example.com', is_minor: false, parent_email: '' };
+  const a = REM.recipientsFor(minor, '');
+  if (a.to === 'kid@example.com' && a.cc.length === 1 && a.cc[0] === 'parent@example.com') ok('minor ump: parent email always cc\'d');
+  else fail('parent cc broken: ' + JSON.stringify(a));
+  const b = REM.recipientsFor(minor, 'coach@test.com');
+  if (b.to === 'coach@test.com' && b.cc[0] === 'parent@example.com') ok('test_to redirects To but can NEVER remove the parent cc');
+  else fail('test_to dropped the parent cc: ' + JSON.stringify(b));
+  const c = REM.recipientsFor(adult, '');
+  if (c.to === 'adult@example.com' && c.cc.length === 0) ok('adult ump: no cc');
+  else fail('adult cc broken');
+  const line = REM.reminderLine('morning_of', { game_date: '2026-09-12', start_time: '10:00' }, 'Aces vs Bears', 'Field One', 'plate');
+  if (line.includes('today') && line.includes('10 AM') && line.includes('Aces vs Bears')) ok('reminder line reads plain: ' + line);
+  else fail('reminder line broken: ' + line);
+}
+
+// ------- 4d. Umpire page + admin panel hooks -------
+section('fields/umpire.html: required hooks');
+const umpHtml = fs.readFileSync(path.join(ROOT, 'fields', 'umpire.html'), 'utf8');
+for (const s of ['ump_list', 'ump_state', 'ump_claim', 'ump_respond', 'ump_availability', 'ump_change_pin',
+  'data-utab="mygames"', 'data-utab="open"', 'data-utab="avail"', 'data-utab="me"', 'id="tabBar"',
+  'Take this game', 'I can no longer work this', 'Games worked this season', 'FLM_RULES.umpOpenGames',
+  'lsSet("flm_ump_id"', 'env(safe-area-inset-bottom)', 'Needs your answer',
+  'data-accept', 'data-decline', 'data-turnback', 'id="avDays"', 'Add a day off', 'Change my PIN']) {
+  if (umpHtml.includes(s)) ok('contains: ' + s);
+  else fail('MISSING: ' + s);
+}
+if (umpHtml.includes('fields-umpire')) ok('usage beacon tags the umpire page');
+else fail('umpire beacon missing');
+if (!/coach_email|coach_phone|parent_email|"phone"/.test(umpHtml)) ok('umpire page never touches contact-info fields');
+else fail('umpire page references contact info');
+if (indexHtml.includes('/fields/umpire.html')) ok('portal footer links the umpire page');
+else fail('portal footer link missing');
+
+section('fields/admin.html: umpire dashboard hooks');
+const adminHtml4 = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
+for (const [s, why] of [
+  ['id="uAdd"', 'add umpire button'],
+  ['admin_ump"', 'ump CRUD wired to the gateway'],
+  ['admin_ump_assign', 'offer flow wired to the gateway'],
+  ['function renderUmps', 'umpires panel renders'],
+  ['function umpAssignModal', 'assign modal exists'],
+  ['data-bd-umps', 'season board cards get an Umps button'],
+  ['uchip got', 'green accepted chip'],
+  ['uchip wait', 'amber offer chip'],
+  ['uchip need', 'red needs-ump chip'],
+  ['games need an ump', 'red count summary line'],
+  ['Email is off. Reminders are logged but not sent.', 'kill switch shown plainly'],
+  ['email_enabled', 'kill switch wired to settings'],
+  ['ump_defaults', 'per-division needed defaults'],
+  ['umps_needed', 'per-game override'],
+  ['data-upin', 'reset PIN button'],
+  ['Deactivate', 'deactivate flow'],
+  ['Eligible and free', 'assign modal filters to eligible umps'],
+  ['FLM_RULES.umpIneligibleReason', 'eligibility uses the shared engine'],
+  ['cc\'d on every email', 'parent cc surfaced in the admin flow'],
+]) {
+  if (adminHtml4.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
 
 // ------- 5. Live gateway (read-only) -------
 section('gateway: live read-only checks');
@@ -782,6 +959,51 @@ try {
   else fail('public state leaked a draft game!');
 } catch (e) {
   fail('draft leak test threw: ' + e.message);
+}
+// Phase 4 live checks: umpire privacy hard lines + auth walls. Read-only.
+try {
+  const r = await fetch(GATEWAY + '?action=state');
+  const d = await r.json();
+  if (!('umps' in d) && !('ump_assignments' in d)) ok('public state carries NO umpire data at all');
+  else fail('public state leaked umpire data!');
+  if (d.settings && d.settings.cron_key === undefined) ok('cron_key not leaked in state');
+  else fail('cron_key leaked in state!');
+} catch (e) {
+  fail('ump privacy state test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=ump_list');
+  const d = await r.json();
+  if (r.ok && d.ok && Array.isArray(d.umps)) ok('ump_list answers publicly (login picker)');
+  else fail('ump_list broken: ' + r.status);
+  const extraKeys = (d.umps || []).flatMap((u) => Object.keys(u).filter((k) => k !== 'id' && k !== 'name'));
+  if (extraKeys.length === 0) ok('ump_list returns id + name ONLY: no emails, phones, pins, or levels');
+  else fail('ump_list leaked fields: ' + JSON.stringify(extraKeys));
+} catch (e) {
+  fail('ump_list test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=ump_state', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ump_id: '00000000-0000-0000-0000-000000000000', ump_pin: '0000' }) });
+  if (r.status === 401) ok('ump_state with a wrong PIN rejected 401');
+  else fail('ump_state bad-pin should be 401, got ' + r.status);
+} catch (e) {
+  fail('ump_state auth test threw: ' + e.message);
+}
+for (const act of ['admin_umps', 'admin_ump', 'admin_ump_assign']) {
+  try {
+    const r = await fetch(GATEWAY + '?action=' + act, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    if (r.status === 401) ok(act + ' without PIN rejected 401');
+    else fail(act + ' without PIN should be 401, got ' + r.status);
+  } catch (e) {
+    fail(act + ' auth test threw: ' + e.message);
+  }
+}
+try {
+  const r = await fetch('https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-reminders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
+  if (r.status === 401) ok('flm-reminders without the cron key or PIN rejected 401');
+  else fail('flm-reminders unauthorized should be 401, got ' + r.status);
+} catch (e) {
+  fail('flm-reminders auth test threw: ' + e.message);
 }
 // Live iCal feed (public, read-only): the flm-ics edge function answers with a
 // parseable calendar and never a draft game.

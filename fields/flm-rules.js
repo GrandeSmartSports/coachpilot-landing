@@ -213,5 +213,85 @@
     return (n ? n + " " + sentence : sentence).slice(0, 300);
   }
 
-  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts, bulkRainoutTargets: bulkRainoutTargets, appendTrail: appendTrail };
+  /* ---------- Phase 4: umpire helpers (shared by umpire.html + admin.html) ---------- */
+  var UMP_DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+  function umpParseDefaults(raw) {
+    try {
+      var o = typeof raw === "string" ? JSON.parse(raw) : (raw || {});
+      return o && typeof o === "object" && !(o instanceof Array) ? o : {};
+    } catch (e) { return {}; }
+  }
+  /* How many umpires does this game need? Per-game override first, then the
+     division default from flm_settings.ump_defaults, then 1 plate ump. */
+  function umpNeeded(game, defaults) {
+    if (game && game.umps_needed !== null && game.umps_needed !== undefined) return game.umps_needed;
+    var d = (defaults || {})[game && game.division ? game.division : ""];
+    return typeof d === "number" ? d : 1;
+  }
+  /* Fill state for one game. Declined and turned-back rows never count, so a
+     decline or turn-back automatically reopens the spot. */
+  function umpFill(game, assignments, defaults) {
+    var accepted = [], offered = [];
+    (assignments || []).forEach(function (a) {
+      if (a.game_id !== game.id) return;
+      if (a.status === "accepted") accepted.push(a);
+      else if (a.status === "offered") offered.push(a);
+    });
+    var needed = umpNeeded(game, defaults);
+    return { needed: needed, accepted: accepted, offered: offered, missing: Math.max(0, needed - accepted.length) };
+  }
+  function umpAvailable(ump, dateStr) {
+    var av = (ump && ump.availability) || {};
+    var p = String(dateStr || "").split("-");
+    var dow = UMP_DOW[new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).getDay()];
+    if (((av.days || {})[dow]) === false) return false;
+    if ((av.blocked || []).indexOf(dateStr) >= 0) return false;
+    return true;
+  }
+  /* Same-day clash: another accepted or offered assignment whose game time
+     overlaps. Back-to-back games on the same day are fine. */
+  function umpDayClash(ump, game, assignments, games) {
+    var mine = (assignments || []).filter(function (a) {
+      return a.ump_id === ump.id && (a.status === "accepted" || a.status === "offered") && a.game_id !== game.id;
+    });
+    for (var i = 0; i < mine.length; i++) {
+      var g = (games || []).filter(function (x) { return x.id === mine[i].game_id; })[0];
+      if (g && g.status !== "cancelled" && g.game_date === game.game_date && timesOverlap(g.start_time, g.end_time, game.start_time, game.end_time)) return true;
+    }
+    return false;
+  }
+  /* Full eligibility check for one ump on one game: level match, availability,
+     not already on it, no same-day time clash. Returns "" when eligible, else
+     a plain-words reason. */
+  function umpIneligibleReason(ump, game, assignments, games) {
+    if (!ump.active) return "not active";
+    if ((ump.levels || []).indexOf(game.division) < 0) return "does not work " + (game.division || "this level");
+    if (!umpAvailable(ump, game.game_date)) return "unavailable that day";
+    var already = (assignments || []).some(function (a) {
+      return a.ump_id === ump.id && a.game_id === game.id && (a.status === "accepted" || a.status === "offered");
+    });
+    if (already) return "already has this game";
+    if (umpDayClash(ump, game, assignments, games)) return "has a game at that time already";
+    return "";
+  }
+  /* Open Games for one ump: published scheduled games, today or later, in
+     their levels, still missing an umpire, on a day they are available. */
+  function umpOpenGames(ump, games, assignments, defaults, todayStr) {
+    return (games || []).filter(function (g) {
+      if (g.status !== "scheduled") return false;
+      if (todayStr && g.game_date < todayStr) return false;
+      if (umpFill(g, assignments, defaults).missing <= 0) return false;
+      return umpIneligibleReason(ump, g, assignments, games) === "";
+    });
+  }
+  /* Offer state machine, mirrored by the gateway: self-claims are born
+     accepted; admin offers wait as offered until the ump responds. */
+  function umpTransition(status, action) {
+    var moves = { accept: ["offered", "accepted"], decline: ["offered", "declined"], turn_back: ["accepted", "turned_back"] };
+    var mv = moves[action];
+    return mv && mv[0] === status ? mv[1] : null;
+  }
+
+  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts, bulkRainoutTargets: bulkRainoutTargets, appendTrail: appendTrail, umpParseDefaults: umpParseDefaults, umpNeeded: umpNeeded, umpFill: umpFill, umpAvailable: umpAvailable, umpDayClash: umpDayClash, umpIneligibleReason: umpIneligibleReason, umpOpenGames: umpOpenGames, umpTransition: umpTransition };
 });
