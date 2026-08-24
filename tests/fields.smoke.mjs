@@ -62,10 +62,26 @@ else fail('rule change recompute broken (got ' + noAlt.status + ')');
 // ------- 2. Portal hooks -------
 section('fields/index.html: required hooks');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
-for (const s of ['Who are you, Coach?', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'localStorage.setItem("flm_team"']) {
+for (const s of ['Who are you, Coach?', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"']) {
   if (indexHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
+
+// ------- 2b. Hardened boot: legacy/corrupt state must never blank the page -------
+section('fields/index.html: hardened boot');
+for (const [s, why] of [
+  ['function lsGet(k) { try { return localStorage.getItem(k); }', 'storage reads are try/catch guarded (Safari Block-all-cookies)'],
+  ['typeof window.FLM_RULES === "undefined"', 'FLM_RULES fallback exists if flm-rules.js fails to load'],
+  ['_bootTeam.charAt(0) === "{"', 'legacy JSON-shaped flm_team migrates to raw id'],
+  ['if (S.myTeam && !teamById(S.myTeam)) { S.myTeam = ""; lsDel("flm_team"); }', 'stale team id is cleared, page acts like fresh visit'],
+  ['el.classList.remove("hidden");', 'load() failure unhides #loading before writing the error'],
+  ['source: "fields boot"', 'boot failures logged to flm_events as js_error'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+if (!/var S = \{[^}]*localStorage\.getItem/.test(indexHtml)) ok('no raw localStorage access in boot state line');
+else fail('boot state line still reads localStorage directly');
 
 // ------- 3. Admin hooks -------
 section('fields/admin.html: required hooks');

@@ -197,6 +197,25 @@
 
 <script src="flm-rules.js"></script>
 <script>
+/* Safe storage: Safari "Block all cookies" and some private modes THROW on any
+   localStorage/sessionStorage access. Never let storage kill the page. */
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function ssGet(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+function ssSet(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
+/* If flm-rules.js failed to load, fall back to a minimal engine so the page
+   still renders instead of dying on "FLM_RULES is not defined". */
+if (typeof window.FLM_RULES === "undefined") {
+  window.FLM_RULES = {
+    parse: function () { return null; },
+    describe: function () { return "See the league practice guideline."; },
+    evaluate: function (r, slots) {
+      var total = (slots || []).length;
+      return { status: total ? "ok" : "none", weekdays: [], satCount: 0, total: total, availWeekday: false, availWeekend: false, availLabels: [], message: "" };
+    }
+  };
+}
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 var DAYS = [
   { k: "mon", label: "Monday", sat: false }, { k: "tue", label: "Tuesday", sat: false },
@@ -209,7 +228,16 @@ var DIV_COLORS = {
   "Majors BB": "#1d4ed8", "Minors BB": "#0e7490", "AA BB": "#7c3aed", "CP BB": "#475569",
   "TBall": "#92400e", "Majors SB": "#be185d", "Minors A SB": "#c2410c", "Minors B SB": "#ca8a04", "": "#6d7a72"
 };
-var S = { data: null, season: null, view: localStorage.getItem("flm_view") || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: localStorage.getItem("flm_team") || "" };
+/* Tolerate any legacy/corrupt stored state: migrate JSON-shaped team values to a raw id,
+   drop unrecognized views. Bad stored state must NEVER blank the page. */
+var _bootTeam = lsGet("flm_team") || "";
+if (_bootTeam.charAt(0) === "{") {
+  try { _bootTeam = String((JSON.parse(_bootTeam) || {}).id || ""); } catch (e) { _bootTeam = ""; }
+  if (_bootTeam) lsSet("flm_team", _bootTeam); else lsDel("flm_team");
+}
+var _bootView = lsGet("flm_view");
+if (["grid", "days", "teams"].indexOf(_bootView) < 0) _bootView = null;
+var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam };
 var welcomed = false;
 
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -228,14 +256,18 @@ function load() {
     if (!d.ok) throw new Error("bad state");
     S.data = d;
     if (!S.season || !d.seasons.some(function (x) { return x.id === S.season; })) {
-      var remembered = localStorage.getItem("flm_season");
+      var remembered = lsGet("flm_season");
       S.season = (d.seasons.some(function (x) { return x.id === remembered; }) ? remembered : (d.seasons[0] || {}).id) || null;
     }
+    if (S.myTeam && !teamById(S.myTeam)) { S.myTeam = ""; lsDel("flm_team"); }
     document.getElementById("loading").classList.add("hidden");
     renderAll();
-    if (!welcomed && !teamById(S.myTeam) && !sessionStorage.getItem("flm_browse")) { welcomed = true; welcomeModal(); }
-  }).catch(function () {
-    document.getElementById("loading").textContent = "Could not load. Check your connection and refresh.";
+    if (!welcomed && !teamById(S.myTeam) && !ssGet("flm_browse")) { welcomed = true; welcomeModal(); }
+  }).catch(function (err) {
+    var el = document.getElementById("loading");
+    el.classList.remove("hidden");
+    el.textContent = "Could not load. Check your connection and refresh.";
+    if (window.flmTrack) window.flmTrack("js_error", { message: String((err && err.message) || err).slice(0, 300), source: "fields boot", line: 0 });
   });
 }
 
@@ -299,13 +331,13 @@ function renderSeasons() {
     var b = document.createElement("button");
     b.className = "tab" + (sn.id === S.season ? " on" : "");
     b.innerHTML = esc(sn.label) + (sn.locked ? ' <span class="lock">🔒</span>' : "");
-    b.addEventListener("click", function () { S.season = sn.id; localStorage.setItem("flm_season", sn.id); renderAll(); });
+    b.addEventListener("click", function () { S.season = sn.id; lsSet("flm_season", sn.id); renderAll(); });
     box.appendChild(b);
   });
   var vb = document.querySelectorAll(".vbtn");
   for (var i = 0; i < vb.length; i++) {
     vb[i].classList.toggle("on", vb[i].getAttribute("data-view") === S.view);
-    vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); localStorage.setItem("flm_view", S.view); renderAll(); }; })(vb[i]);
+    vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); lsSet("flm_view", S.view); renderAll(); }; })(vb[i]);
   }
 }
 
@@ -466,14 +498,14 @@ function welcomeModal() {
   v.querySelectorAll(".wteam").forEach(function (b) {
     b.addEventListener("click", function () {
       S.myTeam = b.getAttribute("data-team");
-      localStorage.setItem("flm_team", S.myTeam);
+      lsSet("flm_team", S.myTeam);
       v.remove();
       renderAll();
       toast("Welcome, Coach. This device now remembers your team.");
     });
   });
   v.querySelector("#wSkip").addEventListener("click", function () {
-    sessionStorage.setItem("flm_browse", "1");
+    ssSet("flm_browse", "1");
     v.remove();
   });
 }
@@ -488,7 +520,7 @@ function pickTeamModal(next) {
   v.querySelector("#mSave").addEventListener("click", function () {
     var val = v.querySelector("#mTeam").value;
     if (!val) return;
-    S.myTeam = val; localStorage.setItem("flm_team", val);
+    S.myTeam = val; lsSet("flm_team", val);
     v.remove(); renderAll();
     if (next) next();
   });
@@ -567,6 +599,7 @@ load();
       }).catch(function () {});
     } catch (e) {}
   }
+  window.flmTrack = track;
   track("page_view", { referrer: document.referrer || "direct" });
   window.addEventListener("error", function (e) {
     track("js_error", { message: String((e && e.message) || "").slice(0, 300), source: String((e && e.filename) || "").slice(0, 200), line: (e && e.lineno) || 0 });
