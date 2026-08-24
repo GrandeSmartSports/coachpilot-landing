@@ -140,6 +140,10 @@
   .schedcal .calbtn { font-size: 12px; padding: 5px 11px; margin: 6px 6px 0 0; }
   .schedbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .schedbar select { font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--white); color: var(--ink); }
+  .schedmine { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); margin: 0 2px 10px; }
+  .schedmine b { color: var(--ink); }
+  .schip { font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; background: var(--white); color: var(--muted); border: 1px solid var(--line); border-radius: 14px; padding: 4px 12px; }
+  .schip.on { background: var(--pine); border-color: var(--pine); color: var(--chalk); }
   .gcards { display: grid; grid-template-columns: 1fr; gap: 9px; }
   @media (min-width: 760px) { .gcards { grid-template-columns: 1fr 1fr; } }
   .gcard { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--pine); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; }
@@ -279,6 +283,7 @@
       <div class="fieldlist" id="fieldList"></div>
     </div>
     <div id="viewSched" class="hidden">
+      <div class="schedmine hidden" id="schedMine"></div>
       <div class="schedbar">
         <select id="schedDiv"></select>
         <select id="schedTeam"></select>
@@ -639,7 +644,49 @@ function renderSched() {
   el.classList.remove("hidden");
   var games = (S.data.games || []).filter(function (g) { return g.season_id === S.season; });
   var divSel = document.getElementById("schedDiv"), teamSel = document.getElementById("schedTeam");
+  /* An identified coach lands on their OWN schedule first. Any filter they pick
+     by hand sticks for the rest of this visit and always wins over the default.
+     Fresh or just-browsing visitors keep the all-divisions view. */
+  var me = teamById(S.myTeam);
+  if (S.schedReadyFor !== S.myTeam) {
+    S.schedReadyFor = S.myTeam;
+    var savedPick = ssGet("flm_sched_pick");
+    if (savedPick) {
+      try { var sp = JSON.parse(savedPick) || {}; S.schedDiv = String(sp.d || ""); S.schedTeam = String(sp.t || ""); } catch (e) {}
+      if (S.schedTeam && !teamById(S.schedTeam)) S.schedTeam = "";
+    } else if (me) {
+      S.schedTeam = me.id;
+      S.schedDiv = "";
+    }
+  }
+  function pickSched(d, t) {
+    S.schedDiv = d; S.schedTeam = t;
+    ssSet("flm_sched_pick", JSON.stringify({ d: d, t: t }));
+    renderSched();
+  }
   var keepDiv = S.schedDiv || "", keepTeam = S.schedTeam || "";
+  /* "Showing" line + one-tap scope chips, coaches only */
+  var mineBox = document.getElementById("schedMine");
+  if (me) {
+    var scope = keepTeam === me.id ? "team" : (!keepTeam && keepDiv && keepDiv === me.division ? "division" : (!keepTeam && !keepDiv ? "all" : ""));
+    var showing = keepTeam ? ((teamById(keepTeam) || {}).name || "one team") : (keepDiv || "All divisions");
+    mineBox.innerHTML = "Showing: <b>" + esc(showing) + "</b>" +
+      '<button class="schip' + (scope === "team" ? " on" : "") + '" data-scope="team">My team</button>' +
+      '<button class="schip' + (scope === "division" ? " on" : "") + '" data-scope="division">My division</button>' +
+      '<button class="schip' + (scope === "all" ? " on" : "") + '" data-scope="all">All divisions</button>';
+    mineBox.classList.remove("hidden");
+    mineBox.querySelectorAll(".schip").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var sc = b.getAttribute("data-scope");
+        if (sc === "team") pickSched("", me.id);
+        else if (sc === "division") pickSched(me.division || "", "");
+        else pickSched("", "");
+      });
+    });
+  } else {
+    mineBox.classList.add("hidden");
+    mineBox.innerHTML = "";
+  }
   var divs = {};
   (S.data.teams || []).forEach(function (t) { if (t.is_active && t.division) divs[t.division] = 1; });
   divSel.innerHTML = '<option value="">All divisions</option>' + Object.keys(divs).sort().map(function (d) {
@@ -650,8 +697,8 @@ function renderSched() {
   }).map(function (t) {
     return '<option value="' + t.id + '"' + (t.id === keepTeam ? " selected" : "") + ">" + esc(t.name) + "</option>";
   }).join("");
-  divSel.onchange = function () { S.schedDiv = divSel.value; S.schedTeam = ""; renderSched(); };
-  teamSel.onchange = function () { S.schedTeam = teamSel.value; renderSched(); };
+  divSel.onchange = function () { pickSched(divSel.value, ""); };
+  teamSel.onchange = function () { pickSched(keepDiv, teamSel.value); };
   var shown = games.filter(function (g) {
     if (keepDiv && g.division !== keepDiv) {
       var h = teamById(g.home_team_id);

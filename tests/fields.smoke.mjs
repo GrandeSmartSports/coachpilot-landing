@@ -471,6 +471,35 @@ for (const line of ['All quiet right now. No league announcements.', 'Pick your 
   else fail('copy missing or dashed: ' + line);
 }
 
+// ------- 2d. Schedule defaults to the coach's own team -------
+section('fields/index.html: schedule coach default + scope chips');
+for (const [s, why] of [
+  ['id="schedMine"', 'Showing line + chip row element exists'],
+  ['Showing: <b>', 'Showing header renders the active filter'],
+  ['data-scope="team"', 'My team chip present'],
+  ['data-scope="division"', 'My division chip present'],
+  ['data-scope="all"', 'All divisions escape chip present'],
+  ['>My team<', 'My team chip label'],
+  ['>My division<', 'My division chip label'],
+  ['>All divisions<', 'All divisions chip label'],
+  ['S.schedTeam = me.id;', 'identified coach defaults to their own team filter'],
+  ['} else if (me) {', 'default only applies when a coach identity resolves (visitors keep all divisions)'],
+  ['ssGet("flm_sched_pick")', 'session filter choice restored so the default never fights the user'],
+  ['ssSet("flm_sched_pick"', 'manual filter picks remembered for the session'],
+  ['if (S.schedTeam && !teamById(S.schedTeam)) S.schedTeam = "";', 'stale saved team falls back safely'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+// selects route through the same session-remembering pick
+if (indexHtml.includes('divSel.onchange = function () { pickSched(divSel.value, ""); };')
+  && indexHtml.includes('teamSel.onchange = function () { pickSched(keepDiv, teamSel.value); };')) ok('dropdown changes count as explicit picks');
+else fail('dropdown changes do not route through pickSched');
+for (const line of ['My team', 'My division', 'All divisions']) {
+  if (!/[—–]/.test(line)) ok('chip copy dash-free: ' + line);
+  else fail('chip copy has a dash: ' + line);
+}
+
 // ------- 3. Admin hooks -------
 section('fields/admin.html: required hooks');
 const adminHtml = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
