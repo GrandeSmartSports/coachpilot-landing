@@ -73,6 +73,28 @@
   .result { margin-top: 10px; font-size: 13.5px; background: #dcefe2; color: #21622f; border-radius: 9px; padding: 9px 12px; }
   .err { margin-top: 10px; font-size: 13.5px; background: #fbe4dc; color: #a33c1b; border-radius: 9px; padding: 9px 12px; }
 
+  .compgrid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 700px) { .compgrid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .compgrid { grid-template-columns: 1fr 1fr 1fr; } }
+  .compcard { border: 1px solid var(--line); border-left: 5px solid var(--muted); border-radius: 10px; padding: 9px 12px; background: #fbfaf5; }
+  .compcard.over { border-left-color: #b3432b; background: #fdefe9; }
+  .compcard.under { border-left-color: #ca8a04; background: #fdf8ea; }
+  .compcard .cname { font-weight: 700; font-size: 14px; }
+  .compcard .cwhy { font-size: 12.5px; color: #3c463f; margin-top: 2px; }
+  .compcard .cwin { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+
+  textarea { font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 11px; background: var(--white); color: var(--ink); resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201,111,47,0.15); }
+  .anrow { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; background: #fbfaf5; }
+  .anrow.inactive { opacity: 0.55; }
+  .anrow .at { font-weight: 700; font-size: 14px; }
+  .anrow .ab { font-size: 13px; color: #3c463f; margin: 2px 0 6px; white-space: pre-line; }
+  .anrow .am { font-size: 11.5px; color: var(--muted); margin-bottom: 7px; }
+  .sev { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 10px; padding: 2px 8px; margin-right: 6px; }
+  .sev.info { background: #dcefe2; color: #21622f; }
+  .sev.warning { background: #fdf1dc; color: #8a5a12; }
+  .sev.urgent { background: #fbe4dc; color: #a33c1b; }
+
   .log { font-size: 12.5px; }
   .log .li { padding: 6px 2px; border-bottom: 1px solid #efede4; display: flex; gap: 8px; }
   .log .t { color: var(--muted); white-space: nowrap; }
@@ -111,6 +133,30 @@
 
     <div class="panels">
       <div class="panel span2">
+        <div class="bar"><h2>Practice compliance</h2></div>
+        <div class="body">
+          <p class="hint" id="compHint"></p>
+          <div class="compgrid" id="compGrid"></div>
+          <p class="hint" id="compNone" style="margin:8px 0 0;"></p>
+        </div>
+      </div>
+
+      <div class="panel span2">
+        <div class="bar"><h2>League announcements</h2></div>
+        <div class="body">
+          <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
+          <div class="row" style="margin-bottom:8px;">
+            <input id="anTitle" placeholder="Title, e.g. Fields are wet today" style="flex:2;min-width:200px;" />
+            <select id="anSev"><option value="info">Notice</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+          </div>
+          <textarea id="anBody" rows="3" placeholder="Details for coaches (optional)" style="width:100%;margin-bottom:8px;"></textarea>
+          <button class="btn clay" id="anPost">Post announcement</button>
+          <span id="anMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Posted. It is live on the coach portal now.</span>
+          <div id="anList" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
         <div class="bar"><h2>Import from Excel</h2></div>
         <div class="body">
           <p class="hint">Drop in the league spreadsheet (.xlsx). Schedule tabs and coach-contact tabs are detected automatically — new fields, teams, and coaches are created as needed, so it works even as the league grows.</p>
@@ -137,8 +183,18 @@
         <div class="body">
           <label style="font-size:13px;font-weight:600;">League name</label>
           <input id="setName" style="width:100%;margin:5px 0 12px;" />
-          <label style="font-size:13px;font-weight:600;">Guideline banner (shown to every coach)</label>
+          <label style="font-size:13px;font-weight:600;">Guideline banner note (optional, shown after the rule)</label>
           <input id="setRules" style="width:100%;margin:5px 0 12px;" />
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Practice schedule rule (drives every team's compliance status)</label>
+            <div class="row" style="margin:7px 0 8px;">
+              <label style="font-size:12.5px;">Max weekdays <input id="ruleWk" type="number" min="0" max="5" style="width:64px;" /></label>
+              <label style="font-size:12.5px;">Max Saturdays <input id="ruleSat" type="number" min="0" max="4" style="width:64px;" /></label>
+              <label style="font-size:12.5px;">Slots per team <input id="ruleTotal" type="number" min="0" max="9" style="width:64px;" /></label>
+            </div>
+            <label style="font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;"><input id="ruleMonFri" type="checkbox" style="width:auto;" /> Also allow Monday plus Friday with no Saturday</label>
+            <p class="hint" id="rulePreview" style="margin:6px 0 0;"></p>
+          </div>
           <button class="btn" id="setSave">Save settings</button>
           <span id="setMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Saved</span>
         </div>
@@ -161,6 +217,7 @@
     </div>
   </div>
 
+<script src="flm-rules.js"></script>
 <script>
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 var PIN = sessionStorage.getItem("flm_pin") || "";
@@ -194,16 +251,147 @@ document.getElementById("pinGo").addEventListener("click", function () { PIN = d
 document.getElementById("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") { PIN = e.target.value.trim(); boot(); } });
 if (PIN) boot();
 
+function leagueRules() { return FLM_RULES.parse(D && D.settings ? D.settings.practice_rules : null); }
+
 function refresh() {
   fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
+    var rules = leagueRules();
+    document.getElementById("ruleWk").value = rules.max_weekdays;
+    document.getElementById("ruleSat").value = rules.max_weekend;
+    document.getElementById("ruleTotal").value = rules.expected_total;
+    document.getElementById("ruleMonFri").checked = rules.alternatives.length > 0;
+    updateRulePreview();
   });
   fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (a) { renderLog(a.activity || []); });
   loadVisits();
+  loadAnnouncements();
 }
+
+function ruleInputs() {
+  return {
+    max_weekdays: Math.max(0, +document.getElementById("ruleWk").value || 0),
+    max_weekend: Math.max(0, +document.getElementById("ruleSat").value || 0),
+    expected_total: Math.max(0, +document.getElementById("ruleTotal").value || 0),
+    alternatives: document.getElementById("ruleMonFri").checked ? [{ weekdays: ["mon", "fri"], max_weekend: 0, label: "Monday plus Friday" }] : []
+  };
+}
+function updateRulePreview() {
+  document.getElementById("rulePreview").textContent = "Coaches will see: " + FLM_RULES.describe(ruleInputs());
+}
+["ruleWk", "ruleSat", "ruleTotal", "ruleMonFri"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", updateRulePreview);
+  document.getElementById(id).addEventListener("change", updateRulePreview);
+});
+
+function renderCompliance() {
+  var rules = leagueRules();
+  document.getElementById("compHint").textContent = FLM_RULES.describe(rules) + " Red means over the guideline. Amber means the team still has room.";
+  var cards = [];
+  var noneNotes = [];
+  D.seasons.forEach(function (sn) {
+    var noneCount = 0;
+    D.teams.filter(function (t) { return t.is_active; }).forEach(function (t) {
+      var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
+      var ev = FLM_RULES.evaluate(rules, mine);
+      if (ev.status === "over") {
+        cards.push('<div class="compcard over"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.message) + '</div><div class="cwin">' + esc(sn.label) + "</div></div>");
+      } else if (ev.status === "under") {
+        cards.push('<div class="compcard under"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.availLabels.join(". ") || "Under the guideline") + '.</div><div class="cwin">' + esc(sn.label) + "</div></div>");
+      } else if (ev.status === "none" && t.coach_name) {
+        noneCount++;
+      }
+    });
+    if (noneCount) noneNotes.push(noneCount + " teams with a coach on file have no slots in " + sn.label);
+  });
+  document.getElementById("compGrid").innerHTML = cards.join("");
+  document.getElementById("compNone").textContent = cards.length === 0 && noneNotes.length === 0 ? "Every scheduled team is on the guideline." : noneNotes.join(". ") + (noneNotes.length ? "." : "");
+}
+
+/* ---------- announcements ---------- */
+function loadAnnouncements() {
+  fetch(API + "?action=admin_announcements", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d.ok) renderAnnouncements(d.announcements || []); })
+    .catch(function () {});
+}
+
+function renderAnnouncements(items) {
+  var box = document.getElementById("anList");
+  box.innerHTML = items.map(function (a) {
+    var posted = new Date(a.created_at);
+    var meta = "Posted " + posted.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + posted.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+    meta += a.emailed_at ? " · Emailed " + new Date(a.emailed_at).toLocaleDateString([], { month: "short", day: "numeric" }) : " · Never emailed";
+    return '<div class="anrow' + (a.active ? "" : " inactive") + '">' +
+      '<div class="at"><span class="sev ' + esc(a.severity) + '">' + esc(a.severity) + "</span>" + esc(a.title) + (a.active ? "" : ' <span class="chip off">Off</span>') + "</div>" +
+      (a.body ? '<div class="ab">' + esc(a.body) + "</div>" : "") +
+      '<div class="am">' + esc(meta) + "</div>" +
+      '<div class="row">' +
+      '<button class="btn sm ghost" data-an-toggle="' + a.id + '">' + (a.active ? "Take down" : "Put back up") + "</button>" +
+      '<button class="btn sm" data-an-email="' + a.id + '">Email all coaches</button>' +
+      '<button class="btn sm ghost" data-an-test="' + a.id + '">Send a test to one address</button>' +
+      '<button class="btn sm danger" data-an-del="' + a.id + '">Delete</button>' +
+      "</div></div>";
+  }).join("") || '<p class="hint">No announcements yet.</p>';
+  box.querySelectorAll("[data-an-toggle]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = items.filter(function (x) { return x.id === b.getAttribute("data-an-toggle"); })[0];
+      admin("admin_announcement", { id: a.id, active: !a.active }).then(loadAnnouncements).catch(function (e) { alert(e.message); });
+    });
+  });
+  box.querySelectorAll("[data-an-email]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = items.filter(function (x) { return x.id === b.getAttribute("data-an-email"); })[0];
+      b.disabled = true;
+      admin("admin_announcement_email", { id: a.id, preview: true }).then(function (r) {
+        b.disabled = false;
+        if (!r.recipients) { alert("No coach emails are on file yet, so there is nobody to send to. Add coach emails under Teams first."); return; }
+        if (!confirm('Email "' + a.title + '" to ' + r.recipients + " coaches?\n\nThis sends one email to every head coach with an email on file. It cannot be unsent.")) return;
+        b.disabled = true; b.textContent = "Sending...";
+        admin("admin_announcement_email", { id: a.id }).then(function (r2) {
+          alert("Sent to " + r2.sent_count + " coaches" + (r2.failed && r2.failed.length ? ". " + r2.failed.length + " failed." : "."));
+          loadAnnouncements();
+        }).catch(function (e) { alert(e.message); loadAnnouncements(); });
+      }).catch(function (e) { b.disabled = false; alert(e.message); });
+    });
+  });
+  box.querySelectorAll("[data-an-test]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = items.filter(function (x) { return x.id === b.getAttribute("data-an-test"); })[0];
+      var to = prompt("Send a test of this announcement to one address:", "");
+      if (!to || to.indexOf("@") < 0) return;
+      b.disabled = true; b.textContent = "Sending...";
+      admin("admin_announcement_email", { id: a.id, test_to: to.trim() }).then(function () {
+        alert("Test sent to " + to.trim());
+        loadAnnouncements();
+      }).catch(function (e) { alert(e.message); loadAnnouncements(); });
+    });
+  });
+  box.querySelectorAll("[data-an-del]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var a = items.filter(function (x) { return x.id === b.getAttribute("data-an-del"); })[0];
+      if (!confirm('Delete the announcement "' + a.title + '"? This removes it for good.')) return;
+      admin("admin_announcement", { delete_id: a.id }).then(loadAnnouncements).catch(function (e) { alert(e.message); });
+    });
+  });
+}
+
+document.getElementById("anPost").addEventListener("click", function () {
+  var title = document.getElementById("anTitle").value.trim();
+  if (!title) { alert("Give the announcement a title first."); return; }
+  var btn = this; btn.disabled = true;
+  admin("admin_announcement", { title: title, body: document.getElementById("anBody").value.trim(), severity: document.getElementById("anSev").value })
+    .then(function () {
+      btn.disabled = false;
+      document.getElementById("anTitle").value = ""; document.getElementById("anBody").value = "";
+      var m = document.getElementById("anMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 2600);
+      loadAnnouncements();
+    })
+    .catch(function (e) { btn.disabled = false; alert(e.message); });
+});
 
 var EV = null;
 function loadVisits() {
@@ -273,7 +461,7 @@ document.getElementById("nsAdd").addEventListener("click", function () {
 });
 
 document.getElementById("setSave").addEventListener("click", function () {
-  admin("admin_settings", { league_name: document.getElementById("setName").value.trim(), rules: document.getElementById("setRules").value.trim() })
+  admin("admin_settings", { league_name: document.getElementById("setName").value.trim(), rules: document.getElementById("setRules").value.trim(), practice_rules: JSON.stringify(ruleInputs()) })
     .then(function () { var m = document.getElementById("setMsg"); m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 1800); refresh(); });
 });
 

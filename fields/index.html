@@ -39,6 +39,35 @@
   .rules { background: var(--white); border: 1px solid var(--line); border-left: 5px solid var(--clay); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 15px; font-size: 14px; color: #3c463f; margin-bottom: 14px; }
   .rules b { color: var(--ink); }
 
+  /* ---------- ANNOUNCEMENTS ---------- */
+  .announce { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--grass); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; margin-bottom: 10px; }
+  .announce.warning { border-left-color: var(--clay); background: #fdf6ec; }
+  .announce.urgent { border-left-color: #b3432b; background: #fdefe9; }
+  .announce h4 { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.03em; text-transform: uppercase; }
+  .announce p { font-size: 14px; color: #3c463f; margin-top: 2px; white-space: pre-line; }
+
+  /* ---------- MY TEAM ---------- */
+  .myteam { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 14px; }
+  .myteam .mt-name { font-family: var(--disp); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .myteam .mt-div { font-size: 13px; color: var(--muted); }
+  .myteam .mt-rule { font-size: 13.5px; color: #3c463f; margin-top: 6px; }
+  .myteam ul { list-style: none; margin-top: 8px; }
+  .myteam li { font-size: 14px; padding: 2px 0; color: #3c463f; }
+  .myteam li b { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.03em; }
+  .mt-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .mt-chip { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 14px; padding: 4px 12px; }
+  .mt-chip.good { background: #dcefe2; color: #21622f; }
+  .mt-alert { background: #fbe4dc; border: 1px solid #eec4b5; color: #a33c1b; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-top: 10px; }
+
+  /* ---------- WELCOME PICKER ---------- */
+  .wsearch { width: 100%; font-size: 16px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; margin: 10px 0 12px; }
+  .wsearch:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201, 111, 47, 0.18); }
+  .wlist { max-height: 46vh; overflow-y: auto; border: 1px solid var(--line); border-radius: 12px; }
+  .wdiv { font-family: var(--disp); font-weight: 700; font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--chalk); background: var(--grass); padding: 6px 12px; position: sticky; top: 0; }
+  .wteam { display: block; width: 100%; text-align: left; background: var(--white); border: none; border-bottom: 1px solid #efede4; padding: 11px 13px; font-size: 15.5px; font-weight: 600; color: var(--ink); }
+  .wteam small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+  .wteam:hover, .wteam:active { background: #f6f3ea; }
+
   .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
   .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
   .tab { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--white); color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 9px 16px; }
@@ -140,6 +169,8 @@
   <div class="chalkline"></div>
 
   <div class="wrap">
+    <div id="announceBox"></div>
+    <div class="myteam hidden" id="myTeam"></div>
     <div class="rules" id="rulesBox" style="display:none"></div>
 
     <div class="bar">
@@ -164,6 +195,7 @@
 
   <footer><span class="f1">Field Command</span><br />Built for our league by CoachPilot &middot; <a href="/fields/admin.html" style="text-decoration:underline">League admin</a></footer>
 
+<script src="flm-rules.js"></script>
 <script>
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 var DAYS = [
@@ -178,6 +210,7 @@ var DIV_COLORS = {
   "TBall": "#92400e", "Majors SB": "#be185d", "Minors A SB": "#c2410c", "Minors B SB": "#ca8a04", "": "#6d7a72"
 };
 var S = { data: null, season: null, view: localStorage.getItem("flm_view") || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: localStorage.getItem("flm_team") || "" };
+var welcomed = false;
 
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function divColor(team) { return DIV_COLORS[team && team.division ? team.division : ""] || DIV_COLORS[""]; }
@@ -200,20 +233,57 @@ function load() {
     }
     document.getElementById("loading").classList.add("hidden");
     renderAll();
+    if (!welcomed && !teamById(S.myTeam) && !sessionStorage.getItem("flm_browse")) { welcomed = true; welcomeModal(); }
   }).catch(function () {
     document.getElementById("loading").textContent = "Could not load. Check your connection and refresh.";
   });
 }
+
+function leagueRules() { return FLM_RULES.parse(S.data && S.data.settings ? S.data.settings.practice_rules : null); }
 
 function renderAll() {
   var d = S.data;
   document.getElementById("leagueName").textContent = d.settings.league_name || "Field Command";
   document.title = (d.settings.league_name || "Field Command") + " — Field Manager";
   var rb = document.getElementById("rulesBox");
-  if (d.settings.rules) { rb.style.display = ""; rb.innerHTML = "<b>League guideline:</b> " + esc(d.settings.rules); }
+  rb.style.display = "";
+  rb.innerHTML = "<b>League guideline:</b> " + esc(FLM_RULES.describe(leagueRules())) + (d.settings.rules ? " " + esc(d.settings.rules) : "");
+  renderAnnouncements(); renderMyTeam();
   renderWho(); renderSeasons(); renderLegend(); renderView();
   var sn = seasonObj();
   document.body.classList.toggle("locked", !!(sn && sn.locked));
+}
+
+function renderAnnouncements() {
+  var box = document.getElementById("announceBox");
+  box.innerHTML = (S.data.announcements || []).map(function (a) {
+    return '<div class="announce ' + (a.severity === "warning" || a.severity === "urgent" ? esc(a.severity) : "") + '"><h4>' + esc(a.title) + "</h4>" + (a.body ? "<p>" + esc(a.body) + "</p>" : "") + "</div>";
+  }).join("");
+}
+
+function renderMyTeam() {
+  var box = document.getElementById("myTeam");
+  var t = teamById(S.myTeam);
+  if (!t || !S.season) { box.classList.add("hidden"); return; }
+  var mine = (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.team_id === t.id; });
+  mine.sort(function (a, b) {
+    return DAYS.map(function (d) { return d.k; }).indexOf(a.day_key) - DAYS.map(function (d) { return d.k; }).indexOf(b.day_key);
+  });
+  var ev = FLM_RULES.evaluate(leagueRules(), mine);
+  var lis = mine.map(function (s) {
+    var f = fieldById(s.field_id);
+    return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> at " + esc(f ? f.name : "?") + (s.note ? ' <span style="color:var(--muted)">(' + esc(s.note) + ")</span>" : "") + "</li>";
+  }).join("");
+  var sn = seasonObj();
+  var html = '<div class="mt-name">' + esc(t.name) + "</div>" +
+    '<div class="mt-div">' + esc([t.division, t.coach_name].filter(Boolean).join(" · ")) + "</div>" +
+    '<div class="mt-rule">' + esc(FLM_RULES.describe(leagueRules())) + "</div>" +
+    "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots claimed' + (sn ? " for " + esc(sn.label) : "") + ' yet. Tap an open slot below to claim one.</li>') + "</ul>";
+  if (ev.status === "over") html += '<div class="mt-alert">' + esc(ev.message) + "</div>";
+  if (ev.availLabels.length) html += '<div class="mt-chips">' + ev.availLabels.map(function (l) { return '<span class="mt-chip good">' + esc(l) + "</span>"; }).join("") + "</div>";
+  box.style.borderTopColor = ev.status === "over" ? "#b3432b" : divColor(t);
+  box.innerHTML = html;
+  box.classList.remove("hidden");
 }
 
 function renderWho() {
@@ -322,14 +392,11 @@ function renderDays() {
 
 function teamCompliance(teamId) {
   var mine = (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.team_id === teamId; });
-  var wk = {}, sat = 0;
-  mine.forEach(function (s) { if (s.day_key.indexOf("sat") === 0) sat++; else wk[s.day_key] = 1; });
-  var wkN = Object.keys(wk).length, total = mine.length;
-  if (total === 0) return { cls: "none", txt: "No slots yet", slots: mine };
-  var monFri = wk.mon && wk.fri && wkN === 2 && sat === 0;
-  if ((wkN === 1 && sat === 1 && total === 2) || (monFri && total === 2)) return { cls: "ok", txt: "On guideline (2 slots)", slots: mine };
-  if (total < 2) return { cls: "under", txt: wkN ? "Needs a Saturday (or Mon+Fri)" : "Needs a weekday", slots: mine };
-  return { cls: "over", txt: total + " slots — above the guideline", slots: mine };
+  var ev = FLM_RULES.evaluate(leagueRules(), mine);
+  if (ev.status === "none") return { cls: "none", txt: "No slots yet", slots: mine };
+  if (ev.status === "over") return { cls: "over", txt: "Over the guideline (" + ev.total + " slots)", slots: mine };
+  if (ev.status === "under") return { cls: "under", txt: ev.availLabels.join(" · ") || "Under the guideline", slots: mine };
+  return { cls: "ok", txt: "On guideline (" + ev.total + " slots)", slots: mine };
 }
 
 function renderTeams() {
@@ -367,6 +434,48 @@ function toast(msg) {
   t.className = "toast"; t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(function () { t.remove(); }, 2600);
+}
+
+function welcomeModal() {
+  var groups = {};
+  (S.data.teams || []).filter(function (t) { return t.is_active; }).forEach(function (t) {
+    var d = t.division || "Other";
+    (groups[d] = groups[d] || []).push(t);
+  });
+  var listHtml = Object.keys(groups).sort().map(function (div) {
+    return '<div class="wgroup"><div class="wdiv">' + esc(div) + "</div>" + groups[div].map(function (t) {
+      return '<button class="wteam" data-team="' + t.id + '" data-search="' + esc((t.name + " " + (t.coach_name || "") + " " + div).toLowerCase()) + '">' + esc(t.name) + (t.coach_name ? "<small>Coach " + esc(t.coach_name) + "</small>" : "") + "</button>";
+    }).join("") + "</div>";
+  }).join("");
+  var v = modal("<h3>Who are you, Coach?</h3><div class=\"ctx\">Pick your team and this device will remember you. You will see your practice slots, the league guideline, and what your team can still claim.</div>" +
+    '<input class="wsearch" id="wSearch" placeholder="Search by team, coach, or division" />' +
+    '<div class="wlist" id="wList">' + listHtml + "</div>" +
+    '<div class="mbtns"><button class="mb quiet" id="wSkip">Just browsing</button></div>');
+  v.querySelector("#wSearch").addEventListener("input", function () {
+    var q = this.value.trim().toLowerCase();
+    v.querySelectorAll(".wgroup").forEach(function (g) {
+      var any = false;
+      g.querySelectorAll(".wteam").forEach(function (b) {
+        var hit = !q || b.getAttribute("data-search").indexOf(q) >= 0;
+        b.style.display = hit ? "" : "none";
+        if (hit) any = true;
+      });
+      g.style.display = any ? "" : "none";
+    });
+  });
+  v.querySelectorAll(".wteam").forEach(function (b) {
+    b.addEventListener("click", function () {
+      S.myTeam = b.getAttribute("data-team");
+      localStorage.setItem("flm_team", S.myTeam);
+      v.remove();
+      renderAll();
+      toast("Welcome, Coach. This device now remembers your team.");
+    });
+  });
+  v.querySelector("#wSkip").addEventListener("click", function () {
+    sessionStorage.setItem("flm_browse", "1");
+    v.remove();
+  });
 }
 
 function pickTeamModal(next) {
