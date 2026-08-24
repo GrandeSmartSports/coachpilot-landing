@@ -121,6 +121,15 @@
       </div>
 
       <div class="panel">
+        <div class="bar"><h3>Extra email subscribers</h3></div>
+        <div class="bd">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">People parents added through Share this with someone. They get the weekly emails until removed.</div>
+          <div class="uplist" id="sublist"></div>
+          <span class="m" id="sub-msg"></span>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="bar"><h3>Cage night vote</h3></div>
         <div class="bd">
           <div class="counts" id="cage-counts"></div>
@@ -177,6 +186,7 @@ function boot() {
       loadUpdates();
       loadFunds();
       loadCageVote();
+      loadSubs();
     })
     .catch(function (e) {
       document.getElementById("gate").style.display = "block";
@@ -261,6 +271,42 @@ function unpub(id) {
   if (!confirm("Hide this update from parents?")) return;
   fetch(API + "?action=unpublish_update", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
     .then(function () { loadUpdates(); });
+}
+
+function loadSubs() {
+  fetch(API + "?action=extra_subscribers", { headers: pinHeaders() })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var subs = (d.subscribers || []).filter(function (s) { return s.active; });
+      if (!subs.length) {
+        document.getElementById("sublist").innerHTML = '<div class="u"><span class="t" style="color:var(--muted);">Nobody extra yet. Parents can add people from the team hub.</span></div>';
+        return;
+      }
+      document.getElementById("sublist").innerHTML = subs.map(function (s) {
+        var who = esc(s.email) + (s.name ? " (" + esc(s.name) + ")" : "");
+        var by = s.added_by ? '<span style="color:var(--muted);font-size:11px;"> added by ' + esc(s.added_by) + "</span>" : "";
+        return '<div class="u"><span class="t">' + who + by + '</span><button onclick="removeSub(\'' + esc(s.id) + '\')">remove</button></div>';
+      }).join("");
+    })
+    .catch(function () {
+      document.getElementById("sub-msg").className = "m bad";
+      document.getElementById("sub-msg").textContent = "Could not load subscribers.";
+    });
+}
+
+function removeSub(id) {
+  if (!confirm("Remove this person from the team emails?")) return;
+  fetch(API + "?action=remove_extra", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ id: id }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () {
+      document.getElementById("sub-msg").className = "m ok";
+      document.getElementById("sub-msg").textContent = "Removed.";
+      loadSubs();
+    })
+    .catch(function () {
+      document.getElementById("sub-msg").className = "m bad";
+      document.getElementById("sub-msg").textContent = "Remove failed. Try again.";
+    });
 }
 
 function loadCageVote() {

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Share This — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 560px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 44px); text-transform: uppercase; letter-spacing: .02em; line-height: 1.05; margin-top: 4px; }
+  .hero .tag { margin-top: 8px; color: #a9acb2; font-size: 14.5px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 560px; margin: 0 auto; padding: 22px 22px 56px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; }
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  input[type=text], input[type=email] { width: 100%; font-size: 16px; padding: 13px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fdfdfd; font-family: inherit; }
+  input:focus { outline: none; border-color: var(--red); }
+  .sendbtn { margin-top: 16px; width: 100%; min-height: 54px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+  .sendbtn:active { transform: scale(.98); }
+  .sendbtn[disabled] { opacity: .5; }
+  .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
+  .msg.ok { color: var(--green); }
+  .msg.bad { color: var(--red); }
+  .note { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .back { display: inline-block; margin-top: 16px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .back:hover { color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Fall 2026</div>
+    <h1>Share This With Someone</h1>
+    <p class="tag">Grandparents, aunts and uncles, family friends. Anyone who wants the team emails.</p>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+    <div class="card">
+      <p style="font-size:14.5px;color:#33383d;margin-bottom:14px;">Add their email and they will get the same team updates you do. You can ask Coach to take them off anytime.</p>
+      <label for="email">Their email</label>
+      <input type="email" id="email" inputmode="email" autocomplete="email" placeholder="name@example.com" />
+      <label for="name">Their name <span style="font-weight:500;text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="name" placeholder="Grandma Sue" />
+      <label for="addedby" id="addedby-label">Who is adding them <span style="font-weight:500;text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="addedby" placeholder="Your name or family" />
+      <button class="sendbtn" id="send" type="button">Add them to the list</button>
+      <div class="msg" id="msg"></div>
+      <p class="note">They only get what parents get: team update emails. Nothing else.</p>
+    </div>
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var msg = document.getElementById("msg");
+  var btn = document.getElementById("send");
+  var busy = false;
+
+  // Auto-fill "who is adding them" from the family picked on the team hub.
+  try {
+    var fam = JSON.parse(localStorage.getItem("cougars_family") || "null");
+    if (fam && fam.label) {
+      var ab = document.getElementById("addedby");
+      ab.value = fam.label + "'s family";
+    }
+  } catch (e) {}
+
+  btn.addEventListener("click", function () {
+    if (busy) return;
+    var email = document.getElementById("email").value.trim();
+    if (!email || email.indexOf("@") === -1) {
+      msg.className = "msg bad";
+      msg.textContent = "Add their email address first.";
+      document.getElementById("email").focus();
+      return;
+    }
+    busy = true;
+    btn.disabled = true;
+    msg.className = "msg";
+    msg.textContent = "Adding…";
+    fetch(API + "?action=subscribe_extra", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        name: document.getElementById("name").value.trim() || null,
+        added_by: document.getElementById("addedby").value.trim() || null,
+      }),
+    })
+      .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+      .then(function (res) {
+        if (res.status === 409) {
+          msg.className = "msg ok";
+          msg.textContent = "Good news, they are already on the list.";
+        } else if (res.d && res.d.ok) {
+          msg.className = "msg ok";
+          msg.textContent = "Done. They will get the next team email.";
+          document.getElementById("email").value = "";
+          document.getElementById("name").value = "";
+        } else {
+          throw 0;
+        }
+      })
+      .catch(function () {
+        msg.className = "msg bad";
+        msg.textContent = "That did not go through. Check the email and try again.";
+      })
+      .finally(function () { busy = false; btn.disabled = false; });
+  });
+
+  try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "share" }), keepalive: true }).catch(function () {}); } catch (e) {}
+})();
+</script>
+</body>
+</html>

@@ -57,7 +57,7 @@ for (const s of mustContain) {
 // ------- 2. Forbidden chars in parent-facing files -------
 section('parent-facing: no em/en dashes or curly quotes');
 const forbidden = { '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '‘': 'curly-apos-l', '“': 'curly-quote-l', '”': 'curly-quote-r' };
-const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs', 'cougars/cagevote.html'];
+const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs', 'cougars/cagevote.html', 'cougars/share.html'];
 let charHits = 0;
 for (const rel of parentFiles) {
   const body = fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -276,6 +276,63 @@ try {
     }
   }
 } catch (e) { fail('cage vote flow threw: ' + e.message); }
+
+// ------- Share this with someone -------
+section('share: page + subscribe flow');
+const SHARE_PAGE = path.join(ROOT, 'cougars', 'share.html');
+if (!fs.existsSync(SHARE_PAGE)) { fail('cougars/share.html missing'); }
+else {
+  const sh = fs.readFileSync(SHARE_PAGE, 'utf8');
+  for (const m of ['Share This With Someone', 'action=subscribe_extra', 'they are already on the list', 'cougars_family', 'page: "share"', 'noindex']) {
+    if (sh.includes(m)) ok('share page contains: ' + m.slice(0, 40)); else fail('share page MISSING: ' + m);
+  }
+}
+if (hubHtml.includes('/cougars/share.html') && hubHtml.includes('Share this with someone')) ok('hub Team pages links to share'); else fail('hub missing share row');
+const updHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'updates.html'), 'utf8');
+if (updHtml.includes('Want someone else getting these updates?')) ok('updates page has the add-them line'); else fail('updates page missing add-them line');
+const coachHtml2 = fs.readFileSync(path.join(ROOT, 'cougars', 'coach', 'index.html'), 'utf8');
+if (coachHtml2.includes('extra_subscribers') && coachHtml2.includes('removeSub')) ok('Coach HQ has subscribers panel w/ remove'); else fail('Coach HQ missing subscribers panel');
+
+const TEST_SUB = 'zztest-share@cueops.io';
+try {
+  const bad = await fetch(GATEWAY + '?action=subscribe_extra', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'not-an-email' }),
+  });
+  if (bad.status === 400) ok('bad email rejected 400'); else fail('bad email should be 400, got ' + bad.status);
+  const noPin = await fetch(GATEWAY + '?action=extra_subscribers');
+  if (noPin.status === 401) ok('subscriber list without PIN rejected 401'); else fail('list no-PIN should be 401, got ' + noPin.status);
+
+  if (PIN) {
+    const add = await fetch(GATEWAY + '?action=subscribe_extra', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: TEST_SUB, name: 'ZZTEST Grandma', added_by: 'ZZTEST smoke' }),
+    });
+    const addd = await add.json();
+    if (add.ok && addd.ok) ok('subscribe accepted'); else fail('subscribe failed: ' + JSON.stringify(addd));
+    const dup = await fetch(GATEWAY + '?action=subscribe_extra', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: TEST_SUB }),
+    });
+    if (dup.status === 409) ok('duplicate returns 409 already'); else fail('duplicate should be 409, got ' + dup.status);
+    const lst = await (await fetch(GATEWAY + '?action=extra_subscribers', { headers: { 'x-admin-pin': PIN } })).json();
+    const mine = (lst.subscribers || []).find((x) => x.email === TEST_SUB);
+    if (mine && mine.active) ok('PIN list shows the new subscriber active'); else fail('subscriber not in PIN list: ' + JSON.stringify(mine));
+    if (mine) {
+      const rm = await fetch(GATEWAY + '?action=remove_extra', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-pin': PIN },
+        body: JSON.stringify({ id: mine.id }),
+      });
+      if (rm.ok) ok('remove accepted'); else fail('remove failed ' + rm.status);
+      const lst2 = await (await fetch(GATEWAY + '?action=extra_subscribers', { headers: { 'x-admin-pin': PIN } })).json();
+      const after = (lst2.subscribers || []).find((x) => x.email === TEST_SUB);
+      if (after && after.active === false) ok('removed subscriber is inactive (excluded from blasts)'); else fail('remove did not deactivate: ' + JSON.stringify(after));
+      console.log('  NOTE  inactive ZZTEST subscriber row left (' + TEST_SUB + '); hard-delete via MCP after the run.');
+    }
+  } else {
+    console.log('  NOTE  COUGARS_PIN not set; skipped live subscribe flow.');
+  }
+} catch (e) { fail('share flow threw: ' + e.message); }
 
 // ------- family_status + mark_done -------
 section('family status: board math');
