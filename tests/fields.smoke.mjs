@@ -119,6 +119,170 @@ const cancelled = FLM.gameConflicts(mkGame({ field_id: 'F1', game_date: '2026-09
 if (!cancelled.some((c) => c.type === 'field_game')) ok('cancelled games do not block the field');
 else fail('cancelled game still conflicts');
 
+// ------- 1c. Season generator unit tests (Phase 2) -------
+section('season generator: matchups');
+const GEN = require(path.join(ROOT, 'fields', 'flm-schedule-gen.js'));
+
+function ids(n, prefix) { return Array.from({ length: n }, (_, i) => (prefix || 'T') + i); }
+function pairKey(a, b) { return a < b ? a + '~' + b : b + '~' + a; }
+function counts(ms) {
+  const c = {};
+  for (const m of ms) { c[m.home] = (c[m.home] || 0) + 1; c[m.away] = (c[m.away] || 0) + 1; }
+  return c;
+}
+function homeAwaySpread(ms) {
+  const h = {}, t = {};
+  for (const m of ms) { h[m.home] = (h[m.home] || 0) + 1; t[m.home] = (t[m.home] || 0) + 1; t[m.away] = (t[m.away] || 0) + 1; }
+  let worst = 0;
+  for (const id of Object.keys(t)) worst = Math.max(worst, Math.abs(2 * (h[id] || 0) - t[id]));
+  return worst;
+}
+
+// Round-robin completeness: 6 teams, 5 games each = every pairing exactly once.
+{
+  const ms = GEN.divisionMatchups(ids(6), 5, GEN.rng(7));
+  const pairs = {};
+  for (const m of ms) pairs[pairKey(m.home, m.away)] = (pairs[pairKey(m.home, m.away)] || 0) + 1;
+  const allOnce = Object.keys(pairs).length === 15 && Object.values(pairs).every((v) => v === 1);
+  if (ms.length === 15 && allOnce) ok('6 teams x 5 games: full round robin, every pairing exactly once');
+  else fail('round robin completeness broken: ' + ms.length + ' games, pairs=' + JSON.stringify(pairs));
+  const c = counts(ms);
+  if (Object.values(c).every((v) => v === 5)) ok('every team gets exactly 5 games');
+  else fail('per-team counts wrong: ' + JSON.stringify(c));
+  if (homeAwaySpread(ms) <= 1) ok('home/away balance within 1 (6 teams)');
+  else fail('home/away spread too wide: ' + homeAwaySpread(ms));
+}
+// Repeat cycle: 4 teams, 9 games each = 3 full cycles = each pairing 3 times.
+{
+  const ms = GEN.divisionMatchups(ids(4), 9, GEN.rng(3));
+  const pairs = {};
+  for (const m of ms) pairs[pairKey(m.home, m.away)] = (pairs[pairKey(m.home, m.away)] || 0) + 1;
+  if (ms.length === 18 && Object.values(pairs).every((v) => v === 3)) ok('4 teams x 9 games: cycle repeats, every pairing exactly 3 times');
+  else fail('repeat-cycle counts wrong: ' + JSON.stringify(pairs));
+  if (homeAwaySpread(ms) <= 1) ok('home/away balance within 1 across repeated cycles');
+  else fail('repeat-cycle home/away spread: ' + homeAwaySpread(ms));
+}
+// Odd team count: 5 teams, 4 games each -> byes rotate, counts even.
+{
+  const ms = GEN.divisionMatchups(ids(5), 4, GEN.rng(11));
+  const c = counts(ms);
+  const vals = ids(5).map((id) => c[id] || 0);
+  if (Math.max(...vals) - Math.min(...vals) <= 1 && Math.max(...vals) <= 4) ok('5 teams (odd): byes rotate fairly, per-team counts within 1 of target');
+  else fail('odd-team byes unfair: ' + JSON.stringify(c));
+  if (homeAwaySpread(ms) <= 1) ok('home/away balance within 1 (odd team count)');
+  else fail('odd-team home/away spread: ' + homeAwaySpread(ms));
+}
+// Interlock: 4 vs 4, 2 games per team = 8 crossover games, everybody exactly 2.
+{
+  const ms = GEN.interlockMatchups(ids(4, 'A'), ids(4, 'B'), 2, GEN.rng(5));
+  const c = counts(ms);
+  const okCounts = ids(4, 'A').concat(ids(4, 'B')).every((id) => c[id] === 2);
+  if (ms.length === 8 && okCounts) ok('interlock 4v4 x2: every team gets exactly 2 crossover games');
+  else fail('interlock counts wrong: ' + JSON.stringify(c));
+  const crossOk = ms.every((m) => (m.home[0] === 'A') !== (m.away[0] === 'A'));
+  if (crossOk) ok('interlock games always pair one team from each division');
+  else fail('interlock produced a same-division pairing');
+  if (homeAwaySpread(ms) <= 1) ok('interlock home/away balance within 1');
+  else fail('interlock home/away spread: ' + homeAwaySpread(ms));
+}
+
+section('season generator: placement');
+const GT = {
+  teams: [].concat(
+    ids(4, 'M').map((id) => ({ id, name: 'Team ' + id, division: 'Majors BB', is_active: true })),
+    ids(4, 'N').map((id) => ({ id, name: 'Team ' + id, division: 'Minors BB', is_active: true }))
+  ),
+  fields: [
+    { id: 'F1', name: 'Field One', divisions: [], is_active: true },
+    { id: 'F2', name: 'Field Two', divisions: [], is_active: true },
+  ],
+  slots: [],
+  games: [],
+};
+const GCFG = {
+  season_id: 'sn1',
+  start_date: '2026-09-08',
+  end_date: '2026-10-31',
+  seed: 1,
+  blackouts: [{ label: 'Test blackout', start: '2026-09-19', end: '2026-09-20' }],
+  divisions: {
+    'Majors BB': { games_per_team: 6, game_minutes: 120, days: { sat: ['10:00', '12:30', '15:00'], tue: ['17:30'] }, fields: ['F1', 'F2'] },
+    'Minors BB': { games_per_team: 6, game_minutes: 90, days: { sat: ['10:00', '12:30'], thu: ['17:30'] }, fields: ['F1', 'F2'] },
+  },
+  interlocks: [{ a: 'Majors BB', b: 'Minors BB', games_per_team: 2 }],
+};
+{
+  const res = GEN.generate(GCFG, GT);
+  // 4 teams x 6 games / 2 = 12 per division + 8 interlock = 32 matchups total.
+  if (res.games.length + res.unplaced.length === 32) ok('placed + unplaced accounts for every matchup (32), nothing silently dropped');
+  else fail('matchup accounting broken: placed=' + res.games.length + ' unplaced=' + res.unplaced.length);
+  if (res.games.length === 32 && res.unplaced.length === 0) ok('roomy config places everything (32 games, 0 unplaced)');
+  else fail('roomy config left games unplaced: ' + JSON.stringify(res.unplaced));
+  // No conflicts in the placed output: re-run gameConflicts on each game vs the rest.
+  let confl = 0;
+  for (const g of res.games) {
+    const others = res.games.filter((x) => x !== g);
+    const tagged = { ...g, id: 'self' };
+    if (FLM.gameConflicts(tagged, { games: others, slots: GT.slots, teams: GT.teams, fields: GT.fields }).length) confl++;
+  }
+  if (confl === 0) ok('zero conflicts in placed output (field, double-header, practice, eligibility)');
+  else fail(confl + ' placed games conflict');
+  if (res.games.every((g) => g.game_date < '2026-09-19' || g.game_date > '2026-09-20')) ok('blackout dates are respected');
+  else fail('a game landed on a blackout date');
+  if (res.games.every((g) => g.status === 'draft')) ok('generated games are all drafts');
+  else fail('generator emitted a non-draft game');
+  if (res.games.every((g) => g.game_date >= GCFG.start_date && g.game_date <= GCFG.end_date)) ok('all games inside the season window');
+  else fail('game outside season window');
+  // Allowed-days check: Majors only Tue/Sat, Minors only Thu/Sat.
+  const dayOk = res.games.every((g) => {
+    const dow = new Date(g.game_date + 'T12:00:00').getDay();
+    const div = GT.teams.find((t) => t.id === g.home_team_id).division;
+    return div === 'Majors BB' ? (dow === 2 || dow === 6) : (dow === 4 || dow === 6);
+  });
+  if (dayOk) ok('every game sits on an allowed day for its home division');
+  else fail('game on a non-configured day');
+  // Determinism + reshuffle.
+  const res2 = GEN.generate(GCFG, GT);
+  if (JSON.stringify(res2.games) === JSON.stringify(res.games)) ok('same seed reproduces the same schedule');
+  else fail('same seed gave a different schedule');
+  const res3 = GEN.generate({ ...GCFG, seed: 99 }, GT);
+  if (JSON.stringify(res3.games) !== JSON.stringify(res.games)) ok('new seed gives a fresh arrangement');
+  else fail('new seed did not change the arrangement');
+  // Stats summary sanity.
+  if (res.stats.total === 32 && res.stats.perTeam['M0'] && res.stats.perTeam['M0'].games === 8) ok('stats: per-team totals include division + interlock games (8 each)');
+  else fail('stats wrong: ' + JSON.stringify(res.stats.perTeam));
+}
+// Practice slots block placement: a slot on F1 every Saturday window forces games elsewhere.
+{
+  const slotted = {
+    ...GT,
+    slots: ['sat_9_11', 'sat_11_1', 'sat_1_3', 'sat_3_5'].map((k, i) => ({ id: 'S' + i, season_id: 'sn1', field_id: 'F1', day_key: k, team_id: null, label: 'Practice' })),
+  };
+  const res = GEN.generate(GCFG, slotted);
+  const onF1Sat = res.games.filter((g) => g.field_id === 'F1' && new Date(g.game_date + 'T12:00:00').getDay() === 6);
+  if (onF1Sat.length === 0) ok('practice slots block Saturday games on that field');
+  else fail(onF1Sat.length + ' games placed over practice slots');
+}
+// Impossible config: 1 field, one Saturday wave, 2-week window -> most games unplaced, none conflicting.
+{
+  const tight = {
+    ...GCFG,
+    start_date: '2026-09-08',
+    end_date: '2026-09-21',
+    blackouts: [],
+    divisions: {
+      'Majors BB': { games_per_team: 6, game_minutes: 120, days: { sat: ['10:00'] }, fields: ['F1'] },
+    },
+    interlocks: [],
+  };
+  const res = GEN.generate(tight, GT);
+  // 12 matchups but only 2 usable Saturday slots exist in the window.
+  if (res.games.length === 2 && res.unplaced.length === 10) ok('impossible config: 2 placed, 10 land on the unplaced list (never dropped, never forced)');
+  else fail('impossible config handling wrong: placed=' + res.games.length + ' unplaced=' + res.unplaced.length);
+  if (res.unplaced.every((u) => u.reason && u.home_team_id && u.away_team_id)) ok('unplaced entries carry teams and a plain-English reason');
+  else fail('unplaced entries missing detail');
+}
+
 // ------- 2. Portal hooks -------
 section('fields/index.html: required hooks');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
@@ -178,6 +342,46 @@ for (const s of ['Practice compliance', 'id="compGrid"', 'League announcements',
   if (adminHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
+
+// ------- 3b. Season generator panel (Phase 2) -------
+section('fields/admin.html: season generator hooks');
+for (const [s, why] of [
+  ['src="flm-schedule-gen.js"', 'generator engine loaded'],
+  ['Season generator', 'panel exists'],
+  ['id="sgGen"', 'Generate button'],
+  ['id="sgRegen"', 'Regenerate button (new shuffle seed)'],
+  ['id="sgDiscard"', 'Discard drafts button'],
+  ['id="sgPublish"', 'Publish button'],
+  ['id="sgBoAdd"', 'blackout dates editor'],
+  ['id="sgIlAdd"', 'interlock rules editor'],
+  ['season_gen_config', 'config persisted in flm_settings'],
+  ['admin_games_bulk', 'bulk gateway action wired'],
+  ['op: "publish"', 'publish flips drafts via bulk op'],
+  ['op: "discard"', 'discard removes drafts via bulk op'],
+  ['FLM_GEN.generate', 'generation runs the shared engine'],
+  ['FLM_GEN.summarize', 'review stats use the shared engine'],
+  ['Publish " + drafts.length + " draft games', 'publish confirms with the draft count'],
+  ['does not email or notify anyone', 'publish promises no auto-notification'],
+  ['startEditGame', 'draft review reuses the P1 edit flow'],
+  ['data-sgedit', 'per-game edit buttons in the week groups'],
+  ['fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } })', 'admin state carries the PIN so drafts are visible'],
+  ['chip draft', 'drafts are visibly marked in the games list'],
+]) {
+  if (adminHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+for (const [s, why] of [
+  ['class="gweek"', 'portal schedule groups long lists under week headers'],
+  ['Week of ', 'week header copy present'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+
+for (const s of []) {
+  if (adminHtml.includes(s)) ok('contains: ' + s);
+  else fail('MISSING: ' + s);
+}
 if (!adminHtml.includes('anPost").addEventListener') || adminHtml.indexOf('admin_announcement_email') === adminHtml.lastIndexOf('admin_announcement_email')) {
   // posting handler exists and email path referenced more than once (preview + send)
   fail('post/email wiring looks incomplete');
@@ -186,8 +390,9 @@ if (!adminHtml.includes('anPost").addEventListener') || adminHtml.indexOf('admin
 }
 
 // ------- 4. New file copy rules -------
-section('flm-rules.js: no em/en dashes or curly quotes');
-const rulesSrc = fs.readFileSync(path.join(ROOT, 'fields', 'flm-rules.js'), 'utf8');
+section('flm-rules.js + flm-schedule-gen.js: no em/en dashes or curly quotes');
+const rulesSrc = fs.readFileSync(path.join(ROOT, 'fields', 'flm-rules.js'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'fields', 'flm-schedule-gen.js'), 'utf8');
 let charHits = 0;
 for (const [ch, name] of Object.entries({ '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '“': 'curly-quote-l', '”': 'curly-quote-r' })) {
   if (rulesSrc.includes(ch)) { fail('found ' + name); charHits++; }
@@ -236,6 +441,21 @@ try {
   else fail('admin_game without PIN should be 401, got ' + r.status);
 } catch (e) {
   fail('admin_game auth test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=admin_games_bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'publish' }) });
+  if (r.status === 401) ok('admin_games_bulk without PIN rejected 401');
+  else fail('admin_games_bulk without PIN should be 401, got ' + r.status);
+} catch (e) {
+  fail('admin_games_bulk auth test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=state');
+  const d = await r.json();
+  if ((d.games || []).every((g) => g.status !== 'draft')) ok('public state never returns draft games');
+  else fail('public state leaked a draft game!');
+} catch (e) {
+  fail('draft leak test threw: ' + e.message);
 }
 
 // ------- Report -------

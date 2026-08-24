@@ -147,6 +147,7 @@
   .gstatus.postponed { background: #fdf1dc; color: #8a5a12; }
   .gstatus.cancelled { background: #fbe4dc; color: #a33c1b; }
   .gstatus.completed { background: #dcefe2; color: #21622f; }
+  .gweek { grid-column: 1 / -1; font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); border-bottom: 2px solid var(--line); padding: 10px 2px 4px; }
 
   /* ---------- MODAL ---------- */
   .veil { position: fixed; inset: 0; background: rgba(20, 32, 26, 0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
@@ -612,7 +613,29 @@ function renderSched() {
     return true;
   });
   document.getElementById("schedNone").classList.toggle("hidden", shown.length > 0);
+  /* Full seasons get long: group by week so the list stays scannable. A week
+     header only appears when games span more than one week. */
+  shown.sort(function (a, b) { return (a.game_date + a.start_time).localeCompare(b.game_date + b.start_time); });
+  function weekKey(dateStr) {
+    var p = String(dateStr || "").split("-");
+    var d = new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1);
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  }
+  var manyWeeks = shown.length > 1 && weekKey(shown[0].game_date).getTime() !== weekKey(shown[shown.length - 1].game_date).getTime();
+  var lastWeek = null;
   document.getElementById("schedList").innerHTML = shown.map(function (g) {
+    var head = "";
+    if (manyWeeks) {
+      var wk = weekKey(g.game_date).getTime();
+      if (wk !== lastWeek) {
+        lastWeek = wk;
+        head = '<div class="gweek">Week of ' + esc(weekKey(g.game_date).toLocaleDateString([], { month: "short", day: "numeric" })) + "</div>";
+      }
+    }
+    return head + gcardHtml(g);
+  }).join("");
+  function gcardHtml(g) {
     var h = teamById(g.home_team_id), a = teamById(g.away_team_id), f = fieldById(g.field_id);
     var mine = S.myTeam && (g.home_team_id === S.myTeam || g.away_team_id === S.myTeam);
     var dim = g.status === "cancelled" || g.status === "postponed";
@@ -622,7 +645,7 @@ function renderSched() {
       '<div class="gmeta">' + esc([f ? f.name : "?", g.division, g.notes].filter(Boolean).join(" · ")) + "</div>" +
       (g.status !== "scheduled" ? '<span class="gstatus ' + esc(g.status) + '">' + esc(g.status) + "</span>" : "") +
       "</div>";
-  }).join("");
+  }
   el.querySelectorAll(".gcard[data-game]").forEach(function (c) {
     c.addEventListener("click", function () { openGameModal(c.getAttribute("data-game")); });
   });

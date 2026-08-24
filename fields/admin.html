@@ -62,6 +62,7 @@
   .chip.on { background: #dcefe2; color: #21622f; }
   .chip.off { background: #eceadf; color: var(--muted); }
   .chip.lock { background: #fbe4dc; color: #a33c1b; }
+  .chip.draft { background: #e9e4f6; color: #52418f; }
 
   .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; transition: border-color .15s; }
   .drop:hover, .drop.over { border-color: var(--clay); color: var(--clay); }
@@ -94,6 +95,22 @@
   .sev.info { background: #dcefe2; color: #21622f; }
   .sev.warning { background: #fdf1dc; color: #8a5a12; }
   .sev.urgent { background: #fbe4dc; color: #a33c1b; }
+
+  /* season generator */
+  .sgdiv { border: 1px solid var(--line); border-radius: 10px; background: #fbfaf5; padding: 10px 12px; margin-bottom: 8px; }
+  .sgdiv .sgd-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+  .sgdiv .sgd-body { margin-top: 8px; }
+  .sgdiv.off .sgd-body { display: none; }
+  .sgdays { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; margin: 8px 0; }
+  .sgdays label { font-size: 12px; color: var(--muted); }
+  .sgdays input { width: 100%; font-size: 13px; padding: 6px 8px; }
+  .sgfields { display: flex; gap: 4px 12px; flex-wrap: wrap; font-size: 12.5px; }
+  .sgfields label { white-space: nowrap; }
+  .sgfields input { width: auto; }
+  .borow, .ilrow { display: flex; gap: 6px; align-items: center; padding: 4px 0; font-size: 13.5px; flex-wrap: wrap; }
+  .sgweek { font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); border-bottom: 2px solid var(--line); padding: 12px 0 4px; }
+  .sgunp { background: #fbe4dc; color: #a33c1b; border-radius: 9px; padding: 8px 12px; font-size: 13.5px; margin: 4px 0; }
+  table.list td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
   .log { font-size: 12.5px; }
   .log .li { padding: 6px 2px; border-bottom: 1px solid #efede4; display: flex; gap: 8px; }
@@ -162,6 +179,60 @@
           <button class="btn ghost hidden" id="gCancelEdit">Cancel edit</button>
           <span id="gMsg" class="ok hidden" style="margin-left:8px;font-size:13px;"></span>
           <div id="gameList" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
+        <div class="bar"><h2>Season generator</h2></div>
+        <div class="body">
+          <p class="hint">Build a whole season of games in one shot. Set up each division, hit Generate, and the games land as drafts that only you can see. Review the drafts, fix anything by hand, then Publish to put them on the coach portal. Publishing never emails anyone.</p>
+          <div class="row" style="margin-bottom:10px;">
+            <select id="sgSeason"></select>
+            <label style="font-size:12.5px;">From <input id="sgStart" type="date" /></label>
+            <label style="font-size:12.5px;">To <input id="sgEnd" type="date" /></label>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Blackout dates (no games)</label>
+            <div id="sgBoList"></div>
+            <div class="borow">
+              <input id="sgBoLabel" placeholder="Label, e.g. Labor Day weekend" style="flex:1;min-width:150px;" />
+              <input id="sgBoStart" type="date" />
+              <input id="sgBoEnd" type="date" title="Leave blank for a single day" />
+              <button class="btn sm" id="sgBoAdd">Add blackout</button>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Divisions</label>
+            <p class="hint" style="margin:4px 0 8px;">Turn a division on, then set how many games each team plays, how long games run, which days have game times (comma separated, like 10:00, 12:30, 15:00), and which fields it may use.</p>
+            <div id="sgDivs"></div>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Interlock (crossover games between two divisions)</label>
+            <div id="sgIlList"></div>
+            <div class="ilrow">
+              <select id="sgIlA"></select>
+              <span>plays</span>
+              <select id="sgIlB"></select>
+              <label style="font-size:12.5px;"><input id="sgIlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
+              <button class="btn sm" id="sgIlAdd">Add interlock</button>
+            </div>
+          </div>
+          <div class="row">
+            <button class="btn ghost" id="sgSave">Save setup</button>
+            <button class="btn clay" id="sgGen">Generate draft schedule</button>
+            <span id="sgMsg" class="ok hidden" style="font-size:13px;"></span>
+          </div>
+          <div id="sgReview" class="hidden" style="margin-top:14px;border-top:2px solid var(--line);padding-top:12px;">
+            <div class="row" style="margin-bottom:10px;">
+              <span class="chip draft" id="sgDraftCount"></span>
+              <button class="btn sm ghost" id="sgRegen">Regenerate (new shuffle)</button>
+              <button class="btn sm danger" id="sgDiscard">Discard drafts</button>
+              <button class="btn clay" id="sgPublish">Publish schedule</button>
+            </div>
+            <div id="sgUnplaced"></div>
+            <div id="sgStats"></div>
+            <div id="sgWeeks"></div>
+          </div>
         </div>
       </div>
 
@@ -242,6 +313,7 @@
   </div>
 
 <script src="flm-rules.js"></script>
+<script src="flm-schedule-gen.js"></script>
 <script>
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 var PIN = sessionStorage.getItem("flm_pin") || "";
@@ -278,9 +350,11 @@ if (PIN) boot();
 function leagueRules() { return FLM_RULES.parse(D && D.settings ? D.settings.practice_rules : null); }
 
 function refresh() {
-  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+  /* PIN header on state: the gateway includes draft games for the admin console.
+     The public portal calls state without a PIN and never sees drafts. */
+  fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance(); renderGames();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance(); renderGames(); renderSeasonGen();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -422,16 +496,35 @@ el("gSave").addEventListener("click", function () {
     .catch(function (e) { btn.disabled = false; alert(e.message); });
 });
 
+/* Load a game into the schedule form (shared by the Games list and the
+   Season generator draft review). Edits keep the game's current status,
+   so fixing a draft leaves it a draft. */
+function startEditGame(g) {
+  if (!g) return;
+  editingGame = g;
+  el("gSeason").value = g.season_id;
+  el("gDiv").value = g.division || "";
+  fillGameTeams();
+  el("gHome").value = g.home_team_id; el("gAway").value = g.away_team_id;
+  el("gField").value = g.field_id;
+  el("gDate").value = g.game_date;
+  el("gStart").value = String(g.start_time).slice(0, 5); el("gEnd").value = String(g.end_time).slice(0, 5);
+  el("gNotes").value = g.notes || "";
+  el("gSave").textContent = "Save changes";
+  el("gCancelEdit").classList.remove("hidden");
+  el("gSave").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
 function renderGames() {
   fillGameSelects();
   var box = el("gameList");
   var games = D.games || [];
   box.innerHTML = games.map(function (g) {
-    var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : "on") + '">' + esc(g.status) + "</span>";
+    var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : (g.status === "draft" ? "draft" : "on")) + '">' + esc(g.status) + "</span>";
     return '<div class="row" style="padding:7px 0;border-bottom:1px solid #efede4;">' +
       '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameTeamName(g.away_team_id)) + "</b>" + st +
       '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameFieldName(g.field_id)) + (g.division ? " · " + esc(g.division) : "") + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
-      '<select data-gstatus="' + g.id + '">' + ["scheduled", "postponed", "cancelled", "completed"].map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
+      '<select data-gstatus="' + g.id + '">' + (g.status === "draft" ? ["draft"] : []).concat(["scheduled", "postponed", "cancelled", "completed"]).map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
       '<button class="btn sm ghost" data-gedit="' + g.id + '">Edit</button>' +
       '<button class="btn sm danger" data-gdel="' + g.id + '">Delete</button></div>';
   }).join("") || '<p class="hint">No games on the schedule yet.</p>';
@@ -442,19 +535,7 @@ function renderGames() {
   });
   box.querySelectorAll("[data-gedit]").forEach(function (b) {
     b.addEventListener("click", function () {
-      var g = games.filter(function (x) { return x.id === b.getAttribute("data-gedit"); })[0];
-      editingGame = g;
-      el("gSeason").value = g.season_id;
-      el("gDiv").value = g.division || "";
-      fillGameTeams();
-      el("gHome").value = g.home_team_id; el("gAway").value = g.away_team_id;
-      el("gField").value = g.field_id;
-      el("gDate").value = g.game_date;
-      el("gStart").value = String(g.start_time).slice(0, 5); el("gEnd").value = String(g.end_time).slice(0, 5);
-      el("gNotes").value = g.notes || "";
-      el("gSave").textContent = "Save changes";
-      el("gCancelEdit").classList.remove("hidden");
-      el("gSave").scrollIntoView({ behavior: "smooth", block: "center" });
+      startEditGame(games.filter(function (x) { return x.id === b.getAttribute("data-gedit"); })[0]);
     });
   });
   box.querySelectorAll("[data-gdel]").forEach(function (b) {
@@ -462,6 +543,299 @@ function renderGames() {
       var g = games.filter(function (x) { return x.id === b.getAttribute("data-gdel"); })[0];
       if (!confirm("Delete the game " + gameTeamName(g.home_team_id) + " vs " + gameTeamName(g.away_team_id) + " on " + fmtDate(g.game_date) + "? This cannot be undone.")) return;
       admin("admin_game", { delete_id: g.id }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+}
+
+/* ---------- season generator ---------- */
+var SG = { cfg: null, built: false, unplaced: [] };
+var SG_DOW = [["mon", "Monday"], ["tue", "Tuesday"], ["wed", "Wednesday"], ["thu", "Thursday"], ["fri", "Friday"], ["sat", "Saturday"], ["sun", "Sunday"]];
+
+function sgDefaultCfg() {
+  return { season_id: "", start_date: "", end_date: "", seed: 1, blackouts: [], divisions: {}, interlocks: [] };
+}
+function sgLoadCfg() {
+  if (SG.cfg) return SG.cfg;
+  try {
+    var raw = D && D.settings ? D.settings.season_gen_config : null;
+    SG.cfg = raw ? JSON.parse(raw) : sgDefaultCfg();
+  } catch (e) { SG.cfg = sgDefaultCfg(); }
+  ["blackouts", "interlocks"].forEach(function (k) { if (!Array.isArray(SG.cfg[k])) SG.cfg[k] = []; });
+  if (!SG.cfg.divisions || typeof SG.cfg.divisions !== "object") SG.cfg.divisions = {};
+  return SG.cfg;
+}
+function sgEligibleFields(div) {
+  return D.fields.filter(function (f) {
+    return f.is_active && (!(f.divisions || []).length || f.divisions.indexOf(div) >= 0);
+  });
+}
+function mondayOf(dateStr) {
+  var p = String(dateStr || "").split("-");
+  var d = new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+function sgFlash(msg) {
+  var m = el("sgMsg"); m.textContent = msg;
+  m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 3200);
+}
+function sgChunks(arr, n) { var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
+
+function sgBuildOnce() {
+  if (SG.built) return;
+  SG.built = true;
+  var cfg = sgLoadCfg();
+  el("sgSeason").innerHTML = D.seasons.map(function (sn) {
+    return '<option value="' + sn.id + '"' + (sn.id === cfg.season_id ? " selected" : "") + ">" + esc(sn.label) + "</option>";
+  }).join("");
+  function seasonDates() {
+    var sn = D.seasons.filter(function (x) { return x.id === el("sgSeason").value; })[0];
+    if (sn) { el("sgStart").value = cfg.start_date || sn.start_date || ""; el("sgEnd").value = cfg.end_date || sn.end_date || ""; }
+  }
+  el("sgStart").value = cfg.start_date || "";
+  el("sgEnd").value = cfg.end_date || "";
+  if (!cfg.start_date) seasonDates();
+  el("sgSeason").addEventListener("change", function () { cfg.start_date = ""; cfg.end_date = ""; seasonDates(); });
+  sgRenderBlackouts();
+  sgRenderDivs();
+  sgRenderInterlocks();
+}
+
+function sgRenderBlackouts() {
+  var cfg = sgLoadCfg();
+  el("sgBoList").innerHTML = cfg.blackouts.map(function (b, i) {
+    return '<div class="borow"><b>' + esc(b.label || "Blackout") + "</b> " + esc(b.start) + (b.end && b.end !== b.start ? " to " + esc(b.end) : "") +
+      ' <button class="btn sm ghost" data-bo-del="' + i + '">Remove</button></div>';
+  }).join("") || '<p class="hint" style="margin:4px 0 6px;">No blackout dates yet.</p>';
+  el("sgBoList").querySelectorAll("[data-bo-del]").forEach(function (b) {
+    b.addEventListener("click", function () { cfg.blackouts.splice(+b.getAttribute("data-bo-del"), 1); sgRenderBlackouts(); });
+  });
+}
+el("sgBoAdd").addEventListener("click", function () {
+  var s = el("sgBoStart").value;
+  if (!s) { alert("Pick the blackout start date first."); return; }
+  var e = el("sgBoEnd").value || s;
+  if (e < s) { alert("The blackout end date is before its start date."); return; }
+  sgLoadCfg().blackouts.push({ label: el("sgBoLabel").value.trim() || "Blackout", start: s, end: e });
+  el("sgBoLabel").value = ""; el("sgBoStart").value = ""; el("sgBoEnd").value = "";
+  sgRenderBlackouts();
+});
+
+function sgRenderDivs() {
+  var cfg = sgLoadCfg();
+  el("sgDivs").innerHTML = divisionList().map(function (div) {
+    var dc = cfg.divisions[div];
+    var on = !!dc;
+    dc = dc || { games_per_team: 6, game_minutes: 120, days: {}, fields: null };
+    var flds = sgEligibleFields(div);
+    var picked = dc.fields; /* null = default all eligible */
+    return '<div class="sgdiv' + (on ? "" : " off") + '" data-sgdiv="' + esc(div) + '">' +
+      '<div class="sgd-head"><label><input type="checkbox" class="sg-on"' + (on ? " checked" : "") + ' style="width:auto;" /> ' + esc(div) + "</label></div>" +
+      '<div class="sgd-body">' +
+      '<div class="row">' +
+      '<label style="font-size:12.5px;">Games per team <input class="sg-games" type="number" min="1" max="40" value="' + (+dc.games_per_team || 6) + '" style="width:64px;" /></label>' +
+      '<label style="font-size:12.5px;">Game length (minutes) <input class="sg-mins" type="number" min="30" max="240" step="15" value="' + (+dc.game_minutes || 120) + '" style="width:72px;" /></label>' +
+      "</div>" +
+      '<div class="sgdays">' + SG_DOW.map(function (dw) {
+        var waves = (dc.days || {})[dw[0]] || [];
+        return "<label>" + dw[1] + ' game times<input class="sg-day" data-day="' + dw[0] + '" value="' + esc(waves.join(", ")) + '" placeholder="none" /></label>';
+      }).join("") + "</div>" +
+      '<div class="sgfields">' + (flds.length ? flds.map(function (f) {
+        var checked = picked === null || picked === undefined ? true : picked.indexOf(f.id) >= 0;
+        return '<label><input type="checkbox" class="sg-field" value="' + f.id + '"' + (checked ? " checked" : "") + ' style="width:auto;" /> ' + esc(f.name) + "</label>";
+      }).join("") : '<span class="warn">No active fields are tagged for this division.</span>') + "</div>" +
+      "</div></div>";
+  }).join("");
+  el("sgDivs").querySelectorAll(".sg-on").forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      cb.closest(".sgdiv").classList.toggle("off", !cb.checked);
+    });
+  });
+}
+
+function sgRenderInterlocks() {
+  var cfg = sgLoadCfg();
+  var opts = divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
+  el("sgIlA").innerHTML = opts; el("sgIlB").innerHTML = opts;
+  el("sgIlList").innerHTML = cfg.interlocks.map(function (il, i) {
+    return '<div class="ilrow"><b>' + esc(il.a) + "</b> plays <b>" + esc(il.b) + "</b>, " + (+il.games_per_team || 0) + " games per team " +
+      '<button class="btn sm ghost" data-il-del="' + i + '">Remove</button></div>';
+  }).join("") || '<p class="hint" style="margin:4px 0 6px;">No interlock rules. Divisions only play inside their own division.</p>';
+  el("sgIlList").querySelectorAll("[data-il-del]").forEach(function (b) {
+    b.addEventListener("click", function () { cfg.interlocks.splice(+b.getAttribute("data-il-del"), 1); sgRenderInterlocks(); });
+  });
+}
+el("sgIlAdd").addEventListener("click", function () {
+  var a = el("sgIlA").value, b = el("sgIlB").value, n = Math.max(1, +el("sgIlN").value || 0);
+  if (!a || !b || a === b) { alert("Pick two different divisions for an interlock rule."); return; }
+  sgLoadCfg().interlocks.push({ a: a, b: b, games_per_team: n });
+  sgRenderInterlocks();
+});
+
+function sgParseTimes(str) {
+  var out = [];
+  String(str || "").split(",").forEach(function (t) {
+    t = t.trim();
+    var m = /^(\d{1,2}):(\d{2})$/.exec(t);
+    if (m && +m[1] < 24 && +m[2] < 60) out.push((+m[1] < 10 ? "0" : "") + (+m[1]) + ":" + m[2]);
+  });
+  return out;
+}
+
+/* Read the whole setup screen into the config object. Returns null + alert on
+   anything that would make generation meaningless. */
+function sgCollect() {
+  var cfg = sgLoadCfg();
+  cfg.season_id = el("sgSeason").value;
+  cfg.start_date = el("sgStart").value;
+  cfg.end_date = el("sgEnd").value;
+  cfg.seed = +cfg.seed || 1;
+  if (!cfg.season_id || !cfg.start_date || !cfg.end_date) { alert("Pick the season window and its date range first."); return null; }
+  if (cfg.end_date < cfg.start_date) { alert("The end date is before the start date."); return null; }
+  cfg.divisions = {};
+  var bad = null;
+  el("sgDivs").querySelectorAll(".sgdiv").forEach(function (card) {
+    if (!card.querySelector(".sg-on").checked) return;
+    var div = card.getAttribute("data-sgdiv");
+    var days = {};
+    card.querySelectorAll(".sg-day").forEach(function (inp) {
+      var waves = sgParseTimes(inp.value);
+      if (waves.length) days[inp.getAttribute("data-day")] = waves;
+    });
+    var fields = [];
+    card.querySelectorAll(".sg-field:checked").forEach(function (cb) { fields.push(cb.value); });
+    if (!Object.keys(days).length) bad = div + " has no game days. Add at least one time like 10:00.";
+    else if (!fields.length) bad = div + " has no fields checked.";
+    cfg.divisions[div] = {
+      games_per_team: Math.max(1, +card.querySelector(".sg-games").value || 0),
+      game_minutes: Math.max(30, +card.querySelector(".sg-mins").value || 0),
+      days: days, fields: fields
+    };
+  });
+  if (bad) { alert(bad); return null; }
+  if (!Object.keys(cfg.divisions).length) { alert("Turn on at least one division."); return null; }
+  var missing = (cfg.interlocks || []).filter(function (il) { return !cfg.divisions[il.a] || !cfg.divisions[il.b]; });
+  if (missing.length) { alert("The interlock " + missing[0].a + " vs " + missing[0].b + " needs both divisions turned on."); return null; }
+  return cfg;
+}
+
+el("sgSave").addEventListener("click", function () {
+  var cfg = sgCollect(); if (!cfg) return;
+  admin("admin_settings", { season_gen_config: JSON.stringify(cfg) })
+    .then(function () { sgFlash("Setup saved."); })
+    .catch(function (e) { alert(e.message); });
+});
+
+function sgGenerate(newSeed) {
+  var cfg = sgCollect(); if (!cfg) return;
+  if (newSeed) cfg.seed = (Math.floor(Math.random() * 1000000000) || 1);
+  var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
+  if (drafts.length && !confirm("There are " + drafts.length + " draft games already. Generating again wipes them and builds a fresh set from this setup. Continue?")) return;
+  var btns = [el("sgGen"), el("sgRegen"), el("sgPublish"), el("sgDiscard")];
+  btns.forEach(function (b) { b.disabled = true; });
+  var done = function () { btns.forEach(function (b) { b.disabled = false; }); };
+  var cfgJson = JSON.stringify(cfg);
+  ((D.settings || {}).season_gen_config === cfgJson ? Promise.resolve() : admin("admin_settings", { season_gen_config: cfgJson }))
+    .then(function () { return drafts.length ? admin("admin_games_bulk", { op: "discard", season_id: drafts[0].season_id }) : null; })
+    .then(function () {
+      var res = FLM_GEN.generate(cfg, {
+        teams: D.teams, fields: D.fields, slots: D.slots,
+        games: (D.games || []).filter(function (g) { return g.status !== "draft"; })
+      });
+      SG.unplaced = res.unplaced;
+      if (!res.games.length) {
+        done(); refresh();
+        alert("No games could be placed with this setup. Check the game days, fields, and date range." + (res.unplaced.length ? " " + res.unplaced.length + " matchups had nowhere to go." : ""));
+        return null;
+      }
+      var season = D.seasons.filter(function (s) { return s.id === cfg.season_id; })[0];
+      var summary = "Season generator: " + res.games.length + " draft games created for " + (season ? season.label : "season") +
+        (res.unplaced.length ? ", " + res.unplaced.length + " matchups unplaced" : "") + " (seed " + cfg.seed + ")";
+      var chunks = sgChunks(res.games, 100);
+      var p = Promise.resolve();
+      chunks.forEach(function (ch, i) {
+        p = p.then(function () { return admin("admin_games_bulk", { op: "insert", games: ch, summary: i === chunks.length - 1 ? summary : "" }); });
+      });
+      return p.then(function () {
+        done(); sgFlash("Draft schedule ready. Review it below."); refresh();
+      });
+    })
+    .catch(function (e) { done(); alert(e.message); refresh(); });
+}
+el("sgGen").addEventListener("click", function () { sgGenerate(false); });
+el("sgRegen").addEventListener("click", function () { sgGenerate(true); });
+
+el("sgDiscard").addEventListener("click", function () {
+  var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
+  if (!drafts.length) return;
+  if (!confirm("Throw away all " + drafts.length + " draft games? Your setup stays saved, nothing published changes.")) return;
+  admin("admin_games_bulk", { op: "discard", season_id: drafts[0].season_id })
+    .then(function () { SG.unplaced = []; refresh(); })
+    .catch(function (e) { alert(e.message); });
+});
+
+el("sgPublish").addEventListener("click", function () {
+  var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
+  if (!drafts.length) return;
+  if (!confirm("Publish " + drafts.length + " draft games to the live schedule? Coaches and parents will see them right away. Publishing does not email or notify anyone; announcements are a separate step.")) return;
+  admin("admin_games_bulk", { op: "publish", season_id: drafts[0].season_id })
+    .then(function (r) { SG.unplaced = []; sgFlash("Published " + r.published + " games. They are live on the coach portal now."); refresh(); })
+    .catch(function (e) { alert(e.message); });
+});
+
+function renderSeasonGen() {
+  sgBuildOnce();
+  var drafts = (D.games || []).filter(function (g) { return g.status === "draft"; });
+  var box = el("sgReview");
+  if (!drafts.length && !(SG.unplaced || []).length) { box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  el("sgDraftCount").textContent = drafts.length + " draft games";
+  el("sgPublish").disabled = !drafts.length;
+  el("sgUnplaced").innerHTML = (SG.unplaced || []).map(function (u) {
+    return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameTeamName(u.away_team_id)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : "") + "). " + esc(u.reason) + " Schedule it by hand in the Games panel or loosen the setup and regenerate.</div>";
+  }).join("");
+
+  /* summary stats: games per team with home/away, per-field load */
+  var stats = FLM_GEN.summarize(drafts, SG.unplaced || [], D);
+  var teamRows = Object.keys(stats.perTeam).map(function (id) {
+    var t = D.teams.filter(function (x) { return x.id === id; })[0] || { name: "?", division: "" };
+    return { name: t.name, division: t.division || "", s: stats.perTeam[id] };
+  }).sort(function (a, b) { return (a.division + a.name).localeCompare(b.division + b.name); });
+  var html = '<div class="row" style="align-items:flex-start;gap:18px;">';
+  html += '<div style="flex:2;min-width:280px;"><table class="list"><thead><tr><th>Team</th><th>Division</th><th class="num">Games</th><th class="num">Home</th><th class="num">Away</th></tr></thead><tbody>' +
+    teamRows.map(function (r) {
+      var off = Math.abs(r.s.home - r.s.away) > 1;
+      return "<tr><td style=\"font-weight:600;\">" + esc(r.name) + "</td><td>" + esc(r.division) + '</td><td class="num">' + r.s.games + '</td><td class="num">' + r.s.home + '</td><td class="num"' + (off ? ' style="color:#a33c1b;font-weight:700;"' : "") + ">" + r.s.away + "</td></tr>";
+    }).join("") + "</tbody></table></div>";
+  html += '<div style="flex:1;min-width:180px;"><table class="list"><thead><tr><th>Field</th><th class="num">Games</th></tr></thead><tbody>' +
+    Object.keys(stats.perField).map(function (fid) {
+      return "<tr><td>" + esc(gameFieldName(fid)) + '</td><td class="num">' + stats.perField[fid] + "</td></tr>";
+    }).join("") + "</tbody></table></div></div>";
+  el("sgStats").innerHTML = html;
+
+  /* drafts grouped by week, with the existing edit flow per game */
+  var weeks = {};
+  drafts.forEach(function (g) {
+    var wk = mondayOf(g.game_date);
+    var key = wk.getFullYear() + "-" + (wk.getMonth() < 9 ? "0" : "") + (wk.getMonth() + 1) + "-" + (wk.getDate() < 10 ? "0" : "") + wk.getDate();
+    (weeks[key] = weeks[key] || []).push(g);
+  });
+  el("sgWeeks").innerHTML = Object.keys(weeks).sort().map(function (key) {
+    var wk = weeks[key];
+    var label = mondayOf(key).toLocaleDateString([], { month: "short", day: "numeric" });
+    return '<div class="sgweek">Week of ' + esc(label) + " &middot; " + wk.length + (wk.length === 1 ? " game" : " games") + "</div>" +
+      wk.map(function (g) {
+        var conflicts = FLM_RULES.gameConflicts(g, D);
+        return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;">' +
+          '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameTeamName(g.away_team_id)) + "</b>" +
+          (conflicts.length ? ' <span class="chip lock" title="' + esc(conflicts.map(function (c) { return c.message; }).join(" ")) + '">conflict</span>' : "") +
+          '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " &middot; " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " &middot; " + esc(gameFieldName(g.field_id)) + (g.division ? " &middot; " + esc(g.division) : "") + "</span></div>" +
+          '<button class="btn sm ghost" data-sgedit="' + g.id + '">Edit</button></div>';
+      }).join("");
+  }).join("");
+  el("sgWeeks").querySelectorAll("[data-sgedit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      startEditGame(drafts.filter(function (x) { return x.id === b.getAttribute("data-sgedit"); })[0]);
     });
   });
 }
