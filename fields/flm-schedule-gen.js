@@ -17,11 +17,25 @@
            "fields": ["field-uuid", "field-uuid"]
          }
        },
-       "interlocks": [ { "a": "Majors BB", "b": "Minors BB", "games_per_team": 2 } ]
+       "crossovers": [ { "a": "Majors BB", "b": "Minors BB", "games_per_team": 2 } ],
+       "interlocks": [ {
+         "division": "Majors BB",           our division that travels/hosts
+         "leagues": ["Auburn LL", "Kent LL"],  external league pool (flm_ext_teams)
+         "ext_division": "Majors BB",       pool filter, blank = any division
+         "games_per_team": 4,
+         "home_ratio": 0.5,                 share of each team's interlock games at home
+         "days": { "sat": ["10:00"] }       optional; defaults to the division's days
+       } ]
      }
 
-   generate(config, ctx) where ctx = { teams, fields, slots, games } (gateway state
-   shape; games = existing games to respect, drafts excluded by the caller).
+   Crossover = in-league games between two of OUR divisions (was called
+   "interlock" before Phase 2.1). Interlock = games against teams from OTHER
+   leagues (flm_ext_teams). Legacy configs with a/b rules stored under
+   "interlocks" are read as crossovers automatically.
+
+   generate(config, ctx) where ctx = { teams, fields, slots, games, ext_teams }
+   (gateway state shape; games = existing games to respect, drafts excluded by
+   the caller).
    Returns { games, unplaced, stats }. Every candidate placement is vetted with
    FLM_RULES.gameConflicts; a matchup that cannot be placed cleanly lands in
    unplaced, never silently dropped and never placed conflicting. */
@@ -132,11 +146,11 @@
     return out;
   }
 
-  /* Interlock crossover matchups between divisions A and B, k games per team.
+  /* Crossover matchups between two of OUR divisions A and B, k games per team.
      Rotating bipartite pairing; when team counts differ, every team still gets
      as close to k as the math allows (larger side exact, smaller side spread
      evenly). Home side alternates by round, then balances per team. */
-  function interlockMatchups(aIds, bIds, k, rand) {
+  function crossoverMatchups(aIds, bIds, k, rand) {
     var A = shuffle(aIds, rand), B = shuffle(bIds, rand);
     if (!A.length || !B.length || k < 1) return [];
     var L = Math.max(A.length, B.length);
@@ -154,7 +168,35 @@
         else aHome = r % 2 === 0;
         count[a]++; count[b]++;
         home[aHome ? a : b]++;
-        out.push({ home: aHome ? a : b, away: aHome ? b : a, round: r, interlock: true });
+        out.push({ home: aHome ? a : b, away: aHome ? b : a, round: r, crossover: true });
+      }
+    }
+    return out;
+  }
+
+  /* Interlock matchups: OUR division's teams vs a pool of external teams from
+     other leagues. Every one of our teams gets exactly k games, opponents
+     rotate through the pool so no two of our teams lean on the same opponent,
+     and the pool's load spreads as evenly as the math allows. homeRatio sets
+     how many of each team's k games are at home (0.5 = half home, half away);
+     fractional targets are spread across teams so the league-wide split still
+     honors the ratio. Returns { home: ourTeamId, ext: extTeamId, league,
+     is_home, round, ext_interlock: true }. */
+  function extInterlockMatchups(ourIds, pool, k, homeRatio, rand) {
+    var A = shuffle(ourIds, rand), P = shuffle(pool, rand);
+    if (!A.length || !P.length || k < 1) return [];
+    var ratio = typeof homeRatio === "number" ? Math.min(1, Math.max(0, homeRatio)) : 0.5;
+    var base = Math.floor(k * ratio);
+    var extraTeams = Math.round((k * ratio - base) * A.length);
+    var out = [];
+    for (var i = 0; i < A.length; i++) {
+      var homeTarget = base + (i < extraTeams ? 1 : 0);
+      for (var r = 0; r < k; r++) {
+        var opp = P[(i + r) % P.length];
+        out.push({
+          home: A[i], ext: opp.id, league: opp.league_name || "",
+          is_home: r < homeTarget, round: r, roundMax: k - 1, ext_interlock: true
+        });
       }
     }
     return out;
@@ -207,17 +249,36 @@
         matchups.push(m);
       });
     });
-    (config.interlocks || []).forEach(function (il) {
+    /* crossover (in-league, two of our divisions); legacy configs stored these
+       a/b rules under "interlocks" before the external-interlock rework */
+    var crossRules = (config.crossovers || []).concat((config.interlocks || []).filter(function (il) { return il.a && il.b; }));
+    crossRules.forEach(function (il) {
       if (!(config.divisions || {})[il.a] || !(config.divisions || {})[il.b]) return;
-      interlockMatchups(byDiv[il.a] || [], byDiv[il.b] || [], +il.games_per_team || 0, rand).forEach(function (m) {
+      crossoverMatchups(byDiv[il.a] || [], byDiv[il.b] || [], +il.games_per_team || 0, rand).forEach(function (m) {
         m.division = teamDiv[m.home]; /* game rides under the home team's division */
         m.pair = [il.a, il.b];
         matchups.push(m);
       });
     });
+    /* interlock (games against other leagues' teams from ctx.ext_teams) */
+    (config.interlocks || []).filter(function (il) { return il.division && (il.leagues || []).length; }).forEach(function (il) {
+      if (!(config.divisions || {})[il.division]) return;
+      var want = il.ext_division === undefined || il.ext_division === null ? il.division : il.ext_division;
+      var pool = (ctx.ext_teams || []).filter(function (x) {
+        if ((il.leagues || []).indexOf(x.league_name) < 0) return false;
+        return !want || !x.division || x.division === want;
+      });
+      var ratio = typeof il.home_ratio === "number" ? il.home_ratio : 0.5;
+      extInterlockMatchups(byDiv[il.division] || [], pool, +il.games_per_team || 0, ratio, rand).forEach(function (m) {
+        m.division = il.division;
+        if (il.days && Object.keys(il.days).length) m.days = il.days;
+        matchups.push(m);
+      });
+    });
 
-    /* 2. candidate slots per division (interlock games use the candidates of
-       the home team's division, narrowed to fields legal for BOTH divisions) */
+    /* 2. candidate slots per division (crossover games use the candidates of
+       the home team's division, narrowed to fields legal for BOTH divisions;
+       home interlock games use their division's candidates as-is) */
     var candByDiv = {};
     Object.keys(config.divisions || {}).forEach(function (div) {
       candByDiv[div] = buildCandidates(config, div, config.divisions[div]);
@@ -240,18 +301,39 @@
         games: (ctx.games || []).concat(placed),
         slots: ctx.slots || [],
         teams: ctx.teams || [],
-        fields: ctx.fields || []
+        fields: ctx.fields || [],
+        ext_teams: ctx.ext_teams || []
       });
       return conflicts.length === 0;
     }
 
+    function matchupGame(m, c) {
+      return {
+        id: "gen-" + (++genSeq),
+        season_id: config.season_id, division: m.division,
+        home_team_id: m.home,
+        away_team_id: m.ext ? null : m.away,
+        ext_team_id: m.ext || null,
+        field_id: c.field_id || null,
+        venue_text: c.field_id ? null : (m.league || "the other league"),
+        game_date: c.date,
+        start_time: c.start, end_time: c.end, status: "draft"
+      };
+    }
+
+    function targetWeekOf(m) {
+      var maxRound = m.roundMax;
+      if (maxRound === undefined) {
+        maxRound = 1;
+        matchups.forEach(function (x) { if (x.division === m.division && x.roundMax === undefined && x.round > maxRound) maxRound = x.round; });
+      }
+      return Math.round((m.round / Math.max(1, maxRound)) * (seasonWeeks - 1));
+    }
+
     function tryPlace(m, strict) {
       var div = m.division;
-      var perTeam = +((config.divisions[div] || {}).games_per_team) || 1;
       var cands = candByDiv[div] || [];
-      var maxRound = 1;
-      matchups.forEach(function (x) { if (x.division === div && x.round > maxRound) maxRound = x.round; });
-      var targetWeek = Math.round((m.round / Math.max(1, maxRound)) * (seasonWeeks - 1));
+      var targetWeek = targetWeekOf(m);
       var best = null, bestScore = -1;
       var order = shuffle(cands, rand);
       for (var i = 0; i < order.length; i++) {
@@ -259,17 +341,11 @@
         if (usedSlot[c.field_id + "|" + c.date + "|" + c.start]) continue;
         if (m.pair && !(fieldAllows(c.field_id, m.pair[0]) && fieldAllows(c.field_id, m.pair[1]))) continue;
         var hw = teamWeekLoad[m.home + "|" + c.week] || 0;
-        var aw = teamWeekLoad[m.away + "|" + c.week] || 0;
+        var aw = m.away ? (teamWeekLoad[m.away + "|" + c.week] || 0) : 0;
         if (strict && (hw > 0 || aw > 0)) continue; /* aim one game per team per week first */
         var score = 100 - Math.abs(c.week - targetWeek) * 10 - (hw + aw) * 6 - (fieldLoad[c.field_id] || 0) * 0.5;
         if (score <= bestScore) continue;
-        var g = {
-          id: "gen-" + (++genSeq),
-          season_id: config.season_id, division: div,
-          home_team_id: m.home, away_team_id: m.away,
-          field_id: c.field_id, game_date: c.date,
-          start_time: c.start, end_time: c.end, status: "draft"
-        };
+        var g = matchupGame(m, c);
         if (!conflictFree(g)) continue;
         best = { g: g, c: c }; bestScore = score;
       }
@@ -277,21 +353,70 @@
       placed.push(best.g);
       usedSlot[best.c.field_id + "|" + best.c.date + "|" + best.c.start] = 1;
       teamWeekLoad[m.home + "|" + best.c.week] = (teamWeekLoad[m.home + "|" + best.c.week] || 0) + 1;
-      teamWeekLoad[m.away + "|" + best.c.week] = (teamWeekLoad[m.away + "|" + best.c.week] || 0) + 1;
+      if (m.away) teamWeekLoad[m.away + "|" + best.c.week] = (teamWeekLoad[m.away + "|" + best.c.week] || 0) + 1;
       fieldLoad[best.c.field_id] = (fieldLoad[best.c.field_id] || 0) + 1;
       return true;
+    }
+
+    /* Away interlock games happen on the other league's field. No slot on our
+       grid is consumed and no our-field checks apply, but our traveling team
+       still gets the double-header guard via gameConflicts. Dates come from
+       the rule's days (or the division's days), venue defaults to the league
+       name so the admin can fill in the real park later. */
+    function awayCandidates(m) {
+      var dcfg = config.divisions[m.division] || {};
+      var days = m.days || dcfg.days || {};
+      var out = [];
+      var start = parseDate(config.start_date), end = parseDate(config.end_date);
+      for (var d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        var day = dateStr(d);
+        if (inBlackout(day, config.blackouts)) continue;
+        var waves = days[DOW_KEYS[d.getDay()]];
+        if (!waves || !waves.length) continue;
+        var week = Math.floor((d - start) / (7 * 86400000));
+        var startT = waves[0];
+        out.push({ date: day, start: startT, end: addMinutes(startT, dcfg.game_minutes || 120), week: week, field_id: null });
+      }
+      return out;
+    }
+
+    function tryPlaceAway(m, strict) {
+      var targetWeek = targetWeekOf(m);
+      var best = null, bestScore = -1;
+      var order = shuffle(awayCandidates(m), rand);
+      for (var i = 0; i < order.length; i++) {
+        var c = order[i];
+        var hw = teamWeekLoad[m.home + "|" + c.week] || 0;
+        if (strict && hw > 0) continue;
+        var score = 100 - Math.abs(c.week - targetWeek) * 10 - hw * 6;
+        if (score <= bestScore) continue;
+        var g = matchupGame(m, c);
+        if (!conflictFree(g)) continue;
+        best = { g: g, c: c }; bestScore = score;
+      }
+      if (!best) return false;
+      placed.push(best.g);
+      teamWeekLoad[m.home + "|" + best.c.week] = (teamWeekLoad[m.home + "|" + best.c.week] || 0) + 1;
+      return true;
+    }
+
+    function place(m, strict) {
+      if (m.ext && !m.is_home) return tryPlaceAway(m, strict);
+      return tryPlace(m, strict);
     }
 
     var ordered = matchups.slice().sort(function (a, b) { return a.round - b.round; });
     var leftovers = [];
     ordered.forEach(function (m) {
-      if (!tryPlace(m, true)) leftovers.push(m);
+      if (!place(m, true)) leftovers.push(m);
     });
     leftovers.forEach(function (m) {
-      if (!tryPlace(m, false)) {
+      if (!place(m, false)) {
         unplaced.push({
-          division: m.division, home_team_id: m.home, away_team_id: m.away,
-          interlock: !!m.pair,
+          division: m.division, home_team_id: m.home,
+          away_team_id: m.ext ? null : m.away,
+          ext_team_id: m.ext || null, league: m.league || "",
+          crossover: !!m.pair, interlock: !!m.ext,
           reason: "No open conflict-free slot left on the configured days and fields."
         });
       }
@@ -302,26 +427,37 @@
     return { games: placed, unplaced: unplaced, stats: summarize(placed, unplaced, ctx) };
   }
 
-  /* Stats for the review panel: per-team games + home/away, per-field load. */
+  /* Stats for the review panel: per-team games + home/away, per-field load,
+     and a separate interlock block (our team vs another league). An interlock
+     game is home for our team when it sits on one of our fields (field_id) and
+     away when it happens at the other league's venue (venue_text). */
   function summarize(games, unplaced, ctx) {
     var perTeam = {}, perField = {};
+    var il = { total: 0, home: 0, away: 0, perTeam: {} };
     function bump(map, key, field) {
       map[key] = map[key] || { games: 0, home: 0, away: 0 };
       map[key].games++;
       map[key][field]++;
     }
     (games || []).forEach(function (g) {
-      bump(perTeam, g.home_team_id, "home");
-      bump(perTeam, g.away_team_id, "away");
-      perField[g.field_id] = (perField[g.field_id] || 0) + 1;
+      var homeSide = g.ext_team_id ? (g.field_id ? "home" : "away") : "home";
+      bump(perTeam, g.home_team_id, homeSide);
+      if (g.away_team_id) bump(perTeam, g.away_team_id, "away");
+      if (g.field_id) perField[g.field_id] = (perField[g.field_id] || 0) + 1;
+      if (g.ext_team_id) {
+        il.total++;
+        il[g.field_id ? "home" : "away"]++;
+        bump(il.perTeam, g.home_team_id, g.field_id ? "home" : "away");
+      }
     });
-    return { total: (games || []).length, unplaced: (unplaced || []).length, perTeam: perTeam, perField: perField };
+    return { total: (games || []).length, unplaced: (unplaced || []).length, perTeam: perTeam, perField: perField, interlock: il };
   }
 
   return {
     generate: generate,
     divisionMatchups: divisionMatchups,
-    interlockMatchups: interlockMatchups,
+    crossoverMatchups: crossoverMatchups,
+    extInterlockMatchups: extInterlockMatchups,
     roundRobinCycle: roundRobinCycle,
     buildCandidates: buildCandidates,
     summarize: summarize,

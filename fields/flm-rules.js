@@ -145,13 +145,20 @@
     }
     return keys;
   }
-  /* game: { id?, season_id, division, home_team_id, away_team_id, field_id, game_date, start_time, end_time }
-     ctx:  { games, slots, teams, fields } from gateway state.
+  /* game: { id?, season_id, division, home_team_id, away_team_id, ext_team_id,
+     field_id, venue_text, game_date, start_time, end_time }
+     ctx:  { games, slots, teams, fields, ext_teams } from gateway state.
+     The opponent is away_team_id (our league) OR ext_team_id (another league,
+     interlock). The venue is field_id (our field) OR venue_text (their venue).
+     Away interlock games (venue_text set) skip every our-field check but STILL
+     get the team double-header check, so a traveling team is never booked twice.
      Returns array of { type, message } warnings. Cancelled games never conflict. */
   function gameConflicts(game, ctx) {
     ctx = ctx || {};
     var out = [];
     function team(id) { var t = (ctx.teams || []).filter(function (x) { return x.id === id; })[0]; return t ? t.name : "a team"; }
+    function extName(id) { var x = (ctx.ext_teams || []).filter(function (e) { return e.id === id; })[0]; return x ? x.team_name + " (" + x.league_name + ")" : "an interlock team"; }
+    function oppName(g) { return g.ext_team_id ? extName(g.ext_team_id) : team(g.away_team_id); }
     function field(id) { var f = (ctx.fields || []).filter(function (x) { return x.id === id; })[0]; return f || {}; }
     var fld = field(game.field_id);
     var fName = fld.name || "this field";
@@ -159,16 +166,20 @@
 
     (ctx.games || []).forEach(function (g) {
       if (g.id === game.id || g.game_date !== game.game_date || g.status === "cancelled") return;
-      var matchup = team(g.home_team_id) + " vs " + team(g.away_team_id);
-      if (g.field_id === game.field_id && timesOverlap(game.start_time, game.end_time, g.start_time, g.end_time)) {
+      var matchup = team(g.home_team_id) + " vs " + oppName(g);
+      if (game.field_id && g.field_id === game.field_id && timesOverlap(game.start_time, game.end_time, g.start_time, g.end_time)) {
         out.push({ type: "field_game", message: fName + " already has " + matchup + " from " + fmtTime(g.start_time) + " to " + fmtTime(g.end_time) + " that day." });
       }
       [game.home_team_id, game.away_team_id].forEach(function (tid) {
         if (tid && (g.home_team_id === tid || g.away_team_id === tid)) {
-          out.push({ type: "double_header", message: team(tid) + " already plays that day: " + matchup + " at " + fmtTime(g.start_time) + " on " + (field(g.field_id).name || "another field") + "." });
+          out.push({ type: "double_header", message: team(tid) + " already plays that day: " + matchup + " at " + fmtTime(g.start_time) + " on " + (field(g.field_id).name || (g.venue_text ? g.venue_text : "another field")) + "." });
         }
       });
     });
+
+    /* Away interlock games happen on another league's field: nothing below can
+       conflict on our side. */
+    if (!game.field_id) return out;
 
     var dayKeys = gameDayKeys(game);
     (ctx.slots || []).forEach(function (s) {

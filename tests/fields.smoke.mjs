@@ -119,6 +119,45 @@ const cancelled = FLM.gameConflicts(mkGame({ field_id: 'F1', game_date: '2026-09
 if (!cancelled.some((c) => c.type === 'field_game')) ok('cancelled games do not block the field');
 else fail('cancelled game still conflicts');
 
+// ------- 1b2. Conflict engine: interlock games (external opponent / venue) -------
+section('conflict engine: interlock (other leagues)');
+const XCTX = {
+  ...CTX,
+  ext_teams: [
+    { id: 'X1', league_name: 'Auburn LL', team_name: 'Storm', division: 'Majors BB' },
+    { id: 'X2', league_name: 'Kent LL', team_name: 'Rapids', division: 'Majors BB' },
+  ],
+};
+function extGame(over) {
+  return Object.assign({ season_id: 'sn1', division: 'Majors BB', home_team_id: 'A', away_team_id: null, ext_team_id: 'X1', field_id: 'F2', venue_text: null, game_date: '2026-09-16', start_time: '17:00', end_time: '19:00' }, over);
+}
+// Home interlock game occupies our field like any other game.
+const xHomeClash = FLM.gameConflicts(extGame({ field_id: 'F1', game_date: '2026-09-15', start_time: '18:00', end_time: '20:00' }), XCTX);
+if (xHomeClash.some((c) => c.type === 'field_game')) ok('home interlock game gets the full field double-booking check');
+else fail('home interlock field clash missed: ' + JSON.stringify(xHomeClash));
+// Away interlock game (their venue): our fields can never conflict on our side...
+const xAway = FLM.gameConflicts(extGame({ field_id: null, venue_text: 'Brannan Park, Auburn', game_date: '2026-09-15', start_time: '17:00', end_time: '19:00', home_team_id: 'C' }), XCTX);
+if (!xAway.some((c) => c.type === 'field_game' || c.type === 'field_practice' || c.type === 'division_field')) ok('away interlock game skips every our-field check');
+else fail('away interlock game hit an our-field check: ' + JSON.stringify(xAway));
+// ...but our traveling team still gets the double-header guard.
+const xAwayDh = FLM.gameConflicts(extGame({ field_id: null, venue_text: 'Brannan Park, Auburn', game_date: '2026-09-15', home_team_id: 'A' }), XCTX);
+if (xAwayDh.some((c) => c.type === 'double_header') && xAwayDh.some((c) => c.message.includes('Aces'))) ok('away interlock game still catches our-team double-headers');
+else fail('away interlock double-header missed: ' + JSON.stringify(xAwayDh));
+// Conflict messages name the interlock opponent with its league.
+const xNamed = FLM.gameConflicts(mkGame({ home_team_id: 'B', away_team_id: 'D', division: 'Majors BB', field_id: 'F1', game_date: '2026-09-16' }), {
+  ...XCTX,
+  games: [extGame({ id: 'GX0', field_id: 'F1', game_date: '2026-09-16', start_time: '17:00', end_time: '19:00' })],
+});
+if (xNamed.some((c) => c.type === 'field_game' && c.message.includes('Storm (Auburn LL)'))) ok('conflict messages name the interlock opponent with its league');
+else fail('interlock opponent name missing from conflict: ' + JSON.stringify(xNamed));
+// Two away games at different leagues share no field: null field ids never collide.
+const xNullField = FLM.gameConflicts(extGame({ field_id: null, venue_text: 'Kent Memorial Park', ext_team_id: 'X2', home_team_id: 'B', game_date: '2026-09-16' }), {
+  ...XCTX,
+  games: [extGame({ id: 'GX', field_id: null, venue_text: 'Brannan Park, Auburn', home_team_id: 'A', game_date: '2026-09-16' })],
+});
+if (!xNullField.some((c) => c.type === 'field_game')) ok('two away interlock games never fake a field clash on null field ids');
+else fail('null field ids collided: ' + JSON.stringify(xNullField));
+
 // ------- 1c. Season generator unit tests (Phase 2) -------
 section('season generator: matchups');
 const GEN = require(path.join(ROOT, 'fields', 'flm-schedule-gen.js'));
@@ -172,18 +211,58 @@ function homeAwaySpread(ms) {
   if (homeAwaySpread(ms) <= 1) ok('home/away balance within 1 (odd team count)');
   else fail('odd-team home/away spread: ' + homeAwaySpread(ms));
 }
-// Interlock: 4 vs 4, 2 games per team = 8 crossover games, everybody exactly 2.
+// Crossover (in-league, was called interlock before Phase 2.1): 4 vs 4, 2 games
+// per team = 8 crossover games, everybody exactly 2.
 {
-  const ms = GEN.interlockMatchups(ids(4, 'A'), ids(4, 'B'), 2, GEN.rng(5));
+  const ms = GEN.crossoverMatchups(ids(4, 'A'), ids(4, 'B'), 2, GEN.rng(5));
   const c = counts(ms);
   const okCounts = ids(4, 'A').concat(ids(4, 'B')).every((id) => c[id] === 2);
-  if (ms.length === 8 && okCounts) ok('interlock 4v4 x2: every team gets exactly 2 crossover games');
-  else fail('interlock counts wrong: ' + JSON.stringify(c));
+  if (ms.length === 8 && okCounts) ok('crossover 4v4 x2: every team gets exactly 2 crossover games');
+  else fail('crossover counts wrong: ' + JSON.stringify(c));
   const crossOk = ms.every((m) => (m.home[0] === 'A') !== (m.away[0] === 'A'));
-  if (crossOk) ok('interlock games always pair one team from each division');
-  else fail('interlock produced a same-division pairing');
-  if (homeAwaySpread(ms) <= 1) ok('interlock home/away balance within 1');
-  else fail('interlock home/away spread: ' + homeAwaySpread(ms));
+  if (crossOk) ok('crossover games always pair one team from each division');
+  else fail('crossover produced a same-division pairing');
+  if (homeAwaySpread(ms) <= 1) ok('crossover home/away balance within 1');
+  else fail('crossover home/away spread: ' + homeAwaySpread(ms));
+}
+// Interlock (against other leagues): every one of our teams gets exactly k games,
+// opponents spread across the pool, home/away split honors the ratio.
+const XPOOL = [
+  { id: 'X1', league_name: 'Auburn LL', division: 'Majors BB' },
+  { id: 'X2', league_name: 'Auburn LL', division: 'Majors BB' },
+  { id: 'X3', league_name: 'Kent LL', division: 'Majors BB' },
+];
+{
+  const ms = GEN.extInterlockMatchups(ids(4, 'M'), XPOOL, 2, 0.5, GEN.rng(9));
+  const perOur = {};
+  for (const m of ms) perOur[m.home] = (perOur[m.home] || 0) + 1;
+  if (ms.length === 8 && ids(4, 'M').every((id) => perOur[id] === 2)) ok('interlock 4 teams x2 vs pool of 3: every one of our teams gets exactly 2 games');
+  else fail('interlock our-team counts wrong: ' + JSON.stringify(perOur));
+  const distinct = ids(4, 'M').every((id) => new Set(ms.filter((m) => m.home === id).map((m) => m.ext)).size === 2);
+  if (distinct) ok('no team plays the same interlock opponent twice while the pool has room');
+  else fail('interlock opponent repeated too early');
+  const extLoad = {};
+  for (const m of ms) extLoad[m.ext] = (extLoad[m.ext] || 0) + 1;
+  const loads = XPOOL.map((x) => extLoad[x.id] || 0);
+  if (Math.max(...loads) - Math.min(...loads) <= 1) ok('interlock pool load spreads within 1 across external teams');
+  else fail('interlock pool load uneven: ' + JSON.stringify(extLoad));
+  const split = {};
+  for (const m of ms) { split[m.home] = split[m.home] || { h: 0, a: 0 }; split[m.home][m.is_home ? 'h' : 'a']++; }
+  if (ids(4, 'M').every((id) => split[id].h === 1 && split[id].a === 1)) ok('half home, half away honored exactly (k=2, ratio 0.5)');
+  else fail('home/away split broken: ' + JSON.stringify(split));
+  if (ms.every((m) => m.ext_interlock && m.league)) ok('interlock matchups carry the opposing league name');
+  else fail('interlock matchup missing league');
+}
+{
+  const allHome = GEN.extInterlockMatchups(ids(3, 'M'), XPOOL, 3, 1, GEN.rng(2));
+  const allAway = GEN.extInterlockMatchups(ids(3, 'M'), XPOOL, 3, 0, GEN.rng(2));
+  if (allHome.every((m) => m.is_home) && allAway.every((m) => !m.is_home)) ok('all-home and all-away ratios honored');
+  else fail('ratio 1/0 not honored');
+  const half = GEN.extInterlockMatchups(ids(4, 'M'), XPOOL, 4, 0.5, GEN.rng(2));
+  const s2 = {};
+  for (const m of half) { s2[m.home] = s2[m.home] || { h: 0, a: 0 }; s2[m.home][m.is_home ? 'h' : 'a']++; }
+  if (ids(4, 'M').every((id) => s2[id].h === 2 && s2[id].a === 2)) ok('k=4 ratio 0.5 gives every team exactly 2 home, 2 away');
+  else fail('k=4 split broken: ' + JSON.stringify(s2));
 }
 
 section('season generator: placement');
@@ -209,13 +288,17 @@ const GCFG = {
     'Majors BB': { games_per_team: 6, game_minutes: 120, days: { sat: ['10:00', '12:30', '15:00'], tue: ['17:30'] }, fields: ['F1', 'F2'] },
     'Minors BB': { games_per_team: 6, game_minutes: 90, days: { sat: ['10:00', '12:30'], thu: ['17:30'] }, fields: ['F1', 'F2'] },
   },
-  interlocks: [{ a: 'Majors BB', b: 'Minors BB', games_per_team: 2 }],
+  crossovers: [{ a: 'Majors BB', b: 'Minors BB', games_per_team: 2 }],
 };
 {
   const res = GEN.generate(GCFG, GT);
-  // 4 teams x 6 games / 2 = 12 per division + 8 interlock = 32 matchups total.
+  // 4 teams x 6 games / 2 = 12 per division + 8 crossover = 32 matchups total.
   if (res.games.length + res.unplaced.length === 32) ok('placed + unplaced accounts for every matchup (32), nothing silently dropped');
   else fail('matchup accounting broken: placed=' + res.games.length + ' unplaced=' + res.unplaced.length);
+  // Legacy configs stored crossover a/b rules under "interlocks": still honored.
+  const legacy = GEN.generate({ ...GCFG, crossovers: [], interlocks: GCFG.crossovers }, GT);
+  if (JSON.stringify(legacy.games) === JSON.stringify(res.games)) ok('legacy a/b rules under "interlocks" still generate the same crossover schedule');
+  else fail('legacy crossover config path broken');
   if (res.games.length === 32 && res.unplaced.length === 0) ok('roomy config places everything (32 games, 0 unplaced)');
   else fail('roomy config left games unplaced: ' + JSON.stringify(res.unplaced));
   // No conflicts in the placed output: re-run gameConflicts on each game vs the rest.
@@ -282,11 +365,64 @@ const GCFG = {
   if (res.unplaced.every((u) => u.reason && u.home_team_id && u.away_team_id)) ok('unplaced entries carry teams and a plain-English reason');
   else fail('unplaced entries missing detail');
 }
+// Interlock generation (Mode B): our division plays a pool from other leagues.
+section('season generator: interlock (other leagues)');
+{
+  const XGT = {
+    ...GT,
+    ext_teams: [
+      { id: 'XA1', league_name: 'Auburn LL', team_name: 'Storm', division: 'Majors BB' },
+      { id: 'XA2', league_name: 'Auburn LL', team_name: 'Thunder', division: 'Majors BB' },
+      { id: 'XK1', league_name: 'Kent LL', team_name: 'Rapids', division: 'Majors BB' },
+      { id: 'XK2', league_name: 'Kent LL', team_name: 'River Hawks', division: 'TBall' },
+    ],
+  };
+  const cfg = {
+    ...GCFG,
+    crossovers: [],
+    divisions: { 'Majors BB': GCFG.divisions['Majors BB'] },
+    interlocks: [{ division: 'Majors BB', leagues: ['Auburn LL', 'Kent LL'], ext_division: 'Majors BB', games_per_team: 2, home_ratio: 0.5 }],
+  };
+  const res = GEN.generate(cfg, XGT);
+  const il = res.games.filter((g) => g.ext_team_id);
+  const ilUnplaced = res.unplaced.filter((u) => u.interlock);
+  // 4 our teams x 2 interlock games = 8; the TBall team never enters the pool.
+  if (il.length + ilUnplaced.length === 8) ok('every interlock matchup accounted for (8)');
+  else fail('interlock accounting broken: placed=' + il.length + ' unplaced=' + ilUnplaced.length);
+  if (il.every((g) => ['XA1', 'XA2', 'XK1'].includes(g.ext_team_id))) ok('pool respects the division filter (TBall team excluded)');
+  else fail('wrong-division external team entered the pool');
+  const xorOk = res.games.every((g) => ((g.away_team_id ? 1 : 0) + (g.ext_team_id ? 1 : 0) === 1) && ((g.field_id ? 1 : 0) + (g.venue_text ? 1 : 0) === 1));
+  if (xorOk) ok('every generated game has exactly one opponent and exactly one venue');
+  else fail('a generated game broke the exactly-one shape');
+  const homes = il.filter((g) => g.field_id), aways = il.filter((g) => g.venue_text);
+  if (homes.every((g) => ['F1', 'F2'].includes(g.field_id))) ok('home interlock games land on our eligible fields');
+  else fail('home interlock game on an unknown field');
+  const leagueOf = { XA1: 'Auburn LL', XA2: 'Auburn LL', XK1: 'Kent LL' };
+  if (aways.length && aways.every((g) => g.venue_text === leagueOf[g.ext_team_id])) ok('away interlock games default their venue to the opposing league name');
+  else fail('away venue default wrong: ' + JSON.stringify(aways.map((g) => g.venue_text)));
+  const split = {};
+  il.forEach((g) => { split[g.home_team_id] = split[g.home_team_id] || { h: 0, a: 0 }; split[g.home_team_id][g.field_id ? 'h' : 'a']++; });
+  if (il.length === 8 && Object.values(split).every((s) => s.h === 1 && s.a === 1)) ok('placed interlock games honor the half home, half away split per team');
+  else fail('placed split wrong: ' + JSON.stringify(split));
+  // No conflicts in the combined output, interlock games included.
+  let confl = 0;
+  for (const g of res.games) {
+    const others = res.games.filter((x) => x !== g);
+    if (FLM.gameConflicts({ ...g, id: 'self' }, { games: others, slots: XGT.slots, teams: XGT.teams, fields: XGT.fields, ext_teams: XGT.ext_teams }).length) confl++;
+  }
+  if (confl === 0) ok('zero conflicts across division + interlock output (double-headers included)');
+  else fail(confl + ' games conflict in interlock output');
+  const st = res.stats.interlock;
+  if (st && st.total === il.length && st.home === homes.length && st.away === aways.length) ok('stats carry a separate interlock block with the home/away split');
+  else fail('interlock stats wrong: ' + JSON.stringify(st));
+  if (res.games.every((g) => g.status === 'draft')) ok('interlock generation stays draft-first');
+  else fail('interlock generation emitted a non-draft game');
+}
 
 // ------- 2. Portal hooks -------
 section('fields/index.html: required hooks');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
-for (const s of ['Who are you, Coach?', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys']) {
+for (const s of ['Who are you, Coach?', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
   if (indexHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
@@ -343,6 +479,37 @@ for (const s of ['Practice compliance', 'id="compGrid"', 'League announcements',
   else fail('MISSING: ' + s);
 }
 
+// ------- 3a. Interlock (other leagues) hooks: Mode A + opponents CRUD -------
+section('fields/admin.html: interlock hooks');
+for (const [s, why] of [
+  ['Interlock opponents (other leagues)', 'external opponents panel exists'],
+  ['id="xlAdd"', 'quick-add external team button'],
+  ['admin_ext_team', 'ext team CRUD wired to the gateway'],
+  ['data-xl-edit', 'ext team edit buttons'],
+  ['data-xl-del', 'ext team delete buttons'],
+  ['id="gOppMode"', 'Mode A opponent toggle (our league / another league)'],
+  ['id="gExt"', 'Mode A interlock opponent picker'],
+  ['id="gVenueMode"', 'Mode A venue toggle (our field / their field)'],
+  ['id="gVenue"', 'Mode A external venue input'],
+  ['Brannan Park, Auburn', 'external venue placeholder shows the expected style'],
+  ['function gameOppName', 'opponent renderer handles both team kinds'],
+  ['function gameVenueName', 'venue renderer handles both venue kinds'],
+  ['chip il', 'interlock games visually tagged with the league'],
+  ['Pick the opponent: one of our teams or an interlock team.', 'opponent validation copy'],
+  ['Pick one of our fields or type in their venue.', 'venue validation copy'],
+  ['Crossover (in-league', 'crossover section renamed and unmistakable'],
+  ['Interlock (against other leagues', 'interlock section labeled by league meaning'],
+  ['id="sgXlAdd"', 'interlock rule editor add button'],
+  ['sgRenderCrossovers', 'crossover editor still renders'],
+  ['cfg.crossovers', 'crossover rules stored under crossovers'],
+  ['home_ratio', 'interlock rules carry the home/away split'],
+  ['ext_teams: D.ext_teams', 'generation passes the external pool'],
+  ['stats.interlock', 'review shows the interlock block separately'],
+]) {
+  if (adminHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+
 // ------- 3b. Season generator panel (Phase 2) -------
 section('fields/admin.html: season generator hooks');
 for (const [s, why] of [
@@ -353,7 +520,7 @@ for (const [s, why] of [
   ['id="sgDiscard"', 'Discard drafts button'],
   ['id="sgPublish"', 'Publish button'],
   ['id="sgBoAdd"', 'blackout dates editor'],
-  ['id="sgIlAdd"', 'interlock rules editor'],
+  ['id="sgIlAdd"', 'crossover rules editor'],
   ['season_gen_config', 'config persisted in flm_settings'],
   ['admin_games_bulk', 'bulk gateway action wired'],
   ['op: "publish"', 'publish flips drafts via bulk op'],
@@ -416,6 +583,8 @@ try {
   else fail('admin_pin leaked in state!');
   if (Array.isArray(d.games)) ok('state includes games array');
   else fail('state missing games');
+  if (Array.isArray(d.ext_teams)) ok('state includes ext_teams array (interlock opponents)');
+  else fail('state missing ext_teams');
   if (Array.isArray(d.fields) && d.fields.length && Array.isArray(d.fields[0].divisions)) ok('fields carry a divisions tag list');
   else fail('fields missing divisions');
 } catch (e) {
@@ -448,6 +617,13 @@ try {
   else fail('admin_games_bulk without PIN should be 401, got ' + r.status);
 } catch (e) {
   fail('admin_games_bulk auth test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=admin_ext_team', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ league_name: 'X', team_name: 'Y' }) });
+  if (r.status === 401) ok('admin_ext_team without PIN rejected 401');
+  else fail('admin_ext_team without PIN should be 401, got ' + r.status);
+} catch (e) {
+  fail('admin_ext_team auth test threw: ' + e.message);
 }
 try {
   const r = await fetch(GATEWAY + '?action=state');

@@ -63,6 +63,7 @@
   .chip.off { background: #eceadf; color: var(--muted); }
   .chip.lock { background: #fbe4dc; color: #a33c1b; }
   .chip.draft { background: #e9e4f6; color: #52418f; }
+  .chip.il { background: #ddebf3; color: #1d5a80; }
 
   .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; color: var(--muted); font-size: 14px; cursor: pointer; transition: border-color .15s; }
   .drop:hover, .drop.over { border-color: var(--clay); color: var(--clay); }
@@ -161,16 +162,20 @@
       <div class="panel span2">
         <div class="bar"><h2>Games</h2></div>
         <div class="body">
-          <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
+          <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. For interlock games against another league (Auburn LL, Kent LL, and so on) switch the opponent to that league's team and, for road games, type in their venue. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
           <div class="row" style="margin-bottom:8px;">
             <select id="gSeason"></select>
             <select id="gDiv"><option value="">Division</option></select>
-            <select id="gHome"><option value="">Home team</option></select>
-            <select id="gAway"><option value="">Away team</option></select>
+            <select id="gHome"><option value="">Our team</option></select>
+            <select id="gOppMode"><option value="league">Opponent: our league</option><option value="ext">Opponent: another league</option></select>
+            <select id="gAway"><option value="">Opposing team</option></select>
+            <select id="gExt" class="hidden"><option value="">Interlock opponent</option></select>
           </div>
           <div class="row" style="margin-bottom:8px;">
             <input id="gDate" type="date" />
+            <select id="gVenueMode"><option value="field">Venue: our field</option><option value="ext">Venue: their field</option></select>
             <select id="gField"><option value="">Field</option></select>
+            <input id="gVenue" class="hidden" placeholder="Their venue, e.g. Brannan Park, Auburn" style="min-width:220px;" />
             <input id="gStart" type="time" />
             <input id="gEnd" type="time" />
             <input id="gNotes" placeholder="Notes (optional)" style="flex:1;min-width:140px;" />
@@ -179,6 +184,23 @@
           <button class="btn ghost hidden" id="gCancelEdit">Cancel edit</button>
           <span id="gMsg" class="ok hidden" style="margin-left:8px;font-size:13px;"></span>
           <div id="gameList" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
+        <div class="bar"><h2>Interlock opponents (other leagues)</h2></div>
+        <div class="body">
+          <p class="hint">Teams from other leagues that we play interlock games against, like Auburn LL or Kent LL. They live on their own list: they never show up in coach pickers, practice claiming, or compliance. Give each one the division name it matches on our side so the season generator can build the right pool.</p>
+          <div class="row" style="margin-bottom:10px;">
+            <input id="xlLeague" list="xlLeagues" placeholder="League, e.g. Auburn LL" style="min-width:150px;" />
+            <datalist id="xlLeagues"></datalist>
+            <input id="xlDiv" list="xlDivs" placeholder="Division, e.g. Majors BB" style="min-width:140px;" />
+            <datalist id="xlDivs"></datalist>
+            <input id="xlName" placeholder="Team, e.g. Storm" style="min-width:130px;" />
+            <button class="btn sm clay" id="xlAdd">Add team</button>
+            <span id="xlMsg" class="ok hidden" style="font-size:13px;"></span>
+          </div>
+          <div id="extList"></div>
         </div>
       </div>
 
@@ -207,14 +229,27 @@
             <div id="sgDivs"></div>
           </div>
           <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Interlock (crossover games between two divisions)</label>
+            <label style="font-size:13px;font-weight:600;">Crossover (in-league: two of our divisions play each other)</label>
             <div id="sgIlList"></div>
             <div class="ilrow">
               <select id="sgIlA"></select>
               <span>plays</span>
               <select id="sgIlB"></select>
               <label style="font-size:12.5px;"><input id="sgIlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
-              <button class="btn sm" id="sgIlAdd">Add interlock</button>
+              <button class="btn sm" id="sgIlAdd">Add crossover</button>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+            <label style="font-size:13px;font-weight:600;">Interlock (against other leagues, like Auburn LL or Kent LL)</label>
+            <p class="hint" style="margin:4px 0 8px;">Builds our side of an interlock schedule as a proposal to coordinate with the other league. Home games land on our fields with full conflict checks. Away games get the date and a venue of the league name; type in the real park once the other league confirms. If the district hands you a finished schedule instead, skip this and enter those games in the Games panel above.</p>
+            <div id="sgXlList"></div>
+            <div class="ilrow">
+              <select id="sgXlDiv"></select>
+              <span>plays</span>
+              <span id="sgXlLeagues" style="display:inline-flex;gap:10px;flex-wrap:wrap;"></span>
+              <label style="font-size:12.5px;"><input id="sgXlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
+              <select id="sgXlSplit"><option value="0.5">half home, half away</option><option value="1">all home</option><option value="0">all away</option></select>
+              <button class="btn sm" id="sgXlAdd">Add interlock</button>
             </div>
           </div>
           <div class="row">
@@ -354,7 +389,7 @@ function refresh() {
      The public portal calls state without a PIN and never sees drafts. */
   fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance(); renderGames(); renderSeasonGen();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -422,16 +457,45 @@ function fmtDate(d) {
 }
 function gameTeamName(id) { var t = D.teams.filter(function (x) { return x.id === id; })[0]; return t ? t.name : "?"; }
 function gameFieldName(id) { var f = D.fields.filter(function (x) { return x.id === id; })[0]; return f ? f.name : "?"; }
+function extById(id) { return ((D && D.ext_teams) || []).filter(function (x) { return x.id === id; })[0] || null; }
+function gameOppName(g) {
+  if (g.ext_team_id) { var x = extById(g.ext_team_id); return x ? x.team_name + " (" + x.league_name + ")" : "an interlock team"; }
+  return gameTeamName(g.away_team_id);
+}
+function gameVenueName(g) { return g.field_id ? gameFieldName(g.field_id) : "at " + (g.venue_text || "?"); }
+function gameLeague(g) { var x = g.ext_team_id ? extById(g.ext_team_id) : null; return x ? x.league_name : ""; }
+function extLeagues() {
+  var seen = {};
+  ((D && D.ext_teams) || []).forEach(function (x) { seen[x.league_name] = 1; });
+  return Object.keys(seen).sort();
+}
 
 function fillGameSelects() {
-  var keep = { gSeason: el("gSeason").value, gDiv: el("gDiv").value, gHome: el("gHome").value, gAway: el("gAway").value, gField: el("gField").value };
+  var keep = { gSeason: el("gSeason").value, gDiv: el("gDiv").value, gHome: el("gHome").value, gAway: el("gAway").value, gExt: el("gExt").value, gField: el("gField").value };
   el("gSeason").innerHTML = D.seasons.map(function (sn) { return '<option value="' + sn.id + '">' + esc(sn.label) + "</option>"; }).join("");
   el("gDiv").innerHTML = '<option value="">Division</option>' + divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
   el("gField").innerHTML = '<option value="">Field</option>' + D.fields.filter(function (f) { return f.is_active; }).map(function (f) {
     return '<option value="' + f.id + '">' + esc(f.name + ((f.divisions || []).length ? " (" + f.divisions.join(", ") + ")" : "")) + "</option>";
   }).join("");
+  var byLeague = {};
+  (D.ext_teams || []).forEach(function (x) { (byLeague[x.league_name] = byLeague[x.league_name] || []).push(x); });
+  el("gExt").innerHTML = '<option value="">Interlock opponent</option>' + Object.keys(byLeague).sort().map(function (lg) {
+    return '<optgroup label="' + esc(lg) + '">' + byLeague[lg].map(function (x) {
+      return '<option value="' + x.id + '">' + esc(x.team_name + (x.division ? " (" + x.division + ")" : "")) + "</option>";
+    }).join("") + "</optgroup>";
+  }).join("");
   Object.keys(keep).forEach(function (id) { if (keep[id]) el(id).value = keep[id]; });
   fillGameTeams();
+}
+/* Mode A: the opponent is one of our teams OR an interlock team from another
+   league; the venue is one of our fields OR their venue typed in. */
+function applyGameModes() {
+  var oppExt = el("gOppMode").value === "ext";
+  var venExt = el("gVenueMode").value === "ext";
+  el("gAway").classList.toggle("hidden", oppExt);
+  el("gExt").classList.toggle("hidden", !oppExt);
+  el("gField").classList.toggle("hidden", venExt);
+  el("gVenue").classList.toggle("hidden", !venExt);
 }
 function fillGameTeams() {
   var div = el("gDiv").value;
@@ -445,15 +509,21 @@ function fillGameTeams() {
 }
 function el(id) { return document.getElementById(id); }
 el("gDiv").addEventListener("change", fillGameTeams);
+el("gOppMode").addEventListener("change", applyGameModes);
+el("gVenueMode").addEventListener("change", applyGameModes);
 
 function gameForm() {
+  var oppExt = el("gOppMode").value === "ext";
+  var venExt = el("gVenueMode").value === "ext";
   return {
     id: editingGame ? editingGame.id : undefined,
     season_id: el("gSeason").value,
     division: el("gDiv").value,
     home_team_id: el("gHome").value,
-    away_team_id: el("gAway").value,
-    field_id: el("gField").value,
+    away_team_id: oppExt ? null : el("gAway").value,
+    ext_team_id: oppExt ? el("gExt").value : null,
+    field_id: venExt ? null : el("gField").value,
+    venue_text: venExt ? el("gVenue").value.trim() : null,
     game_date: el("gDate").value,
     start_time: el("gStart").value,
     end_time: el("gEnd").value,
@@ -463,8 +533,11 @@ function gameForm() {
 }
 function resetGameForm() {
   editingGame = null;
-  ["gDiv", "gHome", "gAway", "gField"].forEach(function (id) { el(id).value = ""; });
-  ["gDate", "gStart", "gEnd", "gNotes"].forEach(function (id) { el(id).value = ""; });
+  ["gDiv", "gHome", "gAway", "gExt", "gField"].forEach(function (id) { el(id).value = ""; });
+  ["gDate", "gStart", "gEnd", "gNotes", "gVenue"].forEach(function (id) { el(id).value = ""; });
+  el("gOppMode").value = "league";
+  el("gVenueMode").value = "field";
+  applyGameModes();
   el("gSave").textContent = "Schedule game";
   el("gCancelEdit").classList.add("hidden");
 }
@@ -472,9 +545,11 @@ el("gCancelEdit").addEventListener("click", resetGameForm);
 
 el("gSave").addEventListener("click", function () {
   var g = gameForm();
-  if (!g.season_id || !g.home_team_id || !g.away_team_id || !g.field_id || !g.game_date || !g.start_time || !g.end_time) {
-    alert("Pick both teams, the field, the date, and both times first."); return;
+  if (!g.season_id || !g.home_team_id || !g.game_date || !g.start_time || !g.end_time) {
+    alert("Pick our team, the date, and both times first."); return;
   }
+  if (!g.away_team_id && !g.ext_team_id) { alert("Pick the opponent: one of our teams or an interlock team."); return; }
+  if (!g.field_id && !g.venue_text) { alert("Pick one of our fields or type in their venue."); return; }
   if (g.home_team_id === g.away_team_id) { alert("Home and away must be different teams."); return; }
   if (g.end_time <= g.start_time) { alert("End time must be after the start time."); return; }
   var conflicts = FLM_RULES.gameConflicts(g, D);
@@ -505,8 +580,12 @@ function startEditGame(g) {
   el("gSeason").value = g.season_id;
   el("gDiv").value = g.division || "";
   fillGameTeams();
-  el("gHome").value = g.home_team_id; el("gAway").value = g.away_team_id;
-  el("gField").value = g.field_id;
+  el("gOppMode").value = g.ext_team_id ? "ext" : "league";
+  el("gVenueMode").value = g.venue_text ? "ext" : "field";
+  applyGameModes();
+  el("gHome").value = g.home_team_id;
+  el("gAway").value = g.away_team_id || ""; el("gExt").value = g.ext_team_id || "";
+  el("gField").value = g.field_id || ""; el("gVenue").value = g.venue_text || "";
   el("gDate").value = g.game_date;
   el("gStart").value = String(g.start_time).slice(0, 5); el("gEnd").value = String(g.end_time).slice(0, 5);
   el("gNotes").value = g.notes || "";
@@ -521,9 +600,10 @@ function renderGames() {
   var games = D.games || [];
   box.innerHTML = games.map(function (g) {
     var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : (g.status === "draft" ? "draft" : "on")) + '">' + esc(g.status) + "</span>";
+    if (g.ext_team_id) st += ' <span class="chip il">' + esc(gameLeague(g) || "interlock") + "</span>";
     return '<div class="row" style="padding:7px 0;border-bottom:1px solid #efede4;">' +
-      '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameTeamName(g.away_team_id)) + "</b>" + st +
-      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameFieldName(g.field_id)) + (g.division ? " · " + esc(g.division) : "") + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
+      '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameOppName(g)) + "</b>" + st +
+      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameVenueName(g)) + (g.division ? " · " + esc(g.division) : "") + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
       '<select data-gstatus="' + g.id + '">' + (g.status === "draft" ? ["draft"] : []).concat(["scheduled", "postponed", "cancelled", "completed"]).map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
       '<button class="btn sm ghost" data-gedit="' + g.id + '">Edit</button>' +
       '<button class="btn sm danger" data-gdel="' + g.id + '">Delete</button></div>';
@@ -541,18 +621,69 @@ function renderGames() {
   box.querySelectorAll("[data-gdel]").forEach(function (b) {
     b.addEventListener("click", function () {
       var g = games.filter(function (x) { return x.id === b.getAttribute("data-gdel"); })[0];
-      if (!confirm("Delete the game " + gameTeamName(g.home_team_id) + " vs " + gameTeamName(g.away_team_id) + " on " + fmtDate(g.game_date) + "? This cannot be undone.")) return;
+      if (!confirm("Delete the game " + gameTeamName(g.home_team_id) + " vs " + gameOppName(g) + " on " + fmtDate(g.game_date) + "? This cannot be undone.")) return;
       admin("admin_game", { delete_id: g.id }).then(refresh).catch(function (e) { alert(e.message); });
     });
   });
 }
+
+/* ---------- interlock opponents (other leagues) ---------- */
+function renderExtTeams() {
+  var box = el("extList");
+  var list = D.ext_teams || [];
+  el("xlLeagues").innerHTML = extLeagues().map(function (lg) { return '<option value="' + esc(lg) + '"></option>'; }).join("");
+  el("xlDivs").innerHTML = divisionList().map(function (d) { return '<option value="' + esc(d) + '"></option>'; }).join("");
+  if (!list.length) { box.innerHTML = '<p class="hint">No interlock opponents yet. Add the teams the district or the other league gave you.</p>'; return; }
+  var byLeague = {};
+  list.forEach(function (x) { (byLeague[x.league_name] = byLeague[x.league_name] || []).push(x); });
+  box.innerHTML = Object.keys(byLeague).sort().map(function (lg) {
+    return '<div style="margin-bottom:10px;"><div style="font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:0.06em;text-transform:uppercase;color:var(--grass);border-bottom:1px solid var(--line);padding-bottom:2px;margin-bottom:4px;">' + esc(lg) + "</div>" +
+      byLeague[lg].map(function (x) {
+        return '<div class="row" style="padding:4px 0;font-size:13.5px;">' +
+          '<div style="flex:1;min-width:180px;"><b>' + esc(x.team_name) + "</b>" + (x.division ? ' <span style="color:var(--muted)">' + esc(x.division) + "</span>" : "") + (x.notes ? ' <span style="color:var(--muted)">· ' + esc(x.notes) + "</span>" : "") + "</div>" +
+          '<button class="btn sm ghost" data-xl-edit="' + x.id + '">Edit</button>' +
+          '<button class="btn sm danger" data-xl-del="' + x.id + '">Delete</button></div>';
+      }).join("") + "</div>";
+  }).join("");
+  box.querySelectorAll("[data-xl-edit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var x = extById(b.getAttribute("data-xl-edit"));
+      var lg = prompt("League:", x.league_name); if (lg == null) return;
+      var nm = prompt("Team name:", x.team_name); if (nm == null) return;
+      var dv = prompt("Division it matches on our side:", x.division); if (dv == null) return;
+      var nt = prompt("Notes (optional):", x.notes || ""); if (nt == null) return;
+      admin("admin_ext_team", { id: x.id, league_name: lg.trim(), team_name: nm.trim(), division: dv.trim(), notes: nt.trim() }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+  box.querySelectorAll("[data-xl-del]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var x = extById(b.getAttribute("data-xl-del"));
+      if (!confirm("Delete " + x.team_name + " (" + x.league_name + ") from the interlock opponents?")) return;
+      admin("admin_ext_team", { delete_id: x.id }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+}
+el("xlAdd").addEventListener("click", function () {
+  var lg = el("xlLeague").value.trim(), dv = el("xlDiv").value.trim(), nm = el("xlName").value.trim();
+  if (!lg || !nm) { alert("Give the team a league and a name, like Auburn LL and Storm."); return; }
+  var btn = this; btn.disabled = true;
+  admin("admin_ext_team", { league_name: lg, division: dv, team_name: nm })
+    .then(function () {
+      btn.disabled = false;
+      el("xlName").value = "";
+      var m = el("xlMsg"); m.textContent = "Added " + nm + " (" + lg + ").";
+      m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 2600);
+      refresh();
+    })
+    .catch(function (e) { btn.disabled = false; alert(e.message); });
+});
 
 /* ---------- season generator ---------- */
 var SG = { cfg: null, built: false, unplaced: [] };
 var SG_DOW = [["mon", "Monday"], ["tue", "Tuesday"], ["wed", "Wednesday"], ["thu", "Thursday"], ["fri", "Friday"], ["sat", "Saturday"], ["sun", "Sunday"]];
 
 function sgDefaultCfg() {
-  return { season_id: "", start_date: "", end_date: "", seed: 1, blackouts: [], divisions: {}, interlocks: [] };
+  return { season_id: "", start_date: "", end_date: "", seed: 1, blackouts: [], divisions: {}, crossovers: [], interlocks: [] };
 }
 function sgLoadCfg() {
   if (SG.cfg) return SG.cfg;
@@ -560,7 +691,14 @@ function sgLoadCfg() {
     var raw = D && D.settings ? D.settings.season_gen_config : null;
     SG.cfg = raw ? JSON.parse(raw) : sgDefaultCfg();
   } catch (e) { SG.cfg = sgDefaultCfg(); }
-  ["blackouts", "interlocks"].forEach(function (k) { if (!Array.isArray(SG.cfg[k])) SG.cfg[k] = []; });
+  ["blackouts", "crossovers", "interlocks"].forEach(function (k) { if (!Array.isArray(SG.cfg[k])) SG.cfg[k] = []; });
+  /* legacy configs stored crossover a/b rules under "interlocks" before the
+     external-interlock rework: move them where they now live */
+  var legacy = SG.cfg.interlocks.filter(function (il) { return il.a && il.b; });
+  if (legacy.length) {
+    SG.cfg.crossovers = SG.cfg.crossovers.concat(legacy);
+    SG.cfg.interlocks = SG.cfg.interlocks.filter(function (il) { return !(il.a && il.b); });
+  }
   if (!SG.cfg.divisions || typeof SG.cfg.divisions !== "object") SG.cfg.divisions = {};
   return SG.cfg;
 }
@@ -598,7 +736,8 @@ function sgBuildOnce() {
   el("sgSeason").addEventListener("change", function () { cfg.start_date = ""; cfg.end_date = ""; seasonDates(); });
   sgRenderBlackouts();
   sgRenderDivs();
-  sgRenderInterlocks();
+  sgRenderCrossovers();
+  sgRenderXl();
 }
 
 function sgRenderBlackouts() {
@@ -653,23 +792,60 @@ function sgRenderDivs() {
   });
 }
 
-function sgRenderInterlocks() {
+function sgRenderCrossovers() {
   var cfg = sgLoadCfg();
   var opts = divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
   el("sgIlA").innerHTML = opts; el("sgIlB").innerHTML = opts;
-  el("sgIlList").innerHTML = cfg.interlocks.map(function (il, i) {
+  el("sgIlList").innerHTML = cfg.crossovers.map(function (il, i) {
     return '<div class="ilrow"><b>' + esc(il.a) + "</b> plays <b>" + esc(il.b) + "</b>, " + (+il.games_per_team || 0) + " games per team " +
       '<button class="btn sm ghost" data-il-del="' + i + '">Remove</button></div>';
-  }).join("") || '<p class="hint" style="margin:4px 0 6px;">No interlock rules. Divisions only play inside their own division.</p>';
+  }).join("") || '<p class="hint" style="margin:4px 0 6px;">No crossover rules. Divisions only play inside their own division.</p>';
   el("sgIlList").querySelectorAll("[data-il-del]").forEach(function (b) {
-    b.addEventListener("click", function () { cfg.interlocks.splice(+b.getAttribute("data-il-del"), 1); sgRenderInterlocks(); });
+    b.addEventListener("click", function () { cfg.crossovers.splice(+b.getAttribute("data-il-del"), 1); sgRenderCrossovers(); });
   });
 }
 el("sgIlAdd").addEventListener("click", function () {
   var a = el("sgIlA").value, b = el("sgIlB").value, n = Math.max(1, +el("sgIlN").value || 0);
-  if (!a || !b || a === b) { alert("Pick two different divisions for an interlock rule."); return; }
-  sgLoadCfg().interlocks.push({ a: a, b: b, games_per_team: n });
-  sgRenderInterlocks();
+  if (!a || !b || a === b) { alert("Pick two different divisions for a crossover rule."); return; }
+  sgLoadCfg().crossovers.push({ a: a, b: b, games_per_team: n });
+  sgRenderCrossovers();
+});
+
+function sgSplitLabel(r) { return r >= 1 ? "all home" : (r <= 0 ? "all away" : "half home, half away"); }
+function sgRenderXl() {
+  var cfg = sgLoadCfg();
+  el("sgXlDiv").innerHTML = divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
+  var leagues = extLeagues();
+  el("sgXlLeagues").innerHTML = leagues.length ? leagues.map(function (lg) {
+    return '<label style="font-size:12.5px;white-space:nowrap;"><input type="checkbox" class="sgxl-lg" value="' + esc(lg) + '" style="width:auto;" /> ' + esc(lg) + "</label>";
+  }).join("") : '<span class="warn" style="font-size:12.5px;">Add interlock opponents above first.</span>';
+  el("sgXlList").innerHTML = cfg.interlocks.map(function (il, i) {
+    var pool = (D.ext_teams || []).filter(function (x) {
+      if ((il.leagues || []).indexOf(x.league_name) < 0) return false;
+      var want = il.ext_division === undefined || il.ext_division === null ? il.division : il.ext_division;
+      return !want || !x.division || x.division === want;
+    });
+    return '<div class="ilrow"><b>' + esc(il.division) + "</b> plays <b>" + esc((il.leagues || []).join(" + ")) + "</b>, " +
+      (+il.games_per_team || 0) + " games per team, " + sgSplitLabel(typeof il.home_ratio === "number" ? il.home_ratio : 0.5) +
+      ' <span style="color:var(--muted);font-size:12px;">(' + pool.length + " opponents in the pool)</span> " +
+      '<button class="btn sm ghost" data-xl-rule-del="' + i + '">Remove</button></div>';
+  }).join("") || '<p class="hint" style="margin:4px 0 6px;">No interlock rules yet.</p>';
+  el("sgXlList").querySelectorAll("[data-xl-rule-del]").forEach(function (b) {
+    b.addEventListener("click", function () { cfg.interlocks.splice(+b.getAttribute("data-xl-rule-del"), 1); sgRenderXl(); });
+  });
+}
+el("sgXlAdd").addEventListener("click", function () {
+  var div = el("sgXlDiv").value;
+  var leagues = [];
+  el("sgXlLeagues").querySelectorAll(".sgxl-lg:checked").forEach(function (cb) { leagues.push(cb.value); });
+  if (!div) { alert("Pick which of our divisions plays interlock."); return; }
+  if (!leagues.length) { alert("Check at least one league to play against."); return; }
+  sgLoadCfg().interlocks.push({
+    division: div, leagues: leagues, ext_division: div,
+    games_per_team: Math.max(1, +el("sgXlN").value || 0),
+    home_ratio: +el("sgXlSplit").value
+  });
+  sgRenderXl();
 });
 
 function sgParseTimes(str) {
@@ -714,8 +890,10 @@ function sgCollect() {
   });
   if (bad) { alert(bad); return null; }
   if (!Object.keys(cfg.divisions).length) { alert("Turn on at least one division."); return null; }
-  var missing = (cfg.interlocks || []).filter(function (il) { return !cfg.divisions[il.a] || !cfg.divisions[il.b]; });
-  if (missing.length) { alert("The interlock " + missing[0].a + " vs " + missing[0].b + " needs both divisions turned on."); return null; }
+  var missing = (cfg.crossovers || []).filter(function (il) { return !cfg.divisions[il.a] || !cfg.divisions[il.b]; });
+  if (missing.length) { alert("The crossover " + missing[0].a + " vs " + missing[0].b + " needs both divisions turned on."); return null; }
+  var xlMissing = (cfg.interlocks || []).filter(function (il) { return il.division && !cfg.divisions[il.division]; });
+  if (xlMissing.length) { alert("The interlock for " + xlMissing[0].division + " needs that division turned on."); return null; }
   return cfg;
 }
 
@@ -739,7 +917,7 @@ function sgGenerate(newSeed) {
     .then(function () { return drafts.length ? admin("admin_games_bulk", { op: "discard", season_id: drafts[0].season_id }) : null; })
     .then(function () {
       var res = FLM_GEN.generate(cfg, {
-        teams: D.teams, fields: D.fields, slots: D.slots,
+        teams: D.teams, fields: D.fields, slots: D.slots, ext_teams: D.ext_teams || [],
         games: (D.games || []).filter(function (g) { return g.status !== "draft"; })
       });
       SG.unplaced = res.unplaced;
@@ -792,7 +970,7 @@ function renderSeasonGen() {
   el("sgDraftCount").textContent = drafts.length + " draft games";
   el("sgPublish").disabled = !drafts.length;
   el("sgUnplaced").innerHTML = (SG.unplaced || []).map(function (u) {
-    return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameTeamName(u.away_team_id)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : "") + "). " + esc(u.reason) + " Schedule it by hand in the Games panel or loosen the setup and regenerate.</div>";
+    return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameOppName(u)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : (u.crossover ? ", crossover" : "")) + "). " + esc(u.reason) + " Schedule it by hand in the Games panel or loosen the setup and regenerate.</div>";
   }).join("");
 
   /* summary stats: games per team with home/away, per-field load */
@@ -810,7 +988,19 @@ function renderSeasonGen() {
   html += '<div style="flex:1;min-width:180px;"><table class="list"><thead><tr><th>Field</th><th class="num">Games</th></tr></thead><tbody>' +
     Object.keys(stats.perField).map(function (fid) {
       return "<tr><td>" + esc(gameFieldName(fid)) + '</td><td class="num">' + stats.perField[fid] + "</td></tr>";
-    }).join("") + "</tbody></table></div></div>";
+    }).join("") + "</tbody></table></div>";
+  /* interlock games shown separately: per-team counts and the home/away split */
+  var il = stats.interlock || { total: 0 };
+  if (il.total) {
+    html += '<div style="flex:1;min-width:220px;"><table class="list"><thead><tr><th>Interlock</th><th class="num">Games</th><th class="num">Home</th><th class="num">Away</th></tr></thead><tbody>' +
+      Object.keys(il.perTeam).map(function (id) {
+        var s = il.perTeam[id];
+        return "<tr><td style=\"font-weight:600;\">" + esc(gameTeamName(id)) + '</td><td class="num">' + s.games + '</td><td class="num">' + s.home + '</td><td class="num">' + s.away + "</td></tr>";
+      }).join("") +
+      '<tr><td style="font-weight:700;">All interlock</td><td class="num" style="font-weight:700;">' + il.total + '</td><td class="num" style="font-weight:700;">' + il.home + '</td><td class="num" style="font-weight:700;">' + il.away + "</td></tr>" +
+      "</tbody></table></div>";
+  }
+  html += "</div>";
   el("sgStats").innerHTML = html;
 
   /* drafts grouped by week, with the existing edit flow per game */
@@ -827,9 +1017,10 @@ function renderSeasonGen() {
       wk.map(function (g) {
         var conflicts = FLM_RULES.gameConflicts(g, D);
         return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;">' +
-          '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameTeamName(g.away_team_id)) + "</b>" +
+          '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameOppName(g)) + "</b>" +
+          (g.ext_team_id ? ' <span class="chip il">' + esc(gameLeague(g) || "interlock") + "</span>" : "") +
           (conflicts.length ? ' <span class="chip lock" title="' + esc(conflicts.map(function (c) { return c.message; }).join(" ")) + '">conflict</span>' : "") +
-          '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " &middot; " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " &middot; " + esc(gameFieldName(g.field_id)) + (g.division ? " &middot; " + esc(g.division) : "") + "</span></div>" +
+          '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " &middot; " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " &middot; " + esc(gameVenueName(g)) + (g.division ? " &middot; " + esc(g.division) : "") + "</span></div>" +
           '<button class="btn sm ghost" data-sgedit="' + g.id + '">Edit</button></div>';
       }).join("");
   }).join("");
