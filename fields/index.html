@@ -173,6 +173,46 @@
   footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 30px 16px 40px; }
   footer .f1 { font-family: var(--disp); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--grass); }
   .loading { text-align: center; color: var(--muted); padding: 60px 0; font-family: var(--disp); font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* ---------- PHONE APP SHELL (bottom tab bar under 768px) ----------
+     Desktop keeps the full command-center layout. On phones the same DOM is
+     reshaped into four screens: My Team, Schedule, Fields, Alerts. */
+  .tabbar { display: none; }
+  .ubanner { display: none; }
+  #mtPrompt { display: none; }
+  #alertsQuiet { display: none; }
+  @media (max-width: 767px) {
+    body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+    .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; background: var(--pine); border-top: 3px solid var(--clay); padding: 6px 4px calc(7px + env(safe-area-inset-bottom)); }
+    .tb { flex: 1; min-height: 52px; background: none; border: none; color: #b7cfc2; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; position: relative; }
+    .tb svg { width: 22px; height: 22px; }
+    .tb.on { color: #ffd9b8; }
+    .tb .dot { display: none; position: absolute; top: 4px; right: calc(50% - 18px); width: 9px; height: 9px; border-radius: 50%; background: var(--clay); border: 2px solid var(--pine); }
+    body.alerts-on .tb[data-mtab="alerts"] .dot { display: block; }
+    .ubanner { display: block; position: sticky; top: 0; z-index: 30; cursor: pointer; }
+    .ubanner .ub { font-family: var(--disp); font-weight: 600; font-size: 14.5px; letter-spacing: 0.04em; padding: 9px 16px; color: #fff; }
+    .ubanner .ub.warning { background: var(--clay-dark); }
+    .ubanner .ub.urgent { background: #b3432b; }
+    body[data-mtab="alerts"] .ubanner { display: none; }
+    body:not([data-mtab="alerts"]) #announceBox { display: none; }
+    body:not([data-mtab="myteam"]) #myTeam,
+    body:not([data-mtab="myteam"]) #rulesBox,
+    body:not([data-mtab="myteam"]) #mtPrompt { display: none !important; }
+    body:not([data-mtab="fields"]) .legend { display: none; }
+    body:not([data-mtab="fields"]):not([data-mtab="sched"]) .bar { display: none; }
+    body[data-mtab="sched"] .views { display: none; }
+    .vbtn[data-view="sched"] { display: none; }
+    body[data-mtab="myteam"] #viewGrid, body[data-mtab="myteam"] #viewDays, body[data-mtab="myteam"] #viewTeams, body[data-mtab="myteam"] #viewSched,
+    body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched { display: none !important; }
+    body[data-mtab="myteam"] #mtPrompt:not(.hidden) { display: block !important; }
+    body[data-mtab="alerts"] #alertsQuiet:not(.hidden) { display: block; }
+    .mtprompt { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 16px; text-align: center; }
+    .mtprompt p { font-size: 14.5px; color: #3c463f; margin-bottom: 14px; }
+    .mtprompt .mb { width: 100%; }
+    .quietline { text-align: center; color: var(--muted); font-size: 14.5px; padding: 34px 10px; }
+    .toast { bottom: calc(92px + env(safe-area-inset-bottom)); }
+    .modal { padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
+  }
 </style>
 </head>
 <body>
@@ -189,10 +229,16 @@
     </div>
   </header>
   <div class="chalkline"></div>
+  <div class="ubanner hidden" id="urgentBanner"></div>
 
   <div class="wrap">
     <div id="announceBox"></div>
+    <div class="quietline hidden" id="alertsQuiet">All quiet right now. No league announcements.</div>
     <div class="myteam hidden" id="myTeam"></div>
+    <div class="mtprompt hidden" id="mtPrompt">
+      <p>Pick your team to see your practices, your next game, and where you stand on the league guideline.</p>
+      <button class="mb go" id="mtPickBtn">Pick my team</button>
+    </div>
     <div class="rules" id="rulesBox" style="display:none"></div>
 
     <div class="bar">
@@ -223,6 +269,13 @@
     </div>
     <div id="viewTeams" class="hidden"><div class="teamgrid" id="teamGrid"></div></div>
   </div>
+
+  <nav class="tabbar" id="tabBar" aria-label="Sections">
+    <button class="tb" data-mtab="myteam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>My Team</button>
+    <button class="tb" data-mtab="sched"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</button>
+    <button class="tb" data-mtab="fields"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg>Fields</button>
+    <button class="tb" data-mtab="alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>Alerts<span class="dot"></span></button>
+  </nav>
 
   <footer><span class="f1">Field Command</span><br />Built for our league by CoachPilot &middot; <a href="/fields/admin.html" style="text-decoration:underline">League admin</a></footer>
 
@@ -268,8 +321,34 @@ if (_bootTeam.charAt(0) === "{") {
 }
 var _bootView = lsGet("flm_view");
 if (["grid", "days", "teams", "sched"].indexOf(_bootView) < 0) _bootView = null;
-var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam };
+var _bootTab = lsGet("flm_mtab");
+if (["myteam", "sched", "fields", "alerts"].indexOf(_bootTab) < 0) _bootTab = null;
+var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
+
+/* ---------- phone app shell: bottom tab bar under 768px ---------- */
+function isPhone() { return window.matchMedia("(max-width: 767px)").matches; }
+function curTab() { return S.mtab || ((S.data && teamById(S.myTeam)) ? "myteam" : "fields"); }
+function effView() {
+  if (isPhone()) {
+    if (curTab() === "sched") return "sched";
+    if (S.view === "sched") return "days";
+  }
+  return S.view;
+}
+function applyLayout() {
+  var t = curTab();
+  document.body.setAttribute("data-mtab", t);
+  var tbs = document.querySelectorAll("#tabBar .tb");
+  for (var i = 0; i < tbs.length; i++) tbs[i].classList.toggle("on", tbs[i].getAttribute("data-mtab") === t);
+}
+function goTab(t) {
+  S.mtab = t;
+  lsSet("flm_mtab", t);
+  applyLayout();
+  if (S.data) renderView();
+  window.scrollTo(0, 0);
+}
 
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 function divColor(team) { return DIV_COLORS[team && team.division ? team.division : ""] || DIV_COLORS[""]; }
@@ -326,6 +405,7 @@ function renderAll() {
   var rb = document.getElementById("rulesBox");
   rb.style.display = "";
   rb.innerHTML = "<b>League guideline:</b> " + esc(FLM_RULES.describe(leagueRules())) + (d.settings.rules ? " " + esc(d.settings.rules) : "");
+  applyLayout();
   renderAnnouncements(); renderMyTeam();
   renderWho(); renderSeasons(); renderLegend(); renderView();
   var sn = seasonObj();
@@ -334,15 +414,26 @@ function renderAll() {
 
 function renderAnnouncements() {
   var box = document.getElementById("announceBox");
-  box.innerHTML = (S.data.announcements || []).map(function (a) {
+  var list = (S.data.announcements || []).slice();
+  list.sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
+  box.innerHTML = list.map(function (a) {
     return '<div class="announce ' + (a.severity === "warning" || a.severity === "urgent" ? esc(a.severity) : "") + '"><h4>' + esc(a.title) + "</h4>" + (a.body ? "<p>" + esc(a.body) + "</p>" : "") + "</div>";
   }).join("");
+  /* phone shell: badge dot on the Alerts tab + quiet state when nothing is posted */
+  document.body.classList.toggle("alerts-on", list.length > 0);
+  document.getElementById("alertsQuiet").classList.toggle("hidden", list.length > 0);
+  /* safety info never hides behind a tab: urgent/warning also get a slim banner */
+  var hot = list.filter(function (a) { return a.severity === "urgent" || a.severity === "warning"; });
+  var ub = document.getElementById("urgentBanner");
+  ub.innerHTML = hot.map(function (a) { return '<div class="ub ' + esc(a.severity) + '">' + esc(a.title) + "</div>"; }).join("");
+  ub.classList.toggle("hidden", hot.length === 0);
 }
 
 function renderMyTeam() {
   var box = document.getElementById("myTeam");
   var t = teamById(S.myTeam);
-  if (!t || !S.season) { box.classList.add("hidden"); return; }
+  if (!t || !S.season) { box.classList.add("hidden"); document.getElementById("mtPrompt").classList.remove("hidden"); return; }
+  document.getElementById("mtPrompt").classList.add("hidden");
   var mine = (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.team_id === t.id; });
   mine.sort(function (a, b) {
     return DAYS.map(function (d) { return d.k; }).indexOf(a.day_key) - DAYS.map(function (d) { return d.k; }).indexOf(b.day_key);
@@ -391,7 +482,7 @@ function renderSeasons() {
   });
   var vb = document.querySelectorAll(".vbtn");
   for (var i = 0; i < vb.length; i++) {
-    vb[i].classList.toggle("on", vb[i].getAttribute("data-view") === S.view);
+    vb[i].classList.toggle("on", vb[i].getAttribute("data-view") === effView());
     vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); lsSet("flm_view", S.view); renderAll(); }; })(vb[i]);
   }
 }
@@ -437,9 +528,10 @@ function bindCells(root) {
 function renderView() {
   ["viewGrid", "viewDays", "viewTeams", "viewSched"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   if (!S.data || !S.season) return;
-  if (S.view === "grid") renderGrid();
-  else if (S.view === "days") renderDays();
-  else if (S.view === "sched") renderSched();
+  var v = effView();
+  if (v === "grid") renderGrid();
+  else if (v === "days") renderDays();
+  else if (v === "sched") renderSched();
   else renderTeams();
 }
 
@@ -711,6 +803,18 @@ function openSlotModal(slotId) {
 }
 
 document.getElementById("whoBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
+document.getElementById("mtPickBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
+document.getElementById("urgentBanner").addEventListener("click", function () { goTab("alerts"); });
+document.querySelectorAll("#tabBar .tb").forEach(function (b) {
+  b.addEventListener("click", function () { goTab(b.getAttribute("data-mtab")); });
+});
+(function () {
+  var mq = window.matchMedia("(max-width: 767px)");
+  function onFlip() { applyLayout(); if (S.data) renderView(); }
+  if (mq.addEventListener) mq.addEventListener("change", onFlip);
+  else if (mq.addListener) mq.addListener(onFlip);
+})();
+applyLayout();
 load();
 
 /* ---------- usage beacon (fire-and-forget, never blocks the page) ---------- */

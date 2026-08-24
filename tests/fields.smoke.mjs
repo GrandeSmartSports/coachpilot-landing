@@ -143,6 +143,34 @@ for (const [s, why] of [
 if (!/var S = \{[^}]*localStorage\.getItem/.test(indexHtml)) ok('no raw localStorage access in boot state line');
 else fail('boot state line still reads localStorage directly');
 
+// ------- 2c. Phone app shell: bottom tab bar (one codebase, two experiences) -------
+section('fields/index.html: phone tab shell');
+for (const [s, why] of [
+  ['id="tabBar"', 'bottom tab bar exists'],
+  ['data-mtab="myteam"', 'My Team tab'],
+  ['data-mtab="sched"', 'Schedule tab'],
+  ['data-mtab="fields"', 'Fields tab'],
+  ['data-mtab="alerts"', 'Alerts tab'],
+  ['@media (max-width: 767px)', 'phone breakpoint present'],
+  ['.tabbar { display: none; }', 'tab bar hidden on desktop by default'],
+  ['env(safe-area-inset-bottom)', 'iOS safe-area inset respected'],
+  ['id="urgentBanner"', 'urgent/warning banner element exists'],
+  ['a.severity === "urgent" || a.severity === "warning"', 'banner filters to urgent and warning only'],
+  ['id="alertsQuiet"', 'quiet state line when no announcements'],
+  ['lsSet("flm_mtab"', 'tab choice remembered per device'],
+  ['alerts-on', 'Alerts badge dot driven by announcement presence'],
+  ['id="mtPrompt"', 'My Team tab prompts unidentified visitors to pick a team'],
+  ['curTab() === "sched"', 'Schedule tab forces the schedule view on phones'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+// New customer-facing copy stays clean: no em/en dashes in the shell strings.
+for (const line of ['All quiet right now. No league announcements.', 'Pick your team to see your practices, your next game, and where you stand on the league guideline.']) {
+  if (indexHtml.includes(line) && !/[—–]/.test(line)) ok('copy present and dash-free: ' + line.slice(0, 40) + '...');
+  else fail('copy missing or dashed: ' + line);
+}
+
 // ------- 3. Admin hooks -------
 section('fields/admin.html: required hooks');
 const adminHtml = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
