@@ -861,6 +861,8 @@ for (const s of ['ump_list', 'ump_state', 'ump_claim', 'ump_respond', 'ump_avail
 }
 if (umpHtml.includes('fields-umpire')) ok('usage beacon tags the umpire page');
 else fail('umpire beacon missing');
+if ((umpHtml.match(/prompt\(/g) || []).length === 0) ok('ZERO prompt() calls in the umpire page (change PIN is a real modal)');
+else fail('prompt() still used in umpire.html');
 if (!/coach_email|coach_phone|parent_email|"phone"/.test(umpHtml)) ok('umpire page never touches contact-info fields');
 else fail('umpire page references contact info');
 if (indexHtml.includes('/fields/umpire.html')) ok('portal footer links the umpire page');

@@ -505,17 +505,34 @@ function renderMe() {
     '<div class="cbtns"><button class="cb quiet" id="meChangePin">Change my PIN</button>' +
     '<button class="cb quiet" id="meSwitch">Not you? Switch person</button></div>';
   el("meChangePin").addEventListener("click", function () {
-    var np = prompt("New 4 digit PIN:");
-    if (np == null) return;
-    np = np.trim();
-    if (!/^\d{4}$/.test(np)) { alert("The PIN must be exactly 4 digits."); return; }
-    umpApi("ump_change_pin", { new_pin: np })
-      .then(function (d) {
-        if (!d.ok) throw new Error(d.error);
-        CRED.pin = np; lsSet("flm_ump_pin", np);
-        toast("PIN changed. This device remembers the new one.");
-      })
-      .catch(function (e) { alert(e.message); });
+    var veil = document.createElement("div");
+    veil.style.cssText = "position:fixed;inset:0;background:rgba(14,59,46,0.82);display:flex;align-items:center;justify-content:center;z-index:99;padding:14px;";
+    veil.innerHTML = '<div class="gatebox" style="width:100%;max-width:320px;">' +
+      '<h2 style="margin-bottom:4px;">Change my PIN</h2>' +
+      '<p>Pick a new 4 digit PIN. You will use it to sign in on any device.</p>' +
+      '<input class="pin" id="npPin" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" />' +
+      '<p class="gerr hidden" id="npErr">The PIN must be exactly 4 digits.</p>' +
+      '<button class="gbtn" id="npGo">Save new PIN</button>' +
+      '<button class="gbtn gback" id="npX">Cancel</button></div>';
+    document.body.appendChild(veil);
+    var inp = veil.querySelector("#npPin");
+    inp.focus();
+    veil.querySelector("#npX").addEventListener("click", function () { veil.remove(); });
+    veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+    function saveNewPin() {
+      var np = inp.value.trim();
+      if (!/^\d{4}$/.test(np)) { veil.querySelector("#npErr").classList.remove("hidden"); return; }
+      umpApi("ump_change_pin", { new_pin: np })
+        .then(function (d) {
+          if (!d.ok) throw new Error(d.error);
+          CRED.pin = np; lsSet("flm_ump_pin", np);
+          veil.remove();
+          toast("PIN changed. This device remembers the new one.");
+        })
+        .catch(function (e) { alert(e.message); });
+    }
+    veil.querySelector("#npGo").addEventListener("click", saveNewPin);
+    inp.addEventListener("keydown", function (e) { if (e.key === "Enter") saveNewPin(); });
   });
   el("meSwitch").addEventListener("click", signOut);
 }
