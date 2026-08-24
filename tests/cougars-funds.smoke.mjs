@@ -91,8 +91,8 @@ if (parsed.length === 1 && parsed[0].id === 'x') ok('invalid entries dropped, va
 if (dollars(32500) === '$325') ok('dollars whole: $325'); else fail('dollars(32500) = ' + dollars(32500));
 if (dollars(1250) === '$12.50') ok('dollars cents: $12.50'); else fail('dollars(1250) = ' + dollars(1250));
 
-const p0 = fundProgress({ goal_cents: 32500, raised_cents: 0 });
-if (!p0.open && p0.pct === 0 && p0.label === '$0 of $325') ok('goal fund at zero: ' + p0.label); else fail('goal-at-zero wrong: ' + JSON.stringify(p0));
+const p0 = fundProgress({ goal_cents: 26000, raised_cents: 0 });
+if (!p0.open && p0.pct === 0 && p0.label === '$0 of $260') ok('goal fund at zero: ' + p0.label); else fail('goal-at-zero wrong: ' + JSON.stringify(p0));
 const pHalf = fundProgress({ goal_cents: 19500, raised_cents: 9750 });
 if (!pHalf.open && pHalf.pct === 50 && pHalf.label === '$97.50 of $195') ok('goal fund at half: ' + pHalf.label + ' (50%)'); else fail('half wrong: ' + JSON.stringify(pHalf));
 const pOver = fundProgress({ goal_cents: 3000, raised_cents: 4500 });
@@ -100,24 +100,43 @@ if (!pOver.open && pOver.pct === 100 && pOver.label === '$45 of $30') ok('over g
 const pOpen = fundProgress({ goal_cents: null, raised_cents: 4200 });
 if (pOpen.open && pOpen.pct === null && pOpen.label === '$42 raised so far') ok('open goal: ' + pOpen.label); else fail('open goal wrong: ' + JSON.stringify(pOpen));
 
+// ------- Draft preview page (Coach review artifact) -------
+section('draft preview page: file + copy');
+const PREVIEW = path.join(ROOT, 'cougars', 'coach', 'draft-weekly-aug24.html');
+if (!fs.existsSync(PREVIEW)) { fail('cougars/coach/draft-weekly-aug24.html missing'); }
+else {
+  const prev = fs.readFileSync(PREVIEW, 'utf8');
+  const prevMust = [
+    'DRAFT PREVIEW for Coach only',
+    'Week of August 24',
+    'nobody wants me in charge of anything fashion related',
+    'renderBody',
+    'noindex, nofollow',
+  ];
+  for (const s of prevMust) {
+    if (prev.includes(s)) ok('preview contains: ' + s.slice(0, 50));
+    else fail('preview MISSING: ' + s);
+  }
+  const prevCheckable = prev.replace(/<title>[\s\S]*?<\/title>/, '');
+  let prevHits = 0;
+  for (const [ch, name] of Object.entries(forbidden)) {
+    if (prevCheckable.includes(ch)) { fail('preview: found ' + name); prevHits++; }
+  }
+  if (prevHits === 0) ok('preview has no em/en dashes or curly quotes');
+}
+
 // ------- 4. Live gateway: funds -------
 section('gateway: funds actions');
 try {
   const r = await fetch(GATEWAY + '?action=funds');
   const d = await r.json();
   const funds = d.funds || [];
-  if (r.ok && funds.length === 4) ok('funds returns 4 funds'); else fail('funds returned ' + r.status + ' with ' + funds.length + ' funds');
+  if (r.ok && funds.length === 2) ok('funds returns exactly 2 funds (socks + bows removed)'); else fail('funds returned ' + r.status + ' with ' + funds.length + ' funds, expected 2');
   const byId = Object.fromEntries(funds.map((f) => [f.id, f]));
-  const expect = [
-    ['sweatshirts', 'Sweatshirt Fund', 32500, 'about $25 per girl'],
-    ['socks', 'Socks Fund', 19500, 'about $15 per girl'],
-    ['bows', 'Bow Fund', 3000, 'one pack covers the whole team'],
-  ];
-  for (const [id, name, goal, note] of expect) {
-    const f = byId[id];
-    if (f && f.name === name && f.goal_cents === goal && f.per_note === note) ok(id + ': name + goal + per-girl note correct');
-    else fail(id + ' wrong: ' + JSON.stringify(f));
-  }
+  const sw = byId['sweatshirts'];
+  if (sw && sw.name === 'Sweatshirt Fund' && sw.goal_cents === 26000 && sw.per_note === 'about $20 per girl') ok('sweatshirts: $260 goal + about $20 per girl');
+  else fail('sweatshirts wrong: ' + JSON.stringify(sw));
+  if (!byId['socks'] && !byId['bows']) ok('no socks or bows funds present'); else fail('socks/bows still present in funds');
   const cage = byId['cage'];
   if (cage && cage.name === 'Mike and Terrys Cage Fund' && cage.goal_cents === null && (cage.blurb || '').includes('$80 an hour')) ok('cage: open goal + blurb correct');
   else fail('cage wrong: ' + JSON.stringify(cage));
@@ -127,7 +146,7 @@ try {
   const r = await fetch(GATEWAY + '?action=admin_funds', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: 'socks', raised_cents: 0 }),
+    body: JSON.stringify({ id: 'sweatshirts', raised_cents: 0 }),
   });
   if (r.status === 401) ok('admin_funds without PIN rejected 401'); else fail('admin_funds no-PIN should be 401, got ' + r.status);
 } catch (e) { fail('admin_funds no-PIN threw: ' + e.message); }
@@ -149,16 +168,20 @@ if (PIN) {
     if (draft && draft.published === false) ok('PIN read finds the draft, unpublished (id ' + draft.id + ')');
     else if (draft) fail('draft found but published=' + draft.published);
     else fail('PIN read did not find the draft');
+    if (draft && draft.body.includes('nobody wants me in charge of anything fashion related')) ok('draft has the revised Bows and socks section');
+    else if (draft) fail('draft missing revised Bows and socks copy');
+    if (draft && !draft.body.includes('This season I will handle bows and socks myself')) ok('old bows/socks copy removed from draft');
+    else if (draft) fail('old bows/socks copy still in draft');
   } catch (e) { fail('PIN all_updates threw: ' + e.message); }
 
   try {
     const r = await fetch(GATEWAY + '?action=funds');
     const d = await r.json();
-    const socks = (d.funds || []).find((f) => f.id === 'socks');
+    const sweat = (d.funds || []).find((f) => f.id === 'sweatshirts');
     const w = await fetch(GATEWAY + '?action=admin_funds', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-pin': PIN },
-      body: JSON.stringify({ id: 'socks', raised_cents: socks.raised_cents }),
+      body: JSON.stringify({ id: 'sweatshirts', raised_cents: sweat.raised_cents }),
     });
     const wd = await w.json();
     if (w.ok && wd.ok) ok('admin_funds same-value write accepted (idempotent, no data change)');
