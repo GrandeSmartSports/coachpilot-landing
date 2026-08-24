@@ -111,5 +111,78 @@
     };
   }
 
-  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate };
+  /* ---------- Phase 1: game conflict engine (shared by portal + admin) ---------- */
+  var SAT_WINDOWS = { sat_9_11: [540, 660], sat_11_1: [660, 780], sat_1_3: [780, 900], sat_3_5: [900, 1020] };
+  var WD_KEYS = ["", "mon", "tue", "wed", "thu", "fri", ""]; /* index = getDay(), 0=Sun 6=Sat */
+
+  function toMinutes(t) {
+    var p = String(t || "").split(":");
+    return (+p[0] || 0) * 60 + (+p[1] || 0);
+  }
+  function timesOverlap(aStart, aEnd, bStart, bEnd) {
+    return toMinutes(aStart) < toMinutes(bEnd) && toMinutes(bStart) < toMinutes(aEnd);
+  }
+  function fmtTime(t) {
+    var m = toMinutes(t), h = Math.floor(m / 60), mm = m % 60;
+    var ap = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return h + (mm ? ":" + (mm < 10 ? "0" : "") + mm : "") + " " + ap;
+  }
+  function dateDow(dateStr) {
+    var p = String(dateStr || "").split("-");
+    return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).getDay();
+  }
+  /* Which practice-grid day keys does this game touch?
+     Weekday game: that weekday key. Saturday game: every Saturday window its time overlaps. */
+  function gameDayKeys(game) {
+    var dow = dateDow(game.game_date);
+    if (dow === 0) return [];
+    if (dow !== 6) return [WD_KEYS[dow]];
+    var keys = [];
+    for (var k in SAT_WINDOWS) {
+      var w = SAT_WINDOWS[k];
+      if (toMinutes(game.start_time) < w[1] && w[0] < toMinutes(game.end_time)) keys.push(k);
+    }
+    return keys;
+  }
+  /* game: { id?, season_id, division, home_team_id, away_team_id, field_id, game_date, start_time, end_time }
+     ctx:  { games, slots, teams, fields } from gateway state.
+     Returns array of { type, message } warnings. Cancelled games never conflict. */
+  function gameConflicts(game, ctx) {
+    ctx = ctx || {};
+    var out = [];
+    function team(id) { var t = (ctx.teams || []).filter(function (x) { return x.id === id; })[0]; return t ? t.name : "a team"; }
+    function field(id) { var f = (ctx.fields || []).filter(function (x) { return x.id === id; })[0]; return f || {}; }
+    var fld = field(game.field_id);
+    var fName = fld.name || "this field";
+    var span = fmtTime(game.start_time) + " to " + fmtTime(game.end_time);
+
+    (ctx.games || []).forEach(function (g) {
+      if (g.id === game.id || g.game_date !== game.game_date || g.status === "cancelled") return;
+      var matchup = team(g.home_team_id) + " vs " + team(g.away_team_id);
+      if (g.field_id === game.field_id && timesOverlap(game.start_time, game.end_time, g.start_time, g.end_time)) {
+        out.push({ type: "field_game", message: fName + " already has " + matchup + " from " + fmtTime(g.start_time) + " to " + fmtTime(g.end_time) + " that day." });
+      }
+      [game.home_team_id, game.away_team_id].forEach(function (tid) {
+        if (tid && (g.home_team_id === tid || g.away_team_id === tid)) {
+          out.push({ type: "double_header", message: team(tid) + " already plays that day: " + matchup + " at " + fmtTime(g.start_time) + " on " + (field(g.field_id).name || "another field") + "." });
+        }
+      });
+    });
+
+    var dayKeys = gameDayKeys(game);
+    (ctx.slots || []).forEach(function (s) {
+      if (s.season_id !== game.season_id || s.field_id !== game.field_id) return;
+      if (dayKeys.indexOf(s.day_key) < 0) return;
+      out.push({ type: "field_practice", message: fName + " has a practice slot held by " + (s.team_id ? team(s.team_id) : (s.label || "a team")) + " in that window (" + span + " overlaps their " + s.day_key.replace(/_/g, " ") + " slot)." });
+    });
+
+    var tags = fld.divisions || [];
+    if (tags.length && game.division && tags.indexOf(game.division) < 0) {
+      out.push({ type: "division_field", message: fName + " is tagged for " + tags.join(", ") + ". This game is " + game.division + "." });
+    }
+    return out;
+  }
+
+  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts };
 });

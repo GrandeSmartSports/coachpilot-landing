@@ -142,6 +142,30 @@
       </div>
 
       <div class="panel span2">
+        <div class="bar"><h2>Games</h2></div>
+        <div class="body">
+          <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
+          <div class="row" style="margin-bottom:8px;">
+            <select id="gSeason"></select>
+            <select id="gDiv"><option value="">Division</option></select>
+            <select id="gHome"><option value="">Home team</option></select>
+            <select id="gAway"><option value="">Away team</option></select>
+          </div>
+          <div class="row" style="margin-bottom:8px;">
+            <input id="gDate" type="date" />
+            <select id="gField"><option value="">Field</option></select>
+            <input id="gStart" type="time" />
+            <input id="gEnd" type="time" />
+            <input id="gNotes" placeholder="Notes (optional)" style="flex:1;min-width:140px;" />
+          </div>
+          <button class="btn clay" id="gSave">Schedule game</button>
+          <button class="btn ghost hidden" id="gCancelEdit">Cancel edit</button>
+          <span id="gMsg" class="ok hidden" style="margin-left:8px;font-size:13px;"></span>
+          <div id="gameList" style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
         <div class="bar"><h2>League announcements</h2></div>
         <div class="body">
           <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
@@ -256,7 +280,7 @@ function leagueRules() { return FLM_RULES.parse(D && D.settings ? D.settings.pra
 function refresh() {
   fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderCompliance(); renderGames();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -309,6 +333,137 @@ function renderCompliance() {
   });
   document.getElementById("compGrid").innerHTML = cards.join("");
   document.getElementById("compNone").textContent = cards.length === 0 && noneNotes.length === 0 ? "Every scheduled team is on the guideline." : noneNotes.join(". ") + (noneNotes.length ? "." : "");
+}
+
+/* ---------- games ---------- */
+var editingGame = null;
+function divisionList() {
+  var seen = {};
+  D.teams.filter(function (t) { return t.is_active && t.division; }).forEach(function (t) { seen[t.division] = 1; });
+  return Object.keys(seen).sort();
+}
+function fmtDate(d) {
+  var p = String(d || "").split("-");
+  return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+}
+function gameTeamName(id) { var t = D.teams.filter(function (x) { return x.id === id; })[0]; return t ? t.name : "?"; }
+function gameFieldName(id) { var f = D.fields.filter(function (x) { return x.id === id; })[0]; return f ? f.name : "?"; }
+
+function fillGameSelects() {
+  var keep = { gSeason: el("gSeason").value, gDiv: el("gDiv").value, gHome: el("gHome").value, gAway: el("gAway").value, gField: el("gField").value };
+  el("gSeason").innerHTML = D.seasons.map(function (sn) { return '<option value="' + sn.id + '">' + esc(sn.label) + "</option>"; }).join("");
+  el("gDiv").innerHTML = '<option value="">Division</option>' + divisionList().map(function (d) { return '<option value="' + esc(d) + '">' + esc(d) + "</option>"; }).join("");
+  el("gField").innerHTML = '<option value="">Field</option>' + D.fields.filter(function (f) { return f.is_active; }).map(function (f) {
+    return '<option value="' + f.id + '">' + esc(f.name + ((f.divisions || []).length ? " (" + f.divisions.join(", ") + ")" : "")) + "</option>";
+  }).join("");
+  Object.keys(keep).forEach(function (id) { if (keep[id]) el(id).value = keep[id]; });
+  fillGameTeams();
+}
+function fillGameTeams() {
+  var div = el("gDiv").value;
+  ["gHome", "gAway"].forEach(function (id) {
+    var keep = el(id).value;
+    el(id).innerHTML = '<option value="">' + (id === "gHome" ? "Home team" : "Away team") + "</option>" +
+      D.teams.filter(function (t) { return t.is_active && (!div || t.division === div); })
+        .map(function (t) { return '<option value="' + t.id + '">' + esc(t.name) + "</option>"; }).join("");
+    if (keep) el(id).value = keep;
+  });
+}
+function el(id) { return document.getElementById(id); }
+el("gDiv").addEventListener("change", fillGameTeams);
+
+function gameForm() {
+  return {
+    id: editingGame ? editingGame.id : undefined,
+    season_id: el("gSeason").value,
+    division: el("gDiv").value,
+    home_team_id: el("gHome").value,
+    away_team_id: el("gAway").value,
+    field_id: el("gField").value,
+    game_date: el("gDate").value,
+    start_time: el("gStart").value,
+    end_time: el("gEnd").value,
+    notes: el("gNotes").value.trim(),
+    status: editingGame ? editingGame.status : "scheduled"
+  };
+}
+function resetGameForm() {
+  editingGame = null;
+  ["gDiv", "gHome", "gAway", "gField"].forEach(function (id) { el(id).value = ""; });
+  ["gDate", "gStart", "gEnd", "gNotes"].forEach(function (id) { el(id).value = ""; });
+  el("gSave").textContent = "Schedule game";
+  el("gCancelEdit").classList.add("hidden");
+}
+el("gCancelEdit").addEventListener("click", resetGameForm);
+
+el("gSave").addEventListener("click", function () {
+  var g = gameForm();
+  if (!g.season_id || !g.home_team_id || !g.away_team_id || !g.field_id || !g.game_date || !g.start_time || !g.end_time) {
+    alert("Pick both teams, the field, the date, and both times first."); return;
+  }
+  if (g.home_team_id === g.away_team_id) { alert("Home and away must be different teams."); return; }
+  if (g.end_time <= g.start_time) { alert("End time must be after the start time."); return; }
+  var conflicts = FLM_RULES.gameConflicts(g, D);
+  if (conflicts.length) {
+    var msg = "Heads up before saving:\n\n" + conflicts.map(function (c) { return "- " + c.message; }).join("\n") +
+      "\n\nSave this game anyway?";
+    if (!confirm(msg)) return;
+  }
+  var btn = this; btn.disabled = true;
+  admin("admin_game", g)
+    .then(function () {
+      btn.disabled = false;
+      var wasEdit = !!editingGame;
+      resetGameForm();
+      var m = el("gMsg"); m.textContent = wasEdit ? "Game updated." : "Game is on the schedule.";
+      m.classList.remove("hidden"); setTimeout(function () { m.classList.add("hidden"); }, 2600);
+      refresh();
+    })
+    .catch(function (e) { btn.disabled = false; alert(e.message); });
+});
+
+function renderGames() {
+  fillGameSelects();
+  var box = el("gameList");
+  var games = D.games || [];
+  box.innerHTML = games.map(function (g) {
+    var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : "on") + '">' + esc(g.status) + "</span>";
+    return '<div class="row" style="padding:7px 0;border-bottom:1px solid #efede4;">' +
+      '<div style="flex:1;min-width:220px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameTeamName(g.away_team_id)) + "</b>" + st +
+      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " · " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " · " + esc(gameFieldName(g.field_id)) + (g.division ? " · " + esc(g.division) : "") + (g.notes ? " · " + esc(g.notes) : "") + "</span></div>" +
+      '<select data-gstatus="' + g.id + '">' + ["scheduled", "postponed", "cancelled", "completed"].map(function (s) { return '<option value="' + s + '"' + (s === g.status ? " selected" : "") + ">" + s + "</option>"; }).join("") + "</select>" +
+      '<button class="btn sm ghost" data-gedit="' + g.id + '">Edit</button>' +
+      '<button class="btn sm danger" data-gdel="' + g.id + '">Delete</button></div>';
+  }).join("") || '<p class="hint">No games on the schedule yet.</p>';
+  box.querySelectorAll("[data-gstatus]").forEach(function (s) {
+    s.addEventListener("change", function () {
+      admin("admin_game", { id: s.getAttribute("data-gstatus"), status: s.value }).then(refresh).catch(function (e) { alert(e.message); refresh(); });
+    });
+  });
+  box.querySelectorAll("[data-gedit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var g = games.filter(function (x) { return x.id === b.getAttribute("data-gedit"); })[0];
+      editingGame = g;
+      el("gSeason").value = g.season_id;
+      el("gDiv").value = g.division || "";
+      fillGameTeams();
+      el("gHome").value = g.home_team_id; el("gAway").value = g.away_team_id;
+      el("gField").value = g.field_id;
+      el("gDate").value = g.game_date;
+      el("gStart").value = String(g.start_time).slice(0, 5); el("gEnd").value = String(g.end_time).slice(0, 5);
+      el("gNotes").value = g.notes || "";
+      el("gSave").textContent = "Save changes";
+      el("gCancelEdit").classList.remove("hidden");
+      el("gSave").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  });
+  box.querySelectorAll("[data-gdel]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var g = games.filter(function (x) { return x.id === b.getAttribute("data-gdel"); })[0];
+      if (!confirm("Delete the game " + gameTeamName(g.home_team_id) + " vs " + gameTeamName(g.away_team_id) + " on " + fmtDate(g.game_date) + "? This cannot be undone.")) return;
+      admin("admin_game", { delete_id: g.id }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
 }
 
 /* ---------- announcements ---------- */
@@ -468,11 +623,22 @@ document.getElementById("setSave").addEventListener("click", function () {
 function renderFields() {
   var box = document.getElementById("fieldList");
   box.innerHTML = '<table class="list"><tbody>' + D.fields.map(function (f) {
-    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + "</td>" +
+    var tags = (f.divisions || []).length ? '<br /><span style="color:var(--muted);font-size:11.5px;">' + esc(f.divisions.join(", ")) + "</span>" : "";
+    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + tags + "</td>" +
       '<td><span class="chip ' + (f.is_active ? "on" : "off") + '">' + (f.is_active ? "Active" : "Hidden") + "</span></td>" +
       '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-ren="' + f.id + '">Rename</button> ' +
+      '<button class="btn sm ghost" data-divs="' + f.id + '">Divisions</button> ' +
       '<button class="btn sm ghost" data-tog="' + f.id + '">' + (f.is_active ? "Hide" : "Show") + "</button></td></tr>";
   }).join("") + "</tbody></table>";
+  box.querySelectorAll("[data-divs]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-divs"); })[0];
+      var nv = prompt("Divisions that may play games on " + f.name + " (comma separated, blank = any division):", (f.divisions || []).join(", "));
+      if (nv == null) return;
+      var list = nv.split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+      admin("admin_upsert_field", { id: f.id, name: f.name, divisions: list }).then(refresh);
+    });
+  });
   box.querySelectorAll("[data-ren]").forEach(function (b) {
     b.addEventListener("click", function () {
       var f = D.fields.filter(function (x) { return x.id === b.getAttribute("data-ren"); })[0];

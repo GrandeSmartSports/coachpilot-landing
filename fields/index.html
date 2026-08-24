@@ -126,6 +126,28 @@
   .status.over { background: #fbe4dc; color: #a33c1b; }
   .status.none { background: #eceadf; color: var(--muted); }
 
+  /* ---------- GAMES ---------- */
+  .chip.game { background: var(--pine-2); color: var(--chalk); border-left: 4px solid var(--clay); }
+  .chip.game small { color: #b7cfc2; }
+  .chip.game .gtag { font-family: var(--disp); font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #ffd9b8; display: block; }
+  .chip.game.off { opacity: 0.62; }
+  .mt-next { font-size: 14px; font-weight: 600; color: var(--pine); background: #eef4ef; border-radius: 10px; padding: 8px 12px; margin-top: 10px; }
+  .schedbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .schedbar select { font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--white); color: var(--ink); }
+  .gcards { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  @media (min-width: 760px) { .gcards { grid-template-columns: 1fr 1fr; } }
+  .gcard { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--pine); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; }
+  .gcard.mine { outline: 2px solid var(--clay); }
+  .gcard.dim { opacity: 0.65; }
+  .gcard .gwhen { font-family: var(--disp); font-weight: 600; font-size: 13.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--clay-dark); }
+  .gcard .gmatch { font-family: var(--disp); font-weight: 700; font-size: 20px; letter-spacing: 0.02em; text-transform: uppercase; margin-top: 2px; }
+  .gcard .gmatch span { color: var(--muted); font-size: 15px; }
+  .gcard .gmeta { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .gstatus { display: inline-block; margin-top: 7px; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 12px; padding: 2px 10px; }
+  .gstatus.postponed { background: #fdf1dc; color: #8a5a12; }
+  .gstatus.cancelled { background: #fbe4dc; color: #a33c1b; }
+  .gstatus.completed { background: #dcefe2; color: #21622f; }
+
   /* ---------- MODAL ---------- */
   .veil { position: fixed; inset: 0; background: rgba(20, 32, 26, 0.55); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
   @media (min-width: 640px) { .veil { align-items: center; } }
@@ -178,6 +200,7 @@
       <div class="views">
         <button class="vbtn" data-view="days">By day</button>
         <button class="vbtn" data-view="grid">Full grid</button>
+        <button class="vbtn" data-view="sched">Schedule</button>
         <button class="vbtn" data-view="teams">Teams</button>
       </div>
     </div>
@@ -189,6 +212,14 @@
     <div id="viewDays" class="hidden">
       <div class="daypick" id="dayPick"></div>
       <div class="fieldlist" id="fieldList"></div>
+    </div>
+    <div id="viewSched" class="hidden">
+      <div class="schedbar">
+        <select id="schedDiv"></select>
+        <select id="schedTeam"></select>
+      </div>
+      <div class="gcards" id="schedList"></div>
+      <p class="hint hidden" id="schedNone" style="color:var(--muted);padding:20px 4px;">No games on this schedule yet.</p>
     </div>
     <div id="viewTeams" class="hidden"><div class="teamgrid" id="teamGrid"></div></div>
   </div>
@@ -236,7 +267,7 @@ if (_bootTeam.charAt(0) === "{") {
   if (_bootTeam) lsSet("flm_team", _bootTeam); else lsDel("flm_team");
 }
 var _bootView = lsGet("flm_view");
-if (["grid", "days", "teams"].indexOf(_bootView) < 0) _bootView = null;
+if (["grid", "days", "teams", "sched"].indexOf(_bootView) < 0) _bootView = null;
 var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam };
 var welcomed = false;
 
@@ -249,6 +280,21 @@ function seasonObj() { return (S.data.seasons || []).filter(function (x) { retur
 function dayLabel(k) { var d = DAYS.filter(function (x) { return x.k === k; })[0]; return d ? d.label : k; }
 function slotsFor(dayK, fieldId) {
   return (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.day_key === dayK && s.field_id === fieldId; });
+}
+function todayStr() {
+  var d = new Date();
+  function p(n) { return (n < 10 ? "0" : "") + n; }
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function fmtGameDate(str) {
+  var p = String(str || "").split("-");
+  return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+}
+function gamesFor(dayK, fieldId) {
+  var today = todayStr();
+  return (S.data.games || []).filter(function (g) {
+    return g.season_id === S.season && g.field_id === fieldId && g.game_date >= today && FLM_RULES.gameDayKeys(g).indexOf(dayK) >= 0;
+  });
 }
 
 function load() {
@@ -311,6 +357,15 @@ function renderMyTeam() {
     '<div class="mt-div">' + esc([t.division, t.coach_name].filter(Boolean).join(" · ")) + "</div>" +
     '<div class="mt-rule">' + esc(FLM_RULES.describe(leagueRules())) + "</div>" +
     "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots claimed' + (sn ? " for " + esc(sn.label) : "") + ' yet. Tap an open slot below to claim one.</li>') + "</ul>";
+  var today = todayStr();
+  var ng = (S.data.games || []).filter(function (g) {
+    return (g.home_team_id === t.id || g.away_team_id === t.id) && g.status !== "cancelled" && g.game_date >= today;
+  })[0];
+  if (ng) {
+    var opp = teamById(ng.home_team_id === t.id ? ng.away_team_id : ng.home_team_id);
+    var gf = fieldById(ng.field_id);
+    html += '<div class="mt-next">Next game: vs ' + esc(opp ? opp.name : "?") + ", " + esc(fmtGameDate(ng.game_date)) + " at " + esc(FLM_RULES.fmtTime(ng.start_time)) + ", " + esc(gf ? gf.name : "?") + (ng.home_team_id === t.id ? " (home)" : " (away)") + (ng.status === "postponed" ? " (postponed)" : "") + "</div>";
+  }
   if (ev.status === "over") html += '<div class="mt-alert">' + esc(ev.message) + "</div>";
   if (ev.availLabels.length) html += '<div class="mt-chips">' + ev.availLabels.map(function (l) { return '<span class="mt-chip good">' + esc(l) + "</span>"; }).join("") + "</div>";
   box.style.borderTopColor = ev.status === "over" ? "#b3432b" : divColor(t);
@@ -349,6 +404,16 @@ function renderLegend() {
     .map(function (k) { return '<span class="lg"><i style="background:' + DIV_COLORS[k] + '"></i>' + esc(k) + "</span>"; }).join("");
 }
 
+function gameChipHtml(g) {
+  var h = teamById(g.home_team_id), a = teamById(g.away_team_id);
+  var mine = S.myTeam && (g.home_team_id === S.myTeam || g.away_team_id === S.myTeam);
+  var off = g.status === "cancelled" || g.status === "postponed";
+  var st = g.status !== "scheduled" ? " · " + g.status : "";
+  return '<div class="chip game' + (mine ? " mine" : "") + (off ? " off" : "") + '" data-game="' + g.id + '"><span class="gtag">Game</span>' +
+    esc((h ? h.name : "?") + " vs " + (a ? a.name : "?")) +
+    "<small>" + esc(fmtGameDate(g.game_date) + " · " + FLM_RULES.fmtTime(g.start_time) + st) + "</small></div>";
+}
+
 function chipHtml(slot) {
   var t = teamById(slot.team_id);
   var c = divColor(t);
@@ -361,16 +426,20 @@ function bindCells(root) {
   root.querySelectorAll(".chip[data-slot]").forEach(function (el) {
     el.addEventListener("click", function () { openSlotModal(el.getAttribute("data-slot")); });
   });
+  root.querySelectorAll(".chip[data-game]").forEach(function (el) {
+    el.addEventListener("click", function () { openGameModal(el.getAttribute("data-game")); });
+  });
   root.querySelectorAll(".open[data-day]").forEach(function (el) {
     el.addEventListener("click", function () { openClaimModal(el.getAttribute("data-day"), el.getAttribute("data-field")); });
   });
 }
 
 function renderView() {
-  ["viewGrid", "viewDays", "viewTeams"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
+  ["viewGrid", "viewDays", "viewTeams", "viewSched"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   if (!S.data || !S.season) return;
   if (S.view === "grid") renderGrid();
   else if (S.view === "days") renderDays();
+  else if (S.view === "sched") renderSched();
   else renderTeams();
 }
 
@@ -387,6 +456,7 @@ function renderGrid() {
       var ss = slotsFor(d.k, f.id);
       html += '<td class="cell"><div class="cellbox">';
       ss.forEach(function (s) { html += chipHtml(s); });
+      gamesFor(d.k, f.id).forEach(function (g) { html += gameChipHtml(g); });
       html += '<div class="open" data-day="' + d.k + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open") + "</div>";
       html += "</div></td>";
     });
@@ -415,11 +485,69 @@ function renderDays() {
     var ss = slotsFor(S.day, f.id);
     html += '<div class="frow"><div class="fname">' + esc(f.name) + '</div><div class="occ">';
     ss.forEach(function (s) { html += chipHtml(s); });
+    gamesFor(S.day, f.id).forEach(function (g) { html += gameChipHtml(g); });
     html += '<div class="open" data-day="' + S.day + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open — tap to claim") + "</div>";
     html += "</div></div>";
   });
   list.innerHTML = html;
   bindCells(el);
+}
+
+function renderSched() {
+  var el = document.getElementById("viewSched");
+  el.classList.remove("hidden");
+  var games = (S.data.games || []).filter(function (g) { return g.season_id === S.season; });
+  var divSel = document.getElementById("schedDiv"), teamSel = document.getElementById("schedTeam");
+  var keepDiv = S.schedDiv || "", keepTeam = S.schedTeam || "";
+  var divs = {};
+  (S.data.teams || []).forEach(function (t) { if (t.is_active && t.division) divs[t.division] = 1; });
+  divSel.innerHTML = '<option value="">All divisions</option>' + Object.keys(divs).sort().map(function (d) {
+    return '<option value="' + esc(d) + '"' + (d === keepDiv ? " selected" : "") + ">" + esc(d) + "</option>";
+  }).join("");
+  teamSel.innerHTML = '<option value="">All teams</option>' + (S.data.teams || []).filter(function (t) {
+    return t.is_active && (!keepDiv || t.division === keepDiv);
+  }).map(function (t) {
+    return '<option value="' + t.id + '"' + (t.id === keepTeam ? " selected" : "") + ">" + esc(t.name) + "</option>";
+  }).join("");
+  divSel.onchange = function () { S.schedDiv = divSel.value; S.schedTeam = ""; renderSched(); };
+  teamSel.onchange = function () { S.schedTeam = teamSel.value; renderSched(); };
+  var shown = games.filter(function (g) {
+    if (keepDiv && g.division !== keepDiv) {
+      var h = teamById(g.home_team_id);
+      if (!h || h.division !== keepDiv) return false;
+    }
+    if (keepTeam && g.home_team_id !== keepTeam && g.away_team_id !== keepTeam) return false;
+    return true;
+  });
+  document.getElementById("schedNone").classList.toggle("hidden", shown.length > 0);
+  document.getElementById("schedList").innerHTML = shown.map(function (g) {
+    var h = teamById(g.home_team_id), a = teamById(g.away_team_id), f = fieldById(g.field_id);
+    var mine = S.myTeam && (g.home_team_id === S.myTeam || g.away_team_id === S.myTeam);
+    var dim = g.status === "cancelled" || g.status === "postponed";
+    return '<div class="gcard' + (mine ? " mine" : "") + (dim ? " dim" : "") + '" data-game="' + g.id + '" style="cursor:pointer;">' +
+      '<div class="gwhen">' + esc(fmtGameDate(g.game_date) + " · " + FLM_RULES.fmtTime(g.start_time) + " to " + FLM_RULES.fmtTime(g.end_time)) + "</div>" +
+      '<div class="gmatch">' + esc(h ? h.name : "?") + " <span>vs</span> " + esc(a ? a.name : "?") + "</div>" +
+      '<div class="gmeta">' + esc([f ? f.name : "?", g.division, g.notes].filter(Boolean).join(" · ")) + "</div>" +
+      (g.status !== "scheduled" ? '<span class="gstatus ' + esc(g.status) + '">' + esc(g.status) + "</span>" : "") +
+      "</div>";
+  }).join("");
+  el.querySelectorAll(".gcard[data-game]").forEach(function (c) {
+    c.addEventListener("click", function () { openGameModal(c.getAttribute("data-game")); });
+  });
+}
+
+function openGameModal(gameId) {
+  var g = (S.data.games || []).filter(function (x) { return x.id === gameId; })[0];
+  if (!g) return;
+  var h = teamById(g.home_team_id), a = teamById(g.away_team_id), f = fieldById(g.field_id);
+  var body = "<h3>" + esc((h ? h.name : "?") + " vs " + (a ? a.name : "?")) + "</h3>" +
+    '<div class="ctx">' + esc(fmtGameDate(g.game_date)) + ", " + esc(FLM_RULES.fmtTime(g.start_time)) + " to " + esc(FLM_RULES.fmtTime(g.end_time)) + " at <b>" + esc(f ? f.name : "?") + "</b>" +
+    (g.division ? "<br />Division: " + esc(g.division) : "") +
+    (g.status !== "scheduled" ? "<br />Status: <b>" + esc(g.status) + "</b>" : "") +
+    (g.notes ? "<br />Note: " + esc(g.notes) : "") + "</div>" +
+    '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button></div>';
+  var v = modal(body);
+  v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
 }
 
 function teamCompliance(teamId) {
