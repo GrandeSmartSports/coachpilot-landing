@@ -74,12 +74,36 @@ for (const rel of parentFiles) {
 if (charHits === 0) ok('no em/en dashes or curly quotes in parent-facing files');
 
 // ------- Hub card + season line -------
-section('hub: funds card + Thursday line');
+section('hub: to-do board + quiet team pages');
 const hubHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'index.html'), 'utf8');
-if (hubHtml.includes('/cougars/funds.html')) ok('hub links to funds page'); else fail('hub missing funds card link');
-if (hubHtml.includes('Cougar Funds')) ok('hub card titled Cougar Funds'); else fail('hub missing Cougar Funds title');
-if (hubHtml.includes('Thursdays 6:00 until dark (about 8:00 right now)')) ok('season card Thursday line updated'); else fail('season card Thursday line not updated');
-if (!hubHtml.includes('Thursdays, 6:00 to 7:30 PM')) ok('old Thursday line removed'); else fail('old Thursday line still present');
+const hubMust = [
+  'Your to-do list',
+  'Who are you here for?',
+  'Just browsing, skip this',
+  'action=family_status',
+  'action=mark_done',
+  'You are all caught up.',
+  'Nothing needs you right now.',
+  'Team pages',
+  '/cougars/updates.html',
+  '/cougars/practice.html',
+  '/cougars/cagevote.html',
+  '/cougars/sweatshirt.html',
+  '/cougars/walkup.html',
+  'Mivei-2T-16Years-Softball-Toddler-Baseball',
+  '/cougars/funds.html',
+  '/cougars/snacks.html',
+  '/cougars/volunteer.html',
+  'Tell me how you want to help',
+  'Thursdays 6:00 until dark (about 8:00 right now)',
+];
+for (const s2 of hubMust) {
+  if (hubHtml.includes(s2)) ok('hub contains: ' + s2.slice(0, 50));
+  else fail('hub MISSING: ' + s2);
+}
+if (!hubHtml.includes('New big ask')) ok('hub Get involved copy has no scorekeeper ask'); else fail('hub still has scorekeeper ask copy');
+const volHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'volunteer.html'), 'utf8');
+if (!/Raise my hand|gcInterest|The Big Ask/i.test(volHtml)) ok('volunteer page: scorekeeper ask removed'); else fail('volunteer page still has scorekeeper ask');
 
 // ------- 3. funds-core unit tests -------
 section('funds-core: parse + math');
@@ -109,10 +133,14 @@ else {
   const prevMust = [
     'DRAFT PREVIEW for Coach only',
     'Week of August 24',
+    'One promise before you dig in: these weekly updates get much shorter as the season goes',
     'nobody wants me in charge of anything fashion related',
     'Looking ahead',
-    'cagevote.html',
-    'Vote for every evening that works for your family',
+    'You can vote on the team page',
+    'The grey pants link is on the team page',
+    'The sweatshirt form is on the team page, and you can pay through the funds page there as well',
+    'The walk-up form is on the team page',
+    'Everything you need is on the team page:',
     'scrimmage with the Bears for Thursday, September 10',
     'which comes out to far less',
     'renderBody',
@@ -240,6 +268,35 @@ try {
   }
 } catch (e) { fail('cage vote flow threw: ' + e.message); }
 
+// ------- family_status + mark_done -------
+section('family status: board math');
+try {
+  const bad = await fetch(GATEWAY + '?action=family_status&player_id=00000000-0000-0000-0000-000000000000');
+  if (bad.status === 404) ok('unknown family rejected 404'); else fail('unknown family should be 404, got ' + bad.status);
+  const pr = await fetch(GATEWAY + '?action=players');
+  const pd = await pr.json();
+  const player = (pd.players || [])[0];
+  if (player) {
+    const s1 = await (await fetch(GATEWAY + '?action=family_status&player_id=' + player.id)).json();
+    const keysOk = ['cage_vote', 'sweatshirt', 'walkup', 'pants'].every((k) => typeof s1[k] === 'boolean');
+    if (keysOk) ok('family_status returns 4 booleans'); else fail('family_status shape wrong: ' + JSON.stringify(s1));
+    const badItem = await fetch(GATEWAY + '?action=mark_done', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id, item: 'sweatshirt' }),
+    });
+    if (badItem.status === 400) ok('mark_done rejects non-pants items 400'); else fail('mark_done bad item should be 400, got ' + badItem.status);
+    const md = await fetch(GATEWAY + '?action=mark_done', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player_id: player.id, item: 'pants', parent_name: 'ZZTEST smoke' }),
+    });
+    const mdd = await md.json();
+    if (md.ok && mdd.ok) ok('mark_done pants accepted'); else fail('mark_done failed: ' + JSON.stringify(mdd));
+    const s2 = await (await fetch(GATEWAY + '?action=family_status&player_id=' + player.id)).json();
+    if (s2.pants === true) ok('pants shows done after mark_done (persists across devices)'); else fail('pants not marked done: ' + JSON.stringify(s2));
+    console.log('  NOTE  ZZTEST pants row left for player ' + player.id + '; scrub via MCP after the run.');
+  }
+} catch (e) { fail('family_status flow threw: ' + e.message); }
+
 // ------- 5. Drafts law -------
 section('drafts law: weekly draft invisible to parents');
 try {
@@ -261,6 +318,13 @@ if (PIN) {
     else if (draft) fail('draft missing revised Bows and socks copy');
     if (draft && !draft.body.includes('This season I will handle bows and socks myself')) ok('old bows/socks copy removed from draft');
     else if (draft) fail('old bows/socks copy still in draft');
+    if (draft) {
+      const links = (draft.body.match(/\]\(http[^)]*\)/g) || []);
+      if (links.length === 1 && links[0] === '](https://coachpilot.org/cougars/)') ok('draft has exactly ONE link and it is the team page');
+      else fail('draft link rule broken: ' + JSON.stringify(links));
+      if (draft.body.includes('One promise before you dig in')) ok('draft has the shorter-updates promise line');
+      else fail('draft missing promise line');
+    }
   } catch (e) { fail('PIN all_updates threw: ' + e.message); }
 
   try {

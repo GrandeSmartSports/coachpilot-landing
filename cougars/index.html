@@ -26,7 +26,7 @@
     /* BLS Cougars brand: red, white, black, grey */
     --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --red-line: #f3c7ce;
     --black: #141416; --coal: #1a1a1c; --ink: #1f2326; --muted: #7a8087; --line: #e4e6e8;
-    --bg: #f2f3f4; --white: #ffffff;
+    --bg: #f2f3f4; --white: #ffffff; --green: #21622f;
     --shadow: 0 10px 30px rgba(20, 20, 22, 0.08);
     --shadow-lift: 0 16px 40px rgba(20, 20, 22, 0.14);
     --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
@@ -58,7 +58,15 @@
   .sec-label { font-family: var(--disp); font-weight: 600; font-size: 13.5px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink); margin: 0 2px 14px; display: flex; align-items: center; gap: 12px; }
   .sec-label::after { content: ""; height: 3px; flex: 0 0 34px; background: var(--red); transform: skewX(-30deg); }
 
-  /* ============ ACTION CARDS ============ */
+  /* ============ FAMILY PICKER ============ */
+  .picker { background: var(--black); color: #fff; border-radius: 16px; box-shadow: var(--shadow); padding: 20px; }
+  .picker h3 { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .18em; text-transform: uppercase; color: var(--red); }
+  .picker p { font-size: 14px; color: #a9acb2; margin-top: 6px; }
+  .picker select { width: 100%; margin-top: 12px; font-size: 16px; padding: 13px 12px; border: 0; border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; }
+  .picker .pbtn { margin-top: 10px; width: 100%; border: 0; border-radius: 12px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; padding: 14px; cursor: pointer; }
+  .picker .browse { display: block; margin-top: 10px; text-align: center; font-size: 13px; color: #a9acb2; text-decoration: underline; background: none; border: 0; width: 100%; cursor: pointer; font-family: inherit; }
+
+  /* ============ TO-DO CARDS ============ */
   .actions { display: flex; flex-direction: column; gap: 14px; }
   .action { position: relative; display: flex; align-items: center; gap: 16px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px 18px; transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease; overflow: hidden; }
   .action::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--red); transform: scaleY(0); transition: transform .16s ease; transform-origin: top; }
@@ -72,9 +80,26 @@
   .action .chev { flex: 0 0 auto; color: #c9ccce; transition: color .14s ease, transform .14s ease; }
   .action:hover .chev { color: var(--red); transform: translateX(3px); }
   .action .chev svg { width: 13px; height: 13px; }
-  .action.done { opacity: 0.88; }
-  .action.done .tile { background: #21622f; border-bottom-color: #2f9e5b; font-size: 22px; }
-  .action.done .title::after { content: " \2713"; color: #2f9e5b; }
+  .pantsrow { display: flex; gap: 8px; margin-top: 10px; }
+  .pantsrow a, .pantsrow button { flex: 1; text-align: center; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; border-radius: 10px; padding: 11px 10px; cursor: pointer; }
+  .pantsrow a { background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; }
+  .pantsrow button { background: #fff; color: var(--green); border: 2px solid #cfe4d3; }
+  .caughtup { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 22px 18px; text-align: center; }
+  .caughtup .big { font-family: var(--disp); font-weight: 600; font-size: 20px; color: var(--green); }
+  .caughtup .sm { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .donecount { margin-top: 10px; font-size: 12.5px; color: var(--muted); text-align: right; }
+  .whoami { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
+  .whoami button { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 12.5px; font-family: inherit; padding: 0; }
+
+  /* ============ TEAM PAGES (quiet) ============ */
+  .quiet { margin-top: 26px; }
+  .quiet .sec-label { color: var(--muted); }
+  .quiet .sec-label::after { background: #cfd2d5; }
+  .qlist { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .qlist a { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; font-size: 14.5px; color: #33383d; border-bottom: 1px dashed #eef0f1; }
+  .qlist a:last-child { border-bottom: 0; }
+  .qlist a:hover { background: #fafbfb; color: var(--red); }
+  .qlist .qs { font-size: 12px; color: var(--muted); }
 
   /* ============ RIGHT RAIL ============ */
   .rail { display: flex; flex-direction: column; gap: 18px; }
@@ -132,70 +157,35 @@
 
   <div class="shell">
     <div>
-      <div class="sec-label">This week</div>
-      <div class="actions">
-                <a class="action" href="/cougars/updates.html">
-          <span class="tile">1</span>
-          <span class="body">
-            <span class="title">Weekly updates</span>
-            <span class="sub">The latest from Coach, all in one place.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
+      <div id="todo-wrap">
+        <div class="sec-label">Your to-do list</div>
 
-        <a class="action" href="/cougars/walkup.html">
-          <span class="tile">2</span>
-          <span class="body">
-            <span class="title">Pick her walk-up song</span>
-            <span class="sub">Her song for game days, plus how to announce her name.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
+        <div class="picker" id="picker" style="display:none;">
+          <h3>Who are you here for?</h3>
+          <p>Pick your player and this page shows only what your family still needs to do. This device remembers, and you can switch anytime.</p>
+          <select id="fam-select"><option value="">Loading the roster&hellip;</option></select>
+          <button class="pbtn" onclick="pickFamily()">This is us</button>
+          <button class="browse" onclick="justBrowse()">Just browsing, skip this</button>
+        </div>
 
-        <a class="action" href="/cougars/snacks.html">
-          <span class="tile">3</span>
-          <span class="body">
-            <span class="title">Snack sign-up</span>
-            <span class="sub">One family per game. Grab a Saturday that works.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
+        <div class="actions" id="todo-list" style="display:none;"></div>
+        <div class="donecount" id="done-count" style="display:none;"></div>
+        <div class="whoami" id="whoami" style="display:none;"></div>
+      </div>
 
-        <a class="action" href="/cougars/sweatshirt.html">
-          <span class="tile">4</span>
-          <span class="body">
-            <span class="title">Sweatshirt size</span>
-            <span class="sub">Team hoodies, $20, name on the back.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
-
-        <a class="action" href="/cougars/volunteer.html">
-          <span class="tile">5</span>
-          <span class="body">
-            <span class="title">Get involved</span>
-            <span class="sub">Tell me how you want to help. New big ask: a GameChanger scorekeeper.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
-
-        <a class="action" href="/cougars/practice.html">
-          <span class="tile">6</span>
-          <span class="body">
-            <span class="title">Practice info</span>
-            <span class="sub">Days, times, what to bring, and what each night covers.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
-
-        <a class="action" href="/cougars/funds.html">
-          <span class="tile">7</span>
-          <span class="body">
-            <span class="title">Cougar Funds</span>
-            <span class="sub">Chip in for sweatshirts and cage time. Optional and anonymous, always.</span>
-          </span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </a>
+      <div class="quiet">
+        <div class="sec-label">Team pages</div>
+        <div class="qlist">
+          <a href="/cougars/updates.html"><span>Weekly updates</span><span class="qs">The latest from Coach</span></a>
+          <a href="/cougars/practice.html"><span>Practice info</span><span class="qs">Days, times, what to bring</span></a>
+          <a href="/cougars/cagevote.html"><span>Cage night vote</span><span class="qs">Pick your evenings</span></a>
+          <a href="/cougars/sweatshirt.html"><span>Sweatshirt form</span><span class="qs">$20, name on the back</span></a>
+          <a href="/cougars/walkup.html"><span>Walk-up songs</span><span class="qs">Her game day song</span></a>
+          <a href="https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/" target="_blank" rel="noopener"><span>Grey pants on Amazon</span><span class="qs">For game days</span></a>
+          <a href="/cougars/funds.html"><span>Cougar Funds</span><span class="qs">Optional and anonymous</span></a>
+          <a href="/cougars/snacks.html"><span>Snack sign-up</span><span class="qs">One family per game</span></a>
+          <a href="/cougars/volunteer.html"><span>Get involved</span><span class="qs">Tell me how you want to help</span></a>
+        </div>
       </div>
     </div>
 
@@ -264,23 +254,133 @@
 
 <script>
 (function () {
-  try {
-    var d = JSON.parse(localStorage.getItem("cougars_done") || "{}");
-    function mark(href, txt) {
-      var a = document.querySelector('.action[href="' + href + '"]');
-      if (!a) return;
-      a.classList.add("done");
-      var sub = a.querySelector(".sub");
-      if (sub) sub.textContent = txt;
-      var t = a.querySelector(".tile");
-      if (t) t.textContent = "✓";
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var FAM_KEY = "cougars_family";
+  var CHEV = '<span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+  var AMAZON = "https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/";
+
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function getFam() {
+    try { return JSON.parse(localStorage.getItem(FAM_KEY) || "null"); } catch (e) { return null; }
+  }
+  function show(id, on) { document.getElementById(id).style.display = on ? "" : "none"; }
+
+  function loadRoster() {
+    return fetch(API + "?action=players")
+      .then(function (r) { return r.json(); })
+      .then(function (d) { return d.players || []; });
+  }
+
+  function showPicker() {
+    show("picker", true);
+    show("todo-list", false);
+    show("done-count", false);
+    show("whoami", false);
+    loadRoster().then(function (players) {
+      var sel = document.getElementById("fam-select");
+      sel.innerHTML = '<option value="">Pick her name&hellip;</option>' + players.map(function (p) {
+        var label = p.first_name + (p.last_initial ? " " + p.last_initial + "." : "");
+        return '<option value="' + esc(p.id) + '" data-label="' + esc(label) + '">' + esc(label) + "</option>";
+      }).join("");
+    }).catch(function () {
+      document.getElementById("fam-select").innerHTML = '<option value="">Could not load the roster. Refresh to try again.</option>';
+    });
+  }
+
+  window.pickFamily = function () {
+    var sel = document.getElementById("fam-select");
+    if (!sel.value) return;
+    var label = sel.options[sel.selectedIndex].getAttribute("data-label") || "";
+    try { localStorage.setItem(FAM_KEY, JSON.stringify({ player_id: sel.value, label: label })); } catch (e) {}
+    boot();
+  };
+
+  window.justBrowse = function () {
+    try { localStorage.setItem(FAM_KEY, JSON.stringify({ browsing: true })); } catch (e) {}
+    boot();
+  };
+
+  window.switchFamily = function () {
+    try { localStorage.removeItem(FAM_KEY); } catch (e) {}
+    boot();
+  };
+
+  window.pantsDone = function (btn) {
+    var fam = getFam();
+    if (!fam || !fam.player_id) return;
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+    fetch(API + "?action=mark_done", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player_id: fam.player_id, item: "pants" }),
+    })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function () { boot(); })
+      .catch(function () { btn.disabled = false; btn.textContent = "Got them"; });
+  };
+
+  function todoCard(href, title, sub) {
+    return '<a class="action" href="' + href + '">' +
+      '<span class="tile">&#8226;</span>' +
+      '<span class="body"><span class="title">' + title + '</span><span class="sub">' + sub + "</span></span>" +
+      CHEV + "</a>";
+  }
+
+  function renderBoard(fam, st) {
+    var items = [];
+    if (!st.cage_vote) items.push(todoCard("/cougars/cagevote.html", "Vote for cage night", "Tap every evening that works for your family. Optional event."));
+    if (!st.sweatshirt) items.push(todoCard("/cougars/sweatshirt.html", "Sweatshirt form", "Sizes and the name on the back. $20."));
+    if (!st.walkup) items.push(todoCard("/cougars/walkup.html", "Pick her walk-up song", "Her song for game days, plus how to announce her name."));
+    if (!st.pants) {
+      items.push(
+        '<div class="action" style="display:block;">' +
+          '<span class="title" style="font-family:var(--disp);font-weight:600;font-size:19px;">Grey pants</span>' +
+          '<span class="sub" style="display:block;font-size:14px;color:var(--muted);margin-top:3px;">Every girl needs grey pants for games. Order them, then tap Got them.</span>' +
+          '<div class="pantsrow"><a href="' + AMAZON + '" target="_blank" rel="noopener">Grey pants on Amazon</a><button type="button" onclick="pantsDone(this)">Got them</button></div>' +
+        "</div>"
+      );
     }
-    if (d.jersey && d.jersey.length) mark("/cougars/sizes.html", "Done: " + d.jersey.join(", ") + ". Tap to update or add a player.");
-    if (d.sweatshirt && d.sweatshirt.length) mark("/cougars/sweatshirt.html", "Done: " + d.sweatshirt.join(", ") + ". Tap to update or add a player.");
-    if (d.volunteer) mark("/cougars/volunteer.html", "You are on the list. Tap to add more anytime.");
-    if (d.walkup && d.walkup.length) mark("/cougars/walkup.html", "Done: " + d.walkup.join(", ") + ". Tap to change her song anytime.");
-    if (d.snack) mark("/cougars/snacks.html", "You have " + d.snack + ". Thank you!");
-  } catch (e) {}
+    var doneCount = 4 - items.length;
+    var list = document.getElementById("todo-list");
+    if (items.length === 0) {
+      list.innerHTML = '<div class="caughtup"><div class="big">You are all caught up.</div><div class="sm">Nothing needs you right now.</div></div>';
+    } else {
+      list.innerHTML = items.join("");
+    }
+    show("todo-list", true);
+    var dc = document.getElementById("done-count");
+    if (doneCount > 0 && items.length > 0) { dc.textContent = "Done: " + doneCount + " of 4"; show("done-count", true); }
+    else { show("done-count", false); }
+    var who = document.getElementById("whoami");
+    who.innerHTML = "Showing " + esc(fam.label) + "'s family. <button onclick=\"switchFamily()\">Not you? Switch</button>";
+    show("whoami", true);
+  }
+
+  function boot() {
+    var fam = getFam();
+    if (!fam) { showPicker(); return; }
+    show("picker", false);
+    if (fam.browsing) {
+      var list = document.getElementById("todo-list");
+      list.innerHTML = '<div class="caughtup"><div class="sm">Pick your family to see just what still needs you.</div><div style="margin-top:10px;"><button class="pbtn" style="border:0;border-radius:12px;background:linear-gradient(120deg,var(--red),var(--red-dark));color:#fff;font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:12px 18px;cursor:pointer;" onclick="switchFamily()">Pick my family</button></div></div>';
+      show("todo-list", true);
+      show("done-count", false);
+      show("whoami", false);
+      return;
+    }
+    fetch(API + "?action=family_status&player_id=" + encodeURIComponent(fam.player_id))
+      .then(function (r) {
+        if (r.status === 404) { try { localStorage.removeItem(FAM_KEY); } catch (e) {} showPicker(); throw 0; }
+        if (!r.ok) throw 0;
+        return r.json();
+      })
+      .then(function (st) { renderBoard(fam, st); })
+      .catch(function (e) {
+        if (e !== 0) return;
+      });
+  }
+
+  boot();
 })();
 </script>
 <script>
@@ -318,7 +418,7 @@
 
   window.enablePush = function () {
     btn.disabled = true;
-    st.textContent = "Setting up\u2026";
+    st.textContent = "Setting up…";
     navigator.serviceWorker.register("/cougars/push-sw.js", { scope: "/cougars/" })
       .then(function (reg) {
         return Notification.requestPermission().then(function (perm) {
