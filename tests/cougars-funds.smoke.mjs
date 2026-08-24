@@ -96,12 +96,21 @@ const hubMust = [
   '/cougars/volunteer.html',
   'Tell me how you want to help',
   'Thursdays 6:00 until dark (about 8:00 right now)',
+  'funds-card',
+  'funds-core.mjs',
+  'data-check="cage_vote"',
+  'data-check="sweatshirt"',
+  'data-check="walkup"',
+  'data-check="pants"',
+  'Done. Tap to change your answer.',
+  'No girl will ever be left out, no matter what.',
 ];
 for (const s2 of hubMust) {
   if (hubHtml.includes(s2)) ok('hub contains: ' + s2.slice(0, 50));
   else fail('hub MISSING: ' + s2);
 }
 if (!hubHtml.includes('New big ask')) ok('hub Get involved copy has no scorekeeper ask'); else fail('hub still has scorekeeper ask copy');
+if (!hubHtml.includes('<span>Cougar Funds</span><span class="qs">')) ok('thin Cougar Funds row removed from Team pages (big card instead)'); else fail('thin Cougar Funds row still in Team pages list');
 const volHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'volunteer.html'), 'utf8');
 if (!/Raise my hand|gcInterest|The Big Ask/i.test(volHtml)) ok('volunteer page: scorekeeper ask removed'); else fail('volunteer page still has scorekeeper ask');
 
@@ -297,13 +306,13 @@ try {
   }
 } catch (e) { fail('family_status flow threw: ' + e.message); }
 
-// ------- 5. Drafts law -------
-section('drafts law: weekly draft invisible to parents');
+// ------- 5. Weekly update: PUBLISHED as of the 2026-08-24 live-review step -------
+section('weekly update: live in the public feed');
 try {
   const r = await fetch(GATEWAY + '?action=updates');
   const d = await r.json();
   const bodies = (d.updates || []).map((u) => u.body || '').join('\n');
-  if (!bodies.includes(DRAFT_TITLE)) ok('public updates feed does NOT show the draft'); else fail('DRAFT LEAKED into public updates feed');
+  if (bodies.includes(DRAFT_TITLE)) ok('public updates feed shows the published update'); else fail('published update MISSING from public feed');
 } catch (e) { fail('public updates fetch threw: ' + e.message); }
 
 if (PIN) {
@@ -311,9 +320,9 @@ if (PIN) {
     const r = await fetch(GATEWAY + '?action=all_updates', { headers: { 'x-admin-pin': PIN } });
     const d = await r.json();
     const draft = (d.updates || []).find((u) => (u.body || '').includes(DRAFT_TITLE));
-    if (draft && draft.published === false) ok('PIN read finds the draft, unpublished (id ' + draft.id + ')');
-    else if (draft) fail('draft found but published=' + draft.published);
-    else fail('PIN read did not find the draft');
+    if (draft && draft.published === true) ok('PIN read finds the update, published (id ' + draft.id + ')');
+    else if (draft) fail('update found but published=' + draft.published);
+    else fail('PIN read did not find the update');
     if (draft && draft.body.includes('nobody wants me in charge of anything fashion related')) ok('draft has the revised Bows and socks section');
     else if (draft) fail('draft missing revised Bows and socks copy');
     if (draft && !draft.body.includes('This season I will handle bows and socks myself')) ok('old bows/socks copy removed from draft');

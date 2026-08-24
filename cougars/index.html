@@ -91,6 +91,23 @@
   .whoami { margin-top: 8px; font-size: 12.5px; color: var(--muted); }
   .whoami button { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font-size: 12.5px; font-family: inherit; padding: 0; }
 
+  /* ============ COUGAR FUNDS CARD ============ */
+  .funds-card { display: block; margin-top: 26px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; transition: transform .14s ease, box-shadow .14s ease; }
+  .funds-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+  .funds-card:active { transform: scale(.995); }
+  .funds-card .fbar { background: var(--black); color: #fff; padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .funds-card .fbar h3 { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.22em; text-transform: uppercase; }
+  .funds-card .fgo { font-family: var(--disp); background: var(--red); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; border-radius: 20px; padding: 5px 14px; }
+  .funds-card .fbody { padding: 14px 18px 4px; }
+  .funds-card .frow { padding: 6px 0 12px; }
+  .funds-card .frow .ftop { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .funds-card .frow .fname { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .02em; color: var(--ink); }
+  .funds-card .frow .famt { font-family: var(--disp); font-weight: 600; font-size: 14px; color: var(--red); white-space: nowrap; }
+  .funds-card .fbarline { margin-top: 6px; height: 10px; border-radius: 6px; background: #eceeef; overflow: hidden; }
+  .funds-card .fbarline .ffill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--red), var(--red-dark)); }
+  .funds-card .fbarline.open .ffill { width: 100%; background: repeating-linear-gradient(120deg, var(--red) 0 12px, var(--red-dark) 12px 24px); opacity: .35; }
+  .funds-card .fnote { margin: 0 18px 16px; font-size: 12.5px; color: var(--muted); }
+
   /* ============ TEAM PAGES (quiet) ============ */
   .quiet { margin-top: 26px; }
   .quiet .sec-label { color: var(--muted); }
@@ -100,6 +117,9 @@
   .qlist a:last-child { border-bottom: 0; }
   .qlist a:hover { background: #fafbfb; color: var(--red); }
   .qlist .qs { font-size: 12px; color: var(--muted); }
+  .qlist .qcheck { display: none; color: var(--green); font-weight: 700; margin-right: 7px; }
+  .qlist a.qdone .qcheck { display: inline; }
+  .qlist a.qdone .qs { color: var(--green); }
 
   /* ============ RIGHT RAIL ============ */
   .rail { display: flex; flex-direction: column; gap: 18px; }
@@ -173,16 +193,21 @@
         <div class="whoami" id="whoami" style="display:none;"></div>
       </div>
 
+      <a class="funds-card" href="/cougars/funds.html" id="funds-card" style="display:none;">
+        <div class="fbar"><h3>Cougar Funds</h3><span class="fgo">Open</span></div>
+        <div class="fbody" id="funds-body"></div>
+        <p class="fnote">Completely optional and anonymous. No girl will ever be left out, no matter what.</p>
+      </a>
+
       <div class="quiet">
         <div class="sec-label">Team pages</div>
         <div class="qlist">
           <a href="/cougars/updates.html"><span>Weekly updates</span><span class="qs">The latest from Coach</span></a>
           <a href="/cougars/practice.html"><span>Practice info</span><span class="qs">Days, times, what to bring</span></a>
-          <a href="/cougars/cagevote.html"><span>Cage night vote</span><span class="qs">Pick your evenings</span></a>
-          <a href="/cougars/sweatshirt.html"><span>Sweatshirt form</span><span class="qs">$20, name on the back</span></a>
-          <a href="/cougars/walkup.html"><span>Walk-up songs</span><span class="qs">Her game day song</span></a>
-          <a href="https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/" target="_blank" rel="noopener"><span>Grey pants on Amazon</span><span class="qs">For game days</span></a>
-          <a href="/cougars/funds.html"><span>Cougar Funds</span><span class="qs">Optional and anonymous</span></a>
+          <a href="/cougars/cagevote.html" data-check="cage_vote" data-sub="Pick your evenings"><span>Cage night vote</span><span class="qs">Pick your evenings</span></a>
+          <a href="/cougars/sweatshirt.html" data-check="sweatshirt" data-sub="$20, name on the back"><span>Sweatshirt form</span><span class="qs">$20, name on the back</span></a>
+          <a href="/cougars/walkup.html" data-check="walkup" data-sub="Her game day song"><span>Walk-up songs</span><span class="qs">Her game day song</span></a>
+          <a href="https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/" target="_blank" rel="noopener" data-check="pants" data-sub="For game days"><span>Grey pants on Amazon</span><span class="qs">For game days</span></a>
           <a href="/cougars/snacks.html"><span>Snack sign-up</span><span class="qs">One family per game</span></a>
           <a href="/cougars/volunteer.html"><span>Get involved</span><span class="qs">Tell me how you want to help</span></a>
         </div>
@@ -319,6 +344,29 @@
       .catch(function () { btn.disabled = false; btn.textContent = "Got them"; });
   };
 
+  // Team pages checkmarks: reflect the same family_status data on the quiet list.
+  // st = booleans, or null to reset (browsing / no family picked).
+  function decorateQuiet(st) {
+    document.querySelectorAll(".qlist a[data-check]").forEach(function (a) {
+      var key = a.getAttribute("data-check");
+      var label = a.querySelector("span");
+      var sub = a.querySelector(".qs");
+      var done = !!(st && st[key]);
+      a.classList.toggle("qdone", done);
+      if (!label.querySelector(".qcheck")) {
+        var c = document.createElement("span");
+        c.className = "qcheck";
+        c.innerHTML = "&#10003;";
+        label.insertBefore(c, label.firstChild);
+      }
+      if (done) {
+        sub.textContent = key === "pants" ? "Done" : "Done. Tap to change your answer.";
+      } else {
+        sub.textContent = a.getAttribute("data-sub");
+      }
+    });
+  }
+
   function todoCard(href, title, sub) {
     return '<a class="action" href="' + href + '">' +
       '<span class="tile">&#8226;</span>' +
@@ -354,13 +402,15 @@
     var who = document.getElementById("whoami");
     who.innerHTML = "Showing " + esc(fam.label) + "'s family. <button onclick=\"switchFamily()\">Not you? Switch</button>";
     show("whoami", true);
+    decorateQuiet(st);
   }
 
   function boot() {
     var fam = getFam();
-    if (!fam) { showPicker(); return; }
+    if (!fam) { decorateQuiet(null); showPicker(); return; }
     show("picker", false);
     if (fam.browsing) {
+      decorateQuiet(null);
       var list = document.getElementById("todo-list");
       list.innerHTML = '<div class="caughtup"><div class="sm">Pick your family to see just what still needs you.</div><div style="margin-top:10px;"><button class="pbtn" style="border:0;border-radius:12px;background:linear-gradient(120deg,var(--red),var(--red-dark));color:#fff;font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:12px 18px;cursor:pointer;" onclick="switchFamily()">Pick my family</button></div></div>';
       show("todo-list", true);
@@ -381,6 +431,29 @@
   }
 
   boot();
+})();
+</script>
+<script type="module">
+// Cougar Funds card: live totals so nobody gets surprised by the bill.
+import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  fetch(API + "?action=funds")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var funds = parseFunds(d.funds).filter(function (f) { return f.active; });
+      if (!funds.length) return;
+      document.getElementById("funds-body").innerHTML = funds.map(function (f) {
+        var p = fundProgress(f);
+        var bar = p.open
+          ? '<div class="fbarline open"><div class="ffill" style="width:100%"></div></div>'
+          : '<div class="fbarline"><div class="ffill" style="width:' + p.pct + '%"></div></div>';
+        return '<div class="frow"><div class="ftop"><span class="fname">' + esc(f.name) + '</span><span class="famt">' + esc(p.label) + "</span></div>" + bar + "</div>";
+      }).join("");
+      document.getElementById("funds-card").style.display = "";
+    })
+    .catch(function () {});
 })();
 </script>
 <script>
