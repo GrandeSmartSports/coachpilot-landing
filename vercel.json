@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/fields/ics/:path*",
+      "destination": "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-ics/:path*"
+    }
+  ]
+}

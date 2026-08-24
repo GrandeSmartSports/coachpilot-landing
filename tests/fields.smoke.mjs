@@ -16,7 +16,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -556,10 +556,160 @@ if (!adminHtml.includes('anPost").addEventListener') || adminHtml.indexOf('admin
   ok('posting and emailing are separate actions');
 }
 
+// ------- 3c. Season management (Phase 3): move suggestions, rainout, notes trail -------
+section('season management: move suggestions');
+{
+  const res = GEN.generate(GCFG, GT);
+  const games = res.games.map((g, i) => ({ ...g, id: 'G' + i, status: 'scheduled' }));
+  const target = games.find((g) => g.field_id);
+  const ctx = { games, slots: GT.slots, teams: GT.teams, fields: GT.fields, ext_teams: [] };
+  const sugg = GEN.suggestSlots(target, GCFG, ctx, { limit: 10 });
+  if (sugg.length > 0) ok('suggestSlots finds open slots for a placed game (' + sugg.length + ')');
+  else fail('suggestSlots found nothing in a roomy season');
+  let bad = 0;
+  for (const s of sugg) {
+    const g2 = { ...target, game_date: s.date, start_time: s.start, end_time: s.end, field_id: s.field_id, venue_text: null };
+    if (FLM.gameConflicts(g2, { games: games.filter((g) => g.id !== target.id), slots: GT.slots, teams: GT.teams, fields: GT.fields, ext_teams: [] }).length) bad++;
+  }
+  if (bad === 0) ok('every suggestion is conflict-free against all other games and slots');
+  else fail(bad + ' suggestions conflict');
+  if (!sugg.some((s) => s.date === target.game_date && s.start === String(target.start_time).slice(0, 5) && s.field_id === target.field_id)) ok('the game\'s current slot is never suggested');
+  else fail('suggested the slot the game already has');
+  const sortedOk = sugg.every((s, i) => i === 0 || (sugg[i - 1].date + sugg[i - 1].start) <= (s.date + s.start));
+  if (sortedOk) ok('suggestions come back in date order');
+  else fail('suggestions out of order');
+  if (sugg.every((s) => s.date < '2026-09-19' || s.date > '2026-09-20')) ok('suggestions respect blackout dates');
+  else fail('a suggestion landed on a blackout date');
+  const late = GEN.suggestSlots(target, GCFG, ctx, { limit: 10, min_date: '2026-10-01' });
+  if (late.length && late.every((s) => s.date >= '2026-10-01')) ok('min_date keeps makeup suggestions in the future (' + late.length + ')');
+  else fail('min_date not honored: ' + JSON.stringify(late.slice(0, 2)));
+  if (GEN.suggestSlots(target, { ...GCFG, divisions: {} }, ctx, {}).length === 0) ok('no saved setup for the division -> no suggestions (manual fallback)');
+  else fail('suggestions appeared without a division config');
+  if (sugg.every((s) => s.field_id)) ok('suggestions always carry one of our fields');
+  else fail('a suggestion had no field');
+}
+
+section('season management: bulk rainout targeting + notes trail');
+{
+  const mix = [
+    { id: 'a', game_date: '2026-09-12', status: 'scheduled' },
+    { id: 'b', game_date: '2026-09-12', status: 'draft' },
+    { id: 'c', game_date: '2026-09-12', status: 'cancelled' },
+    { id: 'd', game_date: '2026-09-12', status: 'postponed' },
+    { id: 'e', game_date: '2026-09-12', status: 'completed' },
+    { id: 'f', game_date: '2026-09-13', status: 'scheduled' },
+  ];
+  const t = FLM.bulkRainoutTargets(mix, '2026-09-12');
+  if (t.length === 1 && t[0].id === 'a') ok('bulk rainout hits only scheduled games on the target date (skips draft, cancelled, postponed, completed, other days)');
+  else fail('bulk rainout targeting broken: ' + JSON.stringify(t.map((x) => x.id)));
+  if (FLM.bulkRainoutTargets(mix, '2026-09-14').length === 0) ok('a date with no scheduled games rains out nothing');
+  else fail('phantom rainout targets');
+
+  if (FLM.appendTrail('', 'Rained out Sat, Sep 12.') === 'Rained out Sat, Sep 12.') ok('appendTrail starts a trail on empty notes');
+  else fail('appendTrail empty-notes broken');
+  if (FLM.appendTrail('Bring water.', 'Rained out Sat, Sep 12.') === 'Bring water. Rained out Sat, Sep 12.') ok('appendTrail keeps existing notes and adds the sentence');
+  else fail('appendTrail append broken');
+  const once = FLM.appendTrail(FLM.appendTrail('x', 'Rained out Sat, Sep 12.'), 'Rained out Sat, Sep 12.');
+  if ((once.match(/Rained out/g) || []).length === 1) ok('appendTrail never repeats the same sentence');
+  else fail('appendTrail duplicated the sentence');
+  if (FLM.appendTrail('y'.repeat(400), 'z').length <= 300) ok('appendTrail caps at the gateway 300-char notes limit');
+  else fail('appendTrail over 300 chars');
+}
+
+// ------- 3d. iCal feed core (Phase 3): the exact file the flm-ics edge fn ships -------
+section('ical feeds: ics-core.mjs');
+const ICS = await import(pathToFileURL(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'ics-core.mjs')).href);
+{
+  const ictx = {
+    teams: [
+      { id: 'T1', name: 'Rally Cats', division: 'Majors BB' },
+      { id: 'T2', name: 'Mudville Nine', division: 'Majors BB' },
+      { id: 'T3', name: 'River Otters', division: 'Minors BB' },
+    ],
+    fields: [{ id: 'F1', name: 'Field One' }],
+    ext_teams: [{ id: 'X1', league_name: 'Auburn LL', team_name: 'Storm' }],
+  };
+  const igames = [
+    { id: 'g1', created_at: '2026-08-20T10:00:00Z', division: 'Majors BB', home_team_id: 'T1', away_team_id: 'T2', ext_team_id: null, field_id: 'F1', venue_text: null, game_date: '2026-09-12', start_time: '10:00:00', end_time: '12:00:00', status: 'scheduled', notes: 'Bring water, snacks; cleats' },
+    { id: 'g2', created_at: '2026-08-20T10:00:00Z', division: 'Majors BB', home_team_id: 'T2', away_team_id: 'T1', ext_team_id: null, field_id: 'F1', venue_text: null, game_date: '2026-09-13', start_time: '10:00:00', end_time: '12:00:00', status: 'draft', notes: null },
+    { id: 'g3', created_at: '2026-08-20T10:00:00Z', division: 'Majors BB', home_team_id: 'T1', away_team_id: null, ext_team_id: 'X1', field_id: null, venue_text: 'Brannan Park, Auburn', game_date: '2026-09-19', start_time: '12:30:00', end_time: '14:30:00', status: 'postponed', notes: null },
+    { id: 'g4', created_at: '2026-08-20T10:00:00Z', division: 'Minors BB', home_team_id: 'T3', away_team_id: 'T1', ext_team_id: null, field_id: 'F1', venue_text: null, game_date: '2026-09-20', start_time: '09:00:00', end_time: '10:30:00', status: 'cancelled', notes: null },
+  ];
+  const league = ICS.filterGames(igames, {});
+  if (league.length === 3 && league.every((g) => g.status !== 'draft')) ok('league feed: drafts excluded, everything else in');
+  else fail('league filter broken: ' + league.length);
+  const teamT2 = ICS.filterGames(igames, { team: 'T2' });
+  if (teamT2.length === 1 && teamT2[0].id === 'g1') ok('team feed: home and away games for the team only, still no drafts');
+  else fail('team filter broken: ' + JSON.stringify(teamT2.map((g) => g.id)));
+  const minors = ICS.filterGames(igames, { division: 'Minors BB' });
+  if (minors.length === 1 && minors[0].id === 'g4') ok('division feed filters by division');
+  else fail('division filter broken');
+
+  const ics = ICS.buildIcs(league, ictx, { name: 'Test league games', now: '2026-08-24T12:00:00Z' });
+  if (ics.startsWith('BEGIN:VCALENDAR') && ics.trimEnd().endsWith('END:VCALENDAR')) ok('calendar opens and closes correctly');
+  else fail('calendar envelope broken');
+  const lines = ics.split('\r\n');
+  if (lines.length > 10 && ics.includes('\r\n')) ok('CRLF line endings');
+  else fail('missing CRLF');
+  if (lines.every((l) => l.length <= 75)) ok('every line is 75 chars or less (RFC 5545 folding)');
+  else fail('a line is longer than 75 chars');
+  const begins = lines.filter((l) => l === 'BEGIN:VEVENT').length;
+  const ends = lines.filter((l) => l === 'END:VEVENT').length;
+  if (begins === 3 && ends === 3) ok('one VEVENT per published game (3), balanced');
+  else fail('VEVENT count wrong: ' + begins + '/' + ends);
+  if (ics.includes('UID:flm-g1@coachpilot.org')) ok('stable UID pattern flm-<game id>@coachpilot.org');
+  else fail('UID missing');
+  const moved = ICS.buildIcs([{ ...igames[0], game_date: '2026-10-03', start_time: '15:00:00', end_time: '17:00:00' }], ictx, { name: 'x' });
+  if (moved.includes('UID:flm-g1@coachpilot.org') && moved.includes('DTSTART;TZID=America/Los_Angeles:20261003T150000')) ok('moving a game keeps its UID so calendars update in place');
+  else fail('UID or DTSTART drifted after a move');
+  if (ics.includes('POSTPONED: Rally Cats vs Storm (Auburn LL)')) ok('postponed games get the POSTPONED: prefix with the interlock opponent named');
+  else fail('POSTPONED prefix missing');
+  if (ics.includes('CANCELLED: River Otters vs Rally Cats') && ics.includes('STATUS:CANCELLED')) ok('cancelled games are prefixed and STATUS:CANCELLED');
+  else fail('cancelled handling broken');
+  if (ics.includes('LOCATION:Field One') && ics.includes('LOCATION:Brannan Park\\, Auburn')) ok('LOCATION is the field name at home and the escaped venue text away');
+  else fail('LOCATION handling broken');
+  if (ics.includes('Bring water\\, snacks\\; cleats')) ok('commas and semicolons in notes are escaped');
+  else fail('text escaping broken');
+  if (ics.includes('REFRESH-INTERVAL;VALUE=DURATION:PT1H') && ics.includes('X-PUBLISHED-TTL:PT1H')) ok('refresh interval hints present');
+  else fail('refresh hints missing');
+  if (ics.includes('BEGIN:VTIMEZONE') && ics.includes('TZID:America/Los_Angeles')) ok('Pacific VTIMEZONE embedded');
+  else fail('VTIMEZONE missing');
+  if (ICS.escapeText('a,b;c\nd\\e') === 'a\\,b\\;c\\nd\\\\e') ok('escapeText handles comma, semicolon, newline, backslash');
+  else fail('escapeText broken: ' + ICS.escapeText('a,b;c\nd\\e'));
+  const longLine = ICS.foldLine('SUMMARY:' + 'x'.repeat(200));
+  if (longLine.split('\r\n').every((l, i) => l.length <= 75 && (i === 0 || l.startsWith(' ')))) ok('foldLine wraps long lines with continuation spaces');
+  else fail('foldLine broken');
+}
+
+// ------- 3e. Phase 3 UI hooks -------
+section('fields/admin.html: season board hooks');
+{
+  const adminSrc = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
+  const hooks = ['id="bdWeeks"', 'id="bdTray"', 'id="bdRainDay"', 'id="bdRainDate"', 'FLM_GEN.suggestSlots', 'FLM_RULES.bulkRainoutTargets', 'FLM_RULES.appendTrail', 'draggable="true"', 'Find makeup slot', 'Rain out', 'Set the real park', 'op: "rainout"'];
+  const missing = hooks.filter((h) => !adminSrc.includes(h));
+  if (missing.length === 0) ok('board, tray, rainout, makeup, drag, and real-park hooks all present');
+  else fail('missing admin hooks: ' + missing.join(', '));
+  const offer = adminSrc.slice(adminSrc.indexOf('function bdOfferAnnouncement'), adminSrc.indexOf('function bdSaveMove'));
+  if (offer.length > 0 && !offer.includes('admin(')) ok('announcement offer only prefills the composer: it never posts or emails');
+  else fail('bdOfferAnnouncement looks like it calls the gateway');
+}
+section('fields/index.html: calendar feed hooks');
+{
+  const portalSrc = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
+  const hooks = ['/fields/ics/', 'webcal://', 'data-copycal', 'id="schedCal"', 'mt-cal', 'Add to calendar'];
+  const missing = hooks.filter((h) => !portalSrc.includes(h));
+  if (missing.length === 0) ok('My Team and Schedule calendar feed hooks present');
+  else fail('missing portal hooks: ' + missing.join(', '));
+  if (portalSrc.includes('gstatus.postponed')) ok('postponed status style still present on the portal');
+  else fail('postponed status style missing');
+}
+
 // ------- 4. New file copy rules -------
-section('flm-rules.js + flm-schedule-gen.js: no em/en dashes or curly quotes');
+section('flm-rules.js + flm-schedule-gen.js + ics files: no em/en dashes or curly quotes');
 const rulesSrc = fs.readFileSync(path.join(ROOT, 'fields', 'flm-rules.js'), 'utf8')
-  + fs.readFileSync(path.join(ROOT, 'fields', 'flm-schedule-gen.js'), 'utf8');
+  + fs.readFileSync(path.join(ROOT, 'fields', 'flm-schedule-gen.js'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'ics-core.mjs'), 'utf8')
+  + fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-ics', 'index.ts'), 'utf8');
 let charHits = 0;
 for (const [ch, name] of Object.entries({ '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '“': 'curly-quote-l', '”': 'curly-quote-r' })) {
   if (rulesSrc.includes(ch)) { fail('found ' + name); charHits++; }
@@ -632,6 +782,20 @@ try {
   else fail('public state leaked a draft game!');
 } catch (e) {
   fail('draft leak test threw: ' + e.message);
+}
+// Live iCal feed (public, read-only): the flm-ics edge function answers with a
+// parseable calendar and never a draft game.
+try {
+  const r = await fetch('https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-ics/league.ics');
+  const body = await r.text();
+  if (r.ok && (r.headers.get('content-type') || '').includes('text/calendar')) ok('live flm-ics league feed answers with text/calendar');
+  else fail('live flm-ics feed broken: ' + r.status + ' ' + r.headers.get('content-type'));
+  if (body.startsWith('BEGIN:VCALENDAR') && body.includes('END:VCALENDAR')) ok('live feed is a well-formed calendar');
+  else fail('live feed body malformed');
+  if ((r.headers.get('cache-control') || '').includes('max-age')) ok('live feed sends cache headers');
+  else fail('live feed missing cache headers');
+} catch (e) {
+  fail('live flm-ics test threw: ' + e.message);
 }
 
 // ------- Report -------

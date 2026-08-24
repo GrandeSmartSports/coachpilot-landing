@@ -132,6 +132,12 @@
   .chip.game .gtag { font-family: var(--disp); font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #ffd9b8; display: block; }
   .chip.game.off { opacity: 0.62; }
   .mt-next { font-size: 14px; font-weight: 600; color: var(--pine); background: #eef4ef; border-radius: 10px; padding: 8px 12px; margin-top: 10px; }
+  .mt-cal { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .mt-cal p { color: var(--muted); margin: 2px 0 8px; }
+  .calbtn { display: inline-block; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--pine); color: var(--chalk); border: none; border-radius: 9px; padding: 7px 13px; margin: 0 6px 6px 0; cursor: pointer; text-decoration: none; }
+  .calbtn.ghost { background: var(--white); color: var(--pine); border: 1px solid var(--pine); }
+  .schedcal { font-size: 13.5px; color: var(--muted); margin: 2px 2px 12px; }
+  .schedcal .calbtn { font-size: 12px; padding: 5px 11px; margin: 6px 6px 0 0; }
   .schedbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
   .schedbar select { font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 9px 11px; background: var(--white); color: var(--ink); }
   .gcards { display: grid; grid-template-columns: 1fr; gap: 9px; }
@@ -266,6 +272,7 @@
         <select id="schedDiv"></select>
         <select id="schedTeam"></select>
       </div>
+      <div class="schedcal" id="schedCal"></div>
       <div class="gcards" id="schedList"></div>
       <p class="hint hidden" id="schedNone" style="color:var(--muted);padding:20px 4px;">No games on this schedule yet.</p>
     </div>
@@ -485,6 +492,10 @@ function renderMyTeam() {
   }
   if (ev.status === "over") html += '<div class="mt-alert">' + esc(ev.message) + "</div>";
   if (ev.availLabels.length) html += '<div class="mt-chips">' + ev.availLabels.map(function (l) { return '<span class="mt-chip good">' + esc(l) + "</span>"; }).join("") + "</div>";
+  html += '<div class="mt-cal"><b>Get ' + esc(t.name) + ' games on your phone calendar</b>' +
+    "<p>Subscribe once and every game shows up in your calendar and updates by itself when times change. If the button does not open your calendar app, copy the link and add it there as a new subscription.</p>" +
+    '<a class="calbtn" href="' + esc(icsWebcal("team/" + t.id)) + '">Add to calendar</a>' +
+    '<button class="calbtn ghost" data-copycal="' + esc(icsUrl("team/" + t.id)) + '">Copy the link</button></div>';
   box.style.borderTopColor = ev.status === "over" ? "#b3432b" : divColor(t);
   box.innerHTML = html;
   box.classList.remove("hidden");
@@ -638,6 +649,12 @@ function renderSched() {
     return true;
   });
   document.getElementById("schedNone").classList.toggle("hidden", shown.length > 0);
+  /* live calendar feed matching the filters: team, division, or whole league */
+  var feedPath = keepTeam ? "team/" + keepTeam : (keepDiv ? "division/" + encodeURIComponent(keepDiv) : "league");
+  var feedLabel = keepTeam ? ((teamById(keepTeam) || {}).name || "this team") + " games" : (keepDiv ? keepDiv + " games" : "all league games");
+  document.getElementById("schedCal").innerHTML = "Put " + esc(feedLabel) + " on your phone calendar. It updates by itself when the schedule changes.<br />" +
+    '<a class="calbtn" href="' + esc(icsWebcal(feedPath)) + '">Add to calendar</a>' +
+    '<button class="calbtn ghost" data-copycal="' + esc(icsUrl(feedPath)) + '">Copy the link</button>';
   /* Full seasons get long: group by week so the list stays scannable. A week
      header only appears when games span more than one week. */
   shown.sort(function (a, b) { return (a.game_date + a.start_time).localeCompare(b.game_date + b.start_time); });
@@ -737,6 +754,26 @@ function toast(msg) {
   document.body.appendChild(t);
   setTimeout(function () { t.remove(); }, 2600);
 }
+
+/* ---------- calendar feeds (Phase 3) ----------
+   Live iCal subscriptions served by the flm-ics edge function through the
+   coachpilot.org/fields/ics/* rewrite. Published games only, never drafts. */
+var ICS_HOST = "coachpilot.org";
+function icsUrl(p) { return "https://" + ICS_HOST + "/fields/ics/" + p + ".ics"; }
+function icsWebcal(p) { return "webcal://" + ICS_HOST + "/fields/ics/" + p + ".ics"; }
+function copyCal(url) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(function () { toast("Link copied. Paste it into your calendar app as a new subscription."); })
+      .catch(function () { window.prompt("Copy this link, then add it in your calendar app as a new subscription:", url); });
+  } else {
+    window.prompt("Copy this link, then add it in your calendar app as a new subscription:", url);
+  }
+}
+document.addEventListener("click", function (e) {
+  var b = e.target.closest ? e.target.closest("[data-copycal]") : null;
+  if (b) copyCal(b.getAttribute("data-copycal"));
+});
 
 function welcomeModal() {
   var groups = {};

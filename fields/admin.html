@@ -113,6 +113,38 @@
   .sgunp { background: #fbe4dc; color: #a33c1b; border-radius: 9px; padding: 8px 12px; font-size: 13.5px; margin: 4px 0; }
   table.list td.num { text-align: right; font-variant-numeric: tabular-nums; }
 
+  /* season board (Phase 3): week rows of day cells, drag targets */
+  .bdscroll { overflow-x: auto; }
+  .bdgrid { display: grid; grid-template-columns: repeat(7, minmax(128px, 1fr)); gap: 6px; min-width: 940px; margin-bottom: 10px; }
+  .bdcell { background: #fbfaf5; border: 1px dashed var(--line); border-radius: 10px; padding: 6px; min-height: 54px; }
+  .bdcell .bdday { font-family: var(--disp); font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .bdcell.today .bdday { color: var(--clay); }
+  .bdcell.over { border-color: var(--clay); border-style: solid; background: #fdf3ea; }
+  .bdcard { background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--grass); border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; font-size: 12px; cursor: grab; }
+  .bdcard.dragging { opacity: 0.4; }
+  .bdcard.st-draft { border-left-color: #52418f; }
+  .bdcard.st-cancelled, .bdcard.st-completed { opacity: 0.6; cursor: default; }
+  .bdcard b { display: block; font-size: 12.5px; line-height: 1.25; }
+  .bdcard .bdmeta { color: var(--muted); display: block; margin: 1px 0 4px; }
+  .bdcard .bdbtns { display: flex; gap: 4px; flex-wrap: wrap; }
+  .bdcard .bdbtns button { font-size: 11px; padding: 2px 7px; border-radius: 7px; border: 1px solid var(--line); background: var(--chalk-2); cursor: pointer; }
+  .bdcard .bdbtns button.rain { background: #fdf1dc; border-color: #ecd9b4; color: #8a5a12; }
+  .bdcard .bdbtns button.park { background: #fdeadb; border-color: #eecfae; color: #a3571d; font-weight: 700; }
+  .bdtray { background: #fdf6e8; border: 1px solid #ecd9b4; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+  .bdtray h3 { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: #8a5a12; margin-bottom: 2px; }
+  .bdtray .bdcard { border-left-color: #d9a53f; cursor: default; }
+  .bdoffer { background: #eef4ef; border: 1px solid #cfe0d2; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; margin-bottom: 10px; }
+
+  /* small modal for the Move / makeup flow */
+  .veil { position: fixed; inset: 0; background: rgba(14, 30, 24, 0.55); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 14px; }
+  .modal { background: var(--white); border-radius: 14px; padding: 20px 22px; width: 100%; max-width: 520px; max-height: 86vh; overflow-y: auto; }
+  .modal h3 { font-family: var(--disp); font-weight: 700; font-size: 19px; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 4px; }
+  .modal .ctx { color: var(--muted); font-size: 13.5px; margin-bottom: 12px; }
+  .mvopt { display: block; width: 100%; text-align: left; background: #fbfaf5; border: 1px solid var(--line); border-radius: 9px; padding: 8px 12px; margin-bottom: 6px; font-size: 13.5px; cursor: pointer; }
+  .mvopt:hover { border-color: var(--grass); background: #f2f6f0; }
+  .mvwarn { background: #fbe4dc; color: #a33c1b; border-radius: 9px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+  .mvok { background: #dcefe2; color: #21622f; border-radius: 9px; padding: 8px 12px; font-size: 13px; margin-top: 8px; }
+
   .log { font-size: 12.5px; }
   .log .li { padding: 6px 2px; border-bottom: 1px solid #efede4; display: flex; gap: 8px; }
   .log .t { color: var(--muted); white-space: nowrap; }
@@ -272,6 +304,23 @@
       </div>
 
       <div class="panel span2">
+        <div class="bar"><h2>Season board</h2></div>
+        <div class="body">
+          <p class="hint">Every game on the schedule, week by week. Drag a game to a different day, or use its Move button to see open times that fit with no clashes. Rain out one game with its button, or pick a date and rain out that whole day in one go. Rained out games wait in the makeup tray until you give them a new time. Nothing here emails anyone.</p>
+          <div class="row" style="margin-bottom:10px;">
+            <select id="bdSeason"></select>
+            <select id="bdDiv"><option value="">All divisions</option></select>
+            <span style="flex:1;"></span>
+            <input id="bdRainDate" type="date" />
+            <button class="btn sm danger" id="bdRainDay">Rain out that day</button>
+          </div>
+          <div id="bdOffer"></div>
+          <div id="bdTray"></div>
+          <div class="bdscroll" id="bdWeeks"></div>
+        </div>
+      </div>
+
+      <div class="panel span2">
         <div class="bar"><h2>League announcements</h2></div>
         <div class="body">
           <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
@@ -389,7 +438,7 @@ function refresh() {
      The public portal calls state without a PIN and never sees drafts. */
   fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
-    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen();
+    renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard();
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -1030,6 +1079,316 @@ function renderSeasonGen() {
     });
   });
 }
+
+/* ---------- season board (Phase 3: moves, rainouts, makeups) ---------- */
+var BD = { season: "", div: "", dragId: null };
+
+function bdToday() {
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate();
+}
+function bdDateStr(d) {
+  return d.getFullYear() + "-" + (d.getMonth() < 9 ? "0" : "") + (d.getMonth() + 1) + "-" + (d.getDate() < 10 ? "0" : "") + d.getDate();
+}
+function bdById(id) { return (D.games || []).filter(function (g) { return g.id === id; })[0]; }
+function bdMatchup(g) { return gameTeamName(g.home_team_id) + " vs " + gameOppName(g); }
+/* ctx for the conflict engine with the moving game itself left out */
+function bdCtx(exceptId) {
+  return {
+    games: (D.games || []).filter(function (g) { return g.id !== exceptId; }),
+    slots: D.slots || [], teams: D.teams || [], fields: D.fields || [], ext_teams: D.ext_teams || []
+  };
+}
+/* Away interlock proposals get venue_text = the other league's name until the
+   real park is known. That placeholder gets the "Set the real park" button. */
+function bdPlaceholderPark(g) { return !!g.venue_text && g.venue_text === gameLeague(g); }
+function bdWhere(g) { return g.field_id ? gameFieldName(g.field_id) : (g.venue_text || "their park"); }
+function bdWhen(g) { return fmtDate(g.game_date) + " at " + FLM_RULES.fmtTime(g.start_time) + " on " + bdWhere(g); }
+
+/* Fill the announcement composer with a ready-made draft. NEVER posts and
+   NEVER emails: the admin still reads it and hits Post themselves. */
+function bdOfferAnnouncement(title, body) {
+  el("anTitle").value = title;
+  el("anBody").value = body;
+  el("anSev").value = "warning";
+  el("bdOffer").innerHTML = '<div class="bdoffer">A ready-made announcement is filled in for you in League announcements below. Nothing goes out until you hit Post. ' +
+    '<button class="btn sm" id="bdOfferGo">Review the draft</button> ' +
+    '<button class="btn sm ghost" id="bdOfferX">Dismiss</button></div>';
+  el("bdOfferGo").addEventListener("click", function () { el("anTitle").scrollIntoView({ behavior: "smooth", block: "center" }); });
+  el("bdOfferX").addEventListener("click", function () { el("bdOffer").innerHTML = ""; });
+}
+
+/* Shared save for drag moves, Move picks, manual overrides, and makeups.
+   Runs the conflict engine on the new time, names every clash in the confirm,
+   and lets the admin override on purpose. Returns a promise of true on save. */
+function bdSaveMove(g, patch, opts) {
+  opts = opts || {};
+  var g2 = {};
+  for (var k in g) g2[k] = g[k];
+  for (var p in patch) g2[p] = patch[p];
+  var conflicts = FLM_RULES.gameConflicts(g2, bdCtx(g.id));
+  var from = bdWhen(g);
+  var to = fmtDate(g2.game_date) + " at " + FLM_RULES.fmtTime(g2.start_time) + " on " + bdWhere(g2);
+  var ask = (opts.makeup ? "Make up " : "Move ") + bdMatchup(g) + "?\n\nFrom: " + from + "\nTo: " + to;
+  if (conflicts.length) {
+    ask = "Heads up, the new time has a clash:\n\n" + conflicts.map(function (c) { return "- " + c.message; }).join("\n") + "\n\n" + ask + "\n\nMove it anyway?";
+  }
+  if (!confirm(ask)) return Promise.resolve(false);
+  var body = { id: g.id, game_date: g2.game_date, start_time: g2.start_time, end_time: g2.end_time };
+  if (patch.field_id !== undefined) { body.field_id = patch.field_id; body.venue_text = null; }
+  if (patch.venue_text !== undefined) { body.venue_text = patch.venue_text; body.field_id = null; }
+  if (opts.makeup) {
+    body.status = "scheduled";
+    body.notes = FLM_RULES.appendTrail(g.notes, "Rained out " + fmtDate(g.game_date) + ".");
+    body.activity_note = "Made up " + bdMatchup(g) + ": moved from " + from + " to " + to + ".";
+  } else {
+    body.activity_note = "Moved " + bdMatchup(g) + " from " + from + " to " + to + ".";
+  }
+  return admin("admin_game", body).then(function () {
+    if (opts.makeup) {
+      bdOfferAnnouncement("Makeup game scheduled", bdMatchup(g) + " has a new time: " + fmtDate(g2.game_date) + " at " + FLM_RULES.fmtTime(g2.start_time) + " on " + bdWhere(g2) + ". The full schedule is on the portal.");
+    } else if (g.status === "scheduled") {
+      bdOfferAnnouncement("Game time change: " + bdMatchup(g), bdMatchup(g) + " has moved to " + fmtDate(g2.game_date) + " at " + FLM_RULES.fmtTime(g2.start_time) + " on " + bdWhere(g2) + ". The full schedule is on the portal.");
+    }
+    refresh();
+    return true;
+  }).catch(function (e) { alert(e.message); return false; });
+}
+
+/* One click rain out: scheduled -> postponed, into the makeup tray. The
+   original date is kept in the game's notes trail. */
+function bdRainOne(g) {
+  if (!confirm("Rain out " + bdMatchup(g) + " on " + fmtDate(g.game_date) + "? It moves to the makeup tray until you pick a new time.")) return;
+  admin("admin_game", {
+    id: g.id, status: "postponed",
+    notes: FLM_RULES.appendTrail(g.notes, "Rained out " + fmtDate(g.game_date) + "."),
+    activity_note: "Rained out " + bdMatchup(g) + " on " + fmtDate(g.game_date) + ". It is in the makeup tray."
+  }).then(function () {
+    bdOfferAnnouncement("Game postponed: " + bdMatchup(g), bdMatchup(g) + " on " + fmtDate(g.game_date) + " is postponed for rain. The new time will be on the schedule.");
+    refresh();
+  }).catch(function (e) { alert(e.message); });
+}
+
+el("bdRainDay").addEventListener("click", function () {
+  var date = el("bdRainDate").value;
+  if (!date) { alert("Pick the date to rain out first."); return; }
+  var targets = FLM_RULES.bulkRainoutTargets(D.games || [], date);
+  if (!targets.length) { alert("No scheduled games on " + fmtDate(date) + ". Drafts and games already postponed are not touched."); return; }
+  if (!confirm("Rain out all " + targets.length + " scheduled games on " + fmtDate(date) + "? They move to the makeup tray until you pick new times.")) return;
+  admin("admin_games_bulk", { op: "rainout", date: date }).then(function (r) {
+    bdOfferAnnouncement("Games on " + fmtDate(date) + " are postponed", "Games on " + fmtDate(date) + " are postponed for rain. New times are on the schedule.");
+    refresh();
+  }).catch(function (e) { alert(e.message); });
+});
+
+/* Move / makeup dialog: conflict-free suggestions from the saved season setup
+   first, manual date, time, and field below with a live clash check. */
+function bdMoveModal(g, opts) {
+  opts = opts || {};
+  var away = !g.field_id;
+  var sugg = away ? [] : FLM_GEN.suggestSlots(g, sgLoadCfg(), bdCtx(g.id), { limit: 8, min_date: opts.makeup ? bdToday() : null });
+  var suggHtml;
+  if (sugg.length) {
+    suggHtml = '<p style="font-size:13px;font-weight:600;margin-bottom:6px;">Open times with no clashes. Tap one to use it:</p>' +
+      sugg.map(function (s, i) {
+        return '<button class="mvopt" data-mv="' + i + '"><b>' + esc(fmtDate(s.date)) + "</b> &middot; " + esc(FLM_RULES.fmtTime(s.start)) + " to " + esc(FLM_RULES.fmtTime(s.end)) + " &middot; " + esc(gameFieldName(s.field_id)) + "</button>";
+      }).join("");
+  } else if (away) {
+    suggHtml = '<p class="hint">This is an away game at the other league\'s park, so there are no field times to suggest. Set the date and time you agreed on with them.</p>';
+  } else {
+    suggHtml = '<p class="hint">No open clash-free times found in the saved season setup, so set one by hand below.</p>';
+  }
+  var fieldOpts = D.fields.filter(function (f) { return f.is_active; }).map(function (f) {
+    return '<option value="' + f.id + '"' + (f.id === g.field_id ? " selected" : "") + ">" + esc(f.name) + "</option>";
+  }).join("");
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  veil.innerHTML = '<div class="modal"><h3>' + (opts.makeup ? "Find a makeup time" : "Move this game") + "</h3>" +
+    '<div class="ctx">' + esc(bdMatchup(g)) + " &middot; now " + esc(bdWhen(g)) + "</div>" +
+    suggHtml +
+    '<div style="border-top:1px solid var(--line);margin-top:10px;padding-top:10px;">' +
+    '<p style="font-size:13px;font-weight:600;margin-bottom:6px;">' + (sugg.length ? "Or set it by hand:" : "Set it by hand:") + "</p>" +
+    '<div class="row">' +
+    '<input type="date" id="mvDate" value="' + esc(g.game_date) + '" />' +
+    '<input type="time" id="mvStart" value="' + esc(String(g.start_time).slice(0, 5)) + '" />' +
+    '<input type="time" id="mvEnd" value="' + esc(String(g.end_time).slice(0, 5)) + '" />' +
+    (away ? '<input id="mvVenue" value="' + esc(g.venue_text || "") + '" placeholder="Their park, e.g. Brannan Park, Auburn" style="min-width:200px;" />'
+          : '<select id="mvField">' + fieldOpts + "</select>") +
+    "</div>" +
+    '<div id="mvCheck"></div>' +
+    '<div class="row" style="margin-top:12px;">' +
+    '<button class="btn clay" id="mvSave">' + (opts.makeup ? "Put it back on the schedule" : "Move the game") + "</button>" +
+    '<button class="btn ghost" id="mvCancel">Cancel</button>' +
+    "</div></div></div>";
+  veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+  document.body.appendChild(veil);
+
+  function manualPatch() {
+    var p = {
+      game_date: veil.querySelector("#mvDate").value,
+      start_time: veil.querySelector("#mvStart").value,
+      end_time: veil.querySelector("#mvEnd").value
+    };
+    if (away) p.venue_text = veil.querySelector("#mvVenue").value.trim();
+    else p.field_id = veil.querySelector("#mvField").value;
+    return p;
+  }
+  function liveCheck() {
+    var p = manualPatch();
+    var box = veil.querySelector("#mvCheck");
+    if (!p.game_date || !p.start_time || !p.end_time || p.end_time <= p.start_time) { box.innerHTML = ""; return; }
+    var g2 = {};
+    for (var k in g) g2[k] = g[k];
+    for (var q in p) g2[q] = p[q];
+    if (away) g2.field_id = null; else g2.venue_text = null;
+    var conflicts = FLM_RULES.gameConflicts(g2, bdCtx(g.id));
+    box.innerHTML = conflicts.length
+      ? '<div class="mvwarn">' + conflicts.map(function (c) { return esc(c.message); }).join("<br />") + "</div>"
+      : '<div class="mvok">No clashes with this time.</div>';
+  }
+  ["mvDate", "mvStart", "mvEnd", away ? "mvVenue" : "mvField"].forEach(function (id) {
+    veil.querySelector("#" + id).addEventListener("change", liveCheck);
+  });
+  liveCheck();
+
+  veil.querySelectorAll("[data-mv]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var s = sugg[+b.getAttribute("data-mv")];
+      bdSaveMove(g, { game_date: s.date, start_time: s.start, end_time: s.end, field_id: s.field_id }, opts)
+        .then(function (saved) { if (saved) veil.remove(); });
+    });
+  });
+  veil.querySelector("#mvSave").addEventListener("click", function () {
+    var p = manualPatch();
+    if (!p.game_date || !p.start_time || !p.end_time) { alert("Set the date and both times first."); return; }
+    if (p.end_time <= p.start_time) { alert("End time must be after the start time."); return; }
+    if (away && !p.venue_text) { alert("Type in their park, or keep the league name until you know it."); return; }
+    bdSaveMove(g, p, opts).then(function (saved) { if (saved) veil.remove(); });
+  });
+  veil.querySelector("#mvCancel").addEventListener("click", function () { veil.remove(); });
+}
+
+function bdSetPark(g) {
+  var v = prompt("Where is this game played? Type the real park, for example Brannan Park, Auburn.", g.venue_text || "");
+  if (v == null) return;
+  v = v.trim();
+  if (!v) { alert("The venue cannot be empty. Keep the league name until you know the park."); return; }
+  admin("admin_game", { id: g.id, venue_text: v, activity_note: "Set the venue for " + bdMatchup(g) + " on " + fmtDate(g.game_date) + " to " + v + "." })
+    .then(refresh).catch(function (e) { alert(e.message); });
+}
+
+function bdCardHtml(g, inTray) {
+  var movable = g.status === "draft" || g.status === "scheduled";
+  var meta = inTray
+    ? "Was " + fmtDate(g.game_date) + " at " + FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "")
+    : FLM_RULES.fmtTime(g.start_time) + " &middot; " + bdWhere(g) + (g.division ? " &middot; " + g.division : "");
+  if (!inTray && g.status !== "scheduled") meta += " &middot; " + g.status;
+  return '<div class="bdcard st-' + esc(g.status) + '"' + (!inTray && movable ? ' draggable="true"' : "") + ' data-bdg="' + g.id + '">' +
+    "<b>" + esc(bdMatchup(g)) + "</b>" +
+    '<span class="bdmeta">' + meta + "</span>" +
+    '<div class="bdbtns">' +
+    (inTray ? '<button data-bd-makeup="' + g.id + '">Find makeup slot</button>' : "") +
+    (!inTray && movable ? '<button data-bd-move="' + g.id + '">Move</button>' : "") +
+    (!inTray && g.status === "scheduled" ? '<button class="rain" data-bd-rain="' + g.id + '">Rain out</button>' : "") +
+    (bdPlaceholderPark(g) ? '<button class="park" data-bd-park="' + g.id + '">Set the real park</button>' : "") +
+    "</div></div>";
+}
+
+function renderBoard() {
+  var keepSeason = el("bdSeason").value || BD.season, keepDiv = el("bdDiv").value || BD.div;
+  el("bdSeason").innerHTML = '<option value="">All windows</option>' + D.seasons.map(function (sn) {
+    return '<option value="' + sn.id + '"' + (sn.id === keepSeason ? " selected" : "") + ">" + esc(sn.label) + "</option>";
+  }).join("");
+  el("bdDiv").innerHTML = '<option value="">All divisions</option>' + divisionList().map(function (d) {
+    return '<option value="' + esc(d) + '"' + (d === keepDiv ? " selected" : "") + ">" + esc(d) + "</option>";
+  }).join("");
+  BD.season = el("bdSeason").value; BD.div = el("bdDiv").value;
+
+  var sel = (D.games || []).filter(function (g) {
+    return (!BD.season || g.season_id === BD.season) && (!BD.div || g.division === BD.div);
+  });
+  var tray = sel.filter(function (g) { return g.status === "postponed"; });
+  var onBoard = sel.filter(function (g) { return g.status !== "postponed"; });
+
+  el("bdTray").innerHTML = tray.length
+    ? '<div class="bdtray"><h3>Needs makeup (' + tray.length + ")</h3>" +
+      '<p class="hint" style="margin-bottom:8px;">These games were rained out or postponed. Find each one a new time and it goes back on the schedule.</p>' +
+      tray.map(function (g) { return bdCardHtml(g, true); }).join("") + "</div>"
+    : "";
+
+  var box = el("bdWeeks");
+  if (!onBoard.length && !tray.length) {
+    box.innerHTML = '<p class="hint">No games on the schedule yet. Build a season with the generator above, or add games in the Games panel.</p>';
+    return;
+  }
+  var dates = onBoard.map(function (g) { return g.game_date; }).sort();
+  var html = "";
+  if (dates.length) {
+    var byDate = {};
+    onBoard.forEach(function (g) { (byDate[g.game_date] = byDate[g.game_date] || []).push(g); });
+    var today = bdToday();
+    var cur = mondayOf(dates[0]);
+    var last = mondayOf(dates[dates.length - 1]);
+    var weekCount = 0;
+    while (cur <= last && weekCount < 40) {
+      weekCount++;
+      var cells = "";
+      var weekGames = 0;
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(cur); d.setDate(d.getDate() + i);
+        var ds = bdDateStr(d);
+        var dayGames = (byDate[ds] || []).slice().sort(function (a, b) { return String(a.start_time).localeCompare(String(b.start_time)); });
+        weekGames += dayGames.length;
+        cells += '<div class="bdcell' + (ds === today ? " today" : "") + '" data-date="' + ds + '">' +
+          '<div class="bdday">' + d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" }) + "</div>" +
+          dayGames.map(function (g) { return bdCardHtml(g, false); }).join("") + "</div>";
+      }
+      html += '<div class="sgweek">Week of ' + cur.toLocaleDateString([], { month: "short", day: "numeric" }) + " &middot; " + weekGames + (weekGames === 1 ? " game" : " games") + "</div>" +
+        '<div class="bdgrid">' + cells + "</div>";
+      cur.setDate(cur.getDate() + 7);
+    }
+  }
+  box.innerHTML = html;
+
+  /* drag a game card onto any day cell = move it to that date, same time */
+  document.querySelectorAll('#bdWeeks .bdcard[draggable="true"]').forEach(function (c) {
+    c.addEventListener("dragstart", function (e) {
+      BD.dragId = c.getAttribute("data-bdg");
+      c.classList.add("dragging");
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", BD.dragId); } catch (_e) {}
+    });
+    c.addEventListener("dragend", function () { BD.dragId = null; c.classList.remove("dragging"); });
+  });
+  document.querySelectorAll("#bdWeeks .bdcell").forEach(function (cell) {
+    cell.addEventListener("dragover", function (e) { if (BD.dragId) { e.preventDefault(); cell.classList.add("over"); } });
+    cell.addEventListener("dragleave", function () { cell.classList.remove("over"); });
+    cell.addEventListener("drop", function (e) {
+      e.preventDefault();
+      cell.classList.remove("over");
+      var g = bdById(BD.dragId);
+      BD.dragId = null;
+      var date = cell.getAttribute("data-date");
+      if (!g || !date || date === g.game_date) return;
+      bdSaveMove(g, { game_date: date }, {});
+    });
+  });
+  function bindBtn(attr, fn) {
+    document.querySelectorAll("[" + attr + "]").forEach(function (b) {
+      b.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var g = bdById(b.getAttribute(attr));
+        if (g) fn(g);
+      });
+    });
+  }
+  bindBtn("data-bd-move", function (g) { bdMoveModal(g, {}); });
+  bindBtn("data-bd-makeup", function (g) { bdMoveModal(g, { makeup: true }); });
+  bindBtn("data-bd-rain", bdRainOne);
+  bindBtn("data-bd-park", bdSetPark);
+}
+el("bdSeason").addEventListener("change", function () { BD.season = el("bdSeason").value; renderBoard(); });
+el("bdDiv").addEventListener("change", function () { BD.div = el("bdDiv").value; renderBoard(); });
 
 /* ---------- announcements ---------- */
 function loadAnnouncements() {

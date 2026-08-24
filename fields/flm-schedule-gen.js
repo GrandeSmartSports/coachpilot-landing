@@ -453,6 +453,44 @@
     return { total: (games || []).length, unplaced: (unplaced || []).length, perTeam: perTeam, perField: perField, interlock: il };
   }
 
+  /* ---------- Phase 3: move / makeup suggestions ---------- */
+  /* Conflict-free places one game could move to, using the saved generator
+     setup (season_gen_config) for its division: every date x wave x field in
+     the window, blackouts skipped, each candidate vetted with gameConflicts
+     against every OTHER game plus practice slots. Chronological order.
+     opts: { limit (default 10), min_date ("YYYY-MM-DD", e.g. today for a
+     makeup so it never suggests the past) }. Returns [] when the division has
+     no generator setup; the caller falls back to manual date/time/field. */
+  function suggestSlots(game, cfg, ctx, opts) {
+    opts = opts || {};
+    var max = opts.limit || 10;
+    var dcfg = ((cfg || {}).divisions || {})[game.division];
+    if (!dcfg || !cfg.start_date || !cfg.end_date) return [];
+    var cands = buildCandidates(cfg, game.division, dcfg);
+    cands.sort(function (a, b) { return (a.date + a.start).localeCompare(b.date + b.start); });
+    var others = (ctx.games || []).filter(function (g) { return g.id !== game.id; });
+    var out = [];
+    for (var i = 0; i < cands.length && out.length < max; i++) {
+      var c = cands[i];
+      if (opts.min_date && c.date < opts.min_date) continue;
+      if (c.date === game.game_date && c.start === String(game.start_time).slice(0, 5) && c.field_id === game.field_id) continue;
+      var g2 = {
+        id: game.id, season_id: game.season_id, division: game.division,
+        home_team_id: game.home_team_id,
+        away_team_id: game.away_team_id || null,
+        ext_team_id: game.ext_team_id || null,
+        field_id: c.field_id, venue_text: null,
+        game_date: c.date, start_time: c.start, end_time: c.end
+      };
+      var conflicts = RULES.gameConflicts(g2, {
+        games: others, slots: ctx.slots || [], teams: ctx.teams || [],
+        fields: ctx.fields || [], ext_teams: ctx.ext_teams || []
+      });
+      if (conflicts.length === 0) out.push({ date: c.date, start: c.start, end: c.end, field_id: c.field_id });
+    }
+    return out;
+  }
+
   return {
     generate: generate,
     divisionMatchups: divisionMatchups,
@@ -460,6 +498,7 @@
     extInterlockMatchups: extInterlockMatchups,
     roundRobinCycle: roundRobinCycle,
     buildCandidates: buildCandidates,
+    suggestSlots: suggestSlots,
     summarize: summarize,
     rng: rng
   };

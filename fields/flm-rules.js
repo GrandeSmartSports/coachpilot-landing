@@ -195,5 +195,23 @@
     return out;
   }
 
-  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts };
+  /* ---------- Phase 3: season management helpers ---------- */
+  /* Bulk rainout picks ONLY scheduled games on the target date. Drafts,
+     cancelled, completed, and already-postponed games are never touched.
+     The admin UI uses this for the confirm count; the gateway op mirrors it. */
+  function bulkRainoutTargets(games, date) {
+    return (games || []).filter(function (g) { return g.game_date === date && g.status === "scheduled"; });
+  }
+
+  /* Notes trail: makeups and moves keep their history in the game's notes
+     ("Rained out Sat Sep 12."). Appends one plain sentence, caps at the
+     gateway's 300-char notes limit, never repeats the same sentence. */
+  function appendTrail(notes, sentence) {
+    var n = String(notes || "").trim();
+    if (!sentence) return n.slice(0, 300);
+    if (n.indexOf(sentence) >= 0) return n.slice(0, 300);
+    return (n ? n + " " + sentence : sentence).slice(0, 300);
+  }
+
+  return { DEFAULT_RULES: DEFAULT_RULES, parse: parse, describe: describe, evaluate: evaluate, toMinutes: toMinutes, timesOverlap: timesOverlap, fmtTime: fmtTime, gameDayKeys: gameDayKeys, gameConflicts: gameConflicts, bulkRainoutTargets: bulkRainoutTargets, appendTrail: appendTrail };
 });
