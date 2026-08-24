@@ -1002,6 +1002,48 @@ section('fields/admin.html: volunteer pass (no prompt chains, Phase 5 hooks)');
   else fail('wizard looks like it grew its own plumbing');
 }
 
+// ------- 3f. Hub and spoke: landing screen + hash-routed views -------
+section('fields/admin.html: hub and spoke landing + routing');
+{
+  const adminSrc = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
+  const hooks = [
+    'id="view-home"', 'id="homeTiles"', 'id="homeHead"', 'id="attnToggle"',
+    'things need you', 'All caught up.',
+    'id="view-divisions"', 'id="view-fields"', 'id="view-games"', 'id="view-practices"',
+    'id="view-umpires"', 'id="view-announcements"', 'id="view-tools"', 'id="view-reports"',
+    'id="viewBar"', 'id="backBtn"',
+    'function applyRoute', 'hashchange',
+    'function renderHome', 'function renderDivisionsView', 'function renderDivDetail', 'function renderPracticeGrid',
+    'id="pgGrids"', 'id="cloneSeasonBtn2"', 'id="panelWizard"',
+  ];
+  const missing = hooks.filter((h) => !adminSrc.includes(h));
+  if (missing.length === 0) ok('landing, back bar, router, and dive-in renderers all present');
+  else fail('missing hub/spoke hooks: ' + missing.join(', '));
+  // every legacy panel survives the restructure and lives exactly once
+  for (const pid of ['panelComp', 'panelGames', 'panelExt', 'panelGen', 'panelBoard', 'panelStand', 'panelUmps', 'panelAnnounce', 'panelImport', 'panelWindows', 'panelSettings', 'panelFields', 'panelTeams', 'panelLog']) {
+    if ((adminSrc.match(new RegExp('id="' + pid + '"', 'g')) || []).length === 1) ok(pid + ' present exactly once');
+    else fail(pid + ' missing or duplicated');
+  }
+  // PANEL_VIEW must cover every panel the attention list and wizard jump to,
+  // so scrollToPanel can route into the owning view first
+  const pv = adminSrc.slice(adminSrc.indexOf('var PANEL_VIEW'), adminSrc.indexOf('var pendingPanel'));
+  const jumps = ['panelGen', 'panelUmps', 'panelBoard', 'panelComp', 'panelFields', 'panelSettings', 'panelImport'];
+  const unmapped = jumps.filter((p) => !pv.includes(p));
+  if (unmapped.length === 0) ok('every attention/wizard jump target is mapped to a view');
+  else fail('unmapped jump targets: ' + unmapped.join(', '));
+  // all 8 landing tiles link to real views
+  const tiles = ['#divisions', '#fields', '#games', '#practices', '#umpires', '#announcements', '#tools', '#reports'];
+  const badTiles = tiles.filter((t) => !adminSrc.includes('tile("' + t + '"'));
+  if (badTiles.length === 0) ok('all 8 landing tiles wired to view routes');
+  else fail('missing landing tiles: ' + badTiles.join(', '));
+  if (adminSrc.includes('games need an ump') && adminSrc.includes('class="badge"')) ok('umpire tile carries the needs-an-ump badge');
+  else fail('needs-an-ump badge missing from the landing');
+  // landing copy stays dash-free (customer-facing rule)
+  const home = adminSrc.slice(adminSrc.indexOf('function renderHome'), adminSrc.indexOf('function renderPracticeGrid'));
+  if (!/[—–]/.test(home)) ok('landing copy has no em or en dashes');
+  else fail('landing copy contains an em/en dash');
+}
+
 section('gateway source: Phase 5 actions + archive rules');
 {
   const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');

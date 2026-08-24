@@ -157,6 +157,39 @@
 
   .wizlbl { display: block; font-size: 13.5px; font-weight: 600; margin: 12px 0 4px; }
 
+  /* hub and spoke: calm landing screen + dive-in views */
+  .viewbar { position: sticky; top: 0; z-index: 40; background: var(--chalk); padding: 8px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+  .viewbar h2 { font-family: var(--disp); font-weight: 700; font-size: 21px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pine); }
+  .homehead { margin: 4px 0 14px; }
+  .homehead h2 { font-family: var(--disp); font-weight: 700; font-size: 30px; letter-spacing: 0.03em; text-transform: uppercase; color: var(--pine); line-height: 1.1; }
+  .homehead p { color: var(--muted); font-size: 14px; margin-top: 3px; }
+  .attnstrip { margin-bottom: 14px; }
+  .attnbar { width: 100%; text-align: left; display: flex; align-items: center; gap: 10px; background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 16px; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .attnbar .dot { width: 10px; height: 10px; border-radius: 50%; background: #b3432b; flex: none; }
+  .attnbar.calm { cursor: default; }
+  .attnbar.calm .dot { background: #21622f; }
+  .attnbar .chev { margin-left: auto; color: var(--muted); transition: transform .15s; }
+  .attnbar.openx { border-radius: 12px 12px 0 0; }
+  .attnbar.openx .chev { transform: rotate(180deg); }
+  .attnbody { background: var(--white); border: 1px solid var(--line); border-top: none; border-radius: 0 0 12px 12px; box-shadow: var(--shadow); padding: 8px 16px 12px; }
+  .navtiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (min-width: 800px) { .navtiles { grid-template-columns: repeat(4, 1fr); } }
+  .navtile { display: block; background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px 12px; position: relative; transition: border-color .12s, transform .12s; }
+  .navtile:hover { border-color: var(--clay); transform: translateY(-1px); }
+  .navtile .n { font-family: var(--disp); font-weight: 700; font-size: 34px; line-height: 1; color: var(--pine); }
+  .navtile .t { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink); margin-top: 6px; }
+  .navtile .s { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+  .navtile .badge { position: absolute; top: 10px; right: 12px; background: #fbe4dc; color: #a33c1b; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 2px 8px; }
+  .divcard { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: #fbfaf5; border: 1px solid var(--line); border-radius: 10px; padding: 11px 14px; margin-bottom: 8px; cursor: pointer; font-size: 14px; }
+  .divcard:hover { border-color: var(--clay); }
+  .divcard b { font-family: var(--disp); font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .divcard .meta { color: var(--muted); font-size: 12.5px; }
+  .divcard .arrow { margin-left: auto; color: var(--muted); }
+  table.pgrid { border-collapse: collapse; font-size: 12px; min-width: 720px; }
+  table.pgrid th { font-size: 10.5px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); padding: 4px 7px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+  table.pgrid td { padding: 4px 7px; border-bottom: 1px solid #efede4; vertical-align: top; white-space: nowrap; }
+  table.pgrid td.day { font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--grass); }
+
   #gate { position: fixed; inset: 0; background: var(--pine); display: flex; align-items: center; justify-content: center; z-index: 99; }
   .gatebox { background: var(--white); border-radius: 16px; padding: 28px; width: 92%; max-width: 360px; text-align: center; }
   .gatebox h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
@@ -186,282 +219,361 @@
   <div class="chalkline"></div>
 
   <div class="wrap">
-    <div class="tiles" id="tiles"></div>
+    <div class="viewbar hidden" id="viewBar">
+      <button class="btn ghost sm" id="backBtn">&larr; Back</button>
+      <h2 id="viewTitle"></h2>
+    </div>
 
-    <div class="panels">
-      <div class="panel span2" id="panelAttn">
-        <div class="bar"><h2>What needs attention</h2><button class="btn sm clay" id="wizardBtn">Set up your league</button></div>
-        <div class="body">
-          <p class="hint">Your to-do list, built from the schedule itself. Each line jumps to the right place.</p>
+    <!-- LANDING: the calm league manager screen every session opens on -->
+    <section class="view" id="view-home">
+      <div class="homehead" id="homeHead"></div>
+      <div class="attnstrip">
+        <button class="attnbar" id="attnToggle" type="button">
+          <span class="dot"></span><span id="attnSummary">Checking the schedule...</span><span class="chev">&#9660;</span>
+        </button>
+        <div class="attnbody hidden" id="attnBody">
+          <p class="hint" style="margin:6px 0 4px;">Your to-do list, built from the schedule itself. Each line jumps to the right place.</p>
           <div id="attnList"></div>
         </div>
       </div>
+      <div class="navtiles" id="homeTiles"></div>
+    </section>
 
-      <div class="panel span2" id="panelComp">
-        <div class="bar"><h2>Practice compliance</h2></div>
-        <div class="body">
-          <p class="hint" id="compHint"></p>
-          <div class="compgrid" id="compGrid"></div>
-          <p class="hint" id="compNone" style="margin:8px 0 0;"></p>
+    <!-- DIVISIONS -->
+    <section class="view hidden" id="view-divisions">
+      <div id="divHome">
+        <div class="panels">
+          <div class="panel span2" id="panelDivList">
+            <div class="bar"><h2>Divisions</h2></div>
+            <div class="body">
+              <p class="hint">Tap a division to see its teams, standings, schedule, and practice status in one place.</p>
+              <div id="divList"></div>
+            </div>
+          </div>
+        <div class="panel span2" id="panelTeams">
+          <div class="bar"><h2>Teams &amp; coaches</h2><button class="btn sm clay" id="tAdd">+ Team</button></div>
+          <div class="body scroll">
+            <p class="hint">Every team, its coach, and the division it plays in. The division name groups teams for schedules and standings, so spell it the same way everywhere.</p>
+            <div id="teamList"></div>
+          </div>
+        </div>
         </div>
       </div>
+      <div id="divDetail" class="hidden"></div>
+    </section>
 
-      <div class="panel span2" id="panelGames">
-        <div class="bar"><h2>Games</h2></div>
-        <div class="body">
-          <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. For interlock games against another league (Auburn LL, Kent LL, and so on) switch the opponent to that league's team and, for road games, type in their venue. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
-          <div class="row" style="margin-bottom:8px;">
-            <select id="gSeason"></select>
-            <select id="gDiv"><option value="">Division</option></select>
-            <select id="gHome"><option value="">Our team</option></select>
-            <select id="gOppMode"><option value="league">Opponent: our league</option><option value="ext">Opponent: another league</option></select>
-            <select id="gAway"><option value="">Opposing team</option></select>
-            <select id="gExt" class="hidden"><option value="">Interlock opponent</option></select>
+    <!-- FIELDS -->
+    <section class="view hidden" id="view-fields">
+      <div class="panels">
+        <div class="panel span2" id="panelFields">
+          <div class="bar"><h2>Fields</h2><button class="btn sm clay" id="fAdd">+ Field</button></div>
+          <div class="body scroll">
+            <p class="hint">Every place your league plays or practices. Tag a field with divisions and the schedule tools only put those divisions on it; no tags means any division may use it.</p>
+            <div id="fieldList"></div>
           </div>
-          <div class="row" style="margin-bottom:8px;">
-            <input id="gDate" type="date" />
-            <select id="gVenueMode"><option value="field">Venue: our field</option><option value="ext">Venue: their field</option></select>
-            <select id="gField"><option value="">Field</option></select>
-            <input id="gVenue" class="hidden" placeholder="Their venue, e.g. Brannan Park, Auburn" style="min-width:220px;" />
-            <input id="gStart" type="time" />
-            <input id="gEnd" type="time" />
-            <input id="gNotes" placeholder="Notes (optional)" style="flex:1;min-width:140px;" />
-          </div>
-          <button class="btn clay" id="gSave">Schedule game</button>
-          <button class="btn ghost hidden" id="gCancelEdit">Cancel edit</button>
-          <span id="gMsg" class="ok hidden" style="margin-left:8px;font-size:13px;"></span>
-          <div id="gameList" style="margin-top:14px;"></div>
         </div>
       </div>
+    </section>
 
-      <div class="panel span2" id="panelExt">
-        <div class="bar"><h2>Interlock opponents (other leagues)</h2></div>
-        <div class="body">
-          <p class="hint">Teams from other leagues that we play interlock games against, like Auburn LL or Kent LL. They live on their own list: they never show up in coach pickers, practice claiming, or compliance. Give each one the division name it matches on our side so the season generator can build the right pool.</p>
-          <div class="row" style="margin-bottom:10px;">
-            <input id="xlLeague" list="xlLeagues" placeholder="League, e.g. Auburn LL" style="min-width:150px;" />
-            <datalist id="xlLeagues"></datalist>
-            <input id="xlDiv" list="xlDivs" placeholder="Division, e.g. Majors BB" style="min-width:140px;" />
-            <datalist id="xlDivs"></datalist>
-            <input id="xlName" placeholder="Team, e.g. Storm" style="min-width:130px;" />
-            <button class="btn sm clay" id="xlAdd">Add team</button>
-            <span id="xlMsg" class="ok hidden" style="font-size:13px;"></span>
+    <!-- GAME SCHEDULE -->
+    <section class="view hidden" id="view-games">
+      <div class="panels">
+        <div class="panel span2" id="panelGames">
+          <div class="bar"><h2>Games</h2></div>
+          <div class="body">
+            <p class="hint">Schedule a game: pick the division, both teams, the date, field, and times. For interlock games against another league (Auburn LL, Kent LL, and so on) switch the opponent to that league's team and, for road games, type in their venue. If the field is already booked, a team would play twice that day, or the field is not tagged for that division, you get a warning first and can still confirm on purpose.</p>
+            <div class="row" style="margin-bottom:8px;">
+              <select id="gSeason"></select>
+              <select id="gDiv"><option value="">Division</option></select>
+              <select id="gHome"><option value="">Our team</option></select>
+              <select id="gOppMode"><option value="league">Opponent: our league</option><option value="ext">Opponent: another league</option></select>
+              <select id="gAway"><option value="">Opposing team</option></select>
+              <select id="gExt" class="hidden"><option value="">Interlock opponent</option></select>
+            </div>
+            <div class="row" style="margin-bottom:8px;">
+              <input id="gDate" type="date" />
+              <select id="gVenueMode"><option value="field">Venue: our field</option><option value="ext">Venue: their field</option></select>
+              <select id="gField"><option value="">Field</option></select>
+              <input id="gVenue" class="hidden" placeholder="Their venue, e.g. Brannan Park, Auburn" style="min-width:220px;" />
+              <input id="gStart" type="time" />
+              <input id="gEnd" type="time" />
+              <input id="gNotes" placeholder="Notes (optional)" style="flex:1;min-width:140px;" />
+            </div>
+            <button class="btn clay" id="gSave">Schedule game</button>
+            <button class="btn ghost hidden" id="gCancelEdit">Cancel edit</button>
+            <span id="gMsg" class="ok hidden" style="margin-left:8px;font-size:13px;"></span>
+            <div id="gameList" style="margin-top:14px;"></div>
           </div>
-          <div id="extList"></div>
         </div>
-      </div>
-
-      <div class="panel span2" id="panelGen">
-        <div class="bar"><h2>Season generator</h2></div>
-        <div class="body">
-          <p class="hint">Build a whole season of games in one shot. Set up each division, hit Generate, and the games land as drafts. Drafts are schedule ideas only you can see; coaches and parents see nothing until you hit Publish. Publishing never emails anyone.</p>
-          <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Quick start templates</label>
-            <p class="hint" style="margin:4px 0 8px;">Not sure where to begin? Pick a template and every division below gets filled in with a typical setup. You can change anything afterward.</p>
-            <div class="row">
-              <button class="btn sm ghost" data-sgpreset="saturday">Typical Saturday league: every team plays Saturdays, 10 games</button>
-              <button class="btn sm ghost" data-sgpreset="satweek">Saturday plus one weeknight</button>
-              <button class="btn sm ghost" data-sgpreset="custom">Custom: start from a blank setup</button>
-            </div>
-          </div>
-          <div class="row" style="margin-bottom:10px;">
-            <select id="sgSeason"></select>
-            <label style="font-size:12.5px;">From <input id="sgStart" type="date" /></label>
-            <label style="font-size:12.5px;">To <input id="sgEnd" type="date" /></label>
-          </div>
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Blackout dates (no games)</label>
-            <div id="sgBoList"></div>
-            <div class="borow">
-              <input id="sgBoLabel" placeholder="Label, e.g. Labor Day weekend" style="flex:1;min-width:150px;" />
-              <input id="sgBoStart" type="date" />
-              <input id="sgBoEnd" type="date" title="Leave blank for a single day" />
-              <button class="btn sm" id="sgBoAdd">Add blackout</button>
-            </div>
-          </div>
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Divisions</label>
-            <p class="hint" style="margin:4px 0 8px;">Turn a division on, then set how many games each team plays, how long games run, which days have game times (comma separated, like 10:00, 12:30, 15:00), and which fields it may use.</p>
-            <div id="sgDivs"></div>
-          </div>
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Crossover (in-league: two of our divisions play each other)</label>
-            <div id="sgIlList"></div>
-            <div class="ilrow">
-              <select id="sgIlA"></select>
-              <span>plays</span>
-              <select id="sgIlB"></select>
-              <label style="font-size:12.5px;"><input id="sgIlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
-              <button class="btn sm" id="sgIlAdd">Add crossover</button>
-            </div>
-          </div>
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Interlock (against other leagues, like Auburn LL or Kent LL)</label>
-            <p class="hint" style="margin:4px 0 8px;">Builds our side of an interlock schedule as a proposal to coordinate with the other league. Home games land on our fields with full conflict checks. Away games get the date and a venue of the league name; type in the real park once the other league confirms. If the district hands you a finished schedule instead, skip this and enter those games in the Games panel above.</p>
-            <div id="sgXlList"></div>
-            <div class="ilrow">
-              <select id="sgXlDiv"></select>
-              <span>plays</span>
-              <span id="sgXlLeagues" style="display:inline-flex;gap:10px;flex-wrap:wrap;"></span>
-              <label style="font-size:12.5px;"><input id="sgXlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
-              <select id="sgXlSplit"><option value="0.5">half home, half away</option><option value="1">all home</option><option value="0">all away</option></select>
-              <button class="btn sm" id="sgXlAdd">Add interlock</button>
-            </div>
-          </div>
-          <div class="row">
-            <button class="btn ghost" id="sgSave">Save setup</button>
-            <button class="btn clay" id="sgGen">Generate draft schedule</button>
-            <span id="sgMsg" class="ok hidden" style="font-size:13px;"></span>
-          </div>
-          <div id="sgReview" class="hidden" style="margin-top:14px;border-top:2px solid var(--line);padding-top:12px;">
+        <div class="panel span2" id="panelBoard">
+          <div class="bar"><h2>Season board</h2></div>
+          <div class="body">
+            <p class="hint">Every game on the schedule, week by week. Drag a game to a different day, or use its Move button to see open times that fit with no clashes. Rain out one game with its button, or pick a date and rain out that whole day in one go. Rained out games wait in the makeup tray until you give them a new time. When a game is over, hit Final score to record it. Nothing here emails anyone.</p>
             <div class="row" style="margin-bottom:10px;">
-              <span class="chip draft" id="sgDraftCount"></span>
-              <button class="btn sm ghost" id="sgRegen">Regenerate (new shuffle)</button>
-              <button class="btn sm danger" id="sgDiscard">Discard drafts</button>
-              <button class="btn clay" id="sgPublish">Publish schedule</button>
+              <select id="bdSeason"></select>
+              <select id="bdDiv"><option value="">All divisions</option></select>
+              <span style="flex:1;"></span>
+              <input id="bdRainDate" type="date" />
+              <button class="btn sm danger" id="bdRainDay">Rain out that day</button>
             </div>
-            <div id="sgUnplaced"></div>
-            <div id="sgStats"></div>
-            <div id="sgWeeks"></div>
+            <div id="bdOffer"></div>
+            <div id="bdTray"></div>
+            <div class="bdscroll" id="bdWeeks"></div>
           </div>
         </div>
-      </div>
-
-      <div class="panel span2" id="panelBoard">
-        <div class="bar"><h2>Season board</h2></div>
-        <div class="body">
-          <p class="hint">Every game on the schedule, week by week. Drag a game to a different day, or use its Move button to see open times that fit with no clashes. Rain out one game with its button, or pick a date and rain out that whole day in one go. Rained out games wait in the makeup tray until you give them a new time. When a game is over, hit Final score to record it. Nothing here emails anyone.</p>
-          <div class="row" style="margin-bottom:10px;">
-            <select id="bdSeason"></select>
-            <select id="bdDiv"><option value="">All divisions</option></select>
-            <span style="flex:1;"></span>
-            <input id="bdRainDate" type="date" />
-            <button class="btn sm danger" id="bdRainDay">Rain out that day</button>
-          </div>
-          <div id="bdOffer"></div>
-          <div id="bdTray"></div>
-          <div class="bdscroll" id="bdWeeks"></div>
-        </div>
-      </div>
-
-      <div class="panel span2" id="panelStand">
-        <div class="bar"><h2>Scores &amp; standings</h2></div>
-        <div class="body">
-          <p class="hint">Standings build themselves from the final scores you enter on the Season board. Wins, losses, ties, and run difference per division. You choose which divisions show their standings on the parent-facing portal; many leagues keep the younger divisions off on purpose.</p>
-          <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">What shows on the portal</label>
-            <div id="stSettings" style="margin-top:6px;"></div>
-            <div class="row" style="margin-top:8px;">
-              <button class="btn sm" id="stSave">Save standings settings</button>
-              <span id="stMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+        <div class="panel span2" id="panelStand">
+          <div class="bar"><h2>Scores &amp; standings</h2></div>
+          <div class="body">
+            <p class="hint">Standings build themselves from the final scores you enter on the Season board. Wins, losses, ties, and run difference per division. You choose which divisions show their standings on the parent-facing portal; many leagues keep the younger divisions off on purpose.</p>
+            <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">What shows on the portal</label>
+              <div id="stSettings" style="margin-top:6px;"></div>
+              <div class="row" style="margin-top:8px;">
+                <button class="btn sm" id="stSave">Save standings settings</button>
+                <span id="stMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+              </div>
             </div>
+            <div class="row" style="margin-bottom:8px;">
+              <select id="stSeason"></select>
+            </div>
+            <div id="stTables"></div>
           </div>
-          <div class="row" style="margin-bottom:8px;">
-            <select id="stSeason"></select>
-          </div>
-          <div id="stTables"></div>
         </div>
       </div>
+    </section>
 
-      <div class="panel span2" id="panelUmps">
-        <div class="bar"><h2>Umpires</h2><button class="btn sm clay" id="uAdd">+ Umpire</button></div>
-        <div class="body">
-          <div id="umpKill"></div>
-          <p class="hint">Volunteers who call games. Each umpire has their own PIN and only works the levels you give them. They pick up games and answer offers at <a href="/fields/umpire.html" style="text-decoration:underline">the umpire page</a>. Contact info stays here in admin. It is never shown on public pages.</p>
-          <div id="umpSummary" style="margin-bottom:12px;"></div>
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px;">
-            <label style="font-size:13px;font-weight:600;">Umpires needed per game (by division)</label>
-            <p class="hint" style="margin:4px 0 8px;">The default is 1, the plate umpire. Set a division to 2 to also staff a base umpire. A single game can be overridden from its Umps button on the season board.</p>
-            <div class="row" id="umpDefs"></div>
-            <div class="row" style="margin-top:8px;">
-              <button class="btn sm" id="umpDefsSave">Save defaults</button>
-              <span id="umpDefsMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+    <!-- PRACTICES -->
+    <section class="view hidden" id="view-practices">
+      <div class="panels">
+        <div class="panel span2" id="panelPractice">
+          <div class="bar"><h2>Practice grid</h2></div>
+          <div class="body">
+            <p class="hint">Who practices where, window by window. Coaches claim and change their own spots on the <a href="/fields/" style="text-decoration:underline">coach portal</a>; this is the league-wide read of it.</p>
+            <div id="pgGrids"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelComp">
+          <div class="bar"><h2>Practice compliance</h2></div>
+          <div class="body">
+            <p class="hint" id="compHint"></p>
+            <div class="compgrid" id="compGrid"></div>
+            <p class="hint" id="compNone" style="margin:8px 0 0;"></p>
+          </div>
+        </div>
+        <div class="panel span2" id="panelWindows">
+          <div class="bar"><h2>Schedule windows</h2><button class="btn sm clay" id="cloneSeasonBtn">Start next season</button></div>
+          <div class="body">
+            <p class="hint">A window is a stretch of the season, like "Sept 8 to Oct 31". Coaches claim practice slots inside it. Lock a window to freeze it (view-only). When the season ends, Start next season carries your setup into a fresh one and files the old schedule away.</p>
+            <div id="seasonList"></div>
+            <div class="row" style="margin-top:10px;">
+              <input id="nsLabel" placeholder="New window, e.g. Nov 1 to Dec 20" style="flex:1;min-width:170px;" />
+              <button class="btn" id="nsAdd">Add</button>
             </div>
           </div>
-          <div id="umpList"></div>
         </div>
       </div>
+    </section>
 
-      <div class="panel span2" id="panelAnnounce">
-        <div class="bar"><h2>League announcements</h2></div>
-        <div class="body">
-          <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
-          <div class="row" style="margin-bottom:8px;">
-            <input id="anTitle" placeholder="Title, e.g. Fields are wet today" style="flex:2;min-width:200px;" />
-            <select id="anSev"><option value="info">Notice</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
-          </div>
-          <textarea id="anBody" rows="3" placeholder="Details for coaches (optional)" style="width:100%;margin-bottom:8px;"></textarea>
-          <button class="btn clay" id="anPost">Post announcement</button>
-          <span id="anMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Posted. It is live on the coach portal now.</span>
-          <div id="anList" style="margin-top:14px;"></div>
-        </div>
-      </div>
-
-      <div class="panel span2" id="panelImport">
-        <div class="bar"><h2>Import from Excel</h2></div>
-        <div class="body">
-          <p class="hint">Already keep the league in a spreadsheet? Drop the .xlsx file here. Practice-schedule tabs and coach-contact tabs are found automatically, and new fields, teams, and coaches are created as needed. Nothing imports until you review each tab and press its Import button.</p>
-          <div class="drop" id="drop">Tap to choose a file, or drag the spreadsheet here</div>
-          <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden" />
-          <div class="preview" id="preview"></div>
-        </div>
-      </div>
-
-      <div class="panel" id="panelWindows">
-        <div class="bar"><h2>Schedule windows</h2><button class="btn sm clay" id="cloneSeasonBtn">Start next season</button></div>
-        <div class="body">
-          <p class="hint">A window is a stretch of the season, like "Sept 8 to Oct 31". Coaches claim practice slots inside it. Lock a window to freeze it (view-only). When the season ends, Start next season carries your setup into a fresh one and files the old schedule away.</p>
-          <div id="seasonList"></div>
-          <div class="row" style="margin-top:10px;">
-            <input id="nsLabel" placeholder="New window, e.g. Nov 1 to Dec 20" style="flex:1;min-width:170px;" />
-            <button class="btn" id="nsAdd">Add</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel" id="panelSettings">
-        <div class="bar"><h2>League settings</h2></div>
-        <div class="body">
-          <label style="font-size:13px;font-weight:600;">League name</label>
-          <input id="setName" style="width:100%;margin:5px 0 12px;" />
-          <label style="font-size:13px;font-weight:600;">Guideline banner note (optional, shown after the rule)</label>
-          <input id="setRules" style="width:100%;margin:5px 0 12px;" />
-          <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-            <label style="font-size:13px;font-weight:600;">Practice schedule rule (drives every team's compliance status)</label>
-            <div class="row" style="margin:7px 0 8px;">
-              <label style="font-size:12.5px;">Max weekdays <input id="ruleWk" type="number" min="0" max="5" style="width:64px;" /></label>
-              <label style="font-size:12.5px;">Max Saturdays <input id="ruleSat" type="number" min="0" max="4" style="width:64px;" /></label>
-              <label style="font-size:12.5px;">Slots per team <input id="ruleTotal" type="number" min="0" max="9" style="width:64px;" /></label>
+    <!-- UMPIRES -->
+    <section class="view hidden" id="view-umpires">
+      <div class="panels">
+        <div class="panel span2" id="panelUmps">
+          <div class="bar"><h2>Umpires</h2><button class="btn sm clay" id="uAdd">+ Umpire</button></div>
+          <div class="body">
+            <div id="umpKill"></div>
+            <p class="hint">Volunteers who call games. Each umpire has their own PIN and only works the levels you give them. They pick up games and answer offers at <a href="/fields/umpire.html" style="text-decoration:underline">the umpire page</a>. Contact info stays here in admin. It is never shown on public pages.</p>
+            <div id="umpSummary" style="margin-bottom:12px;"></div>
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:12px;">
+              <label style="font-size:13px;font-weight:600;">Umpires needed per game (by division)</label>
+              <p class="hint" style="margin:4px 0 8px;">The default is 1, the plate umpire. Set a division to 2 to also staff a base umpire. A single game can be overridden from its Umps button on the season board.</p>
+              <div class="row" id="umpDefs"></div>
+              <div class="row" style="margin-top:8px;">
+                <button class="btn sm" id="umpDefsSave">Save defaults</button>
+                <span id="umpDefsMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+              </div>
             </div>
-            <label style="font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;"><input id="ruleMonFri" type="checkbox" style="width:auto;" /> Also allow Monday plus Friday with no Saturday</label>
-            <p class="hint" id="rulePreview" style="margin:6px 0 0;"></p>
+            <div id="umpList"></div>
           </div>
-          <button class="btn" id="setSave">Save settings</button>
-          <span id="setMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Saved</span>
         </div>
       </div>
+    </section>
 
-      <div class="panel" id="panelFields">
-        <div class="bar"><h2>Fields</h2><button class="btn sm clay" id="fAdd">+ Field</button></div>
-        <div class="body scroll">
-          <p class="hint">Every place your league plays or practices. Tag a field with divisions and the schedule tools only put those divisions on it; no tags means any division may use it.</p>
-          <div id="fieldList"></div>
+    <!-- ANNOUNCEMENTS -->
+    <section class="view hidden" id="view-announcements">
+      <div class="panels">
+        <div class="panel span2" id="panelAnnounce">
+          <div class="bar"><h2>League announcements</h2></div>
+          <div class="body">
+            <p class="hint">Post a notice to the top of the coach portal, for example a rainy day warning. Posting never emails anyone. Emailing is a separate button with a confirm step.</p>
+            <div class="row" style="margin-bottom:8px;">
+              <input id="anTitle" placeholder="Title, e.g. Fields are wet today" style="flex:2;min-width:200px;" />
+              <select id="anSev"><option value="info">Notice</option><option value="warning">Warning</option><option value="urgent">Urgent</option></select>
+            </div>
+            <textarea id="anBody" rows="3" placeholder="Details for coaches (optional)" style="width:100%;margin-bottom:8px;"></textarea>
+            <button class="btn clay" id="anPost">Post announcement</button>
+            <span id="anMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Posted. It is live on the coach portal now.</span>
+            <div id="anList" style="margin-top:14px;"></div>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="panel" id="panelTeams">
-        <div class="bar"><h2>Teams &amp; coaches</h2><button class="btn sm clay" id="tAdd">+ Team</button></div>
-        <div class="body scroll">
-          <p class="hint">Every team, its coach, and the division it plays in. The division name groups teams for schedules and standings, so spell it the same way everywhere.</p>
-          <div id="teamList"></div>
+    <!-- SEASON TOOLS -->
+    <section class="view hidden" id="view-tools">
+      <div class="panels">
+        <div class="panel span2" id="panelWizard">
+          <div class="bar"><h2>Set up your league</h2><button class="btn sm clay" id="wizardBtn">Open the setup wizard</button></div>
+          <div class="body">
+            <p class="hint" style="margin:0;">New here, or starting fresh? The wizard walks the whole setup one small step at a time: league name, season dates, teams, fields, practices, games. Every step can be skipped and done later.</p>
+          </div>
+        </div>
+        <div class="panel span2" id="panelExt">
+          <div class="bar"><h2>Interlock opponents (other leagues)</h2></div>
+          <div class="body">
+            <p class="hint">Teams from other leagues that we play interlock games against, like Auburn LL or Kent LL. They live on their own list: they never show up in coach pickers, practice claiming, or compliance. Give each one the division name it matches on our side so the season generator can build the right pool.</p>
+            <div class="row" style="margin-bottom:10px;">
+              <input id="xlLeague" list="xlLeagues" placeholder="League, e.g. Auburn LL" style="min-width:150px;" />
+              <datalist id="xlLeagues"></datalist>
+              <input id="xlDiv" list="xlDivs" placeholder="Division, e.g. Majors BB" style="min-width:140px;" />
+              <datalist id="xlDivs"></datalist>
+              <input id="xlName" placeholder="Team, e.g. Storm" style="min-width:130px;" />
+              <button class="btn sm clay" id="xlAdd">Add team</button>
+              <span id="xlMsg" class="ok hidden" style="font-size:13px;"></span>
+            </div>
+            <div id="extList"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelGen">
+          <div class="bar"><h2>Season generator</h2></div>
+          <div class="body">
+            <p class="hint">Build a whole season of games in one shot. Set up each division, hit Generate, and the games land as drafts. Drafts are schedule ideas only you can see; coaches and parents see nothing until you hit Publish. Publishing never emails anyone.</p>
+            <div style="border:1px solid var(--line);border-radius:10px;background:#fbfaf5;padding:10px 12px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Quick start templates</label>
+              <p class="hint" style="margin:4px 0 8px;">Not sure where to begin? Pick a template and every division below gets filled in with a typical setup. You can change anything afterward.</p>
+              <div class="row">
+                <button class="btn sm ghost" data-sgpreset="saturday">Typical Saturday league: every team plays Saturdays, 10 games</button>
+                <button class="btn sm ghost" data-sgpreset="satweek">Saturday plus one weeknight</button>
+                <button class="btn sm ghost" data-sgpreset="custom">Custom: start from a blank setup</button>
+              </div>
+            </div>
+            <div class="row" style="margin-bottom:10px;">
+              <select id="sgSeason"></select>
+              <label style="font-size:12.5px;">From <input id="sgStart" type="date" /></label>
+              <label style="font-size:12.5px;">To <input id="sgEnd" type="date" /></label>
+            </div>
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Blackout dates (no games)</label>
+              <div id="sgBoList"></div>
+              <div class="borow">
+                <input id="sgBoLabel" placeholder="Label, e.g. Labor Day weekend" style="flex:1;min-width:150px;" />
+                <input id="sgBoStart" type="date" />
+                <input id="sgBoEnd" type="date" title="Leave blank for a single day" />
+                <button class="btn sm" id="sgBoAdd">Add blackout</button>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Divisions</label>
+              <p class="hint" style="margin:4px 0 8px;">Turn a division on, then set how many games each team plays, how long games run, which days have game times (comma separated, like 10:00, 12:30, 15:00), and which fields it may use.</p>
+              <div id="sgDivs"></div>
+            </div>
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Crossover (in-league: two of our divisions play each other)</label>
+              <div id="sgIlList"></div>
+              <div class="ilrow">
+                <select id="sgIlA"></select>
+                <span>plays</span>
+                <select id="sgIlB"></select>
+                <label style="font-size:12.5px;"><input id="sgIlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
+                <button class="btn sm" id="sgIlAdd">Add crossover</button>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Interlock (against other leagues, like Auburn LL or Kent LL)</label>
+              <p class="hint" style="margin:4px 0 8px;">Builds our side of an interlock schedule as a proposal to coordinate with the other league. Home games land on our fields with full conflict checks. Away games get the date and a venue of the league name; type in the real park once the other league confirms. If the district hands you a finished schedule instead, skip this and enter those games in the Game schedule view.</p>
+              <div id="sgXlList"></div>
+              <div class="ilrow">
+                <select id="sgXlDiv"></select>
+                <span>plays</span>
+                <span id="sgXlLeagues" style="display:inline-flex;gap:10px;flex-wrap:wrap;"></span>
+                <label style="font-size:12.5px;"><input id="sgXlN" type="number" min="1" max="20" value="2" style="width:58px;" /> games per team</label>
+                <select id="sgXlSplit"><option value="0.5">half home, half away</option><option value="1">all home</option><option value="0">all away</option></select>
+                <button class="btn sm" id="sgXlAdd">Add interlock</button>
+              </div>
+            </div>
+            <div class="row">
+              <button class="btn ghost" id="sgSave">Save setup</button>
+              <button class="btn clay" id="sgGen">Generate draft schedule</button>
+              <span id="sgMsg" class="ok hidden" style="font-size:13px;"></span>
+            </div>
+            <div id="sgReview" class="hidden" style="margin-top:14px;border-top:2px solid var(--line);padding-top:12px;">
+              <div class="row" style="margin-bottom:10px;">
+                <span class="chip draft" id="sgDraftCount"></span>
+                <button class="btn sm ghost" id="sgRegen">Regenerate (new shuffle)</button>
+                <button class="btn sm danger" id="sgDiscard">Discard drafts</button>
+                <button class="btn clay" id="sgPublish">Publish schedule</button>
+              </div>
+              <div id="sgUnplaced"></div>
+              <div id="sgStats"></div>
+              <div id="sgWeeks"></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelImport">
+          <div class="bar"><h2>Import from Excel</h2></div>
+          <div class="body">
+            <p class="hint">Already keep the league in a spreadsheet? Drop the .xlsx file here. Practice-schedule tabs and coach-contact tabs are found automatically, and new fields, teams, and coaches are created as needed. Nothing imports until you review each tab and press its Import button.</p>
+            <div class="drop" id="drop">Tap to choose a file, or drag the spreadsheet here</div>
+            <input type="file" id="file" accept=".xlsx,.xls,.csv" class="hidden" />
+            <div class="preview" id="preview"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelNext">
+          <div class="bar"><h2>Start next season</h2></div>
+          <div class="body">
+            <p class="hint" style="margin-bottom:8px;">When this season ends, carry your setup into a fresh one. The old schedule is archived, never deleted, and stays viewable under the Season board's season picker.</p>
+            <button class="btn clay" id="cloneSeasonBtn2">Start next season</button>
+          </div>
+        </div>
+        <div class="panel span2" id="panelSettings">
+          <div class="bar"><h2>League settings</h2></div>
+          <div class="body">
+            <label style="font-size:13px;font-weight:600;">League name</label>
+            <input id="setName" style="width:100%;margin:5px 0 12px;" />
+            <label style="font-size:13px;font-weight:600;">Guideline banner note (optional, shown after the rule)</label>
+            <input id="setRules" style="width:100%;margin:5px 0 12px;" />
+            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+              <label style="font-size:13px;font-weight:600;">Practice schedule rule (drives every team's compliance status)</label>
+              <div class="row" style="margin:7px 0 8px;">
+                <label style="font-size:12.5px;">Max weekdays <input id="ruleWk" type="number" min="0" max="5" style="width:64px;" /></label>
+                <label style="font-size:12.5px;">Max Saturdays <input id="ruleSat" type="number" min="0" max="4" style="width:64px;" /></label>
+                <label style="font-size:12.5px;">Slots per team <input id="ruleTotal" type="number" min="0" max="9" style="width:64px;" /></label>
+              </div>
+              <label style="font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;"><input id="ruleMonFri" type="checkbox" style="width:auto;" /> Also allow Monday plus Friday with no Saturday</label>
+              <p class="hint" id="rulePreview" style="margin:6px 0 0;"></p>
+            </div>
+            <button class="btn" id="setSave">Save settings</button>
+            <span id="setMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Saved</span>
+          </div>
         </div>
       </div>
+    </section>
 
-      <div class="panel span2">
-        <div class="bar"><h2>Activity</h2><button class="btn sm ghost" id="csvBtn">Download schedule CSV</button></div>
-        <div class="body scroll log" id="logList"></div>
+    <!-- REPORTS -->
+    <section class="view hidden" id="view-reports">
+      <div class="panels">
+        <div class="panel span2" id="panelStats">
+          <div class="bar"><h2>League at a glance</h2></div>
+          <div class="body">
+            <p class="hint">Counts across the league, plus who has been visiting the pages.</p>
+            <div class="tiles" id="tiles" style="margin-bottom:0;"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelLog">
+          <div class="bar"><h2>Activity</h2><button class="btn sm ghost" id="csvBtn">Download schedule CSV</button></div>
+          <div class="body scroll log" id="logList"></div>
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 
 <script src="flm-rules.js"></script>
@@ -482,7 +594,58 @@ function admin(action, body) {
 function activeSeasons() { return ((D && D.seasons) || []).filter(function (s) { return !s.archived; }); }
 function seasonById(id) { return ((D && D.seasons) || []).filter(function (s) { return s.id === id; })[0] || null; }
 function isArchivedSeason(id) { var s = seasonById(id); return !!(s && s.archived); }
-function scrollToPanel(id) { var p = document.getElementById(id); if (p) p.scrollIntoView({ behavior: "smooth", block: "start" }); }
+/* ---------- hub and spoke routing ----------
+   The admin is a landing screen (#home) plus dive-in views. Every panel keeps
+   its id and its render function; routing only shows and hides the sections. */
+var VIEW_TITLES = { home: "", divisions: "Divisions", fields: "Fields", games: "Game schedule", practices: "Practices", umpires: "Umpires", announcements: "Announcements", tools: "Season tools", reports: "Reports" };
+var PANEL_VIEW = {
+  panelDivList: "divisions", panelTeams: "divisions",
+  panelFields: "fields",
+  panelGames: "games", panelBoard: "games", panelStand: "games",
+  panelPractice: "practices", panelComp: "practices", panelWindows: "practices",
+  panelUmps: "umpires",
+  panelAnnounce: "announcements",
+  panelWizard: "tools", panelExt: "tools", panelGen: "tools", panelImport: "tools", panelNext: "tools", panelSettings: "tools",
+  panelStats: "reports", panelLog: "reports"
+};
+var pendingPanel = null;
+function curRoute() {
+  var parts = String(location.hash || "").replace(/^#/, "").split("/");
+  var v = parts[0] || "home";
+  if (!(v in VIEW_TITLES)) v = "home";
+  return { view: v, arg: decodeURIComponent(parts.slice(1).join("/") || "") };
+}
+function applyRoute() {
+  var r = curRoute();
+  document.querySelectorAll(".view").forEach(function (s) { s.classList.add("hidden"); });
+  var sec = document.getElementById("view-" + r.view);
+  if (sec) sec.classList.remove("hidden");
+  document.getElementById("viewBar").classList.toggle("hidden", r.view === "home");
+  if (r.view === "divisions") renderDivisionsView(r.arg);
+  document.getElementById("viewTitle").textContent = r.view === "divisions" && r.arg ? (divBySlug(r.arg) || VIEW_TITLES.divisions) : (VIEW_TITLES[r.view] || "");
+  document.getElementById("backBtn").setAttribute("data-to", r.view === "divisions" && r.arg ? "#divisions" : "#home");
+  if (pendingPanel) {
+    var p = document.getElementById(pendingPanel);
+    pendingPanel = null;
+    if (p) setTimeout(function () { p.scrollIntoView({ behavior: "smooth", block: "start" }); }, 60);
+  } else {
+    window.scrollTo(0, 0);
+  }
+}
+window.addEventListener("hashchange", applyRoute);
+document.getElementById("backBtn").addEventListener("click", function () { location.hash = this.getAttribute("data-to") || "#home"; });
+document.getElementById("attnToggle").addEventListener("click", function () {
+  if (this.classList.contains("calm")) return;
+  var body = document.getElementById("attnBody");
+  var nowHidden = body.classList.toggle("hidden");
+  this.classList.toggle("openx", !nowHidden);
+});
+function scrollToPanel(id) {
+  var v = PANEL_VIEW[id];
+  if (v && curRoute().view !== v) { pendingPanel = id; location.hash = "#" + v; return; }
+  var p = document.getElementById(id);
+  if (p) p.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 /* Shared form modal: every add/edit in this console uses this one form style.
    fields: [{ key, label, hint, type (text|number|date|select|checkbox|checks),
@@ -558,6 +721,7 @@ function boot() {
     .then(function (act) {
       sessionStorage.setItem("flm_pin", PIN);
       document.getElementById("gate").classList.add("hidden");
+      applyRoute();
       renderLog(act.activity || []);
       refresh();
     })
@@ -578,6 +742,9 @@ function refresh() {
   fetch(API + "?action=state", { headers: { "x-admin-pin": PIN } }).then(function (r) { return r.json(); }).then(function (d) {
     D = d;
     renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps(); renderStandings(); renderAttention();
+    renderPracticeGrid(); renderHome();
+    var r0 = curRoute();
+    if (r0.view === "divisions") renderDivisionsView(r0.arg);
     document.getElementById("setName").value = d.settings.league_name || "";
     document.getElementById("setRules").value = d.settings.rules || "";
     var rules = leagueRules();
@@ -1217,7 +1384,7 @@ function renderSeasonGen() {
   el("sgDraftCount").textContent = drafts.length + " draft games";
   el("sgPublish").disabled = !drafts.length;
   el("sgUnplaced").innerHTML = unplaced.map(function (u) {
-    return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameOppName(u)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : (u.crossover ? ", crossover" : "")) + "). " + esc(u.reason) + " Schedule it by hand in the Games panel or loosen the setup and regenerate.</div>";
+    return '<div class="sgunp">Could not place: <b>' + esc(gameTeamName(u.home_team_id)) + " vs " + esc(gameOppName(u)) + "</b> (" + esc(u.division) + (u.interlock ? ", interlock" : (u.crossover ? ", crossover" : "")) + "). " + esc(u.reason) + " Schedule it by hand in the Game schedule view or loosen the setup and regenerate.</div>";
   }).join("");
 
   /* summary stats: games per team with home/away, per-field load */
@@ -1570,7 +1737,7 @@ function renderBoard() {
 
   var box = el("bdWeeks");
   if (!onBoard.length && !tray.length) {
-    box.innerHTML = '<p class="hint">No games on the schedule yet. Build a season with the generator above, or add games in the Games panel.</p>';
+    box.innerHTML = '<p class="hint">No games on the schedule yet. Build a season with the generator in Season tools, or add one in the Games panel above.</p>';
     return;
   }
   var dates = onBoard.map(function (g) { return g.game_date; }).sort();
@@ -1873,6 +2040,8 @@ function loadAnnouncements() {
 }
 
 function renderAnnouncements(items) {
+  AN_COUNT = items.filter(function (a) { return a.active; }).length;
+  if (D) renderHome();
   var box = document.getElementById("anList");
   box.innerHTML = items.map(function (a) {
     var posted = new Date(a.created_at);
@@ -1957,7 +2126,7 @@ var EV = null;
 function loadVisits() {
   fetch(API + "?action=events_summary", { headers: { "x-admin-pin": PIN } })
     .then(function (r) { return r.json(); })
-    .then(function (v) { if (v.ok) { EV = v; renderVisitTiles(); } })
+    .then(function (v) { if (v.ok) { EV = v; renderVisitTiles(); if (D) renderHome(); } })
     .catch(function () {});
 }
 
@@ -2031,7 +2200,7 @@ function renderSeasons() {
 }
 
 /* ---------- Phase 5: start next season (clone + archive) ---------- */
-document.getElementById("cloneSeasonBtn").addEventListener("click", function () {
+function startNextSeasonModal() {
   var live = activeSeasons();
   var srcOpts = [{ value: "", label: "Do not copy practice slots" }].concat(live.map(function (sn) {
     var n = (D.slots || []).filter(function (s) { return s.season_id === sn.id; }).length;
@@ -2072,7 +2241,9 @@ document.getElementById("cloneSeasonBtn").addEventListener("click", function () 
         });
     }
   });
-});
+}
+document.getElementById("cloneSeasonBtn").addEventListener("click", startNextSeasonModal);
+document.getElementById("cloneSeasonBtn2").addEventListener("click", startNextSeasonModal);
 document.getElementById("nsAdd").addEventListener("click", function () {
   var v = document.getElementById("nsLabel").value.trim();
   if (!v) return;
@@ -2086,9 +2257,13 @@ document.getElementById("setSave").addEventListener("click", function () {
 
 function renderFields() {
   var box = document.getElementById("fieldList");
+  var today = bdToday();
   box.innerHTML = '<table class="list"><tbody>' + D.fields.map(function (f) {
     var tags = (f.divisions || []).length ? '<br /><span style="color:var(--muted);font-size:11.5px;">' + esc(f.divisions.join(", ")) + "</span>" : "";
-    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + tags + "</td>" +
+    var nSlots = (D.slots || []).filter(function (s) { return s.field_id === f.id && !isArchivedSeason(s.season_id); }).length;
+    var nGames = (D.games || []).filter(function (g) { return g.field_id === f.id && !isArchivedSeason(g.season_id) && g.status === "scheduled" && g.game_date >= today; }).length;
+    var use = '<br /><span style="color:var(--muted);font-size:11.5px;">' + nSlots + " practice slots &middot; " + nGames + " upcoming games</span>";
+    return "<tr><td style=\"font-weight:600;\">" + esc(f.name) + tags + use + "</td>" +
       '<td><span class="chip ' + (f.is_active ? "on" : "off") + '">' + (f.is_active ? "Active" : "Hidden") + "</span></td>" +
       '<td style="text-align:right;white-space:nowrap;"><button class="btn sm ghost" data-fedit="' + f.id + '">Edit</button> ' +
       '<button class="btn sm ghost" data-tog="' + f.id + '">' + (f.is_active ? "Hide" : "Show") + "</button></td></tr>";
@@ -2277,15 +2452,217 @@ function renderAttention() {
     add(1, "league name is not set. Emails and calendar feeds say Field Command until you set it in League settings.", "panelSettings");
   }
 
-  el("attnList").innerHTML = items.length ? items.map(function (it, i) {
+  el("attnList").innerHTML = items.map(function (it, i) {
     return '<div class="row" style="padding:6px 0;border-bottom:1px solid #efede4;font-size:13.5px;">' +
       '<span class="chip ' + (it.panel === "panelFields" || it.panel === "panelSettings" ? "amber" : "lock") + '">' + it.n + "</span>" +
       '<div style="flex:1;min-width:220px;">' + esc(it.txt) + "</div>" +
       '<button class="btn sm ghost" data-attn="' + esc(it.panel) + '">Take me there</button></div>';
-  }).join("") : '<p class="hint" style="margin:0;color:#21622f;font-weight:600;">Nothing needs your attention. The schedule is in good shape.</p>';
+  }).join("");
   el("attnList").querySelectorAll("[data-attn]").forEach(function (b) {
     b.addEventListener("click", function () { scrollToPanel(b.getAttribute("data-attn")); });
   });
+
+  /* the landing strip: one calm line, expandable only when something needs you */
+  var bar = el("attnToggle"), sum = el("attnSummary"), body = el("attnBody");
+  if (!items.length) {
+    bar.classList.add("calm");
+    bar.classList.remove("openx");
+    bar.querySelector(".chev").classList.add("hidden");
+    body.classList.add("hidden");
+    sum.textContent = "All caught up. Nothing needs your attention right now.";
+  } else {
+    bar.classList.remove("calm");
+    bar.querySelector(".chev").classList.remove("hidden");
+    sum.textContent = items.length === 1 ? "1 thing needs you" : items.length + " things need you";
+  }
+}
+
+/* ---------- landing screen (the hub) ---------- */
+var AN_COUNT = null;
+function divSlug(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+function divBySlug(slug) {
+  if (!D || !slug) return null;
+  return divisionList().filter(function (d) { return divSlug(d) === slug; })[0] || null;
+}
+
+function renderHome() {
+  if (!D) return;
+  var name = String(D.settings.league_name || "").trim() || "Field Command";
+  var seas = activeSeasons();
+  var line = seas.length ? seas.map(function (sn) {
+    /* window labels often carry their own dates; only add ours when they do not */
+    var dates = sn.start_date && sn.end_date && !/\d/.test(sn.label) ? fmtDate(sn.start_date) + " to " + fmtDate(sn.end_date) : "";
+    return sn.label + (dates ? " (" + dates + ")" : "");
+  }).join(" and ") : "No season window yet. Start one in Season tools.";
+  el("homeHead").innerHTML = "<h2>" + esc(name) + "</h2><p>" + esc(line) + "</p>";
+
+  var today = bdToday();
+  var divs = divisionList();
+  var fieldsN = D.fields.filter(function (f) { return f.is_active; }).length;
+  var teamsN = D.teams.filter(function (t) { return t.is_active; }).length;
+  var liveGames = (D.games || []).filter(function (g) { return !isArchivedSeason(g.season_id); });
+  var gamesN = liveGames.filter(function (g) { return g.status !== "draft"; }).length;
+  var slotsN = (D.slots || []).filter(function (s) { return !isArchivedSeason(s.season_id); }).length;
+  var umpsN = (D.umps || []).filter(function (u) { return u.active; }).length;
+  var needUmp = 0;
+  liveGames.forEach(function (g) {
+    if (g.status !== "scheduled" || g.game_date < today) return;
+    var f = umpFillFor(g);
+    if (f.needed > 0 && f.missing > 0) needUmp++;
+  });
+  function tile(hash, n, t, s, badge) {
+    return '<a class="navtile" href="' + hash + '">' + (badge ? '<span class="badge">' + esc(badge) + "</span>" : "") +
+      '<div class="n">' + n + '</div><div class="t">' + esc(t) + '</div><div class="s">' + esc(s) + "</div></a>";
+  }
+  el("homeTiles").innerHTML =
+    tile("#divisions", divs.length, "Divisions", teamsN + " teams grouped for schedules and standings") +
+    tile("#fields", fieldsN, "Fields", "every place you play and practice") +
+    tile("#games", gamesN, "Game schedule", "season board, moves, rainouts, scores") +
+    tile("#practices", slotsN, "Practices", "practice grid, windows, the guideline") +
+    tile("#umpires", umpsN, "Umpires", "roster, offers, who covers what", needUmp ? needUmp + " games need an ump" : "") +
+    tile("#announcements", AN_COUNT == null ? 0 : AN_COUNT, "Announcements", "notices on the coach portal") +
+    tile("#tools", seas.length, "Season tools", "active windows, wizard, generator, import") +
+    tile("#reports", EV ? EV.views_7d : 0, "Reports", "visits, activity log, CSV export");
+}
+
+/* ---------- practices view: read-only grid of who practices where ---------- */
+function renderPracticeGrid() {
+  var box = el("pgGrids");
+  if (!box || !D) return;
+  var flds = D.fields.filter(function (f) { return f.is_active; });
+  var dayKeys = ["mon", "tue", "wed", "thu", "fri", "sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"];
+  var html = activeSeasons().map(function (sn) {
+    var slots = D.slots.filter(function (s) { return s.season_id === sn.id; });
+    if (!slots.length) return '<div class="sgweek" style="padding-top:4px;">' + esc(sn.label) + '</div><p class="hint">No practice slots claimed in this window yet.</p>';
+    var used = flds.filter(function (f) { return slots.some(function (s) { return s.field_id === f.id; }); });
+    var rows = dayKeys.map(function (dk) {
+      var cells = used.map(function (f) {
+        var mine = slots.filter(function (s) { return s.day_key === dk && s.field_id === f.id; });
+        return "<td>" + mine.map(function (s) {
+          var t = D.teams.filter(function (x) { return x.id === s.team_id; })[0];
+          return esc(t ? t.name : (s.label || ""));
+        }).join("<br />") + "</td>";
+      }).join("");
+      return '<tr><td class="day">' + esc(DAY_LABELS[dk] || dk) + "</td>" + cells + "</tr>";
+    }).join("");
+    return '<div class="sgweek" style="padding-top:4px;">' + esc(sn.label) + " &middot; " + slots.length + ' slots</div><div class="bdscroll"><table class="pgrid"><thead><tr><th></th>' +
+      used.map(function (f) { return "<th>" + esc(f.name) + "</th>"; }).join("") + "</tr></thead><tbody>" + rows + "</tbody></table></div>";
+  }).join("");
+  box.innerHTML = html || '<p class="hint">No schedule windows yet. Add one below, or start with the setup wizard in Season tools.</p>';
+}
+
+/* ---------- divisions view: list + one page per division ---------- */
+function renderDivisionsView(arg) {
+  if (!D) return;
+  var home = el("divHome"), det = el("divDetail");
+  var div = arg ? divBySlug(arg) : null;
+  if (arg && !div) { location.hash = "#divisions"; return; }
+  home.classList.toggle("hidden", !!div);
+  det.classList.toggle("hidden", !div);
+  if (div) renderDivDetail(div); else renderDivList();
+}
+
+function renderDivList() {
+  var box = el("divList");
+  var rules = leagueRules();
+  box.innerHTML = divisionList().map(function (d) {
+    var teams = D.teams.filter(function (t) { return t.is_active && t.division === d; });
+    var games = (D.games || []).filter(function (g) { return g.division === d && !isArchivedSeason(g.season_id) && g.status !== "draft"; });
+    var over = 0;
+    activeSeasons().forEach(function (sn) {
+      teams.forEach(function (t) {
+        var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
+        if (FLM_RULES.evaluate(rules, mine).status === "over") over++;
+      });
+    });
+    return '<button class="divcard" data-divgo="' + esc(divSlug(d)) + '"><div><b>' + esc(d) + '</b><div class="meta">' + teams.length + (teams.length === 1 ? " team" : " teams") + " &middot; " + games.length + (games.length === 1 ? " game" : " games") + (over ? ' &middot; <span class="warn">' + over + " over the practice guideline</span>" : "") + '</div></div><span class="arrow">&rsaquo;</span></button>';
+  }).join("") || '<p class="hint">No divisions yet. Add teams below with a division name, like Majors BB, and each division shows up here.</p>';
+  box.querySelectorAll("[data-divgo]").forEach(function (b) {
+    b.addEventListener("click", function () { location.hash = "#divisions/" + b.getAttribute("data-divgo"); });
+  });
+}
+
+function renderDivDetail(div) {
+  var det = el("divDetail");
+  var teams = D.teams.filter(function (t) { return t.is_active && t.division === div; });
+  var teamRows = teams.map(function (t) {
+    return '<tr><td style="font-weight:600;">' + esc(t.name) + "</td><td>" + esc(t.coach_name || "") + (t.coach_phone ? '<br /><span style="color:var(--muted)">' + esc(t.coach_phone) + "</span>" : "") + '</td><td style="text-align:right;"><button class="btn sm ghost" data-dv-edit="' + t.id + '">Edit</button></td></tr>';
+  }).join("");
+
+  var cfgStand = standCfg();
+  var pub = FLM_RULES.standingsShow(cfgStand, div);
+  var games = (D.games || []).filter(function (g) { return g.division === div && !isArchivedSeason(g.season_id); });
+  var tables = FLM_RULES.standings(games, D.teams || [], cfgStand);
+  var standRows = (tables[div] || []).map(function (r) {
+    return '<tr><td style="font-weight:600;">' + esc(r.name) + '</td><td class="num">' + r.w + '</td><td class="num">' + r.l + '</td><td class="num">' + r.t + '</td><td class="num">' + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
+  }).join("");
+
+  var rules = leagueRules();
+  var compCards = [];
+  activeSeasons().forEach(function (sn) {
+    teams.forEach(function (t) {
+      var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
+      var ev = FLM_RULES.evaluate(rules, mine);
+      if (ev.status === "over") compCards.push('<div class="compcard over"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.message) + '</div><div class="cwin">' + esc(sn.label) + "</div></div>");
+      else if (ev.status === "under") compCards.push('<div class="compcard under"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.availLabels.join(". ") || "Under the guideline") + '.</div><div class="cwin">' + esc(sn.label) + "</div></div>");
+    });
+  });
+
+  var shown = games.filter(function (g) { return g.status !== "draft"; }).sort(function (a, b) { return (a.game_date + String(a.start_time)).localeCompare(b.game_date + String(b.start_time)); });
+  var gameRows = shown.map(function (g) {
+    var st = g.status === "scheduled" ? "" : ' <span class="chip ' + (g.status === "cancelled" || g.status === "postponed" ? "lock" : "on") + '">' + esc(g.status) + "</span>";
+    if (g.ext_team_id) st += ' <span class="chip il">' + esc(gameLeague(g) || "interlock") + "</span>";
+    var fin = FLM_RULES.gameHasFinal(g) ? " &middot; Final " + g.home_score + " to " + g.away_score : "";
+    return '<div style="padding:6px 0;border-bottom:1px solid #efede4;font-size:13.5px;"><b>' + esc(gameTeamName(g.home_team_id)) + " vs " + esc(gameOppName(g)) + "</b>" + st +
+      '<br /><span style="color:var(--muted);font-size:12.5px;">' + esc(fmtDate(g.game_date)) + " &middot; " + esc(FLM_RULES.fmtTime(g.start_time)) + " &middot; " + esc(gameVenueName(g)) + fin + "</span></div>";
+  }).join("");
+
+  var gcfg = sgLoadCfg().divisions[div];
+  var genLine;
+  if (gcfg) {
+    var dayBits = Object.keys(gcfg.days || {}).map(function (dk) {
+      return (DAY_LABELS[dk] || dk).split(" ")[0].replace(/^\w/, function (c) { return c.toUpperCase(); }) + " at " + (gcfg.days[dk] || []).map(FLM_RULES.fmtTime).join(", ");
+    });
+    var fldNames = (gcfg.fields || []).map(gameFieldName);
+    genLine = "Each team plays " + (+gcfg.games_per_team || 0) + " games of " + (+gcfg.game_minutes || 0) + " minutes. Game days: " + (dayBits.join("; ") || "none") + ". Fields: " + (fldNames.join(", ") || "none") + ".";
+  } else {
+    genLine = "This division is not in the season generator setup yet.";
+  }
+
+  det.innerHTML = '<div class="panels">' +
+    '<div class="panel span2"><div class="bar"><h2>' + esc(div) + " teams (" + teams.length + ')</h2></div><div class="body">' +
+    (teamRows ? '<table class="list"><thead><tr><th>Team</th><th>Coach</th><th></th></tr></thead><tbody>' + teamRows + "</tbody></table>" : '<p class="hint">No active teams in this division.</p>') + "</div></div>" +
+    '<div class="panel span2"><div class="bar"><h2>Standings</h2></div><div class="body">' +
+    '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:8px;"><input type="checkbox" id="dvPub"' + (pub ? " checked" : "") + ' style="width:auto;margin-right:6px;" />Show these standings on the parent portal</label>' +
+    (standRows ? '<table class="list"><thead><tr><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">T</th><th class="num">Runs +/-</th></tr></thead><tbody>' + standRows + "</tbody></table>" : '<p class="hint">No final scores in this division yet. Enter one from a game&#39;s Final score button on the season board.</p>') + "</div></div>" +
+    '<div class="panel span2"><div class="bar"><h2>Practice status</h2></div><div class="body">' +
+    (compCards.length ? '<div class="compgrid">' + compCards.join("") + "</div>" : '<p class="hint">Every scheduled team in this division is on the practice guideline.</p>') + "</div></div>" +
+    '<div class="panel span2"><div class="bar"><h2>Games (' + shown.length + ')</h2><button class="btn sm ghost" id="dvBoard">Open on the season board</button></div><div class="body">' +
+    (gameRows || '<p class="hint">No games for this division yet. Build them with the season generator in Season tools.</p>') + "</div></div>" +
+    '<div class="panel span2"><div class="bar"><h2>Generator setup</h2><button class="btn sm ghost" id="dvGen">Open the generator</button></div><div class="body"><p class="hint" style="margin:0;">' + esc(genLine) + "</p></div></div>" +
+    "</div>";
+
+  det.querySelectorAll("[data-dv-edit]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      teamModal(D.teams.filter(function (x) { return x.id === b.getAttribute("data-dv-edit"); })[0]);
+    });
+  });
+  det.querySelector("#dvPub").addEventListener("change", function () {
+    var o = {};
+    divisionList().forEach(function (d) {
+      o[d] = { show: FLM_RULES.standingsShow(cfgStand, d), count_interlock: FLM_RULES.standingsCountInterlock(cfgStand, d) };
+    });
+    o[div] = o[div] || {};
+    o[div].show = this.checked;
+    admin("admin_settings", { standings_divisions: JSON.stringify(o) }).then(refresh).catch(function (e) { alert(e.message); refresh(); });
+  });
+  det.querySelector("#dvBoard").addEventListener("click", function () {
+    BD.div = div;
+    el("bdDiv").value = div;
+    renderBoard();
+    scrollToPanel("panelBoard");
+  });
+  det.querySelector("#dvGen").addEventListener("click", function () { scrollToPanel("panelGen"); });
 }
 
 /* ---------- Phase 5: set up your league wizard ---------- */
@@ -2311,14 +2688,14 @@ function wizardModal() {
   function render() {
     var c = counts();
     var steps = [
-      { t: "Welcome", body: "This wizard walks you through setting up your league, one small step at a time. Every step can be skipped and done later; nothing here is one-way. You can reopen this any time from the button at the top of the page." +
+      { t: "Welcome", body: "This wizard walks you through setting up your league, one small step at a time. Every step can be skipped and done later; nothing here is one-way. You can reopen this any time from Season tools on the home screen." +
         '<label class="wizlbl">League name</label><input id="wzName" value="' + esc((D.settings || {}).league_name || "") + '" placeholder="e.g. Dieringer Youth Baseball" style="width:100%;" />' +
         '<p class="hint" style="margin-top:4px;">Shows on the parent portal, calendar feeds, and every email.</p>' },
       { t: "Season dates", body: (c.windows ? "You already have " + c.windows + " schedule window" + (c.windows === 1 ? "" : "s") + " set up. Skip ahead unless you want another." : "A schedule window is a stretch of the season, like Sept 8 to Oct 31. Practices and games live inside it.") +
         '<label class="wizlbl">Window name (leave blank to skip)</label><input id="wzWin" placeholder="e.g. Fall 2026" style="width:100%;" />' +
         '<div class="row" style="margin-top:8px;"><label style="font-size:12.5px;">First day <input id="wzStart" type="date" /></label><label style="font-size:12.5px;">Last day <input id="wzEnd" type="date" /></label></div>' },
       { t: "Divisions and teams", body: "You have <b>" + c.teams + " teams</b> in <b>" + c.divisions + " divisions</b>. Two ways to add them:" +
-        '<ul style="margin:8px 0 8px 18px;font-size:13.5px;"><li><b>One at a time:</b> the + Team button. Name, coach, phone, and the division it plays in.</li>' +
+        '<ul style="margin:8px 0 8px 18px;font-size:13.5px;"><li><b>One at a time:</b> the + Team button in the Divisions view. Name, coach, phone, and the division it plays in.</li>' +
         "<li><b>All at once:</b> drop your league's Excel sheet in Import from Excel. Coach lists and schedule grids are found automatically.</li></ul>" +
         "The division name (like Majors BB) is how teams get grouped for schedules and standings, so spell it the same way on every team." +
         '<div class="row" style="margin-top:10px;"><button class="btn sm" id="wzAddTeam">Add a team now</button><button class="btn sm ghost" id="wzGoImport">Take me to Excel import</button></div>' },
@@ -2328,7 +2705,7 @@ function wizardModal() {
         '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoRules">Set the practice guideline</button><button class="btn sm ghost" id="wzGoImport2">Import a grid from Excel</button></div>' },
       { t: "Games", body: "When teams and fields are in, the Season generator builds the whole game schedule for you: pick a quick start template, hit Generate, and review the draft. Drafts are schedule ideas only you can see. Publish when it looks right, and parents can put every game on their phone calendar with one tap." +
         '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoGen">Take me to the generator</button></div>' },
-      { t: "Done", body: "That is the whole setup. From here the What needs attention panel at the top keeps a running to-do list for you: drafts to publish, games needing umpires, rainouts to make up. When this season ends, the Start next season button carries everything over." }
+      { t: "Done", body: "That is the whole setup. From here the Needs your attention strip on the home screen keeps a running to-do list for you: drafts to publish, games needing umpires, rainouts to make up. When this season ends, the Start next season button carries everything over." }
     ];
     var s = steps[step];
     veil.innerHTML = '<div class="modal"><h3>Set up your league</h3>' +
