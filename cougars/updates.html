@@ -49,39 +49,17 @@
     <p style="margin-top:20px;font-size:14px;color:var(--muted);">Want someone else getting these updates? <a href="/cougars/share.html" style="color:var(--red);font-weight:700;text-decoration:underline;">Add them.</a></p>
     <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
   </div>
-<script>
+<script type="module">
+import { escHtml as esc, renderBody } from "./updates-render.mjs";
 (function () {
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
-  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
   function fmtDate(d) {
     try {
       var p = d.split("-");
       return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString("en-US", { timeZone: "UTC", weekday: "long", month: "long", day: "numeric" });
     } catch (e) { return d; }
   }
-  // Body renderer: blank line = paragraph, a line of only **text** = section header,
-  // a line of only [label](url) = button, inline **bold** and [label](url) links.
-  function lineHtml(line) {
-    return esc(line)
-      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
-      .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s<]+)\)/g, '<a class="ulink" href="$2" target="_blank" rel="noopener">$1</a>');
-  }
-  function renderBody(body) {
-    var blocks = String(body || "").split(/\n\s*\n/);
-    return blocks.map(function (block) {
-      var t = block.replace(/^\s+|\s+$/g, "");
-      if (!t) return "";
-      var mHead = t.match(/^\*\*([^*]+)\*\*$/);
-      if (mHead) return '<div class="sec">' + esc(mHead[1]) + "</div>";
-      var html = t.split("\n").map(function (line) {
-        var lt = line.trim();
-        var mBtn = lt.match(/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/);
-        if (mBtn) return '<a class="ubtn" href="' + esc(mBtn[2]) + '" target="_blank" rel="noopener">' + esc(mBtn[1]) + "</a>";
-        return lineHtml(line);
-      }).join("<br>");
-      return "<p>" + html + "</p>";
-    }).join("");
-  }
+  // Body renderer lives in the shared module updates-render.mjs (also used by Coach HQ).
   fetch(API + "?action=updates")
     .then(function (r) { return r.json(); })
     .then(function (d) {

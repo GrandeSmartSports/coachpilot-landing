@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseFunds, dollars, fundProgress } from '../cougars/funds-core.mjs';
+import { renderBody, escHtml } from '../cougars/updates-render.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -362,6 +363,74 @@ try {
     console.log('  NOTE  ZZTEST pants row left for player ' + player.id + '; scrub via MCP after the run.');
   }
 } catch (e) { fail('family_status flow threw: ' + e.message); }
+
+// ------- Shared updates renderer (module used by parent feed AND Coach HQ) -------
+section('updates-render: shared markdown-lite module');
+if (escHtml('<b> & "') === '&lt;b&gt; &amp; "') ok('escHtml escapes angle brackets and ampersands'); else fail('escHtml wrong: ' + escHtml('<b> & "'));
+const rb1 = renderBody('**Week of August 24**\n\nHello team.');
+if (rb1.includes('<div class="sec">Week of August 24</div>') && rb1.includes('<p>Hello team.</p>')) ok('whole-line bold renders as section header, text as paragraph'); else fail('header/paragraph wrong: ' + rb1);
+const rb2 = renderBody('This is **big** news.');
+if (rb2 === '<p>This is <b>big</b> news.</p>') ok('inline bold renders, no literal asterisks'); else fail('inline bold wrong: ' + rb2);
+const rb3 = renderBody('[Open the team page](https://coachpilot.org/cougars/)');
+if (rb3.includes('class="ubtn"') && rb3.includes('href="https://coachpilot.org/cougars/"') && !rb3.includes('[Open')) ok('whole-line link renders as button'); else fail('button wrong: ' + rb3);
+const rb4 = renderBody('See [the update](https://coachpilot.org/cougars/updates.html) today.');
+if (rb4.includes('class="ulink"') && rb4.includes('>the update</a>')) ok('inline link renders as red link'); else fail('inline link wrong: ' + rb4);
+if (renderBody('<script>x</script>').includes('&lt;script&gt;')) ok('renderer escapes HTML first'); else fail('renderer does not escape HTML');
+if (!updHtml.includes('function renderBody') && updHtml.includes('updates-render.mjs')) ok('updates.html imports the shared renderer (no local fork)'); else fail('updates.html still has its own renderBody or missing import');
+
+// ------- Coach HQ: Family status panel + rendered updates cards -------
+section('Coach HQ: family status panel + updates cards');
+const hqHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'coach', 'index.html'), 'utf8');
+const hqMust = [
+  'Family status',
+  'action=family_status_all',
+  'fam-summary',
+  'fam-table',
+  'loadFamilyStatus',
+  'Sweatshirts ',
+  'Walk-ups ',
+  'Cage votes ',
+  'Pants ',
+  'fam-wrap',
+  'updates-render.mjs',
+  'toggleUp',
+  'Read all',
+  'upcard',
+];
+for (const s of hqMust) {
+  if (hqHtml.includes(s)) ok('Coach HQ contains: ' + s.slice(0, 50));
+  else fail('Coach HQ MISSING: ' + s);
+}
+if (!hqHtml.includes("esc(u.body)")) ok('Coach HQ no longer dumps raw update bodies'); else fail('Coach HQ still renders raw update body text');
+
+try {
+  const noPin = await fetch(GATEWAY + '?action=family_status_all');
+  if (noPin.status === 401) ok('family_status_all without PIN rejected 401'); else fail('family_status_all no-PIN should be 401, got ' + noPin.status);
+} catch (e) { fail('family_status_all no-PIN threw: ' + e.message); }
+
+if (PIN) {
+  try {
+    const r = await fetch(GATEWAY + '?action=family_status_all', { headers: { 'x-admin-pin': PIN } });
+    const d = await r.json();
+    const fams = d.families || [];
+    if (r.ok && fams.length > 0 && d.total === fams.length) ok('family_status_all returns ' + fams.length + ' families, total matches'); else fail('family_status_all shape wrong: status ' + r.status + ' total ' + d.total + ' families ' + fams.length);
+    const shapeOk = fams.every((f) => f.player_id && typeof f.first_name === 'string' && typeof f.last_name === 'string' &&
+      ['sweatshirt', 'walkup', 'cage_vote', 'pants'].every((k) => typeof f[k] === 'boolean'));
+    if (shapeOk) ok('every family row has names + 4 booleans'); else fail('family row shape wrong: ' + JSON.stringify(fams[0]));
+    let mathOk = true;
+    for (const k of ['sweatshirt', 'walkup', 'cage_vote', 'pants']) {
+      const recount = fams.filter((f) => f[k]).length;
+      if ((d.counts || {})[k] !== recount) { fail('aggregate math wrong for ' + k + ': counts=' + (d.counts || {})[k] + ' recount=' + recount); mathOk = false; }
+    }
+    if (mathOk) ok('summary counts match per-family booleans (sweatshirts ' + d.counts.sweatshirt + ', walk-ups ' + d.counts.walkup + ', cage votes ' + d.counts.cage_vote + ', pants ' + d.counts.pants + ' of ' + d.total + ')');
+    const one = fams[0];
+    const single = await (await fetch(GATEWAY + '?action=family_status&player_id=' + one.player_id)).json();
+    const crossOk = ['sweatshirt', 'walkup', 'cage_vote', 'pants'].every((k) => single[k] === one[k]);
+    if (crossOk) ok('family_status_all row matches per-family family_status for ' + one.first_name); else fail('cross-check mismatch: all=' + JSON.stringify(one) + ' single=' + JSON.stringify(single));
+  } catch (e) { fail('family_status_all PIN flow threw: ' + e.message); }
+} else {
+  console.log('  NOTE  COUGARS_PIN not set; skipped family_status_all aggregate checks.');
+}
 
 // ------- 5. Weekly update: PUBLISHED as of the 2026-08-24 live-review step -------
 section('weekly update: live in the public feed');

@@ -38,7 +38,7 @@
 
   main { max-width: 980px; margin: 0 auto; padding: 22px 18px 70px; display: none; }
   .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 860px) { .grid { grid-template-columns: 1fr 1fr; align-items: start; } }
+  @media (min-width: 860px) { .grid { display: block; column-count: 2; column-gap: 16px; } .grid .panel { break-inside: avoid; margin-bottom: 16px; } }
 
   .panel { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
   .panel .bar { background: var(--black); color: #fff; padding: 11px 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -82,6 +82,31 @@
   .links .lk .u { flex: 1; color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .links .lk button { border: 2px solid var(--line); background: #fff; border-radius: 8px; font-size: 12px; font-weight: 700; padding: 5px 10px; cursor: pointer; }
   .links .lk button.copied { border-color: var(--green); color: var(--green); }
+
+  .upcard { border: 1px solid var(--line); border-radius: 12px; margin-top: 10px; overflow: hidden; }
+  .upcard .uphead { display: flex; align-items: center; gap: 8px; padding: 9px 12px; cursor: pointer; background: #fafbfb; }
+  .upcard .uphead .d { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--red); white-space: nowrap; }
+  .upcard .uphead .pv { flex: 1; min-width: 0; font-size: 13px; color: #33383d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .upcard .uphead .more { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+  .upcard .uphead button { border: 1px solid var(--line); background: #fff; border-radius: 8px; font-size: 11px; padding: 3px 8px; cursor: pointer; color: var(--muted); white-space: nowrap; }
+  .upcard .upbody { display: none; padding: 12px 14px; border-top: 1px dashed #eef0f1; font-size: 14px; color: #33383d; }
+  .upcard.open .upbody { display: block; }
+  .upcard .upbody p { margin: 0 0 10px; }
+  .upcard .upbody p:last-child { margin-bottom: 0; }
+  .upcard .upbody .sec { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; border-left: 3px solid var(--red); padding-left: 8px; margin: 14px 0 6px; }
+  .upcard .upbody .sec:first-child { margin-top: 0; }
+  .upcard .upbody .ulink { color: var(--red); font-weight: 700; text-decoration: underline; }
+  .upcard .upbody .ubtn { display: inline-block; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; border-radius: 10px; margin: 4px 0 2px; }
+
+  .fam-summary { font-size: 13px; font-weight: 700; color: #33383d; margin-bottom: 8px; }
+  .fam-wrap { overflow-x: auto; }
+  table.fam { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 430px; }
+  table.fam th { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 4px 6px; border-bottom: 2px solid var(--line); }
+  table.fam th:first-child, table.fam td:first-child { text-align: left; white-space: nowrap; }
+  table.fam td { padding: 5px 6px; text-align: center; border-bottom: 1px dashed #eef0f1; }
+  table.fam tr:last-child td { border-bottom: 0; }
+  table.fam .done { color: var(--green); font-weight: 700; }
+  table.fam .todo { color: #c9cdd1; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -108,6 +133,15 @@
           <div class="row-btn"><button class="btn btn-ghost" onclick="postUpdate()">Save Draft</button><span class="m" id="up-msg"></span></div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px;">Drafts are checked out: parents cannot see them and no notifications go out. Publishing makes it live and sends ONE notification.</div>
           <div class="uplist" id="uplist"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="bar"><h3>Family status</h3></div>
+        <div class="bd">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">One row per family. Green check means done, a dash means still waiting.</div>
+          <div class="fam-summary" id="fam-summary">Loading&hellip;</div>
+          <div class="fam-wrap"><table class="fam" id="fam-table"></table></div>
         </div>
       </div>
 
@@ -184,6 +218,7 @@ function boot() {
       document.getElementById("gate").style.display = "none";
       document.getElementById("app").style.display = "block";
       loadUpdates();
+      loadFamilyStatus();
       loadFunds();
       loadCageVote();
       loadSubs();
@@ -251,20 +286,65 @@ function publishUpdate(id) {
 }
 
 function loadUpdates() {
-  fetch(API + "?action=all_updates", { headers: pinHeaders() })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      var ups = d.updates || [];
-      document.getElementById("uplist").innerHTML = ups.slice(0, 8).map(function (u) {
+  // Same markdown-lite renderer the parent updates page uses (shared module, not a fork).
+  Promise.all([
+    fetch(API + "?action=all_updates", { headers: pinHeaders() }).then(function (r) { return r.json(); }),
+    import("/cougars/updates-render.mjs"),
+  ])
+    .then(function (res) {
+      var ups = res[0].updates || [];
+      var renderBody = res[1].renderBody;
+      document.getElementById("uplist").innerHTML = ups.slice(0, 8).map(function (u, i) {
         var chip = u.published
           ? '<span style="font-size:10px;font-weight:700;color:#21622f;background:#ecf6ee;border-radius:10px;padding:2px 8px;">LIVE</span>'
           : '<span style="font-size:10px;font-weight:700;color:#8a6a00;background:#fff7e0;border-radius:10px;padding:2px 8px;">DRAFT</span>';
         var act = u.published
-          ? '<button onclick="unpub(\'' + esc(u.id) + '\')">hide</button>'
-          : '<button style="border-color:#c8102e;color:#c8102e;font-weight:700;" onclick="publishUpdate(\'' + esc(u.id) + '\')">PUBLISH</button>';
-        return '<div class="u"><span class="d">' + esc(u.update_date) + '</span>' + chip + '<span class="t">' + esc(u.body) + '</span>' + act + '</div>';
+          ? '<button onclick="event.stopPropagation();unpub(\'' + esc(u.id) + '\')">hide</button>'
+          : '<button style="border-color:#c8102e;color:#c8102e;font-weight:700;" onclick="event.stopPropagation();publishUpdate(\'' + esc(u.id) + '\')">PUBLISH</button>';
+        var preview = (u.body || "").split("\n")[0].replace(/\*\*/g, "").trim();
+        return '<div class="upcard" id="upc-' + i + '">' +
+          '<div class="uphead" onclick="toggleUp(' + i + ')">' +
+          '<span class="d">' + esc(u.update_date) + '</span>' + chip +
+          '<span class="pv">' + esc(preview) + '</span>' + act +
+          '<span class="more">Read all</span>' +
+          '</div>' +
+          '<div class="upbody">' + renderBody(u.body) + '</div>' +
+          '</div>';
       }).join("");
     }).catch(function () {});
+}
+
+function toggleUp(i) {
+  var c = document.getElementById("upc-" + i);
+  if (!c) return;
+  c.classList.toggle("open");
+  var more = c.querySelector(".more");
+  if (more) more.textContent = c.classList.contains("open") ? "Close" : "Read all";
+}
+
+function loadFamilyStatus() {
+  fetch(API + "?action=family_status_all", { headers: pinHeaders() })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (d) {
+      var fams = d.families || [];
+      var c = d.counts || {};
+      var t = d.total || fams.length;
+      document.getElementById("fam-summary").textContent =
+        "Sweatshirts " + (c.sweatshirt || 0) + " of " + t +
+        " · Walk-ups " + (c.walkup || 0) + " of " + t +
+        " · Cage votes " + (c.cage_vote || 0) + " of " + t +
+        " · Pants " + (c.pants || 0) + " of " + t;
+      function mk(v) { return v ? '<td class="done">&#10003;</td>' : '<td class="todo">-</td>'; }
+      var rows = fams.map(function (f) {
+        return '<tr><td>' + esc(f.first_name + " " + (f.last_name || "")) + '</td>' +
+          mk(f.sweatshirt) + mk(f.walkup) + mk(f.cage_vote) + mk(f.pants) + '</tr>';
+      }).join("");
+      document.getElementById("fam-table").innerHTML =
+        '<tr><th>Player</th><th>Sweatshirt</th><th>Walk-up</th><th>Cage vote</th><th>Pants</th></tr>' + rows;
+    })
+    .catch(function () {
+      document.getElementById("fam-summary").textContent = "Could not load family status.";
+    });
 }
 
 function unpub(id) {
