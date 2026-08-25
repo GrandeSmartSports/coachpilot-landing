@@ -1132,6 +1132,15 @@ try {
   fail('admin auth test threw: ' + e.message);
 }
 try {
+  // League PIN rotation 8/24: 0908 (Coach's universal PIN) was retired for
+  // Field Command. The gateway must treat it like any other wrong PIN.
+  const r = await fetch(GATEWAY + '?action=admin_announcements', { headers: { 'x-admin-pin': '0908' } });
+  if (r.status === 401) ok('retired PIN 0908 rejected 401 (league PIN rotation held)');
+  else fail('retired PIN 0908 should be 401, got ' + r.status);
+} catch (e) {
+  fail('retired PIN test threw: ' + e.message);
+}
+try {
   const r = await fetch(GATEWAY + '?action=admin_announcement_email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: 'x' }) });
   if (r.status === 401) ok('announcement email without PIN rejected 401');
   else fail('announcement email without PIN should be 401, got ' + r.status);
@@ -1225,6 +1234,22 @@ try {
   else fail('live feed missing cache headers');
 } catch (e) {
   fail('live flm-ics test threw: ' + e.message);
+}
+
+// ------- vercel.json: /fields trailing-slash redirect -------
+// Without it, coachpilot.org/fields (no slash) resolves relative script srcs
+// like flm-rules.js against the site root and 404s the rules engine.
+section('vercel.json: /fields trailing-slash redirect');
+try {
+  const vj = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
+  const red = (vj.redirects || []).find((r) => r.source === '/fields' && r.destination === '/fields/');
+  if (red) ok('/fields redirects to /fields/ so relative assets always resolve');
+  else fail('vercel.json missing the /fields -> /fields/ redirect');
+  const ics = (vj.rewrites || []).find((r) => r.source === '/fields/ics/:path*');
+  if (ics) ok('/fields/ics rewrite to flm-ics still present');
+  else fail('vercel.json lost the /fields/ics rewrite');
+} catch (e) {
+  fail('vercel.json check threw: ' + e.message);
 }
 
 // ------- Report -------

@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/fields",
+      "destination": "/fields/",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/fields/ics/:path*",
