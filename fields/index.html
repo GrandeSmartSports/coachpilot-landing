@@ -1442,6 +1442,12 @@ function openReserveField() {
   S.view = "days";
   lsSet("flm_view", "days");
   lsSet("flm_last_sched_view", "days");
+  // On mobile the phone-shell CSS hides every view container while data-mtab=hub.
+  // Flip the tab off the Hub so the fields view can actually render.
+  if (isPhone()) {
+    S.mtab = "fields";
+    lsSet("flm_mtab", "fields");
+  }
   renderAll();
   window.scrollTo(0, 0);
   showReserveBanner();
