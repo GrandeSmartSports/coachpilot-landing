@@ -290,7 +290,7 @@ function coachMessageEmailHtml(leagueName: string, fromName: string, fromEmail: 
     <h1 style="margin:0 0 4px;font-size:20px;color:#1c2420;">${escHtml(subject)}</h1>
     <p style="margin:0 0 14px;font-size:13px;color:#6d7a72;">Reply to this email to reach <a href="mailto:${escHtml(fromEmail)}" style="color:#2d6a4f;">${escHtml(fromName)}</a> directly.</p>
     <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${bodyHtml}</p>
-    <p style="margin:18px 0 0;font-size:12.5px;color:#6d7a72;">This message is stored securely in the league's Coaches Hub. The league can access the record if there is a dispute; that access is logged.</p>
+    <p style="margin:18px 0 0;font-size:12.5px;color:#6d7a72;">Sent through the ${escHtml(leagueName)} Coaches Hub so nothing gets lost in a text thread.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
 </div>
