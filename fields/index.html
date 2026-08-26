@@ -250,6 +250,12 @@
   .myreq .rresp b { color: var(--grass); font-family: var(--disp); text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
   .hubempty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px 8px; }
   .hubdivider { border: none; border-top: 1px solid var(--line); margin: 14px -17px; }
+  /* When the Hub view is active (desktop or phone), hide the schedule-facing
+     chrome so the Hub owns the whole page. Signed-in coaches land here first. */
+  body.view-hub #myTeam, body.view-hub #announceBox, body.view-hub #rulesBox,
+  body.view-hub #mtPrompt, body.view-hub .bar, body.view-hub .legend,
+  body.view-hub #viewGrid, body.view-hub #viewDays, body.view-hub #viewSched, body.view-hub #viewTeams { display: none !important; }
+  body.view-hub #viewHub { display: block !important; }
 
   .hidden { display: none !important; }
   footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 30px 16px 40px; }
@@ -329,6 +335,7 @@
     <div class="bar">
       <div class="tabs" id="seasonTabs"></div>
       <div class="views">
+        <button class="vbtn" data-view="hub">Hub</button>
         <button class="vbtn" data-view="days">By day</button>
         <button class="vbtn" data-view="grid">Full grid</button>
         <button class="vbtn" data-view="sched">Schedule</button>
@@ -413,7 +420,10 @@ var _bootView = lsGet("flm_view");
 if (["grid", "days", "teams", "sched", "hub"].indexOf(_bootView) < 0) _bootView = null;
 var _bootTab = lsGet("flm_mtab");
 if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootTab = null;
-var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
+/* Signed-in coaches land on the Hub if they haven't explicitly picked a view.
+   Once they pick another view (grid/days/etc), their choice sticks via flm_view. */
+var _bootSignedIn = !!(lsGet("flm_coach_id") && lsGet("flm_coach_pin"));
+var S = { data: null, season: null, view: _bootView || (_bootSignedIn ? "hub" : (window.innerWidth < 760 ? "days" : "grid")), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
 
 /* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
@@ -662,6 +672,7 @@ function bindCells(root) {
 function renderView() {
   ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   var v = effView();
+  document.body.classList.toggle("view-hub", v === "hub");
   if (v === "hub") { renderHub(); return; }  /* hub gate/state doesn't need S.data */
   if (!S.data || !S.season) return;
   if (v === "grid") renderGrid();
