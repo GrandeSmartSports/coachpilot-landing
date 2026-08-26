@@ -5,10 +5,11 @@ Open either file in Excel or Google Sheets. Delete the example row.
 Fill in the blanks with your info. Save. Drop it into the admin console.
 
 1. bls-coaches.csv
-   Columns: Name, Email, Team, Phone
-   Team can be anything — new teams get created automatically from
-   whatever you type. Each coach gets an emailed invite to set their
-   own PIN.
+   Columns: Name, Email, Division, Team, Phone
+   Division + Team together identify the team (so the same team name
+   across different divisions stays separate). New teams get created
+   automatically from whatever you type. Each coach gets an emailed
+   invite to set their own PIN.
    Drop into: Admin Console -> Coaches -> Bulk import
 
 2. bls-board.csv

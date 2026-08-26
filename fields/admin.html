@@ -449,7 +449,7 @@
           <div class="body">
             <p class="hint">Head coaches with their own email and 4-digit PIN. When you add a coach, an invite is emailed automatically; the coach clicks the link, sets their PIN, and can then sign in at the Coaches Hub. Every request they submit is tagged with their name so nothing gets lost or fudged.</p>
             <div id="cBulkBox" class="hidden" style="background:#f7f5ee;border:2px dashed #c96f2f;border-radius:10px;padding:14px;margin-bottom:12px;">
-              <p style="font-size:13.5px;margin-bottom:8px;"><b>Bulk import coaches</b> — Download the <a href="/fields/templates/bls-coaches.csv" download>coaches template (CSV)</a>, fill it in (columns: <code>name, email, team, phone</code>), then drop it here. New teams are auto-created from the <b>team</b> column.</p>
+              <p style="font-size:13.5px;margin-bottom:8px;"><b>Bulk import coaches</b> — Download the <a href="/fields/templates/bls-coaches.csv" download>coaches template (CSV)</a>, fill it in (columns: <code>name, email, division, team, phone</code>), then drop it here. Teams are matched by name + division so the same team name in different divisions stays separate. New teams are auto-created if not found.</p>
               <div class="drop" id="cDrop" style="border:2px dashed #b7b1a3;border-radius:8px;padding:18px;text-align:center;color:#6d7a72;cursor:pointer;background:#fff;">Tap to choose a file, or drag a .csv or .xlsx here</div>
               <input type="file" id="cFile" accept=".csv,.xlsx,.xls" class="hidden" />
               <label style="display:block;font-size:13px;font-weight:500;margin-top:10px;color:#1c2420;text-transform:none;letter-spacing:0;"><input type="checkbox" id="cSendInvites" checked style="width:auto;margin-right:6px;" /> Email an invite link to each coach after import</label>
@@ -3197,17 +3197,18 @@ function cBulkPreview(rows) {
   CBULK_ROWS = rows.map(function (r) {
     return {
       name: pickField(r, ["name", "coach", "coachname", "fullname"]),
-      email: pickField(r, ["email", "e-mail"]),
+      email: pickField(r, ["email", "email"]),
+      division: pickField(r, ["division", "div", "league", "age", "agegroup"]),
       team: pickField(r, ["team", "teamname", "team_name"]),
       phone: pickField(r, ["phone", "cell", "mobile"])
     };
-  }).filter(function (r) { return r.name && r.email; });
+  }).filter(function (r) { return r.name && r.email && /@/.test(String(r.email)); });
   var box = document.getElementById("cBulkPreview");
   if (!CBULK_ROWS.length) { box.innerHTML = '<div class="err">No valid rows found. Make sure your file has <b>name</b> and <b>email</b> columns.</div>'; return; }
   var html = '<p style="font-size:13px;margin-bottom:6px;"><b>' + CBULK_ROWS.length + '</b> coaches ready to import:</p>';
-  html += '<table style="width:100%;font-size:12.5px;border-collapse:collapse;margin-bottom:10px;"><thead><tr style="background:#ece8db;"><th style="padding:5px;text-align:left;">Name</th><th style="padding:5px;text-align:left;">Email</th><th style="padding:5px;text-align:left;">Team</th><th style="padding:5px;text-align:left;">Phone</th></tr></thead><tbody>';
+  html += '<table style="width:100%;font-size:12.5px;border-collapse:collapse;margin-bottom:10px;"><thead><tr style="background:#ece8db;"><th style="padding:5px;text-align:left;">Name</th><th style="padding:5px;text-align:left;">Email</th><th style="padding:5px;text-align:left;">Division</th><th style="padding:5px;text-align:left;">Team</th><th style="padding:5px;text-align:left;">Phone</th></tr></thead><tbody>';
   CBULK_ROWS.slice(0, 40).forEach(function (r) {
-    html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">' + esc(r.name) + '</td><td style="padding:5px;">' + esc(r.email) + '</td><td style="padding:5px;">' + esc(r.team || "") + '</td><td style="padding:5px;">' + esc(r.phone || "") + '</td></tr>';
+    html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">' + esc(r.name) + '</td><td style="padding:5px;">' + esc(r.email) + '</td><td style="padding:5px;">' + esc(r.division || "") + '</td><td style="padding:5px;">' + esc(r.team || "") + '</td><td style="padding:5px;">' + esc(r.phone || "") + '</td></tr>';
   });
   html += '</tbody></table>';
   if (CBULK_ROWS.length > 40) html += '<p style="font-size:12px;color:#6d7a72;margin-bottom:8px;">…and ' + (CBULK_ROWS.length - 40) + ' more.</p>';

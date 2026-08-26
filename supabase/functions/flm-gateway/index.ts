@@ -1506,14 +1506,22 @@ Deno.serve(async (req: Request) => {
         const name = String(raw.name ?? "").trim().slice(0, 120);
         const email = String(raw.email ?? "").trim().toLowerCase().slice(0, 200);
         const teamName = String(raw.team ?? raw.team_name ?? "").trim().slice(0, 120);
+        const division = String(raw.division ?? "").trim().slice(0, 60);
         const phone = raw.phone ? String(raw.phone).trim().slice(0, 40) : null;
         if (!name || !isEmail(email)) { summary.skipped++; summary.errors.push(`${name || email || "row"}: name + valid email required`); continue; }
         let team_id: string | null = null;
         if (teamName) {
-          const { data: t } = await db.from("flm_teams").select("id").ilike("name", teamName).maybeSingle();
-          if (t) { team_id = t.id; }
+          // Match on name + division so same team name across divisions stays separate.
+          let q = db.from("flm_teams").select("id,division").ilike("name", teamName);
+          if (division) q = q.ilike("division", division);
+          const { data: matches } = await q;
+          const pool = matches ?? [];
+          const existing = division
+            ? pool.find((r: { division: string }) => (r.division || "").toLowerCase() === division.toLowerCase())
+            : (pool.length === 1 ? pool[0] : null);
+          if (existing) { team_id = existing.id; }
           else {
-            const ins = await db.from("flm_teams").insert({ name: teamName, coach_name: name, coach_email: email, coach_phone: phone }).select("id").single();
+            const ins = await db.from("flm_teams").insert({ name: teamName, division: division || "", coach_name: name, coach_email: email, coach_phone: phone }).select("id").single();
             if (ins.data) { team_id = ins.data.id; summary.teams_created++; }
           }
         }
