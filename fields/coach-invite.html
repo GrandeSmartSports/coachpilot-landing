@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Set your PIN — Field Command Coaches Hub</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --clay-dark: #a8571d;
+    --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #ffffff;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--pine); color: var(--ink); min-height: 100vh; }
+  body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: inherit; }
+
+  .card {
+    background: var(--white); border-radius: 16px; padding: 30px 26px 26px;
+    width: 100%; max-width: 420px; box-shadow: 0 24px 48px rgba(0, 0, 0, 0.28);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .diamond { width: 42px; height: 42px; flex: 0 0 42px; }
+  .brand h1 { font-family: var(--disp); font-weight: 700; font-size: 28px; line-height: 1; letter-spacing: 0.03em; text-transform: uppercase; color: var(--pine); }
+  .brand .sub { font-family: var(--disp); font-weight: 500; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--grass); margin-top: 3px; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 40px, var(--chalk) 40px 50px); border-radius: 3px; margin: 18px 0 18px; }
+
+  h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.06em; font-size: 22px; color: var(--ink); margin-bottom: 8px; }
+  .hello { font-family: var(--disp); font-weight: 700; font-size: 26px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--pine); margin-bottom: 4px; }
+  .subline { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .subline b { color: var(--ink); }
+
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grass); margin-bottom: 6px; }
+  input.pin {
+    width: 100%; text-align: center; font-size: 30px; letter-spacing: 0.5em;
+    font-family: inherit; border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 15px 10px; background: var(--chalk); color: var(--ink); font-weight: 700;
+  }
+  input.pin:focus { outline: none; border-color: var(--pine); background: var(--white); }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 8px; }
+
+  .btn { width: 100%; margin-top: 16px; font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 11px; padding: 14px; background: var(--pine); color: var(--chalk); }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .btn.secondary { background: var(--chalk-2); color: var(--ink); margin-top: 10px; }
+  .err { color: #a33c1b; font-size: 13.5px; margin-top: 12px; font-weight: 600; }
+  .ok { color: var(--grass); font-size: 14px; margin-top: 12px; font-weight: 600; }
+
+  .loading { text-align: center; padding: 30px 10px; color: var(--muted); font-family: var(--disp); font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .hidden { display: none !important; }
+  .footlink { display: block; text-align: center; margin-top: 18px; color: var(--muted); font-size: 12.5px; }
+  .footlink a { color: var(--grass); text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="brand">
+    <svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0e3b2e"/><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="#f4f1e8" stroke-width="5"/><path d="M50 38 L62 50 L50 62 L38 50 Z" fill="#c96f2f"/></svg>
+    <div>
+      <h1>Field Command</h1>
+      <div class="sub" id="hubTag">Coaches Hub</div>
+    </div>
+  </div>
+  <div class="chalkline"></div>
+
+  <div id="loading" class="loading">Checking your invite&hellip;</div>
+
+  <div id="setPin" class="hidden">
+    <div class="hello" id="hello">Hi</div>
+    <p class="subline">You have been invited to the <b id="leagueName">league</b> Coaches Hub. Pick a 4 digit PIN. You will use it with your email <b id="emailShown"></b> to sign in.</p>
+    <label for="pin">Your new 4 digit PIN</label>
+    <input class="pin" id="pin" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" autocomplete="off" />
+    <p class="hint">Nobody at the league can see your PIN. If you forget it, the league can send you a new invite.</p>
+    <button class="btn" id="go">Set my PIN &amp; open the hub</button>
+    <p class="err hidden" id="err"></p>
+    <p class="ok hidden" id="okmsg">All set. Taking you to the hub&hellip;</p>
+  </div>
+
+  <div id="bad" class="hidden">
+    <h2>This link is not usable</h2>
+    <p class="err" id="badMsg">This invite is not valid.</p>
+    <a class="btn secondary" style="display:block;text-align:center;text-decoration:none;" href="/fields/">Back to Field Command</a>
+    <p class="hint" style="margin-top:12px;">Ask the league admin to resend your invite. Invite links expire after 14 days.</p>
+  </div>
+
+  <p class="footlink">Already have a PIN? <a href="/fields/">Sign in on the coaches hub</a>.</p>
+</div>
+
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+  var params = new URLSearchParams(window.location.search);
+  var token = (params.get("token") || "").trim();
+  var el = function (id) { return document.getElementById(id); };
+
+  function showBad(msg) {
+    el("loading").classList.add("hidden");
+    el("setPin").classList.add("hidden");
+    el("bad").classList.remove("hidden");
+    el("badMsg").textContent = msg || "This invite is not valid.";
+  }
+
+  if (!token) { showBad("Your invite link is missing its token. Ask the league to resend it."); return; }
+
+  fetch(API + "?action=coach_verify_invite", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: token }),
+  })
+    .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); })
+    .then(function (j) {
+      if (!j.ok) { showBad(j.error || "This invite is not valid."); return; }
+      el("loading").classList.add("hidden");
+      el("setPin").classList.remove("hidden");
+      var first = (j.coach.name || "").split(" ")[0] || j.coach.name;
+      el("hello").textContent = "Hi, " + first;
+      el("emailShown").textContent = j.coach.email;
+      // fetch state just for the league name in the copy (best-effort)
+      fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (s) {
+        if (s && s.settings && s.settings.league_name) el("leagueName").textContent = s.settings.league_name;
+      }).catch(function () {});
+      el("pin").focus();
+    })
+    .catch(function () { showBad("Could not reach the server. Check your connection and try again."); });
+
+  function submit() {
+    var pin = el("pin").value.trim();
+    var errEl = el("err");
+    errEl.classList.add("hidden");
+    if (!/^\d{4}$/.test(pin)) {
+      errEl.textContent = "Your PIN must be exactly 4 digits.";
+      errEl.classList.remove("hidden");
+      el("pin").focus();
+      return;
+    }
+    el("go").disabled = true;
+    fetch(API + "?action=coach_set_pin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token, new_pin: pin }),
+    })
+      .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); })
+      .then(function (j) {
+        if (!j.ok) {
+          errEl.textContent = j.error || "Could not save your PIN. Try again or ask the league for a new invite.";
+          errEl.classList.remove("hidden");
+          el("go").disabled = false;
+          return;
+        }
+        // Remember on this device so the hub opens signed in.
+        try {
+          localStorage.setItem("flm_coach_id", j.coach.id);
+          localStorage.setItem("flm_coach_pin", pin);
+          localStorage.setItem("flm_coach_email", j.coach.email);
+          localStorage.setItem("flm_coach_name", j.coach.name);
+        } catch (e) { /* private-mode Safari: fall through, they will sign in manually */ }
+        el("okmsg").classList.remove("hidden");
+        el("go").disabled = true;
+        setTimeout(function () { window.location.href = "/fields/"; }, 900);
+      })
+      .catch(function () {
+        errEl.textContent = "Could not reach the server. Try again in a moment.";
+        errEl.classList.remove("hidden");
+        el("go").disabled = false;
+      });
+  }
+  el("go").addEventListener("click", submit);
+  el("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+})();
+</script>
+
+</body>
+</html>

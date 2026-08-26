@@ -1,7 +1,12 @@
-// Field Command gateway (v12). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v13). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
+// v13 (2026-08-26): Coaches Hub — flm_coaches / flm_contacts / flm_requests.
+// Per-coach email + PIN auth (mirrors umpires). Admin invites a coach by email
+// → coach clicks emailed link → sets PIN → email_confirmed_at is stamped as
+// proof they own the inbox. Every coach action carries coach_id + coach_pin
+// and is logged to flm_activity so nothing is anonymous.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -179,6 +184,111 @@ async function sendAdminEmail(subject: string, html: string): Promise<{ ok: bool
 async function leagueName(): Promise<string> {
   const { data } = await db.from("flm_settings").select("value").eq("key", "league_name").maybeSingle();
   return data?.value || "Field Command";
+}
+
+// ---------- Coaches Hub (v13) ----------
+// Head coaches with per-person email + PIN. Admin creates the coach with an
+// email; invite token goes out via Resend; coach clicks the link, sets a PIN,
+// and email_confirmed_at is stamped as proof they own the inbox. Every write
+// requires coach_id + coach_pin in the body (mirrors umpAuth).
+const REQUEST_CATEGORIES = ["gear", "field_issue", "practice_concern", "volunteer_needed", "general"];
+const REQUEST_STATUSES = ["open", "in_progress", "resolved", "closed"];
+
+function randomInviteToken(): string {
+  // crypto.randomUUID gives 128 bits of entropy; strip dashes for a compact URL.
+  return crypto.randomUUID().replace(/-/g, "");
+}
+function inviteExpiry(): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + 14);
+  return d.toISOString();
+}
+function isEmail(s: unknown): boolean {
+  return typeof s === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
+}
+function isPin(s: unknown): boolean {
+  return typeof s === "string" && /^\d{4}$/.test(s);
+}
+function inviteUrlFor(token: string): string {
+  return `https://coachpilot.org/fields/coach-invite.html?token=${encodeURIComponent(token)}`;
+}
+// deno-lint-ignore no-explicit-any
+async function coachAuth(b: Record<string, unknown>): Promise<any | null> {
+  if (!b.coach_id || !b.coach_pin) return null;
+  const { data } = await db.from("flm_coaches").select("*").eq("id", b.coach_id).maybeSingle();
+  if (!data || !data.active) return null;
+  if (!data.pin || String(b.coach_pin) !== String(data.pin)) return null;
+  return data;
+}
+
+function coachInviteEmailHtml(leagueName: string, coachName: string, inviteUrl: string): string {
+  const first = coachName.split(" ")[0] || coachName;
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;">
+<div style="max-width:560px;margin:0 auto;padding:18px 12px;">
+  <div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;">
+    <div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div>
+    <div style="color:#b7cfc2;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${escHtml(leagueName)} Coaches Hub</div>
+  </div>
+  <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
+  <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
+    <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">Hi ${escHtml(first)},</h1>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#3c463f;">You have been set up as a coach on the ${escHtml(leagueName)} Coaches Hub. This is the one place for league announcements, board contacts, and any request you need to file (gear, field issues, practice concerns, volunteers, and more).</p>
+    <p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3c463f;">Click the button below to set your 4 digit PIN. This link is good for 14 days and can only be used once.</p>
+    <p style="text-align:center;margin:0 0 18px;"><a href="${escHtml(inviteUrl)}" style="background:#0e3b2e;color:#f4f1e8;text-decoration:none;font-weight:bold;letter-spacing:1px;padding:12px 22px;border-radius:10px;text-transform:uppercase;display:inline-block;">Set my PIN</a></p>
+    <p style="margin:0;font-size:13px;color:#6d7a72;">If the button does not open, paste this into your browser:<br /><span style="word-break:break-all;">${escHtml(inviteUrl)}</span></p>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command. Reply to this email to reach the league.</p>
+</div>
+</body></html>`;
+}
+
+function coachRequestEmailHtml(leagueName: string, r: { category: string; subject: string; details: string; submitted_by_coach_name: string }, coachEmail: string): string {
+  const catLabel: Record<string, string> = {
+    gear: "Gear / Equipment",
+    field_issue: "Field Issue",
+    practice_concern: "Practice Concern",
+    volunteer_needed: "Volunteer Needed",
+    general: "General",
+  };
+  const label = catLabel[r.category] || "Request";
+  const body = escHtml(r.details).replace(/\n/g, "<br />");
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;">
+<div style="max-width:560px;margin:0 auto;padding:18px 12px;">
+  <div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;">
+    <div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div>
+    <div style="color:#b7cfc2;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${escHtml(leagueName)} Coaches Hub</div>
+  </div>
+  <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
+  <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
+    <div style="display:inline-block;background:#c96f2f;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;border-radius:12px;padding:3px 12px;margin-bottom:12px;">NEW ${escHtml(label.toUpperCase())} REQUEST</div>
+    <h1 style="margin:0 0 4px;font-size:20px;color:#1c2420;">${escHtml(r.subject)}</h1>
+    <p style="margin:0 0 14px;font-size:13px;color:#6d7a72;">from ${escHtml(r.submitted_by_coach_name)} &middot; <a href="mailto:${escHtml(coachEmail)}" style="color:#2d6a4f;">${escHtml(coachEmail)}</a></p>
+    <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${body}</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Manage requests in the Coaches inbox at <a href="https://coachpilot.org/fields/admin.html" style="color:#2d6a4f;">coachpilot.org/fields/admin.html</a>.</p>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
+</div>
+</body></html>`;
+}
+
+function coachRequestResolvedEmailHtml(leagueName: string, r: { subject: string; response: string | null; status: string }): string {
+  const body = r.response ? escHtml(r.response).replace(/\n/g, "<br />") : "This request has been marked as resolved by the league.";
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;">
+<div style="max-width:560px;margin:0 auto;padding:18px 12px;">
+  <div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;">
+    <div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div>
+    <div style="color:#b7cfc2;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${escHtml(leagueName)} Coaches Hub</div>
+  </div>
+  <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
+  <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
+    <div style="display:inline-block;background:#2d6a4f;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;border-radius:12px;padding:3px 12px;margin-bottom:12px;">REQUEST ${escHtml(r.status.toUpperCase())}</div>
+    <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(r.subject)}</h1>
+    <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${body}</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See all your requests at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
+</div>
+</body></html>`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -410,6 +520,135 @@ Deno.serve(async (req: Request) => {
       if (!/^\d{4}$/.test(np)) return json({ ok: false, error: "The new PIN must be exactly 4 digits." }, 400);
       await db.from("flm_umps").update({ pin: np }).eq("id", ump.id);
       await log("ump", `${ump.name} changed their PIN`, ump.name);
+      return json({ ok: true });
+    }
+
+    // ==================== Coaches Hub — public actions (v13) ====================
+    // These live BEFORE the admin PIN gate on purpose: coach_login and the
+    // invite flow must be reachable without an admin PIN. Each still requires
+    // POST + its own body read; auth is enforced per action via coachAuth().
+
+    if (action === "coach_verify_invite" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const token = String(b.token ?? "").trim();
+      if (!token) return json({ ok: false, error: "invite link is missing" }, 400);
+      const { data } = await db.from("flm_coaches").select("id,name,email,invite_expires_at,active").eq("invite_token", token).maybeSingle();
+      if (!data) return json({ ok: false, error: "this invite link is not valid — the league may have reset it" }, 404);
+      if (!data.active) return json({ ok: false, error: "this coach is no longer active — ask the league" }, 403);
+      if (data.invite_expires_at && new Date(data.invite_expires_at).getTime() < Date.now()) {
+        return json({ ok: false, error: "this invite link has expired — ask the league to resend it" }, 410);
+      }
+      return json({ ok: true, coach: { name: data.name, email: data.email } });
+    }
+
+    if (action === "coach_set_pin" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const token = String(b.token ?? "").trim();
+      const pin = String(b.new_pin ?? "").trim();
+      if (!token) return json({ ok: false, error: "invite link is missing" }, 400);
+      if (!isPin(pin)) return json({ ok: false, error: "PIN must be exactly 4 digits" }, 400);
+      const { data: found } = await db.from("flm_coaches").select("id,name,email,invite_expires_at,active").eq("invite_token", token).maybeSingle();
+      if (!found) return json({ ok: false, error: "this invite link is not valid — the league may have reset it" }, 404);
+      if (!found.active) return json({ ok: false, error: "this coach is no longer active — ask the league" }, 403);
+      if (found.invite_expires_at && new Date(found.invite_expires_at).getTime() < Date.now()) {
+        return json({ ok: false, error: "this invite link has expired — ask the league to resend it" }, 410);
+      }
+      const { error } = await db.from("flm_coaches").update({
+        pin,
+        invite_token: null,
+        invite_expires_at: null,
+        email_confirmed_at: new Date().toISOString(),
+      }).eq("id", found.id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_set_pin", `${found.name} set their PIN (email ${found.email})`, "coach");
+      return json({ ok: true, coach: { id: found.id, name: found.name, email: found.email } });
+    }
+
+    if (action === "coach_login" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const email = String(b.email ?? "").trim().toLowerCase();
+      const pin = String(b.pin ?? "").trim();
+      if (!email || !isPin(pin)) return json({ ok: false, error: "enter your email and 4 digit PIN" }, 400);
+      const { data } = await db.from("flm_coaches").select("id,name,email,active,pin,email_confirmed_at").ilike("email", email).maybeSingle();
+      if (!data || !data.active) return json({ ok: false, error: "no coach on file with that email — ask the league to add you" }, 404);
+      if (!data.email_confirmed_at || !data.pin) return json({ ok: false, error: "check your email for the invite and set your PIN first" }, 403);
+      if (String(pin) !== String(data.pin)) return json({ ok: false, error: "that PIN did not work — try again or ask the league to reset it" }, 401);
+      return json({ ok: true, coach: { id: data.id, name: data.name, email: data.email } });
+    }
+
+    if (action === "coach_state" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const [settings, announcements, contacts, myRequests] = await Promise.all([
+        db.from("flm_settings").select("key,value").in("key", ["league_name"]),
+        db.from("flm_announcements").select("*").order("created_at", { ascending: false }).limit(50),
+        db.from("flm_contacts").select("id,name,role,email,phone,notes,sort_order").eq("active", true).order("sort_order").order("name"),
+        db.from("flm_requests").select("id,category,subject,details,status,response,created_at,resolved_at,assigned_contact_id").eq("submitted_by_coach_id", coach.id).order("created_at", { ascending: false }).limit(50),
+      ]);
+      const settingsMap: Record<string, string> = {};
+      (settings.data || []).forEach((r: { key: string; value: string }) => { settingsMap[r.key] = r.value; });
+      return json({
+        ok: true,
+        league_name: settingsMap.league_name || "Field Command",
+        coach: { id: coach.id, name: coach.name, email: coach.email, team_id: coach.team_id },
+        announcements: announcements.data || [],
+        contacts: contacts.data || [],
+        my_requests: myRequests.data || [],
+      });
+    }
+
+    if (action === "coach_submit_request" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const category = String(b.category ?? "").trim();
+      const subject = String(b.subject ?? "").trim().slice(0, 160);
+      const details = String(b.details ?? "").trim().slice(0, 4000);
+      const assigned_contact_id = b.assigned_contact_id ? String(b.assigned_contact_id) : null;
+      if (!REQUEST_CATEGORIES.includes(category)) return json({ ok: false, error: "pick a valid category" }, 400);
+      if (!subject) return json({ ok: false, error: "add a short subject" }, 400);
+      if (!details) return json({ ok: false, error: "add some details" }, 400);
+      const insert = {
+        category,
+        subject,
+        details,
+        submitted_by_coach_id: coach.id,
+        submitted_by_coach_name: coach.name,
+        submitted_by_team_id: coach.team_id,
+        assigned_contact_id,
+        status: "open",
+      };
+      const { data: created, error } = await db.from("flm_requests").insert(insert).select("*").single();
+      if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
+      await log("coach_submit_request", `${coach.name}: ${category} — ${subject}`, "coach");
+      const league = await leagueName();
+      const html = coachRequestEmailHtml(league, created, coach.email);
+      let contactEmail = "";
+      if (assigned_contact_id) {
+        const { data: c } = await db.from("flm_contacts").select("email").eq("id", assigned_contact_id).maybeSingle();
+        contactEmail = String(c?.email ?? "").trim();
+      }
+      const to = contactEmail && contactEmail.includes("@") ? contactEmail : ADMIN_ALERT_EMAIL;
+      await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        reply_to: coach.email,
+        to: [to],
+        subject: `[${league}] ${subject}`,
+        html,
+      }).catch(() => ({ ok: false }));
+      return json({ ok: true, request: created });
+    }
+
+    if (action === "coach_change_pin" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const np = String(b.new_pin ?? "").trim();
+      if (!isPin(np)) return json({ ok: false, error: "PIN must be exactly 4 digits" }, 400);
+      const { error } = await db.from("flm_coaches").update({ pin: np }).eq("id", coach.id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_change_pin", `${coach.name} changed their PIN`, "coach");
       return json({ ok: true });
     }
 
@@ -1088,6 +1327,157 @@ Deno.serve(async (req: Request) => {
 
       await log("import", `Excel import: +${summary.slots_created} slots (${summary.slots_removed} replaced), +${summary.fields_created} fields, +${summary.teams_created} new / ${summary.teams_updated} updated teams`, "admin");
       return json({ ok: true, summary });
+    }
+
+    // ==================== Coaches Hub — admin actions (v13) ====================
+    // These run inside the admin section (the outer PIN gate on line ~529
+    // already verified the header) and use `b` (the body pre-parsed on line ~572).
+    // The coach_* public actions live earlier in the file, above the admin gate.
+
+    if (action === "admin_coaches") {
+      const { data } = await db.from("flm_coaches").select("id,name,email,phone,team_id,active,email_confirmed_at,invite_expires_at,created_at,updated_at").order("name");
+      return json({ ok: true, coaches: data || [] });
+    }
+    if (action === "admin_coach") {
+      const op = String(b.op ?? "upsert");
+      const league = await leagueName();
+      if (op === "delete") {
+        const id = String(b.id ?? "");
+        if (!id) return json({ ok: false, error: "id required" }, 400);
+        // flm_requests holds a RESTRICT FK to flm_coaches on purpose (audit
+        // trail must not disappear). Prefer soft-delete via active=false.
+        const { count } = await db.from("flm_requests").select("id", { count: "exact", head: true }).eq("submitted_by_coach_id", id);
+        if ((count ?? 0) > 0) return json({ ok: false, error: "this coach has requests on file — set them to inactive instead" }, 409);
+        await db.from("flm_coaches").delete().eq("id", id);
+        await log("admin_coach", `deleted coach ${id}`, "admin");
+        return json({ ok: true });
+      }
+      if (op === "resend_invite" || op === "reset_pin") {
+        const id = String(b.id ?? "");
+        if (!id) return json({ ok: false, error: "id required" }, 400);
+        const token = randomInviteToken();
+        const expires = inviteExpiry();
+        const patch: Record<string, unknown> = { invite_token: token, invite_expires_at: expires };
+        if (op === "reset_pin") { patch.pin = null; patch.email_confirmed_at = null; }
+        const { data: updated, error } = await db.from("flm_coaches").update(patch).eq("id", id).select("*").single();
+        if (error || !updated) return json({ ok: false, error: error?.message ?? "update failed" }, 500);
+        const send = await resendSend({
+          from: "Field Command <noreply@cueops.io>",
+          to: [updated.email],
+          subject: op === "reset_pin" ? `Set a new PIN — ${league} Coaches Hub` : `Set your PIN — ${league} Coaches Hub`,
+          html: coachInviteEmailHtml(league, updated.name, inviteUrlFor(token)),
+        });
+        await log("admin_coach", `${op === "reset_pin" ? "reset PIN for" : "resent invite to"} ${updated.name} (${updated.email})`, "admin");
+        return json({ ok: true, coach: updated, email: send });
+      }
+      // upsert (create or update)
+      const id = b.id ? String(b.id) : null;
+      const name = String(b.name ?? "").trim().slice(0, 120);
+      const email = String(b.email ?? "").trim();
+      const phone = b.phone ? String(b.phone).trim().slice(0, 40) : null;
+      const team_id = b.team_id ? String(b.team_id) : null;
+      const active = b.active === undefined ? true : Boolean(b.active);
+      if (!name) return json({ ok: false, error: "name required" }, 400);
+      if (!isEmail(email)) return json({ ok: false, error: "valid email required" }, 400);
+      if (id) {
+        const patch: Record<string, unknown> = { name, email, phone, team_id, active };
+        const { data: updated, error } = await db.from("flm_coaches").update(patch).eq("id", id).select("*").single();
+        if (error || !updated) return json({ ok: false, error: error?.message ?? "update failed" }, 500);
+        await log("admin_coach", `updated coach ${updated.name}`, "admin");
+        return json({ ok: true, coach: updated });
+      }
+      // create + auto-send invite
+      const token = randomInviteToken();
+      const expires = inviteExpiry();
+      const { data: created, error } = await db.from("flm_coaches").insert({
+        name, email, phone, team_id, active, invite_token: token, invite_expires_at: expires,
+      }).select("*").single();
+      if (error || !created) {
+        if (String(error?.message ?? "").toLowerCase().includes("flm_coaches_email_lower_uk")) {
+          return json({ ok: false, error: "a coach with that email already exists" }, 409);
+        }
+        return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
+      }
+      const send = await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        to: [created.email],
+        subject: `Set your PIN — ${league} Coaches Hub`,
+        html: coachInviteEmailHtml(league, created.name, inviteUrlFor(token)),
+      });
+      await log("admin_coach", `added coach ${created.name} (${created.email})`, "admin");
+      return json({ ok: true, coach: created, email: send });
+    }
+
+    // -------- Admin: Board Contacts --------
+    if (action === "admin_contacts") {
+      const { data } = await db.from("flm_contacts").select("*").order("sort_order").order("name");
+      return json({ ok: true, contacts: data || [] });
+    }
+    if (action === "admin_contact") {
+      const op = String(b.op ?? "upsert");
+      if (op === "delete") {
+        const id = String(b.id ?? "");
+        if (!id) return json({ ok: false, error: "id required" }, 400);
+        await db.from("flm_contacts").delete().eq("id", id);
+        await log("admin_contact", `deleted contact ${id}`, "admin");
+        return json({ ok: true });
+      }
+      const id = b.id ? String(b.id) : null;
+      const name = String(b.name ?? "").trim().slice(0, 120);
+      const role = String(b.role ?? "").trim().slice(0, 120);
+      const email = b.email ? String(b.email).trim() : null;
+      const phone = b.phone ? String(b.phone).trim().slice(0, 40) : null;
+      const notes = b.notes ? String(b.notes).trim().slice(0, 400) : null;
+      const sort_order = Number(b.sort_order ?? 100) || 100;
+      const active = b.active === undefined ? true : Boolean(b.active);
+      if (!name || !role) return json({ ok: false, error: "name and role required" }, 400);
+      if (email && !isEmail(email)) return json({ ok: false, error: "email is not valid" }, 400);
+      const rec = { name, role, email, phone, notes, sort_order, active };
+      const { data, error } = id
+        ? await db.from("flm_contacts").update(rec).eq("id", id).select("*").single()
+        : await db.from("flm_contacts").insert(rec).select("*").single();
+      if (error || !data) return json({ ok: false, error: error?.message ?? "save failed" }, 500);
+      await log("admin_contact", `${id ? "updated" : "added"} contact ${data.name}`, "admin");
+      return json({ ok: true, contact: data });
+    }
+
+    // -------- Admin: Requests inbox --------
+    if (action === "admin_requests") {
+      const status = b.status ? String(b.status) : null;
+      let q = db.from("flm_requests").select("*").order("created_at", { ascending: false }).limit(300);
+      if (status && REQUEST_STATUSES.includes(status)) q = q.eq("status", status);
+      const { data } = await q;
+      return json({ ok: true, requests: data || [] });
+    }
+    if (action === "admin_request") {
+      const id = String(b.id ?? "");
+      if (!id) return json({ ok: false, error: "id required" }, 400);
+      const patch: Record<string, unknown> = {};
+      if (b.status !== undefined) {
+        const s = String(b.status);
+        if (!REQUEST_STATUSES.includes(s)) return json({ ok: false, error: "bad status" }, 400);
+        patch.status = s;
+        patch.resolved_at = (s === "resolved" || s === "closed") ? new Date().toISOString() : null;
+      }
+      if (b.response !== undefined) patch.response = String(b.response ?? "").trim().slice(0, 4000) || null;
+      if (b.assigned_contact_id !== undefined) patch.assigned_contact_id = b.assigned_contact_id ? String(b.assigned_contact_id) : null;
+      if (!Object.keys(patch).length) return json({ ok: false, error: "nothing to update" }, 400);
+      const { data: updated, error } = await db.from("flm_requests").update(patch).eq("id", id).select("*").single();
+      if (error || !updated) return json({ ok: false, error: error?.message ?? "update failed" }, 500);
+      if (patch.status === "resolved" || patch.status === "closed") {
+        const { data: coach } = await db.from("flm_coaches").select("email,name").eq("id", updated.submitted_by_coach_id).maybeSingle();
+        if (coach?.email && String(coach.email).includes("@")) {
+          const league = await leagueName();
+          await resendSend({
+            from: "Field Command <noreply@cueops.io>",
+            to: [coach.email],
+            subject: `[${league}] ${updated.status === "resolved" ? "Resolved" : "Closed"}: ${updated.subject}`,
+            html: coachRequestResolvedEmailHtml(league, updated),
+          }).catch(() => ({ ok: false }));
+        }
+      }
+      await log("admin_request", `request ${id} → ${JSON.stringify(patch).slice(0, 120)}`, "admin");
+      return json({ ok: true, request: updated });
     }
 
     return json({ ok: false, error: "unknown action" }, 404);

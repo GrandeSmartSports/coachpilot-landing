@@ -1076,10 +1076,13 @@ section('fields/admin.html: hub and spoke landing + routing');
 section('gateway source: Phase 5 actions + archive rules');
 {
   const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
-  const hooks = ['admin_season_clone', 'home_score', 'away_score', 'archived', 'standings_divisions', 'sg_unplaced', 'copy_slots_from', 'v12'];
+  const hooks = ['admin_season_clone', 'home_score', 'away_score', 'archived', 'standings_divisions', 'sg_unplaced', 'copy_slots_from'];
   const missing = hooks.filter((h) => !gwSrc.includes(h));
-  if (missing.length === 0) ok('gateway v12 carries scores, standings settings, unplaced persistence, and the season clone');
+  if (missing.length === 0) ok('gateway carries scores, standings settings, unplaced persistence, and the season clone');
   else fail('gateway missing: ' + missing.join(', '));
+  // Explicit version pin: bumps must land in the source-of-truth banner comment.
+  if (/gateway \(v1[3-9]\)|gateway \(v[2-9]\d\)/.test(gwSrc)) ok('gateway version banner is v13 or newer (Coaches Hub deployed)');
+  else fail('gateway version banner is not v13+ — did you forget to bump it?');
   const stateBlock = gwSrc.slice(gwSrc.indexOf('action === "state"'), gwSrc.indexOf('action === "claim"'));
   if (stateBlock.includes('!showDrafts') && stateBlock.includes('archived')) ok('public state filters archived seasons, games, and slots; admin PIN sees everything');
   else fail('public archive filtering missing from state');
@@ -1251,6 +1254,110 @@ try {
 } catch (e) {
   fail('vercel.json check threw: ' + e.message);
 }
+
+// ------- Coaches Hub v13: file hooks + live gateway sanity -------
+section('fields/coach-invite.html: set-PIN flow hooks');
+try {
+  const inv = fs.readFileSync(path.join(ROOT, 'fields', 'coach-invite.html'), 'utf8');
+  for (const [s, why] of [
+    ['coach_verify_invite', 'invite verify action wired'],
+    ['coach_set_pin', 'set-pin action wired'],
+    ['flm_coach_id', 'localStorage keys match the hub'],
+    ['flm_coach_pin', 'localStorage keys match the hub'],
+    ['params.get("token")', 'token pulled from the URL'],
+    ['This invite is not valid', 'clear error for bad tokens'],
+  ]) {
+    if (inv.includes(s)) ok(why);
+    else fail('coach-invite MISSING (' + why + '): ' + s);
+  }
+} catch (e) { fail('coach-invite.html read failed: ' + e.message); }
+
+section('fields/index.html: Coaches Hub tab + panels');
+for (const [s, why] of [
+  ['data-mtab="hub"', 'Hub tab exists in the bottom tab bar'],
+  ['id="viewHub"', 'Hub view container present'],
+  ['isCoachSignedIn', 'coach auth state helper wired'],
+  ['coach_login', 'login action wired'],
+  ['coach_state', 'hub state action wired'],
+  ['coach_submit_request', 'submit-request action wired'],
+  ['coach_change_pin', 'change-PIN action wired'],
+  ['loadHubState', 'hub loader function present'],
+  ['hubSignOut', 'sign-out flow present'],
+  ['flm_coach_id', 'coach id localStorage key'],
+  ['Kill the 11pm group text', 'submit-request copy present'],
+  ['Board contacts', 'contacts panel header present'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('index.html Hub MISSING (' + why + '): ' + s);
+}
+
+section('fields/admin.html: Coaches / Contacts / Requests panels');
+for (const [s, why] of [
+  ['view-hub', 'Hub section exists in the admin console'],
+  ['id="panelCoaches"', 'Coaches roster panel present'],
+  ['id="panelContacts"', 'Board contacts panel present'],
+  ['id="panelRequests"', 'Requests inbox panel present'],
+  ['admin_coaches', 'coaches list action wired'],
+  ['admin_coach', 'coach CRUD action wired'],
+  ['admin_contacts', 'contacts list action wired'],
+  ['admin_contact', 'contact CRUD action wired'],
+  ['admin_requests', 'requests list action wired'],
+  ['admin_request', 'request update action wired'],
+  ['HUB_COACHES', 'coaches count feeds the home tile'],
+  ['HUB_OPEN_REQS', 'open-request count feeds the home tile badge'],
+  ['emails the coach', 'admin knows Resolved/Closed emails the coach'],
+]) {
+  if (adminHtml.includes(s)) ok(why);
+  else fail('admin.html Hub MISSING (' + why + '): ' + s);
+}
+
+section('flm-gateway: Coaches Hub live sanity (no writes)');
+try {
+  // 1. coach_verify_invite with a bogus token -> 404 + clear error
+  const rv = await fetch(GATEWAY + '?action=coach_verify_invite', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: 'this-token-does-not-exist-' + Math.random().toString(36).slice(2) })
+  });
+  const jv = await rv.json();
+  if (rv.status === 404 && jv.ok === false && /not valid|reset/i.test(jv.error || '')) ok('coach_verify_invite bogus token -> 404 with clear message');
+  else fail('coach_verify_invite bogus token wrong: ' + rv.status + ' ' + JSON.stringify(jv));
+
+  // 2. coach_set_pin without a valid PIN shape -> 400 (checked before DB lookup)
+  const rs = await fetch(GATEWAY + '?action=coach_set_pin', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: 'x', new_pin: 'notdigits' })
+  });
+  const js = await rs.json();
+  if (rs.status === 400 && js.ok === false && /4 digits/i.test(js.error || '')) ok('coach_set_pin non-numeric PIN -> 400');
+  else fail('coach_set_pin bad PIN wrong: ' + rs.status + ' ' + JSON.stringify(js));
+
+  // 3. coach_login with missing fields -> 400
+  const rl = await fetch(GATEWAY + '?action=coach_login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: '', pin: '' })
+  });
+  const jl = await rl.json();
+  if (rl.status === 400 && jl.ok === false) ok('coach_login empty fields -> 400');
+  else fail('coach_login empty fields wrong: ' + rl.status + ' ' + JSON.stringify(jl));
+
+  // 4. coach_state without coach_id + coach_pin -> 401 (not signed in)
+  const rst = await fetch(GATEWAY + '?action=coach_state', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+  });
+  const jst = await rst.json();
+  if (rst.status === 401 && /not signed in/i.test(jst.error || '')) ok('coach_state without auth -> 401');
+  else fail('coach_state without auth wrong: ' + rst.status + ' ' + JSON.stringify(jst));
+
+  // 5. Admin actions without PIN header -> 401 (outer admin gate)
+  for (const action of ['admin_coaches', 'admin_contacts', 'admin_requests']) {
+    const r = await fetch(GATEWAY + '?action=' + action, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    });
+    const j = await r.json();
+    if (r.status === 401 && j.ok === false) ok(action + ' without PIN -> 401');
+    else fail(action + ' unauth wrong: ' + r.status + ' ' + JSON.stringify(j));
+  }
+} catch (e) { fail('live Coaches Hub tests threw: ' + e.message); }
 
 // ------- Report -------
 console.log('\n---');

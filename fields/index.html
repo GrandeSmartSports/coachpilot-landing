@@ -192,6 +192,65 @@
 
   .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; padding: 11px 22px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 60; }
 
+  /* ---------- COACHES HUB (v13) ---------- */
+  .hubgate { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 22px 24px; max-width: 460px; margin: 24px auto; }
+  .hubgate h3 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.04em; font-size: 22px; margin-bottom: 4px; }
+  .hubgate .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; }
+  .hubgate label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grass); margin: 12px 0 5px; }
+  .hubgate input { width: 100%; font-size: 16px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; background: var(--chalk); color: var(--ink); }
+  .hubgate input:focus { outline: none; border-color: var(--pine); background: var(--white); }
+  .hubgate input.pin { text-align: center; letter-spacing: 0.5em; font-size: 22px; font-weight: 700; }
+  .hubgate .btn { width: 100%; margin-top: 16px; font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; border: none; border-radius: 10px; padding: 13px; background: var(--pine); color: var(--chalk); cursor: pointer; }
+  .hubgate .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .hubgate .gerr { color: #a33c1b; font-size: 13.5px; margin-top: 10px; font-weight: 600; }
+  .hubgate .fine { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
+  .hubwrap { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 900px) { .hubwrap { grid-template-columns: 1fr 1fr; } .hubwrap .hubfull { grid-column: 1 / -1; } }
+  .hubpanel { background: var(--white); border: 1px solid var(--line); border-top: 4px solid var(--pine); border-radius: 12px; box-shadow: var(--shadow); padding: 15px 17px; }
+  .hubpanel.contacts { border-top-color: var(--grass); }
+  .hubpanel.submit { border-top-color: var(--clay); }
+  .hubpanel h3 { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--pine); margin-bottom: 4px; }
+  .hubpanel.contacts h3 { color: var(--grass); }
+  .hubpanel.submit h3 { color: var(--clay-dark); }
+  .hubpanel .lede { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+  .hubsigned { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; font-size: 13px; color: var(--muted); }
+  .hubsigned .who { color: var(--ink); }
+  .hubsigned .who b { color: var(--pine); font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.04em; }
+  .hubsigned .btns { display: flex; gap: 6px; }
+  .hubsigned .btns button { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; color: var(--muted); cursor: pointer; }
+  .hubsigned .btns button:hover { color: var(--pine); border-color: var(--pine); }
+  .hubcontacts { list-style: none; margin: 0; padding: 0; }
+  .hubcontacts li { padding: 10px 0; border-top: 1px solid #efede4; }
+  .hubcontacts li:first-child { border-top: none; }
+  .hubcontacts .rl { font-family: var(--disp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); }
+  .hubcontacts .nm { font-weight: 700; color: var(--ink); font-size: 15px; margin-top: 1px; }
+  .hubcontacts .cx { font-size: 13.5px; color: var(--muted); margin-top: 3px; }
+  .hubcontacts .cx a { color: var(--pine); text-decoration: underline; margin-right: 10px; }
+  .hubcontacts .nt { font-size: 12.5px; color: var(--muted); font-style: italic; margin-top: 3px; }
+  .hubform label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); margin: 10px 0 4px; }
+  .hubform select, .hubform input, .hubform textarea { width: 100%; font-size: 15px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 8px; padding: 9px 11px; background: var(--white); color: var(--ink); }
+  .hubform select:focus, .hubform input:focus, .hubform textarea:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201, 111, 47, 0.15); }
+  .hubform textarea { min-height: 90px; resize: vertical; font-family: inherit; }
+  .hubform .btn { display: block; width: 100%; margin-top: 14px; font-family: var(--disp); font-weight: 600; font-size: 15.5px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 10px; padding: 12px; background: var(--pine); color: var(--chalk); cursor: pointer; }
+  .hubform .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .hubform .err { color: #a33c1b; font-size: 13px; margin-top: 8px; font-weight: 600; }
+  .hubform .ok { color: var(--grass); font-size: 13px; margin-top: 8px; font-weight: 600; }
+  .myreq { border-top: 1px solid #efede4; padding: 11px 0; }
+  .myreq:first-child { border-top: none; padding-top: 0; }
+  .myreq .rh { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .myreq .rt { font-weight: 700; color: var(--ink); font-size: 14.5px; }
+  .myreq .rst { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 12px; padding: 3px 10px; white-space: nowrap; }
+  .myreq .rst.open { background: #fdf1dc; color: #8a5a12; }
+  .myreq .rst.in_progress { background: #ddebf3; color: #1d5a80; }
+  .myreq .rst.resolved { background: #dcefe2; color: #21622f; }
+  .myreq .rst.closed { background: #eceadf; color: var(--muted); }
+  .myreq .rcat { font-family: var(--disp); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+  .myreq .rdesc { font-size: 13.5px; color: #3c463f; margin-top: 5px; white-space: pre-line; }
+  .myreq .rresp { background: #eef4ef; border-left: 3px solid var(--grass); border-radius: 6px; padding: 8px 11px; font-size: 13.5px; margin-top: 8px; color: var(--pine); white-space: pre-line; }
+  .myreq .rresp b { color: var(--grass); font-family: var(--disp); text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
+  .hubempty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px 8px; }
+  .hubdivider { border: none; border-top: 1px solid var(--line); margin: 14px -17px; }
+
   .hidden { display: none !important; }
   footer { text-align: center; color: var(--muted); font-size: 12.5px; padding: 30px 16px 40px; }
   footer .f1 { font-family: var(--disp); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--grass); }
@@ -225,8 +284,11 @@
     body:not([data-mtab="fields"]):not([data-mtab="sched"]) .bar { display: none; }
     body[data-mtab="sched"] .views { display: none; }
     .vbtn[data-view="sched"] { display: none; }
-    body[data-mtab="myteam"] #viewGrid, body[data-mtab="myteam"] #viewDays, body[data-mtab="myteam"] #viewTeams, body[data-mtab="myteam"] #viewSched,
-    body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched { display: none !important; }
+    body[data-mtab="myteam"] #viewGrid, body[data-mtab="myteam"] #viewDays, body[data-mtab="myteam"] #viewTeams, body[data-mtab="myteam"] #viewSched, body[data-mtab="myteam"] #viewHub,
+    body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched, body[data-mtab="alerts"] #viewHub,
+    body[data-mtab="hub"] #viewGrid, body[data-mtab="hub"] #viewDays, body[data-mtab="hub"] #viewTeams, body[data-mtab="hub"] #viewSched { display: none !important; }
+    body:not([data-mtab="hub"]) #viewHub { display: none !important; }
+    body[data-mtab="hub"] #myTeam, body[data-mtab="hub"] #rulesBox, body[data-mtab="hub"] #mtPrompt, body[data-mtab="hub"] #announceBox, body[data-mtab="hub"] .bar, body[data-mtab="hub"] .legend { display: none !important; }
     body[data-mtab="myteam"] #mtPrompt:not(.hidden) { display: block !important; }
     body[data-mtab="alerts"] #alertsQuiet:not(.hidden) { display: block; }
     .mtprompt { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 16px; text-align: center; }
@@ -294,9 +356,11 @@
       <p class="hint hidden" id="schedNone" style="color:var(--muted);padding:20px 4px;">No games on this schedule yet.</p>
     </div>
     <div id="viewTeams" class="hidden"><div class="teamgrid" id="teamGrid"></div></div>
+    <div id="viewHub" class="hidden"></div>
   </div>
 
   <nav class="tabbar" id="tabBar" aria-label="Sections">
+    <button class="tb" data-mtab="hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Hub</button>
     <button class="tb" data-mtab="myteam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-6 8-6s8 2 8 6"/></svg>My Team</button>
     <button class="tb" data-mtab="sched"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</button>
     <button class="tb" data-mtab="fields"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg>Fields</button>
@@ -346,17 +410,33 @@ if (_bootTeam.charAt(0) === "{") {
   if (_bootTeam) lsSet("flm_team", _bootTeam); else lsDel("flm_team");
 }
 var _bootView = lsGet("flm_view");
-if (["grid", "days", "teams", "sched"].indexOf(_bootView) < 0) _bootView = null;
+if (["grid", "days", "teams", "sched", "hub"].indexOf(_bootView) < 0) _bootView = null;
 var _bootTab = lsGet("flm_mtab");
-if (["myteam", "sched", "fields", "alerts"].indexOf(_bootTab) < 0) _bootTab = null;
+if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootTab = null;
 var S = { data: null, season: null, view: _bootView || (window.innerWidth < 760 ? "days" : "grid"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
 
+/* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
+   team-picker above. Storage is best-effort — Safari private mode may throw. */
+var CRED_C = {
+  id: lsGet("flm_coach_id") || "",
+  pin: lsGet("flm_coach_pin") || "",
+  email: lsGet("flm_coach_email") || "",
+  name: lsGet("flm_coach_name") || ""
+};
+function isCoachSignedIn() { return !!(CRED_C.id && CRED_C.pin); }
+var HUB = { loaded: false, loading: false, error: "", data: null };
+
 /* ---------- phone app shell: bottom tab bar under 768px ---------- */
 function isPhone() { return window.matchMedia("(max-width: 767px)").matches; }
-function curTab() { return S.mtab || ((S.data && teamById(S.myTeam)) ? "myteam" : "fields"); }
+function curTab() {
+  if (S.mtab) return S.mtab;
+  if (isCoachSignedIn()) return "hub";
+  return (S.data && teamById(S.myTeam)) ? "myteam" : "fields";
+}
 function effView() {
   if (isPhone()) {
+    if (curTab() === "hub") return "hub";
     if (curTab() === "sched") return "sched";
     if (S.view === "sched") return "days";
   }
@@ -580,9 +660,10 @@ function bindCells(root) {
 }
 
 function renderView() {
-  ["viewGrid", "viewDays", "viewTeams", "viewSched"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
-  if (!S.data || !S.season) return;
+  ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   var v = effView();
+  if (v === "hub") { renderHub(); return; }  /* hub gate/state doesn't need S.data */
+  if (!S.data || !S.season) return;
   if (v === "grid") renderGrid();
   else if (v === "days") renderDays();
   else if (v === "sched") renderSched();
@@ -971,6 +1052,221 @@ function openSlotModal(slotId) {
   });
 }
 
+/* ---------- Coaches Hub (v13) ---------- */
+function coachApi(action, extra) {
+  var body = extra || {};
+  body.coach_id = CRED_C.id;
+  body.coach_pin = CRED_C.pin;
+  return fetch(API + "?action=" + action, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+}
+
+function loadHubState(cb) {
+  if (!isCoachSignedIn()) { if (cb) cb(false); return; }
+  HUB.loading = true;
+  coachApi("coach_state", {}).then(function (j) {
+    HUB.loading = false;
+    if (!j.ok) {
+      if (j._status === 401 || j._status === 403) hubSignOut(true);
+      HUB.error = j.error || "Could not load the hub.";
+      if (cb) cb(false);
+      renderHub();
+      return;
+    }
+    HUB.loaded = true; HUB.data = j; HUB.error = "";
+    if (cb) cb(true);
+    if (effView() === "hub") renderHub();
+  }).catch(function () {
+    HUB.loading = false;
+    HUB.error = "Could not reach the server.";
+    if (cb) cb(false);
+    renderHub();
+  });
+}
+
+function hubSignOut(quiet) {
+  CRED_C = { id: "", pin: "", email: "", name: "" };
+  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name");
+  HUB = { loaded: false, loading: false, error: "", data: null };
+  if (!quiet) toast("Signed out of the Coaches Hub.");
+  renderView();
+}
+
+function renderHub() {
+  var box = document.getElementById("viewHub");
+  box.classList.remove("hidden");
+
+  if (!isCoachSignedIn()) {
+    box.innerHTML =
+      '<div class="hubgate">' +
+      '<h3>Coaches Hub</h3>' +
+      '<p class="sub">Sign in with your league email and 4 digit PIN. New coach? Ask the league to add you and check your inbox for the invite.</p>' +
+      '<label for="hgEmail">Your email</label>' +
+      '<input id="hgEmail" type="email" placeholder="you@example.com" autocomplete="email" />' +
+      '<label for="hgPin">Your 4 digit PIN</label>' +
+      '<input id="hgPin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" autocomplete="current-password" />' +
+      '<button class="btn" id="hgGo">Sign in</button>' +
+      '<p class="gerr hidden" id="hgErr"></p>' +
+      '<p class="fine">This is separate from the league admin PIN. It is your own login for the Coaches Hub.</p>' +
+      '</div>';
+    var em = box.querySelector("#hgEmail");
+    var pn = box.querySelector("#hgPin");
+    var go = box.querySelector("#hgGo");
+    var err = box.querySelector("#hgErr");
+    if (CRED_C.email) em.value = CRED_C.email;
+    function doLogin() {
+      var email = em.value.trim();
+      var pin = pn.value.trim();
+      err.classList.add("hidden");
+      if (!email || !/^\d{4}$/.test(pin)) { err.textContent = "Enter your email and 4 digit PIN."; err.classList.remove("hidden"); return; }
+      go.disabled = true; go.textContent = "Signing in…";
+      fetch(API + "?action=coach_login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, pin: pin }) })
+        .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); })
+        .then(function (j) {
+          if (!j.ok) { err.textContent = j.error || "That did not work."; err.classList.remove("hidden"); go.disabled = false; go.textContent = "Sign in"; return; }
+          CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
+          lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin);
+          lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
+          loadHubState(function () { renderHub(); });
+        })
+        .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); go.disabled = false; go.textContent = "Sign in"; });
+    }
+    go.addEventListener("click", doLogin);
+    pn.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
+    em.addEventListener("keydown", function (e) { if (e.key === "Enter") pn.focus(); });
+    setTimeout(function () { (em.value ? pn : em).focus(); }, 20);
+    return;
+  }
+
+  if (HUB.loading && !HUB.loaded) { box.innerHTML = '<div class="loading">Loading your hub&hellip;</div>'; return; }
+  if (!HUB.loaded) { loadHubState(); box.innerHTML = '<div class="loading">Loading your hub&hellip;</div>'; return; }
+
+  var h = HUB.data;
+  var annList = (h.announcements || []).filter(function (a) { return a.active !== false; });
+  var annHtml = annList.length ? annList.map(function (a) {
+    return '<div class="announce ' + (a.severity === "warning" || a.severity === "urgent" ? esc(a.severity) : "") + '"><h4>' + esc(a.title) + "</h4>" + (a.body ? "<p>" + esc(a.body) + "</p>" : "") + "</div>";
+  }).join("") : '<div class="hubempty">No league announcements right now.</div>';
+
+  var contacts = h.contacts || [];
+  var contactHtml = contacts.length ? '<ul class="hubcontacts">' + contacts.map(function (c) {
+    var cx = [];
+    if (c.email) cx.push('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>");
+    if (c.phone) cx.push('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>");
+    return '<li>' +
+      '<div class="rl">' + esc(c.role) + '</div>' +
+      '<div class="nm">' + esc(c.name) + '</div>' +
+      (cx.length ? '<div class="cx">' + cx.join('') + '</div>' : '') +
+      (c.notes ? '<div class="nt">' + esc(c.notes) + '</div>' : '') +
+      '</li>';
+  }).join('') + '</ul>' : '<div class="hubempty">No contacts posted yet. Ask the league admin to add board members.</div>';
+
+  var contactOptions = '<option value="">Route to the league (default)</option>' + contacts.map(function (c) {
+    return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.role) + ')</option>';
+  }).join('');
+  var formHtml = '<div class="hubform">' +
+    '<label for="hqCat">Category</label>' +
+    '<select id="hqCat">' +
+    '<option value="gear">Gear / Equipment</option>' +
+    '<option value="field_issue">Field Issue</option>' +
+    '<option value="practice_concern">Practice Concern</option>' +
+    '<option value="volunteer_needed">Volunteer Needed</option>' +
+    '<option value="general">General</option>' +
+    '</select>' +
+    '<label for="hqSubj">Subject</label>' +
+    '<input id="hqSubj" type="text" placeholder="Short summary" maxlength="160" />' +
+    '<label for="hqDetail">Details</label>' +
+    '<textarea id="hqDetail" placeholder="What is going on? Include enough detail so the board can help without a follow-up." maxlength="4000"></textarea>' +
+    '<label for="hqContact">Send to</label>' +
+    '<select id="hqContact">' + contactOptions + '</select>' +
+    '<button class="btn" id="hqGo">Submit request</button>' +
+    '<p class="err hidden" id="hqErr"></p>' +
+    '<p class="ok hidden" id="hqOk"></p>' +
+    '</div>';
+
+  var reqs = h.my_requests || [];
+  var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General" };
+  var reqHtml = reqs.length ? reqs.map(function (r) {
+    var when = new Date(r.created_at).toLocaleDateString([], { month: "short", day: "numeric" });
+    return '<div class="myreq">' +
+      '<div class="rh"><span class="rt">' + esc(r.subject) + '</span><span class="rst ' + esc(r.status) + '">' + esc(String(r.status).replace("_", " ")) + '</span></div>' +
+      '<div class="rcat">' + esc(CAT_LABELS[r.category] || r.category) + ' &middot; ' + esc(when) + '</div>' +
+      '<div class="rdesc">' + esc(r.details) + '</div>' +
+      (r.response ? '<div class="rresp"><b>League response</b>' + esc(r.response) + '</div>' : '') +
+      '</div>';
+  }).join('') : '<div class="hubempty">You have not submitted any requests yet.</div>';
+
+  box.innerHTML =
+    '<div class="hubsigned">' +
+    '<div class="who">Signed in as <b>' + esc(CRED_C.name) + '</b> &middot; ' + esc(CRED_C.email) + '</div>' +
+    '<div class="btns"><button id="hbChangePin">Change PIN</button><button id="hbSignOut">Sign out</button></div>' +
+    '</div>' +
+    '<div class="hubwrap">' +
+    '<div class="hubpanel hubfull"><h3>League announcements</h3>' + annHtml + '</div>' +
+    '<div class="hubpanel contacts"><h3>Board contacts</h3><div class="lede">Reach out directly, or use Submit a request so the board can track it.</div>' + contactHtml + '</div>' +
+    '<div class="hubpanel submit"><h3>Submit a request</h3><div class="lede">Kill the 11pm group text. Everything you file here is logged and routed to the right board member.</div>' + formHtml + '</div>' +
+    '<div class="hubpanel hubfull"><h3>My requests</h3>' + reqHtml + '</div>' +
+    '</div>';
+
+  box.querySelector("#hbSignOut").addEventListener("click", function () { hubSignOut(false); });
+  box.querySelector("#hbChangePin").addEventListener("click", openChangePin);
+  box.querySelector("#hqGo").addEventListener("click", submitRequest);
+}
+
+function submitRequest() {
+  var box = document.getElementById("viewHub");
+  var cat = box.querySelector("#hqCat").value;
+  var subj = box.querySelector("#hqSubj").value.trim();
+  var det = box.querySelector("#hqDetail").value.trim();
+  var contactId = box.querySelector("#hqContact").value || null;
+  var err = box.querySelector("#hqErr");
+  var ok = box.querySelector("#hqOk");
+  err.classList.add("hidden"); ok.classList.add("hidden");
+  if (!subj) { err.textContent = "Add a short subject."; err.classList.remove("hidden"); return; }
+  if (!det) { err.textContent = "Add some details so the board can help."; err.classList.remove("hidden"); return; }
+  var btn = box.querySelector("#hqGo"); btn.disabled = true; btn.textContent = "Submitting…";
+  coachApi("coach_submit_request", { category: cat, subject: subj, details: det, assigned_contact_id: contactId })
+    .then(function (j) {
+      if (!j.ok) {
+        btn.disabled = false; btn.textContent = "Submit request";
+        err.textContent = j.error || "Could not submit.";
+        err.classList.remove("hidden"); return;
+      }
+      HUB.loaded = false;
+      loadHubState(function () { renderHub(); toast("Request submitted. The board has been emailed."); });
+    })
+    .catch(function () { btn.disabled = false; btn.textContent = "Submit request"; err.textContent = "Could not reach the server."; err.classList.remove("hidden"); });
+}
+
+function openChangePin() {
+  var v = modal(
+    '<h3>Change your PIN</h3>' +
+    '<div class="ctx">Pick a new 4 digit PIN. You will use it with your email to sign in.</div>' +
+    '<input id="cpPin" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" style="width:100%;text-align:center;letter-spacing:0.4em;font-size:24px;font-weight:700;font-family:inherit;border:1.5px solid var(--line);border-radius:10px;padding:12px;" />' +
+    '<p class="merr hidden" id="cpErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="cpX">Cancel</button><button class="mb go" id="cpGo">Save new PIN</button></div>'
+  );
+  var inp = v.querySelector("#cpPin");
+  setTimeout(function () { inp.focus(); }, 20);
+  v.querySelector("#cpX").addEventListener("click", function () { v.remove(); });
+  function save() {
+    var np = inp.value.trim();
+    var err = v.querySelector("#cpErr");
+    err.classList.add("hidden");
+    if (!/^\d{4}$/.test(np)) { err.textContent = "PIN must be exactly 4 digits."; err.classList.remove("hidden"); return; }
+    v.querySelector("#cpGo").disabled = true;
+    coachApi("coach_change_pin", { new_pin: np }).then(function (j) {
+      if (!j.ok) { err.textContent = j.error || "Could not change your PIN."; err.classList.remove("hidden"); v.querySelector("#cpGo").disabled = false; return; }
+      CRED_C.pin = np; lsSet("flm_coach_pin", np);
+      v.remove(); toast("PIN changed. This device remembers the new one.");
+    }).catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); v.querySelector("#cpGo").disabled = false; });
+  }
+  v.querySelector("#cpGo").addEventListener("click", save);
+  inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+}
+
 document.getElementById("whoBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
 document.getElementById("mtPickBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
 document.getElementById("urgentBanner").addEventListener("click", function () { goTab("alerts"); });
@@ -985,6 +1281,9 @@ document.querySelectorAll("#tabBar .tb").forEach(function (b) {
 })();
 applyLayout();
 load();
+/* If a coach is already signed in, kick off their hub payload so the tab
+   loads instantly instead of showing a spinner. */
+if (isCoachSignedIn()) loadHubState();
 
 /* ---------- usage beacon (fire-and-forget, never blocks the page) ---------- */
 (function () {

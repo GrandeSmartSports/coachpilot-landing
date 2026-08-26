@@ -398,6 +398,42 @@
       </div>
     </section>
 
+    <!-- COACHES HUB (v13) -->
+    <section class="view hidden" id="view-hub">
+      <div class="panels">
+        <div class="panel span2" id="panelCoaches">
+          <div class="bar"><h2>Coaches (Coaches Hub)</h2><button class="btn sm clay" id="cAdd">+ Coach</button></div>
+          <div class="body">
+            <p class="hint">Head coaches with their own email and 4-digit PIN. When you add a coach, an invite is emailed automatically; the coach clicks the link, sets their PIN, and can then sign in at the Coaches Hub. Every request they submit is tagged with their name so nothing gets lost or fudged.</p>
+            <div id="coachList"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelContacts">
+          <div class="bar"><h2>Board contacts</h2><button class="btn sm clay" id="ctAdd">+ Contact</button></div>
+          <div class="body">
+            <p class="hint">The board directory a signed-in coach can reach on their hub. Sort order groups related roles together (Presidents 10-19, Player Agents 20-29, and so on). Keeping this current means fewer 11pm phone calls.</p>
+            <div id="contactList"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelRequests">
+          <div class="bar"><h2>Requests inbox</h2><span id="reqCount" class="hint"></span></div>
+          <div class="body">
+            <p class="hint">Everything a coach files from the hub. Click a request to view it, assign it to a board member, respond, and set its status. Marking a request Resolved or Closed emails the coach with your response.</p>
+            <div class="row" style="margin-bottom:10px;">
+              <select id="reqFilter">
+                <option value="open">Open only</option>
+                <option value="">All statuses</option>
+                <option value="in_progress">In progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+            <div id="requestList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ANNOUNCEMENTS -->
     <section class="view hidden" id="view-announcements">
       <div class="panels">
@@ -597,13 +633,14 @@ function isArchivedSeason(id) { var s = seasonById(id); return !!(s && s.archive
 /* ---------- hub and spoke routing ----------
    The admin is a landing screen (#home) plus dive-in views. Every panel keeps
    its id and its render function; routing only shows and hides the sections. */
-var VIEW_TITLES = { home: "", divisions: "Divisions", fields: "Fields", games: "Game schedule", practices: "Practices", umpires: "Umpires", announcements: "Announcements", tools: "Season tools", reports: "Reports" };
+var VIEW_TITLES = { home: "", divisions: "Divisions", fields: "Fields", games: "Game schedule", practices: "Practices", umpires: "Umpires", hub: "Coaches Hub", announcements: "Announcements", tools: "Season tools", reports: "Reports" };
 var PANEL_VIEW = {
   panelDivList: "divisions", panelTeams: "divisions",
   panelFields: "fields",
   panelGames: "games", panelBoard: "games", panelStand: "games",
   panelPractice: "practices", panelComp: "practices", panelWindows: "practices",
   panelUmps: "umpires",
+  panelCoaches: "hub", panelContacts: "hub", panelRequests: "hub",
   panelAnnounce: "announcements",
   panelWizard: "tools", panelExt: "tools", panelGen: "tools", panelImport: "tools", panelNext: "tools", panelSettings: "tools",
   panelStats: "reports", panelLog: "reports"
@@ -743,6 +780,13 @@ function refresh() {
     D = d;
     renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps(); renderStandings(); renderAttention();
     renderPracticeGrid(); renderHome();
+    /* Coaches Hub — fetch coaches/contacts/requests in parallel so tile counts + panels populate together. */
+    if (typeof loadCoaches === "function") {
+      Promise.all([loadCoaches(), loadContacts(), loadRequests()]).then(function () {
+        renderCoaches(); renderContacts(); renderRequests();
+        renderTiles(); renderHome();
+      }).catch(function () { /* one panel failing must never break the rest of the admin */ });
+    }
     var r0 = curRoute();
     if (r0.view === "divisions") renderDivisionsView(r0.arg);
     document.getElementById("setName").value = d.settings.league_name || "";
@@ -2520,6 +2564,7 @@ function renderHome() {
     tile("#games", gamesN, "Game schedule", "season board, moves, rainouts, scores") +
     tile("#practices", slotsN, "Practices", "practice grid, windows, the guideline") +
     tile("#umpires", umpsN, "Umpires", "roster, offers, who covers what", needUmp ? needUmp + " games need an ump" : "") +
+    tile("#hub", HUB_COACHES == null ? 0 : HUB_COACHES, "Coaches Hub", "coaches, board contacts, requests inbox", HUB_OPEN_REQS ? HUB_OPEN_REQS + " open " + (HUB_OPEN_REQS === 1 ? "request" : "requests") : "") +
     tile("#announcements", AN_COUNT == null ? 0 : AN_COUNT, "Announcements", "notices on the coach portal") +
     tile("#tools", seas.length, "Season tools", "active windows, wizard, generator, import") +
     tile("#reports", EV ? EV.views_7d : 0, "Reports", "visits, activity log, CSV export");
@@ -2929,6 +2974,263 @@ function renderPreview(parsed) {
     track("js_error", { message: String((e && e.message) || "").slice(0, 300), source: String((e && e.filename) || "").slice(0, 200), line: (e && e.lineno) || 0 });
   });
 })();
+
+/* ==================== Coaches Hub admin (v13) ==================== */
+var HUB_COACHES = null;   /* count of active coaches, used by the home tile */
+var HUB_OPEN_REQS = null; /* count of open+in_progress requests, tile badge */
+var COACHES_LIST = [];
+var CONTACTS_LIST = [];
+var REQUESTS_LIST = [];
+var REQ_FILTER = "open";
+var CAT_LABEL_ADMIN = { gear: "Gear / Equipment", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General" };
+
+function teamById(id) { return ((D && D.teams) || []).filter(function (t) { return t.id === id; })[0] || null; }
+function contactById(id) { return CONTACTS_LIST.filter(function (c) { return c.id === id; })[0] || null; }
+function coachById(id) { return COACHES_LIST.filter(function (c) { return c.id === id; })[0] || null; }
+function fmtDateShort(iso) {
+  if (!iso) return "";
+  try { return new Date(iso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" }); } catch (e) { return String(iso).slice(0, 10); }
+}
+function fmtDateTimeShort(iso) {
+  if (!iso) return "";
+  try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { return String(iso).slice(0, 16); }
+}
+
+/* ---------- COACHES roster ---------- */
+function loadCoaches() {
+  return fetch(API + "?action=admin_coaches", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { return r.json(); })
+    .then(function (j) { if (j.ok) { COACHES_LIST = j.coaches || []; HUB_COACHES = COACHES_LIST.filter(function (c) { return c.active; }).length; } });
+}
+function renderCoaches() {
+  var box = document.getElementById("coachList");
+  if (!box) return;
+  if (!COACHES_LIST.length) {
+    box.innerHTML = '<p class="hint" style="padding:14px 4px;color:var(--muted);">No coaches on file yet. Tap <b>+ Coach</b> to send your first invite.</p>';
+    return;
+  }
+  var rows = COACHES_LIST.slice().sort(function (a, b) {
+    if (a.active !== b.active) return a.active ? -1 : 1;
+    return String(a.name || "").localeCompare(String(b.name || ""));
+  }).map(function (c) {
+    var team = teamById(c.team_id);
+    var status;
+    if (!c.active) status = '<span class="badge" style="background:#eceadf;color:var(--muted);">Inactive</span>';
+    else if (c.email_confirmed_at) status = '<span class="badge" style="background:#dcefe2;color:#21622f;">Active &middot; PIN set</span>';
+    else if (c.invite_expires_at && new Date(c.invite_expires_at).getTime() > Date.now()) status = '<span class="badge" style="background:#fdf1dc;color:#8a5a12;">Invite pending &middot; expires ' + esc(fmtDateShort(c.invite_expires_at)) + "</span>";
+    else status = '<span class="badge" style="background:#fbe4dc;color:#a33c1b;">Invite expired</span>';
+    return '<div class="row" style="align-items:flex-start;border-top:1px solid var(--line);padding:9px 4px;gap:10px;flex-wrap:wrap;">' +
+      '<div style="flex:1 1 240px;min-width:200px;">' +
+        '<div style="font-weight:700;">' + esc(c.name) + '</div>' +
+        '<div class="hint" style="font-size:12.5px;">' + esc(c.email) + (c.phone ? ' &middot; ' + esc(c.phone) : '') + (team ? ' &middot; ' + esc(team.name) : '') + '</div>' +
+        '<div style="margin-top:4px;">' + status + '</div>' +
+      '</div>' +
+      '<div class="row" style="gap:5px;flex-wrap:wrap;">' +
+        '<button class="btn sm ghost" data-cedit="' + esc(c.id) + '">Edit</button>' +
+        '<button class="btn sm ghost" data-cinv="' + esc(c.id) + '">' + (c.email_confirmed_at ? 'Resend invite' : 'Re-send invite') + '</button>' +
+        (c.email_confirmed_at ? '<button class="btn sm ghost" data-crst="' + esc(c.id) + '">Reset PIN</button>' : '') +
+        '<button class="btn sm danger" data-cdel="' + esc(c.id) + '">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  box.innerHTML = rows;
+  box.querySelectorAll("[data-cedit]").forEach(function (b) { b.addEventListener("click", function () { openCoachModal(coachById(b.getAttribute("data-cedit"))); }); });
+  box.querySelectorAll("[data-cinv]").forEach(function (b) { b.addEventListener("click", function () { resendCoachInvite(b.getAttribute("data-cinv"), false); }); });
+  box.querySelectorAll("[data-crst]").forEach(function (b) { b.addEventListener("click", function () {
+    if (!confirm("Reset this coach's PIN? They will need to click the new invite link and set a new PIN before they can sign in.")) return;
+    resendCoachInvite(b.getAttribute("data-crst"), true);
+  }); });
+  box.querySelectorAll("[data-cdel]").forEach(function (b) { b.addEventListener("click", function () {
+    var c = coachById(b.getAttribute("data-cdel"));
+    if (!c) return;
+    if (!confirm("Delete " + c.name + "? If they have submitted any requests, delete will be blocked (mark them Inactive instead).")) return;
+    admin("admin_coach", { op: "delete", id: c.id }).then(function () { loadCoaches().then(renderCoaches); }).catch(function (e) { alert(e.message); });
+  }); });
+}
+function openCoachModal(coach) {
+  var teamOpts = [{ value: "", label: "— No team assigned —" }].concat(((D && D.teams) || []).filter(function (t) { return t.is_active; }).map(function (t) {
+    return { value: t.id, label: t.name + (t.division ? " (" + t.division + ")" : "") };
+  }));
+  var isEdit = !!(coach && coach.id);
+  formModal({
+    title: isEdit ? "Edit coach" : "Add coach",
+    ctx: isEdit ? "Update name, email, phone, or team. Deactivating blocks sign-in without deleting request history." : "The coach will get an emailed invite link to set their 4-digit PIN. Link expires in 14 days; you can resend anytime.",
+    saveLabel: isEdit ? "Save changes" : "Add coach + send invite",
+    fields: [
+      { key: "name", label: "Full name", value: coach ? coach.name : "", placeholder: "e.g. Danielle Kim" },
+      { key: "email", label: "Email (must be reachable — invite goes here)", value: coach ? coach.email : "", type: "email", placeholder: "coach@example.com" },
+      { key: "phone", label: "Phone (optional)", value: coach ? (coach.phone || "") : "", placeholder: "253-555-0123" },
+      { key: "team_id", label: "Team (optional)", type: "select", options: teamOpts, value: coach ? (coach.team_id || "") : "" },
+      { key: "active", label: "Active — allow sign-in and requests", type: "checkbox", value: coach ? !!coach.active : true }
+    ],
+    onSave: function (vals) {
+      var body = { name: vals.name, email: vals.email, phone: vals.phone, team_id: vals.team_id || null, active: !!vals.active };
+      if (isEdit) body.id = coach.id;
+      return admin("admin_coach", body).then(function () { loadCoaches().then(renderCoaches); });
+    }
+  });
+}
+function resendCoachInvite(id, isReset) {
+  admin("admin_coach", { op: isReset ? "reset_pin" : "resend_invite", id: id })
+    .then(function (j) {
+      loadCoaches().then(renderCoaches);
+      var em = (j && j.email) || {};
+      if (em.ok === false) alert("The invite could not be emailed: " + (em.error || "unknown") + "\nThe coach's row was updated with a fresh link; you can copy their invite URL from the DB or ask them to check spam.");
+      else alert((isReset ? "PIN reset. " : "Invite resent. ") + "The coach will get a fresh link at their email.");
+    })
+    .catch(function (e) { alert(e.message); });
+}
+
+/* ---------- CONTACTS (board directory) ---------- */
+function loadContacts() {
+  return fetch(API + "?action=admin_contacts", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { return r.json(); })
+    .then(function (j) { if (j.ok) CONTACTS_LIST = j.contacts || []; });
+}
+function renderContacts() {
+  var box = document.getElementById("contactList");
+  if (!box) return;
+  if (!CONTACTS_LIST.length) {
+    box.innerHTML = '<p class="hint" style="padding:14px 4px;color:var(--muted);">No board contacts posted yet. Tap <b>+ Contact</b> to add the first one — Presidents, Player Agents, Equipment Lead, Safety, etc.</p>';
+    return;
+  }
+  var rows = CONTACTS_LIST.slice().sort(function (a, b) {
+    if (a.active !== b.active) return a.active ? -1 : 1;
+    if ((a.sort_order || 100) !== (b.sort_order || 100)) return (a.sort_order || 100) - (b.sort_order || 100);
+    return String(a.name || "").localeCompare(String(b.name || ""));
+  }).map(function (c) {
+    var cx = [];
+    if (c.email) cx.push(esc(c.email));
+    if (c.phone) cx.push(esc(c.phone));
+    return '<div class="row" style="align-items:flex-start;border-top:1px solid var(--line);padding:9px 4px;gap:10px;flex-wrap:wrap;">' +
+      '<div style="flex:1 1 240px;min-width:200px;">' +
+        '<div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--grass);">' + esc(c.role) + '</div>' +
+        '<div style="font-weight:700;margin-top:2px;">' + esc(c.name) + (c.active ? '' : ' <span class="badge" style="background:#eceadf;color:var(--muted);">Inactive</span>') + '</div>' +
+        (cx.length ? '<div class="hint" style="font-size:12.5px;margin-top:2px;">' + cx.join(' &middot; ') + '</div>' : '') +
+        (c.notes ? '<div class="hint" style="font-size:12px;font-style:italic;margin-top:2px;">' + esc(c.notes) + '</div>' : '') +
+      '</div>' +
+      '<div class="row" style="gap:5px;flex-wrap:wrap;">' +
+        '<button class="btn sm ghost" data-ctedit="' + esc(c.id) + '">Edit</button>' +
+        '<button class="btn sm danger" data-ctdel="' + esc(c.id) + '">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  box.innerHTML = rows;
+  box.querySelectorAll("[data-ctedit]").forEach(function (b) { b.addEventListener("click", function () { openContactModal(contactById(b.getAttribute("data-ctedit"))); }); });
+  box.querySelectorAll("[data-ctdel]").forEach(function (b) { b.addEventListener("click", function () {
+    var c = contactById(b.getAttribute("data-ctdel"));
+    if (!c) return;
+    if (!confirm("Delete " + c.name + "? Requests already assigned to this contact will keep pointing at it in the DB; edit them if you want to reassign.")) return;
+    admin("admin_contact", { op: "delete", id: c.id }).then(function () { loadContacts().then(renderContacts); }).catch(function (e) { alert(e.message); });
+  }); });
+}
+function openContactModal(contact) {
+  var isEdit = !!(contact && contact.id);
+  formModal({
+    title: isEdit ? "Edit board contact" : "Add board contact",
+    saveLabel: isEdit ? "Save changes" : "Add contact",
+    fields: [
+      { key: "role", label: "Role", value: contact ? contact.role : "", placeholder: "e.g. President, Player Agent (Minors), Equipment Lead" },
+      { key: "name", label: "Name", value: contact ? contact.name : "", placeholder: "e.g. Sam Rivera" },
+      { key: "email", label: "Email (optional)", value: contact ? (contact.email || "") : "", type: "email" },
+      { key: "phone", label: "Phone (optional)", value: contact ? (contact.phone || "") : "" },
+      { key: "notes", label: "Notes (optional, one line)", value: contact ? (contact.notes || "") : "", placeholder: "e.g. best after 5pm" },
+      { key: "sort_order", label: "Sort order (lower = higher on the list)", value: contact ? (contact.sort_order || 100) : 100, type: "number" },
+      { key: "active", label: "Active — show on the coach hub", type: "checkbox", value: contact ? !!contact.active : true }
+    ],
+    onSave: function (vals) {
+      var body = {
+        role: vals.role, name: vals.name, email: vals.email || null, phone: vals.phone || null,
+        notes: vals.notes || null, sort_order: Number(vals.sort_order) || 100, active: !!vals.active
+      };
+      if (isEdit) body.id = contact.id;
+      return admin("admin_contact", body).then(function () { loadContacts().then(renderContacts); });
+    }
+  });
+}
+
+/* ---------- REQUESTS inbox ---------- */
+function loadRequests() {
+  var body = REQ_FILTER ? { status: REQ_FILTER } : {};
+  return fetch(API + "?action=admin_requests", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (j.ok) REQUESTS_LIST = j.requests || [];
+      // The open badge always counts ALL open+in_progress, regardless of the visible filter
+      return fetch(API + "?action=admin_requests", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: JSON.stringify({}) })
+        .then(function (r) { return r.json(); })
+        .then(function (all) { if (all.ok) HUB_OPEN_REQS = (all.requests || []).filter(function (r) { return r.status === "open" || r.status === "in_progress"; }).length; });
+    });
+}
+function renderRequests() {
+  var box = document.getElementById("requestList");
+  var cnt = document.getElementById("reqCount");
+  var filt = document.getElementById("reqFilter");
+  if (filt && filt.value !== REQ_FILTER) filt.value = REQ_FILTER;
+  if (!box) return;
+  if (cnt) cnt.textContent = REQUESTS_LIST.length ? "Showing " + REQUESTS_LIST.length + (REQ_FILTER ? " " + REQ_FILTER.replace("_", " ") : "") + (REQUESTS_LIST.length === 1 ? " request" : " requests") : "";
+  if (!REQUESTS_LIST.length) {
+    box.innerHTML = '<p class="hint" style="padding:14px 4px;color:var(--muted);">No ' + (REQ_FILTER || "requests") + '. When a coach submits something in the hub it will show up here.</p>';
+    return;
+  }
+  var rows = REQUESTS_LIST.map(function (r) {
+    var assigned = r.assigned_contact_id ? contactById(r.assigned_contact_id) : null;
+    var stColor = { open: "#fdf1dc;color:#8a5a12", in_progress: "#ddebf3;color:#1d5a80", resolved: "#dcefe2;color:#21622f", closed: "#eceadf;color:var(--muted)" }[r.status] || "#eceadf;color:var(--muted)";
+    return '<div class="row" style="align-items:flex-start;border-top:1px solid var(--line);padding:11px 4px;gap:10px;flex-wrap:wrap;cursor:pointer;" data-req="' + esc(r.id) + '">' +
+      '<div style="flex:1 1 300px;min-width:220px;">' +
+        '<div class="row" style="align-items:baseline;gap:8px;">' +
+          '<div style="font-weight:700;">' + esc(r.subject) + '</div>' +
+          '<span class="badge" style="background:' + stColor + ';">' + esc(String(r.status).replace("_", " ")) + '</span>' +
+        '</div>' +
+        '<div class="hint" style="font-size:12.5px;margin-top:2px;">' + esc(CAT_LABEL_ADMIN[r.category] || r.category) + ' &middot; ' + esc(r.submitted_by_coach_name || "?") + ' &middot; ' + esc(fmtDateTimeShort(r.created_at)) + (assigned ? ' &middot; assigned to ' + esc(assigned.name) : '') + '</div>' +
+        '<div style="font-size:13.5px;color:#3c463f;margin-top:5px;white-space:pre-line;">' + esc(String(r.details || "").slice(0, 260)) + (String(r.details || "").length > 260 ? "…" : "") + '</div>' +
+      '</div>' +
+      '<div style="align-self:center;color:var(--muted);font-size:20px;">›</div>' +
+    '</div>';
+  }).join('');
+  box.innerHTML = rows;
+  box.querySelectorAll("[data-req]").forEach(function (row) { row.addEventListener("click", function () { openRequestModal(row.getAttribute("data-req")); }); });
+}
+function openRequestModal(id) {
+  var r = REQUESTS_LIST.filter(function (x) { return x.id === id; })[0];
+  if (!r) return;
+  var contactOpts = [{ value: "", label: "— Not assigned —" }].concat(CONTACTS_LIST.filter(function (c) { return c.active; }).map(function (c) {
+    return { value: c.id, label: c.name + " (" + c.role + ")" };
+  }));
+  var statusOpts = [
+    { value: "open", label: "Open" },
+    { value: "in_progress", label: "In progress" },
+    { value: "resolved", label: "Resolved (emails the coach)" },
+    { value: "closed", label: "Closed (emails the coach)" }
+  ];
+  formModal({
+    title: r.subject,
+    ctx: '<b>' + esc(CAT_LABEL_ADMIN[r.category] || r.category) + '</b> &middot; ' + esc(r.submitted_by_coach_name || "?") + ' &middot; ' + esc(fmtDateTimeShort(r.created_at)) +
+      '<div style="background:#fbfaf5;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:10px;white-space:pre-line;font-size:13.5px;color:#3c463f;">' + esc(r.details || "") + '</div>',
+    saveLabel: "Save changes",
+    fields: [
+      { key: "assigned_contact_id", label: "Assign to board member", type: "select", options: contactOpts, value: r.assigned_contact_id || "" },
+      { key: "status", label: "Status", type: "select", options: statusOpts, value: r.status || "open" },
+      { key: "response", label: "Response to the coach (shown in their hub; emailed on Resolved/Closed)", value: r.response || "", placeholder: "e.g. Chalk is in the Daffodil shed, key is on the hook by the door." }
+    ],
+    onSave: function (vals) {
+      var body = { id: r.id, status: vals.status, assigned_contact_id: vals.assigned_contact_id || null, response: vals.response };
+      return admin("admin_request", body).then(function () { loadRequests().then(renderRequests); renderTiles && renderTiles(); });
+    }
+  });
+}
+
+/* wire up + button handlers */
+(function () {
+  var cAdd = document.getElementById("cAdd");
+  if (cAdd) cAdd.addEventListener("click", function () { openCoachModal(null); });
+  var ctAdd = document.getElementById("ctAdd");
+  if (ctAdd) ctAdd.addEventListener("click", function () { openContactModal(null); });
+  var filt = document.getElementById("reqFilter");
+  if (filt) filt.addEventListener("change", function () { REQ_FILTER = filt.value; loadRequests().then(renderRequests); });
+})();
+
+
 </script>
 </body>
 </html>
