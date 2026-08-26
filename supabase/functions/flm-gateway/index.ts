@@ -1,4 +1,4 @@
-// Field Command gateway (v13). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v14). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -7,6 +7,11 @@
 // → coach clicks emailed link → sets PIN → email_confirmed_at is stamped as
 // proof they own the inbox. Every coach action carries coach_id + coach_pin
 // and is logged to flm_activity so nothing is anonymous.
+// v14 (2026-08-26): Coach-to-coach messaging — flm_messages. Bodies are
+// private in normal operation; admin sees METADATA ONLY by default. A dispute
+// pull (admin_message_body) reveals one body AND logs the pull to flm_activity
+// so the audit works both ways. Every coach outbound email still uses Resend
+// (planned Q3 cutover to a coachpilot.org sender; see reference-coachpilot-resend).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -265,6 +270,27 @@ function coachRequestEmailHtml(leagueName: string, r: { category: string; subjec
     <p style="margin:0 0 14px;font-size:13px;color:#6d7a72;">from ${escHtml(r.submitted_by_coach_name)} &middot; <a href="mailto:${escHtml(coachEmail)}" style="color:#2d6a4f;">${escHtml(coachEmail)}</a></p>
     <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${body}</p>
     <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Manage requests in the Coaches inbox at <a href="https://coachpilot.org/fields/admin.html" style="color:#2d6a4f;">coachpilot.org/fields/admin.html</a>.</p>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
+</div>
+</body></html>`;
+}
+
+function coachMessageEmailHtml(leagueName: string, fromName: string, fromEmail: string, subject: string, body: string): string {
+  const bodyHtml = escHtml(body).replace(/\n/g, "<br />");
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;">
+<div style="max-width:560px;margin:0 auto;padding:18px 12px;">
+  <div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;">
+    <div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div>
+    <div style="color:#b7cfc2;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${escHtml(leagueName)} Coaches Hub</div>
+  </div>
+  <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
+  <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
+    <div style="display:inline-block;background:#2d6a4f;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;border-radius:12px;padding:3px 12px;margin-bottom:12px;">MESSAGE FROM COACH ${escHtml(fromName.toUpperCase())}</div>
+    <h1 style="margin:0 0 4px;font-size:20px;color:#1c2420;">${escHtml(subject)}</h1>
+    <p style="margin:0 0 14px;font-size:13px;color:#6d7a72;">Reply to this email to reach <a href="mailto:${escHtml(fromEmail)}" style="color:#2d6a4f;">${escHtml(fromName)}</a> directly.</p>
+    <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${bodyHtml}</p>
+    <p style="margin:18px 0 0;font-size:12.5px;color:#6d7a72;">This message is stored securely in the league's Coaches Hub. The league can access the record if there is a dispute; that access is logged.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
 </div>
@@ -580,11 +606,17 @@ Deno.serve(async (req: Request) => {
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
       if (!coach) return json({ ok: false, error: "not signed in" }, 401);
-      const [settings, announcements, contacts, myRequests] = await Promise.all([
+      const [settings, announcements, contacts, myRequests, myMessages, picker] = await Promise.all([
         db.from("flm_settings").select("key,value").in("key", ["league_name"]),
         db.from("flm_announcements").select("*").order("created_at", { ascending: false }).limit(50),
         db.from("flm_contacts").select("id,name,role,email,phone,notes,sort_order").eq("active", true).order("sort_order").order("name"),
         db.from("flm_requests").select("id,category,subject,details,status,response,created_at,resolved_at,assigned_contact_id").eq("submitted_by_coach_id", coach.id).order("created_at", { ascending: false }).limit(50),
+        // Full content of my own conversations (sent + received). Bodies here are OK: this is
+        // the coach reading their own correspondence.
+        db.from("flm_messages").select("id,from_coach_id,to_coach_id,from_name,to_name,subject,body,read_at,created_at").or("from_coach_id.eq." + coach.id + ",to_coach_id.eq." + coach.id).order("created_at", { ascending: false }).limit(100),
+        // Picker list for the "reach out to another coach" modal — id + name + team_id only,
+        // never emails or phones (those stay server-side).
+        db.from("flm_coaches").select("id,name,team_id").eq("active", true).neq("id", coach.id).order("name"),
       ]);
       const settingsMap: Record<string, string> = {};
       (settings.data || []).forEach((r: { key: string; value: string }) => { settingsMap[r.key] = r.value; });
@@ -595,6 +627,8 @@ Deno.serve(async (req: Request) => {
         announcements: announcements.data || [],
         contacts: contacts.data || [],
         my_requests: myRequests.data || [],
+        messages: myMessages.data || [],
+        coach_picker: picker.data || [],
       });
     }
 
@@ -638,6 +672,61 @@ Deno.serve(async (req: Request) => {
         html,
       }).catch(() => ({ ok: false }));
       return json({ ok: true, request: created });
+    }
+
+    // Coach-to-coach message. Recipient email is looked up server-side — the
+    // client only knows recipient IDs, never emails. Best-effort Resend send;
+    // if it fails, the row still exists so the league has the record.
+    if (action === "coach_send_message" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const to_coach_id = String(b.to_coach_id ?? "").trim();
+      const subject = String(b.subject ?? "").trim().slice(0, 160);
+      const body = String(b.body ?? "").trim().slice(0, 4000);
+      if (!to_coach_id) return json({ ok: false, error: "pick a coach to message" }, 400);
+      if (to_coach_id === coach.id) return json({ ok: false, error: "you can not message yourself" }, 400);
+      if (!subject) return json({ ok: false, error: "add a subject" }, 400);
+      if (!body) return json({ ok: false, error: "add a message" }, 400);
+      const { data: to } = await db.from("flm_coaches").select("id,name,email,active").eq("id", to_coach_id).maybeSingle();
+      if (!to || !to.active) return json({ ok: false, error: "that coach is no longer active" }, 404);
+      const insert = {
+        from_coach_id: coach.id, to_coach_id: to.id,
+        from_name: coach.name, to_name: to.name,
+        subject, body,
+      };
+      const { data: created, error } = await db.from("flm_messages").insert(insert).select("*").single();
+      if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
+      // Metadata-only activity line — no body, keeps the audit log privacy-safe.
+      await log("coach_msg", `${coach.name} → ${to.name}: ${subject}`, "coach");
+      const league = await leagueName();
+      const html = coachMessageEmailHtml(league, coach.name, coach.email, subject, body);
+      const send = await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        reply_to: coach.email,
+        to: [to.email],
+        subject: `[${league}] From Coach ${coach.name}: ${subject}`,
+        html,
+      }).catch(() => ({ ok: false } as { ok: boolean; id?: string; error?: string }));
+      if (send.ok && send.id) {
+        await db.from("flm_messages").update({ resend_id: send.id }).eq("id", created.id);
+      }
+      return json({ ok: true, message: { id: created.id, subject: created.subject, to_name: to.name } });
+    }
+
+    // Recipient marks a message as read — clears the unread badge in the hub.
+    if (action === "coach_read_message" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const id = String(b.id ?? "");
+      if (!id) return json({ ok: false, error: "id required" }, 400);
+      const { data: msg } = await db.from("flm_messages").select("id,to_coach_id,read_at").eq("id", id).maybeSingle();
+      if (!msg || msg.to_coach_id !== coach.id) return json({ ok: false, error: "not found" }, 404);
+      if (!msg.read_at) {
+        await db.from("flm_messages").update({ read_at: new Date().toISOString() }).eq("id", id);
+      }
+      return json({ ok: true });
     }
 
     if (action === "coach_change_pin" && req.method === "POST") {
@@ -1442,6 +1531,28 @@ Deno.serve(async (req: Request) => {
     }
 
     // -------- Admin: Requests inbox --------
+    // -------- Admin: Coach Messages (metadata only in the list; pull one body on demand) --------
+    if (action === "admin_messages") {
+      // Metadata only — never the body. Bodies are private in normal operation;
+      // admin pulls one at a time via admin_message_body when a dispute needs
+      // the record, and that pull is logged.
+      let q = db.from("flm_messages").select("id,from_coach_id,to_coach_id,from_name,to_name,subject,read_at,created_at,resend_id").order("created_at", { ascending: false }).limit(300);
+      if (b.from_coach_id) q = q.eq("from_coach_id", String(b.from_coach_id));
+      if (b.to_coach_id) q = q.eq("to_coach_id", String(b.to_coach_id));
+      const { data } = await q;
+      return json({ ok: true, messages: data || [] });
+    }
+    if (action === "admin_message_body") {
+      const id = String(b.id ?? "");
+      if (!id) return json({ ok: false, error: "id required" }, 400);
+      const { data: msg } = await db.from("flm_messages").select("*").eq("id", id).maybeSingle();
+      if (!msg) return json({ ok: false, error: "not found" }, 404);
+      // The pull is logged BOTH ways so coaches can trust the trail: metadata says
+      // "an admin looked at this message" without exposing the body in the log itself.
+      await log("admin_msg_pull", `Admin pulled message ${id} — ${msg.from_name} → ${msg.to_name}: ${msg.subject}`, "admin");
+      return json({ ok: true, message: msg });
+    }
+
     if (action === "admin_requests") {
       const status = b.status ? String(b.status) : null;
       let q = db.from("flm_requests").select("*").order("created_at", { ascending: false }).limit(300);

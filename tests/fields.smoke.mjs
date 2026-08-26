@@ -1359,6 +1359,81 @@ try {
   }
 } catch (e) { fail('live Coaches Hub tests threw: ' + e.message); }
 
+// ------- Coaches Hub v0.2 (v14): messaging + info-first layout + tile polish -------
+section('fields/index.html: v14 Hub action bar + messaging');
+for (const [s, why] of [
+  ['id="hbSubmitReq"', 'Submit Request action button present'],
+  ['id="hbMsgCoach"', 'Reach Out to a Coach action button present'],
+  ['id="hbReserve"', 'Reserve a Practice Field action button present'],
+  ['id="hbChangePin"', 'Change my PIN action button present'],
+  ['id="hbSignOut"', 'Sign Out action button present'],
+  ['function openSubmitRequest', 'Submit-request modal function'],
+  ['function openMessageCoach', 'Coach-to-coach message modal function'],
+  ['function openReserveField', 'Reserve-field flow function'],
+  ['function showReserveBanner', 'Reserve-field helper banner function'],
+  ['coach_send_message', 'send-message action wired from client'],
+  ['coach_read_message', 'mark-read action wired for message accordion'],
+  ['coach_picker', 'coach_state carries a coach picker for the message modal'],
+  ['h.messages', 'hub reads its message inbox from coach_state'],
+  ['.hubactions', 'action bar CSS class'],
+  ['.hubaction', 'action button CSS class'],
+  ['.msg.unread', 'unread message styling'],
+  ['.reservebanner', 'reserve-field helper banner styling'],
+  ['stored so nothing gets lost in a text thread', 'inbox copy present'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('v14 Hub MISSING (' + why + '): ' + s);
+}
+
+section('fields/admin.html: v14 tile polish + messages panel');
+for (const [s, why] of [
+  ['TILE_ICONS = {', 'tile icon dictionary present'],
+  ['divisions:', 'divisions icon defined'],
+  ['reports:', 'reports icon defined'],
+  ['<div class="arrow">&rarr;</div>', 'every tile carries the arrow affordance'],
+  ['navtile.hasbadge', 'badge layout adjusts tile padding'],
+  ['id="panelMessages"', 'Coach Messages panel present'],
+  ['function renderMessages', 'messages renderer present'],
+  ['function loadMessages', 'messages loader present'],
+  ['function openMessageBody', 'pull-body modal function present'],
+  ['admin_messages', 'messages list action wired'],
+  ['admin_message_body', 'pull-body action wired'],
+  ['Bodies are private in normal operation', 'privacy copy present in Messages panel'],
+  ['audit works both ways', 'dispute-pull audit copy'],
+]) {
+  if (adminHtml.includes(s)) ok(why);
+  else fail('v14 admin MISSING (' + why + '): ' + s);
+}
+
+section('flm-gateway: v14 messaging live sanity (no writes)');
+try {
+  // coach_send_message without auth -> 401
+  const rs = await fetch(GATEWAY + '?action=coach_send_message', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+  });
+  const js = await rs.json();
+  if (rs.status === 401 && /not signed in/i.test(js.error || '')) ok('coach_send_message unauth -> 401');
+  else fail('coach_send_message unauth wrong: ' + rs.status + ' ' + JSON.stringify(js));
+
+  // coach_read_message without auth -> 401
+  const rr = await fetch(GATEWAY + '?action=coach_read_message', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+  });
+  const jr = await rr.json();
+  if (rr.status === 401) ok('coach_read_message unauth -> 401');
+  else fail('coach_read_message unauth wrong: ' + rr.status);
+
+  // Admin messaging actions without PIN -> 401
+  for (const action of ['admin_messages', 'admin_message_body']) {
+    const r = await fetch(GATEWAY + '?action=' + action, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    });
+    const j = await r.json();
+    if (r.status === 401 && j.ok === false) ok(action + ' without PIN -> 401');
+    else fail(action + ' unauth wrong: ' + r.status + ' ' + JSON.stringify(j));
+  }
+} catch (e) { fail('live v14 messaging tests threw: ' + e.message); }
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

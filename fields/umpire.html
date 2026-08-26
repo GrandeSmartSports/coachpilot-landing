@@ -54,20 +54,29 @@
   .toptabs .tt .dot { top: 5px; right: 6px; border-color: var(--white); }
   body.offers-on [data-utab="mygames"] .dot { display: block; }
 
-  .card { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--pine); border-radius: 12px; box-shadow: var(--shadow); padding: 13px 15px; margin-bottom: 10px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--pine); border-radius: 12px; box-shadow: var(--shadow); padding: 13px 15px; margin-bottom: 10px; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(14, 59, 46, 0.14); }
   .card.offered { border-left-color: var(--clay); background: #fdf6ec; }
+  .card.offered:hover { border-left-color: var(--clay-dark); }
   .card.dim { opacity: 0.62; }
+  .card.dim:hover { transform: none; box-shadow: var(--shadow); }
   .card .gwhen { font-family: var(--disp); font-weight: 600; font-size: 13.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--clay-dark); }
   .card .gmatch { font-family: var(--disp); font-weight: 700; font-size: 20px; letter-spacing: 0.02em; text-transform: uppercase; margin-top: 2px; }
   .card .gmeta { font-size: 13.5px; color: #3c463f; margin-top: 3px; }
   .rolechip { display: inline-block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 12px; padding: 2px 10px; margin-top: 7px; background: #dcefe2; color: #21622f; }
   .rolechip.wait { background: #fdf1dc; color: #8a5a12; }
   .cbtns { display: flex; gap: 8px; margin-top: 11px; flex-wrap: wrap; }
-  .cb { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 10px; padding: 10px 18px; }
+  .cb { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 10px; padding: 10px 18px; transition: background 0.12s, color 0.12s, transform 0.1s; }
+  .cb:hover:not(:disabled) { transform: translateY(-1px); }
+  .cb:disabled { opacity: 0.55; cursor: not-allowed; }
   .cb.go { background: var(--pine); color: var(--chalk); }
+  .cb.go:hover:not(:disabled) { background: var(--pine-2); }
   .cb.take { background: var(--clay); color: #fff; }
+  .cb.take:hover:not(:disabled) { background: var(--clay-dark); }
   .cb.quiet { background: var(--chalk-2); color: var(--ink); }
+  .cb.quiet:hover:not(:disabled) { background: var(--line); }
   .cb.danger { background: #fff; color: #a33c1b; border: 1px solid #eec4b5; }
+  .cb.danger:hover:not(:disabled) { background: #fbe4dc; }
   .sechead { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); border-bottom: 2px solid var(--line); padding: 12px 2px 4px; margin-bottom: 10px; }
   .quietline { text-align: center; color: var(--muted); font-size: 14.5px; padding: 30px 10px; }
 
@@ -129,7 +138,7 @@
         <svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0b2e24"/><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="#f4f1e8" stroke-width="5"/><path d="M50 38 L62 50 L50 62 L38 50 Z" fill="#c96f2f"/></svg>
         <div>
           <h1 id="leagueName">Field Command</h1>
-          <div class="sub">Umpires</div>
+          <div class="sub">Umpires &middot; v14</div>
         </div>
       </div>
       <button class="who" id="whoBtn"></button>

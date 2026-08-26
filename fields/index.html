@@ -251,6 +251,59 @@
   .hubempty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px 8px; }
   .hubdivider { border: none; border-top: 1px solid var(--line); margin: 14px -17px; }
 
+  /* v14 Hub layout: info-first vertical stack, actions live in a big-pill
+     bar at the bottom that opens modals. No forms visible until tapped. */
+  .hubwrap { display: flex; flex-direction: column; gap: 14px; }
+  .hubactions { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 4px; }
+  .hubaction {
+    flex: 1 1 220px;
+    min-height: 66px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--white); color: var(--pine); border: 2px solid var(--pine);
+    border-radius: 14px; padding: 14px 16px; cursor: pointer;
+    box-shadow: var(--shadow); transition: background 0.15s, color 0.15s, transform 0.12s;
+  }
+  .hubaction:hover { background: var(--pine); color: var(--chalk); transform: translateY(-2px); }
+  .hubaction.primary { background: var(--pine); color: var(--chalk); }
+  .hubaction.primary:hover { background: var(--pine-2); }
+  .hubaction.clay { border-color: var(--clay); color: var(--clay-dark); }
+  .hubaction.clay:hover { background: var(--clay); color: #fff; }
+  .hubaction.subtle { border-color: var(--line); color: var(--muted); box-shadow: none; flex-basis: 160px; flex-grow: 0.4; min-height: 56px; }
+  .hubaction.subtle:hover { border-color: var(--pine); color: var(--pine); background: transparent; transform: none; }
+  .hubaction svg { width: 22px; height: 22px; flex: 0 0 22px; }
+  @media (max-width: 560px) { .hubaction { font-size: 13px; padding: 12px; letter-spacing: 0.04em; flex-basis: 100%; } .hubaction.subtle { flex-basis: 48%; } }
+
+  /* Messages inbox — accordion rows, unread rows get a clay dot + bold subject */
+  .msg { border-top: 1px solid #efede4; padding: 12px 4px; cursor: pointer; transition: background 0.12s; border-radius: 6px; }
+  .msg:first-child { border-top: none; }
+  .msg:hover { background: #fbfaf5; }
+  .msg.unread .msgsubj { font-weight: 800; color: var(--pine); }
+  .msg .msgunread { display: none; width: 8px; height: 8px; background: var(--clay); border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+  .msg.unread .msgunread { display: inline-block; }
+  .msghead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .msgwho { font-family: var(--disp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); }
+  .msgwho.out { color: var(--clay-dark); }
+  .msgwhen { font-size: 12px; color: var(--muted); }
+  .msgsubj { font-weight: 700; color: var(--ink); font-size: 14.5px; margin-top: 3px; }
+  .msgbody { display: none; white-space: pre-line; font-size: 13.5px; color: #3c463f; padding: 10px 12px; margin-top: 8px; background: #eef4ef; border-left: 3px solid var(--grass); border-radius: 6px; }
+  .msg.open .msgbody { display: block; }
+  .msg.out.open .msgbody { background: #fdf1dc; border-left-color: var(--clay); }
+  .badgemini { display: inline-block; background: var(--clay); color: #fff; font-family: var(--disp); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 9px; border-radius: 10px; margin-left: 8px; vertical-align: 2px; }
+
+  /* Reserve-field helper banner shown when arriving from the Hub button */
+  .reservebanner {
+    position: sticky; top: 0; z-index: 25;
+    background: var(--clay); color: #fff;
+    font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.04em;
+    padding: 12px 16px; text-align: center; border-radius: 0 0 12px 12px;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.14);
+    display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+  }
+  .reservebanner b { text-transform: uppercase; letter-spacing: 0.06em; }
+  .reservebanner button { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.5); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+  .reservebanner button:hover { background: rgba(255,255,255,0.3); }
+
   /* PRIMARY nav — Coaches Hub vs. Field Schedule. Sits above everything so
      there is always one-click return from Hub to schedule and vice-versa. */
   .primenav { display: flex; gap: 10px; margin: 4px 0 14px; }
@@ -1209,6 +1262,8 @@ function renderHub() {
   if (!HUB.loaded) { loadHubState(); box.innerHTML = '<div class="loading">Loading your hub&hellip;</div>'; return; }
 
   var h = HUB.data;
+
+  // ---------- INFO panels (top: announcements → contacts → messages → requests) ----------
   var annList = (h.announcements || []).filter(function (a) { return a.active !== false; });
   var annHtml = annList.length ? annList.map(function (a) {
     return '<div class="announce ' + (a.severity === "warning" || a.severity === "urgent" ? esc(a.severity) : "") + '"><h4>' + esc(a.title) + "</h4>" + (a.body ? "<p>" + esc(a.body) + "</p>" : "") + "</div>";
@@ -1219,40 +1274,30 @@ function renderHub() {
     var cx = [];
     if (c.email) cx.push('<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>");
     if (c.phone) cx.push('<a href="tel:' + esc(c.phone) + '">' + esc(c.phone) + "</a>");
-    return '<li>' +
-      '<div class="rl">' + esc(c.role) + '</div>' +
-      '<div class="nm">' + esc(c.name) + '</div>' +
+    return '<li><div class="rl">' + esc(c.role) + '</div><div class="nm">' + esc(c.name) + '</div>' +
       (cx.length ? '<div class="cx">' + cx.join('') + '</div>' : '') +
-      (c.notes ? '<div class="nt">' + esc(c.notes) + '</div>' : '') +
-      '</li>';
+      (c.notes ? '<div class="nt">' + esc(c.notes) + '</div>' : '') + '</li>';
   }).join('') + '</ul>' : '<div class="hubempty">No contacts posted yet. Ask the league admin to add board members.</div>';
 
-  var contactOptions = '<option value="">Route to the league (default)</option>' + contacts.map(function (c) {
-    return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.role) + ')</option>';
-  }).join('');
-  var formHtml = '<div class="hubform">' +
-    '<label for="hqCat">Category</label>' +
-    '<select id="hqCat">' +
-    '<option value="gear">Gear / Equipment</option>' +
-    '<option value="field_issue">Field Issue</option>' +
-    '<option value="practice_concern">Practice Concern</option>' +
-    '<option value="volunteer_needed">Volunteer Needed</option>' +
-    '<option value="general">General</option>' +
-    '</select>' +
-    '<label for="hqSubj">Subject</label>' +
-    '<input id="hqSubj" type="text" placeholder="Short summary" maxlength="160" />' +
-    '<label for="hqDetail">Details</label>' +
-    '<textarea id="hqDetail" placeholder="What is going on? Include enough detail so the board can help without a follow-up." maxlength="4000"></textarea>' +
-    '<label for="hqContact">Send to</label>' +
-    '<select id="hqContact">' + contactOptions + '</select>' +
-    '<button class="btn" id="hqGo">Submit request</button>' +
-    '<p class="err hidden" id="hqErr"></p>' +
-    '<p class="ok hidden" id="hqOk"></p>' +
+  // Messages inbox — sent + received in one chronological list. Unread ones
+  // (received but not read) get a clay dot and bold subject.
+  var messages = h.messages || [];
+  var unread = messages.filter(function (m) { return m.to_coach_id === CRED_C.id && !m.read_at; }).length;
+  var msgHtml = messages.map(function (m) {
+    var mine = m.from_coach_id === CRED_C.id;
+    var isUnread = !mine && !m.read_at;
+    var when = new Date(m.created_at).toLocaleDateString([], { month: "short", day: "numeric" });
+    var whoLabel = mine ? "To " + esc(m.to_name) : "From " + esc(m.from_name);
+    return '<div class="msg' + (isUnread ? " unread" : "") + (mine ? " out" : "") + '" data-msg="' + esc(m.id) + '">' +
+      '<div class="msghead"><span class="msgwho' + (mine ? " out" : "") + '">' + whoLabel + '</span><span class="msgwhen">' + esc(when) + '</span></div>' +
+      '<div class="msgsubj"><span class="msgunread"></span>' + esc(m.subject) + '</div>' +
+      '<div class="msgbody">' + esc(m.body).replace(/\n/g, "<br />") + '</div>' +
     '</div>';
+  }).join('');
 
   var reqs = h.my_requests || [];
   var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General" };
-  var reqHtml = reqs.length ? reqs.map(function (r) {
+  var reqHtml = reqs.map(function (r) {
     var when = new Date(r.created_at).toLocaleDateString([], { month: "short", day: "numeric" });
     return '<div class="myreq">' +
       '<div class="rh"><span class="rt">' + esc(r.subject) + '</span><span class="rst ' + esc(r.status) + '">' + esc(String(r.status).replace("_", " ")) + '</span></div>' +
@@ -1260,48 +1305,160 @@ function renderHub() {
       '<div class="rdesc">' + esc(r.details) + '</div>' +
       (r.response ? '<div class="rresp"><b>League response</b>' + esc(r.response) + '</div>' : '') +
       '</div>';
-  }).join('') : '<div class="hubempty">You have not submitted any requests yet.</div>';
+  }).join('');
 
+  // ---------- BUILD (info first, actions at the bottom as tap-to-open modals) ----------
   box.innerHTML =
     '<div class="hubsigned">' +
-    '<div class="who">Signed in as <b>' + esc(CRED_C.name) + '</b> &middot; ' + esc(CRED_C.email) + '</div>' +
-    '<div class="btns"><button id="hbChangePin">Change PIN</button><button id="hbSignOut">Sign out</button></div>' +
+      '<div class="who">Signed in as <b>' + esc(CRED_C.name) + '</b> &middot; ' + esc(CRED_C.email) + '</div>' +
     '</div>' +
     '<div class="hubwrap">' +
-    '<div class="hubpanel hubfull"><h3>League announcements</h3>' + annHtml + '</div>' +
-    '<div class="hubpanel contacts"><h3>Board contacts</h3><div class="lede">Reach out directly, or use Submit a request so the board can track it.</div>' + contactHtml + '</div>' +
-    '<div class="hubpanel submit"><h3>Submit a request</h3><div class="lede">Kill the 11pm group text. Everything you file here is logged and routed to the right board member.</div>' + formHtml + '</div>' +
-    '<div class="hubpanel hubfull"><h3>My requests</h3>' + reqHtml + '</div>' +
+      '<div class="hubpanel"><h3>League announcements</h3>' + annHtml + '</div>' +
+      '<div class="hubpanel contacts"><h3>Board contacts</h3><div class="lede">Reach out directly for time-sensitive things. For anything the league needs to track, use <b>Submit a request</b> below.</div>' + contactHtml + '</div>' +
+      (messages.length ? '<div class="hubpanel"><h3>Messages' + (unread ? '<span class="badgemini">' + unread + ' NEW</span>' : '') + '</h3><div class="lede">Every conversation with another coach, stored so nothing gets lost in a text thread.</div>' + msgHtml + '</div>' : '') +
+      (reqs.length ? '<div class="hubpanel"><h3>My requests</h3>' + reqHtml + '</div>' : '') +
+      '<div class="hubactions">' +
+        '<button class="hubaction primary" id="hbSubmitReq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Submit a request</button>' +
+        '<button class="hubaction" id="hbMsgCoach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg>Reach out to a coach</button>' +
+        '<button class="hubaction clay" id="hbReserve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg>Reserve a practice field</button>' +
+        '<button class="hubaction subtle" id="hbChangePin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Change my PIN</button>' +
+        '<button class="hubaction subtle" id="hbSignOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Sign out</button>' +
+      '</div>' +
     '</div>';
 
-  box.querySelector("#hbSignOut").addEventListener("click", function () { hubSignOut(false); });
+  // ---------- Wire the action bar ----------
+  box.querySelector("#hbSubmitReq").addEventListener("click", openSubmitRequest);
+  box.querySelector("#hbMsgCoach").addEventListener("click", openMessageCoach);
+  box.querySelector("#hbReserve").addEventListener("click", openReserveField);
   box.querySelector("#hbChangePin").addEventListener("click", openChangePin);
-  box.querySelector("#hqGo").addEventListener("click", submitRequest);
+  box.querySelector("#hbSignOut").addEventListener("click", function () { hubSignOut(false); });
+
+  // ---------- Message accordion + mark-read on first open ----------
+  box.querySelectorAll(".msg").forEach(function (m) {
+    m.addEventListener("click", function () {
+      var wasOpen = m.classList.contains("open");
+      box.querySelectorAll(".msg.open").forEach(function (o) { o.classList.remove("open"); });
+      if (wasOpen) return;
+      m.classList.add("open");
+      if (m.classList.contains("unread")) {
+        var id = m.getAttribute("data-msg");
+        m.classList.remove("unread");
+        coachApi("coach_read_message", { id: id }).catch(function () {});
+      }
+    });
+  });
 }
 
-function submitRequest() {
-  var box = document.getElementById("viewHub");
-  var cat = box.querySelector("#hqCat").value;
-  var subj = box.querySelector("#hqSubj").value.trim();
-  var det = box.querySelector("#hqDetail").value.trim();
-  var contactId = box.querySelector("#hqContact").value || null;
-  var err = box.querySelector("#hqErr");
-  var ok = box.querySelector("#hqOk");
-  err.classList.add("hidden"); ok.classList.add("hidden");
-  if (!subj) { err.textContent = "Add a short subject."; err.classList.remove("hidden"); return; }
-  if (!det) { err.textContent = "Add some details so the board can help."; err.classList.remove("hidden"); return; }
-  var btn = box.querySelector("#hqGo"); btn.disabled = true; btn.textContent = "Submitting…";
-  coachApi("coach_submit_request", { category: cat, subject: subj, details: det, assigned_contact_id: contactId })
-    .then(function (j) {
-      if (!j.ok) {
-        btn.disabled = false; btn.textContent = "Submit request";
-        err.textContent = j.error || "Could not submit.";
-        err.classList.remove("hidden"); return;
-      }
-      HUB.loaded = false;
-      loadHubState(function () { renderHub(); toast("Request submitted. The board has been emailed."); });
-    })
-    .catch(function () { btn.disabled = false; btn.textContent = "Submit request"; err.textContent = "Could not reach the server."; err.classList.remove("hidden"); });
+// ---------- Modals: submit request, message a coach, reserve a field ----------
+function openSubmitRequest() {
+  var h = HUB.data || {};
+  var contacts = h.contacts || [];
+  var contactOptions = '<option value="">Route to the league (default)</option>' + contacts.map(function (c) {
+    return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.role) + ')</option>';
+  }).join('');
+  var v = modal(
+    '<h3>Submit a request</h3>' +
+    '<div class="ctx">Kill the 11pm group text. Everything you file here is logged and routed to the right board member.</div>' +
+    '<label for="mqCat">Category</label>' +
+    '<select id="mqCat" style="width:100%;"><option value="gear">Gear / Equipment</option><option value="field_issue">Field Issue</option><option value="practice_concern">Practice Concern</option><option value="volunteer_needed">Volunteer Needed</option><option value="general">General</option></select>' +
+    '<label for="mqSubj">Subject</label>' +
+    '<input id="mqSubj" type="text" placeholder="Short summary" maxlength="160" style="width:100%;" />' +
+    '<label for="mqDetail">Details</label>' +
+    '<textarea id="mqDetail" placeholder="What is going on? Include enough detail so the board can help without a follow-up." maxlength="4000" style="width:100%;min-height:110px;font-family:inherit;"></textarea>' +
+    '<label for="mqContact">Send to</label>' +
+    '<select id="mqContact" style="width:100%;">' + contactOptions + '</select>' +
+    '<p class="merr hidden" id="mqErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="mqX">Cancel</button><button class="mb go" id="mqGo">Submit request</button></div>'
+  );
+  setTimeout(function () { v.querySelector("#mqSubj").focus(); }, 20);
+  v.querySelector("#mqX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#mqGo").addEventListener("click", function () {
+    var cat = v.querySelector("#mqCat").value;
+    var subj = v.querySelector("#mqSubj").value.trim();
+    var det = v.querySelector("#mqDetail").value.trim();
+    var contactId = v.querySelector("#mqContact").value || null;
+    var err = v.querySelector("#mqErr"); err.classList.add("hidden");
+    if (!subj) { err.textContent = "Add a short subject."; err.classList.remove("hidden"); return; }
+    if (!det) { err.textContent = "Add some details so the board can help."; err.classList.remove("hidden"); return; }
+    var btn = v.querySelector("#mqGo"); btn.disabled = true; btn.textContent = "Submitting…";
+    coachApi("coach_submit_request", { category: cat, subject: subj, details: det, assigned_contact_id: contactId })
+      .then(function (j) {
+        if (!j.ok) { btn.disabled = false; btn.textContent = "Submit request"; err.textContent = j.error || "Could not submit."; err.classList.remove("hidden"); return; }
+        v.remove();
+        HUB.loaded = false;
+        loadHubState(function () { renderHub(); toast("Request submitted. The board has been emailed."); });
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = "Submit request"; err.textContent = "Could not reach the server."; err.classList.remove("hidden"); });
+  });
+}
+
+function openMessageCoach() {
+  var h = HUB.data || {};
+  var picker = h.coach_picker || [];
+  if (!picker.length) {
+    toast("No other coaches on file yet. Ask the league admin to add more coaches.");
+    return;
+  }
+  var opts = '<option value="">Pick a coach…</option>' + picker.map(function (c) {
+    return '<option value="' + esc(c.id) + '">' + esc(c.name) + '</option>';
+  }).join('');
+  var v = modal(
+    '<h3>Reach out to a coach</h3>' +
+    '<div class="ctx">Your message is emailed to them so they see it in their inbox — and stored here so nothing gets lost. The league can pull the record if there is a dispute; that pull is logged both ways.</div>' +
+    '<label for="mmTo">To</label>' +
+    '<select id="mmTo" style="width:100%;">' + opts + '</select>' +
+    '<label for="mmSubj">Subject</label>' +
+    '<input id="mmSubj" type="text" placeholder="Short summary" maxlength="160" style="width:100%;" />' +
+    '<label for="mmBody">Message</label>' +
+    '<textarea id="mmBody" placeholder="Write what you would text — everything the other coach needs." maxlength="4000" style="width:100%;min-height:130px;font-family:inherit;"></textarea>' +
+    '<p class="merr hidden" id="mmErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="mmX">Cancel</button><button class="mb go" id="mmGo">Send message</button></div>'
+  );
+  setTimeout(function () { v.querySelector("#mmTo").focus(); }, 20);
+  v.querySelector("#mmX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#mmGo").addEventListener("click", function () {
+    var to = v.querySelector("#mmTo").value;
+    var subj = v.querySelector("#mmSubj").value.trim();
+    var body = v.querySelector("#mmBody").value.trim();
+    var err = v.querySelector("#mmErr"); err.classList.add("hidden");
+    if (!to) { err.textContent = "Pick a coach to message."; err.classList.remove("hidden"); return; }
+    if (!subj) { err.textContent = "Add a subject."; err.classList.remove("hidden"); return; }
+    if (!body) { err.textContent = "Write a message."; err.classList.remove("hidden"); return; }
+    var btn = v.querySelector("#mmGo"); btn.disabled = true; btn.textContent = "Sending…";
+    coachApi("coach_send_message", { to_coach_id: to, subject: subj, body: body })
+      .then(function (j) {
+        if (!j.ok) { btn.disabled = false; btn.textContent = "Send message"; err.textContent = j.error || "Could not send."; err.classList.remove("hidden"); return; }
+        v.remove();
+        HUB.loaded = false;
+        loadHubState(function () { renderHub(); toast("Message sent to " + (j.message && j.message.to_name || "the coach") + "."); });
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = "Send message"; err.textContent = "Could not reach the server."; err.classList.remove("hidden"); });
+  });
+}
+
+function openReserveField() {
+  // Reserve-a-field jumps to Field Schedule By Day (best for the claim flow)
+  // and shows a sticky helper banner so the coach knows exactly what to do next.
+  S.view = "days";
+  lsSet("flm_view", "days");
+  lsSet("flm_last_sched_view", "days");
+  renderAll();
+  window.scrollTo(0, 0);
+  showReserveBanner();
+}
+
+function showReserveBanner() {
+  var existing = document.getElementById("reserveBanner");
+  if (existing) existing.remove();
+  var team = teamById(S.myTeam);
+  var teamName = team ? team.name : "your team";
+  var banner = document.createElement("div");
+  banner.id = "reserveBanner";
+  banner.className = "reservebanner";
+  banner.innerHTML = '<span>Tap any <b>OPEN</b> slot to reserve it for <b>' + esc(teamName) + '</b>.</span><button id="hideReserveBanner">Got it</button>';
+  var wrap = document.querySelector(".wrap");
+  wrap.insertBefore(banner, wrap.firstChild);
+  banner.querySelector("#hideReserveBanner").addEventListener("click", function () { banner.remove(); });
 }
 
 function openChangePin() {
