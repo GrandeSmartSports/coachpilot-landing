@@ -468,13 +468,6 @@
             <div id="requestList"></div>
           </div>
         </div>
-        <div class="panel span2" id="panelMessages">
-          <div class="bar"><h2>Coach messages</h2><span id="msgCount" class="hint"></span></div>
-          <div class="body">
-            <p class="hint">Every coach-to-coach message logged by the hub, most recent first. This list shows <b>metadata only</b> &mdash; who, when, and the subject line. Bodies are private in normal operation. Use <b>Pull body</b> only when a dispute needs the record; every pull is written to the activity log so the audit works both ways.</p>
-            <div id="messageList"></div>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -684,7 +677,7 @@ var PANEL_VIEW = {
   panelGames: "games", panelBoard: "games", panelStand: "games",
   panelPractice: "practices", panelComp: "practices", panelWindows: "practices",
   panelUmps: "umpires",
-  panelCoaches: "hub", panelContacts: "hub", panelRequests: "hub", panelMessages: "hub",
+  panelCoaches: "hub", panelContacts: "hub", panelRequests: "hub",
   panelAnnounce: "announcements",
   panelWizard: "tools", panelExt: "tools", panelGen: "tools", panelImport: "tools", panelNext: "tools", panelSettings: "tools",
   panelStats: "reports", panelLog: "reports"
@@ -826,8 +819,8 @@ function refresh() {
     renderPracticeGrid(); renderHome();
     /* Coaches Hub — fetch coaches/contacts/requests in parallel so tile counts + panels populate together. */
     if (typeof loadCoaches === "function") {
-      Promise.all([loadCoaches(), loadContacts(), loadRequests(), loadMessages()]).then(function () {
-        renderCoaches(); renderContacts(); renderRequests(); renderMessages();
+      Promise.all([loadCoaches(), loadContacts(), loadRequests()]).then(function () {
+        renderCoaches(); renderContacts(); renderRequests();
         renderTiles(); renderHome();
       }).catch(function () { /* one panel failing must never break the rest of the admin */ });
     }
@@ -3282,65 +3275,10 @@ function openRequestModal(id) {
   });
 }
 
-/* ---------- COACH MESSAGES (metadata only + pull-body on demand) ---------- */
-var MESSAGES_LIST = [];
-function loadMessages() {
-  return fetch(API + "?action=admin_messages", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: "{}" })
-    .then(function (r) { return r.json(); })
-    .then(function (j) { if (j.ok) MESSAGES_LIST = j.messages || []; });
-}
-function renderMessages() {
-  var box = document.getElementById("messageList");
-  var cnt = document.getElementById("msgCount");
-  if (!box) return;
-  if (cnt) cnt.textContent = MESSAGES_LIST.length ? MESSAGES_LIST.length + (MESSAGES_LIST.length === 1 ? " message" : " messages") : "";
-  if (!MESSAGES_LIST.length) {
-    box.innerHTML = '<p class="hint" style="padding:14px 4px;color:var(--muted);">No coach-to-coach messages logged yet. As soon as a coach uses <b>Reach out to a coach</b> in the hub, it will show up here.</p>';
-    return;
-  }
-  var rows = MESSAGES_LIST.map(function (m) {
-    var when = fmtDateTimeShort(m.created_at);
-    var readTag = m.read_at
-      ? '<span class="badge" style="background:#dcefe2;color:#21622f;">Read ' + esc(fmtDateShort(m.read_at)) + '</span>'
-      : '<span class="badge" style="background:#fdf1dc;color:#8a5a12;">Unread</span>';
-    return '<div class="row" style="align-items:flex-start;border-top:1px solid var(--line);padding:10px 4px;gap:10px;flex-wrap:wrap;">' +
-      '<div style="flex:1 1 320px;min-width:220px;">' +
-        '<div style="font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--grass);">' + esc(m.from_name) + ' &rarr; ' + esc(m.to_name) + '</div>' +
-        '<div style="font-weight:700;margin-top:2px;">' + esc(m.subject) + '</div>' +
-        '<div class="hint" style="font-size:12.5px;margin-top:3px;">' + esc(when) + ' &middot; ' + readTag + '</div>' +
-      '</div>' +
-      '<div class="row" style="gap:5px;flex-wrap:wrap;"><button class="btn sm ghost" data-mpull="' + esc(m.id) + '">Pull body</button></div>' +
-    '</div>';
-  }).join('');
-  box.innerHTML = rows;
-  box.querySelectorAll("[data-mpull]").forEach(function (b) {
-    b.addEventListener("click", function () { openMessageBody(b.getAttribute("data-mpull")); });
-  });
-}
-function openMessageBody(id) {
-  if (!confirm("Pull this message body?\n\nThe activity log will note that admin pulled it. Only continue if there is a real dispute or safety issue that needs the record.")) return;
-  fetch(API + "?action=admin_message_body", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: JSON.stringify({ id: id }) })
-    .then(function (r) { return r.json(); })
-    .then(function (j) {
-      if (!j.ok) { alert(j.error || "Could not pull the message."); return; }
-      var m = j.message;
-      var veil = document.createElement("div");
-      veil.className = "veil";
-      veil.innerHTML = '<div class="modal">' +
-        '<h3>' + esc(m.subject) + '</h3>' +
-        '<div class="ctx"><b>' + esc(m.from_name) + '</b> &rarr; <b>' + esc(m.to_name) + '</b> &middot; ' + esc(fmtDateTimeShort(m.created_at)) + '</div>' +
-        '<div style="background:#fbfaf5;border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:10px;white-space:pre-line;font-size:14px;line-height:1.55;color:#3c463f;max-height:60vh;overflow-y:auto;">' + esc(m.body) + '</div>' +
-        '<p class="hint" style="margin-top:10px;font-size:12px;">This pull is logged to activity as <b>Admin pulled message ' + esc(id.slice(0, 8)) + '&hellip;</b>. The audit works both ways.</p>' +
-        '<div class="row" style="margin-top:14px;justify-content:flex-end;"><button class="btn ghost" id="mbClose">Close</button></div>' +
-      '</div>';
-      veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
-      document.body.appendChild(veil);
-      veil.querySelector("#mbClose").addEventListener("click", function () { veil.remove(); });
-      // Refresh the activity feed so the pull shows up immediately.
-      if (typeof refresh === "function") refresh();
-    })
-    .catch(function () { alert("Could not reach the server."); });
-}
+/* Coach-to-coach messages are stored in flm_messages but there is no admin
+   panel for browsing them. Records can be pulled directly from the DB (or via
+   the admin_messages / admin_message_body gateway actions) when a dispute
+   needs the record — otherwise coach conversations stay private. */
 
 /* wire up + button handlers */
 (function () {

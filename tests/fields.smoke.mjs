@@ -1385,25 +1385,21 @@ for (const [s, why] of [
   else fail('v14 Hub MISSING (' + why + '): ' + s);
 }
 
-section('fields/admin.html: v14 tile polish + messages panel');
+section('fields/admin.html: v14 tile polish');
 for (const [s, why] of [
   ['TILE_ICONS = {', 'tile icon dictionary present'],
   ['divisions:', 'divisions icon defined'],
   ['reports:', 'reports icon defined'],
   ['<div class="arrow">&rarr;</div>', 'every tile carries the arrow affordance'],
   ['navtile.hasbadge', 'badge layout adjusts tile padding'],
-  ['id="panelMessages"', 'Coach Messages panel present'],
-  ['function renderMessages', 'messages renderer present'],
-  ['function loadMessages', 'messages loader present'],
-  ['function openMessageBody', 'pull-body modal function present'],
-  ['admin_messages', 'messages list action wired'],
-  ['admin_message_body', 'pull-body action wired'],
-  ['Bodies are private in normal operation', 'privacy copy present in Messages panel'],
-  ['audit works both ways', 'dispute-pull audit copy'],
 ]) {
   if (adminHtml.includes(s)) ok(why);
   else fail('v14 admin MISSING (' + why + '): ' + s);
 }
+// Coach messages: DB records exist but no admin panel. Enforce that no
+// admin-facing messages surface leaks back in.
+if (!adminHtml.includes('id="panelMessages"') && !adminHtml.includes('function renderMessages')) ok('no admin Coach Messages panel (records stay private unless directly pulled)');
+else fail('admin Coach Messages panel is back — Coach explicitly removed this');
 
 section('flm-gateway: v14 messaging live sanity (no writes)');
 try {
