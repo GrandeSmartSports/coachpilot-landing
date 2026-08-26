@@ -250,6 +250,22 @@
   .myreq .rresp b { color: var(--grass); font-family: var(--disp); text-transform: uppercase; font-size: 11px; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
   .hubempty { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px 8px; }
   .hubdivider { border: none; border-top: 1px solid var(--line); margin: 14px -17px; }
+
+  /* PRIMARY nav — Coaches Hub vs. Field Schedule. Sits above everything so
+     there is always one-click return from Hub to schedule and vice-versa. */
+  .primenav { display: flex; gap: 10px; margin: 4px 0 14px; }
+  .pnbtn {
+    flex: 1; max-width: 260px;
+    font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase;
+    background: var(--white); color: var(--muted);
+    border: 2px solid var(--line); border-radius: 12px; padding: 13px 18px;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+    cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .pnbtn:hover { border-color: var(--pine); color: var(--pine); }
+  .pnbtn.on { background: var(--pine); border-color: var(--pine); color: var(--chalk); box-shadow: var(--shadow); }
+  .pnbtn svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  @media (max-width: 560px) { .pnbtn { font-size: 14px; padding: 11px 12px; letter-spacing: 0.04em; } }
   /* When the Hub view is active (desktop or phone), hide the schedule-facing
      chrome so the Hub owns the whole page. Signed-in coaches land here first. */
   body.view-hub #myTeam, body.view-hub #announceBox, body.view-hub #rulesBox,
@@ -295,6 +311,8 @@
     body[data-mtab="hub"] #viewGrid, body[data-mtab="hub"] #viewDays, body[data-mtab="hub"] #viewTeams, body[data-mtab="hub"] #viewSched { display: none !important; }
     body:not([data-mtab="hub"]) #viewHub { display: none !important; }
     body[data-mtab="hub"] #myTeam, body[data-mtab="hub"] #rulesBox, body[data-mtab="hub"] #mtPrompt, body[data-mtab="hub"] #announceBox, body[data-mtab="hub"] .bar, body[data-mtab="hub"] .legend { display: none !important; }
+    /* Phone tab bar covers nav; skip the desktop primary pills to avoid dupes */
+    .primenav { display: none; }
     body[data-mtab="myteam"] #mtPrompt:not(.hidden) { display: block !important; }
     body[data-mtab="alerts"] #alertsQuiet:not(.hidden) { display: block; }
     .mtprompt { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 18px 16px; text-align: center; }
@@ -313,7 +331,7 @@
         <svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0b2e24"/><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="#f4f1e8" stroke-width="5"/><path d="M50 38 L62 50 L50 62 L38 50 Z" fill="#c96f2f"/></svg>
         <div>
           <h1 id="leagueName">Field Command</h1>
-          <div class="sub">League Field Manager</div>
+          <div class="sub">League Field Manager &middot; <span style="color:#ffd9b8;">v13 &middot; Coaches Hub</span></div>
         </div>
       </div>
       <div class="me"><button class="who" id="whoBtn">I'm a coach — pick my team</button></div>
@@ -323,6 +341,10 @@
   <div class="ubanner hidden" id="urgentBanner"></div>
 
   <div class="wrap">
+    <div class="primenav" id="primeNav">
+      <button class="pnbtn" data-primenav="hub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>Coaches Hub</button>
+      <button class="pnbtn" data-primenav="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Field Schedule</button>
+    </div>
     <div id="announceBox"></div>
     <div class="quietline hidden" id="alertsQuiet">All quiet right now. No league announcements.</div>
     <div class="myteam hidden" id="myTeam"></div>
@@ -335,7 +357,6 @@
     <div class="bar">
       <div class="tabs" id="seasonTabs"></div>
       <div class="views">
-        <button class="vbtn" data-view="hub">Hub</button>
         <button class="vbtn" data-view="days">By day</button>
         <button class="vbtn" data-view="grid">Full grid</button>
         <button class="vbtn" data-view="sched">Schedule</button>
@@ -611,7 +632,15 @@ function renderMyTeam() {
 function renderWho() {
   var btn = document.getElementById("whoBtn");
   var t = teamById(S.myTeam);
-  btn.innerHTML = t ? "Coaching: <b>" + esc(t.name) + "</b>" : "I'm a coach — pick my team";
+  if (isCoachSignedIn()) {
+    /* Signed-in coaches are locked to their own identity — no team-switching
+       from this button. Clicking jumps to the Hub (see whoBtn handler below). */
+    btn.innerHTML = "Signed in: <b>" + esc(CRED_C.name) + "</b>";
+    btn.title = "Open the Coaches Hub";
+  } else {
+    btn.innerHTML = t ? "Coaching: <b>" + esc(t.name) + "</b>" : "I'm a coach — pick my team";
+    btn.title = "";
+  }
 }
 
 function renderSeasons() {
@@ -627,7 +656,7 @@ function renderSeasons() {
   var vb = document.querySelectorAll(".vbtn");
   for (var i = 0; i < vb.length; i++) {
     vb[i].classList.toggle("on", vb[i].getAttribute("data-view") === effView());
-    vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); lsSet("flm_view", S.view); renderAll(); }; })(vb[i]);
+    vb[i].onclick = (function (btn) { return function () { S.view = btn.getAttribute("data-view"); lsSet("flm_view", S.view); lsSet("flm_last_sched_view", S.view); renderAll(); }; })(vb[i]);
   }
 }
 
@@ -673,12 +702,20 @@ function renderView() {
   ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   var v = effView();
   document.body.classList.toggle("view-hub", v === "hub");
+  updatePrimeNav();
   if (v === "hub") { renderHub(); return; }  /* hub gate/state doesn't need S.data */
   if (!S.data || !S.season) return;
   if (v === "grid") renderGrid();
   else if (v === "days") renderDays();
   else if (v === "sched") renderSched();
   else renderTeams();
+}
+
+function updatePrimeNav() {
+  var isHub = effView() === "hub";
+  document.querySelectorAll("[data-primenav]").forEach(function (b) {
+    b.classList.toggle("on", b.getAttribute("data-primenav") === (isHub ? "hub" : "schedule"));
+  });
 }
 
 function renderGrid() {
@@ -992,6 +1029,14 @@ function welcomeModal() {
 }
 
 function pickTeamModal(next) {
+  /* Safety net: even if some code path reaches this, a signed-in coach can
+     never open the team picker. Their team is bound by the coach record and
+     only an admin can change it. */
+  if (isCoachSignedIn()) {
+    toast("Your team is set by the league admin — you can not switch teams from here.");
+    S.view = "hub"; lsSet("flm_view", "hub"); renderAll();
+    return;
+  }
   var opts = (S.data.teams || []).filter(function (t) { return t.is_active; })
     .map(function (t) { return '<option value="' + t.id + '"' + (t.id === S.myTeam ? " selected" : "") + ">" + esc(t.name + (t.coach_name ? " — " + t.coach_name : "")) + "</option>"; }).join("");
   var v = modal("<h3>Who are you coaching?</h3><div class=\"ctx\">Pick your team once — this device remembers it. Every claim is logged with your team name.</div>" +
@@ -1088,8 +1133,16 @@ function loadHubState(cb) {
       return;
     }
     HUB.loaded = true; HUB.data = j; HUB.error = "";
+    /* Auto-bind the signed-in coach to their team. This is how we stop
+       impersonation via the team-picker: their team_id comes from the coach
+       record, not a client-side dropdown. Only an admin can change it. */
+    if (j.coach && j.coach.team_id && S.myTeam !== j.coach.team_id) {
+      S.myTeam = j.coach.team_id;
+      lsSet("flm_team", j.coach.team_id);
+    }
     if (cb) cb(true);
     if (effView() === "hub") renderHub();
+    renderWho(); if (typeof renderMyTeam === "function") renderMyTeam();
   }).catch(function () {
     HUB.loading = false;
     HUB.error = "Could not reach the server.";
@@ -1278,8 +1331,34 @@ function openChangePin() {
   inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
 }
 
-document.getElementById("whoBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
-document.getElementById("mtPickBtn").addEventListener("click", function () { if (S.data) pickTeamModal(); });
+document.getElementById("whoBtn").addEventListener("click", function () {
+  /* Signed-in coaches: whoBtn is a Hub-jump, never a team-switch. Their team
+     is bound by their coach record and can only be changed by an admin. */
+  if (isCoachSignedIn()) { S.view = "hub"; lsSet("flm_view", "hub"); renderAll(); window.scrollTo(0, 0); return; }
+  if (S.data) pickTeamModal();
+});
+document.getElementById("mtPickBtn").addEventListener("click", function () {
+  if (isCoachSignedIn()) { S.view = "hub"; lsSet("flm_view", "hub"); renderAll(); window.scrollTo(0, 0); return; }
+  if (S.data) pickTeamModal();
+});
+document.querySelectorAll("[data-primenav]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var target = b.getAttribute("data-primenav");
+    if (target === "hub") {
+      S.view = "hub";
+    } else {
+      /* Field Schedule pill restores the last non-hub view they used, or a
+         sensible default. Their pick is remembered per device via flm_view. */
+      var last = lsGet("flm_last_sched_view");
+      if (["grid", "days", "sched", "teams"].indexOf(last) < 0) last = null;
+      S.view = last || (window.innerWidth < 760 ? "days" : "grid");
+    }
+    lsSet("flm_view", S.view);
+    if (S.view !== "hub") lsSet("flm_last_sched_view", S.view);
+    renderAll();
+    window.scrollTo(0, 0);
+  });
+});
 document.getElementById("urgentBanner").addEventListener("click", function () { goTab("alerts"); });
 document.querySelectorAll("#tabBar .tb").forEach(function (b) {
   b.addEventListener("click", function () { goTab(b.getAttribute("data-mtab")); });
