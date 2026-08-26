@@ -1497,6 +1497,52 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, coach: created, email: send });
     }
 
+    if (action === "admin_coaches_bulk") {
+      const rows = Array.isArray(b.rows) ? b.rows : [];
+      const sendInvites = b.send_invites !== false;
+      const league = String(b.league_name ?? "the league");
+      const summary = { created: 0, skipped: 0, invited: 0, teams_created: 0, errors: [] as string[] };
+      for (const raw of rows) {
+        const name = String(raw.name ?? "").trim().slice(0, 120);
+        const email = String(raw.email ?? "").trim().toLowerCase().slice(0, 200);
+        const teamName = String(raw.team ?? raw.team_name ?? "").trim().slice(0, 120);
+        const phone = raw.phone ? String(raw.phone).trim().slice(0, 40) : null;
+        if (!name || !isEmail(email)) { summary.skipped++; summary.errors.push(`${name || email || "row"}: name + valid email required`); continue; }
+        let team_id: string | null = null;
+        if (teamName) {
+          const { data: t } = await db.from("flm_teams").select("id").ilike("name", teamName).maybeSingle();
+          if (t) { team_id = t.id; }
+          else {
+            const ins = await db.from("flm_teams").insert({ name: teamName, coach_name: name, coach_email: email, coach_phone: phone }).select("id").single();
+            if (ins.data) { team_id = ins.data.id; summary.teams_created++; }
+          }
+        }
+        const token = randomInviteToken();
+        const expires = inviteExpiry();
+        const { data: created, error } = await db.from("flm_coaches").insert({
+          name, email, phone, team_id, active: true, invite_token: token, invite_expires_at: expires,
+        }).select("*").single();
+        if (error || !created) {
+          summary.skipped++;
+          const msg = String(error?.message ?? "insert failed");
+          summary.errors.push(`${email}: ${msg.includes("flm_coaches_email_lower_uk") ? "already exists" : msg}`);
+          continue;
+        }
+        summary.created++;
+        if (sendInvites) {
+          const r = await resendSend({
+            from: "Field Command <noreply@cueops.io>",
+            to: [created.email],
+            subject: `Set your PIN — ${league} Coaches Hub`,
+            html: coachInviteEmailHtml(league, created.name, inviteUrlFor(token)),
+          });
+          if (r?.id) summary.invited++;
+        }
+      }
+      await log("admin_coach", `bulk imported ${summary.created} coaches (${summary.invited} invited, ${summary.teams_created} teams created, ${summary.skipped} skipped)`, "admin");
+      return json({ ok: true, summary });
+    }
+
     // -------- Admin: Board Contacts --------
     if (action === "admin_contacts") {
       const { data } = await db.from("flm_contacts").select("*").order("sort_order").order("name");
@@ -1528,6 +1574,28 @@ Deno.serve(async (req: Request) => {
       if (error || !data) return json({ ok: false, error: error?.message ?? "save failed" }, 500);
       await log("admin_contact", `${id ? "updated" : "added"} contact ${data.name}`, "admin");
       return json({ ok: true, contact: data });
+    }
+
+    if (action === "admin_contacts_bulk") {
+      const rows = Array.isArray(b.rows) ? b.rows : [];
+      const summary = { created: 0, skipped: 0, errors: [] as string[] };
+      let sort = Number(b.sort_start ?? 100) || 100;
+      for (const raw of rows) {
+        const name = String(raw.name ?? "").trim().slice(0, 120);
+        const role = String(raw.role ?? "").trim().slice(0, 120);
+        const email = raw.email ? String(raw.email).trim().slice(0, 200) : null;
+        const phone = raw.phone ? String(raw.phone).trim().slice(0, 40) : null;
+        const notes = raw.notes ? String(raw.notes).trim().slice(0, 400) : null;
+        if (!name || !role) { summary.skipped++; summary.errors.push(`${name || "row"}: name + role required`); continue; }
+        if (email && !isEmail(email)) { summary.skipped++; summary.errors.push(`${name}: email is not valid`); continue; }
+        const rec = { name, role, email, phone, notes, sort_order: sort, active: true };
+        const { error } = await db.from("flm_contacts").insert(rec);
+        if (error) { summary.skipped++; summary.errors.push(`${name}: ${error.message}`); continue; }
+        summary.created++;
+        sort += 10;
+      }
+      await log("admin_contact", `bulk imported ${summary.created} contacts (${summary.skipped} skipped)`, "admin");
+      return json({ ok: true, summary });
     }
 
     // -------- Admin: Requests inbox --------

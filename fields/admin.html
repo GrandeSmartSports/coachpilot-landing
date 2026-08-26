@@ -439,16 +439,41 @@
     <section class="view hidden" id="view-hub">
       <div class="panels">
         <div class="panel span2" id="panelCoaches">
-          <div class="bar"><h2>Coaches (Coaches Hub)</h2><button class="btn sm clay" id="cAdd">+ Coach</button></div>
+          <div class="bar">
+            <h2>Coaches (Coaches Hub)</h2>
+            <div style="display:flex;gap:8px;">
+              <button class="btn sm ghost" id="cBulkBtn">Bulk import</button>
+              <button class="btn sm clay" id="cAdd">+ Coach</button>
+            </div>
+          </div>
           <div class="body">
             <p class="hint">Head coaches with their own email and 4-digit PIN. When you add a coach, an invite is emailed automatically; the coach clicks the link, sets their PIN, and can then sign in at the Coaches Hub. Every request they submit is tagged with their name so nothing gets lost or fudged.</p>
+            <div id="cBulkBox" class="hidden" style="background:#f7f5ee;border:2px dashed #c96f2f;border-radius:10px;padding:14px;margin-bottom:12px;">
+              <p style="font-size:13.5px;margin-bottom:8px;"><b>Bulk import coaches</b> — Download the <a href="/fields/templates/bls-coaches.csv" download>coaches template (CSV)</a>, fill it in (columns: <code>name, email, team, phone</code>), then drop it here. New teams are auto-created from the <b>team</b> column.</p>
+              <div class="drop" id="cDrop" style="border:2px dashed #b7b1a3;border-radius:8px;padding:18px;text-align:center;color:#6d7a72;cursor:pointer;background:#fff;">Tap to choose a file, or drag a .csv or .xlsx here</div>
+              <input type="file" id="cFile" accept=".csv,.xlsx,.xls" class="hidden" />
+              <label style="display:block;font-size:13px;font-weight:500;margin-top:10px;color:#1c2420;text-transform:none;letter-spacing:0;"><input type="checkbox" id="cSendInvites" checked style="width:auto;margin-right:6px;" /> Email an invite link to each coach after import</label>
+              <div id="cBulkPreview" style="margin-top:10px;"></div>
+            </div>
             <div id="coachList"></div>
           </div>
         </div>
         <div class="panel span2" id="panelContacts">
-          <div class="bar"><h2>Board contacts</h2><button class="btn sm clay" id="ctAdd">+ Contact</button></div>
+          <div class="bar">
+            <h2>Board contacts</h2>
+            <div style="display:flex;gap:8px;">
+              <button class="btn sm ghost" id="ctBulkBtn">Bulk import</button>
+              <button class="btn sm clay" id="ctAdd">+ Contact</button>
+            </div>
+          </div>
           <div class="body">
             <p class="hint">The board directory a signed-in coach can reach on their hub. Sort order groups related roles together (Presidents 10-19, Player Agents 20-29, and so on). Keeping this current means fewer 11pm phone calls.</p>
+            <div id="ctBulkBox" class="hidden" style="background:#f7f5ee;border:2px dashed #c96f2f;border-radius:10px;padding:14px;margin-bottom:12px;">
+              <p style="font-size:13.5px;margin-bottom:8px;"><b>Bulk import board contacts</b> — Download the <a href="/fields/templates/bls-board.csv" download>board template (CSV)</a>, fill it in (columns: <code>name, role, email, phone, notes</code>), then drop it here.</p>
+              <div class="drop" id="ctDrop" style="border:2px dashed #b7b1a3;border-radius:8px;padding:18px;text-align:center;color:#6d7a72;cursor:pointer;background:#fff;">Tap to choose a file, or drag a .csv or .xlsx here</div>
+              <input type="file" id="ctFile" accept=".csv,.xlsx,.xls" class="hidden" />
+              <div id="ctBulkPreview" style="margin-top:10px;"></div>
+            </div>
             <div id="contactList"></div>
           </div>
         </div>
@@ -822,6 +847,8 @@ function refresh() {
       Promise.all([loadCoaches(), loadContacts(), loadRequests()]).then(function () {
         renderCoaches(); renderContacts(); renderRequests();
         renderTiles(); renderHome();
+        if (typeof wireCBulk === "function") wireCBulk();
+        if (typeof wireCtBulk === "function") wireCtBulk();
       }).catch(function () { /* one panel failing must never break the rest of the admin */ });
     }
     var r0 = curRoute();
@@ -3134,6 +3161,148 @@ function resendCoachInvite(id, isReset) {
       else alert((isReset ? "PIN reset. " : "Invite resent. ") + "The coach will get a fresh link at their email.");
     })
     .catch(function (e) { alert(e.message); });
+}
+
+/* ---------- BULK IMPORT: Coaches ---------- */
+function parseCsvOrXlsx(file, cb) {
+  var reader = new FileReader();
+  var isCsv = /\.csv$/i.test(file.name);
+  reader.onload = function (e) {
+    try {
+      var rows;
+      if (isCsv) {
+        var wbk = XLSX.read(e.target.result, { type: "string" });
+        rows = XLSX.utils.sheet_to_json(wbk.Sheets[wbk.SheetNames[0]], { defval: null });
+      } else {
+        var wbk2 = XLSX.read(new Uint8Array(e.target.result), { type: "array" });
+        rows = XLSX.utils.sheet_to_json(wbk2.Sheets[wbk2.SheetNames[0]], { defval: null });
+      }
+      cb(null, rows || []);
+    } catch (err) { cb(err); }
+  };
+  if (isCsv) reader.readAsText(file); else reader.readAsArrayBuffer(file);
+}
+
+function normKey(k) { return String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g, ""); }
+function pickField(row, keys) {
+  for (var k in row) {
+    var nk = normKey(k);
+    for (var i = 0; i < keys.length; i++) if (nk === keys[i]) return row[k];
+  }
+  return null;
+}
+
+var CBULK_ROWS = [];
+function cBulkPreview(rows) {
+  CBULK_ROWS = rows.map(function (r) {
+    return {
+      name: pickField(r, ["name", "coach", "coachname", "fullname"]),
+      email: pickField(r, ["email", "e-mail"]),
+      team: pickField(r, ["team", "teamname", "team_name"]),
+      phone: pickField(r, ["phone", "cell", "mobile"])
+    };
+  }).filter(function (r) { return r.name && r.email; });
+  var box = document.getElementById("cBulkPreview");
+  if (!CBULK_ROWS.length) { box.innerHTML = '<div class="err">No valid rows found. Make sure your file has <b>name</b> and <b>email</b> columns.</div>'; return; }
+  var html = '<p style="font-size:13px;margin-bottom:6px;"><b>' + CBULK_ROWS.length + '</b> coaches ready to import:</p>';
+  html += '<table style="width:100%;font-size:12.5px;border-collapse:collapse;margin-bottom:10px;"><thead><tr style="background:#ece8db;"><th style="padding:5px;text-align:left;">Name</th><th style="padding:5px;text-align:left;">Email</th><th style="padding:5px;text-align:left;">Team</th><th style="padding:5px;text-align:left;">Phone</th></tr></thead><tbody>';
+  CBULK_ROWS.slice(0, 40).forEach(function (r) {
+    html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">' + esc(r.name) + '</td><td style="padding:5px;">' + esc(r.email) + '</td><td style="padding:5px;">' + esc(r.team || "") + '</td><td style="padding:5px;">' + esc(r.phone || "") + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  if (CBULK_ROWS.length > 40) html += '<p style="font-size:12px;color:#6d7a72;margin-bottom:8px;">…and ' + (CBULK_ROWS.length - 40) + ' more.</p>';
+  html += '<button class="btn clay" id="cBulkGo">Import ' + CBULK_ROWS.length + ' coaches</button>';
+  box.innerHTML = html;
+  document.getElementById("cBulkGo").addEventListener("click", cBulkGo);
+}
+function cBulkGo() {
+  var btn = document.getElementById("cBulkGo");
+  btn.disabled = true; btn.textContent = "Importing…";
+  var sendInvites = document.getElementById("cSendInvites").checked;
+  admin("admin_coaches_bulk", { rows: CBULK_ROWS, send_invites: sendInvites, league_name: (SETTINGS && SETTINGS.league_name) || "the league" })
+    .then(function (j) {
+      var s = j.summary || {};
+      var msg = "Imported " + (s.created || 0) + " coaches";
+      if (s.teams_created) msg += " (" + s.teams_created + " new teams created)";
+      if (sendInvites) msg += ", " + (s.invited || 0) + " invite emails sent";
+      if (s.skipped) msg += ". Skipped " + s.skipped + ":\n" + (s.errors || []).slice(0, 10).join("\n");
+      alert(msg);
+      document.getElementById("cBulkBox").classList.add("hidden");
+      document.getElementById("cBulkPreview").innerHTML = "";
+      loadCoaches().then(renderCoaches);
+    })
+    .catch(function (e) { alert("Import failed: " + e.message); btn.disabled = false; btn.textContent = "Import"; });
+}
+function wireCBulk() {
+  var btn = document.getElementById("cBulkBtn"); if (!btn || btn._wired) return; btn._wired = true;
+  btn.addEventListener("click", function () { document.getElementById("cBulkBox").classList.toggle("hidden"); });
+  var drop = document.getElementById("cDrop"), file = document.getElementById("cFile");
+  drop.addEventListener("click", function () { file.click(); });
+  drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.style.background = "#f4f1e8"; });
+  drop.addEventListener("dragleave", function () { drop.style.background = "#fff"; });
+  drop.addEventListener("drop", function (e) {
+    e.preventDefault(); drop.style.background = "#fff";
+    if (e.dataTransfer.files[0]) parseCsvOrXlsx(e.dataTransfer.files[0], function (err, rows) { if (err) alert("Could not read that file: " + err.message); else cBulkPreview(rows); });
+  });
+  file.addEventListener("change", function () {
+    if (file.files[0]) parseCsvOrXlsx(file.files[0], function (err, rows) { if (err) alert("Could not read that file: " + err.message); else cBulkPreview(rows); });
+  });
+}
+
+/* ---------- BULK IMPORT: Board contacts ---------- */
+var CTBULK_ROWS = [];
+function ctBulkPreview(rows) {
+  CTBULK_ROWS = rows.map(function (r) {
+    return {
+      name: pickField(r, ["name", "contact", "fullname"]),
+      role: pickField(r, ["role", "title", "position"]),
+      email: pickField(r, ["email", "e-mail"]),
+      phone: pickField(r, ["phone", "cell", "mobile"]),
+      notes: pickField(r, ["notes", "note", "comment"])
+    };
+  }).filter(function (r) { return r.name && r.role; });
+  var box = document.getElementById("ctBulkPreview");
+  if (!CTBULK_ROWS.length) { box.innerHTML = '<div class="err">No valid rows found. Make sure your file has <b>name</b> and <b>role</b> columns.</div>'; return; }
+  var html = '<p style="font-size:13px;margin-bottom:6px;"><b>' + CTBULK_ROWS.length + '</b> contacts ready to import:</p>';
+  html += '<table style="width:100%;font-size:12.5px;border-collapse:collapse;margin-bottom:10px;"><thead><tr style="background:#ece8db;"><th style="padding:5px;text-align:left;">Name</th><th style="padding:5px;text-align:left;">Role</th><th style="padding:5px;text-align:left;">Email</th><th style="padding:5px;text-align:left;">Phone</th></tr></thead><tbody>';
+  CTBULK_ROWS.slice(0, 40).forEach(function (r) {
+    html += '<tr style="border-bottom:1px solid #eee;"><td style="padding:5px;">' + esc(r.name) + '</td><td style="padding:5px;">' + esc(r.role) + '</td><td style="padding:5px;">' + esc(r.email || "") + '</td><td style="padding:5px;">' + esc(r.phone || "") + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  if (CTBULK_ROWS.length > 40) html += '<p style="font-size:12px;color:#6d7a72;margin-bottom:8px;">…and ' + (CTBULK_ROWS.length - 40) + ' more.</p>';
+  html += '<button class="btn clay" id="ctBulkGo">Import ' + CTBULK_ROWS.length + ' contacts</button>';
+  box.innerHTML = html;
+  document.getElementById("ctBulkGo").addEventListener("click", ctBulkGo);
+}
+function ctBulkGo() {
+  var btn = document.getElementById("ctBulkGo");
+  btn.disabled = true; btn.textContent = "Importing…";
+  admin("admin_contacts_bulk", { rows: CTBULK_ROWS })
+    .then(function (j) {
+      var s = j.summary || {};
+      var msg = "Imported " + (s.created || 0) + " contacts";
+      if (s.skipped) msg += ". Skipped " + s.skipped + ":\n" + (s.errors || []).slice(0, 10).join("\n");
+      alert(msg);
+      document.getElementById("ctBulkBox").classList.add("hidden");
+      document.getElementById("ctBulkPreview").innerHTML = "";
+      loadContacts().then(renderContacts);
+    })
+    .catch(function (e) { alert("Import failed: " + e.message); btn.disabled = false; btn.textContent = "Import"; });
+}
+function wireCtBulk() {
+  var btn = document.getElementById("ctBulkBtn"); if (!btn || btn._wired) return; btn._wired = true;
+  btn.addEventListener("click", function () { document.getElementById("ctBulkBox").classList.toggle("hidden"); });
+  var drop = document.getElementById("ctDrop"), file = document.getElementById("ctFile");
+  drop.addEventListener("click", function () { file.click(); });
+  drop.addEventListener("dragover", function (e) { e.preventDefault(); drop.style.background = "#f4f1e8"; });
+  drop.addEventListener("dragleave", function () { drop.style.background = "#fff"; });
+  drop.addEventListener("drop", function (e) {
+    e.preventDefault(); drop.style.background = "#fff";
+    if (e.dataTransfer.files[0]) parseCsvOrXlsx(e.dataTransfer.files[0], function (err, rows) { if (err) alert("Could not read that file: " + err.message); else ctBulkPreview(rows); });
+  });
+  file.addEventListener("change", function () {
+    if (file.files[0]) parseCsvOrXlsx(file.files[0], function (err, rows) { if (err) alert("Could not read that file: " + err.message); else ctBulkPreview(rows); });
+  });
 }
 
 /* ---------- CONTACTS (board directory) ---------- */
