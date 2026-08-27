@@ -80,13 +80,6 @@
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
 
-  .boardrow { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; margin-bottom: 10px; background: #fbfaf6; }
-  .addrow {
-    font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em;
-    text-transform: uppercase; background: var(--chalk-2); color: var(--ink);
-    border: 1px dashed var(--muted); border-radius: 9px; padding: 10px 16px; cursor: pointer; width: 100%;
-  }
-
   table.route { width: 100%; border-collapse: collapse; font-size: 14px; }
   table.route th { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 6px 8px 6px 0; border-bottom: 2px solid var(--line); }
   table.route td { padding: 8px 8px 8px 0; border-bottom: 1px solid #efece2; vertical-align: middle; }
@@ -128,8 +121,8 @@
       </div>
     </div>
     <div class="chalkline"></div>
-    <h2>Three things to finish the setup</h2>
-    <p>Everything from the practice spreadsheet is already loaded. These are the only gaps. Fill in what you know, skip what you don't, hit Send at the bottom and it comes straight to Daniel.</p>
+    <h2>Two things to finish the setup</h2>
+    <p>Everything from the practice spreadsheet and the league board page is already loaded. These are the only gaps. Fill in what you know, skip what you don't, hit Send at the bottom and it comes straight to Daniel.</p>
   </div>
 </header>
 
@@ -255,31 +248,25 @@
   </div>
 
   <div class="card">
-    <h3><span class="num">2</span>Board contacts</h3>
-    <p class="lede">These show on every coach's hub so nobody has to hunt through group texts for the right person. Name, role, and at least one way to reach them. Add as many as you want.</p>
-    <div id="boardRows"></div>
-    <button type="button" class="addrow" id="addBoard">+ Add another board member</button>
-  </div>
-
-  <div class="card">
-    <h3><span class="num">3</span>Who handles what?</h3>
-    <p class="lede">Coaches will be able to file requests through the hub instead of texting whoever they have a number for. Each request auto-routes to the right person. Tell me who that is for each type. Titles are fine (President, Player Agent for that division, Field Coordinator, whoever).</p>
+    <h3><span class="num">2</span>Who handles what?</h3>
+    <p class="lede">Coaches will be able to file requests through the hub instead of texting whoever they have a number for. Each request auto-routes to the right person. I took a first pass from the board page on the league site. Fix anything that's wrong, blank out anything that shouldn't route through the hub.</p>
     <table class="route">
       <thead><tr><th>When a coach reports...</th><th>It should go to...</th></tr></thead>
       <tbody>
-        <tr><td class="q">Field problem (unsafe, broken, missing equipment)</td><td><input type="text" class="r-who" data-q="Field problem" /></td></tr>
-        <tr><td class="q">Practice swap or reschedule help</td><td><input type="text" class="r-who" data-q="Practice swap" /></td></tr>
-        <tr><td class="q">Rainout or cancellation notice</td><td><input type="text" class="r-who" data-q="Rainout" /></td></tr>
-        <tr><td class="q">Roster question (add, drop, plays-up)</td><td><input type="text" class="r-who" data-q="Roster question" /></td></tr>
-        <tr><td class="q">Player or parent conduct concern</td><td><input type="text" class="r-who" data-q="Conduct concern" /></td></tr>
-        <tr><td class="q">Umpire question (missing, no-show)</td><td><input type="text" class="r-who" data-q="Umpire question" /></td></tr>
-        <tr><td class="q">Equipment or uniform request</td><td><input type="text" class="r-who" data-q="Equipment request" /></td></tr>
-        <tr><td class="q">Registration or payment question</td><td><input type="text" class="r-who" data-q="Registration question" /></td></tr>
-        <tr><td class="q">Safety incident (injury report)</td><td><input type="text" class="r-who" data-q="Safety incident" /></td></tr>
-        <tr><td class="q">Everything else</td><td><input type="text" class="r-who" data-q="Everything else" /></td></tr>
+        <tr><td class="q">Field problem (unsafe, broken, missing equipment)</td><td><input type="text" class="r-who" data-q="Field problem" value="Justin Rudd-Jones (Fields)" /></td></tr>
+        <tr><td class="q">Practice swap or reschedule help</td><td><input type="text" class="r-who" data-q="Practice swap" value="Justin Rudd-Jones (Fields)" /></td></tr>
+        <tr><td class="q">Rainout or cancellation notice</td><td><input type="text" class="r-who" data-q="Rainout" value="Justin Rudd-Jones (Fields)" /></td></tr>
+        <tr><td class="q">Roster question (add, drop, plays-up)</td><td><input type="text" class="r-who" data-q="Roster question" value="Player Agent for that division" /></td></tr>
+        <tr><td class="q">Player or parent conduct concern</td><td><input type="text" class="r-who" data-q="Conduct concern" value="Player Agent for that division, CC President" /></td></tr>
+        <tr><td class="q">Umpire question (missing, no-show)</td><td><input type="text" class="r-who" data-q="Umpire question" value="Kyle Salm (Umpire in Chief)" /></td></tr>
+        <tr><td class="q">Equipment request</td><td><input type="text" class="r-who" data-q="Equipment request" value="Donald Ladd (BB) / Pat Closson (SB)" /></td></tr>
+        <tr><td class="q">Uniform question</td><td><input type="text" class="r-who" data-q="Uniform question" value="Megan Seibert (BB) / Dena Berkey (SB)" /></td></tr>
+        <tr><td class="q">Registration or payment question</td><td><input type="text" class="r-who" data-q="Registration question" value="Megan Seibert (League Player Agent)" /></td></tr>
+        <tr><td class="q">Safety incident (injury report)</td><td><input type="text" class="r-who" data-q="Safety incident" value="Jeremy Olsen (Safety), CC President" /></td></tr>
+        <tr><td class="q">Everything else</td><td><input type="text" class="r-who" data-q="Everything else" value="" /></td></tr>
       </tbody>
     </table>
-    <label style="margin-top:12px;">Anything that should always CC the President or go to two people at once?</label>
+    <label style="margin-top:12px;">Anything else that should always CC the President or go to two people at once?</label>
     <textarea id="routeNotes" rows="2"></textarea>
   </div>
 
@@ -307,20 +294,6 @@
 <script>
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 
-function boardRowHtml() {
-  return '<div class="boardrow"><div class="grid2">' +
-    '<div><label>Name</label><input type="text" class="b-name" /></div>' +
-    '<div><label>Role</label><input type="text" class="b-role" placeholder="President, Player Agent, etc." /></div>' +
-    '<div><label>Email</label><input type="email" class="b-email" /></div>' +
-    '<div><label>Cell</label><input type="text" class="b-phone" /></div>' +
-    '</div></div>';
-}
-var boardRows = document.getElementById("boardRows");
-for (var i = 0; i < 3; i++) boardRows.insertAdjacentHTML("beforeend", boardRowHtml());
-document.getElementById("addBoard").addEventListener("click", function () {
-  boardRows.insertAdjacentHTML("beforeend", boardRowHtml());
-});
-
 document.getElementById("sendBtn").addEventListener("click", function () {
   var btn = this;
   var msg = document.getElementById("sendMsg");
@@ -346,18 +319,6 @@ document.getElementById("sendBtn").addEventListener("click", function () {
   if (!any1) lines.push("(none filled in)");
   lines.push("");
 
-  lines.push("=== BOARD CONTACTS ===");
-  var any2 = false;
-  document.querySelectorAll(".boardrow").forEach(function (r) {
-    var nv = r.querySelector(".b-name").value.trim();
-    var rv = r.querySelector(".b-role").value.trim();
-    var ev = r.querySelector(".b-email").value.trim();
-    var pv = r.querySelector(".b-phone").value.trim();
-    if (nv || rv || ev || pv) { any2 = true; lines.push([nv, rv, ev, pv].filter(Boolean).join(" | ")); }
-  });
-  if (!any2) lines.push("(none filled in)");
-  lines.push("");
-
   lines.push("=== REQUEST ROUTING ===");
   var any3 = false;
   document.querySelectorAll(".r-who").forEach(function (r) {
@@ -368,7 +329,7 @@ document.getElementById("sendBtn").addEventListener("click", function () {
   if (rn) { any3 = true; lines.push("CC / dual-routing notes: " + rn); }
   if (!any3) lines.push("(none filled in)");
 
-  if (!any1 && !any2 && !any3) { msg.textContent = "Nothing is filled in yet. Add at least one answer."; msg.className = "msg err"; return; }
+  if (!any1 && !any3) { msg.textContent = "Nothing is filled in yet. Add at least one answer."; msg.className = "msg err"; return; }
 
   btn.disabled = true; btn.textContent = "Sending…";
   fetch(API + "?action=support_request", {
