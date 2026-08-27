@@ -93,6 +93,8 @@
   .chip { border-radius: 8px; padding: 5px 8px 4px; font-size: 12.5px; font-weight: 600; line-height: 1.25; border-left: 4px solid var(--muted); background: #f1f0ea; color: var(--ink); cursor: pointer; }
   .chip small { display: block; font-weight: 500; font-size: 10.5px; color: var(--muted); }
   .chip.mine { outline: 2px solid var(--clay); }
+  .chip.cancelled { opacity: 0.55; text-decoration: line-through; text-decoration-color: rgba(179,67,43,0.7); }
+  .chip.cancelled small { text-decoration: none; color: #b3432b; font-weight: 600; }
   .open { border: 1.5px dashed #cfcaba; border-radius: 8px; color: #b9b3a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; padding: 8px 4px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; }
   .open:hover { border-color: var(--clay); color: var(--clay); }
   body.locked .open { cursor: default; }
@@ -185,8 +187,10 @@
   .mb { flex: 1; font-family: var(--disp); font-weight: 600; font-size: 16.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 11px; padding: 13px; border: none; }
   .mb.go { background: var(--pine); color: var(--chalk); }
   .mb.warn { background: var(--clay); color: #fff; }
+  .mb.clay { background: var(--clay); color: #fff; }
   .mb.quiet { background: var(--chalk-2); color: var(--ink); }
   .mb.danger { background: #b3432b; color: #fff; }
+  .cancelbadge { display: inline-block; background: #b3432b; color: #fff; font-family: var(--disp); font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
   .merr { color: #b3261e; font-size: 13.5px; margin-top: 10px; }
   .shared-note { background: #fdf1dc; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: #6b4a12; margin-top: 12px; }
 
@@ -495,8 +499,14 @@ var DAYS = [
   { k: "sat_1_3", label: "Saturday 1–3", sat: true }, { k: "sat_3_5", label: "Saturday 3–5", sat: true }
 ];
 var DIV_COLORS = {
+  // Full names (current canonical). Kept short-form keys as fallbacks for older data.
+  "Majors Baseball": "#1d4ed8", "Minors Baseball": "#0e7490", "AA Baseball": "#7c3aed", "AAA Baseball": "#6d28d9",
+  "Coach Pitch Baseball": "#475569", "T-Ball": "#92400e",
+  "Majors Softball": "#be185d", "Minors A Softball": "#c2410c", "Minors B Softball": "#ca8a04",
+  "Minors Softball": "#c2410c", "Coach Pitch Softball": "#78716c", "AAA Softball": "#a21caf", "AA Softball": "#9333ea",
   "Majors BB": "#1d4ed8", "Minors BB": "#0e7490", "AA BB": "#7c3aed", "CP BB": "#475569",
-  "TBall": "#92400e", "Majors SB": "#be185d", "Minors A SB": "#c2410c", "Minors B SB": "#ca8a04", "": "#6d7a72"
+  "TBall": "#92400e", "Majors SB": "#be185d", "Minors A SB": "#c2410c", "Minors B SB": "#ca8a04",
+  "": "#6d7a72"
 };
 /* Tolerate any legacy/corrupt stored state: migrate JSON-shaped team values to a raw id,
    drop unrecognized views. Bad stored state must NEVER blank the page. */
@@ -749,9 +759,18 @@ function gameChipHtml(g) {
 function chipHtml(slot) {
   var t = teamById(slot.team_id);
   var c = divColor(t);
-  var mine = S.myTeam && slot.team_id === S.myTeam;
-  var extra = slot.note ? "<small>" + esc(slot.note) + "</small>" : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? "<small>" + esc(t.coach_name) + "</small>" : "");
-  return '<div class="chip' + (mine ? " mine" : "") + '" data-slot="' + slot.id + '" style="border-left-color:' + c + ";background:" + tint(c) + '">' + esc(t ? t.name : slot.label) + extra + "</div>";
+  var myTeamId = (CRED_C && CRED_C.team_id) || S.myTeam;
+  var mine = myTeamId && slot.team_id === myTeamId;
+  var cancelled = !!slot.cancelled_at;
+  var extraTxt = slot.note ? slot.note : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? t.coach_name : "");
+  var extra = "";
+  if (cancelled) {
+    extra = "<small><b>Cancelled</b>" + (slot.cancel_reason ? ": " + esc(slot.cancel_reason) : "") + "</small>";
+  } else if (extraTxt) {
+    extra = "<small>" + esc(extraTxt) + "</small>";
+  }
+  var classes = "chip" + (mine ? " mine" : "") + (cancelled ? " cancelled" : "");
+  return '<div class="' + classes + '" data-slot="' + slot.id + '" style="border-left-color:' + c + ";background:" + tint(c) + '">' + esc(t ? t.name : slot.label) + extra + "</div>";
 }
 
 function bindCells(root) {
@@ -1153,26 +1172,170 @@ function openSlotModal(slotId) {
   var slot = (S.data.slots || []).filter(function (s) { return s.id === slotId; })[0];
   if (!slot) return;
   var t = teamById(slot.team_id), f = fieldById(slot.field_id);
-  var mine = S.myTeam && slot.team_id === S.myTeam;
+  var iSignedIn = isCoachSignedIn();
+  // Signed-in coach's own team slot (matches by team_id from CRED_C or S.myTeam)
+  var myTeamId = (CRED_C && CRED_C.team_id) || S.myTeam;
+  var mine = myTeamId && slot.team_id === myTeamId;
+  var cancelled = !!slot.cancelled_at;
   var sn = seasonObj();
-  var body = "<h3>" + esc(t ? t.name : slot.label) + "</h3><div class=\"ctx\">" + esc(dayLabel(slot.day_key)) + " at <b>" + esc(f ? f.name : "") + "</b>" +
+  var locked = sn && sn.locked;
+
+  var body = "<h3>" + esc(t ? t.name : slot.label) + (cancelled ? ' <span class="cancelbadge">Cancelled</span>' : '') + "</h3>" +
+    "<div class=\"ctx\">" + esc(dayLabel(slot.day_key)) + " at <b>" + esc(f ? f.name : "") + "</b>" +
     (slot.note ? "<br />Note: " + esc(slot.note) : "") +
-    (t && t.coach_name ? "<br />Coach: " + esc(t.coach_name) + (t.coach_phone ? " &middot; <a href=\"tel:" + esc(t.coach_phone) + "\" style=\"text-decoration:underline\">" + esc(t.coach_phone) + "</a>" : "") : "") + "</div>";
-  if (mine && !(sn && sn.locked)) {
-    body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button><button class="mb danger" id="mRel">Release this slot</button></div>';
+    (cancelled && slot.cancel_reason ? "<br /><b>Cancelled:</b> " + esc(slot.cancel_reason) : "") +
+    (t && t.coach_name ? "<br />Coach: " + esc(t.coach_name) + (t.coach_phone ? " &middot; <a href=\"tel:" + esc(t.coach_phone) + "\" style=\"text-decoration:underline\">" + esc(t.coach_phone) + "</a>" : "") : "") +
+    "</div>";
+
+  if (mine && !locked) {
+    if (cancelled) {
+      body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button><button class="mb go" id="mRestore">Restore practice</button></div>';
+    } else {
+      body += '<div class="mbtns" style="flex-wrap:wrap;">' +
+        '<button class="mb quiet" id="mCancel">Close</button>' +
+        '<button class="mb go" id="mEditSlot">Edit</button>' +
+        '<button class="mb clay" id="mCancelSlot">Cancel practice</button>' +
+        '<button class="mb danger" id="mRel">Release</button>' +
+        '</div>';
+    }
+  } else if (iSignedIn && slot.team_id) {
+    // Another coach's slot — offer message + join request via coach messaging
+    body += '<div class="mbtns" style="flex-wrap:wrap;">' +
+      '<button class="mb quiet" id="mCancel">Close</button>' +
+      '<button class="mb go" id="mNoteCoach">Message this coach</button>' +
+      '<button class="mb clay" id="mJoinReq">Request to join</button>' +
+      '</div>';
   } else {
     body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button></div>';
   }
+
   var v = modal(body);
   v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
   var rel = v.querySelector("#mRel");
   if (rel) rel.addEventListener("click", function () {
     rel.disabled = true; rel.textContent = "Releasing…";
     fetch(API + "?action=release", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slot_id: slot.id, team_id: S.myTeam }) })
+      body: JSON.stringify({ slot_id: slot.id, team_id: myTeamId }) })
       .then(function (r) { return r.json(); })
       .then(function (d) { if (!d.ok) throw new Error(d.error || "failed"); v.remove(); toast("Slot released"); load(); })
-      .catch(function () { rel.disabled = false; rel.textContent = "Release this slot"; });
+      .catch(function () { rel.disabled = false; rel.textContent = "Release"; });
+  });
+  var edit = v.querySelector("#mEditSlot");
+  if (edit) edit.addEventListener("click", function () { v.remove(); openEditSlot(slot); });
+  var cnc = v.querySelector("#mCancelSlot");
+  if (cnc) cnc.addEventListener("click", function () { v.remove(); openCancelSlot(slot); });
+  var rst = v.querySelector("#mRestore");
+  if (rst) rst.addEventListener("click", function () {
+    rst.disabled = true; rst.textContent = "Restoring…";
+    coachApi("coach_uncancel_slot", { slot_id: slot.id })
+      .then(function (j) { if (!j.ok) throw new Error(j.error); v.remove(); toast("Practice restored"); load(); })
+      .catch(function (e) { rst.disabled = false; rst.textContent = "Restore practice"; toast("Could not restore: " + (e.message || "error")); });
+  });
+  var note = v.querySelector("#mNoteCoach");
+  if (note) note.addEventListener("click", function () {
+    v.remove();
+    openMessageCoachAboutSlot(slot, t, f, "note");
+  });
+  var join = v.querySelector("#mJoinReq");
+  if (join) join.addEventListener("click", function () {
+    v.remove();
+    openMessageCoachAboutSlot(slot, t, f, "join");
+  });
+}
+
+function openEditSlot(slot) {
+  var f = fieldById(slot.field_id);
+  var allFields = (S.data.fields || []).slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
+  var fieldOpts = allFields.map(function (fx) {
+    return '<option value="' + esc(fx.id) + '"' + (fx.id === slot.field_id ? " selected" : "") + '>' + esc(fx.name) + '</option>';
+  }).join('');
+  var dayOpts = DAYS.map(function (d) {
+    return '<option value="' + esc(d.k) + '"' + (d.k === slot.day_key ? " selected" : "") + '>' + esc(d.label) + '</option>';
+  }).join('');
+  var v = modal(
+    '<h3>Edit practice</h3>' +
+    '<div class="ctx">Move the day/time, change the field, or update the note. You can only move to open slots. If a spot is already claimed you can ask that coach to share.</div>' +
+    '<label class="mlabel">Day &amp; time</label>' +
+    '<select id="esDay" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;background:#fff;">' + dayOpts + '</select>' +
+    '<label class="mlabel">Field</label>' +
+    '<select id="esField" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;background:#fff;">' + fieldOpts + '</select>' +
+    '<label class="mlabel">Note (optional)</label>' +
+    '<input id="esNote" type="text" maxlength="200" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(slot.note || "") + '" placeholder="e.g. batting practice, first game" />' +
+    '<p class="merr hidden" id="esErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="esX">Cancel</button><button class="mb go" id="esGo">Save</button></div>'
+  );
+  v.querySelector("#esX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#esGo").addEventListener("click", function () {
+    var btn = v.querySelector("#esGo"), err = v.querySelector("#esErr");
+    btn.disabled = true; btn.textContent = "Saving…"; err.classList.add("hidden");
+    coachApi("coach_edit_slot", { slot_id: slot.id, day_key: v.querySelector("#esDay").value, field_id: v.querySelector("#esField").value, note: v.querySelector("#esNote").value })
+      .then(function (j) {
+        if (!j.ok) { err.textContent = j.error || "Could not save."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; return; }
+        v.remove(); toast("Practice updated"); load();
+      })
+      .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; });
+  });
+}
+
+function openCancelSlot(slot) {
+  var v = modal(
+    '<h3>Cancel this practice?</h3>' +
+    '<div class="ctx">Your slot stays visible so the field shows as freed up. You can restore it any time.</div>' +
+    '<label class="mlabel">Reason (shown to other coaches)</label>' +
+    '<input id="csReason" type="text" maxlength="200" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" placeholder="e.g. rainout, coach out of town" />' +
+    '<div class="mbtns"><button class="mb quiet" id="csX">Nevermind</button><button class="mb clay" id="csGo">Cancel this practice</button></div>'
+  );
+  v.querySelector("#csX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#csGo").addEventListener("click", function () {
+    var btn = v.querySelector("#csGo"); btn.disabled = true; btn.textContent = "Cancelling…";
+    coachApi("coach_cancel_slot", { slot_id: slot.id, reason: v.querySelector("#csReason").value })
+      .then(function (j) { if (!j.ok) throw new Error(j.error); v.remove(); toast("Practice cancelled"); load(); })
+      .catch(function (e) { btn.disabled = false; btn.textContent = "Cancel this practice"; toast("Could not cancel: " + (e.message || "error")); });
+  });
+}
+
+function openMessageCoachAboutSlot(slot, team, field, kind) {
+  // kind: "note" | "join". Pre-fills subject + body with slot context so the
+  // receiving coach immediately knows which practice this is about.
+  if (!team || !team.id) { toast("This slot has no coach assigned yet."); return; }
+  // We need the coach id for team's head coach. Use coach_picker from HUB state.
+  var picker = (HUB.data && HUB.data.coach_picker) || [];
+  var recipient = picker.filter(function (c) { return c.team_id === team.id; })[0];
+  if (!recipient) { toast("Could not find that coach in the directory."); return; }
+  var f = field || fieldById(slot.field_id);
+  var slotDesc = dayLabel(slot.day_key) + " at " + (f ? f.name : "the field");
+  var subject = kind === "join"
+    ? "Request to join your practice: " + slotDesc
+    : "About your practice: " + slotDesc;
+  var bodyStart = kind === "join"
+    ? "Hey Coach — my team would like to join your practice on " + slotDesc + ". Let me know if you'd like to combine, and I'll come prepared with:\n\n"
+    : "Hey Coach — about your practice on " + slotDesc + ":\n\n";
+  var v = modal(
+    '<h3>' + (kind === "join" ? "Request to join" : "Message coach") + '</h3>' +
+    '<div class="ctx">Sending to <b>' + esc(recipient.name) + '</b> about ' + esc(slotDesc) + '.</div>' +
+    '<label class="mlabel">Subject</label>' +
+    '<input id="msSubject" type="text" maxlength="160" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(subject) + '" />' +
+    '<label class="mlabel">Message</label>' +
+    '<textarea id="msBody" rows="5" style="width:100%;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;resize:vertical;" placeholder="Type your message…">' + esc(bodyStart) + '</textarea>' +
+    '<p class="merr hidden" id="msErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="msX">Cancel</button><button class="mb go" id="msGo">Send</button></div>'
+  );
+  v.querySelector("#msX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#msGo").addEventListener("click", function () {
+    var btn = v.querySelector("#msGo"), err = v.querySelector("#msErr");
+    var subj = v.querySelector("#msSubject").value.trim();
+    var msgBody = v.querySelector("#msBody").value.trim();
+    err.classList.add("hidden");
+    if (!subj) { err.textContent = "Add a subject."; err.classList.remove("hidden"); return; }
+    if (!msgBody) { err.textContent = "Add a message."; err.classList.remove("hidden"); return; }
+    btn.disabled = true; btn.textContent = "Sending…";
+    coachApi("coach_send_message", { to_coach_id: recipient.id, subject: subj, body: msgBody })
+      .then(function (j) {
+        if (!j.ok) { err.textContent = j.error || "Could not send."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; return; }
+        v.remove(); toast(kind === "join" ? "Join request sent" : "Message sent");
+        loadHubState(function () { renderHub(); });
+      })
+      .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; });
   });
 }
 

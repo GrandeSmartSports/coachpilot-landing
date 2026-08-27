@@ -796,6 +796,74 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true });
     }
 
+    if (action === "coach_edit_slot" && req.method === "POST") {
+      // Coach can move (change day_key and/or field_id) or update the note on
+      // a slot that belongs to their team. Season lock still applies.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      const slot_id = String(b.slot_id ?? "");
+      if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,day_key,field_id,label").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only edit practices for your own team." }, 403);
+      const { data: season } = await db.from("flm_seasons").select("locked,label").eq("id", slot.season_id).single();
+      if (season?.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
+      const patch: Record<string, string | null> = {};
+      if (b.day_key !== undefined && b.day_key !== null) {
+        const dk = String(b.day_key);
+        if (!DAY_KEYS.includes(dk)) return json({ ok: false, error: "invalid day/time slot" }, 400);
+        patch.day_key = dk;
+      }
+      if (b.field_id !== undefined && b.field_id !== null) patch.field_id = String(b.field_id);
+      if (b.note !== undefined) patch.note = String(b.note ?? "").slice(0, 200);
+      if (!Object.keys(patch).length) return json({ ok: false, error: "nothing to update" }, 400);
+      // If they're changing time or field, check the new spot for conflicts.
+      if (patch.day_key || patch.field_id) {
+        const newDay = patch.day_key ?? slot.day_key;
+        const newField = patch.field_id ?? slot.field_id;
+        const { data: clash } = await db.from("flm_slots").select("id,team_id").eq("season_id", slot.season_id).eq("day_key", newDay).eq("field_id", newField).neq("id", slot_id);
+        if ((clash ?? []).length && !b.allow_share) return json({ ok: false, error: "That day + field is already taken. Ask the other coach if they want to share.", taken: true }, 409);
+      }
+      const { error } = await db.from("flm_slots").update(patch).eq("id", slot_id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_edit_slot", `${coach.name} edited ${slot.label} (${Object.keys(patch).join(", ")})`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_cancel_slot" && req.method === "POST") {
+      // Soft-cancel: sets cancelled_at + reason. Slot stays visible so other
+      // coaches see the cancellation and can free field time. Coach can undo.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      const slot_id = String(b.slot_id ?? "");
+      if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,label,day_key").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only cancel your own team's practices." }, 403);
+      const reason = String(b.reason ?? "").trim().slice(0, 200);
+      const { error } = await db.from("flm_slots").update({ cancelled_at: new Date().toISOString(), cancel_reason: reason || "Cancelled" }).eq("id", slot_id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_cancel_slot", `${coach.name} cancelled ${slot.label} on ${slot.day_key}${reason ? " — " + reason : ""}`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_uncancel_slot" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      const slot_id = String(b.slot_id ?? "");
+      if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only restore your own team's practices." }, 403);
+      const { error } = await db.from("flm_slots").update({ cancelled_at: null, cancel_reason: null }).eq("id", slot_id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_uncancel_slot", `${coach.name} restored ${slot.label} on ${slot.day_key}`, "coach");
+      return json({ ok: true });
+    }
+
     if (action === "coach_update_profile" && req.method === "POST") {
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
