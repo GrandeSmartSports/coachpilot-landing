@@ -208,6 +208,41 @@ function inviteExpiry(): string {
   d.setUTCDate(d.getUTCDate() + 14);
   return d.toISOString();
 }
+// Expand common Little League division abbreviations to full readable names.
+// BB = Baseball, SB = Softball. Falls through to the input if no rule matches.
+function expandDivision(raw: unknown): string {
+  const s = String(raw ?? "").trim();
+  if (!s) return "";
+  const map: Record<string, string> = {
+    "CP BB": "Coach Pitch Baseball",
+    "CP SB": "Coach Pitch Softball",
+    "CPBB": "Coach Pitch Baseball",
+    "CPSB": "Coach Pitch Softball",
+    "TBall": "T-Ball",
+    "T Ball": "T-Ball",
+    "TB": "T-Ball",
+    "AA BB": "AA Baseball",
+    "AA SB": "AA Softball",
+    "AAA BB": "AAA Baseball",
+    "AAA SB": "AAA Softball",
+    "Majors BB": "Majors Baseball",
+    "Majors SB": "Majors Softball",
+    "MJBB": "Majors Baseball",
+    "MJSB": "Majors Softball",
+    "Minors BB": "Minors Baseball",
+    "Minors SB": "Minors Softball",
+    "Minors A BB": "Minors A Baseball",
+    "Minors A SB": "Minors A Softball",
+    "Minors B BB": "Minors B Baseball",
+    "Minors B SB": "Minors B Softball",
+    "MNBB": "Minors Baseball",
+    "MNSB": "Minors Softball",
+  };
+  if (map[s]) return map[s];
+  // Generic fallback: swap trailing BB / SB tokens for Baseball / Softball
+  return s.replace(/\bBB\b/g, "Baseball").replace(/\bSB\b/g, "Softball").replace(/\s+/g, " ").trim();
+}
+
 function isEmail(s: unknown): boolean {
   return typeof s === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
 }
@@ -606,7 +641,11 @@ Deno.serve(async (req: Request) => {
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
       if (!coach) return json({ ok: false, error: "not signed in" }, 401);
-      const [settings, announcements, contacts, myRequests, myMessages, picker] = await Promise.all([
+      // Pull the full coach row + their team row so the hub can show a proper profile
+      // (division, team name, phone) instead of just name + email.
+      const [full, team, settings, announcements, contacts, myRequests, myMessages, picker] = await Promise.all([
+        db.from("flm_coaches").select("id,name,email,phone,team_id").eq("id", coach.id).single(),
+        coach.team_id ? db.from("flm_teams").select("id,name,division,coach_name,coach_phone").eq("id", coach.team_id).single() : Promise.resolve({ data: null }),
         db.from("flm_settings").select("key,value").in("key", ["league_name"]),
         db.from("flm_announcements").select("*").order("created_at", { ascending: false }).limit(50),
         db.from("flm_contacts").select("id,name,role,email,phone,notes,sort_order").eq("active", true).order("sort_order").order("name"),
@@ -620,10 +659,26 @@ Deno.serve(async (req: Request) => {
       ]);
       const settingsMap: Record<string, string> = {};
       (settings.data || []).forEach((r: { key: string; value: string }) => { settingsMap[r.key] = r.value; });
+      const c = full.data || coach;
+      // Coach's phone can live on either the coach row or the team row (spreadsheet imports
+      // land it on the team). Fall back to team row if the coach row is empty.
+      const phone = c.phone || (team.data ? team.data.coach_phone : null) || null;
+      const profileMissing: string[] = [];
+      if (!c.email) profileMissing.push("email");
+      if (!phone) profileMissing.push("phone");
       return json({
         ok: true,
         league_name: settingsMap.league_name || "Field Command",
-        coach: { id: coach.id, name: coach.name, email: coach.email, team_id: coach.team_id },
+        coach: {
+          id: c.id,
+          name: c.name,
+          email: c.email,
+          phone,
+          team_id: c.team_id,
+          team_name: team.data ? team.data.name : null,
+          division: team.data ? team.data.division : null,
+        },
+        profile_missing: profileMissing,
         announcements: announcements.data || [],
         contacts: contacts.data || [],
         my_requests: myRequests.data || [],
@@ -738,6 +793,31 @@ Deno.serve(async (req: Request) => {
       const { error } = await db.from("flm_coaches").update({ pin: np }).eq("id", coach.id);
       if (error) return json({ ok: false, error: error.message }, 500);
       await log("coach_change_pin", `${coach.name} changed their PIN`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_update_profile" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const patch: Record<string, string> = {};
+      if (b.phone !== undefined) patch.phone = String(b.phone ?? "").trim().slice(0, 40);
+      // Name edits are allowed (in case the imported spreadsheet had "J. Doe" and the
+      // coach wants their full name). Email is intentionally NOT editable here — it's
+      // the login credential; a change has to go through the league admin.
+      if (b.name !== undefined) {
+        const nm = String(b.name ?? "").trim().slice(0, 120);
+        if (nm) patch.name = nm;
+      }
+      if (!Object.keys(patch).length) return json({ ok: false, error: "nothing to update" }, 400);
+      const { error } = await db.from("flm_coaches").update(patch).eq("id", coach.id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      // Mirror phone onto the team row too so anyone browsing the team directory sees
+      // the same number.
+      if (patch.phone && coach.team_id) {
+        await db.from("flm_teams").update({ coach_phone: patch.phone }).eq("id", coach.team_id);
+      }
+      await log("coach_update_profile", `${coach.name} updated ${Object.keys(patch).join(", ")}`, "coach");
       return json({ ok: true });
     }
 
@@ -1350,7 +1430,7 @@ Deno.serve(async (req: Request) => {
       for (const t of (b.teams ?? [])) {
         const name = String(t.name ?? "").trim();
         const coach = String(t.coach_name ?? "").trim();
-        const division = String(t.division ?? "").trim();
+        const division = expandDivision(t.division);
         if (!name && !coach) continue;
         // Match an existing team: exact team name, else same coach in the same division
         // (a coach can legitimately run one baseball and one softball team).
@@ -1506,7 +1586,7 @@ Deno.serve(async (req: Request) => {
         const name = String(raw.name ?? "").trim().slice(0, 120);
         const email = String(raw.email ?? "").trim().toLowerCase().slice(0, 200);
         const teamName = String(raw.team ?? raw.team_name ?? "").trim().slice(0, 120);
-        const division = String(raw.division ?? "").trim().slice(0, 60);
+        const division = expandDivision(raw.division).slice(0, 60);
         const phone = raw.phone ? String(raw.phone).trim().slice(0, 40) : null;
         if (!name || !isEmail(email)) { summary.skipped++; summary.errors.push(`${name || email || "row"}: name + valid email required`); continue; }
         let team_id: string | null = null;
