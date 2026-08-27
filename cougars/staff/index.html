@@ -219,7 +219,14 @@ function signOut() {
 // ---------- portal ----------
 function boot() {
   var token = new URLSearchParams(location.search).get("token");
-  if (token) { showSetPin(token); return; }
+  if (token) {
+    // Strip the token from the URL immediately. If it's stale (already
+    // used, or superseded by a newer email) the user falls back to the
+    // normal sign-in and must NOT loop back here after logging in.
+    history.replaceState(null, "", location.pathname);
+    showSetPin(token);
+    return;
+  }
   if (!CRED.id || !CRED.pin) { showLogin(); return; }
   el("main").innerHTML = '<div class="loading">Loading&hellip;</div>';
   Promise.all([
