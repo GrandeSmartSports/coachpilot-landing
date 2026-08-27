@@ -330,11 +330,12 @@ function renderPractice() {
 
 function renderGameplan() {
   var g = STATE.gameplan;
+  var gdLink = '<div class="card"><h3>Game Day page</h3><p class="lede">The live lineup page, same one parents see (you get walkups on it too since you\'re signed in).</p><a href="/cougars/gameday.html" style="color:var(--red-dark);font-weight:600;">Open Game Day &rarr;</a></div>';
   if (!g) {
-    el("main").innerHTML = '<div class="card"><h3>Game plan</h3><p class="lede">No game plan published yet. Coach publishes the lineup on game day — check back then.</p></div>';
+    el("main").innerHTML = gdLink + '<div class="card"><h3>Game plan</h3><p class="lede">No game plan published yet. Coach publishes the lineup on game day — check back then.</p></div>';
     return;
   }
-  var html = "";
+  var html = gdLink;
   var meta = g.game_meta || {};
   html += '<div class="card"><h3>' + esc(meta.opponent ? "vs " + meta.opponent : "Game plan") + '</h3>';
   if (meta.date || meta.location) html += '<p class="lede">' + esc([meta.date, meta.location].filter(Boolean).join(" · ")) + '</p>';

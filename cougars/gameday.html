@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Game Day — BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link rel="apple-touch-icon" href="/cougars/assets/cougars-logo-mark.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #e63946; --red-dark: #c62828; --black: #17181a; --bg: #f5f2ee;
+    --muted: #78736b; --line: #e2ddd4; --card: #ffffff; --green: #2e7d32;
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--black); min-height: 100vh; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+
+  header.hero { background: var(--black); color: #fff; padding: 24px 18px 18px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--red); }
+  header.hero h1 { font-family: var(--disp); font-weight: 700; font-size: 34px; text-transform: uppercase; line-height: 1.05; }
+  .sub { font-size: 13.5px; color: #b9b4ac; margin-top: 4px; }
+
+  main { padding: 16px 16px 40px; max-width: 620px; margin: 0 auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+  .card h3 { font-family: var(--disp); font-weight: 600; font-size: 18px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+  .lede { color: var(--muted); font-size: 13.5px; }
+
+  table.bo { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.bo td { padding: 8px 6px; border-bottom: 1px solid #efece5; }
+  .num { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--black); color: #fff; font-family: var(--disp); font-size: 13px; font-weight: 700; text-align: center; line-height: 24px; margin-right: 10px; }
+  .inn { margin-bottom: 12px; }
+  .inn h4 { font-family: var(--disp); font-weight: 600; font-size: 14px; text-transform: uppercase; color: var(--red-dark); margin-bottom: 5px; }
+  .posrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .poschip { background: #fbfaf7; border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font-size: 13px; }
+  .poschip b { font-family: var(--disp); color: var(--red-dark); margin-right: 5px; }
+
+  .empty { text-align: center; padding: 40px 18px; }
+  .empty .big { font-family: var(--disp); font-weight: 700; font-size: 24px; text-transform: uppercase; margin-bottom: 8px; }
+
+  .wrow { padding: 9px 0; border-bottom: 1px solid #efece5; }
+  .wrow .wn { font-weight: 600; font-size: 14.5px; }
+  .wrow .ws { font-size: 13px; color: var(--muted); }
+  .wrow .wp { font-size: 12.5px; color: var(--red-dark); }
+  .wrow audio { width: 100%; height: 32px; margin-top: 5px; }
+
+  .staffbar { background: var(--black); color: #fff; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; font-size: 13.5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .staffbar a { color: #fff; font-family: var(--disp); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; font-size: 13px; text-decoration: none; background: var(--red); padding: 8px 14px; border-radius: 8px; }
+  .foot { text-align: center; font-size: 12.5px; color: var(--muted); padding: 10px 0 30px; }
+  .foot a { color: var(--muted); }
+  .updated { text-align: center; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">BLS Cougars &middot; Fastpitch</div>
+  <h1>Game Day</h1>
+  <div class="sub" id="gameSub">Today's lineup</div>
+</header>
+
+<main id="main">
+  <div class="empty"><div class="big">Loading&hellip;</div></div>
+</main>
+
+<div class="foot"><a href="/cougars/">&larr; Back to the Cougars hub</a></div>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+var STAFF = {
+  id: localStorage.getItem("cgs_staff_id") || "",
+  pin: localStorage.getItem("cgs_staff_pin") || "",
+  name: localStorage.getItem("cgs_staff_name") || "",
+  role: ""
+};
+
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+function render(pub, staffState) {
+  var main = document.getElementById("main");
+  var html = "";
+
+  // Staff strip: shows only for signed-in staff (from the staff page device).
+  if (staffState && staffState.ok) {
+    STAFF.role = staffState.staff.role || "";
+    var isCoach = /head coach/i.test(STAFF.role);
+    html += '<div class="staffbar"><span>Signed in as <b>' + esc(staffState.staff.name) + '</b></span>' +
+      (isCoach ? '<a href="https://pwa-henna-ten.vercel.app">Open OnDeck</a>' : '<a href="/cougars/staff/">Staff page</a>') +
+      '</div>';
+  }
+
+  if (!pub || !pub.published) {
+    html += '<div class="card"><div class="empty"><div class="big">No lineup posted yet</div>' +
+      '<p class="lede">Coach posts the lineup here on game day. Check back closer to first pitch!</p></div></div>';
+    main.innerHTML = html;
+    return;
+  }
+
+  var meta = pub.game_meta || {};
+  if (meta.opponent) document.getElementById("gameSub").textContent = "vs " + meta.opponent + (meta.date ? " · " + meta.date : "");
+
+  if (pub.updated_at) {
+    html += '<div class="updated">Lineup updated ' + new Date(pub.updated_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + '</div>';
+  }
+
+  if (Array.isArray(pub.battingOrder) && pub.battingOrder.length) {
+    html += '<div class="card"><h3>Batting order</h3><table class="bo">';
+    pub.battingOrder.forEach(function (n, i) {
+      html += '<tr><td><span class="num">' + (i + 1) + '</span>' + esc(n) + '</td></tr>';
+    });
+    html += '</table></div>';
+  }
+
+  if (Array.isArray(pub.innings) && pub.innings.length) {
+    html += '<div class="card"><h3>Positions by inning</h3>';
+    pub.innings.forEach(function (inn, i) {
+      if (!inn.field || !inn.field.length) return;
+      html += '<div class="inn"><h4>Inning ' + (i + 1) + '</h4><div class="posrow">';
+      inn.field.forEach(function (f) { html += '<span class="poschip"><b>' + esc(f.pos) + '</b>' + esc(f.name) + '</span>'; });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  // Walkups: staff-only extra.
+  if (staffState && staffState.ok && staffState.walkups && staffState.walkups.report) {
+    var w = staffState.walkups;
+    html += '<div class="card"><h3>Walkup songs (staff)</h3>';
+    w.report.forEach(function (r) {
+      if (!r.responded) return;
+      html += '<div class="wrow"><div class="wn">' + esc(r.first_name + " " + (r.last_name || "").charAt(0) + ".") + '</div>' +
+        '<div class="ws">' + esc(r.song_title || "") + (r.song_artist ? " — " + esc(r.song_artist) : "") + (r.song_start ? " (start " + esc(r.song_start) + ")" : "") + '</div>' +
+        (r.phonetic ? '<div class="wp">Say it: ' + esc(r.phonetic) + '</div>' : '') +
+        (r.recording_url ? '<audio controls preload="none" src="' + esc(r.recording_url) + '"></audio>' : '') +
+        '</div>';
+    });
+    html += '</div>';
+  }
+
+  main.innerHTML = html;
+}
+
+function load() {
+  var pubReq = fetch(API + "?action=gameday_public").then(function (r) { return r.json(); }).catch(function () { return null; });
+  var staffReq = (STAFF.id && STAFF.pin)
+    ? fetch(API + "?action=staff_state", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ staff_id: STAFF.id, staff_pin: STAFF.pin }) }).then(function (r) { return r.json(); }).catch(function () { return null; })
+    : Promise.resolve(null);
+  Promise.all([pubReq, staffReq]).then(function (res) { render(res[0], res[1]); });
+}
+
+load();
+setInterval(load, 60000); // lineup can change pregame — keep it fresh
+
+try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "gameday" }), keepalive: true }).catch(function () {}); } catch (e) {}
+</script>
+</body>
+</html>

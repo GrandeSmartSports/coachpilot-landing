@@ -14,7 +14,7 @@ const VALID_SWEAT = ["YXS", "YS", "YM", "YL", "YXL", "AXS", "AS"];
 const VOL_CATEGORIES = [
   "field_setup", "teardown", "dugout_accessories", "bows", "socks", "cheer_crew", "chair_crew",
 ];
-const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff"];
+const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff", "gameday"];
 const ATTENDANCE_STATUSES = ["yes", "no", "maybe"];
 const CAGE_CHOICES = ["monday", "tuesday", "wednesday"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -298,6 +298,56 @@ Deno.serve(async (req) => {
       if (!data.email_confirmed_at || !data.pin) return json({ error: "check your email for the setup link first" }, 403);
       if (String(pin) !== String(data.pin)) return json({ error: "that PIN did not work" }, 401);
       return json({ ok: true, staff: { id: data.id, name: data.name, email: data.email } });
+    }
+
+    // GET gameday_public -> the PUBLISHED lineup for parents. No login.
+    // Names go out as First + Last-initial (same convention as the public
+    // players action). Only battingOrder + innings positions + game meta —
+    // no attendance, no notes, nothing else.
+    if (req.method === "GET" && action === "gameday_public") {
+      const { data: gs } = await supabase
+        .from("ondeck_game_states")
+        .select("state_published, game_meta, updated_at")
+        .not("state_published", "is", null)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!gs?.state_published || typeof gs.state_published !== "object") {
+        return json({ published: false });
+      }
+      const sp = gs.state_published as Record<string, any>;
+      // Build a full-name -> "First L." map from the roster; fall back to
+      // first word + initial of the last word for names not on the roster.
+      const { data: roster } = await getPlayers();
+      const short = new Map<string, string>();
+      for (const p of roster ?? []) {
+        const full = (p.first_name + " " + (p.last_name ?? "")).trim().toLowerCase();
+        short.set(full, p.first_name + " " + ((p.last_name ?? "").charAt(0) ? (p.last_name ?? "").charAt(0) + "." : ""));
+      }
+      const shorten = (name: unknown): string => {
+        const n = String(name ?? "").trim();
+        if (!n) return "";
+        const hit = short.get(n.toLowerCase());
+        if (hit) return hit;
+        const parts = n.split(/\s+/);
+        return parts.length > 1 ? parts[0] + " " + parts[parts.length - 1].charAt(0) + "." : n;
+      };
+      const battingOrder = Array.isArray(sp.battingOrder) ? sp.battingOrder.map(shorten) : [];
+      const innings = Array.isArray(sp.innings)
+        ? sp.innings.map((inn: any) => ({
+            field: Array.isArray(inn?.field)
+              ? inn.field.map((f: any) => ({ pos: String(f?.pos ?? ""), name: shorten(f?.name) }))
+              : [],
+          }))
+        : [];
+      return json({
+        published: true,
+        game_meta: gs.game_meta ?? null,
+        updated_at: gs.updated_at ?? null,
+        battingOrder,
+        innings,
+        totalInnings: sp.totalInnings ?? innings.length,
+      });
     }
 
     if (req.method === "POST" && action === "staff_state") {
