@@ -133,6 +133,7 @@
   <div class="actions">
     <button class="btn btn-ghost" id="btn-save" onclick="save(false)">Save</button>
     <button class="btn btn-gold" id="btn-submit" onclick="save(true)">Submit to Cortex</button>
+    <button class="btn btn-ghost" id="btn-publish" onclick="togglePublish()" style="border-color:#c62828;color:#c62828;">Publish to assistants</button>
   </div>
   <div id="save-msg"></div>
 </main>
@@ -202,6 +203,7 @@ function select(slug) {
   document.getElementById('f-notes').value = current.coach_notes || '';
   document.getElementById('save-msg').textContent = '';
   renderBlocks();
+  updatePublishBtn();
 }
 
 function parseStart(s) {
@@ -327,6 +329,37 @@ function save(submit) {
       document.getElementById('btn-save').disabled = false;
       document.getElementById('btn-submit').disabled = false;
     });
+}
+
+function updatePublishBtn() {
+  var b = document.getElementById('btn-publish');
+  if (!b || !current) return;
+  var on = current.published_to_staff === true;
+  b.textContent = on ? 'Published to assistants ✓ (tap to unpublish)' : 'Publish to assistants';
+  b.style.background = on ? '#c62828' : '';
+  b.style.color = on ? '#fff' : '#c62828';
+}
+
+function togglePublish() {
+  if (!current) return;
+  var msg = document.getElementById('save-msg');
+  var next = current.published_to_staff !== true;
+  msg.className = ''; msg.textContent = next ? 'Publishing…' : 'Unpublishing…';
+  // Publish also saves current edits so assistants never see a stale plan.
+  document.querySelectorAll('#blocks .b-title').forEach(function(inp, i) { if (current.blocks[i]) current.blocks[i].title = inp.value; });
+  document.querySelectorAll('#blocks .b-detail').forEach(function(ta, i) { if (current.blocks[i]) current.blocks[i].detail = ta.value; });
+  fetch(API, {
+    method: 'POST', headers: apiHeaders(),
+    body: JSON.stringify({ slug: current.slug, blocks: current.blocks, coach_notes: document.getElementById('f-notes').value, publish_to_staff: next })
+  })
+    .then(function(r) { if (!r.ok) throw new Error('Failed (' + r.status + ')'); return r.json(); })
+    .then(function(d) {
+      current.published_to_staff = d.saved.published_to_staff === true;
+      updatePublishBtn();
+      msg.className = 'ok';
+      msg.textContent = current.published_to_staff ? '✓ Live on the assistant coaches page.' : '✓ Pulled from the assistant page.';
+    })
+    .catch(function(e) { msg.className = 'bad'; msg.textContent = e.message + ' — try again.'; });
 }
 
 document.getElementById('pin').addEventListener('keydown', function(e) { if (e.key === 'Enter') unlock(); });

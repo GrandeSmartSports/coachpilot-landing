@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Cougars Staff</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23111111'/><circle cx='50' cy='50' r='26' fill='%23e63946'/><path d='M38 50 L62 50 M50 38 L50 62' stroke='%23ffffff' stroke-width='6' stroke-linecap='round'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #e63946; --red-dark: #c62828; --ink: #17181a; --bg: #f5f2ee;
+    --muted: #78736b; --line: #e2ddd4; --card: #ffffff; --green: #2e7d32;
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--bg); color: var(--ink); min-height: 100vh; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; padding-bottom: 76px; }
+
+  header.hero { background: var(--ink); color: #fff; padding: 22px 18px 16px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--red); }
+  header.hero h1 { font-family: var(--disp); font-weight: 700; font-size: 30px; text-transform: uppercase; line-height: 1.05; }
+  .who { font-size: 13px; color: #b9b4ac; margin-top: 4px; }
+  .who a { color: #b9b4ac; }
+
+  main { padding: 16px 16px 30px; max-width: 640px; margin: 0 auto; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+  .card h3 { font-family: var(--disp); font-weight: 600; font-size: 17px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .lede { color: var(--muted); font-size: 13.5px; margin-bottom: 10px; }
+
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red-dark); margin: 10px 0 4px; }
+  input { width: 100%; font-size: 16px; padding: 12px; border: 2px solid var(--line); border-radius: 10px; font-family: inherit; background: #fff; }
+  input:focus { outline: none; border-color: var(--ink); }
+  input.pin { text-align: center; font-size: 28px; letter-spacing: 0.5em; font-weight: 700; }
+  .btn { width: 100%; margin-top: 14px; font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 11px; padding: 14px; background: var(--red); color: #fff; cursor: pointer; }
+  .btn:disabled { opacity: 0.6; }
+  .err { color: var(--red-dark); font-size: 13.5px; margin-top: 10px; font-weight: 600; }
+  .okmsg { color: var(--green); font-size: 14px; margin-top: 10px; font-weight: 600; }
+  .hidden { display: none !important; }
+
+  /* tabs */
+  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); display: flex; z-index: 40; padding-bottom: env(safe-area-inset-bottom); }
+  .tab { flex: 1; padding: 12px 4px 10px; text-align: center; color: #9b968e; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; border-top: 3px solid transparent; }
+  .tab.on { color: #fff; border-top-color: var(--red); }
+
+  /* practice plan blocks */
+  .pblock { border-left: 4px solid var(--red); background: #fbfaf7; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+  .pblock .bt { font-family: var(--disp); font-weight: 600; font-size: 15px; }
+  .pblock .bm { color: var(--muted); font-size: 12px; font-weight: 700; float: right; }
+  .pblock .bd { font-size: 13.5px; color: #3c3c3c; margin-top: 3px; white-space: pre-wrap; }
+  .planhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .planhead .when { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* gameplan */
+  table.bo { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.bo td, table.bo th { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+  table.bo th { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .num { display: inline-block; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; text-align: center; line-height: 22px; margin-right: 8px; }
+  .inn { margin-bottom: 12px; }
+  .inn h4 { font-family: var(--disp); font-weight: 600; font-size: 14px; text-transform: uppercase; color: var(--red-dark); margin-bottom: 4px; }
+  .posrow { display: flex; flex-wrap: wrap; gap: 5px; }
+  .poschip { background: #fff; border: 1px solid var(--line); border-radius: 7px; padding: 4px 9px; font-size: 12.5px; }
+  .poschip b { font-family: var(--disp); color: var(--red-dark); margin-right: 4px; }
+
+  /* walkups */
+  .wrow { padding: 9px 0; border-bottom: 1px solid var(--line); }
+  .wrow .wn { font-weight: 600; font-size: 14.5px; }
+  .wrow .ws { font-size: 13px; color: var(--muted); }
+  .wrow .wp { font-size: 12.5px; color: var(--red-dark); }
+  .wrow audio { width: 100%; height: 32px; margin-top: 5px; }
+  .loading { text-align: center; color: var(--muted); font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.1em; padding: 26px 0; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="kicker">Cougars &middot; Coaching Staff</div>
+  <h1 id="heroTitle">Staff Hub</h1>
+  <div class="who" id="heroWho"></div>
+</header>
+
+<main id="main"><div class="loading">Loading&hellip;</div></main>
+
+<nav class="tabbar hidden" id="tabbar">
+  <div class="tab on" data-tab="practice">Practice</div>
+  <div class="tab" data-tab="gameplan">Game Plan</div>
+  <div class="tab" data-tab="walkups">Walkups</div>
+</nav>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+var PLANS_API = "https://xyphakgtsvtaaswmvvol.supabase.co/functions/v1/practice-studio-gateway";
+var CRED = {
+  id: localStorage.getItem("cgs_staff_id") || "",
+  pin: localStorage.getItem("cgs_staff_pin") || "",
+  name: localStorage.getItem("cgs_staff_name") || "",
+  email: localStorage.getItem("cgs_staff_email") || ""
+};
+var STATE = null;
+var PLANS = [];
+var TAB = "practice";
+
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function el(id) { return document.getElementById(id); }
+function post(action, body) {
+  return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) })
+    .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+}
+
+// ---------- auth screens ----------
+function showLogin(prefillMsg) {
+  el("tabbar").classList.add("hidden");
+  el("heroWho").textContent = "";
+  el("main").innerHTML =
+    '<div class="card"><h3>Staff sign in</h3>' +
+    '<p class="lede">Enter your email. First time here? We\'ll email you a link to set your own 4 digit PIN, then this phone stays signed in.</p>' +
+    '<label>Your email</label><input id="lEmail" type="email" autocomplete="email" value="' + esc(CRED.email) + '" />' +
+    '<div id="lPinWrap" class="hidden"><label>Your 4 digit PIN</label><input id="lPin" class="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="current-password" /></div>' +
+    '<button class="btn" id="lGo">Continue</button>' +
+    '<p class="err hidden" id="lErr"></p><p class="okmsg hidden" id="lOk"></p>' +
+    '<p class="lede" style="margin-top:12px;"><a href="#" id="lForgot" style="color:var(--red-dark);display:none;">Forgot PIN? Email me a reset link</a></p>' +
+    '</div>';
+  if (prefillMsg) { el("lOk").textContent = prefillMsg; el("lOk").classList.remove("hidden"); }
+  var stage = "email";
+  function err(t) { el("lErr").textContent = t; el("lErr").classList.remove("hidden"); el("lOk").classList.add("hidden"); }
+  function ok(t) { el("lOk").textContent = t; el("lOk").classList.remove("hidden"); el("lErr").classList.add("hidden"); }
+  function go() {
+    var email = el("lEmail").value.trim();
+    if (stage === "email") {
+      if (email.indexOf("@") < 1) { err("Enter your email."); return; }
+      el("lGo").disabled = true; el("lGo").textContent = "Checking…";
+      post("staff_request_access", { email: email }).then(function (j) {
+        el("lGo").disabled = false;
+        if (!j.ok) { el("lGo").textContent = "Continue"; err(j.error || "That did not work."); return; }
+        if (!j.found) { el("lGo").textContent = "Continue"; err("That email is not on the staff list. Check with Coach Daniel."); return; }
+        if (j.has_pin) {
+          stage = "pin"; el("lPinWrap").classList.remove("hidden"); el("lForgot").style.display = "";
+          el("lGo").textContent = "Sign in"; setTimeout(function () { el("lPin").focus(); }, 20);
+        } else {
+          el("lGo").textContent = "Continue";
+          ok("Check your email! We sent you a link to set your PIN. Tap it and you're in.");
+        }
+      }).catch(function () { el("lGo").disabled = false; el("lGo").textContent = "Continue"; err("Could not reach the server."); });
+    } else {
+      var pin = el("lPin").value.trim();
+      if (!/^\d{4}$/.test(pin)) { err("Enter your 4 digit PIN."); return; }
+      el("lGo").disabled = true; el("lGo").textContent = "Signing in…";
+      post("staff_login", { email: email, pin: pin }).then(function (j) {
+        if (!j.ok) { el("lGo").disabled = false; el("lGo").textContent = "Sign in"; err(j.error || "That did not work."); return; }
+        saveCreds(j.staff, pin);
+        boot();
+      }).catch(function () { el("lGo").disabled = false; el("lGo").textContent = "Sign in"; err("Could not reach the server."); });
+    }
+  }
+  el("lGo").addEventListener("click", go);
+  el("lEmail").addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
+  el("lEmail").addEventListener("input", function () { if (stage === "pin") { stage = "email"; el("lPinWrap").classList.add("hidden"); el("lForgot").style.display = "none"; el("lGo").textContent = "Continue"; } });
+  document.addEventListener("keydown", function (e) { if (e.key === "Enter" && document.activeElement === el("lPin")) go(); });
+  el("lForgot").addEventListener("click", function (e) {
+    e.preventDefault();
+    var email = el("lEmail").value.trim();
+    if (!email) { err("Enter your email first."); return; }
+    post("staff_request_access", { email: email, reset: true }).then(function (j) {
+      if (j.ok && j.found) ok("Reset link sent. Check your email.");
+      else err("Could not send the reset.");
+    });
+  });
+}
+
+function showSetPin(token) {
+  el("tabbar").classList.add("hidden");
+  el("main").innerHTML = '<div class="loading">Checking your link&hellip;</div>';
+  post("staff_verify_token", { token: token }).then(function (j) {
+    if (!j.ok) { showLogin(); el("lErr").textContent = j.error || "Link problem."; el("lErr").classList.remove("hidden"); return; }
+    el("main").innerHTML =
+      '<div class="card"><h3>Hi ' + esc(j.staff.name.split(" ")[0]) + '!</h3>' +
+      '<p class="lede">Pick a 4 digit PIN. You\'ll use it with your email (<b>' + esc(j.staff.email) + '</b>) any time you sign in on a new phone. This one stays signed in.</p>' +
+      '<label>New 4 digit PIN</label><input id="spPin" class="pin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" />' +
+      '<button class="btn" id="spGo">Set PIN + enter</button>' +
+      '<p class="err hidden" id="spErr"></p></div>';
+    function go() {
+      var pin = el("spPin").value.trim();
+      if (!/^\d{4}$/.test(pin)) { el("spErr").textContent = "PIN must be exactly 4 digits."; el("spErr").classList.remove("hidden"); return; }
+      el("spGo").disabled = true; el("spGo").textContent = "Setting up…";
+      post("staff_set_pin", { token: token, new_pin: pin }).then(function (r) {
+        if (!r.ok) { el("spGo").disabled = false; el("spGo").textContent = "Set PIN + enter"; el("spErr").textContent = r.error || "Did not work."; el("spErr").classList.remove("hidden"); return; }
+        saveCreds(r.staff, pin);
+        history.replaceState(null, "", location.pathname);
+        boot();
+      });
+    }
+    el("spGo").addEventListener("click", go);
+    el("spPin").addEventListener("keydown", function (e) { if (e.key === "Enter") go(); });
+    setTimeout(function () { el("spPin").focus(); }, 20);
+  });
+}
+
+function saveCreds(staff, pin) {
+  CRED = { id: staff.id, pin: pin, name: staff.name, email: staff.email };
+  localStorage.setItem("cgs_staff_id", staff.id);
+  localStorage.setItem("cgs_staff_pin", pin);
+  localStorage.setItem("cgs_staff_name", staff.name);
+  localStorage.setItem("cgs_staff_email", staff.email);
+}
+
+function signOut() {
+  ["cgs_staff_id", "cgs_staff_pin", "cgs_staff_name", "cgs_staff_email"].forEach(function (k) { localStorage.removeItem(k); });
+  CRED = { id: "", pin: "", name: "", email: "" };
+  showLogin();
+}
+
+// ---------- portal ----------
+function boot() {
+  var token = new URLSearchParams(location.search).get("token");
+  if (token) { showSetPin(token); return; }
+  if (!CRED.id || !CRED.pin) { showLogin(); return; }
+  el("main").innerHTML = '<div class="loading">Loading&hellip;</div>';
+  Promise.all([
+    post("staff_state", { staff_id: CRED.id, staff_pin: CRED.pin }),
+    fetch(PLANS_API + "?action=staff_plans").then(function (r) { return r.json(); }).catch(function () { return { plans: [] }; })
+  ]).then(function (res) {
+    var st = res[0];
+    if (!st.ok) {
+      if (st._status === 401) { showLogin("Session expired — sign in again."); return; }
+      el("main").innerHTML = '<div class="card"><p class="err">Could not load: ' + esc(st.error || "server error") + '</p></div>';
+      return;
+    }
+    STATE = st;
+    PLANS = res[1].plans || [];
+    el("heroWho").innerHTML = "Signed in as <b>" + esc(st.staff.name) + "</b>" + (st.staff.role ? " &middot; " + esc(st.staff.role) : "") + ' &middot; <a href="#" onclick="signOut();return false;">sign out</a>';
+    el("tabbar").classList.remove("hidden");
+    render();
+  });
+}
+
+function render() {
+  document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t.getAttribute("data-tab") === TAB); });
+  if (TAB === "practice") renderPractice();
+  else if (TAB === "gameplan") renderGameplan();
+  else renderWalkups();
+}
+
+function renderPractice() {
+  var html = "";
+  if (!PLANS.length) {
+    html += '<div class="card"><h3>Practice plans</h3><p class="lede">Nothing published yet. Coach Daniel publishes each plan here when it\'s ready.</p></div>';
+  }
+  PLANS.forEach(function (p) {
+    var when = p.published_at ? new Date(p.published_at).toLocaleDateString([], { month: "short", day: "numeric" }) : "";
+    html += '<div class="card"><div class="planhead"><h3>' + esc(p.title) + '</h3><span class="when">' + esc(when) + '</span></div>';
+    if (p.session_info) html += '<p class="lede">' + esc(p.session_info) + '</p>';
+    (p.blocks || []).forEach(function (b) {
+      html += '<div class="pblock"><span class="bm">' + (b.minutes ? esc(b.minutes) + " min" : "") + '</span><div class="bt">' + esc(b.title) + '</div>' + (b.detail ? '<div class="bd">' + esc(b.detail) + '</div>' : '') + '</div>';
+    });
+    html += '</div>';
+  });
+  html += '<div class="card"><h3>Team practice info</h3><p class="lede">Where and when we practice, for parents too.</p><a href="/cougars/practice.html" style="color:var(--red-dark);font-weight:600;">Open the practice page &rarr;</a></div>';
+  el("main").innerHTML = html;
+}
+
+function renderGameplan() {
+  var g = STATE.gameplan;
+  if (!g) {
+    el("main").innerHTML = '<div class="card"><h3>Game plan</h3><p class="lede">No game plan published yet. Coach publishes the lineup on game day — check back then.</p></div>';
+    return;
+  }
+  var html = "";
+  var meta = g.game_meta || {};
+  html += '<div class="card"><h3>' + esc(meta.opponent ? "vs " + meta.opponent : "Game plan") + '</h3>';
+  if (meta.date || meta.location) html += '<p class="lede">' + esc([meta.date, meta.location].filter(Boolean).join(" · ")) + '</p>';
+
+  if (Array.isArray(g.battingOrder) && g.battingOrder.length) {
+    html += '<h3 style="margin-top:8px;">Batting order</h3><table class="bo">';
+    g.battingOrder.forEach(function (n, i) {
+      html += '<tr><td><span class="num">' + (i + 1) + '</span>' + esc(n) + '</td></tr>';
+    });
+    html += '</table>';
+  }
+  html += '</div>';
+
+  if (Array.isArray(g.innings) && g.innings.length) {
+    html += '<div class="card"><h3>Positions by inning</h3>';
+    g.innings.forEach(function (inn, i) {
+      var field = (inn && Array.isArray(inn.field)) ? inn.field : [];
+      if (!field.length) return;
+      html += '<div class="inn"><h4>Inning ' + (i + 1) + '</h4><div class="posrow">';
+      field.forEach(function (f) { html += '<span class="poschip"><b>' + esc(f.pos) + '</b>' + esc(f.name) + '</span>'; });
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+  el("main").innerHTML = html || '<div class="card"><p class="lede">Game plan is published but empty.</p></div>';
+}
+
+function renderWalkups() {
+  var w = STATE.walkups;
+  if (!w || !w.report) {
+    el("main").innerHTML = '<div class="card"><h3>Walkups</h3><p class="lede">Could not load the walkup list.</p></div>';
+    return;
+  }
+  var html = '<div class="card"><h3>Walkup songs</h3><p class="lede">' + w.responded + ' of ' + w.total + ' submitted. Tap play to hear how a name is said.</p>';
+  w.report.forEach(function (r) {
+    html += '<div class="wrow"><div class="wn">' + esc(r.first_name + " " + (r.last_name || "").charAt(0) + ".") + '</div>';
+    if (r.responded) {
+      html += '<div class="ws">' + esc(r.song_title || "") + (r.song_artist ? " — " + esc(r.song_artist) : "") + (r.song_start ? " (start " + esc(r.song_start) + ")" : "") + '</div>';
+      if (r.phonetic) html += '<div class="wp">Say it: ' + esc(r.phonetic) + '</div>';
+      if (r.recording_url) html += '<audio controls preload="none" src="' + esc(r.recording_url) + '"></audio>';
+    } else {
+      html += '<div class="ws" style="color:#b9b4ac;">Not submitted yet</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  el("main").innerHTML = html;
+}
+
+document.querySelectorAll(".tab").forEach(function (t) {
+  t.addEventListener("click", function () { TAB = t.getAttribute("data-tab"); render(); });
+});
+
+try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "staff" }), keepalive: true }).catch(function () {}); } catch (e) {}
+boot();
+</script>
+</body>
+</html>
