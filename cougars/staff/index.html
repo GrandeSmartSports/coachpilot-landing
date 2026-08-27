@@ -92,6 +92,7 @@
   <div class="tab on" data-tab="practice">Practice</div>
   <div class="tab" data-tab="gameplan">Game Plan</div>
   <div class="tab" data-tab="walkups">Walkups</div>
+  <div class="tab" data-tab="rules">Rules</div>
 </nav>
 
 <script>
@@ -251,7 +252,31 @@ function render() {
   document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("on", t.getAttribute("data-tab") === TAB); });
   if (TAB === "practice") renderPractice();
   else if (TAB === "gameplan") renderGameplan();
+  else if (TAB === "rules") renderRules();
   else renderWalkups();
+}
+
+// Little League Softball rules that decide arguments at our level.
+// Verified against littleleague.org + LLUmpires 8/27/2026. Rule numbers
+// are from the official Little League Softball rulebook.
+var RULES = [
+  { t: "Leaving the base (our #1 rule)", d: "THE RULE: in Minor League softball, a runner may NOT leave her base until the pitched ball REACHES THE BATTER.\n- Penalty: the runner is OUT for leaving early (Rule 7.08a)\n- This is why we teach lead-or-go on every pitch: burst off the moment the ball crosses, read from there\n- Majors softball and up: runners may leave when the pitch is RELEASED by the pitcher (Rule 7.13). Not us yet\n- Junior/Senior: same release rule, bigger leads live there" },
+  { t: "Stealing", d: "Stealing IS legal in Minors softball, including home.\n- Same leave-the-base rule applies: not until the ball reaches the batter\n- Runner can advance on a passed ball or wild pitch\n- Check our league's local rules for any per-inning advance limits some leagues add" },
+  { t: "Dropped third strike", d: "THE RULE: does NOT apply below Majors. In our division the batter is OUT on strike three no matter what the catcher does.\n- No running to first on a dropped strike 3 in Minors\n- Majors and up: batter may run if first base is open, or with 2 outs (Rule 6.05, 6.09)\n- Other runners can still steal on the loose ball under the normal rules" },
+  { t: "Pitching limits (softball = innings, not pitch counts)", d: "Softball Regulation VI works on INNINGS, unlike baseball's pitch counts.\n- Max 12 innings in a day (one pitch thrown in an inning counts as a full inning)\n- 7 or more innings in a day = one calendar day of rest required\n- Track it in the scorebook, umpires will not do it for us" },
+  { t: "Infield fly", d: "Applies with runners on 1st + 2nd (or bases loaded) and fewer than 2 outs.\n- Fair fly ball an infielder can catch with ordinary effort: batter is OUT automatically\n- Runners are NOT forced, they can stay or advance at their own risk\n- Umpire should call it in the air, but the rule applies even if the call is late" },
+  { t: "Overthrows out of play", d: "Ball thrown out of play (over the fence, in the dugout): all runners get TWO bases from where they were when the throw left the hand.\n- One base if the pitcher throws it away from the pitching position\n- Runners do not have to be tagged up or forced, the award is automatic" },
+  { t: "Mandatory play", d: "Every rostered player present must play at least 6 consecutive defensive outs and bat at least once (Regulation IV(i)).\n- We use a continuous batting order, which covers the batting half automatically\n- Fairness tracking in Game Day covers the defense half, but this is the floor the rulebook sets" },
+  { t: "Special pinch runner", d: "Once per inning, a manager may use a player not currently in the lineup as a special pinch runner (Rule 7.14).\n- A player may only be a special pinch runner TWICE per game\n- Great for protecting a catcher gearing up between innings" }
+];
+
+function renderRules() {
+  var html = '<div class="card"><h3>Little League softball, our division</h3><p class="lede">The rules that decide arguments at Minors games. Rule numbers are from the official Little League Softball rulebook. Local BLS rules can add to these, never loosen them.</p></div>';
+  RULES.forEach(function (r) {
+    html += '<div class="card"><h3>' + esc(r.t) + '</h3><div class="bd">' + fmtDetail(r.d) + '</div></div>';
+  });
+  html += '<div class="card"><h3>The complete rulebook</h3><p class="lede">The full official book is free in the Little League Rulebook app. Download it once and the whole thing is searchable on your phone at the field.</p><a href="https://www.littleleague.org/playing-rules/rulebook-app/" style="color:var(--red-dark);font-weight:600;">Get the official Little League Rulebook app &rarr;</a></div>';
+  el("main").innerHTML = html;
 }
 
 // Detail text -> readable HTML. Line rules:
