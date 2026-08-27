@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>League Setup — Field Command</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --clay-dark: #a8571d;
+    --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #ffffff;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--chalk); color: var(--ink); min-height: 100vh; }
+  body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+
+  header.hero { background: var(--pine); color: var(--chalk); padding: 28px 20px 22px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .diamond { width: 40px; height: 40px; flex: 0 0 40px; }
+  .brand h1 { font-family: var(--disp); font-weight: 700; font-size: 26px; line-height: 1; letter-spacing: 0.03em; text-transform: uppercase; }
+  .brand .sub { font-family: var(--disp); font-weight: 500; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--clay); margin-top: 3px; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 40px, var(--chalk) 40px 50px); border-radius: 3px; margin: 14px 0; }
+  header.hero h2 { font-family: var(--disp); font-weight: 700; font-size: 32px; line-height: 1.1; letter-spacing: 0.02em; text-transform: uppercase; }
+  header.hero p { color: var(--chalk-2); font-size: 15px; margin-top: 8px; max-width: 620px; }
+
+  .rules {
+    background: #fdf6ed; border-left: 4px solid var(--clay); padding: 14px 18px;
+    margin: 18px 20px 0; border-radius: 8px; font-size: 14.5px; max-width: 720px;
+  }
+  @media (min-width: 800px) { .rules { margin: 18px auto 0; } }
+  .rules b { color: var(--pine); }
+  .rules ul { margin: 6px 0 0 18px; }
+  .rules li { margin-bottom: 3px; }
+
+  main { padding: 20px 20px 60px; }
+  .card {
+    background: var(--white); border-radius: 14px; padding: 20px; box-shadow: var(--shadow);
+    border: 1px solid var(--line); margin-bottom: 18px;
+  }
+  .card h3 {
+    font-family: var(--disp); font-weight: 700; font-size: 21px; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--pine); margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; flex: 0 0 30px; border-radius: 50%;
+    background: var(--clay); color: var(--chalk); font-family: var(--disp);
+    font-weight: 700; font-size: 16px;
+  }
+  .card .lede { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+
+  .team {
+    border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-bottom: 12px;
+    background: #fbfaf6;
+  }
+  .team h4 { font-family: var(--disp); font-weight: 700; font-size: 18px; letter-spacing: 0.03em; color: var(--ink); margin-bottom: 6px; }
+  .where { margin-bottom: 10px; }
+  .chip {
+    display: inline-block; background: var(--pine); color: var(--chalk); font-size: 12.5px;
+    padding: 4px 10px; border-radius: 5px; margin: 0 6px 6px 0; font-weight: 500;
+  }
+  .chip b { color: #ffd9b8; font-weight: 600; }
+  .whylabel { font-family: var(--disp); font-weight: 600; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grass); margin: 8px 0 3px; }
+  input[type=text], input[type=email], textarea, select {
+    width: 100%; font-size: 15px; padding: 10px 12px; border: 1.5px solid var(--line);
+    border-radius: 9px; font-family: inherit; background: var(--white);
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--pine); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .boardrow { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; margin-bottom: 10px; background: #fbfaf6; }
+  .addrow {
+    font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em;
+    text-transform: uppercase; background: var(--chalk-2); color: var(--ink);
+    border: 1px dashed var(--muted); border-radius: 9px; padding: 10px 16px; cursor: pointer; width: 100%;
+  }
+
+  table.route { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table.route th { font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 6px 8px 6px 0; border-bottom: 2px solid var(--line); }
+  table.route td { padding: 8px 8px 8px 0; border-bottom: 1px solid #efece2; vertical-align: middle; }
+  table.route td.q { font-weight: 500; width: 52%; }
+  table.route input { padding: 8px 10px; font-size: 14px; }
+
+  .sender { background: var(--pine); border-radius: 14px; padding: 20px; color: var(--chalk); }
+  .sender h3 { font-family: var(--disp); font-weight: 700; font-size: 20px; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+  .sender p { font-size: 13.5px; color: var(--chalk-2); margin-bottom: 12px; }
+  .sender label { color: var(--clay); }
+  .sender input { border: none; }
+  .btn {
+    width: 100%; margin-top: 14px; font-family: var(--disp); font-weight: 600; font-size: 17px;
+    letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 11px;
+    padding: 14px; background: var(--clay); color: var(--chalk); cursor: pointer;
+  }
+  .btn:hover { background: var(--clay-dark); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .msg { margin-top: 10px; font-size: 14px; font-weight: 600; display: none; }
+  .msg.err { color: #ffb4a0; display: block; }
+  .msg.ok { color: #9fd8b1; display: block; }
+  .fine { font-size: 12.5px; color: var(--muted); margin-top: 10px; }
+  .done {
+    background: var(--white); border-radius: 14px; padding: 40px 24px; text-align: center;
+    box-shadow: var(--shadow); border: 1px solid var(--line);
+  }
+  .done h3 { font-family: var(--disp); font-weight: 700; font-size: 26px; text-transform: uppercase; color: var(--pine); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">
+      <svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0e3b2e"/><path d="M50 20 L80 50 L50 80 L20 50 Z" fill="none" stroke="#f4f1e8" stroke-width="5"/><path d="M50 38 L62 50 L50 62 L38 50 Z" fill="#c96f2f"/></svg>
+      <div>
+        <h1>Field Command</h1>
+        <div class="sub">League Setup</div>
+      </div>
+    </div>
+    <div class="chalkline"></div>
+    <h2>Three things to finish the setup</h2>
+    <p>Everything from the practice spreadsheet is already loaded. These are the only gaps. Fill in what you know, skip what you don't, hit Send at the bottom and it comes straight to Daniel.</p>
+  </div>
+</header>
+
+<div class="rules">
+  <b>Current field rules (locked in until Sept 8):</b>
+  <ul>
+    <li>Middle schools and Maple Lawn: not available until <b>6:00 PM</b></li>
+    <li>Elementary schools: available at <b>5:00 PM</b></li>
+    <li>Allen Yorke: on hold, waiting on the city</li>
+    <li>Sept 8+ schedule: on hold until Allen Yorke and the remaining fields are confirmed</li>
+  </ul>
+</div>
+
+<main class="wrap">
+
+  <div id="formArea">
+
+  <div class="card">
+    <h3><span class="num">1</span>Who coaches these teams?</h3>
+    <p class="lede">These six teams are on the practice schedule but don't match anyone on the head coach contact list. The chips show exactly where each one appears on the sheet. A name and email is all it takes to get that coach signed in.</p>
+
+    <div class="team" data-team="Gilbertsen">
+      <h4>Gilbertsen</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Thursday · <b>Maple Lawn West</b></span>
+        <span class="chip">Sat 9-11 · <b>Lake Tapps Elementary</b></span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" placeholder="e.g. Minors BB" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="SB Wildcats">
+      <h4>SB Wildcats</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Wednesday · <b>Lake Tapps Elementary</b> ("s sb wilcats")</span>
+        <span class="chip">Sat 9-11 · <b>Lakeridge 60</b></span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" placeholder="e.g. Minors A SB" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="AA Rays">
+      <h4>AA Rays</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Tuesday · <b>Tahaleh Heights</b></span>
+        <span class="chip">Friday · <b>Tahaleh Heights</b></span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" value="AA BB" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="CP Phillies">
+      <h4>CP Phillies</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Tuesday · <b>Bonney Lake Elementary S</b></span>
+        <span class="chip">Sat 9-11 · <b>Orting Lions 2 SW</b></span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" value="CP BB" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="Dodgers CP BB (Bo)">
+      <h4>Dodgers CP BB ("Bo")</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Tuesday · <b>Lake Tapps Elementary</b></span>
+        <span class="chip">Sat 11-1 · <b>Bonney Lake Elementary N</b></span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name (who is "Bo"?)</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" value="CP BB" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="TB Rays">
+      <h4>TB Rays</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Monday · <b>Calistoga</b> (5:30)</span>
+        <span class="chip">Sat · <b>Calistoga</b> (10:30-11:30)</span>
+      </div>
+      <div class="grid2">
+        <div><label>Coach name</label><input type="text" class="t-name" /></div>
+        <div><label>Division</label><input type="text" class="t-div" value="TBall" /></div>
+        <div><label>Email</label><input type="email" class="t-email" /></div>
+        <div><label>Cell</label><input type="text" class="t-phone" /></div>
+      </div>
+    </div>
+
+    <div class="team" data-team="CP 9-10:30 Calistoga">
+      <h4>Bonus: "CP 9-10:30" at Calistoga (Saturday)</h4>
+      <div class="where">
+        <span class="whylabel">Where it appears on the schedule</span>
+        <span class="chip">Sat 9-11 · <b>Calistoga</b> (label says "CP 9-10:30")</span>
+      </div>
+      <div class="grid2">
+        <div><label>Which team is this?</label><input type="text" class="t-name" placeholder="Team or coach name" /></div>
+        <div><label>Notes</label><input type="text" class="t-div" /></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">2</span>Board contacts</h3>
+    <p class="lede">These show on every coach's hub so nobody has to hunt through group texts for the right person. Name, role, and at least one way to reach them. Add as many as you want.</p>
+    <div id="boardRows"></div>
+    <button type="button" class="addrow" id="addBoard">+ Add another board member</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="num">3</span>Who handles what?</h3>
+    <p class="lede">Coaches will be able to file requests through the hub instead of texting whoever they have a number for. Each request auto-routes to the right person. Tell me who that is for each type. Titles are fine (President, Player Agent for that division, Field Coordinator, whoever).</p>
+    <table class="route">
+      <thead><tr><th>When a coach reports...</th><th>It should go to...</th></tr></thead>
+      <tbody>
+        <tr><td class="q">Field problem (unsafe, broken, missing equipment)</td><td><input type="text" class="r-who" data-q="Field problem" /></td></tr>
+        <tr><td class="q">Practice swap or reschedule help</td><td><input type="text" class="r-who" data-q="Practice swap" /></td></tr>
+        <tr><td class="q">Rainout or cancellation notice</td><td><input type="text" class="r-who" data-q="Rainout" /></td></tr>
+        <tr><td class="q">Roster question (add, drop, plays-up)</td><td><input type="text" class="r-who" data-q="Roster question" /></td></tr>
+        <tr><td class="q">Player or parent conduct concern</td><td><input type="text" class="r-who" data-q="Conduct concern" /></td></tr>
+        <tr><td class="q">Umpire question (missing, no-show)</td><td><input type="text" class="r-who" data-q="Umpire question" /></td></tr>
+        <tr><td class="q">Equipment or uniform request</td><td><input type="text" class="r-who" data-q="Equipment request" /></td></tr>
+        <tr><td class="q">Registration or payment question</td><td><input type="text" class="r-who" data-q="Registration question" /></td></tr>
+        <tr><td class="q">Safety incident (injury report)</td><td><input type="text" class="r-who" data-q="Safety incident" /></td></tr>
+        <tr><td class="q">Everything else</td><td><input type="text" class="r-who" data-q="Everything else" /></td></tr>
+      </tbody>
+    </table>
+    <label style="margin-top:12px;">Anything that should always CC the President or go to two people at once?</label>
+    <textarea id="routeNotes" rows="2"></textarea>
+  </div>
+
+  <div class="sender">
+    <h3>Send it to Daniel</h3>
+    <p>Partial answers are fine. Send what you have now and the rest whenever.</p>
+    <div class="grid2">
+      <div><label>Your name</label><input type="text" id="sName" /></div>
+      <div><label>Your email</label><input type="email" id="sEmail" /></div>
+    </div>
+    <button class="btn" id="sendBtn">Send to Daniel</button>
+    <div class="msg" id="sendMsg"></div>
+  </div>
+  <p class="fine">Questions about this page? Text Daniel at (623) 332-2251.</p>
+
+  </div>
+
+  <div class="done" id="doneCard" style="display:none;">
+    <h3>Got it. Thanks!</h3>
+    <p>Everything you filled in is on its way to Daniel. He'll load it and let you know when it's live. You can close this page.</p>
+  </div>
+
+</main>
+
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+
+function boardRowHtml() {
+  return '<div class="boardrow"><div class="grid2">' +
+    '<div><label>Name</label><input type="text" class="b-name" /></div>' +
+    '<div><label>Role</label><input type="text" class="b-role" placeholder="President, Player Agent, etc." /></div>' +
+    '<div><label>Email</label><input type="email" class="b-email" /></div>' +
+    '<div><label>Cell</label><input type="text" class="b-phone" /></div>' +
+    '</div></div>';
+}
+var boardRows = document.getElementById("boardRows");
+for (var i = 0; i < 3; i++) boardRows.insertAdjacentHTML("beforeend", boardRowHtml());
+document.getElementById("addBoard").addEventListener("click", function () {
+  boardRows.insertAdjacentHTML("beforeend", boardRowHtml());
+});
+
+document.getElementById("sendBtn").addEventListener("click", function () {
+  var btn = this;
+  var msg = document.getElementById("sendMsg");
+  var name = document.getElementById("sName").value.trim();
+  var email = document.getElementById("sEmail").value.trim();
+  msg.className = "msg";
+  if (!name) { msg.textContent = "Add your name so Daniel knows who this is from."; msg.className = "msg err"; return; }
+
+  var lines = ["LEAGUE SETUP FORM SUBMISSION", ""];
+
+  lines.push("=== MYSTERY TEAMS ===");
+  var any1 = false;
+  document.querySelectorAll(".team").forEach(function (t) {
+    var n = t.querySelector(".t-name"); var d = t.querySelector(".t-div");
+    var e = t.querySelector(".t-email"); var p = t.querySelector(".t-phone");
+    var nv = n ? n.value.trim() : "", dv = d ? d.value.trim() : "";
+    var ev = e ? e.value.trim() : "", pv = p ? p.value.trim() : "";
+    if (nv || ev || pv) {
+      any1 = true;
+      lines.push(t.getAttribute("data-team") + ": " + [nv, dv, ev, pv].filter(Boolean).join(" | "));
+    }
+  });
+  if (!any1) lines.push("(none filled in)");
+  lines.push("");
+
+  lines.push("=== BOARD CONTACTS ===");
+  var any2 = false;
+  document.querySelectorAll(".boardrow").forEach(function (r) {
+    var nv = r.querySelector(".b-name").value.trim();
+    var rv = r.querySelector(".b-role").value.trim();
+    var ev = r.querySelector(".b-email").value.trim();
+    var pv = r.querySelector(".b-phone").value.trim();
+    if (nv || rv || ev || pv) { any2 = true; lines.push([nv, rv, ev, pv].filter(Boolean).join(" | ")); }
+  });
+  if (!any2) lines.push("(none filled in)");
+  lines.push("");
+
+  lines.push("=== REQUEST ROUTING ===");
+  var any3 = false;
+  document.querySelectorAll(".r-who").forEach(function (r) {
+    var v = r.value.trim();
+    if (v) { any3 = true; lines.push(r.getAttribute("data-q") + " -> " + v); }
+  });
+  var rn = document.getElementById("routeNotes").value.trim();
+  if (rn) { any3 = true; lines.push("CC / dual-routing notes: " + rn); }
+  if (!any3) lines.push("(none filled in)");
+
+  if (!any1 && !any2 && !any3) { msg.textContent = "Nothing is filled in yet. Add at least one answer."; msg.className = "msg err"; return; }
+
+  btn.disabled = true; btn.textContent = "Sending…";
+  fetch(API + "?action=support_request", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: name + " (League Setup form)", email: email, message: lines.join("\n") })
+  })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (!j.ok) { msg.textContent = j.error || "Could not send. Text Daniel instead."; msg.className = "msg err"; btn.disabled = false; btn.textContent = "Send to Daniel"; return; }
+      document.getElementById("formArea").style.display = "none";
+      document.getElementById("doneCard").style.display = "";
+      window.scrollTo(0, 0);
+    })
+    .catch(function () { msg.textContent = "Could not reach the server. Text Daniel instead."; msg.className = "msg err"; btn.disabled = false; btn.textContent = "Send to Daniel"; });
+});
+</script>
+
+</body>
+</html>
