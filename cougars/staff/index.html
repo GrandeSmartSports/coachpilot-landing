@@ -49,7 +49,12 @@
   .pblock { border-left: 4px solid var(--red); background: #fbfaf7; border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
   .pblock .bt { font-family: var(--disp); font-weight: 600; font-size: 15px; }
   .pblock .bm { color: var(--muted); font-size: 12px; font-weight: 700; float: right; }
-  .pblock .bd { font-size: 13.5px; color: #3c3c3c; margin-top: 3px; white-space: pre-wrap; }
+  .pblock .bd { font-size: 13.5px; color: #3c3c3c; margin-top: 3px; }
+  .bd p { margin: 5px 0 2px; }
+  .bd ul { margin: 3px 0 5px 18px; }
+  .bd li { margin-bottom: 3px; }
+  .bd .subhead { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--red-dark); margin: 8px 0 2px; }
+  .bd .callout { background: #fff3d6; border-radius: 6px; padding: 5px 9px; margin: 6px 0 2px; font-weight: 600; font-size: 13px; }
   .planhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
   .planhead .when { font-size: 12px; color: var(--muted); white-space: nowrap; }
 
@@ -242,6 +247,37 @@ function render() {
   else renderWalkups();
 }
 
+// Detail text -> readable HTML. Line rules:
+//   "- foo"                  -> bullet
+//   "NAME — HEADER:"         -> red subhead (line ends with ":", mostly caps lead)
+//   "TEACHING POINT: ..." /
+//   "THE POINT: ..."         -> yellow callout
+//   anything else            -> short paragraph
+function fmtDetail(text) {
+  var lines = String(text || "").split("\n");
+  var html = "", listOpen = false;
+  function closeList() { if (listOpen) { html += "</ul>"; listOpen = false; } }
+  lines.forEach(function (raw) {
+    var line = raw.trim();
+    if (!line) { closeList(); return; }
+    if (line.indexOf("- ") === 0) {
+      if (!listOpen) { html += "<ul>"; listOpen = true; }
+      html += "<li>" + esc(line.slice(2)) + "</li>";
+      return;
+    }
+    closeList();
+    if (/^(TEACHING POINT|THE POINT|THEME)[:\s]/i.test(line)) {
+      html += '<div class="callout">' + esc(line) + "</div>";
+    } else if (/:$/.test(line)) {
+      html += '<div class="subhead">' + esc(line.replace(/:$/, "")) + "</div>";
+    } else {
+      html += "<p>" + esc(line) + "</p>";
+    }
+  });
+  closeList();
+  return html;
+}
+
 function renderPractice() {
   var html = "";
   if (!PLANS.length) {
@@ -252,7 +288,7 @@ function renderPractice() {
     html += '<div class="card"><div class="planhead"><h3>' + esc(p.title) + '</h3><span class="when">' + esc(when) + '</span></div>';
     if (p.session_info) html += '<p class="lede">' + esc(p.session_info) + '</p>';
     (p.blocks || []).forEach(function (b) {
-      html += '<div class="pblock"><span class="bm">' + (b.minutes ? esc(b.minutes) + " min" : "") + '</span><div class="bt">' + esc(b.title) + '</div>' + (b.detail ? '<div class="bd">' + esc(b.detail) + '</div>' : '') + '</div>';
+      html += '<div class="pblock"><span class="bm">' + (b.minutes ? esc(b.minutes) + " min" : "") + '</span><div class="bt">' + esc(b.title) + '</div>' + (b.detail ? '<div class="bd">' + fmtDetail(b.detail) + '</div>' : '') + '</div>';
     });
     html += '</div>';
   });
