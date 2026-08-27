@@ -210,6 +210,7 @@
   .hubgate .btn { width: 100%; margin-top: 16px; font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; border: none; border-radius: 10px; padding: 13px; background: var(--pine); color: var(--chalk); cursor: pointer; }
   .hubgate .btn:disabled { opacity: 0.6; cursor: not-allowed; }
   .hubgate .gerr { color: #a33c1b; font-size: 13.5px; margin-top: 10px; font-weight: 600; }
+  .hubgate .gok { color: var(--grass); font-size: 14px; margin-top: 10px; font-weight: 600; }
   .hubgate .fine { font-size: 12.5px; color: var(--muted); margin-top: 14px; text-align: center; }
   .hubwrap { display: grid; grid-template-columns: 1fr; gap: 14px; }
   @media (min-width: 900px) { .hubwrap { grid-template-columns: 1fr 1fr; } .hubwrap .hubfull { grid-column: 1 / -1; } }
@@ -1459,44 +1460,107 @@ function renderHub() {
   box.classList.remove("hidden");
 
   if (!isCoachSignedIn()) {
+    // Email-first sign-in. Coach types their email; if they're on the league
+    // list with a PIN we show the PIN box, if they're on the list without one
+    // we auto-email them a set-your-PIN link, and if they're not on the list
+    // they get pointed at their player agent + Support.
     box.innerHTML =
       '<div class="hubgate">' +
       '<h3>Coaches Hub</h3>' +
-      '<p class="sub">Sign in with your league email and 4 digit PIN. New coach? Ask the league to add you and check your inbox for the invite.</p>' +
+      '<p class="sub">Enter the email your league has on file for you. First time here? We\'ll email you a link to set your own 4 digit PIN.</p>' +
       '<label for="hgEmail">Your email</label>' +
       '<input id="hgEmail" type="email" placeholder="you@example.com" autocomplete="email" />' +
+      '<div id="hgPinWrap" class="hidden">' +
       '<label for="hgPin">Your 4 digit PIN</label>' +
       '<input id="hgPin" class="pin" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" autocomplete="current-password" />' +
-      '<button class="btn" id="hgGo">Sign in</button>' +
+      '</div>' +
+      '<button class="btn" id="hgGo">Continue</button>' +
       '<p class="gerr hidden" id="hgErr"></p>' +
-      '<p class="fine">This is separate from the league admin PIN. It is your own login for the Coaches Hub.</p>' +
+      '<p class="gok hidden" id="hgOk"></p>' +
+      '<p class="fine" id="hgForgot" style="display:none;"><a href="#" id="hgForgotLink" style="color:var(--grass);text-decoration:underline;">Forgot your PIN? Email me a reset link</a></p>' +
+      '<p class="fine"><a href="#" id="hgSupport" style="color:var(--grass);text-decoration:underline;">Need help? Contact support</a></p>' +
       '</div>';
     var em = box.querySelector("#hgEmail");
+    var pinWrap = box.querySelector("#hgPinWrap");
     var pn = box.querySelector("#hgPin");
     var go = box.querySelector("#hgGo");
     var err = box.querySelector("#hgErr");
+    var okMsg = box.querySelector("#hgOk");
+    var forgot = box.querySelector("#hgForgot");
     if (CRED_C.email) em.value = CRED_C.email;
+    var stage = "email"; // email → pin
+
+    function showErr(t) { err.textContent = t; err.classList.remove("hidden"); okMsg.classList.add("hidden"); }
+    function showOk(t) { okMsg.textContent = t; okMsg.classList.remove("hidden"); err.classList.add("hidden"); }
+
+    function checkEmail() {
+      var email = em.value.trim();
+      err.classList.add("hidden"); okMsg.classList.add("hidden");
+      if (!email || email.indexOf("@") < 1) { showErr("Enter your email address."); return; }
+      go.disabled = true; go.textContent = "Checking…";
+      fetch(API + "?action=coach_request_access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          go.disabled = false;
+          if (!j.ok) { go.textContent = "Continue"; showErr(j.error || "That did not work."); return; }
+          if (!j.found) {
+            go.textContent = "Continue";
+            showErr("That email is not on the coach list. Double-check the spelling, ask your player agent to have it added, or tap Contact support below.");
+            return;
+          }
+          if (j.has_pin) {
+            stage = "pin";
+            pinWrap.classList.remove("hidden");
+            forgot.style.display = "";
+            go.textContent = "Sign in";
+            setTimeout(function () { pn.focus(); }, 20);
+          } else {
+            go.textContent = "Continue";
+            showOk("You're on the list! We just emailed you a link to set your PIN. Open it, pick a 4 digit PIN, and you're in. Check spam if you don't see it in a minute.");
+          }
+        })
+        .catch(function () { go.disabled = false; go.textContent = "Continue"; showErr("Could not reach the server. Try again in a minute."); });
+    }
+
     function doLogin() {
       var email = em.value.trim();
       var pin = pn.value.trim();
       err.classList.add("hidden");
-      if (!email || !/^\d{4}$/.test(pin)) { err.textContent = "Enter your email and 4 digit PIN."; err.classList.remove("hidden"); return; }
+      if (!/^\d{4}$/.test(pin)) { showErr("Enter your 4 digit PIN."); return; }
       go.disabled = true; go.textContent = "Signing in…";
       fetch(API + "?action=coach_login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, pin: pin }) })
         .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); })
         .then(function (j) {
-          if (!j.ok) { err.textContent = j.error || "That did not work."; err.classList.remove("hidden"); go.disabled = false; go.textContent = "Sign in"; return; }
+          if (!j.ok) { showErr(j.error || "That did not work."); go.disabled = false; go.textContent = "Sign in"; return; }
           CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
           lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin);
           lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
           loadHubState(function () { renderHub(); });
         })
-        .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); go.disabled = false; go.textContent = "Sign in"; });
+        .catch(function () { showErr("Could not reach the server."); go.disabled = false; go.textContent = "Sign in"; });
     }
-    go.addEventListener("click", doLogin);
+
+    go.addEventListener("click", function () { if (stage === "pin") doLogin(); else checkEmail(); });
     pn.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
-    em.addEventListener("keydown", function (e) { if (e.key === "Enter") pn.focus(); });
-    setTimeout(function () { (em.value ? pn : em).focus(); }, 20);
+    em.addEventListener("keydown", function (e) { if (e.key === "Enter") { if (stage === "pin") pn.focus(); else checkEmail(); } });
+    em.addEventListener("input", function () {
+      // Email edited after we showed the PIN box — start over.
+      if (stage === "pin") { stage = "email"; pinWrap.classList.add("hidden"); forgot.style.display = "none"; go.textContent = "Continue"; }
+    });
+    box.querySelector("#hgForgotLink").addEventListener("click", function (e) {
+      e.preventDefault();
+      var email = em.value.trim();
+      if (!email) { showErr("Enter your email first."); return; }
+      fetch(API + "?action=coach_request_access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email, reset: true }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.ok && j.found) showOk("Reset link sent. Check your email, tap the link, and pick a new PIN.");
+          else showErr("Could not send the reset. Tap Contact support below.");
+        })
+        .catch(function () { showErr("Could not reach the server."); });
+    });
+    box.querySelector("#hgSupport").addEventListener("click", function (e) { e.preventDefault(); openSupport(); });
+    setTimeout(function () { em.focus(); }, 20);
     return;
   }
 
@@ -1596,6 +1660,7 @@ function renderHub() {
         '<button class="hubaction primary disabled" id="hbSubmitReq" title="Coming soon: waiting on the board to confirm how each request type is routed."><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Submit a request <span class="soon">Coming soon</span></button>' +
         '<button class="hubaction" id="hbMsgCoach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg>Reach out to a coach</button>' +
         '<button class="hubaction clay" id="hbReserve"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg>Reserve a practice field</button>' +
+        '<button class="hubaction subtle" id="hbSupport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Contact support</button>' +
         '<button class="hubaction subtle" id="hbNotif"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span id="hbNotifLbl">Enable notifications</span></button>' +
         '<button class="hubaction subtle" id="hbChangePin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Change my PIN</button>' +
         '<button class="hubaction subtle" id="hbSignOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Sign out</button>' +
@@ -1613,6 +1678,8 @@ function renderHub() {
     updateNotifButton();
     nb.addEventListener("click", function () { toggleNotifications(); });
   }
+  var sp = box.querySelector("#hbSupport");
+  if (sp) sp.addEventListener("click", function () { openSupport(); });
   var pfEditBtn = box.querySelector("#pfEditBtn");
   var pfEditInline = box.querySelector("#pfEditInline");
   if (pfEditBtn) pfEditBtn.addEventListener("click", function () { openEditProfile(c); });
@@ -1789,6 +1856,42 @@ function openChangePin() {
   }
   v.querySelector("#cpGo").addEventListener("click", save);
   inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+}
+
+// -------------- Support --------------
+function openSupport() {
+  var presetName = (CRED_C && CRED_C.name) || "";
+  var presetEmail = (CRED_C && CRED_C.email) || "";
+  var v = modal(
+    '<h3>Contact support</h3>' +
+    '<div class="ctx">Trouble signing in, something broken, or a question about the site? This goes straight to Coach Daniel, who runs Field Command for the league.</div>' +
+    '<label class="mlabel">Your name</label>' +
+    '<input id="spName" type="text" maxlength="120" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(presetName) + '" />' +
+    '<label class="mlabel">Your email or phone (so he can reply)</label>' +
+    '<input id="spEmail" type="text" maxlength="200" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(presetEmail) + '" />' +
+    '<label class="mlabel">What\'s going on?</label>' +
+    '<textarea id="spMsg" rows="4" style="width:100%;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;resize:vertical;" placeholder="Describe the problem or question…"></textarea>' +
+    '<p class="merr hidden" id="spErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="spX">Cancel</button><button class="mb go" id="spGo">Send</button></div>'
+  );
+  v.querySelector("#spX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#spGo").addEventListener("click", function () {
+    var btn = v.querySelector("#spGo"), err = v.querySelector("#spErr");
+    var name = v.querySelector("#spName").value.trim();
+    var email = v.querySelector("#spEmail").value.trim();
+    var msg = v.querySelector("#spMsg").value.trim();
+    err.classList.add("hidden");
+    if (!name) { err.textContent = "Add your name."; err.classList.remove("hidden"); return; }
+    if (!msg) { err.textContent = "Describe what's going on."; err.classList.remove("hidden"); return; }
+    btn.disabled = true; btn.textContent = "Sending…";
+    fetch(API + "?action=support_request", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: name, email: email, message: msg }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j.ok) { err.textContent = j.error || "Could not send."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; return; }
+        v.remove(); toast("Sent. Coach Daniel will get back to you.");
+      })
+      .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; });
+  });
 }
 
 // -------------- Push notifications --------------

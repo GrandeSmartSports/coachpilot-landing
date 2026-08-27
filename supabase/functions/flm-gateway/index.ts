@@ -415,6 +415,13 @@ async function coachAuth(b: Record<string, unknown>): Promise<any | null> {
   const { data } = await db.from("flm_coaches").select("*").eq("id", b.coach_id).maybeSingle();
   if (!data || !data.active) return null;
   if (!data.pin || String(b.coach_pin) !== String(data.pin)) return null;
+  // A coach can run more than one team (e.g. one baseball + one softball).
+  // Ownership = their anchor team_id plus any team stamped with their email.
+  const ids = new Set<string>();
+  if (data.team_id) ids.add(data.team_id);
+  const { data: owned } = await db.from("flm_teams").select("id").ilike("coach_email", data.email);
+  for (const t of owned ?? []) ids.add(t.id);
+  data.team_ids = Array.from(ids);
   return data;
 }
 
@@ -782,6 +789,60 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, coach: { id: found.id, name: found.name, email: found.email } });
     }
 
+    if (action === "coach_request_access" && req.method === "POST") {
+      // Self-serve entry: coach types their email on the hub. If it's on the
+      // coach list, we either tell the UI to show the PIN box (already set up)
+      // or auto-email a magic set-your-PIN link (first time / reset).
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const email = String(b.email ?? "").trim().toLowerCase();
+      const wantReset = Boolean(b.reset);
+      if (!isEmail(email)) return json({ ok: false, error: "enter a valid email address" }, 400);
+      const { data: coach } = await db.from("flm_coaches").select("id,name,email,pin,email_confirmed_at,active").ilike("email", email).maybeSingle();
+      if (!coach || !coach.active) {
+        return json({ ok: true, found: false });
+      }
+      const hasPin = Boolean(coach.pin && coach.email_confirmed_at);
+      if (hasPin && !wantReset) {
+        // Already set up — UI shows the PIN box. No email needed.
+        return json({ ok: true, found: true, has_pin: true });
+      }
+      // First-time setup or a PIN reset: issue a fresh magic link.
+      const token = randomInviteToken();
+      const expires = inviteExpiry();
+      const { error } = await db.from("flm_coaches").update({ invite_token: token, invite_expires_at: expires }).eq("id", coach.id);
+      if (error) return json({ ok: false, error: "could not create your link — tap Support" }, 500);
+      const league = await leagueName();
+      const send = await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        to: [coach.email],
+        subject: wantReset ? `Reset your PIN — ${league} Coaches Hub` : `Set your PIN — ${league} Coaches Hub`,
+        html: coachInviteEmailHtml(league, coach.name, inviteUrlFor(token)),
+      }).catch(() => ({ ok: false } as { ok: boolean }));
+      await log("coach_request_access", `${coach.name} requested ${wantReset ? "a PIN reset" : "access"} (${coach.email})`, "coach");
+      return json({ ok: true, found: true, has_pin: false, sent: send?.ok !== false });
+    }
+
+    if (action === "support_request" && req.method === "POST") {
+      // Site support goes straight to Daniel. No auth required — a coach who
+      // can't sign in is exactly who needs this.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const name = String(b.name ?? "").trim().slice(0, 120);
+      const email = String(b.email ?? "").trim().slice(0, 200);
+      const message = String(b.message ?? "").trim().slice(0, 3000);
+      if (!name || !message) return json({ ok: false, error: "add your name and what's going on" }, 400);
+      const league = await leagueName();
+      const html = `<div style="font-family:sans-serif"><h2>Field Command support request</h2><p><b>From:</b> ${escHtml(name)}${email ? ` &lt;${escHtml(email)}&gt;` : ""}</p><p><b>League:</b> ${escHtml(league)}</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(message)}</blockquote></div>`;
+      const send = await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        reply_to: isEmail(email) ? email : undefined,
+        to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "daniel.grande@ymail.com"],
+        subject: `[Field Command SUPPORT] ${name}: ${message.slice(0, 60)}`,
+        html,
+      }).catch(() => ({ ok: false } as { ok: boolean }));
+      await log("support_request", `support from ${name}${email ? " (" + email + ")" : ""}`, "public");
+      return json({ ok: true, sent: send?.ok !== false });
+    }
+
     if (action === "coach_login" && req.method === "POST") {
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const email = String(b.email ?? "").trim().toLowerCase();
@@ -836,6 +897,7 @@ Deno.serve(async (req: Request) => {
           email: c.email,
           phone,
           team_id: c.team_id,
+          team_ids: coach.team_ids || (c.team_id ? [c.team_id] : []),
           team_name: team.data ? team.data.name : null,
           division: team.data ? team.data.division : null,
         },
@@ -971,12 +1033,12 @@ Deno.serve(async (req: Request) => {
       // a slot that belongs to their team. Season lock still applies.
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
-      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      if (!coach || !(coach.team_ids || []).length) return json({ ok: false, error: "not signed in with a team" }, 401);
       const slot_id = String(b.slot_id ?? "");
       if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
       const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,day_key,field_id,label").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "slot not found" }, 404);
-      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only edit practices for your own team." }, 403);
+      if (!(coach.team_ids || []).includes(slot.team_id)) return json({ ok: false, error: "You can only edit practices for your own team." }, 403);
       const { data: season } = await db.from("flm_seasons").select("locked,label").eq("id", slot.season_id).single();
       if (season?.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
       const patch: Record<string, string | null> = {};
@@ -1006,12 +1068,12 @@ Deno.serve(async (req: Request) => {
       // coaches see the cancellation and can free field time. Coach can undo.
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
-      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      if (!coach || !(coach.team_ids || []).length) return json({ ok: false, error: "not signed in with a team" }, 401);
       const slot_id = String(b.slot_id ?? "");
       if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
       const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,label,day_key").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "slot not found" }, 404);
-      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only cancel your own team's practices." }, 403);
+      if (!(coach.team_ids || []).includes(slot.team_id)) return json({ ok: false, error: "You can only cancel your own team's practices." }, 403);
       const reason = String(b.reason ?? "").trim().slice(0, 200);
       const { error } = await db.from("flm_slots").update({ cancelled_at: new Date().toISOString(), cancel_reason: reason || "Cancelled" }).eq("id", slot_id);
       if (error) return json({ ok: false, error: error.message }, 500);
@@ -1022,12 +1084,12 @@ Deno.serve(async (req: Request) => {
     if (action === "coach_uncancel_slot" && req.method === "POST") {
       const b = await req.json().catch(() => ({} as Record<string, unknown>));
       const coach = await coachAuth(b);
-      if (!coach || !coach.team_id) return json({ ok: false, error: "not signed in with a team" }, 401);
+      if (!coach || !(coach.team_ids || []).length) return json({ ok: false, error: "not signed in with a team" }, 401);
       const slot_id = String(b.slot_id ?? "");
       if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
       const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "slot not found" }, 404);
-      if (slot.team_id !== coach.team_id) return json({ ok: false, error: "You can only restore your own team's practices." }, 403);
+      if (!(coach.team_ids || []).includes(slot.team_id)) return json({ ok: false, error: "You can only restore your own team's practices." }, 403);
       const { error } = await db.from("flm_slots").update({ cancelled_at: null, cancel_reason: null }).eq("id", slot_id);
       if (error) return json({ ok: false, error: error.message }, 500);
       await log("coach_uncancel_slot", `${coach.name} restored ${slot.label} on ${slot.day_key}`, "coach");
