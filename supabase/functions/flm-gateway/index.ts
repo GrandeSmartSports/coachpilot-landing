@@ -436,7 +436,7 @@ function coachInviteEmailHtml(leagueName: string, coachName: string, inviteUrl: 
   <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
   <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
     <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">Hi ${escHtml(first)},</h1>
-    <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#3c463f;">You have been set up as a coach on the ${escHtml(leagueName)} Coaches Hub. This is the one place for league announcements, board contacts, and any request you need to file (gear, field issues, practice concerns, volunteers, and more).</p>
+    <p style="margin:0 0 12px;font-size:15px;line-height:1.55;color:#3c463f;">You have been set up as a coach on the ${escHtml(leagueName)} Coaches Hub. This is where you see the full practice schedule, reserve open field time for your team, and move or cancel your own practices. You also get league announcements, board contacts, and a direct line to other coaches.</p>
     <p style="margin:0 0 18px;font-size:15px;line-height:1.55;color:#3c463f;">Click the button below to set your 4 digit PIN. This link is good for 14 days and can only be used once.</p>
     <p style="text-align:center;margin:0 0 18px;"><a href="${escHtml(inviteUrl)}" style="background:#0e3b2e;color:#f4f1e8;text-decoration:none;font-weight:bold;letter-spacing:1px;padding:12px 22px;border-radius:10px;text-transform:uppercase;display:inline-block;">Set my PIN</a></p>
     <p style="margin:0;font-size:13px;color:#6d7a72;">If the button does not open, paste this into your browser:<br /><span style="word-break:break-all;">${escHtml(inviteUrl)}</span></p>
