@@ -178,13 +178,13 @@ async function sendUmpEmail(ump: any, subject: string, html: string, testTo = ""
   const to = (testTo || String(ump.email ?? "")).trim();
   if (!to.includes("@")) return { ok: false, error: `no email on file for ${ump.name}` };
   const cc = ump.is_minor && String(ump.parent_email ?? "").includes("@") ? [String(ump.parent_email).trim()] : [];
-  const body: Record<string, unknown> = { from: "Field Command <noreply@cueops.io>", reply_to: ADMIN_ALERT_EMAIL, to: [to], subject, html };
+  const body: Record<string, unknown> = { from: "Field Command <noreply@coachpilot.org>", reply_to: ADMIN_ALERT_EMAIL, to: [to], subject, html };
   if (cc.length) body.cc = cc;
   const r = await resendSend(body);
   return { ...r, cc };
 }
 async function sendAdminEmail(subject: string, html: string): Promise<{ ok: boolean; id?: string; error?: string }> {
-  return await resendSend({ from: "Field Command <noreply@cueops.io>", to: [ADMIN_ALERT_EMAIL], subject, html });
+  return await resendSend({ from: "Field Command <noreply@coachpilot.org>", to: [ADMIN_ALERT_EMAIL], subject, html });
 }
 async function leagueName(): Promise<string> {
   const { data } = await db.from("flm_settings").select("value").eq("key", "league_name").maybeSingle();
@@ -813,7 +813,7 @@ Deno.serve(async (req: Request) => {
       if (error) return json({ ok: false, error: "could not create your link — tap Support" }, 500);
       const league = await leagueName();
       const send = await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         to: [coach.email],
         subject: wantReset ? `Reset your PIN — ${league} Coaches Hub` : `Set your PIN — ${league} Coaches Hub`,
         html: coachInviteEmailHtml(league, coach.name, inviteUrlFor(token)),
@@ -833,7 +833,7 @@ Deno.serve(async (req: Request) => {
       const league = await leagueName();
       const html = `<div style="font-family:sans-serif"><h2>Field Command support request</h2><p><b>From:</b> ${escHtml(name)}${email ? ` &lt;${escHtml(email)}&gt;` : ""}</p><p><b>League:</b> ${escHtml(league)}</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(message)}</blockquote></div>`;
       const send = await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         reply_to: isEmail(email) ? email : undefined,
         to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "daniel.grande@ymail.com"],
         subject: `[Field Command SUPPORT] ${name}: ${message.slice(0, 60)}`,
@@ -945,7 +945,7 @@ Deno.serve(async (req: Request) => {
       }
       const to = contactEmail && contactEmail.includes("@") ? contactEmail : ADMIN_ALERT_EMAIL;
       await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
         to: [to],
         subject: `[${league}] ${subject}`,
@@ -982,7 +982,7 @@ Deno.serve(async (req: Request) => {
       const league = await leagueName();
       const html = coachMessageEmailHtml(league, coach.name, coach.email, subject, body);
       const send = await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
         to: [to.email],
         subject: `[${league}] From Coach ${coach.name}: ${subject}`,
@@ -1169,7 +1169,7 @@ Deno.serve(async (req: Request) => {
       const slotDesc = `${slot.day_key} at ${field?.name ?? "the field"}`;
       const html = `<div style="font-family:sans-serif"><h2>Practice join request</h2><p><b>${coach.name}</b> would like to join your practice on <b>${slotDesc}</b>.</p>${note ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(note)}</blockquote>` : ""}<p>Sign in to the Coaches Hub to approve or deny: <a href="https://coachpilot.org/fields/">coachpilot.org/fields</a></p></div>`;
       await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
         to: [host.email],
         subject: `[${league}] Join request from Coach ${coach.name}: ${slotDesc}`,
@@ -1218,7 +1218,7 @@ Deno.serve(async (req: Request) => {
         const verdict = decision === "approved" ? "APPROVED" : "DENIED";
         const html = `<div style="font-family:sans-serif"><h2>Join request ${verdict.toLowerCase()}</h2><p>Coach ${coach.name} ${verdict === "APPROVED" ? "approved your request to join their practice." : "denied your join request."}</p>${responseNote ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(responseNote)}</blockquote>` : ""}<p><a href="https://coachpilot.org/fields/">Open the Coaches Hub</a></p></div>`;
         await resendSend({
-          from: "Field Command <noreply@cueops.io>",
+          from: "Field Command <noreply@coachpilot.org>",
           reply_to: coach.email || undefined,
           to: [requester.email],
           subject: `[${league}] Your join request was ${decision}`,
@@ -1521,7 +1521,7 @@ Deno.serve(async (req: Request) => {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: "Field Command <noreply@cueops.io>", reply_to: "Daniel.Grande@ymail.com", to: [to], subject, html }),
+          body: JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "Daniel.Grande@ymail.com", to: [to], subject, html }),
         });
         if (res.ok) {
           sent.push(to);
@@ -1969,7 +1969,7 @@ Deno.serve(async (req: Request) => {
         const { data: updated, error } = await db.from("flm_coaches").update(patch).eq("id", id).select("*").single();
         if (error || !updated) return json({ ok: false, error: error?.message ?? "update failed" }, 500);
         const send = await resendSend({
-          from: "Field Command <noreply@cueops.io>",
+          from: "Field Command <noreply@coachpilot.org>",
           to: [updated.email],
           subject: op === "reset_pin" ? `Set a new PIN — ${league} Coaches Hub` : `Set your PIN — ${league} Coaches Hub`,
           html: coachInviteEmailHtml(league, updated.name, inviteUrlFor(token)),
@@ -2006,7 +2006,7 @@ Deno.serve(async (req: Request) => {
         return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
       }
       const send = await resendSend({
-        from: "Field Command <noreply@cueops.io>",
+        from: "Field Command <noreply@coachpilot.org>",
         to: [created.email],
         subject: `Set your PIN — ${league} Coaches Hub`,
         html: coachInviteEmailHtml(league, created.name, inviteUrlFor(token)),
@@ -2057,7 +2057,7 @@ Deno.serve(async (req: Request) => {
         summary.created++;
         if (sendInvites) {
           const r = await resendSend({
-            from: "Field Command <noreply@cueops.io>",
+            from: "Field Command <noreply@coachpilot.org>",
             to: [created.email],
             subject: `Set your PIN — ${league} Coaches Hub`,
             html: coachInviteEmailHtml(league, created.name, inviteUrlFor(token)),
@@ -2069,6 +2069,27 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, summary });
     }
 
+    if (action === "admin_resend_domains") {
+      // PIN-gated Resend domain management for the coachpilot.org cutover.
+      // op: "list" | "create" | "verify" | "get"
+      const rk = Deno.env.get("RESEND_API_KEY") || "";
+      if (!rk) return json({ ok: false, error: "no resend key" }, 500);
+      const op = String(b.op ?? "list");
+      const hdrs = { "Authorization": `Bearer ${rk}`, "Content-Type": "application/json" };
+      let res: Response;
+      if (op === "create") {
+        res = await fetch("https://api.resend.com/domains", { method: "POST", headers: hdrs, body: JSON.stringify({ name: String(b.name ?? "coachpilot.org") }) });
+      } else if (op === "verify") {
+        res = await fetch(`https://api.resend.com/domains/${String(b.id ?? "")}/verify`, { method: "POST", headers: hdrs });
+      } else if (op === "get") {
+        res = await fetch(`https://api.resend.com/domains/${String(b.id ?? "")}`, { headers: hdrs });
+      } else {
+        res = await fetch("https://api.resend.com/domains", { headers: hdrs });
+      }
+      const data = await res.json().catch(() => null);
+      return json({ ok: res.ok, status: res.status, data });
+    }
+
     if (action === "admin_send_email") {
       // PIN-gated generic send for league correspondence (Coach-authored,
       // approved before send). Uses the same Resend sender as everything else.
@@ -2078,7 +2099,7 @@ Deno.serve(async (req: Request) => {
       const text = String(b.text ?? "");
       if (!isEmail(to) || !subject || (!html && !text)) return json({ ok: false, error: "to, subject, and body required" }, 400);
       const send = await resendSend({
-        from: String(b.from ?? "Daniel Grande <noreply@cueops.io>"),
+        from: String(b.from ?? "Daniel Grande <noreply@coachpilot.org>"),
         reply_to: String(b.reply_to ?? "daniel.grande@ymail.com"),
         to: [to],
         subject,
@@ -2193,7 +2214,7 @@ Deno.serve(async (req: Request) => {
         if (coach?.email && String(coach.email).includes("@")) {
           const league = await leagueName();
           await resendSend({
-            from: "Field Command <noreply@cueops.io>",
+            from: "Field Command <noreply@coachpilot.org>",
             to: [coach.email],
             subject: `[${league}] ${updated.status === "resolved" ? "Resolved" : "Closed"}: ${updated.subject}`,
             html: coachRequestResolvedEmailHtml(league, updated),
