@@ -2069,6 +2069,25 @@ Deno.serve(async (req: Request) => {
       return json({ ok: true, summary });
     }
 
+    if (action === "admin_send_email") {
+      // PIN-gated generic send for league correspondence (Coach-authored,
+      // approved before send). Uses the same Resend sender as everything else.
+      const to = String(b.to ?? "").trim();
+      const subject = String(b.subject ?? "").trim().slice(0, 200);
+      const html = String(b.html ?? "");
+      const text = String(b.text ?? "");
+      if (!isEmail(to) || !subject || (!html && !text)) return json({ ok: false, error: "to, subject, and body required" }, 400);
+      const send = await resendSend({
+        from: String(b.from ?? "Daniel Grande <noreply@cueops.io>"),
+        reply_to: String(b.reply_to ?? "daniel.grande@ymail.com"),
+        to: [to],
+        subject,
+        html: html || `<pre style="font-family:Arial;white-space:pre-wrap;">${escHtml(text)}</pre>`,
+      });
+      await log("admin_send_email", `email to ${to}: ${subject}`, "admin");
+      return json({ ok: send?.ok !== false, id: send?.id ?? null, error: send?.error ?? null });
+    }
+
     // -------- Admin: Board Contacts --------
     if (action === "admin_contacts") {
       const { data } = await db.from("flm_contacts").select("*").order("sort_order").order("name");
