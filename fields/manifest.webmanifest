@@ -1,0 +1,16 @@
+{
+  "name": "Field Command",
+  "short_name": "Field Cmd",
+  "description": "Practice schedule, coaches hub, and umpire portal for your league.",
+  "start_url": "/fields/",
+  "scope": "/fields/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0e3b2e",
+  "theme_color": "#0e3b2e",
+  "icons": [
+    { "src": "/fields/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/fields/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/fields/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
+  ]
+}

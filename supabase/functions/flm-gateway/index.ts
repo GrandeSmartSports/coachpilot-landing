@@ -243,6 +243,163 @@ function expandDivision(raw: unknown): string {
   return s.replace(/\bBB\b/g, "Baseball").replace(/\bSB\b/g, "Softball").replace(/\s+/g, " ").trim();
 }
 
+// -------------- Web Push --------------
+// VAPID keys live in Supabase secrets. Public key is also embedded in the
+// frontend and service worker for subscribe(). Private key is used server-side
+// to sign the JWT that authenticates each push to fcm/mozilla/apple push
+// services.
+const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
+const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "mailto:daniel@cueops.io";
+
+function b64urlToBytes(s: string): Uint8Array {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const raw = atob(s);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+function bytesToB64Url(b: Uint8Array | ArrayBuffer): string {
+  const arr = b instanceof Uint8Array ? b : new Uint8Array(b);
+  let s = "";
+  for (let i = 0; i < arr.length; i++) s += String.fromCharCode(arr[i]);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+async function importVapidPrivateKey(privRaw: string): Promise<CryptoKey> {
+  // VAPID private key is a raw 32-byte P-256 scalar. To use with WebCrypto we
+  // build a JWK containing both d (private) and the derived x,y (from public).
+  const priv = b64urlToBytes(privRaw);
+  const pub = b64urlToBytes(VAPID_PUBLIC);
+  // Public key: 0x04 || X (32) || Y (32)
+  if (pub.length !== 65 || pub[0] !== 0x04) throw new Error("VAPID public key must be uncompressed P-256 (65 bytes)");
+  const x = bytesToB64Url(pub.slice(1, 33));
+  const y = bytesToB64Url(pub.slice(33, 65));
+  const d = bytesToB64Url(priv);
+  return await crypto.subtle.importKey(
+    "jwk",
+    { kty: "EC", crv: "P-256", x, y, d, ext: true } as JsonWebKey,
+    { name: "ECDSA", namedCurve: "P-256" },
+    false,
+    ["sign"],
+  );
+}
+async function makeVapidJwt(audience: string): Promise<string> {
+  const header = { typ: "JWT", alg: "ES256" };
+  const now = Math.floor(Date.now() / 1000);
+  const claims = { aud: audience, exp: now + 12 * 3600, sub: VAPID_SUBJECT };
+  const enc = new TextEncoder();
+  const headerB64 = bytesToB64Url(enc.encode(JSON.stringify(header)));
+  const claimsB64 = bytesToB64Url(enc.encode(JSON.stringify(claims)));
+  const signInput = `${headerB64}.${claimsB64}`;
+  const key = await importVapidPrivateKey(VAPID_PRIVATE);
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, enc.encode(signInput));
+  return `${signInput}.${bytesToB64Url(sig)}`;
+}
+// AES-128-GCM payload encryption per RFC 8291 (aes128gcm content-encoding).
+async function encryptPushPayload(
+  payload: Uint8Array,
+  clientPubKeyB64: string,
+  authSecretB64: string,
+): Promise<Uint8Array> {
+  const clientPub = b64urlToBytes(clientPubKeyB64);          // 65 bytes uncompressed
+  const authSecret = b64urlToBytes(authSecretB64);           // 16 bytes
+  // Ephemeral server keypair
+  const serverKey = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const serverPubRaw = new Uint8Array(await crypto.subtle.exportKey("raw", serverKey.publicKey));
+  // Import client public key
+  const clientPubKey = await crypto.subtle.importKey(
+    "raw",
+    clientPub,
+    { name: "ECDH", namedCurve: "P-256" },
+    true,
+    [],
+  );
+  // ECDH shared secret
+  const shared = new Uint8Array(await crypto.subtle.deriveBits(
+    { name: "ECDH", public: clientPubKey },
+    serverKey.privateKey,
+    256,
+  ));
+  // HKDF steps per RFC 8291
+  async function hkdf(salt: Uint8Array, ikm: Uint8Array, info: Uint8Array, len: number): Promise<Uint8Array> {
+    const keyPrk = await crypto.subtle.importKey("raw", salt, "HKDF", false, ["deriveBits"]);
+    return new Uint8Array(await crypto.subtle.deriveBits(
+      { name: "HKDF", hash: "SHA-256", salt, info } as unknown as HkdfParams,
+      keyPrk,
+      len * 8,
+    ));
+  }
+  // 1. IKM = HKDF(auth_secret, ecdh_secret, "WebPush: info\0" || client_pub || server_pub, 32)
+  const infoPart1 = new TextEncoder().encode("WebPush: info\0");
+  const info1 = new Uint8Array(infoPart1.length + clientPub.length + serverPubRaw.length);
+  info1.set(infoPart1, 0);
+  info1.set(clientPub, infoPart1.length);
+  info1.set(serverPubRaw, infoPart1.length + clientPub.length);
+  const ikm = await hkdf(authSecret, shared, info1, 32);
+  // 2. Random 16-byte salt (also used in the header)
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  // 3. CEK  = HKDF(salt, IKM, "Content-Encoding: aes128gcm\0", 16)
+  const cek = await hkdf(salt, ikm, new TextEncoder().encode("Content-Encoding: aes128gcm\0"), 16);
+  // 4. Nonce = HKDF(salt, IKM, "Content-Encoding: nonce\0", 12)
+  const nonce = await hkdf(salt, ikm, new TextEncoder().encode("Content-Encoding: nonce\0"), 12);
+  // 5. Padding: pad with 0x02 delimiter + 0x00 bytes as needed (we use 0)
+  const padded = new Uint8Array(payload.length + 1);
+  padded.set(payload, 0);
+  padded[payload.length] = 0x02;
+  // 6. AES-GCM encrypt
+  const aesKey = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM" }, false, ["encrypt"]);
+  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce, tagLength: 128 }, aesKey, padded));
+  // 7. Assemble aes128gcm header: salt(16) || rs(4, big-endian, 4096) || idlen(1)=65 || keyid(65 = serverPubRaw)
+  const rs = new Uint8Array([0, 0, 0x10, 0]); // 4096
+  const header = new Uint8Array(16 + 4 + 1 + 65);
+  header.set(salt, 0);
+  header.set(rs, 16);
+  header[20] = 65;
+  header.set(serverPubRaw, 21);
+  const out = new Uint8Array(header.length + cipher.length);
+  out.set(header, 0);
+  out.set(cipher, header.length);
+  return out;
+}
+async function sendWebPush(
+  sub: { endpoint: string; p256dh: string; auth: string; id: string },
+  payload: { title: string; body: string; url?: string; tag?: string },
+): Promise<{ ok: boolean; status?: number }> {
+  if (!VAPID_PRIVATE || !VAPID_PUBLIC) return { ok: false };
+  const url = new URL(sub.endpoint);
+  const audience = `${url.protocol}//${url.host}`;
+  const jwt = await makeVapidJwt(audience);
+  const body = new TextEncoder().encode(JSON.stringify(payload));
+  const encBody = await encryptPushPayload(body, sub.p256dh, sub.auth);
+  const res = await fetch(sub.endpoint, {
+    method: "POST",
+    headers: {
+      "TTL": "60",
+      "Content-Type": "application/octet-stream",
+      "Content-Encoding": "aes128gcm",
+      "Authorization": `vapid t=${jwt}, k=${VAPID_PUBLIC}`,
+    },
+    body: encBody,
+  });
+  if (res.status === 404 || res.status === 410) {
+    // Subscription is dead. Mark inactive so we don't try again.
+    await db.from("flm_push_subscriptions").update({ active: false }).eq("id", sub.id);
+  }
+  return { ok: res.ok, status: res.status };
+}
+async function sendPushToCoach(coach_id: string, payload: { title: string; body: string; url?: string; tag?: string }): Promise<void> {
+  try {
+    const { data: subs } = await db.from("flm_push_subscriptions").select("id,endpoint,p256dh,auth").eq("coach_id", coach_id).eq("active", true);
+    if (!subs || !subs.length) return;
+    for (const s of subs) {
+      await sendWebPush(s, payload).catch(() => {});
+    }
+  } catch (_e) {
+    // never let a push failure break the caller
+  }
+}
+
 function isEmail(s: unknown): boolean {
   return typeof s === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s.trim());
 }
@@ -643,7 +800,7 @@ Deno.serve(async (req: Request) => {
       if (!coach) return json({ ok: false, error: "not signed in" }, 401);
       // Pull the full coach row + their team row so the hub can show a proper profile
       // (division, team name, phone) instead of just name + email.
-      const [full, team, settings, announcements, contacts, myRequests, myMessages, picker] = await Promise.all([
+      const [full, team, settings, announcements, contacts, myRequests, myMessages, picker, joinsIn, joinsOut] = await Promise.all([
         db.from("flm_coaches").select("id,name,email,phone,team_id").eq("id", coach.id).single(),
         coach.team_id ? db.from("flm_teams").select("id,name,division,coach_name,coach_phone").eq("id", coach.team_id).single() : Promise.resolve({ data: null }),
         db.from("flm_settings").select("key,value").in("key", ["league_name"]),
@@ -656,6 +813,10 @@ Deno.serve(async (req: Request) => {
         // Picker list for the "reach out to another coach" modal — id + name + team_id only,
         // never emails or phones (those stay server-side).
         db.from("flm_coaches").select("id,name,team_id").eq("active", true).neq("id", coach.id).order("name"),
+        // Join requests aimed AT me (host action needed)
+        db.from("flm_slot_joins").select("id,slot_id,from_coach_id,from_team_id,from_name,note,status,response_note,created_at,resolved_at").eq("to_coach_id", coach.id).order("created_at", { ascending: false }).limit(50),
+        // Join requests I sent (status feedback)
+        db.from("flm_slot_joins").select("id,slot_id,to_coach_id,to_team_id,to_name,note,status,response_note,created_at,resolved_at").eq("from_coach_id", coach.id).order("created_at", { ascending: false }).limit(50),
       ]);
       const settingsMap: Record<string, string> = {};
       (settings.data || []).forEach((r: { key: string; value: string }) => { settingsMap[r.key] = r.value; });
@@ -684,6 +845,8 @@ Deno.serve(async (req: Request) => {
         my_requests: myRequests.data || [],
         messages: myMessages.data || [],
         coach_picker: picker.data || [],
+        joins_to_me: joinsIn.data || [],
+        joins_from_me: joinsOut.data || [],
       });
     }
 
@@ -766,6 +929,13 @@ Deno.serve(async (req: Request) => {
       if (send.ok && send.id) {
         await db.from("flm_messages").update({ resend_id: send.id }).eq("id", created.id);
       }
+      // Push notification (in addition to the email). Fire-and-forget.
+      await sendPushToCoach(to.id, {
+        title: `Message from Coach ${coach.name}`,
+        body: subject.length > 100 ? subject.slice(0, 97) + "..." : subject,
+        url: "/fields/",
+        tag: `flm-msg-${created.id}`,
+      }).catch(() => {});
       return json({ ok: true, message: { id: created.id, subject: created.subject, to_name: to.name } });
     }
 
@@ -861,6 +1031,144 @@ Deno.serve(async (req: Request) => {
       const { error } = await db.from("flm_slots").update({ cancelled_at: null, cancel_reason: null }).eq("id", slot_id);
       if (error) return json({ ok: false, error: error.message }, 500);
       await log("coach_uncancel_slot", `${coach.name} restored ${slot.label} on ${slot.day_key}`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_push_subscribe" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const sub = b.subscription as { endpoint?: string; keys?: { p256dh?: string; auth?: string } } | undefined;
+      if (!sub || !sub.endpoint || !sub.keys?.p256dh || !sub.keys?.auth) return json({ ok: false, error: "bad subscription" }, 400);
+      const ua = String(b.user_agent ?? "").slice(0, 400);
+      // Upsert by endpoint (same device re-subscribing shouldn't create a dup)
+      const { error } = await db.from("flm_push_subscriptions").upsert({
+        coach_id: coach.id,
+        endpoint: sub.endpoint,
+        p256dh: sub.keys.p256dh,
+        auth: sub.keys.auth,
+        user_agent: ua,
+        active: true,
+        last_seen_at: new Date().toISOString(),
+      }, { onConflict: "endpoint" });
+      if (error) return json({ ok: false, error: error.message }, 500);
+      // Immediate confirmation push so the coach sees it work
+      await sendPushToCoach(coach.id, { title: "Notifications on", body: "You'll get a ping for messages and join requests.", url: "/fields/", tag: "flm-welcome" });
+      await log("coach_push_subscribe", `${coach.name} enabled notifications`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_push_unsubscribe" && req.method === "POST") {
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const endpoint = String(b.endpoint ?? "");
+      if (endpoint) {
+        await db.from("flm_push_subscriptions").update({ active: false }).eq("endpoint", endpoint).eq("coach_id", coach.id);
+      } else {
+        // Kill all subs for this coach
+        await db.from("flm_push_subscriptions").update({ active: false }).eq("coach_id", coach.id);
+      }
+      await log("coach_push_unsubscribe", `${coach.name} disabled notifications`, "coach");
+      return json({ ok: true });
+    }
+
+    if (action === "coach_vapid_public" && req.method === "GET") {
+      return json({ ok: true, key: VAPID_PUBLIC });
+    }
+
+    if (action === "coach_request_join" && req.method === "POST") {
+      // Formal request to join another team's practice. Creates a flm_slot_joins
+      // row and emails the host. Host can Approve (which duplicates the slot for
+      // the requester's team) or Deny (which records the decision + response note).
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const slot_id = String(b.slot_id ?? "");
+      const note = String(b.note ?? "").trim().slice(0, 1000);
+      if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,day_key,field_id,label,season_id").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "practice not found" }, 404);
+      if (!slot.team_id) return json({ ok: false, error: "this slot has no team on it" }, 400);
+      if (slot.team_id === coach.team_id) return json({ ok: false, error: "that is your own practice" }, 400);
+      const { data: host } = await db.from("flm_coaches").select("id,name,email").eq("team_id", slot.team_id).eq("active", true).limit(1).maybeSingle();
+      if (!host) return json({ ok: false, error: "the host team does not have a signed-up coach yet" }, 404);
+      const { data: field } = await db.from("flm_fields").select("name").eq("id", slot.field_id).single();
+      // Only one pending request per pair per slot
+      const { data: dup } = await db.from("flm_slot_joins").select("id").eq("slot_id", slot_id).eq("from_coach_id", coach.id).eq("status", "pending").maybeSingle();
+      if (dup) return json({ ok: false, error: "you already have a pending request for this practice" }, 409);
+      const { data: created, error } = await db.from("flm_slot_joins").insert({
+        slot_id, from_coach_id: coach.id, from_team_id: coach.team_id,
+        from_name: coach.name, to_coach_id: host.id, to_team_id: slot.team_id, to_name: host.name,
+        note, status: "pending",
+      }).select("*").single();
+      if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
+      const league = await leagueName();
+      const slotDesc = `${slot.day_key} at ${field?.name ?? "the field"}`;
+      const html = `<div style="font-family:sans-serif"><h2>Practice join request</h2><p><b>${coach.name}</b> would like to join your practice on <b>${slotDesc}</b>.</p>${note ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(note)}</blockquote>` : ""}<p>Sign in to the Coaches Hub to approve or deny: <a href="https://coachpilot.org/fields/">coachpilot.org/fields</a></p></div>`;
+      await resendSend({
+        from: "Field Command <noreply@cueops.io>",
+        reply_to: coach.email,
+        to: [host.email],
+        subject: `[${league}] Join request from Coach ${coach.name}: ${slotDesc}`,
+        html,
+      });
+      await sendPushToCoach(host.id, {
+        title: `${coach.name} wants to join your practice`,
+        body: `${slotDesc}${note ? " — " + note.slice(0, 100) : ""}`,
+        url: "/fields/",
+      }).catch(() => {});
+      await log("coach_request_join", `${coach.name} → ${host.name}: ${slotDesc}`, "coach");
+      return json({ ok: true, request: created });
+    }
+
+    if (action === "coach_respond_join" && req.method === "POST") {
+      // Host approves or denies. On approve, we duplicate the slot for the
+      // requester's team so the schedule shows both teams sharing the field.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const request_id = String(b.request_id ?? "");
+      const decision = String(b.decision ?? "");
+      const responseNote = String(b.response_note ?? "").trim().slice(0, 400);
+      if (!request_id || !["approved", "denied"].includes(decision)) return json({ ok: false, error: "request_id + decision required" }, 400);
+      const { data: r } = await db.from("flm_slot_joins").select("*").eq("id", request_id).single();
+      if (!r) return json({ ok: false, error: "request not found" }, 404);
+      if (r.to_coach_id !== coach.id) return json({ ok: false, error: "only the host coach can respond" }, 403);
+      if (r.status !== "pending") return json({ ok: false, error: "already answered" }, 409);
+      // If approved, create a mirrored slot for the requester's team.
+      if (decision === "approved" && r.from_team_id) {
+        const { data: slot } = await db.from("flm_slots").select("season_id,day_key,field_id,note").eq("id", r.slot_id).single();
+        if (slot) {
+          const { data: team } = await db.from("flm_teams").select("name").eq("id", r.from_team_id).single();
+          await db.from("flm_slots").insert({
+            season_id: slot.season_id, day_key: slot.day_key, field_id: slot.field_id,
+            team_id: r.from_team_id, label: team?.name || r.from_name,
+            note: `Sharing with ${r.to_name}`, claimed_by: "join",
+          });
+        }
+      }
+      await db.from("flm_slot_joins").update({ status: decision, response_note: responseNote, resolved_at: new Date().toISOString() }).eq("id", request_id);
+      // Notify requester
+      const { data: requester } = await db.from("flm_coaches").select("email,name").eq("id", r.from_coach_id).single();
+      if (requester) {
+        const league = await leagueName();
+        const verdict = decision === "approved" ? "APPROVED" : "DENIED";
+        const html = `<div style="font-family:sans-serif"><h2>Join request ${verdict.toLowerCase()}</h2><p>Coach ${coach.name} ${verdict === "APPROVED" ? "approved your request to join their practice." : "denied your join request."}</p>${responseNote ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(responseNote)}</blockquote>` : ""}<p><a href="https://coachpilot.org/fields/">Open the Coaches Hub</a></p></div>`;
+        await resendSend({
+          from: "Field Command <noreply@cueops.io>",
+          reply_to: coach.email || undefined,
+          to: [requester.email],
+          subject: `[${league}] Your join request was ${decision}`,
+          html,
+        });
+        await sendPushToCoach(r.from_coach_id, {
+          title: `Join request ${decision}`,
+          body: `${coach.name} ${decision} your request${responseNote ? ": " + responseNote.slice(0, 100) : ""}`,
+          url: "/fields/",
+        }).catch(() => {});
+      }
+      await log("coach_respond_join", `${coach.name} ${decision} join from ${r.from_name}`, "coach");
       return json({ ok: true });
     }
 
