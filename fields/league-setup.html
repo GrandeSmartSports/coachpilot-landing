@@ -273,10 +273,6 @@
   <div class="sender">
     <h3>Send it to Daniel</h3>
     <p>Partial answers are fine. Send what you have now and the rest whenever.</p>
-    <div class="grid2">
-      <div><label>Your name</label><input type="text" id="sName" /></div>
-      <div><label>Your email</label><input type="email" id="sEmail" /></div>
-    </div>
     <button class="btn" id="sendBtn">Send to Daniel</button>
     <div class="msg" id="sendMsg"></div>
   </div>
@@ -297,10 +293,9 @@ var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 document.getElementById("sendBtn").addEventListener("click", function () {
   var btn = this;
   var msg = document.getElementById("sendMsg");
-  var name = document.getElementById("sName").value.trim();
-  var email = document.getElementById("sEmail").value.trim();
+  var name = "Matt Kriesel";
+  var email = "cppa@blslittleleague.org";
   msg.className = "msg";
-  if (!name) { msg.textContent = "Add your name so Daniel knows who this is from."; msg.className = "msg err"; return; }
 
   var lines = ["LEAGUE SETUP FORM SUBMISSION", ""];
 
