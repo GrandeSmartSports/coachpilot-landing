@@ -568,6 +568,32 @@ Deno.serve(async (req) => {
       return json({ pages: byPage, total: grandTotal });
     }
 
+    // GET/POST decal_order (PIN) -> ordered sweatshirt list for number assignment.
+    // Stored as JSON in cougars_config so Coach can reorder from any device.
+    if (action === "decal_order") {
+      if (!requirePin()) return json({ error: "unauthorized" }, 401);
+      if (req.method === "POST") {
+        const body = await req.json().catch(() => null);
+        if (!Array.isArray(body?.order)) return json({ error: "order array required" }, 400);
+        const clean = body.order.slice(0, 40).map((r: any) => ({
+          player_id: String(r.player_id ?? ""),
+          size: String(r.size ?? "").slice(0, 30),
+          back_name: String(r.back_name ?? "").slice(0, 40),
+          label: String(r.label ?? "").slice(0, 60),
+        }));
+        const { error } = await supabase.from("cougars_config").upsert({
+          key: "sweatshirt_decals_2026fall", value: JSON.stringify(clean),
+          label: "Sweatshirt decal number order", updated_at: new Date().toISOString(),
+        });
+        if (error) return json({ error: error.message }, 500);
+        return json({ ok: true });
+      }
+      const { data } = await supabase.from("cougars_config").select("value, updated_at").eq("key", "sweatshirt_decals_2026fall").maybeSingle();
+      let order: any[] = [];
+      try { order = JSON.parse(data?.value ?? "[]"); } catch { order = []; }
+      return json({ order, updated_at: data?.updated_at ?? null });
+    }
+
     // GET jersey report (PIN)
     if (req.method === "GET" && action === "size_report") {
       if (!requirePin()) return json({ error: "unauthorized" }, 401);
