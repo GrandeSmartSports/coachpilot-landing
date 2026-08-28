@@ -107,6 +107,49 @@
   table.fam tr:last-child td { border-bottom: 0; }
   table.fam .done { color: var(--green); font-weight: 700; }
   table.fam .todo { color: #c9cdd1; font-weight: 700; }
+
+  /* ============ NAV-FIRST (hub and spoke) ============ */
+  #hqnav { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (min-width: 860px) { #hqnav { grid-template-columns: repeat(3, 1fr); } }
+  .nv {
+    position: relative; display: flex; flex-direction: column; gap: 8px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 16px;
+    padding: 15px 14px 13px; box-shadow: var(--shadow); overflow: hidden; cursor: pointer;
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
+    text-align: left; font-family: inherit;
+  }
+  .nv:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(200,16,46,.14); border-color: #eec3ca; }
+  .nv:active { transform: scale(.965); }
+  .nv .ic {
+    width: 40px; height: 40px; border-radius: 11px; background: var(--black);
+    border-bottom: 3px solid var(--red); display: flex; align-items: center; justify-content: center; color: #fff;
+  }
+  .nv .ic svg { width: 19px; height: 19px; }
+  .nv .tt { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .02em; color: var(--ink); line-height: 1.15; }
+  .nv .ss { font-size: 12.5px; color: var(--muted); line-height: 1.35; margin-top: -2px; min-height: 17px; }
+  .nv .go {
+    position: absolute; right: 12px; top: 14px; width: 24px; height: 24px; border-radius: 50%;
+    background: #f4f5f6; color: #b9bcbf; display: flex; align-items: center; justify-content: center;
+    transition: background .2s ease, color .2s ease;
+  }
+  .nv .go svg { width: 11px; height: 11px; }
+  .nv:hover .go { background: var(--red); color: #fff; }
+  .nv.ext .ic { background: linear-gradient(135deg, var(--red), var(--red-dark)); border-bottom: 0; }
+  .navlabel { grid-column: 1 / -1; font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); margin: 8px 2px 0; }
+  .navlabel:first-child { margin-top: 0; }
+
+  #backbar { display: none; align-items: center; gap: 12px; margin-bottom: 14px; }
+  #backbar button {
+    display: flex; align-items: center; gap: 7px; background: var(--white); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px 14px; font-family: var(--disp); font-weight: 600; font-size: 13px;
+    letter-spacing: .08em; text-transform: uppercase; cursor: pointer; color: var(--ink);
+  }
+  #backbar button:hover { border-color: #eec3ca; color: var(--red); }
+  #backbar .where { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .grid.spoke .panel { display: none; }
+  .grid.spoke .panel.active { display: block; }
+  .grid.spoke { column-count: auto !important; display: block; }
+  .grid.navmode .panel { display: none; }
 </style>
 </head>
 <body>
@@ -125,8 +168,73 @@
   </div>
 
   <main id="app">
-    <div class="grid">
-      <div class="panel">
+    <div id="hqnav">
+      <div class="navlabel">Run the team</div>
+      <button class="nv" data-panel="p-updates">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4z"/></svg></span>
+        <span class="tt">Updates</span><span class="ss" id="nav-ss-updates"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="nv" data-panel="p-family">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span class="tt">Family status</span><span class="ss" id="nav-ss-family"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="nv" data-panel="p-cage">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></span>
+        <span class="tt">Cage night vote</span><span class="ss" id="nav-ss-cage"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="nv" data-panel="p-funds">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>
+        <span class="tt">Cougar Funds</span><span class="ss" id="nav-ss-funds"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="nv" data-panel="p-subs">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg></span>
+        <span class="tt">Email subscribers</span><span class="ss" id="nav-ss-subs"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+      <button class="nv" data-panel="p-links">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>
+        <span class="tt">Parent links</span><span class="ss">Copy for GameChanger</span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
+
+      <div class="navlabel">Tools</div>
+      <a class="nv ext" href="https://pwa-henna-ten.vercel.app" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg></span>
+        <span class="tt">Game Day</span><span class="ss">Lineups, fairness, walk-ups</span>
+      </a>
+      <a class="nv ext" href="/cougars/gameday.html" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></svg></span>
+        <span class="tt">Game Day Page</span><span class="ss">What parents see: live lineup</span>
+      </a>
+      <a class="nv ext" href="/cougars/staff/" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg></span>
+        <span class="tt">Staff Page</span><span class="ss">What your assistants see</span>
+      </a>
+      <a class="nv ext" href="https://coachpilot.org/practice-studio/" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+        <span class="tt">Practice Studio</span><span class="ss">Drag-and-drop plans</span>
+      </a>
+      <a class="nv ext" href="https://coachpilot.org/email-studio/" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 7l8 6 8-6"/></svg></span>
+        <span class="tt">Email Studio</span><span class="ss">Review + edit emails</span>
+      </a>
+      <a class="nv ext" href="/cougars/admin.html" target="_blank">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></span>
+        <span class="tt">Reports</span><span class="ss">Jerseys, hoodies, visits</span>
+      </a>
+    </div>
+
+    <div id="backbar">
+      <button onclick="goHome()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+      <span class="where" id="backwhere"></span>
+    </div>
+
+    <div class="grid navmode">
+      <div class="panel" id="p-updates">
         <div class="bar"><h3>Updates &mdash; draft first, publish when ready</h3></div>
         <div class="bd">
           <textarea id="up-body" rows="3" placeholder="Plain and short. Example: Practice Thursday 6:00 at Tehaleh Heights. Bring cleats and water."></textarea>
@@ -136,7 +244,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="p-family">
         <div class="bar"><h3>Family status</h3></div>
         <div class="bd">
           <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">One row per family. Green check means done, a dash means still waiting.</div>
@@ -145,7 +253,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="p-funds">
         <div class="bar"><h3>Cougar Funds &mdash; edit totals</h3></div>
         <div class="bd">
           <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Dollar amounts. Leave the goal blank for an open fund. Saving updates the parent funds page right away.</div>
@@ -154,7 +262,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="p-subs">
         <div class="bar"><h3>Extra email subscribers</h3></div>
         <div class="bd">
           <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">People parents added through Share this with someone. They get the weekly emails until removed.</div>
@@ -163,7 +271,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel" id="p-cage">
         <div class="bar"><h3>Cage night vote</h3></div>
         <div class="bd">
           <div class="counts" id="cage-counts"></div>
@@ -171,19 +279,7 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="bar"><h3>Tools</h3></div>
-        <div class="bd tools">
-          <a class="tool" href="https://coachpilot.org/email-studio/" target="_blank"><span class="t">Email Studio</span><span class="s">Review + edit emails</span></a>
-          <a class="tool" href="https://coachpilot.org/practice-studio/" target="_blank"><span class="t">Practice Studio</span><span class="s">Drag-and-drop plans</span></a>
-          <a class="tool" href="/cougars/admin.html" target="_blank"><span class="t">Reports</span><span class="s">Jerseys, hoodies, visits</span></a>
-          <a class="tool" href="https://pwa-henna-ten.vercel.app" target="_blank"><span class="t">Game Day</span><span class="s">Lineups, fairness, walk-ups</span></a>
-          <a class="tool" href="/cougars/staff/" target="_blank"><span class="t">Staff Page</span><span class="s">What your assistants see</span></a>
-          <a class="tool" href="/cougars/gameday.html" target="_blank"><span class="t">Game Day Page</span><span class="s">What parents see: live lineup</span></a>
-        </div>
-      </div>
-
-      <div class="panel">
+      <div class="panel" id="p-links">
         <div class="bar"><h3>Parent links — drop into GameChanger</h3></div>
         <div class="bd links">
           <div class="lk"><b>Hub</b><span class="u">coachpilot.org/cougars</span><button onclick="cp(this,'https://coachpilot.org/cougars/')">Copy</button></div>
@@ -470,6 +566,74 @@ function cp(btn, url) {
 document.getElementById("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") unlock(); });
 try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "coach" }), keepalive: true }).catch(function () {}); } catch (e) {}
 boot();
+
+/* ---------- Nav-first router (hub and spoke) ---------- */
+(function () {
+  var grid = document.querySelector(".grid");
+  var nav = document.getElementById("hqnav");
+  var bb = document.getElementById("backbar");
+
+  function route() {
+    var id = (location.hash || "").replace("#", "");
+    document.querySelectorAll(".grid .panel").forEach(function (p) { p.classList.remove("active"); });
+    var target = id ? document.getElementById(id) : null;
+    if (target) {
+      nav.style.display = "none";
+      bb.style.display = "flex";
+      grid.classList.remove("navmode");
+      grid.classList.add("spoke");
+      target.classList.add("active");
+      var h = target.querySelector(".bar h3");
+      document.getElementById("backwhere").textContent = h ? h.textContent : "";
+      window.scrollTo(0, 0);
+    } else {
+      nav.style.display = "grid";
+      bb.style.display = "none";
+      grid.classList.add("navmode");
+      grid.classList.remove("spoke");
+    }
+  }
+
+  window.goHome = function () {
+    history.replaceState(null, "", location.pathname);
+    route();
+  };
+
+  document.querySelectorAll("#hqnav .nv[data-panel]").forEach(function (btn) {
+    btn.addEventListener("click", function () { location.hash = btn.getAttribute("data-panel"); });
+  });
+  window.addEventListener("hashchange", route);
+  route();
+
+  /* Live counts on the nav tiles, mirrored from the panels as they load. */
+  function mirror(srcId, fn) {
+    var src = document.getElementById(srcId);
+    if (!src) return;
+    var run = function () { try { fn(src); } catch (e) {} };
+    new MutationObserver(run).observe(src, { childList: true, subtree: true, characterData: true });
+    run();
+  }
+  mirror("uplist", function (src) {
+    var n = src.querySelectorAll(".upcard, .u").length;
+    document.getElementById("nav-ss-updates").textContent = n ? n + " on the books" : "Write the next one";
+  });
+  mirror("fam-summary", function (src) {
+    var t = (src.textContent || "").trim();
+    document.getElementById("nav-ss-family").textContent = t && t.indexOf("Loading") === -1 ? t : "";
+  });
+  mirror("cage-counts", function (src) {
+    var chips = [].slice.call(src.querySelectorAll(".cnt")).map(function (c) { return c.textContent.trim(); });
+    document.getElementById("nav-ss-cage").textContent = chips.slice(0, 3).join(" · ");
+  });
+  mirror("sublist", function (src) {
+    var n = src.querySelectorAll(".u").length;
+    document.getElementById("nav-ss-subs").textContent = n ? n + " extra " + (n === 1 ? "person" : "people") : "Nobody extra yet";
+  });
+  mirror("fundlist", function (src) {
+    var n = src.children.length;
+    document.getElementById("nav-ss-funds").textContent = n ? n + " fund" + (n === 1 ? "" : "s") + " live" : "";
+  });
+})();
 </script>
 </body>
 </html>
