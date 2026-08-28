@@ -108,18 +108,71 @@
   .funds-card .fbarline.open .ffill { width: 100%; background: repeating-linear-gradient(120deg, var(--red) 0 12px, var(--red-dark) 12px 24px); opacity: .35; }
   .funds-card .fnote { margin: 0 18px 16px; font-size: 12.5px; color: var(--muted); }
 
-  /* ============ TEAM PAGES (quiet) ============ */
-  .quiet { margin-top: 26px; }
-  .quiet .sec-label { color: var(--muted); }
-  .quiet .sec-label::after { background: #cfd2d5; }
-  .qlist { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
-  .qlist a { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; font-size: 14.5px; color: #33383d; border-bottom: 1px dashed #eef0f1; }
-  .qlist a:last-child { border-bottom: 0; }
-  .qlist a:hover { background: #fafbfb; color: var(--red); }
-  .qlist .qs { font-size: 12px; color: var(--muted); }
-  .qlist .qcheck { display: none; color: var(--green); font-weight: 700; margin-right: 7px; }
-  .qlist a.qdone .qcheck { display: inline; }
-  .qlist a.qdone .qs { color: var(--green); }
+  /* ============ TEAM PAGES — card grid ============ */
+  .quiet { margin-top: 28px; }
+  .qlist { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .qlist a {
+    position: relative; display: flex; flex-direction: column; gap: 9px;
+    background: var(--white); border: 1px solid var(--line); border-radius: 16px;
+    padding: 15px 14px 13px; box-shadow: var(--shadow); overflow: hidden;
+    transition: transform .24s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
+  }
+  .qlist a::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.5) 48%, transparent 62%);
+    transform: translateX(-130%); transition: transform .55s ease;
+  }
+  .qlist a:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(200,16,46,.15); border-color: #eec3ca; }
+  .qlist a:hover::after { transform: translateX(130%); }
+  .qlist a:active { transform: scale(.965); }
+  .qic {
+    width: 40px; height: 40px; border-radius: 11px; background: var(--black);
+    border-bottom: 3px solid var(--red); display: flex; align-items: center; justify-content: center;
+    color: #fff; transition: background .2s ease, transform .24s cubic-bezier(.34,1.56,.64,1);
+  }
+  .qlist a:hover .qic { transform: rotate(-4deg) scale(1.06); }
+  .qic svg { width: 19px; height: 19px; }
+  .qtitle { font-family: var(--disp); font-weight: 600; font-size: 16.5px; letter-spacing: .02em; color: var(--ink); line-height: 1.15; }
+  .qlist .qs { font-size: 12.5px; color: var(--muted); line-height: 1.35; margin-top: -4px; }
+  .qgo {
+    position: absolute; right: 12px; top: 14px; width: 26px; height: 26px; border-radius: 50%;
+    background: #f4f5f6; color: #b9bcbf; display: flex; align-items: center; justify-content: center;
+    transition: background .2s ease, color .2s ease, transform .24s cubic-bezier(.34,1.56,.64,1);
+  }
+  .qgo svg { width: 12px; height: 12px; }
+  .qlist a:hover .qgo { background: var(--red); color: #fff; transform: translateX(3px); }
+  .qcheck { display: none; color: var(--green); font-weight: 700; margin-right: 6px; }
+  a.qdone .qcheck { display: inline; }
+  a.qdone .qs { color: var(--green); }
+  a.qdone .qic { background: var(--green); border-bottom-color: #174b22; }
+  /* Featured Game Day tile: full width, dark, alive */
+  .qlist a.qfeat {
+    grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 14px;
+    background: radial-gradient(130% 200% at 90% -30%, #33343a 0%, var(--black) 58%);
+    border-color: #26262a; padding: 17px 16px;
+  }
+  .qfeat .qic { width: 48px; height: 48px; background: linear-gradient(135deg, var(--red), var(--red-dark)); border-bottom: 0; }
+  .qfeat .qic svg { width: 23px; height: 23px; }
+  .qfeat .qtitle { color: #fff; font-size: 20px; display: flex; align-items: center; gap: 9px; }
+  .qfeat .qs { color: #a9acb2; margin-top: 1px; }
+  .qfeat .qgo { position: static; background: rgba(255,255,255,.12); color: #fff; margin-left: auto; flex: 0 0 26px; }
+  .qfeat:hover .qgo { background: var(--red); }
+  .qfeat .qbody { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .livedot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 0 rgba(200,16,46,.55); animation: livepulse 1.8s infinite; flex: 0 0 8px; }
+  @keyframes livepulse {
+    0% { box-shadow: 0 0 0 0 rgba(200,16,46,.55); }
+    70% { box-shadow: 0 0 0 9px rgba(200,16,46,0); }
+    100% { box-shadow: 0 0 0 0 rgba(200,16,46,0); }
+  }
+  /* Scroll-in reveal (whole hub) */
+  .rev { opacity: 0; transform: translateY(14px); transition: opacity .5s ease, transform .55s cubic-bezier(.22,.9,.35,1); }
+  .rev.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .rev { opacity: 1; transform: none; transition: none; }
+    .qlist a, .qic, .qgo { transition: none; }
+    .livedot { animation: none; }
+    .qlist a::after { display: none; }
+  }
 
   /* ============ RIGHT RAIL ============ */
   .rail { display: flex; flex-direction: column; gap: 18px; }
@@ -202,22 +255,65 @@
       <div class="quiet">
         <div class="sec-label">Team pages</div>
         <div class="qlist">
-          <a href="/cougars/gameday.html"><span>Game Day</span><span class="qs">Today's lineup, live</span></a>
-          <a href="/cougars/updates.html"><span>Weekly updates</span><span class="qs">The latest from Coach</span></a>
-          <a href="/cougars/practice.html"><span>Practice info</span><span class="qs">Days, times, what to bring</span></a>
-          <a href="/cougars/cagevote.html" data-check="cage_vote" data-sub="Pick your evenings"><span>Cage night vote</span><span class="qs">Pick your evenings</span></a>
-          <a href="/cougars/sweatshirt.html" data-check="sweatshirt" data-sub="$20, name on the back"><span>Sweatshirt form</span><span class="qs">$20, name on the back</span></a>
-          <a href="/cougars/walkup.html" data-check="walkup" data-sub="Her game day song"><span>Walk-up songs</span><span class="qs">Her game day song</span></a>
-          <a href="https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/" target="_blank" rel="noopener" data-check="pants" data-sub="For game days"><span>Grey pants on Amazon</span><span class="qs">For game days</span></a>
-          <a href="/cougars/snacks.html"><span>Snack sign-up</span><span class="qs">One family per game</span></a>
-          <a href="/cougars/volunteer.html"><span>Get involved</span><span class="qs">Tell me how you want to help</span></a>
-          <a href="/cougars/share.html"><span>Share this with someone</span><span class="qs">Add a grandparent or friend to the emails</span></a>
+          <a class="qfeat rev" href="/cougars/gameday.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 9-9 9-9-9z"/><path d="M12 9l3 3-3 3-3-3z"/></svg></i>
+            <span class="qbody">
+              <span class="qtitle">Game Day <span class="livedot"></span></span>
+              <span class="qs">Today's lineup and positions, live as Coach posts them</span>
+            </span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/updates.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-4 0V9"/><path d="M12 7h6M12 11h6M12 15h6"/></svg></i>
+            <span class="qtitle">Weekly updates</span><span class="qs">The latest from Coach</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/practice.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></i>
+            <span class="qtitle">Practice info</span><span class="qs">Days, times, what to bring</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/cagevote.html" data-check="cage_vote" data-sub="Pick your evenings">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></i>
+            <span class="qtitle">Cage night vote</span><span class="qs">Pick your evenings</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/sweatshirt.html" data-check="sweatshirt" data-sub="$20, name on the back">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10a2 2 0 002 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/></svg></i>
+            <span class="qtitle">Sweatshirt form</span><span class="qs">$20, name on the back</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/walkup.html" data-check="walkup" data-sub="Her game day song">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></i>
+            <span class="qtitle">Walk-up songs</span><span class="qs">Her game day song</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="https://www.amazon.com/Mivei-2T-16Years-Softball-Toddler-Baseball/dp/B0GTTKSN34/" target="_blank" rel="noopener" data-check="pants" data-sub="For game days">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l1 7h-5l-2 13-2-13H5z"/></svg></i>
+            <span class="qtitle">Grey pants</span><span class="qs">For game days</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/snacks.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 5c0-2 1.5-3 3-3"/><path d="M9 12c.5 2 2 3.5 4 4"/></svg></i>
+            <span class="qtitle">Snack sign-up</span><span class="qs">One family per game</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/volunteer.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></i>
+            <span class="qtitle">Get involved</span><span class="qs">Tell me how you want to help</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
+          <a class="rev" href="/cougars/share.html">
+            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></i>
+            <span class="qtitle">Share this</span><span class="qs">Add a grandparent or friend to the emails</span>
+            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+          </a>
         </div>
       </div>
     </div>
 
     <div class="rail">
-      <div class="season-card">
+      <div class="season-card rev">
         <div class="bar"><h3>The Season</h3><span class="yr">Fall 2026</span></div>
         <div class="rows">
           <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake</span></div>
@@ -228,7 +324,7 @@
         <p class="note">Official schedule, attendance, and notifications run through GameChanger. This page is informational. Extra optional sessions get announced in the weekly updates.</p>
       </div>
 
-      <a class="clinic" href="sms:6233322251">
+      <a class="clinic rev" href="sms:6233322251">
         <span class="body">
           <span class="title">Questions? Text Coach Daniel</span>
           <span class="sub">623-332-2251 &middot; fastest way to reach me</span>
@@ -236,7 +332,7 @@
         <span class="go">Text</span>
       </a>
 
-      <a class="clinic sk" href="/cougars/gamechanger.html">
+      <a class="clinic sk rev" href="/cougars/gamechanger.html">
         <span class="body">
           <span class="title">GameChanger Scorekeeper HQ</span>
           <span class="sub">The scorekeeper guide, plus early game lineups. PIN protected.</span>
@@ -247,7 +343,7 @@
   </div>
 
   <div class="notify">
-    <div class="notify-card">
+    <div class="notify-card rev">
       <h3>&#128276; Get Notified</h3>
       <p>Wish to receive notifications when Coach makes a change or posts a lineup? Add the Cougars app to your phone and enable notifications.</p>
       <button class="nbtn" id="notify-btn" onclick="enablePush()">Enable Notifications</button>
@@ -521,6 +617,25 @@ import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
           : "Could not set up notifications. Try again in a minute.";
       });
   };
+})();
+</script>
+<script>
+(function () {
+  // Scroll-in reveal with a light stagger. Falls back to instant-visible
+  // when IntersectionObserver is missing or reduced motion is set.
+  var els = [].slice.call(document.querySelectorAll(".rev"));
+  if (!("IntersectionObserver" in window)) { els.forEach(function (e) { e.classList.add("in"); }); return; }
+  var seen = 0;
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      var el = en.target;
+      el.style.transitionDelay = Math.min(seen++ % 6, 5) * 45 + "ms";
+      el.classList.add("in");
+      io.unobserve(el);
+    });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+  els.forEach(function (e) { io.observe(e); });
 })();
 </script>
 <script>try{fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=page_view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({page:"hub"}),keepalive:true}).catch(function(){})}catch(e){}</script>
