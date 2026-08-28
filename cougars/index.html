@@ -580,10 +580,11 @@ import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
     }
     btn.disabled = true;
   } else if (Notification.permission === "granted") {
+    // Already subscribed on this device: the whole section is noise — remove it.
     navigator.serviceWorker.register("/cougars/push-sw.js", { scope: "/cougars/" }).then(function (reg) {
       return reg.pushManager.getSubscription();
     }).then(function (sub) {
-      if (sub) { btn.textContent = "Notifications On"; btn.disabled = true; st.textContent = "You are set. Coach's updates will ping this device."; }
+      if (sub) { var n = document.querySelector(".notify"); if (n) n.remove(); }
     }).catch(function () {});
   }
 
@@ -607,8 +608,23 @@ import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
       })
       .then(function (r) {
         if (!r.ok) throw new Error("save failed");
+        // Success moment, then the section gets out of the way for good.
         btn.textContent = "Notifications On";
         st.textContent = "You are set. Coach's updates will ping this device.";
+        var n = document.querySelector(".notify");
+        if (n) {
+          setTimeout(function () {
+            n.style.transition = "opacity .45s ease, max-height .5s ease .1s, margin .5s ease .1s";
+            n.style.overflow = "hidden";
+            n.style.maxHeight = n.scrollHeight + "px";
+            requestAnimationFrame(function () {
+              n.style.opacity = "0";
+              n.style.maxHeight = "0";
+              n.style.marginTop = "0";
+            });
+            setTimeout(function () { n.remove(); }, 750);
+          }, 1600);
+        }
       })
       .catch(function (e) {
         btn.disabled = false;
