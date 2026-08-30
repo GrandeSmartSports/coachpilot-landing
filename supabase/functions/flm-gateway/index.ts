@@ -933,21 +933,50 @@ Deno.serve(async (req: Request) => {
         assigned_contact_id,
         status: "open",
       };
-      const { data: created, error } = await db.from("flm_requests").insert(insert).select("*").single();
-      if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
-      await log("coach_submit_request", `${coach.name}: ${category} — ${subject}`, "coach");
-      const league = await leagueName();
-      const html = coachRequestEmailHtml(league, created, coach.email);
-      let contactEmail = "";
+      // Board routing (Matt Kriesel, 8/30): every request goes to the
+      // submitting coach's DIVISION Player Agent first; the PA escalates if
+      // they can't resolve it. Majors BB has no PA seated, so it falls to the
+      // League Player Agent, as does anything without a division match.
+      const DIVISION_PA: Record<string, string> = {
+        "Minors Baseball": "minorsbbpa@blslittleleague.org",
+        "AA Baseball": "doubleapa@blslittleleague.org",
+        "Coach Pitch Baseball": "cppa@blslittleleague.org",
+        "T-Ball": "tbpa@blslittleleague.org",
+        "Majors Softball": "sbmajorspa@blslittleleague.org",
+        "Minors A Softball": "minorssbpa@blslittleleague.org",
+        "Minors B Softball": "minorssbpa@blslittleleague.org",
+      };
+      const LEAGUE_PA = "pa@blslittleleague.org";
+
+      let routedEmail = "";
+      let routedContactId = assigned_contact_id;
       if (assigned_contact_id) {
         const { data: c } = await db.from("flm_contacts").select("email").eq("id", assigned_contact_id).maybeSingle();
-        contactEmail = String(c?.email ?? "").trim();
+        routedEmail = String(c?.email ?? "").trim();
+      } else {
+        let division = "";
+        if (coach.team_id) {
+          const { data: t } = await db.from("flm_teams").select("division").eq("id", coach.team_id).single();
+          division = String(t?.division ?? "");
+        }
+        routedEmail = DIVISION_PA[division] ?? LEAGUE_PA;
+        const { data: paContact } = await db.from("flm_contacts").select("id").ilike("email", routedEmail).maybeSingle();
+        if (paContact) routedContactId = paContact.id;
       }
-      const to = contactEmail && contactEmail.includes("@") ? contactEmail : ADMIN_ALERT_EMAIL;
+
+      insert.assigned_contact_id = routedContactId;
+      const { data: created, error } = await db.from("flm_requests").insert(insert).select("*").single();
+      if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
+      await log("coach_submit_request", `${coach.name}: ${category} — ${subject} → ${routedEmail}`, "coach");
+      const league = await leagueName();
+      const html = coachRequestEmailHtml(league, created, coach.email);
+      const to = routedEmail && routedEmail.includes("@") ? routedEmail : ADMIN_ALERT_EMAIL;
       await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
         to: [to],
+        // Keep Daniel in the loop while the league beta-tests routing.
+        bcc: [ADMIN_ALERT_EMAIL],
         subject: `[${league}] ${subject}`,
         html,
       }).catch(() => ({ ok: false }));
