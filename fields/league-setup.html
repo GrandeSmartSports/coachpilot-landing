@@ -326,20 +326,33 @@ document.getElementById("sendBtn").addEventListener("click", function () {
 
   if (!any1 && !any3) { msg.textContent = "Nothing is filled in yet. Add at least one answer."; msg.className = "msg err"; return; }
 
+  var compiled = lines.join("\n");
+
+  function failFallback(reason) {
+    msg.className = "msg err";
+    msg.innerHTML = reason + ' &nbsp; <a id="mailFallback" href="#" style="color:#ffd9b8;text-decoration:underline;font-weight:700;">Email your answers instead</a>';
+    btn.disabled = false; btn.textContent = "Send to Daniel";
+    document.getElementById("mailFallback").addEventListener("click", function (e) {
+      e.preventDefault();
+      // Everything they typed rides along in the email body — nothing lost.
+      location.href = "mailto:daniel.grande@ymail.com?subject=" + encodeURIComponent("League setup answers") + "&body=" + encodeURIComponent(compiled);
+    });
+  }
+
   btn.disabled = true; btn.textContent = "Sending…";
   fetch(API + "?action=support_request", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name: name + " (League Setup form)", email: email, message: lines.join("\n") })
+    body: JSON.stringify({ name: name + " (League Setup form)", email: email, message: compiled })
   })
     .then(function (r) { return r.json(); })
     .then(function (j) {
-      if (!j.ok) { msg.textContent = j.error || "Could not send. Text Daniel instead."; msg.className = "msg err"; btn.disabled = false; btn.textContent = "Send to Daniel"; return; }
+      if (!j.ok || j.sent === false) { failFallback(j.error || "The send did not go through."); return; }
       document.getElementById("formArea").style.display = "none";
       document.getElementById("doneCard").style.display = "";
       window.scrollTo(0, 0);
     })
-    .catch(function () { msg.textContent = "Could not reach the server. Text Daniel instead."; msg.className = "msg err"; btn.disabled = false; btn.textContent = "Send to Daniel"; });
+    .catch(function () { failFallback("Could not reach the server."); });
 });
 </script>
 

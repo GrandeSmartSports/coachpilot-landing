@@ -836,7 +836,7 @@ Deno.serve(async (req: Request) => {
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: isEmail(email) ? email : undefined,
         to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "daniel.grande@ymail.com"],
-        subject: `[Field Command SUPPORT] ${name}: ${message.slice(0, 60)}`,
+        subject: `[Field Command SUPPORT] ${name}: ${message.replace(/\s+/g, " ").slice(0, 60)}`,
         html,
       }).catch(() => ({ ok: false } as { ok: boolean }));
       await log("support_request", `support from ${name}${email ? " (" + email + ")" : ""}`, "public");
@@ -2088,6 +2088,16 @@ Deno.serve(async (req: Request) => {
       }
       const data = await res.json().catch(() => null);
       return json({ ok: res.ok, status: res.status, data });
+    }
+
+    if (action === "admin_resend_email_status") {
+      // PIN-gated deliverability debugging: what did Resend do with a send?
+      const rk = Deno.env.get("RESEND_API_KEY") || "";
+      const id = String(b.id ?? "");
+      if (!rk || !id) return json({ ok: false, error: "id required" }, 400);
+      const res = await fetch(`https://api.resend.com/emails/${id}`, { headers: { "Authorization": `Bearer ${rk}` } });
+      const data = await res.json().catch(() => null);
+      return json({ ok: res.ok, data });
     }
 
     if (action === "admin_send_email") {
