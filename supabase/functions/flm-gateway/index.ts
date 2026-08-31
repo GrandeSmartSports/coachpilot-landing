@@ -967,7 +967,23 @@ Deno.serve(async (req: Request) => {
       insert.assigned_contact_id = routedContactId;
       const { data: created, error } = await db.from("flm_requests").insert(insert).select("*").single();
       if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
-      await log("coach_submit_request", `${coach.name}: ${category} — ${subject} → ${routedEmail}`, "coach");
+
+      // Category CCs (Coach, 8/31): the division PA always owns the request,
+      // but the board member who owns that category rides along on CC so the
+      // fix can start before the PA even forwards it. Gear splits by ball.
+      let division = "";
+      if (coach.team_id) {
+        const { data: tDiv } = await db.from("flm_teams").select("division").eq("id", coach.team_id).single();
+        division = String(tDiv?.division ?? "");
+      }
+      const isSoftball = /softball/i.test(division);
+      const CATEGORY_CC: Record<string, string[]> = {
+        field_issue: ["fields@blslittleleague.org"],
+        gear: [isSoftball ? "sbequipment@blslittleleague.org" : "bbequipment@blslittleleague.org"],
+      };
+      const ccList = (CATEGORY_CC[category] ?? []).filter((e) => e && e.toLowerCase() !== routedEmail.toLowerCase());
+
+      await log("coach_submit_request", `${coach.name}: ${category} — ${subject} → ${routedEmail}${ccList.length ? " cc " + ccList.join(",") : ""}`, "coach");
       const league = await leagueName();
       const html = coachRequestEmailHtml(league, created, coach.email);
       const to = routedEmail && routedEmail.includes("@") ? routedEmail : ADMIN_ALERT_EMAIL;
@@ -975,6 +991,7 @@ Deno.serve(async (req: Request) => {
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
         to: [to],
+        ...(ccList.length ? { cc: ccList } : {}),
         // Keep Daniel in the loop while the league beta-tests routing.
         bcc: [ADMIN_ALERT_EMAIL],
         subject: `[${league}] ${subject}`,
