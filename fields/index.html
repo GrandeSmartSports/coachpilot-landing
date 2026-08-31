@@ -713,10 +713,9 @@ function renderMyTeam() {
   }
   if (ev.status === "over") html += '<div class="mt-alert">' + esc(ev.message) + "</div>";
   if (ev.availLabels.length) html += '<div class="mt-chips">' + ev.availLabels.map(function (l) { return '<span class="mt-chip good">' + esc(l) + "</span>"; }).join("") + "</div>";
-  html += '<div class="mt-cal"><b>Get ' + esc(t.name) + ' games on your phone calendar</b>' +
-    "<p>Subscribe once and every game shows up in your calendar and updates by itself when times change. If the button does not open your calendar app, copy the link and add it there as a new subscription.</p>" +
-    '<a class="calbtn" href="' + esc(icsWebcal("team/" + t.id)) + '">Add to calendar</a>' +
-    '<button class="calbtn ghost" data-copycal="' + esc(icsUrl("team/" + t.id)) + '">Copy the link</button></div>';
+  /* Calendar subscription hidden for now (Coach 8/31): no games published yet
+     so the feed is empty and the buttons read as broken. The flm-ics feed
+     still works — restore this block when the game schedule goes live. */
   box.style.borderTopColor = ev.status === "over" ? "#b3432b" : divColor(t);
   box.innerHTML = html;
   box.classList.remove("hidden");
@@ -939,12 +938,8 @@ function renderSched() {
     return true;
   });
   document.getElementById("schedNone").classList.toggle("hidden", shown.length > 0);
-  /* live calendar feed matching the filters: team, division, or whole league */
-  var feedPath = keepTeam ? "team/" + keepTeam : (keepDiv ? "division/" + encodeURIComponent(keepDiv) : "league");
-  var feedLabel = keepTeam ? ((teamById(keepTeam) || {}).name || "this team") + " games" : (keepDiv ? keepDiv + " games" : "all league games");
-  document.getElementById("schedCal").innerHTML = "Put " + esc(feedLabel) + " on your phone calendar. It updates by itself when the schedule changes.<br />" +
-    '<a class="calbtn" href="' + esc(icsWebcal(feedPath)) + '">Add to calendar</a>' +
-    '<button class="calbtn ghost" data-copycal="' + esc(icsUrl(feedPath)) + '">Copy the link</button>';
+  /* Calendar feed hidden for now (Coach 8/31) — restore with the game schedule. */
+  document.getElementById("schedCal").innerHTML = "";
   /* Phase 5: standings for divisions the league turned on. Built from final
      scores; a division with standings off, or no finals yet, shows nothing. */
   var stHtml = "";

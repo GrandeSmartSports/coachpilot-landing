@@ -725,7 +725,7 @@ section('fields/admin.html: season board hooks');
 section('fields/index.html: calendar feed hooks');
 {
   const portalSrc = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
-  const hooks = ['/fields/ics/', 'webcal://', 'data-copycal', 'id="schedCal"', 'mt-cal', 'Add to calendar'];
+  const hooks = ['/fields/ics/', 'webcal://', 'data-copycal', 'id="schedCal"', 'mt-cal'];
   const missing = hooks.filter((h) => !portalSrc.includes(h));
   if (missing.length === 0) ok('My Team and Schedule calendar feed hooks present');
   else fail('missing portal hooks: ' + missing.join(', '));
