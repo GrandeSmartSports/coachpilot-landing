@@ -1177,6 +1177,7 @@ function openClaimModal(dayK, fieldId) {
         if (!d.ok) throw new Error(d.error || "failed");
         v.remove(); toast("Slot claimed — you're on the schedule");
         load();
+        setTimeout(checkOverAfterClaim, 1100); // after fresh state lands
       })
       .catch(function (e) {
         btn.disabled = false; btn.textContent = existing.length ? "Share the field" : "Claim it";
@@ -1604,8 +1605,11 @@ function renderHub() {
     '</div>';
   }).join('');
 
+  // First sign-in: coach must confirm their practices before the hub opens.
+  if (!h.schedule_confirmed_at) { renderConfirmSchedule(box, h); return; }
+
   var reqs = h.my_requests || [];
-  var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General" };
+  var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General", schedule_approval: "Schedule Approval" };
   var reqHtml = reqs.map(function (r) {
     var when = new Date(r.created_at).toLocaleDateString([], { month: "short", day: "numeric" });
     return '<div class="myreq">' +
@@ -1653,6 +1657,7 @@ function renderHub() {
       missingBanner +
     '</div>' +
     '<div class="hubwrap">' +
+      scheduleApprovalBannerHtml(h) +
       (joinsInHtml ? '<div class="hubpanel warn"><h3>Practice join requests<span class="badgemini">' + joinsIn.length + ' PENDING</span></h3><div class="lede">Another coach wants to share a practice with you. Approve to add their team to your slot, or deny.</div>' + joinsInHtml + '</div>' : '') +
       (joinsOutHtml ? '<div class="hubpanel"><h3>My join requests</h3>' + joinsOutHtml + '</div>' : '') +
       '<div class="hubpanel"><h3>League announcements</h3>' + annHtml + '</div>' +
@@ -1859,6 +1864,125 @@ function openChangePin() {
   }
   v.querySelector("#cpGo").addEventListener("click", save);
   inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+}
+
+// -------------- Schedule confirmation (first sign-in gate) --------------
+function myScheduleSlots() {
+  var ids = (HUB.data && HUB.data.coach && HUB.data.coach.team_ids) || (CRED_C.team_id ? [CRED_C.team_id] : []);
+  return (S.data && S.data.slots || []).filter(function (s) {
+    return s.season_id === S.season && ids.indexOf(s.team_id) >= 0 && !s.cancelled_at;
+  }).sort(function (a, b) {
+    var order = DAYS.map(function (d) { return d.k; });
+    return order.indexOf(a.day_key) - order.indexOf(b.day_key);
+  });
+}
+
+function scheduleSummaryText(slots) {
+  return slots.map(function (s) {
+    var f = fieldById(s.field_id);
+    var t = teamById(s.team_id);
+    return dayLabel(s.day_key) + " at " + (f ? f.name : "?") + (t ? " (" + t.name + ")" : "");
+  }).join("\n");
+}
+
+function evalMySchedule(slots) {
+  try { return FLM_RULES.evaluate(leagueRules(), slots); } catch (e) { return { status: "ok" }; }
+}
+
+function renderConfirmSchedule(box, h) {
+  // Needs the schedule data; if it hasn't landed yet, wait for it.
+  if (!S.data || !S.season) {
+    box.innerHTML = '<div class="loading">Loading your schedule&hellip;</div>';
+    setTimeout(function () { renderHub(); }, 700);
+    return;
+  }
+  var slots = myScheduleSlots();
+  if (!slots.length) {
+    // Nothing to confirm — mark confirmed quietly and open the hub pointing at claiming.
+    coachApi("coach_confirm_schedule", { over: false, summary: "No practices on file at first sign-in." })
+      .then(function () { loadHubState(function () { renderHub(); }); });
+    box.innerHTML = '<div class="loading">Setting up your hub&hellip;</div>';
+    return;
+  }
+  var ev = evalMySchedule(slots);
+  var over = ev && ev.status === "over";
+  var ruleText = "";
+  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday + 1 Saturday, or Monday plus Friday"; }
+  var lis = slots.map(function (s) {
+    var f = fieldById(s.field_id);
+    var t = teamById(s.team_id);
+    return '<li style="padding:7px 0;border-bottom:1px dashed #efece2;font-size:15px;"><b>' + esc(dayLabel(s.day_key)) + '</b> at ' + esc(f ? f.name : "?") + ((h.coach.team_ids || []).length > 1 && t ? ' <span style="color:var(--muted);font-size:12.5px;">' + esc(t.name) + '</span>' : '') + (s.note ? ' <span style="color:var(--muted);font-size:12.5px;">(' + esc(s.note) + ')</span>' : '') + '</li>';
+  }).join("");
+  box.innerHTML =
+    '<div class="hubgate" style="max-width:520px;">' +
+      '<h3>Confirm your practices</h3>' +
+      '<p class="sub">One-time check before your hub opens. This is the practice schedule we have on file for your team. Is it right?</p>' +
+      '<ul style="list-style:none;margin:10px 0 14px;">' + lis + '</ul>' +
+      (over
+        ? '<div style="background:#fdf1dc;border-left:4px solid var(--clay);border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:12px;"><b>Heads up:</b> the league guideline is <b>' + esc(ruleText) + '</b>. Your schedule is outside that. If the league already approved it, confirm below and the board will get it for a quick sign-off. Your practices stay on the schedule while it is reviewed.</div>'
+        : '') +
+      '<div class="mbtns" style="display:flex;gap:10px;">' +
+        '<button class="mb quiet" id="csFix">Something\'s off</button>' +
+        '<button class="mb ' + (over ? 'clay' : 'go') + '" id="csYes">' + (over ? 'Yes, I have approval' : 'Confirm, they\'re right') + '</button>' +
+      '</div>' +
+      '<p class="gerr hidden" id="csErr"></p>' +
+    '</div>';
+  box.querySelector("#csFix").addEventListener("click", function () {
+    toast("Fix your schedule, then come back to the Hub to confirm.");
+    var target = isPhone() ? document.querySelector('.tb[data-mtab="fields"]') : document.querySelector('[data-primenav="schedule"]');
+    if (target) target.click();
+  });
+  box.querySelector("#csYes").addEventListener("click", function () {
+    var btn = box.querySelector("#csYes");
+    btn.disabled = true; btn.textContent = "Saving…";
+    coachApi("coach_confirm_schedule", { over: over, summary: "Guideline: " + ruleText + "\nSchedule:\n" + scheduleSummaryText(slots) })
+      .then(function (j) {
+        if (!j.ok) { var e = box.querySelector("#csErr"); e.textContent = j.error || "Could not save."; e.classList.remove("hidden"); btn.disabled = false; btn.textContent = over ? "Yes, I have approval" : "Confirm, they're right"; return; }
+        toast(over ? "Confirmed — sent to the board for sign-off" : "Confirmed. Welcome to your hub.");
+        loadHubState(function () { renderHub(); });
+      })
+      .catch(function () { var e = box.querySelector("#csErr"); e.textContent = "Could not reach the server."; e.classList.remove("hidden"); btn.disabled = false; });
+  });
+}
+
+function scheduleApprovalBannerHtml(h) {
+  var sa = h.schedule_approval;
+  if (!sa) return "";
+  if (sa.status === "open" || sa.status === "in_progress") {
+    return '<div class="hubpanel" style="border-left:4px solid var(--clay);background:#fdf6ed;"><h3>Schedule pending board sign-off</h3><div class="lede">Your over-guideline schedule went to the board. Your practices stay on the calendar while they review. You\'ll get an email when it\'s decided.</div></div>';
+  }
+  if (sa.status === "closed" && sa.response) {
+    return '<div class="hubpanel" style="border-left:4px solid #b3432b;background:#fdf0ee;"><h3>Schedule change needed</h3><div class="lede">The board reviewed your schedule: ' + esc(sa.response) + '</div></div>';
+  }
+  return "";
+}
+
+// After a claim pushes a confirmed coach over the guideline, run the same
+// approval flow at claim time — no loophole.
+function checkOverAfterClaim() {
+  if (!isCoachSignedIn() || !HUB.data) return;
+  var sa = HUB.data.schedule_approval;
+  if (sa && (sa.status === "open" || sa.status === "in_progress" || sa.status === "resolved")) return; // already handled
+  var slots = myScheduleSlots();
+  var ev = evalMySchedule(slots);
+  if (!ev || ev.status !== "over") return;
+  var ruleText = "";
+  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday + 1 Saturday, or Monday plus Friday"; }
+  var v = modal(
+    '<h3>Over the league guideline</h3>' +
+    '<div class="ctx">With that claim your schedule is outside the guideline: <b>' + esc(ruleText) + '</b>. Do you have scheduling approval from the league?</div>' +
+    '<div class="mbtns"><button class="mb quiet" id="ogNo">No, I\'ll adjust</button><button class="mb clay" id="ogYes">Yes, I have approval</button></div>'
+  );
+  v.querySelector("#ogNo").addEventListener("click", function () { v.remove(); toast("Release a slot to get back within the guideline."); });
+  v.querySelector("#ogYes").addEventListener("click", function () {
+    var btn = v.querySelector("#ogYes"); btn.disabled = true; btn.textContent = "Sending…";
+    coachApi("coach_confirm_schedule", { over: true, summary: "Guideline: " + ruleText + "\nSchedule after new claim:\n" + scheduleSummaryText(myScheduleSlots()) })
+      .then(function (j) {
+        if (!j.ok) { btn.disabled = false; btn.textContent = "Yes, I have approval"; toast(j.error || "Could not send"); return; }
+        v.remove(); toast("Sent to the board for sign-off");
+        loadHubState(function () {});
+      });
+  });
 }
 
 // -------------- Sign-in prompt (for coach actions while signed out) --------------

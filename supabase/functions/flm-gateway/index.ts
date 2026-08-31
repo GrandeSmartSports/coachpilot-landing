@@ -196,7 +196,7 @@ async function leagueName(): Promise<string> {
 // email; invite token goes out via Resend; coach clicks the link, sets a PIN,
 // and email_confirmed_at is stamped as proof they own the inbox. Every write
 // requires coach_id + coach_pin in the body (mirrors umpAuth).
-const REQUEST_CATEGORIES = ["gear", "field_issue", "practice_concern", "volunteer_needed", "general"];
+const REQUEST_CATEGORIES = ["gear", "field_issue", "practice_concern", "volunteer_needed", "general", "schedule_approval"];
 const REQUEST_STATUSES = ["open", "in_progress", "resolved", "closed"];
 
 function randomInviteToken(): string {
@@ -919,7 +919,60 @@ Deno.serve(async (req: Request) => {
         coach_picker: picker.data || [],
         joins_to_me: joinsIn.data || [],
         joins_from_me: joinsOut.data || [],
+        schedule_confirmed_at: c.schedule_confirmed_at ?? null,
+        schedule_approval: (() => {
+          // Latest schedule-approval item drives the hub banner:
+          // open = pending with the board, resolved = approved,
+          // closed = denied (response says what to fix).
+          const sa = (myRequests.data || []).find((r: any) => r.category === "schedule_approval");
+          return sa ? { status: sa.status, response: sa.response ?? null, created_at: sa.created_at } : null;
+        })(),
       });
+    }
+
+    if (action === "coach_confirm_schedule" && req.method === "POST") {
+      // First-load confirmation. Compliant schedules auto-approve; over-guideline
+      // ones (coach clicked "yes I have approval") open a schedule_approval
+      // request that Matt + Ramey work INSIDE the admin console like any other
+      // request. Email is only the doorbell.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      const over = b.over === true;
+      const summary = String(b.summary ?? "").trim().slice(0, 2000);
+      const now = new Date().toISOString();
+      await db.from("flm_coaches").update({ schedule_confirmed_at: now }).eq("id", coach.id);
+      if (!over) {
+        await log("coach_confirm_schedule", `${coach.name} confirmed schedule (within guidelines)`, "coach");
+        return json({ ok: true, approved: true });
+      }
+      // Over guidelines: open the approval item, assigned to the CP PA (Matt).
+      const { data: mattContact } = await db.from("flm_contacts").select("id").ilike("email", "cppa@blslittleleague.org").maybeSingle();
+      const { data: teamRow } = coach.team_id ? await db.from("flm_teams").select("name,division").eq("id", coach.team_id).single() : { data: null };
+      const teamName = teamRow?.name ?? coach.name;
+      const { data: created, error } = await db.from("flm_requests").insert({
+        category: "schedule_approval",
+        subject: `Schedule approval: ${teamName}`,
+        details: summary || "Coach confirmed an over-guideline schedule and says the league approved it.",
+        submitted_by_coach_id: coach.id,
+        submitted_by_coach_name: coach.name,
+        submitted_by_team_id: coach.team_id,
+        assigned_contact_id: mattContact?.id ?? null,
+        status: "open",
+      }).select("*").single();
+      if (error || !created) return json({ ok: false, error: error?.message ?? "could not open the approval" }, 500);
+      await log("coach_confirm_schedule", `${coach.name} confirmed OVER-guideline schedule → approval opened`, "coach");
+      const league = await leagueName();
+      const html = `<div style="font-family:sans-serif"><h2>Schedule approval needed</h2><p><b>${escHtml(coach.name)}</b> (${escHtml(teamName)}${teamRow?.division ? ", " + escHtml(teamRow.division) : ""}) confirmed a practice schedule that is outside the league guideline and says it was approved.</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(summary)}</blockquote><p>Approve or deny it in the admin console (Coaches Hub &rarr; Requests inbox):<br><a href="https://coachpilot.org/fields/admin.html#hub">coachpilot.org/fields/admin.html</a></p></div>`;
+      await resendSend({
+        from: "Field Command <noreply@coachpilot.org>",
+        reply_to: coach.email,
+        to: ["cppa@blslittleleague.org", "vpbb@blslittleleague.org"],
+        bcc: [ADMIN_ALERT_EMAIL],
+        subject: `[${league}] Schedule approval needed: ${teamName}`,
+        html,
+      }).catch(() => ({ ok: false }));
+      return json({ ok: true, approved: false, request: { id: created.id } });
     }
 
     if (action === "coach_submit_request" && req.method === "POST") {
