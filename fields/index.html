@@ -421,7 +421,7 @@
           <div class="sub">League Field Manager &middot; <span style="color:#ffd9b8;">v13 &middot; Coaches Hub</span></div>
         </div>
       </div>
-      <div class="me"><button class="who" id="whoBtn">I'm a coach — pick my team</button></div>
+      <div class="me"><button class="who" id="whoBtn">Follow a team</button></div>
     </div>
   </header>
   <div class="chalkline"></div>
@@ -731,8 +731,8 @@ function renderWho() {
     btn.innerHTML = "Signed in: <b>" + esc(CRED_C.name) + "</b>";
     btn.title = "Open the Coaches Hub";
   } else {
-    btn.innerHTML = t ? "Coaching: <b>" + esc(t.name) + "</b>" : "I'm a coach — pick my team";
-    btn.title = "";
+    btn.innerHTML = t ? "Following: <b>" + esc(t.name) + "</b>" : "Follow a team";
+    btn.title = "Highlight a team's schedule (viewing only)";
   }
 }
 
@@ -1099,7 +1099,7 @@ function welcomeModal() {
       return '<button class="wteam" data-team="' + t.id + '" data-search="' + esc((t.name + " " + (t.coach_name || "") + " " + div).toLowerCase()) + '">' + esc(t.name) + (t.coach_name ? "<small>Coach " + esc(t.coach_name) + "</small>" : "") + "</button>";
     }).join("") + "</div>";
   }).join("");
-  var v = modal("<h3>Who are you, Coach?</h3><div class=\"ctx\">Pick your team and this device will remember you. You will see your practice slots, the league guideline, and what your team can still claim.</div>" +
+  var v = modal("<h3>Follow a team</h3><div class=\"ctx\">Pick a team to highlight its practices on the schedule. Viewing only. Coaches: sign in on the <b>Coaches Hub</b> to claim field time and manage your practices.</div>" +
     '<input class="wsearch" id="wSearch" placeholder="Search by team, coach, or division" />' +
     '<div class="wlist" id="wList">' + listHtml + "</div>" +
     '<div class="mbtns"><button class="mb quiet" id="wSkip">Just browsing</button></div>');
@@ -1157,7 +1157,9 @@ function pickTeamModal(next) {
 function openClaimModal(dayK, fieldId) {
   var sn = seasonObj();
   if (sn && sn.locked) { toast("This window is locked by the league"); return; }
-  if (!S.myTeam || !teamById(S.myTeam)) { pickTeamModal(function () { openClaimModal(dayK, fieldId); }); return; }
+  // Claiming is a signed-in coach action. Everyone else gets pointed at the Hub.
+  if (!isCoachSignedIn()) { openSignInPrompt(); return; }
+  if (!S.myTeam || !teamById(S.myTeam)) { toast("Your team is still being linked — tap Coaches Hub."); return; }
   var t = teamById(S.myTeam), f = fieldById(fieldId);
   var existing = slotsFor(dayK, fieldId);
   var shareNote = existing.length ? '<div class="shared-note">This slot already has <b>' + esc(existing.map(function (s) { var tt = teamById(s.team_id); return tt ? tt.name : s.label; }).join(", ")) + "</b>. Claiming it means sharing the field — the league encourages joint practices and scrimmages within your division.</div>" : "";
@@ -1169,7 +1171,7 @@ function openClaimModal(dayK, fieldId) {
   v.querySelector("#mGo").addEventListener("click", function () {
     var btn = v.querySelector("#mGo"); btn.disabled = true; btn.textContent = "Saving…";
     fetch(API + "?action=claim", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
+      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || "failed");
@@ -1188,9 +1190,10 @@ function openSlotModal(slotId) {
   if (!slot) return;
   var t = teamById(slot.team_id), f = fieldById(slot.field_id);
   var iSignedIn = isCoachSignedIn();
-  // Signed-in coach's own team slot (matches by team_id from CRED_C or S.myTeam)
-  var myTeamId = (CRED_C && CRED_C.team_id) || S.myTeam;
-  var mine = myTeamId && slot.team_id === myTeamId;
+  // Action buttons only for a SIGNED-IN coach on their own team's slot.
+  // The view-only team picker (S.myTeam) never unlocks actions.
+  var myTeamId = iSignedIn ? ((CRED_C && CRED_C.team_id) || S.myTeam) : null;
+  var mine = iSignedIn && myTeamId && slot.team_id === myTeamId;
   var cancelled = !!slot.cancelled_at;
   var sn = seasonObj();
   var locked = sn && sn.locked;
@@ -1230,7 +1233,7 @@ function openSlotModal(slotId) {
   if (rel) rel.addEventListener("click", function () {
     rel.disabled = true; rel.textContent = "Releasing…";
     fetch(API + "?action=release", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slot_id: slot.id, team_id: myTeamId }) })
+      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, slot_id: slot.id }) })
       .then(function (r) { return r.json(); })
       .then(function (d) { if (!d.ok) throw new Error(d.error || "failed"); v.remove(); toast("Slot released"); load(); })
       .catch(function () { rel.disabled = false; rel.textContent = "Release"; });
@@ -1856,6 +1859,24 @@ function openChangePin() {
   }
   v.querySelector("#cpGo").addEventListener("click", save);
   inp.addEventListener("keydown", function (e) { if (e.key === "Enter") save(); });
+}
+
+// -------------- Sign-in prompt (for coach actions while signed out) --------------
+function openSignInPrompt() {
+  var v = modal(
+    '<h3>Coaches sign in first</h3>' +
+    '<div class="ctx">Claiming field time and managing practices happens through your coach account. Enter your email on the Coaches Hub, tap the link we email you, set a 4 digit PIN, and this phone stays signed in. Check spam if the email does not show up in a minute.</div>' +
+    '<div class="mbtns"><button class="mb quiet" id="siX">Not now</button><button class="mb go" id="siGo">Go to Coaches Hub</button></div>'
+  );
+  v.querySelector("#siX").addEventListener("click", function () { v.remove(); });
+  v.querySelector("#siGo").addEventListener("click", function () {
+    v.remove();
+    // Route through the real nav controls so desktop and phone both land right.
+    var target = isPhone() ? document.querySelector('.tb[data-mtab="hub"]') : document.querySelector('[data-primenav="hub"]');
+    if (target) target.click();
+    else { S.view = "hub"; renderAll(); }
+    window.scrollTo(0, 0);
+  });
 }
 
 // -------------- Support --------------

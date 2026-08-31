@@ -422,7 +422,7 @@ section('season generator: interlock (other leagues)');
 // ------- 2. Portal hooks -------
 section('fields/index.html: required hooks');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
-for (const s of ['Who are you, Coach?', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
+for (const s of ['Follow a team', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
   if (indexHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }

@@ -573,9 +573,16 @@ Deno.serve(async (req: Request) => {
 
     if (action === "claim" && req.method === "POST") {
       const b = await req.json();
+      // Locked down 8/31: claiming requires a signed-in coach and the team
+      // must be one of theirs. The pre-accounts anonymous claim path is gone.
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to claim field time" }, 401);
       const { season_id, day_key, field_id, team_id } = b;
       if (!season_id || !day_key || !field_id || !team_id || !DAY_KEYS.includes(day_key)) {
         return json({ ok: false, error: "missing or invalid fields" }, 400);
+      }
+      if (!(coach.team_ids || []).includes(String(team_id))) {
+        return json({ ok: false, error: "you can only claim time for your own team" }, 403);
       }
       const { data: season } = await db.from("flm_seasons").select("label,locked").eq("id", season_id).single();
       if (!season) return json({ ok: false, error: "unknown season" }, 400);
@@ -601,11 +608,14 @@ Deno.serve(async (req: Request) => {
 
     if (action === "release" && req.method === "POST") {
       const b = await req.json();
-      const { slot_id, team_id } = b;
-      if (!slot_id || !team_id) return json({ ok: false, error: "missing fields" }, 400);
+      // Locked down 8/31: releasing requires the signed-in coach who owns the slot's team.
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to manage your practices" }, 401);
+      const { slot_id } = b;
+      if (!slot_id) return json({ ok: false, error: "missing fields" }, 400);
       const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key,season_id").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "not found" }, 404);
-      if (slot.team_id !== team_id) return json({ ok: false, error: "Only the team holding a slot can release it." }, 403);
+      if (!(coach.team_ids || []).includes(String(slot.team_id))) return json({ ok: false, error: "Only the coach holding a slot can release it." }, 403);
       const { data: season } = await db.from("flm_seasons").select("locked").eq("id", slot.season_id).single();
       if (season?.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
       await db.from("flm_slots").delete().eq("id", slot_id);
