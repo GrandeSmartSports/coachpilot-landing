@@ -322,6 +322,14 @@
   .tnnsave:disabled { opacity: .6; cursor: default; }
   .tnnskip { border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 2px 0; }
   .tnndone { font-size: 15px; padding: 6px 0; }
+  /* GameChanger helper card */
+  .hubpanel.gc { border-top-color: #1d4ed8; }
+  .gcteam { font-family: var(--disp); font-weight: 700; font-size: 12.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin: 12px 0 2px; }
+  .gcrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid #efede4; font-size: 14.5px; }
+  .gcrow:first-of-type { border-top: none; }
+  .gcrow .gcwhat { min-width: 0; }
+  .gccopy { flex: none; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--white); color: var(--pine); border: 1.5px solid var(--pine); border-radius: 8px; padding: 7px 11px; cursor: pointer; }
+  .gccopy:hover { background: var(--pine); color: var(--chalk); }
   .hubaction.disabled { opacity: 0.6; cursor: not-allowed; }
   .hubaction.disabled:hover { transform: none; background: var(--pine); color: var(--chalk); }
   .hubaction.disabled .soon { display: inline-block; margin-left: 8px; padding: 2px 8px; background: var(--clay); color: #fff; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 3px; font-weight: 700; }
@@ -1702,6 +1710,31 @@ function renderHub() {
       '</div>'
     : '';
 
+  // ---------- GameChanger helper card ----------
+  // GC has no practice import (verified 9/01 — org CSV is games-only, no team
+  // import, no calendar subscribe). This card turns the manual add into pure
+  // transcription: their practices listed GC-style with copy-able locations.
+  var gcSlots = (S.data && S.season) ? myScheduleSlots() : [];
+  var gcHtml = "";
+  if (gcSlots.length) {
+    var gcByTeam = {};
+    gcSlots.forEach(function (s) { (gcByTeam[s.team_id] = gcByTeam[s.team_id] || []).push(s); });
+    var gcMulti = Object.keys(gcByTeam).length > 1;
+    var gcRows = "";
+    Object.keys(gcByTeam).forEach(function (tid) {
+      var gt = teamById(tid);
+      if (gcMulti && gt) gcRows += '<div class="gcteam">' + esc(gt.name) + '</div>';
+      gcByTeam[tid].forEach(function (s) {
+        var gf = fieldById(s.field_id);
+        var fname = gf ? gf.name : "?";
+        gcRows += '<div class="gcrow"><div class="gcwhat"><b>' + esc(dayLabel(s.day_key)) + '</b> at ' + esc(fname) + '</div><button class="gccopy" data-loc="' + esc(fname) + '">Copy location</button></div>';
+      });
+    });
+    gcHtml = '<div class="hubpanel fold gc"><h3 class="foldhead">Add practices to GameChanger<svg class="foldchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></h3><div class="foldbody">' +
+      '<div class="lede">GameChanger does not have a practice import, but each practice is one quick add that repeats all season. In GameChanger: your team &rarr; Schedule &rarr; <b>Add Event</b> &rarr; Practice. Pick the day below, set your start time, paste the location, and turn on <b>Repeats: Weekly</b>.</div>' +
+      gcRows + '</div></div>';
+  }
+
   // ---------- BUILD (phone-first: needs-action + buttons up top, reference
   // material below, the long Board contacts list folded at the bottom) ----------
   box.innerHTML =
@@ -1723,6 +1756,7 @@ function renderHub() {
         '<button class="hubaction subtle" id="hbChangePin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Change my PIN</button>' +
         '<button class="hubaction subtle" id="hbSignOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Sign out</button>' +
       '</div>' +
+      gcHtml +
       '<div class="hubpanel"><h3>League announcements</h3>' + annHtml + '</div>' +
       (messages.length ? '<div class="hubpanel"><h3>Messages' + (unread ? '<span class="badgemini">' + unread + ' NEW</span>' : '') + '</h3><div class="lede">Every conversation with another coach, stored so nothing gets lost in a text thread.</div>' + msgHtml + '</div>' : '') +
       (reqs.length ? '<div class="hubpanel"><h3>My requests</h3>' + reqHtml + '</div>' : '') +
@@ -1747,6 +1781,17 @@ function renderHub() {
   // ---------- Collapsible panels (Board contacts folds shut on load) ----------
   box.querySelectorAll(".hubpanel.fold .foldhead").forEach(function (fh) {
     fh.addEventListener("click", function () { fh.parentElement.classList.toggle("expanded"); });
+  });
+
+  // ---------- GameChanger card copy buttons ----------
+  box.querySelectorAll(".gccopy[data-loc]").forEach(function (cb) {
+    cb.addEventListener("click", function () {
+      var loc = cb.getAttribute("data-loc");
+      var done = function () { cb.textContent = "Copied"; toast("Location copied. Paste it into GameChanger."); setTimeout(function () { cb.textContent = "Copy location"; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(loc).then(done).catch(function () { toast(loc); });
+      } else { toast(loc); }
+    });
   });
 
   // ---------- Team name nudge ----------
