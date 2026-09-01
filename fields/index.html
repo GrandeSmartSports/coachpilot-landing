@@ -659,7 +659,10 @@ function load() {
     if (S.myTeam && !teamById(S.myTeam)) { S.myTeam = ""; lsDel("flm_team"); }
     document.getElementById("loading").classList.add("hidden");
     renderAll();
-    if (!welcomed && !teamById(S.myTeam) && !ssGet("flm_browse")) { welcomed = true; welcomeModal(); }
+    /* Coach-only phase (9/01): the follow-a-team welcome is parent onboarding.
+       Everyone lands on the Hub sign-in instead — re-enable when parents get
+       the link. The Follow a team button still works for anyone who wants it. */
+    // if (!welcomed && !teamById(S.myTeam) && !ssGet("flm_browse")) { welcomed = true; welcomeModal(); }
   }).catch(function (err) {
     var el = document.getElementById("loading");
     el.classList.remove("hidden");
