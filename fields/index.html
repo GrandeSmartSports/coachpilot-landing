@@ -1557,7 +1557,13 @@ function renderHub() {
             setTimeout(function () { pn.focus(); }, 20);
           } else {
             go.textContent = "Continue";
-            showOk("You're on the list! We just emailed you a link to set your PIN. Open it, pick a 4 digit PIN, and you're in. Check spam if you don't see it in a minute.");
+            // Success + escape hatches: resend the set-PIN email or open a
+            // support ticket — nobody gets stranded waiting on an email.
+            okMsg.innerHTML = "You're on the list! We just emailed you a link to set your PIN. Open it, pick a 4 digit PIN, and you're in. Check spam if you don't see it in a minute." +
+              '<br /><br />Didn\'t get the email? <a href="#" id="hgResend" style="color:inherit;font-weight:700;text-decoration:underline;">Send it again</a> or <a href="#" id="hgOkSupport" style="color:inherit;font-weight:700;text-decoration:underline;">submit a support ticket</a>.';
+            okMsg.classList.remove("hidden"); err.classList.add("hidden");
+            okMsg.querySelector("#hgResend").addEventListener("click", function (e) { e.preventDefault(); okMsg.classList.add("hidden"); checkEmail(); });
+            okMsg.querySelector("#hgOkSupport").addEventListener("click", function (e) { e.preventDefault(); openSupport({ email: em.value.trim() }); });
           }
         })
         .catch(function () { go.disabled = false; go.textContent = "Continue"; showErr("Could not reach the server. Try again in a minute."); });

@@ -1478,6 +1478,8 @@ for (const [s, why] of [
   ['Add to Home Screen', 'iPhone notification instructions present'],
   ['view: _bootView || "hub"', 'boot view defaults to the Hub'],
   ['id="hgErrSupport"', 'unknown email links straight to the support form'],
+  ['id="hgResend"', 'set-PIN success offers a resend link'],
+  ['id="hgOkSupport"', 'set-PIN success offers a support ticket link'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {
