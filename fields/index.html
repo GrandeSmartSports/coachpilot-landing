@@ -1936,8 +1936,7 @@ function renderConfirmSchedule(box, h) {
         // Mark confirmed locally so nothing depends on a server re-read,
         // then pay it off: success screen + quick tour, land on the hub.
         if (HUB.data) HUB.data.schedule_confirmed_at = new Date().toISOString();
-        renderWelcomeTour(box, over);
-        loadHubState(function () {}); // refresh in the background for the banner state
+        renderWelcomeTour(box, over); // hub state refreshes when the tour ends
       })
       .catch(function () { var e = box.querySelector("#csErr"); e.textContent = "Could not reach the server."; e.classList.remove("hidden"); btn.disabled = false; });
   });
@@ -1988,13 +1987,18 @@ function renderWelcomeTour(box, over) {
         '<button class="btn" id="tourNext" style="margin-top:10px;">' + s.btn + '</button>' +
         (i === 0 ? '<p class="fine" style="margin-top:10px;"><a href="#" id="tourSkip" style="color:var(--muted);text-decoration:underline;">Skip the tour</a></p>' : '') +
       '</div>';
+    function finish() {
+      // Fresh state for the hub (approval banner etc.), then land there.
+      loadHubState(function () { renderHub(); });
+      renderHub();
+    }
     box.querySelector("#tourNext").addEventListener("click", function () {
       i++;
-      if (i >= steps.length) { renderHub(); return; }
+      if (i >= steps.length) { finish(); return; }
       draw();
     });
     var skip = box.querySelector("#tourSkip");
-    if (skip) skip.addEventListener("click", function (e) { e.preventDefault(); renderHub(); });
+    if (skip) skip.addEventListener("click", function (e) { e.preventDefault(); finish(); });
   }
   draw();
 }

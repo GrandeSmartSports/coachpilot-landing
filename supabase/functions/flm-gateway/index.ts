@@ -872,7 +872,7 @@ Deno.serve(async (req: Request) => {
       // Pull the full coach row + their team row so the hub can show a proper profile
       // (division, team name, phone) instead of just name + email.
       const [full, team, settings, announcements, contacts, myRequests, myMessages, picker, joinsIn, joinsOut] = await Promise.all([
-        db.from("flm_coaches").select("id,name,email,phone,team_id").eq("id", coach.id).single(),
+        db.from("flm_coaches").select("id,name,email,phone,team_id,schedule_confirmed_at").eq("id", coach.id).single(),
         coach.team_id ? db.from("flm_teams").select("id,name,division,coach_name,coach_phone").eq("id", coach.team_id).single() : Promise.resolve({ data: null }),
         db.from("flm_settings").select("key,value").in("key", ["league_name"]),
         db.from("flm_announcements").select("*").order("created_at", { ascending: false }).limit(50),
