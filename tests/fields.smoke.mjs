@@ -1469,6 +1469,37 @@ try {
   else fail('coach_set_team_name unauth wrong: ' + r.status + ' ' + JSON.stringify(j));
 } catch (e) { fail('live coach_set_team_name test threw: ' + e.message); }
 
+// ------- v16: Coach's 9/01 punch list -------
+section('v16: support wording, notif honesty, fold fix, grid default, clean team cards');
+for (const [s, why] of [
+  ['.hubpanel.fold.expanded .foldbody', 'fold expand uses "expanded" (not .open — that class belongs to open-slot cells)'],
+  ['classList.toggle("expanded")', 'fold toggle flips the expanded class'],
+  ['function iosNeedsInstall', 'iOS add-to-Home-Screen detection present'],
+  ['Add to Home Screen', 'iPhone notification instructions present'],
+  ['view: _bootView || (_bootSignedIn ? "hub" : "grid")', 'Fields boot default is Full grid on every screen size'],
+  ['flm_v2grid', 'one-time stored-view migration to grid'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('v16 index MISSING (' + why + '): ' + s);
+}
+for (const [s, why] of [
+  ['This goes straight to Coach Daniel', 'support modal no longer names Daniel'],
+  ['(so he can reply)', 'support reply label is neutral'],
+  ['Sent. Coach Daniel will get back to you', 'support toast is neutral'],
+  ['"Notifications not supported"', 'dead-end notif label removed'],
+  ['classList.toggle("open")', 'no fold toggling of the colliding .open class'],
+  ["'<span class=\"status ' + c.cls", 'public team cards no longer badge guideline status'],
+]) {
+  if (!indexHtml.includes(s)) ok(why);
+  else fail('v16 index STILL CONTAINS (' + why + '): ' + s);
+}
+// Team cards: no slot notes on the public Teams view (renderTeams keeps day+field only).
+{
+  const rt = indexHtml.slice(indexHtml.indexOf('function renderTeams'), indexHtml.indexOf('function renderTeams') + 1400);
+  if (!rt.includes('s.note')) ok('public team cards carry no slot notes');
+  else fail('renderTeams still prints slot notes');
+}
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

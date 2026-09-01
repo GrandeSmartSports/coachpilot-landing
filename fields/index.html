@@ -77,8 +77,9 @@
   .tab.on { background: var(--pine); color: var(--chalk); border-color: var(--pine); }
   .tab .lock { font-size: 12px; }
   .views { display: flex; gap: 6px; }
-  .vbtn { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+  .vbtn { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--white); color: var(--pine); border: 2px solid var(--pine); border-radius: 10px; padding: 10px 16px; box-shadow: var(--shadow); }
   .vbtn.on { background: var(--clay); border-color: var(--clay); color: #fff; }
+  @media (max-width: 767px) { .views { flex: 1; } .vbtn { flex: 1; padding: 12px 6px; font-size: 14px; letter-spacing: 0.03em; } }
 
   .legend { display: flex; gap: 6px 12px; flex-wrap: wrap; margin: 2px 2px 12px; }
   .lg { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
@@ -306,9 +307,11 @@
   .hubpanel.fold .foldhead { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
   .hubpanel.fold .foldhead .badgemini { margin-left: 2px; }
   .hubpanel.fold .foldchev { width: 18px; height: 18px; margin-left: auto; flex: none; color: var(--muted); transition: transform .2s ease; }
+  /* NOTE: expand class is "expanded", NOT "open" — .open is taken by open-slot cells
+     (dashed flex boxes) and reusing it mangled this panel on phones. */
   .hubpanel.fold .foldbody { display: none; margin-top: 10px; }
-  .hubpanel.fold.open .foldbody { display: block; }
-  .hubpanel.fold.open .foldchev { transform: rotate(180deg); }
+  .hubpanel.fold.expanded .foldbody { display: block; }
+  .hubpanel.fold.expanded .foldchev { transform: rotate(180deg); }
   /* Name-your-team nudge */
   .hubpanel.tnn { border-top-color: var(--clay); }
   .tnnrow { display: flex; gap: 8px; margin: 10px 0 6px; }
@@ -547,6 +550,9 @@ if (_bootTeam.charAt(0) === "{") {
   try { _bootTeam = String((JSON.parse(_bootTeam) || {}).id || ""); } catch (e) { _bootTeam = ""; }
   if (_bootTeam) lsSet("flm_team", _bootTeam); else lsDel("flm_team");
 }
+// One-time (9/01): Full grid is the Fields default now. Clear "days" picks
+// stored before the change so every device starts on the grid.
+if (!lsGet("flm_v2grid")) { lsSet("flm_v2grid", "1"); if (lsGet("flm_view") === "days") lsDel("flm_view"); if (lsGet("flm_last_sched_view") === "days") lsDel("flm_last_sched_view"); }
 var _bootView = lsGet("flm_view");
 if (["grid", "days", "teams", "sched", "hub"].indexOf(_bootView) < 0) _bootView = null;
 var _bootTab = lsGet("flm_mtab");
@@ -554,7 +560,7 @@ if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootT
 /* Signed-in coaches land on the Hub if they haven't explicitly picked a view.
    Once they pick another view (grid/days/etc), their choice sticks via flm_view. */
 var _bootSignedIn = !!(lsGet("flm_coach_id") && lsGet("flm_coach_pin"));
-var S = { data: null, season: null, view: _bootView || (_bootSignedIn ? "hub" : (window.innerWidth < 760 ? "days" : "grid")), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
+var S = { data: null, season: null, view: _bootView || (_bootSignedIn ? "hub" : "grid"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
 
 /* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
@@ -1051,15 +1057,17 @@ function renderTeams() {
   (S.data.teams || []).filter(function (t) { return t.is_active; }).forEach(function (t) {
     var c = teamCompliance(t.id);
     if (c.cls === "none" && !t.coach_name) return;
+    // Days + fields only. No slot notes and no guideline status here — how a
+    // team stands against the guideline is between that coach and the league
+    // (admin console keeps the compliance panel), not for the public card.
     var lis = c.slots.map(function (s) {
       var f = fieldById(s.field_id);
-      return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> — " + esc(f ? f.name : "?") + (s.note ? " <span style=\"color:var(--muted)\">(" + esc(s.note) + ")</span>" : "") + "</li>";
+      return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> — " + esc(f ? f.name : "?") + "</li>";
     }).join("");
     html += '<div class="tcard" style="border-top-color:' + divColor(t) + '">' +
       '<div class="tname">' + esc(t.name) + "</div>" +
       '<div class="tmeta">' + esc([t.division, t.coach_name, t.coach_phone].filter(Boolean).join(" · ")) + "</div>" +
-      "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots this window.</li>') + "</ul>" +
-      '<span class="status ' + c.cls + '">' + c.txt + "</span></div>";
+      "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots this window.</li>') + "</ul></div>";
   });
   box.innerHTML = html;
 }
@@ -1718,7 +1726,7 @@ function renderHub() {
 
   // ---------- Collapsible panels (Board contacts folds shut on load) ----------
   box.querySelectorAll(".hubpanel.fold .foldhead").forEach(function (fh) {
-    fh.addEventListener("click", function () { fh.parentElement.classList.toggle("open"); });
+    fh.addEventListener("click", function () { fh.parentElement.classList.toggle("expanded"); });
   });
 
   // ---------- Team name nudge ----------
@@ -2141,10 +2149,10 @@ function openSupport() {
   var presetEmail = (CRED_C && CRED_C.email) || "";
   var v = modal(
     '<h3>Contact support</h3>' +
-    '<div class="ctx">Trouble signing in, something broken, or a question about the site? This goes straight to Coach Daniel, who runs Field Command for the league.</div>' +
+    '<div class="ctx">Trouble signing in, something broken, or a question about the site?</div>' +
     '<label class="mlabel">Your name</label>' +
     '<input id="spName" type="text" maxlength="120" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(presetName) + '" />' +
-    '<label class="mlabel">Your email or phone (so he can reply)</label>' +
+    '<label class="mlabel">Your email or phone (so we can reply)</label>' +
     '<input id="spEmail" type="text" maxlength="200" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;" value="' + esc(presetEmail) + '" />' +
     '<label class="mlabel">What\'s going on?</label>' +
     '<textarea id="spMsg" rows="4" style="width:100%;font-size:15px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;resize:vertical;" placeholder="Describe the problem or question…"></textarea>' +
@@ -2165,7 +2173,7 @@ function openSupport() {
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (!j.ok) { err.textContent = j.error || "Could not send."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; return; }
-        v.remove(); toast("Sent. Coach Daniel will get back to you.");
+        v.remove(); toast("Sent. We'll get back to you.");
       })
       .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Send"; });
   });
@@ -2193,16 +2201,36 @@ function getCurrentSubscription() {
   if (!pushSupported()) return Promise.resolve(null);
   return ensureServiceWorker().then(function (reg) { return reg.pushManager.getSubscription(); });
 }
+function iosNeedsInstall() {
+  // iPhone/iPad Safari only allows web push once the site is added to the Home
+  // Screen and opened from that icon. In a regular Safari tab push is absent.
+  var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  return ios && !standalone && !pushSupported();
+}
 function updateNotifButton() {
   var lbl = document.getElementById("hbNotifLbl");
   if (!lbl) return;
-  if (!pushSupported()) { lbl.textContent = "Notifications not supported"; return; }
+  if (iosNeedsInstall()) { lbl.textContent = "Notifications: add to Home Screen"; return; }
+  if (!pushSupported()) { var b = lbl.closest("button"); if (b) b.style.display = "none"; return; }
   if (Notification.permission === "denied") { lbl.textContent = "Notifications blocked"; return; }
   getCurrentSubscription().then(function (sub) {
     lbl.textContent = sub ? "Notifications on. Tap to turn off" : "Enable notifications";
   }).catch(function () { lbl.textContent = "Enable notifications"; });
 }
 function toggleNotifications() {
+  if (iosNeedsInstall()) {
+    var v = modal(
+      '<h3>Get notifications on iPhone</h3>' +
+      '<div class="ctx">iPhones only allow notifications from sites saved to your Home Screen. Two taps:<br><br>' +
+      '1. Tap the <b>Share</b> button in Safari (the square with the arrow).<br>' +
+      '2. Tap <b>Add to Home Screen</b>.<br><br>' +
+      'Open <b>Field Command</b> from that new icon and tap Enable notifications there. Emails work either way.</div>' +
+      '<div class="mbtns"><button class="mb go" id="niOk">Got it</button></div>'
+    );
+    v.querySelector("#niOk").addEventListener("click", function () { v.remove(); });
+    return;
+  }
   if (!pushSupported()) { toast("This device does not support push notifications. Emails still work."); return; }
   if (Notification.permission === "denied") { toast("Notifications are blocked. Enable them for this site in your browser settings."); return; }
   getCurrentSubscription().then(function (sub) {
@@ -2281,7 +2309,7 @@ document.querySelectorAll("[data-primenav]").forEach(function (b) {
          sensible default. Their pick is remembered per device via flm_view. */
       var last = lsGet("flm_last_sched_view");
       if (["grid", "days", "sched", "teams"].indexOf(last) < 0) last = null;
-      S.view = last || (window.innerWidth < 760 ? "days" : "grid");
+      S.view = last || "grid";
     }
     lsSet("flm_view", S.view);
     if (S.view !== "hub") lsSet("flm_last_sched_view", S.view);
