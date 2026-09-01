@@ -2158,6 +2158,9 @@ function scheduleApprovalBannerHtml(h) {
   var sa = h.schedule_approval;
   if (!sa) return "";
   if (sa.status === "open" || sa.status === "in_progress") {
+    // Auto-flagged claims stay invisible to the coach (silent board review).
+    // Only self-confirmed over-guideline schedules show the pending banner.
+    if (/\(auto\)/.test(sa.subject || "")) return "";
     return '<div class="hubpanel" style="border-left:4px solid var(--clay);background:#fdf6ed;"><h3>Schedule pending board sign-off</h3><div class="lede">Your over-guideline schedule went to the board. Your practices stay on the calendar while they review. You\'ll get an email when it\'s decided.</div></div>';
   }
   if (sa.status === "closed" && sa.response) {
@@ -2166,32 +2169,22 @@ function scheduleApprovalBannerHtml(h) {
   return "";
 }
 
-// After a claim pushes a confirmed coach over the guideline, run the same
-// approval flow at claim time — no loophole.
+// After a claim pushes a coach over the guideline, flag the board QUIETLY
+// (Coach's rule, 9/01): open slots are truly open — never warn or block the
+// coach at claim time. The guideline check was for initial setup; from here
+// an over-guideline claim just opens a review item for the board.
 function checkOverAfterClaim() {
   if (!isCoachSignedIn() || !HUB.data) return;
   var sa = HUB.data.schedule_approval;
-  if (sa && (sa.status === "open" || sa.status === "in_progress" || sa.status === "resolved")) return; // already handled
+  if (sa && (sa.status === "open" || sa.status === "in_progress" || sa.status === "resolved")) return; // already with the board
   var slots = myScheduleSlots();
   var ev = evalMySchedule(slots);
   if (!ev || ev.status !== "over") return;
   var ruleText = "";
   try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday + 1 Saturday, or Monday plus Friday"; }
-  var v = modal(
-    '<h3>Over the league guideline</h3>' +
-    '<div class="ctx">With that claim your schedule is outside the guideline: <b>' + esc(ruleText) + '</b>. Do you have scheduling approval from the league?</div>' +
-    '<div class="mbtns"><button class="mb quiet" id="ogNo">No, I\'ll adjust</button><button class="mb clay" id="ogYes">Yes, I have approval</button></div>'
-  );
-  v.querySelector("#ogNo").addEventListener("click", function () { v.remove(); toast("Release a slot to get back within the guideline."); });
-  v.querySelector("#ogYes").addEventListener("click", function () {
-    var btn = v.querySelector("#ogYes"); btn.disabled = true; btn.textContent = "Sending…";
-    coachApi("coach_confirm_schedule", { over: true, summary: "Guideline: " + ruleText + "\nSchedule after new claim:\n" + scheduleSummaryText(myScheduleSlots()) })
-      .then(function (j) {
-        if (!j.ok) { btn.disabled = false; btn.textContent = "Yes, I have approval"; toast(j.error || "Could not send"); return; }
-        v.remove(); toast("Sent to the board for sign-off");
-        loadHubState(function () {});
-      });
-  });
+  coachApi("coach_confirm_schedule", { over: true, auto: true, summary: "Guideline: " + ruleText + "\nSchedule after new claim:\n" + scheduleSummaryText(slots) })
+    .then(function () { loadHubState(function () {}); })
+    .catch(function () {});
 }
 
 // -------------- Sign-in prompt (for coach actions while signed out) --------------

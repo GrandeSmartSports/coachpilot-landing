@@ -938,7 +938,7 @@ Deno.serve(async (req: Request) => {
           // open = pending with the board, resolved = approved,
           // closed = denied (response says what to fix).
           const sa = (myRequests.data || []).find((r: any) => r.category === "schedule_approval");
-          return sa ? { status: sa.status, response: sa.response ?? null, created_at: sa.created_at } : null;
+          return sa ? { status: sa.status, subject: sa.subject ?? "", response: sa.response ?? null, created_at: sa.created_at } : null;
         })(),
       });
     }
@@ -952,6 +952,10 @@ Deno.serve(async (req: Request) => {
       const coach = await coachAuth(b);
       if (!coach) return json({ ok: false, error: "not signed in" }, 401);
       const over = b.over === true;
+      // auto=true: an open-slot claim pushed them over. Coach's rule (9/01):
+      // never warn the coach — the claim stands and the board quietly gets a
+      // review item. Subject carries "(auto)" so the hub hides its banner.
+      const auto = b.auto === true;
       const summary = String(b.summary ?? "").trim().slice(0, 2000);
       const now = new Date().toISOString();
       await db.from("flm_coaches").update({ schedule_confirmed_at: now }).eq("id", coach.id);
@@ -965,8 +969,8 @@ Deno.serve(async (req: Request) => {
       const teamName = teamRow?.name ?? coach.name;
       const { data: created, error } = await db.from("flm_requests").insert({
         category: "schedule_approval",
-        subject: `Schedule approval: ${teamName}`,
-        details: summary || "Coach confirmed an over-guideline schedule and says the league approved it.",
+        subject: `Schedule approval: ${teamName}${auto ? " (auto)" : ""}`,
+        details: (auto ? "A field claim put this schedule over the guideline. Auto-flagged for board review; the coach was not prompted.\n\n" : "") + (summary || "Coach confirmed an over-guideline schedule and says the league approved it."),
         submitted_by_coach_id: coach.id,
         submitted_by_coach_name: coach.name,
         submitted_by_team_id: coach.team_id,
@@ -974,9 +978,12 @@ Deno.serve(async (req: Request) => {
         status: "open",
       }).select("*").single();
       if (error || !created) return json({ ok: false, error: error?.message ?? "could not open the approval" }, 500);
-      await log("coach_confirm_schedule", `${coach.name} confirmed OVER-guideline schedule → approval opened`, "coach");
+      await log("coach_confirm_schedule", `${coach.name} ${auto ? "claim auto-flagged OVER guideline" : "confirmed OVER-guideline schedule"} → approval opened`, "coach");
       const league = await leagueName();
-      const html = `<div style="font-family:sans-serif"><h2>Schedule approval needed</h2><p><b>${escHtml(coach.name)}</b> (${escHtml(teamName)}${teamRow?.division ? ", " + escHtml(teamRow.division) : ""}) confirmed a practice schedule that is outside the league guideline and says it was approved.</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(summary)}</blockquote><p>Approve or deny it in the admin console (Coaches Hub &rarr; Requests inbox):<br><a href="https://coachpilot.org/fields/admin.html#hub">coachpilot.org/fields/admin.html</a></p></div>`;
+      const situation = auto
+        ? `claimed open field time that puts their schedule over the league guideline. Per league policy the claim went through and the coach was not prompted — this is an automatic review item.`
+        : `confirmed a practice schedule that is outside the league guideline and says it was approved.`;
+      const html = `<div style="font-family:sans-serif"><h2>Schedule ${auto ? "review" : "approval"} needed</h2><p><b>${escHtml(coach.name)}</b> (${escHtml(teamName)}${teamRow?.division ? ", " + escHtml(teamRow.division) : ""}) ${situation}</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(summary)}</blockquote><p>Approve or deny it in the admin console (Coaches Hub &rarr; Requests inbox):<br><a href="https://coachpilot.org/fields/admin.html#hub">coachpilot.org/fields/admin.html</a></p></div>`;
       await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,

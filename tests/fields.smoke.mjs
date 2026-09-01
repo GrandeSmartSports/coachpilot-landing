@@ -1484,6 +1484,8 @@ for (const [s, why] of [
   ['Add practices to GameChanger', 'GameChanger helper card present'],
   ['class="gccopy" data-loc=', 'GC card rows carry copy-location buttons'],
   ['routed straight to your division Player Agent', 'submit modal states auto-routing'],
+  ['auto: true, summary: "Guideline: "', 'over-guideline claims auto-flag the board silently'],
+  ['/\\(auto\\)/.test(sa.subject || "")', 'hub hides the pending banner for auto-flagged reviews'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {
@@ -1498,6 +1500,7 @@ for (const [s, why] of [
   ['classList.toggle("open")', 'no fold toggling of the colliding .open class'],
   ["'<span class=\"status ' + c.cls", 'public team cards no longer badge guideline status'],
   ['id="mqContact"', 'submit request has no recipient picker (auto-route only)'],
+  ['Do you have scheduling approval from the league?', 'no over-guideline warning modal at claim time'],
 ]) {
   if (!indexHtml.includes(s)) ok(why);
   else fail('v16 index STILL CONTAINS (' + why + '): ' + s);
