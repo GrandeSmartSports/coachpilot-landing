@@ -1476,9 +1476,10 @@ for (const [s, why] of [
   ['classList.toggle("expanded")', 'fold toggle flips the expanded class'],
   ['function iosNeedsInstall', 'iOS add-to-Home-Screen detection present'],
   ['Add to Home Screen', 'iPhone notification instructions present'],
-  ['view: _bootView || (_bootTeam && !_bootSignedIn ? "grid" : "hub")', 'boot view: followers get the grid, coaches get the Hub'],
+  ['view: _bootView || "hub"', 'boot view defaults to the Hub'],
+  ['id="hgErrSupport"', 'unknown email links straight to the support form'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
-  ['if (!_bootSignedIn && !_bootTeam) { _bootView = null; _bootTab = null; }', 'fresh visitors land on the Coaches Hub sign-in'],
+  ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {
   if (indexHtml.includes(s)) ok(why);
   else fail('v16 index MISSING (' + why + '): ' + s);

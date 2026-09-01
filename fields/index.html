@@ -560,11 +560,10 @@ if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootT
 /* Signed-in coaches land on the Hub if they haven't explicitly picked a view.
    Once they pick another view (grid/days/etc), their choice sticks via flm_view. */
 var _bootSignedIn = !!(lsGet("flm_coach_id") && lsGet("flm_coach_pin"));
-/* Not signed in and not following a team = a coach opening the shared link.
-   They land straight on the Coaches Hub sign-in, whatever this device had
-   stored from earlier browsing. Followers (picked a team) keep their spot. */
-if (!_bootSignedIn && !_bootTeam) { _bootView = null; _bootTab = null; }
-var S = { data: null, season: null, view: _bootView || (_bootTeam && !_bootSignedIn ? "grid" : "hub"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
+/* Coach/league tool only for now (9/01): anyone not signed in lands straight
+   on the Coaches Hub sign-in, whatever this device had stored. */
+if (!_bootSignedIn) { _bootView = null; _bootTab = null; }
+var S = { data: null, season: null, view: _bootView || "hub", day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
 
 /* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
@@ -582,10 +581,8 @@ var HUB = { loaded: false, loading: false, error: "", data: null };
 function isPhone() { return window.matchMedia("(max-width: 767px)").matches; }
 function curTab() {
   if (S.mtab) return S.mtab;
-  if (isCoachSignedIn()) return "hub";
-  /* Team followers open on My Team; everyone else (a coach with the shared
-     link) opens on the Coaches Hub sign-in. */
-  return (S.data && teamById(S.myTeam)) ? "myteam" : "hub";
+  /* Coach tool: everyone opens on the Coaches Hub (sign-in gate when signed out). */
+  return "hub";
 }
 function effView() {
   if (isPhone()) {
@@ -1540,7 +1537,13 @@ function renderHub() {
           if (!j.ok) { go.textContent = "Continue"; showErr(j.error || "That did not work."); return; }
           if (!j.found) {
             go.textContent = "Continue";
-            showErr("That email is not on the coach list. Double-check the spelling, ask your player agent to have it added, or tap Contact support below.");
+            // Error + a direct road to the support form (Coach's rule: no
+            // dead ends — a wrong email gets pointed straight at support).
+            err.innerHTML = 'That email is not on the coach list. Double-check the spelling, or ' +
+              '<a href="#" id="hgErrSupport" style="color:inherit;font-weight:700;text-decoration:underline;">send us a support request</a> and we\'ll get you set up.';
+            err.classList.remove("hidden"); okMsg.classList.add("hidden");
+            var esBtn = err.querySelector("#hgErrSupport");
+            if (esBtn) esBtn.addEventListener("click", function (e) { e.preventDefault(); openSupport({ email: em.value.trim() }); });
             return;
           }
           if (j.has_pin) {
@@ -2152,9 +2155,9 @@ function openSignInPrompt() {
 }
 
 // -------------- Support --------------
-function openSupport() {
-  var presetName = (CRED_C && CRED_C.name) || "";
-  var presetEmail = (CRED_C && CRED_C.email) || "";
+function openSupport(pre) {
+  var presetName = (pre && pre.name) || (CRED_C && CRED_C.name) || "";
+  var presetEmail = (pre && pre.email) || (CRED_C && CRED_C.email) || "";
   var v = modal(
     '<h3>Contact support</h3>' +
     '<div class="ctx">Trouble signing in, something broken, or a question about the site?</div>' +
