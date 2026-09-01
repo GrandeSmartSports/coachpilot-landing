@@ -586,6 +586,7 @@ function effView() {
     if (curTab() === "hub") return "hub";
     if (curTab() === "sched") return "sched";
     if (S.view === "sched") return "days";
+    if (S.view === "hub") return "grid"; // signed-in coaches carry view=hub; the Fields tab must still show the grid
   }
   return S.view;
 }
