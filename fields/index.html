@@ -560,7 +560,11 @@ if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootT
 /* Signed-in coaches land on the Hub if they haven't explicitly picked a view.
    Once they pick another view (grid/days/etc), their choice sticks via flm_view. */
 var _bootSignedIn = !!(lsGet("flm_coach_id") && lsGet("flm_coach_pin"));
-var S = { data: null, season: null, view: _bootView || (_bootSignedIn ? "hub" : "grid"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
+/* Not signed in and not following a team = a coach opening the shared link.
+   They land straight on the Coaches Hub sign-in, whatever this device had
+   stored from earlier browsing. Followers (picked a team) keep their spot. */
+if (!_bootSignedIn && !_bootTeam) { _bootView = null; _bootTab = null; }
+var S = { data: null, season: null, view: _bootView || (_bootTeam && !_bootSignedIn ? "grid" : "hub"), day: "mon", myTeam: _bootTeam, mtab: _bootTab };
 var welcomed = false;
 
 /* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
@@ -579,7 +583,9 @@ function isPhone() { return window.matchMedia("(max-width: 767px)").matches; }
 function curTab() {
   if (S.mtab) return S.mtab;
   if (isCoachSignedIn()) return "hub";
-  return (S.data && teamById(S.myTeam)) ? "myteam" : "fields";
+  /* Team followers open on My Team; everyone else (a coach with the shared
+     link) opens on the Coaches Hub sign-in. */
+  return (S.data && teamById(S.myTeam)) ? "myteam" : "hub";
 }
 function effView() {
   if (isPhone()) {

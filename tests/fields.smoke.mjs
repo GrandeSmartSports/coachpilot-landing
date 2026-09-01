@@ -1478,6 +1478,7 @@ for (const [s, why] of [
   ['Add to Home Screen', 'iPhone notification instructions present'],
   ['view: _bootView || (_bootSignedIn ? "hub" : "grid")', 'Fields boot default is Full grid on every screen size'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
+  ['if (!_bootSignedIn && !_bootTeam) { _bootView = null; _bootTab = null; }', 'fresh visitors land on the Coaches Hub sign-in'],
 ]) {
   if (indexHtml.includes(s)) ok(why);
   else fail('v16 index MISSING (' + why + '): ' + s);
