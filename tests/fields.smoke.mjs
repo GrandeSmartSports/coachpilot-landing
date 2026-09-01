@@ -1430,6 +1430,45 @@ try {
   }
 } catch (e) { fail('live v14 messaging tests threw: ' + e.message); }
 
+// ------- v15: team-name nudge + mobile hub redesign + tour lock -------
+section('v15: team-name nudge, folded contacts, tour lock');
+for (const [s, why] of [
+  ['id="tnnCard"', 'team-name nudge card present'],
+  ['coach_set_team_name', 'nudge calls coach_set_team_name'],
+  ['id="tnnSkip"', 'nudge has a no-team-name-yet path'],
+  ['team_nickname === null', 'nudge only shows when never asked (null, not empty)'],
+  ['TOUR_ACTIVE', 'welcome tour locks the hub box against background repaints'],
+  ['.hubpanel.fold .foldbody { display: none', 'fold panels collapse by default'],
+  ['class="foldhead">Board contacts', 'Board contacts is the folded panel'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('v15 index MISSING (' + why + '): ' + s);
+}
+// Actions bar must come BEFORE the Board contacts panel in the hub build now.
+{
+  const ai = indexHtml.indexOf('<div class="hubactions">');
+  const ci = indexHtml.indexOf('class="foldhead">Board contacts');
+  if (ai > -1 && ci > -1 && ai < ci) ok('action buttons render above Board contacts');
+  else fail('hub order wrong: hubactions@' + ai + ' contacts@' + ci);
+}
+const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+for (const [s, why] of [
+  ['action === "coach_set_team_name"', 'gateway coach_set_team_name action exists'],
+  ['if (teamRow.nickname) return', 'renames are one-shot (changes go through Support)'],
+  ['team_nickname: team.data ? team.data.nickname : undefined', 'coach_state returns team_nickname'],
+]) {
+  if (gwSrc.includes(s)) ok(why);
+  else fail('v15 gateway MISSING (' + why + '): ' + s);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=coach_set_team_name', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+  });
+  const j = await r.json();
+  if (r.status === 401 && j.ok === false) ok('coach_set_team_name unauth -> 401');
+  else fail('coach_set_team_name unauth wrong: ' + r.status + ' ' + JSON.stringify(j));
+} catch (e) { fail('live coach_set_team_name test threw: ' + e.message); }
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

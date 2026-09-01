@@ -873,7 +873,7 @@ Deno.serve(async (req: Request) => {
       // (division, team name, phone) instead of just name + email.
       const [full, team, settings, announcements, contacts, myRequests, myMessages, picker, joinsIn, joinsOut] = await Promise.all([
         db.from("flm_coaches").select("id,name,email,phone,team_id,schedule_confirmed_at").eq("id", coach.id).single(),
-        coach.team_id ? db.from("flm_teams").select("id,name,division,coach_name,coach_phone").eq("id", coach.team_id).single() : Promise.resolve({ data: null }),
+        coach.team_id ? db.from("flm_teams").select("id,name,division,coach_name,coach_phone,nickname").eq("id", coach.team_id).single() : Promise.resolve({ data: null }),
         db.from("flm_settings").select("key,value").in("key", ["league_name"]),
         db.from("flm_announcements").select("*").order("created_at", { ascending: false }).limit(50),
         db.from("flm_contacts").select("id,name,role,email,phone,notes,sort_order").eq("active", true).order("sort_order").order("name"),
@@ -910,6 +910,9 @@ Deno.serve(async (req: Request) => {
           team_ids: coach.team_ids || (c.team_id ? [c.team_id] : []),
           team_name: team.data ? team.data.name : null,
           division: team.data ? team.data.division : null,
+          // null = never asked (show the name-your-team nudge); '' = coach said
+          // they have no team name yet; text = the name, already in flm_teams.name.
+          team_nickname: team.data ? team.data.nickname : undefined,
         },
         profile_missing: profileMissing,
         announcements: announcements.data || [],
@@ -973,6 +976,28 @@ Deno.serve(async (req: Request) => {
         html,
       }).catch(() => ({ ok: false }));
       return json({ ok: true, approved: false, request: { id: created.id } });
+    }
+
+    if (action === "coach_set_team_name" && req.method === "POST") {
+      // Hub nudge: teams are listed "Division Sport Coach" until the coach adds
+      // their team name here, which appends it (MinorsA SB Grande -> ... Grande
+      // Cougars). Saving empty records '' = "no team name yet" so the nudge
+      // clears on every device and never asks again. One-shot: once a nickname
+      // exists, changes go through Support so names can't drift.
+      const b = await req.json().catch(() => ({} as Record<string, unknown>));
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "not signed in" }, 401);
+      if (!coach.team_id) return json({ ok: false, error: "no team on file — contact support" }, 400);
+      const nickname = String(b.team_name ?? "").trim().replace(/\s+/g, " ").replace(/[^\w .'&-]/g, "").slice(0, 40);
+      const { data: teamRow } = await db.from("flm_teams").select("id,name,nickname").eq("id", coach.team_id).single();
+      if (!teamRow) return json({ ok: false, error: "team not found" }, 404);
+      if (teamRow.nickname) return json({ ok: true, team_name: teamRow.name, nickname: teamRow.nickname });
+      const update: Record<string, unknown> = { nickname };
+      if (nickname) update.name = `${teamRow.name} ${nickname}`;
+      const { error } = await db.from("flm_teams").update(update).eq("id", teamRow.id);
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("coach_set_team_name", nickname ? `${coach.name} named their team: ${nickname}` : `${coach.name} confirmed no team name yet`, "coach");
+      return json({ ok: true, team_name: nickname ? `${teamRow.name} ${nickname}` : teamRow.name, nickname });
     }
 
     if (action === "coach_submit_request" && req.method === "POST") {

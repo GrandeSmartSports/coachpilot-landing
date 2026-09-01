@@ -302,6 +302,23 @@
   .hubaction.clay:hover { background: var(--clay); color: #fff; }
   .hubaction.subtle { border-color: var(--line); color: var(--muted); box-shadow: none; flex-basis: 160px; flex-grow: 0.4; min-height: 56px; }
   .hubaction.subtle:hover { border-color: var(--pine); color: var(--pine); background: transparent; transform: none; }
+  /* Collapsible hub panels — Board contacts folds shut so phones don't scroll a wall of names */
+  .hubpanel.fold .foldhead { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+  .hubpanel.fold .foldhead .badgemini { margin-left: 2px; }
+  .hubpanel.fold .foldchev { width: 18px; height: 18px; margin-left: auto; flex: none; color: var(--muted); transition: transform .2s ease; }
+  .hubpanel.fold .foldbody { display: none; margin-top: 10px; }
+  .hubpanel.fold.open .foldbody { display: block; }
+  .hubpanel.fold.open .foldchev { transform: rotate(180deg); }
+  /* Name-your-team nudge */
+  .hubpanel.tnn { border-top-color: var(--clay); }
+  .tnnrow { display: flex; gap: 8px; margin: 10px 0 6px; }
+  .tnnrow input { flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; font: inherit; font-size: 15px; background: var(--white); }
+  .tnnrow input:focus { outline: none; border-color: var(--pine); }
+  .tnnsave { border: 0; border-radius: 9px; background: var(--pine); color: var(--chalk); font: inherit; font-weight: 700; font-size: 15px; padding: 10px 18px; cursor: pointer; }
+  .tnnsave:hover { background: var(--pine-2); }
+  .tnnsave:disabled { opacity: .6; cursor: default; }
+  .tnnskip { border: 0; background: none; color: var(--muted); font: inherit; font-size: 13px; text-decoration: underline; cursor: pointer; padding: 2px 0; }
+  .tnndone { font-size: 15px; padding: 6px 0; }
   .hubaction.disabled { opacity: 0.6; cursor: not-allowed; }
   .hubaction.disabled:hover { transform: none; background: var(--pine); color: var(--chalk); }
   .hubaction.disabled .soon { display: inline-block; margin-left: 8px; padding: 2px 8px; background: var(--clay); color: #fff; font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 3px; font-weight: 700; }
@@ -1454,7 +1471,10 @@ function hubSignOut(quiet) {
   renderView();
 }
 
+var TOUR_ACTIVE = false; // welcome tour owns the hub box; background refreshes must not repaint over it
+
 function renderHub() {
+  if (TOUR_ACTIVE) { document.getElementById("viewHub").classList.remove("hidden"); return; }
   var box = document.getElementById("viewHub");
   box.classList.remove("hidden");
 
@@ -1644,7 +1664,18 @@ function renderHub() {
     ? '<div class="pfmissing">Your profile is missing ' + missing.join(' and ') + '. <button class="pfedit" id="pfEditBtn">Add now</button></div>'
     : '';
 
-  // ---------- BUILD (info first, actions at the bottom as tap-to-open modals) ----------
+  // ---------- Team name nudge (asked once; the answer is stored server-side
+  // so it clears on every device: null = never asked, '' = "no name yet") ----------
+  var tnnHtml = (c.team_id && c.team_nickname === null)
+    ? '<div class="hubpanel tnn" id="tnnCard"><h3>Name your team</h3>' +
+      '<div class="lede">You\'re listed as <b>' + esc(c.team_name || c.name) + '</b>. If your team has a name (Cougars, Rays, Dodgers), add it and it shows next to your listing everywhere.</div>' +
+      '<div class="tnnrow"><input type="text" id="tnnInput" maxlength="40" placeholder="Team name" autocomplete="off" /><button class="tnnsave" id="tnnSave">Save</button></div>' +
+      '<button class="tnnskip" id="tnnSkip">We don\'t have a team name yet</button>' +
+      '</div>'
+    : '';
+
+  // ---------- BUILD (phone-first: needs-action + buttons up top, reference
+  // material below, the long Board contacts list folded at the bottom) ----------
   box.innerHTML =
     '<div class="hubsigned">' +
       '<div class="who">Signed in as <b>' + esc(c.name) + '</b></div>' +
@@ -1654,11 +1685,7 @@ function renderHub() {
     '<div class="hubwrap">' +
       scheduleApprovalBannerHtml(h) +
       (joinsInHtml ? '<div class="hubpanel warn"><h3>Practice join requests<span class="badgemini">' + joinsIn.length + ' PENDING</span></h3><div class="lede">Another coach wants to share a practice with you. Approve to add their team to your slot, or deny.</div>' + joinsInHtml + '</div>' : '') +
-      (joinsOutHtml ? '<div class="hubpanel"><h3>My join requests</h3>' + joinsOutHtml + '</div>' : '') +
-      '<div class="hubpanel"><h3>League announcements</h3>' + annHtml + '</div>' +
-      '<div class="hubpanel contacts"><h3>Board contacts</h3><div class="lede">Reach out directly for time-sensitive things. For anything the league should track, use <b>Submit a request</b> below. It goes straight to your division\'s Player Agent.</div>' + contactHtml + '</div>' +
-      (messages.length ? '<div class="hubpanel"><h3>Messages' + (unread ? '<span class="badgemini">' + unread + ' NEW</span>' : '') + '</h3><div class="lede">Every conversation with another coach, stored so nothing gets lost in a text thread.</div>' + msgHtml + '</div>' : '') +
-      (reqs.length ? '<div class="hubpanel"><h3>My requests</h3>' + reqHtml + '</div>' : '') +
+      tnnHtml +
       '<div class="hubactions">' +
         '<button class="hubaction primary" id="hbSubmitReq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Submit a request</button>' +
         '<button class="hubaction" id="hbMsgCoach"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16v12H4z"/><path d="M4 6l8 7 8-7"/></svg>Reach out to a coach</button>' +
@@ -1668,6 +1695,11 @@ function renderHub() {
         '<button class="hubaction subtle" id="hbChangePin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>Change my PIN</button>' +
         '<button class="hubaction subtle" id="hbSignOut"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>Sign out</button>' +
       '</div>' +
+      '<div class="hubpanel"><h3>League announcements</h3>' + annHtml + '</div>' +
+      (messages.length ? '<div class="hubpanel"><h3>Messages' + (unread ? '<span class="badgemini">' + unread + ' NEW</span>' : '') + '</h3><div class="lede">Every conversation with another coach, stored so nothing gets lost in a text thread.</div>' + msgHtml + '</div>' : '') +
+      (reqs.length ? '<div class="hubpanel"><h3>My requests</h3>' + reqHtml + '</div>' : '') +
+      (joinsOutHtml ? '<div class="hubpanel"><h3>My join requests</h3>' + joinsOutHtml + '</div>' : '') +
+      '<div class="hubpanel contacts fold"><h3 class="foldhead">Board contacts<span class="badgemini">' + (h.contacts || []).length + '</span><svg class="foldchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></h3><div class="foldbody"><div class="lede">Reach out directly for time-sensitive things. For anything the league should track, use <b>Submit a request</b> above. It goes straight to your division\'s Player Agent.</div>' + contactHtml + '</div></div>' +
     '</div>';
 
   // ---------- Wire the action bar ----------
@@ -1683,6 +1715,44 @@ function renderHub() {
   }
   var sp = box.querySelector("#hbSupport");
   if (sp) sp.addEventListener("click", function () { openSupport(); });
+
+  // ---------- Collapsible panels (Board contacts folds shut on load) ----------
+  box.querySelectorAll(".hubpanel.fold .foldhead").forEach(function (fh) {
+    fh.addEventListener("click", function () { fh.parentElement.classList.toggle("open"); });
+  });
+
+  // ---------- Team name nudge ----------
+  var tnnCard = box.querySelector("#tnnCard");
+  if (tnnCard) {
+    var tnnSend = function (val) {
+      var btn = box.querySelector("#tnnSave");
+      if (btn) { btn.disabled = true; btn.textContent = "Saving…"; }
+      coachApi("coach_set_team_name", { team_name: val })
+        .then(function (j) {
+          if (!j.ok) { toast(j.error || "Could not save. Try again."); if (btn) { btn.disabled = false; btn.textContent = "Save"; } return; }
+          // Flip local state so the card never resurfaces mid-session, show the
+          // payoff, then let the hub repaint (completion + clear).
+          if (HUB.data && HUB.data.coach) {
+            HUB.data.coach.team_nickname = j.nickname || "";
+            if (j.team_name) HUB.data.coach.team_name = j.team_name;
+          }
+          tnnCard.innerHTML = '<div class="tnndone">' + (j.nickname
+            ? '&#10003; Saved. You\'re on the schedule as <b>' + esc(j.team_name) + '</b>.'
+            : '&#10003; Got it. If you pick a name later, send it through Support and we\'ll add it.') + '</div>';
+          setTimeout(function () { loadHubState(function () { renderHub(); }); }, 1800);
+        })
+        .catch(function () { toast("Could not reach the server. Try again."); if (btn) { btn.disabled = false; btn.textContent = "Save"; } });
+    };
+    box.querySelector("#tnnSave").addEventListener("click", function () {
+      var v = (box.querySelector("#tnnInput").value || "").trim();
+      if (!v) { toast("Type your team name, or tap the link below if you don't have one."); return; }
+      tnnSend(v);
+    });
+    box.querySelector("#tnnInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); box.querySelector("#tnnSave").click(); }
+    });
+    box.querySelector("#tnnSkip").addEventListener("click", function () { tnnSend(""); });
+  }
   var pfEditBtn = box.querySelector("#pfEditBtn");
   var pfEditInline = box.querySelector("#pfEditInline");
   if (pfEditBtn) pfEditBtn.addEventListener("click", function () { openEditProfile(c); });
@@ -1944,6 +2014,9 @@ function renderConfirmSchedule(box, h) {
 
 // -------------- Success + quick tour (post-confirmation payoff) --------------
 function renderWelcomeTour(box, over) {
+  // Lock the hub box: a coach_state load kicked off at sign-in can land right
+  // after the tour paints, and its renderHub() would wipe the tour mid-read.
+  TOUR_ACTIVE = true;
   var steps = [
     {
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:46px;height:46px;color:#2d6a4f;"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>',
@@ -1988,7 +2061,8 @@ function renderWelcomeTour(box, over) {
         (i === 0 ? '<p class="fine" style="margin-top:10px;"><a href="#" id="tourSkip" style="color:var(--muted);text-decoration:underline;">Skip the tour</a></p>' : '') +
       '</div>';
     function finish() {
-      // Fresh state for the hub (approval banner etc.), then land there.
+      // Release the lock, then fresh state for the hub (approval banner etc.).
+      TOUR_ACTIVE = false;
       loadHubState(function () { renderHub(); });
       renderHub();
     }
