@@ -1979,7 +1979,19 @@ function scheduleSummaryText(slots) {
 }
 
 function evalMySchedule(slots) {
-  try { return FLM_RULES.evaluate(leagueRules(), slots); } catch (e) { return { status: "ok" }; }
+  // The guideline is a PER-TEAM allowance. A coach running two teams (one
+  // baseball + one softball, e.g. Harguess) gets each team judged on its own —
+  // never the combined pile, which would false-flag every multi-team coach.
+  try {
+    var byTeam = {};
+    slots.forEach(function (s) { (byTeam[s.team_id] = byTeam[s.team_id] || []).push(s); });
+    var over = false;
+    Object.keys(byTeam).forEach(function (k) {
+      var ev = FLM_RULES.evaluate(leagueRules(), byTeam[k]);
+      if (ev && ev.status === "over") over = true;
+    });
+    return { status: over ? "over" : "ok" };
+  } catch (e) { return { status: "ok" }; }
 }
 
 function renderConfirmSchedule(box, h) {

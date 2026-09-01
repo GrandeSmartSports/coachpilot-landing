@@ -1480,6 +1480,7 @@ for (const [s, why] of [
   ['id="hgErrSupport"', 'unknown email links straight to the support form'],
   ['id="hgResend"', 'set-PIN success offers a resend link'],
   ['id="hgOkSupport"', 'set-PIN success offers a support ticket link'],
+  ['byTeam[s.team_id] = byTeam[s.team_id] || []', 'guideline check evaluates each team separately (multi-team coaches)'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {

@@ -419,7 +419,7 @@ async function coachAuth(b: Record<string, unknown>): Promise<any | null> {
   // Ownership = their anchor team_id plus any team stamped with their email.
   const ids = new Set<string>();
   if (data.team_id) ids.add(data.team_id);
-  const { data: owned } = await db.from("flm_teams").select("id").ilike("coach_email", data.email);
+  const { data: owned } = await db.from("flm_teams").select("id").ilike("coach_email", data.email).eq("is_active", true);
   for (const t of owned ?? []) ids.add(t.id);
   data.team_ids = Array.from(ids);
   return data;
