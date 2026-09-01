@@ -159,6 +159,16 @@ function umpEmailHtml(leagueName: string, heading: string, lines: string[]): str
 async function resendSend(body: Record<string, unknown>): Promise<{ ok: boolean; id?: string; error?: string }> {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
   if (!RESEND_API_KEY) return { ok: false, error: "email is not configured" };
+  // HTML-only mail scores worse with spam filters. Every send gets a plain-text
+  // part derived from the HTML unless the caller provided one.
+  if (body.html && !body.text) {
+    body.text = String(body.html)
+      .replace(/<style[\s\S]*?<\/style>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n").replace(/<\/(p|div|h\d|li|blockquote|tr)>/gi, "\n")
+      .replace(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi, "$2 ($1)")
+      .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&rarr;/g, "->").replace(/&middot;/g, "-").replace(/&bull;/g, "-")
+      .replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  }
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
