@@ -827,6 +827,7 @@ function renderView() {
   ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   var v = effView();
   document.body.classList.toggle("view-hub", v === "hub");
+  document.querySelectorAll(".vbtn").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-view") === v); });
   updatePrimeNav();
   if (v === "hub") { renderHub(); return; }  /* hub gate/state doesn't need S.data */
   if (!S.data || !S.season) return;
