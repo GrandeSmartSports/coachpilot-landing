@@ -1476,7 +1476,7 @@ for (const [s, why] of [
   ['classList.toggle("expanded")', 'fold toggle flips the expanded class'],
   ['function iosNeedsInstall', 'iOS add-to-Home-Screen detection present'],
   ['Add to Home Screen', 'iPhone notification instructions present'],
-  ['view: _bootView || (_bootSignedIn ? "hub" : "grid")', 'Fields boot default is Full grid on every screen size'],
+  ['view: _bootView || (_bootTeam && !_bootSignedIn ? "grid" : "hub")', 'boot view: followers get the grid, coaches get the Hub'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn && !_bootTeam) { _bootView = null; _bootTab = null; }', 'fresh visitors land on the Coaches Hub sign-in'],
 ]) {
