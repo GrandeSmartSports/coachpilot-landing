@@ -1017,7 +1017,9 @@ Deno.serve(async (req: Request) => {
       const category = String(b.category ?? "").trim();
       const subject = String(b.subject ?? "").trim().slice(0, 160);
       const details = String(b.details ?? "").trim().slice(0, 4000);
-      const assigned_contact_id = b.assigned_contact_id ? String(b.assigned_contact_id) : null;
+      // Routing is ALWAYS automatic (division PA + category CCs) — coaches
+      // don't pick a recipient, and a client-supplied contact id is ignored.
+      const assigned_contact_id: string | null = null;
       if (!REQUEST_CATEGORIES.includes(category)) return json({ ok: false, error: "pick a valid category" }, 400);
       if (!subject) return json({ ok: false, error: "add a short subject" }, 400);
       if (!details) return json({ ok: false, error: "add some details" }, 400);
@@ -1047,11 +1049,8 @@ Deno.serve(async (req: Request) => {
       const LEAGUE_PA = "pa@blslittleleague.org";
 
       let routedEmail = "";
-      let routedContactId = assigned_contact_id;
-      if (assigned_contact_id) {
-        const { data: c } = await db.from("flm_contacts").select("email").eq("id", assigned_contact_id).maybeSingle();
-        routedEmail = String(c?.email ?? "").trim();
-      } else {
+      let routedContactId: string | null = assigned_contact_id;
+      {
         let division = "";
         if (coach.team_id) {
           const { data: t } = await db.from("flm_teams").select("division").eq("id", coach.team_id).single();

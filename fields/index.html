@@ -1861,22 +1861,15 @@ function renderHub() {
 
 // ---------- Modals: submit request, message a coach, reserve a field ----------
 function openSubmitRequest() {
-  var h = HUB.data || {};
-  var contacts = h.contacts || [];
-  var contactOptions = '<option value="">Route to the league (default)</option>' + contacts.map(function (c) {
-    return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' (' + esc(c.role) + ')</option>';
-  }).join('');
   var v = modal(
     '<h3>Submit a request</h3>' +
-    '<div class="ctx">Kill the 11pm group text. Everything you file here is logged and routed to the right board member.</div>' +
+    '<div class="ctx">Kill the 11pm group text. Everything you file here is logged and routed straight to your division Player Agent.</div>' +
     '<label for="mqCat">Category</label>' +
     '<select id="mqCat" style="width:100%;"><option value="gear">Gear / Equipment</option><option value="field_issue">Field Issue</option><option value="practice_concern">Practice Concern</option><option value="volunteer_needed">Volunteer Needed</option><option value="general">General</option></select>' +
     '<label for="mqSubj">Subject</label>' +
     '<input id="mqSubj" type="text" placeholder="Short summary" maxlength="160" style="width:100%;" />' +
     '<label for="mqDetail">Details</label>' +
     '<textarea id="mqDetail" placeholder="What is going on? Include enough detail so the board can help without a follow-up." maxlength="4000" style="width:100%;min-height:110px;font-family:inherit;"></textarea>' +
-    '<label for="mqContact">Send to</label>' +
-    '<select id="mqContact" style="width:100%;">' + contactOptions + '</select>' +
     '<p class="merr hidden" id="mqErr"></p>' +
     '<div class="mbtns"><button class="mb quiet" id="mqX">Cancel</button><button class="mb go" id="mqGo">Submit request</button></div>'
   );
@@ -1886,12 +1879,11 @@ function openSubmitRequest() {
     var cat = v.querySelector("#mqCat").value;
     var subj = v.querySelector("#mqSubj").value.trim();
     var det = v.querySelector("#mqDetail").value.trim();
-    var contactId = v.querySelector("#mqContact").value || null;
     var err = v.querySelector("#mqErr"); err.classList.add("hidden");
     if (!subj) { err.textContent = "Add a short subject."; err.classList.remove("hidden"); return; }
     if (!det) { err.textContent = "Add some details so the board can help."; err.classList.remove("hidden"); return; }
     var btn = v.querySelector("#mqGo"); btn.disabled = true; btn.textContent = "Submitting…";
-    coachApi("coach_submit_request", { category: cat, subject: subj, details: det, assigned_contact_id: contactId })
+    coachApi("coach_submit_request", { category: cat, subject: subj, details: det })
       .then(function (j) {
         if (!j.ok) { btn.disabled = false; btn.textContent = "Submit request"; err.textContent = j.error || "Could not submit."; err.classList.remove("hidden"); return; }
         v.remove();

@@ -1483,6 +1483,7 @@ for (const [s, why] of [
   ['byTeam[s.team_id] = byTeam[s.team_id] || []', 'guideline check evaluates each team separately (multi-team coaches)'],
   ['Add practices to GameChanger', 'GameChanger helper card present'],
   ['class="gccopy" data-loc=', 'GC card rows carry copy-location buttons'],
+  ['routed straight to your division Player Agent', 'submit modal states auto-routing'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {
@@ -1496,6 +1497,7 @@ for (const [s, why] of [
   ['"Notifications not supported"', 'dead-end notif label removed'],
   ['classList.toggle("open")', 'no fold toggling of the colliding .open class'],
   ["'<span class=\"status ' + c.cls", 'public team cards no longer badge guideline status'],
+  ['id="mqContact"', 'submit request has no recipient picker (auto-route only)'],
 ]) {
   if (!indexHtml.includes(s)) ok(why);
   else fail('v16 index STILL CONTAINS (' + why + '): ' + s);
