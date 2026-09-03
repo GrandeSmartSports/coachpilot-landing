@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>GameChanger Rollout — copy and send</title>
+<style>
+  :root { --pine:#0e3b2e; --pine2:#14523f; --clay:#c96f2f; --chalk:#f7f5ee; --ink:#1c1a15; --muted:#6b675c; --line:#e3dfd2; --white:#fffdf7; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:-apple-system, "Segoe UI", Roboto, sans-serif; background:var(--chalk); color:var(--ink); padding:20px 14px 60px; }
+  .wrap { max-width:680px; margin:0 auto; }
+  h1 { font-size:22px; color:var(--pine); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
+  .sub { color:var(--muted); font-size:14.5px; margin-bottom:22px; line-height:1.45; }
+  .card { background:var(--white); border:1px solid var(--line); border-top:4px solid var(--pine); border-radius:12px; padding:16px; margin-bottom:18px; box-shadow:0 6px 18px rgba(14,59,46,.06); }
+  .card.bb { border-top-color:#1d4ed8; }
+  .card.sb { border-top-color:#be185d; }
+  .card h2 { font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:var(--pine); margin-bottom:4px; }
+  .who { font-size:13px; color:var(--muted); margin-bottom:10px; }
+  pre { white-space:pre-wrap; font-family:inherit; font-size:14.5px; line-height:1.5; background:#faf8f1; border:1px dashed var(--line); border-radius:9px; padding:12px; margin-bottom:12px; }
+  button { font-family:inherit; font-weight:700; font-size:15px; background:var(--pine); color:var(--chalk); border:0; border-radius:10px; padding:12px 20px; cursor:pointer; width:100%; }
+  button:active { background:var(--pine2); }
+  button.copied { background:#2d6a4f; }
+  .foot { text-align:center; color:var(--muted); font-size:12.5px; margin-top:26px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>GameChanger Rollout</h1>
+  <p class="sub">Everything below is ready to send. Tap a copy button, then paste into the email or text thread. The email goes to all coaches. The two texts are split by sport for the PA group threads.</p>
+
+  <div class="card">
+    <h2>Email — all coaches</h2>
+    <div class="who">Subject line first, then the body.</div>
+    <pre id="emailSubj">Fall game schedules: one tap and yours gets loaded for you</pre>
+    <button data-copy="emailSubj">Copy subject</button>
+    <div style="height:10px"></div>
+    <pre id="emailBody">Coaches,
+
+The fall interlock game schedule is out. So nobody has to type games into GameChanger one at a time, the league now has GameChanger organizations for baseball and softball. Join yours and your full game schedule gets loaded onto your team calendar for you. Parents see every game in the app automatically.
+
+Two steps:
+1. In GameChanger, create your Fall 2026 team if you have not already.
+2. Tap the link for your sport and accept the invite for your team.
+
+Baseball: https://web.gc.com/organizations/B7ObcGHWbVcK/join
+Softball: https://web.gc.com/organizations/Y24jgsNQdUNg/join
+
+That is the whole job. Your games will appear within a day or two of joining. Questions: use Contact Support at coachpilot.org/fields.</pre>
+    <button data-copy="emailBody">Copy email body</button>
+  </div>
+
+  <div class="card bb">
+    <h2>Text — baseball PA groups</h2>
+    <pre id="txtBB">BLS baseball coaches: the fall game schedule is out. Create your Fall 2026 team in GameChanger if you have not already, then tap this link and accept for your team. Your full game schedule gets loaded for you and parents see every game automatically: https://web.gc.com/organizations/B7ObcGHWbVcK/join</pre>
+    <button data-copy="txtBB">Copy baseball text</button>
+  </div>
+
+  <div class="card sb">
+    <h2>Text — softball PA groups</h2>
+    <pre id="txtSB">BLS softball coaches: the fall game schedule is out. Create your Fall 2026 team in GameChanger if you have not already, then tap this link and accept for your team. Your full game schedule gets loaded for you and parents see every game automatically: https://web.gc.com/organizations/Y24jgsNQdUNg/join</pre>
+    <button data-copy="txtSB">Copy softball text</button>
+  </div>
+
+  <p class="foot">Questions or changes: Daniel Grande, 623-332-2251</p>
+</div>
+<script>
+document.querySelectorAll("button[data-copy]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var text = document.getElementById(b.getAttribute("data-copy")).innerText;
+    function done() {
+      var old = b.textContent;
+      b.textContent = "Copied!"; b.classList.add("copied");
+      setTimeout(function () { b.textContent = old; b.classList.remove("copied"); }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () {
+        var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+        document.execCommand("copy"); ta.remove(); done();
+      });
+    } else {
+      var ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove(); done();
+    }
+  });
+});
+</script>
+</body>
+</html>
