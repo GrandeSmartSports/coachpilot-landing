@@ -1887,6 +1887,7 @@ Deno.serve(async (req: Request) => {
       for (const k of ["season_id", "home_team_id", "away_team_id", "ext_team_id", "field_id", "game_date", "start_time", "end_time"]) {
         if (b[k] !== undefined) row[k] = b[k] || null;
       }
+      if (b.ext_home !== undefined) row.ext_home = b.ext_home === true;
       if (b.venue_text !== undefined) row.venue_text = b.venue_text ? String(b.venue_text).trim().slice(0, 160) || null : null;
       if (b.division !== undefined) row.division = String(b.division).trim().slice(0, 60);
       if (b.notes !== undefined) row.notes = b.notes === null ? null : String(b.notes).slice(0, 300);

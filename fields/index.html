@@ -740,8 +740,8 @@ function renderMyTeam() {
     if (ng.home_team_id === t.id) {
       var o = gameOpp(ng);
       oppName = o.ext ? o.name + " (" + o.league + ")" : o.name;
-      /* interlock away games happen at the other league's venue */
-      homeAway = ng.field_id ? " (home)" : " (away)";
+      /* interlock: ext_home tells us who hosts (imported from the D10 sheet) */
+      homeAway = o.ext ? (ng.ext_home ? " (away)" : " (home)") : " (home)";
     } else {
       var oh = teamById(ng.home_team_id);
       oppName = oh ? oh.name : "?";
