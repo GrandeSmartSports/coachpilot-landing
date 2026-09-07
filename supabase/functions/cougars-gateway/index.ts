@@ -14,7 +14,7 @@ const VALID_SWEAT = ["YXS", "YS", "YM", "YL", "YXL", "AXS", "AS"];
 const VOL_CATEGORIES = [
   "field_setup", "teardown", "dugout_accessories", "bows", "socks", "cheer_crew", "chair_crew",
 ];
-const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff", "gameday"];
+const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff", "gameday", "fieldhelp"];
 const ATTENDANCE_STATUSES = ["yes", "no", "maybe"];
 const CAGE_CHOICES = ["monday", "tuesday", "wednesday"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -1032,6 +1032,55 @@ Deno.serve(async (req) => {
         .from("cougars_snack_slots")
         .update({ claimed_by: null, treat: null, claimed_at: null })
         .eq("game_no", gameNo);
+      if (error) return json({ error: error.message }, 500);
+      return json({ ok: true });
+    }
+
+    // ---------- FIELD HELP (v20) ----------
+    // League rule: HOME team sets up the field (drag + bases, chalk the lines),
+    // AWAY team cleans up (bases away, drag the field). Same first-come pattern
+    // as the snack board: claim guarded by "is claimed_by null", Coach frees via PIN.
+
+    // GET field_slots -> public board, one row per role slot
+    if (req.method === "GET" && action === "field_slots") {
+      const { data, error } = await supabase
+        .from("cougars_field_slots")
+        .select("id, game_no, game_date, game_label, venue, game_time, is_home, role_key, role_label, claimed_by")
+        .order("game_date", { ascending: true })
+        .order("id", { ascending: true });
+      if (error) return json({ error: error.message }, 500);
+      return json({ slots: data ?? [] });
+    }
+
+    // POST claim_field -> first come, first served (409 when a slot just got taken)
+    if (req.method === "POST" && action === "claim_field") {
+      const body = await req.json().catch(() => null);
+      if (!body) return json({ error: "invalid body" }, 400);
+      const slotId = Number(body.slot_id);
+      const family = typeof body.family_name === "string" ? body.family_name.trim().slice(0, 80) : "";
+      if (!Number.isInteger(slotId) || slotId < 1 || slotId > 500) return json({ error: "invalid slot" }, 400);
+      if (!family) return json({ error: "family name required" }, 400);
+      const { data, error } = await supabase
+        .from("cougars_field_slots")
+        .update({ claimed_by: family, claimed_at: new Date().toISOString() })
+        .eq("id", slotId)
+        .is("claimed_by", null)
+        .select("id, game_label, role_label");
+      if (error) return json({ error: error.message }, 500);
+      if (!data || data.length === 0) return json({ error: "taken" }, 409);
+      return json({ ok: true, slot_id: slotId, game_label: data[0].game_label, role_label: data[0].role_label });
+    }
+
+    // POST unclaim_field (PIN) -> Coach can free a slot
+    if (req.method === "POST" && action === "unclaim_field") {
+      if (!requirePin()) return json({ error: "unauthorized" }, 401);
+      const body = await req.json().catch(() => null);
+      const slotId = Number(body?.slot_id);
+      if (!Number.isInteger(slotId)) return json({ error: "invalid slot" }, 400);
+      const { error } = await supabase
+        .from("cougars_field_slots")
+        .update({ claimed_by: null, claimed_at: null })
+        .eq("id", slotId);
       if (error) return json({ error: error.message }, 500);
       return json({ ok: true });
     }

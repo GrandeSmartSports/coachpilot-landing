@@ -195,6 +195,11 @@
         <span class="tt">Email subscribers</span><span class="ss" id="nav-ss-subs"></span>
         <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
       </button>
+      <button class="nv" data-panel="p-field">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l6-6 12 12"/><circle cx="16" cy="8" r="2"/></svg></span>
+        <span class="tt">Field help</span><span class="ss" id="nav-ss-field"></span>
+        <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+      </button>
       <button class="nv" data-panel="p-links">
         <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></span>
         <span class="tt">Parent links</span><span class="ss">Copy for GameChanger</span>
@@ -285,6 +290,15 @@
         </div>
       </div>
 
+      <div class="panel" id="p-field">
+        <div class="bar"><h3>Field help claims</h3></div>
+        <div class="bd">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px;">Home games we set up (drag + bases, chalk x2), away games we clean up (bases away, drag). Free a slot if a family backs out.</div>
+          <div class="uplist" id="fieldlist"></div>
+          <span class="m" id="field-msg"></span>
+        </div>
+      </div>
+
       <div class="panel" id="p-links">
         <div class="bar"><h3>Parent links — drop into GameChanger</h3></div>
         <div class="bd links">
@@ -326,6 +340,7 @@ function boot() {
       loadFunds();
       loadCageVote();
       loadSubs();
+      loadFieldHelp();
     })
     .catch(function (e) {
       document.getElementById("gate").style.display = "block";
@@ -491,6 +506,56 @@ function removeSub(id) {
       document.getElementById("sub-msg").className = "m bad";
       document.getElementById("sub-msg").textContent = "Remove failed. Try again.";
     });
+}
+
+function loadFieldHelp() {
+  fetch(API + "?action=field_slots")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var slots = d.slots || [];
+      if (!slots.length) {
+        document.getElementById("fieldlist").innerHTML = '<div class="u"><span class="t" style="color:var(--muted);">No field help slots posted.</span></div>';
+        return;
+      }
+      var open = slots.filter(function (s) { return !s.claimed_by; }).length;
+      var covered = slots.length - open;
+      var lastGame = null;
+      var html = "";
+      slots.forEach(function (s) {
+        if (s.game_no !== lastGame) {
+          lastGame = s.game_no;
+          html += '<div class="u" style="border-bottom:2px solid var(--line);"><span class="t" style="font-family:var(--disp);font-weight:600;">' +
+            esc(s.game_label) + ' <span style="color:' + (s.is_home ? 'var(--red)' : 'var(--muted)') + ';font-size:11px;font-weight:700;">' +
+            (s.is_home ? "HOME" : "AWAY") + '</span></span></div>';
+        }
+        var who = s.claimed_by
+          ? '<b style="color:var(--green);">' + esc(s.claimed_by) + '</b>'
+          : '<span style="color:var(--muted);">open</span>';
+        var act = s.claimed_by
+          ? '<button onclick="unclaimField(' + s.id + ')">free up</button>'
+          : '';
+        html += '<div class="u"><span class="t">' + esc(s.role_label) + ' &middot; ' + who + '</span>' + act + '</div>';
+      });
+      document.getElementById("fieldlist").innerHTML = html;
+      var navss = document.getElementById("nav-ss-field");
+      if (navss) navss.textContent = covered + " of " + slots.length + " covered";
+    })
+    .catch(function () {
+      document.getElementById("field-msg").className = "m bad";
+      document.getElementById("field-msg").textContent = "Could not load field help claims.";
+    });
+}
+
+function unclaimField(id) {
+  if (!confirm("Free up this field help slot? The family drops off and any family can claim it again.")) return;
+  var m = document.getElementById("field-msg");
+  fetch(API + "?action=unclaim_field", { method: "POST", headers: pinHeaders(), body: JSON.stringify({ slot_id: id }) })
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function () {
+      m.className = "m ok"; m.textContent = "Freed. The slot shows open again.";
+      loadFieldHelp();
+    })
+    .catch(function () { m.className = "m bad"; m.textContent = "Could not free the slot. Try again."; });
 }
 
 function loadCageVote() {

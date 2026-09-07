@@ -288,7 +288,7 @@ else {
     if (sh.includes(m)) ok('share page contains: ' + m.slice(0, 40)); else fail('share page MISSING: ' + m);
   }
 }
-if (hubHtml.includes('/cougars/share.html') && hubHtml.includes('Share this with someone')) ok('hub Team pages links to share'); else fail('hub missing share row');
+if (hubHtml.includes('/cougars/share.html') && hubHtml.includes('Add a grandparent or friend to the emails')) ok('hub Team pages links to share'); else fail('hub missing share row');
 const updHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'updates.html'), 'utf8');
 if (updHtml.includes('Want someone else getting these updates?')) ok('updates page has the add-them line'); else fail('updates page missing add-them line');
 const coachHtml2 = fs.readFileSync(path.join(ROOT, 'cougars', 'coach', 'index.html'), 'utf8');
