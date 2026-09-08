@@ -1512,6 +1512,43 @@ for (const [s, why] of [
   else fail('renderTeams still prints slot notes');
 }
 
+// ------- Second-half practice window stood up (9/08): AY1-4 back, carryover, Grande AY1 -------
+section('gateway: second-half practice window (Sept 8 - Oct 31)');
+{
+  const r = await fetch(GATEWAY + '?action=state');
+  const d = await r.json();
+  const seasons = d.seasons || [];
+  const fields = d.fields || [];
+  const teams = d.teams || [];
+  const slots = d.slots || [];
+
+  const half = seasons.find((s) => s.label === 'Sept 8 – Oct 31');
+  if (half && half.locked === false) ok('second-half practice window exists and is unlocked for claiming');
+  else fail('second-half practice window missing or locked: ' + JSON.stringify(half || null));
+
+  const games = seasons.find((s) => /^Games:/.test(s.label || ''));
+  if (games && games.locked === true) ok('games season is still present and locked');
+  else fail('games season missing or unexpectedly unlocked');
+
+  const byName = (n) => fields.find((f) => f.name === n);
+  const on = ['AY#1', 'AY#2', 'AY#3', 'AY#4'].every((n) => byName(n) && byName(n).is_active === true);
+  const off = ['AY#5', 'AY#5 SOUTH END'].every((n) => byName(n) && byName(n).is_active === false);
+  if (on) ok('Allen Yorke 1-4 are reactivated'); else fail('AY1-4 not all active');
+  if (off) ok('Allen Yorke 5 and 5-South stay deactivated'); else fail('AY5 / AY5-South unexpectedly active');
+
+  if (half) {
+    const mine = slots.filter((s) => s.season_id === half.id);
+    if (mine.length >= 70) ok('practice slots carried into the second-half window (' + mine.length + ')');
+    else fail('too few carried slots in second-half window: ' + mine.length);
+
+    const ay1 = byName('AY#1');
+    const grande = teams.find((t) => /grande/i.test(t.name || ''));
+    const claim = ay1 && grande && mine.find((s) => s.day_key === 'tue' && s.field_id === ay1.id && s.team_id === grande.id);
+    if (claim) ok('Grande holds a Tuesday Allen Yorke 1 practice in the second-half window');
+    else fail('Grande Tuesday AY1 claim not found in second-half window');
+  }
+}
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);
