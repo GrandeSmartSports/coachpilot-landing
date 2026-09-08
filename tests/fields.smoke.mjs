@@ -1543,9 +1543,11 @@ section('gateway: second-half practice window (Sept 8 - Oct 31)');
 
     const ay1 = byName('AY#1');
     const grande = teams.find((t) => /grande/i.test(t.name || ''));
-    const claim = ay1 && grande && mine.find((s) => s.day_key === 'tue' && s.field_id === ay1.id && s.team_id === grande.id);
-    if (claim) ok('Grande holds a Tuesday Allen Yorke 1 practice in the second-half window');
-    else fail('Grande Tuesday AY1 claim not found in second-half window');
+    // Grande's AY1 use on 9/08 is a one-off, NOT a recurring weekly claim
+    // (date-scoped entries must not become recurring slots). AY1 stays open.
+    const ay1recurring = ay1 && mine.some((s) => s.field_id === ay1.id && s.team_id);
+    if (!ay1recurring) ok('Allen Yorke 1 has no recurring claim (stays open for coaches)');
+    else fail('AY1 unexpectedly holds a recurring claim in the second-half window');
   }
 }
 
