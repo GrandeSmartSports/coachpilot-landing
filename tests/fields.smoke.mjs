@@ -442,6 +442,12 @@ for (const [s, why] of [
 }
 if (!/var S = \{[^}]*localStorage\.getItem/.test(indexHtml)) ok('no raw localStorage access in boot state line');
 else fail('boot state line still reads localStorage directly');
+// Render path must not call curTab() directly: a clobbered global would throw
+// mid-render and blank the page (flm_events js_error, 2026-09-08). effView and
+// applyLayout read through the guarded safeTab() instead.
+if (indexHtml.includes('function safeTab() { return (typeof curTab === "function")') &&
+    indexHtml.includes('var t = safeTab();') && !indexHtml.includes('var t = curTab();')) ok('render path reads curTab through guarded safeTab (blank-page regression)');
+else fail('render path still calls curTab() unguarded — a clobbered global can blank the page');
 
 // ------- 2c. Phone app shell: bottom tab bar (one codebase, two experiences) -------
 section('fields/index.html: phone tab shell');
@@ -460,7 +466,7 @@ for (const [s, why] of [
   ['lsSet("flm_mtab"', 'tab choice remembered per device'],
   ['alerts-on', 'Alerts badge dot driven by announcement presence'],
   ['id="mtPrompt"', 'My Team tab prompts unidentified visitors to pick a team'],
-  ['curTab() === "sched"', 'Schedule tab forces the schedule view on phones'],
+  ['if (ct === "sched") return "sched"', 'Schedule tab forces the schedule view on phones'],
 ]) {
   if (indexHtml.includes(s)) ok(why);
   else fail('MISSING (' + why + '): ' + s);

@@ -592,17 +592,22 @@ function curTab() {
   /* Coach tool: everyone opens on the Coaches Hub (sign-in gate when signed out). */
   return "hub";
 }
+/* curTab is trivial state, but a stray browser extension can clobber the global
+   mid-session. Read it defensively so a broken curTab can never abort a render
+   (which would blank the page); fall back to the same S.mtab || "hub" logic. */
+function safeTab() { return (typeof curTab === "function") ? curTab() : (S.mtab || "hub"); }
 function effView() {
   if (isPhone()) {
-    if (curTab() === "hub") return "hub";
-    if (curTab() === "sched") return "sched";
+    var ct = safeTab();
+    if (ct === "hub") return "hub";
+    if (ct === "sched") return "sched";
     if (S.view === "sched") return "days";
     if (S.view === "hub") return "grid"; // signed-in coaches carry view=hub; the Fields tab must still show the grid
   }
   return S.view;
 }
 function applyLayout() {
-  var t = curTab();
+  var t = safeTab();
   document.body.setAttribute("data-mtab", t);
   var tbs = document.querySelectorAll("#tabBar .tb");
   for (var i = 0; i < tbs.length; i++) tbs[i].classList.toggle("on", tbs[i].getAttribute("data-mtab") === t);
