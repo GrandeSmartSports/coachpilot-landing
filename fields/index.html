@@ -716,16 +716,15 @@ function load() {
   fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
     if (!d.ok) throw new Error("bad state");
     S.data = d;
-    if (!S.season || !d.seasons.some(function (x) { return x.id === S.season; })) {
+    if (!S.season || !d.seasons.some(function (x) { return x.id === S.season && !x.locked; })) {
       var remembered = lsGet("flm_season");
-      /* A season row's id can outlive its original purpose (e.g. a practice
-         window later repurposed into a locked games window) — a coach whose
-         browser remembers that id would silently land on a locked, empty
-         season with no way to claim a slot. Only honor the remembered pick
-         if it still resolves to an unlocked season; otherwise fall back to
-         the default (first/sort=0) season. */
+      /* Coaches only ever belong on an unlocked practice season. A remembered
+         id can outlive its purpose (e.g. a window later repurposed into a
+         locked games window), so only honor it if it still resolves to an
+         unlocked season; otherwise fall back to the first unlocked season. */
       var rememberedSeason = d.seasons.filter(function (x) { return x.id === remembered; })[0];
-      S.season = (rememberedSeason && !rememberedSeason.locked ? remembered : (d.seasons[0] || {}).id) || null;
+      var firstOpen = d.seasons.filter(function (x) { return !x.locked; })[0] || d.seasons[0] || {};
+      S.season = (rememberedSeason && !rememberedSeason.locked ? remembered : firstOpen.id) || null;
     }
     if (S.myTeam && !teamById(S.myTeam)) { S.myTeam = ""; lsDel("flm_team"); }
     document.getElementById("loading").classList.add("hidden");
@@ -841,7 +840,9 @@ function renderWho() {
 function renderSeasons() {
   var box = document.getElementById("seasonTabs");
   box.innerHTML = "";
-  (S.data.seasons || []).forEach(function (sn) {
+  /* Coaches see only unlocked practice seasons as tabs. The locked games
+     season stays in S.data (so "Next game" still works) but has no tab. */
+  (S.data.seasons || []).filter(function (sn) { return !sn.locked; }).forEach(function (sn) {
     var b = document.createElement("button");
     b.className = "tab" + (sn.id === S.season ? " on" : "");
     b.innerHTML = esc(sn.label) + (sn.locked ? ' <span class="lock">🔒</span>' : "");
