@@ -353,6 +353,18 @@
   .msg.out.open .msgbody { background: #fdf1dc; border-left-color: var(--clay); }
   .badgemini { display: inline-block; background: var(--clay); color: #fff; font-family: var(--disp); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 9px; border-radius: 10px; margin-left: 8px; vertical-align: 2px; }
 
+  /* ---------- LOCKED WINDOW BANNER ---------- */
+  .locked-banner {
+    display: flex; align-items: center; gap: 8px;
+    background: #fdf1dc; border: 1px solid #e8c87a; border-left: 5px solid var(--clay);
+    border-radius: 10px; padding: 9px 14px; margin-bottom: 12px;
+    font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: 0.03em;
+    text-transform: uppercase; color: var(--clay-dark);
+  }
+  .locked-banner .lbicon { font-size: 15px; flex: 0 0 auto; }
+  .locked-banner .lbtext { font-family: var(--disp); font-weight: 700; font-size: 13.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+  .locked-banner .lbsub { font-family: "Barlow", sans-serif; font-weight: 500; font-size: 12.5px; letter-spacing: 0; text-transform: none; color: #6b4a12; margin-top: 1px; }
+
   /* Reserve-field helper banner shown when arriving from the Hub button */
   .reservebanner {
     position: sticky; top: 0; z-index: 25;
@@ -479,6 +491,7 @@
       </div>
     </div>
 
+    <div id="lockedBanner" class="hidden"></div>
     <div class="legend" id="legend"></div>
 
     <div id="loading" class="loading">Loading the fields&hellip;</div>
@@ -667,7 +680,14 @@ function load() {
     S.data = d;
     if (!S.season || !d.seasons.some(function (x) { return x.id === S.season; })) {
       var remembered = lsGet("flm_season");
-      S.season = (d.seasons.some(function (x) { return x.id === remembered; }) ? remembered : (d.seasons[0] || {}).id) || null;
+      /* A season row's id can outlive its original purpose (e.g. a practice
+         window later repurposed into a locked games window) — a coach whose
+         browser remembers that id would silently land on a locked, empty
+         season with no way to claim a slot. Only honor the remembered pick
+         if it still resolves to an unlocked season; otherwise fall back to
+         the default (first/sort=0) season. */
+      var rememberedSeason = d.seasons.filter(function (x) { return x.id === remembered; })[0];
+      S.season = (rememberedSeason && !rememberedSeason.locked ? remembered : (d.seasons[0] || {}).id) || null;
     }
     if (S.myTeam && !teamById(S.myTeam)) { S.myTeam = ""; lsDel("flm_team"); }
     document.getElementById("loading").classList.add("hidden");
@@ -697,7 +717,16 @@ function renderAll() {
   renderAnnouncements(); renderMyTeam();
   renderWho(); renderSeasons(); renderLegend(); renderView();
   var sn = seasonObj();
-  document.body.classList.toggle("locked", !!(sn && sn.locked));
+  var isLocked = !!(sn && sn.locked);
+  document.body.classList.toggle("locked", isLocked);
+  var lb = document.getElementById("lockedBanner");
+  if (isLocked && sn) {
+    lb.className = "locked-banner";
+    lb.innerHTML = '<span class="lbicon">&#128274;</span><div><div class="lbtext">Locked by the league: ' + esc(sn.label) + '</div><div class="lbsub">This window is view-only. Switch to an open window above to claim a practice slot.</div></div>';
+  } else {
+    lb.className = "hidden";
+    lb.innerHTML = "";
+  }
 }
 
 function renderAnnouncements() {
@@ -2054,7 +2083,7 @@ function renderConfirmSchedule(box, h) {
   var ev = evalMySchedule(slots);
   var over = ev && ev.status === "over";
   var ruleText = "";
-  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday + 1 Saturday, or Monday plus Friday"; }
+  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday practice slot per team"; }
   var lis = slots.map(function (s) {
     var f = fieldById(s.field_id);
     var t = teamById(s.team_id);
@@ -2186,7 +2215,7 @@ function checkOverAfterClaim() {
   var ev = evalMySchedule(slots);
   if (!ev || ev.status !== "over") return;
   var ruleText = "";
-  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday + 1 Saturday, or Monday plus Friday"; }
+  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday practice slot per team"; }
   coachApi("coach_confirm_schedule", { over: true, auto: true, summary: "Guideline: " + ruleText + "\nSchedule after new claim:\n" + scheduleSummaryText(slots) })
     .then(function () { loadHubState(function () {}); })
     .catch(function () {});
