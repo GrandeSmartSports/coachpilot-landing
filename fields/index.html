@@ -1666,13 +1666,28 @@ function renderHub() {
             // Success + escape hatches: resend the set-PIN email or open a
             // support ticket — nobody gets stranded waiting on an email.
             okMsg.innerHTML = "You're on the list! We just emailed you a link to set your PIN. Open it, pick a 4 digit PIN, and you're in. Check spam if you don't see it in a minute." +
-              '<br /><br />Didn\'t get the email? <a href="#" id="hgResend" style="color:inherit;font-weight:700;text-decoration:underline;">Send it again</a> or <a href="#" id="hgOkSupport" style="color:inherit;font-weight:700;text-decoration:underline;">submit a support ticket</a>.';
+              '<br /><br />Didn\'t get the email? <a href="#" id="hgResend" style="color:inherit;font-weight:700;text-decoration:underline;">Send it again</a>, or <a href="#" id="hgNotify" style="color:inherit;font-weight:700;text-decoration:underline;">tap here and the league will get you in</a>.';
             okMsg.classList.remove("hidden"); err.classList.add("hidden");
             okMsg.querySelector("#hgResend").addEventListener("click", function (e) { e.preventDefault(); okMsg.classList.add("hidden"); checkEmail(); });
-            okMsg.querySelector("#hgOkSupport").addEventListener("click", function (e) { e.preventDefault(); openSupport({ email: em.value.trim() }); });
+            okMsg.querySelector("#hgNotify").addEventListener("click", function (e) { e.preventDefault(); notifyNoLink(em.value.trim()); });
           }
         })
         .catch(function () { go.disabled = false; go.textContent = "Continue"; showErr("Could not reach the server. Try again in a minute."); });
+    }
+
+    // One-tap "I didn't get the sign-in link" — alerts the league directly (no
+    // form to fill) so a coach who never receives the email is never stuck.
+    function notifyNoLink(email) {
+      email = (email || "").trim();
+      if (!email || email.indexOf("@") < 1) { showErr("Enter your email first, then tap this again."); return; }
+      okMsg.innerHTML = "Alerting the league&hellip;";
+      fetch(API + "?action=support_request", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: email, email: email, message: "SIGN-IN LINK NOT RECEIVED — this coach did not get their set-PIN / sign-in email and needs help getting into the field scheduler." }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j.ok) okMsg.innerHTML = "Done. The league has been alerted and will get you in. Watch for a reply at <b>" + esc(email) + "</b>.";
+          else okMsg.innerHTML = "We couldn't send that automatically. Please text your coach or a board member so we can get you in.";
+        })
+        .catch(function () { okMsg.innerHTML = "Couldn't reach the server. Try once more, or text the league so we can get you in."; });
     }
 
     function doLogin() {
