@@ -892,11 +892,17 @@ function updatePrimeNav() {
   });
 }
 
-/* Return the practice days allowed by the current season's rules.
-   When max_weekend === 0 (fall: all Saturdays are games) Saturday rows are
-   suppressed entirely so coaches never see an "Open" Saturday slot to claim. */
+/* Return the practice days shown in the grid/day-picker for the current season.
+   Saturday rows are suppressed only when the ACTIVE SEASON is an unlocked
+   practice window AND practice_rules has max_weekend=0. In the locked games
+   season Saturdays must show so game chips appear on the right columns.
+   The gateway already rejects sat_* claims when max_weekend=0, so showing
+   rows in the games window costs nothing — they render game chips, no open
+   claim cells. */
 function activeDays() {
+  var sn = seasonObj();
   var rules = leagueRules();
+  if (!sn || sn.locked) return DAYS;   /* games/locked window: show all days */
   if (rules && rules.max_weekend === 0) {
     return DAYS.filter(function (d) { return !d.sat; });
   }
