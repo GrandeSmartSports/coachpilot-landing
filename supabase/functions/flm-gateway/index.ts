@@ -594,9 +594,22 @@ Deno.serve(async (req: Request) => {
       if (!(coach.team_ids || []).includes(String(team_id))) {
         return json({ ok: false, error: "you can only claim time for your own team" }, 403);
       }
-      const { data: season } = await db.from("flm_seasons").select("label,locked").eq("id", season_id).single();
+      const [{ data: season }, { data: rulesRow }] = await Promise.all([
+        db.from("flm_seasons").select("label,locked").eq("id", season_id).single(),
+        db.from("flm_settings").select("value").eq("key", "practice_rules").maybeSingle(),
+      ]);
       if (!season) return json({ ok: false, error: "unknown season" }, 400);
       if (season.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
+      /* Fall (and any season with max_weekend=0): Saturday practice slots are not
+         allowed — all Saturdays are game days. Reject at the gateway so a crafted
+         request can never bypass the UI filter. */
+      if (day_key.startsWith("sat_")) {
+        let practiceRules: { max_weekend?: number } = {};
+        try { practiceRules = rulesRow?.value ? JSON.parse(rulesRow.value) : {}; } catch { /* use default */ }
+        if ((practiceRules.max_weekend ?? 1) === 0) {
+          return json({ ok: false, error: "Saturday practice slots are not available in this window — Saturdays are game days." }, 403);
+        }
+      }
       const { data: existing } = await db.from("flm_slots").select("id,team_id,label").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
       if ((existing ?? []).some((s: { team_id: string | null }) => s.team_id === team_id)) {
         return json({ ok: false, error: "Your team already holds this slot." }, 409);

@@ -892,14 +892,26 @@ function updatePrimeNav() {
   });
 }
 
+/* Return the practice days allowed by the current season's rules.
+   When max_weekend === 0 (fall: all Saturdays are games) Saturday rows are
+   suppressed entirely so coaches never see an "Open" Saturday slot to claim. */
+function activeDays() {
+  var rules = leagueRules();
+  if (rules && rules.max_weekend === 0) {
+    return DAYS.filter(function (d) { return !d.sat; });
+  }
+  return DAYS;
+}
+
 function renderGrid() {
   var el = document.getElementById("viewGrid");
   el.classList.remove("hidden");
   var fields = (S.data.fields || []).filter(function (f) { return f.is_active; });
+  var days = activeDays();
   var html = "<thead><tr><th class=\"day\">Day</th>";
   fields.forEach(function (f) { html += "<th>" + esc(f.name) + "</th>"; });
   html += "</tr></thead><tbody>";
-  DAYS.forEach(function (d) {
+  days.forEach(function (d) {
     html += '<tr><td class="day">' + d.label + "</td>";
     fields.forEach(function (f) {
       var ss = slotsFor(d.k, f.id);
@@ -919,9 +931,12 @@ function renderGrid() {
 function renderDays() {
   var el = document.getElementById("viewDays");
   el.classList.remove("hidden");
+  var days = activeDays();
+  /* Snap S.day away from a Saturday if Saturdays are suppressed this season. */
+  if (days.length && !days.some(function (d) { return d.k === S.day; })) { S.day = days[0].k; }
   var dp = document.getElementById("dayPick");
   dp.innerHTML = "";
-  DAYS.forEach(function (d) {
+  days.forEach(function (d) {
     var b = document.createElement("button");
     b.className = "dp" + (d.k === S.day ? " on" : "");
     b.textContent = d.label;
