@@ -1000,7 +1000,10 @@ function renderDays() {
 function renderSched() {
   var el = document.getElementById("viewSched");
   el.classList.remove("hidden");
-  var games = (S.data.games || []).filter(function (g) { return g.season_id === S.season; });
+  /* Games live only in the (hidden) locked games season while coaches sit on the
+     practice season, so filtering by the selected tab left this view empty. Show
+     the full game schedule regardless of tab. Drafts are already excluded upstream. */
+  var games = (S.data.games || []).slice();
   var divSel = document.getElementById("schedDiv"), teamSel = document.getElementById("schedTeam");
   /* An identified coach lands on their OWN schedule first. Any filter they pick
      by hand sticks for the rest of this visit and always wins over the default.

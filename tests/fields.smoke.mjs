@@ -1572,8 +1572,11 @@ section('gateway: second-half practice window (Sept 8 - Oct 31)');
 
   if (half) {
     const mine = slots.filter((s) => s.season_id === half.id);
-    if (mine.length >= 70) ok('practice slots carried into the second-half window (' + mine.length + ')');
-    else fail('too few carried slots in second-half window: ' + mine.length);
+    // 9/10: Saturdays are game days now, so every Saturday practice slot was removed.
+    // The window is weekday-only (dropped from 74 to 45 after removing 29 Saturdays).
+    const sat = mine.filter((s) => String(s.day_key || '').startsWith('sat'));
+    if (mine.length >= 40 && sat.length === 0) ok('weekday practice slots carried, no Saturdays (' + mine.length + ')');
+    else fail('unexpected window slot state: total ' + mine.length + ', saturdays ' + sat.length);
 
     const ay1 = byName('AY#1');
     const grande = teams.find((t) => /grande/i.test(t.name || ''));
