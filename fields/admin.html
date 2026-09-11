@@ -389,7 +389,7 @@
             <div id="pgGrids"></div>
           </div>
         </div>
-        <div class="panel span2" id="panelComp">
+        <div class="panel span2 hidden" id="panelComp">
           <div class="bar"><h2>Practice compliance</h2></div>
           <div class="body">
             <p class="hint" id="compHint"></p>
@@ -637,17 +637,22 @@
           <div class="body">
             <label style="font-size:13px;font-weight:600;">League name</label>
             <input id="setName" style="width:100%;margin:5px 0 12px;" />
-            <label style="font-size:13px;font-weight:600;">Guideline banner note (optional, shown after the rule)</label>
-            <input id="setRules" style="width:100%;margin:5px 0 12px;" />
-            <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
-              <label style="font-size:13px;font-weight:600;">Practice schedule rule (drives every team's compliance status)</label>
-              <div class="row" style="margin:7px 0 8px;">
-                <label style="font-size:12.5px;">Max weekdays <input id="ruleWk" type="number" min="0" max="5" style="width:64px;" /></label>
-                <label style="font-size:12.5px;">Max Saturdays <input id="ruleSat" type="number" min="0" max="4" style="width:64px;" /></label>
-                <label style="font-size:12.5px;">Slots per team <input id="ruleTotal" type="number" min="0" max="9" style="width:64px;" /></label>
+            <!-- Guideline note + practice-rule editor: hidden 9/10 (league dropped the
+                 practice guideline concept). Left in the DOM, unhidden values, so
+                 setSave keeps working byte-identical if this ever needs to come back. -->
+            <div class="hidden">
+              <label style="font-size:13px;font-weight:600;">Guideline banner note (optional, shown after the rule)</label>
+              <input id="setRules" style="width:100%;margin:5px 0 12px;" />
+              <div style="border-top:1px solid var(--line);padding-top:10px;margin-bottom:10px;">
+                <label style="font-size:13px;font-weight:600;">Practice schedule rule (drives every team's compliance status)</label>
+                <div class="row" style="margin:7px 0 8px;">
+                  <label style="font-size:12.5px;">Max weekdays <input id="ruleWk" type="number" min="0" max="5" style="width:64px;" /></label>
+                  <label style="font-size:12.5px;">Max Saturdays <input id="ruleSat" type="number" min="0" max="4" style="width:64px;" /></label>
+                  <label style="font-size:12.5px;">Slots per team <input id="ruleTotal" type="number" min="0" max="9" style="width:64px;" /></label>
+                </div>
+                <label style="font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;"><input id="ruleMonFri" type="checkbox" style="width:auto;" /> Also allow Monday plus Friday with no Saturday</label>
+                <p class="hint" id="rulePreview" style="margin:6px 0 0;"></p>
               </div>
-              <label style="font-size:12.5px;font-weight:500;display:block;margin-bottom:4px;"><input id="ruleMonFri" type="checkbox" style="width:auto;" /> Also allow Monday plus Friday with no Saturday</label>
-              <p class="hint" id="rulePreview" style="margin:6px 0 0;"></p>
             </div>
             <button class="btn" id="setSave">Save settings</button>
             <span id="setMsg" class="ok hidden" style="margin-left:8px;font-size:13px;">Saved</span>
@@ -2541,16 +2546,6 @@ function renderAttention() {
   var pastNoFinal = liveGames.filter(function (g) { return g.status === "scheduled" && g.game_date < today; });
   if (pastNoFinal.length) add(pastNoFinal.length, "games already happened but have no final score yet.", "panelBoard");
 
-  var over = 0;
-  var rules = leagueRules();
-  activeSeasons().forEach(function (sn) {
-    D.teams.filter(function (t) { return t.is_active; }).forEach(function (t) {
-      var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
-      if (FLM_RULES.evaluate(rules, mine).status === "over") over++;
-    });
-  });
-  if (over) add(over, "teams are over the practice guideline.", "panelComp");
-
   if (divisionList().length > 1) {
     var untagged = D.fields.filter(function (f) { return f.is_active && !(f.divisions || []).length; }).length;
     if (untagged) add(untagged, "fields have no division tags, so any division can be scheduled on them. Tag the ones that are division-only.", "panelFields");
@@ -2644,7 +2639,7 @@ function renderHome() {
     tile("#divisions", "divisions", divs.length, "Divisions", teamsN + " teams grouped for schedules and standings") +
     tile("#fields", "fields", fieldsN, "Fields", "every place you play and practice") +
     tile("#games", "games", gamesN, "Game schedule", "season board, moves, rainouts, scores") +
-    tile("#practices", "practices", slotsN, "Practices", "practice grid, windows, the guideline") +
+    tile("#practices", "practices", slotsN, "Practices", "practice grid, windows, claims") +
     tile("#umpires", "umpires", umpsN, "Umpires", "roster, offers, who covers what", needUmp ? needUmp + " games need an ump" : "") +
     tile("#hub", "hub", HUB_COACHES == null ? 0 : HUB_COACHES, "Coaches Hub", "coaches, board contacts, requests inbox", HUB_OPEN_REQS ? HUB_OPEN_REQS + " open " + (HUB_OPEN_REQS === 1 ? "request" : "requests") : "") +
     tile("#announcements", "announcements", AN_COUNT == null ? 0 : AN_COUNT, "Announcements", "notices on the coach portal") +
@@ -2691,18 +2686,10 @@ function renderDivisionsView(arg) {
 
 function renderDivList() {
   var box = el("divList");
-  var rules = leagueRules();
   box.innerHTML = divisionList().map(function (d) {
     var teams = D.teams.filter(function (t) { return t.is_active && t.division === d; });
     var games = (D.games || []).filter(function (g) { return g.division === d && !isArchivedSeason(g.season_id) && g.status !== "draft"; });
-    var over = 0;
-    activeSeasons().forEach(function (sn) {
-      teams.forEach(function (t) {
-        var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
-        if (FLM_RULES.evaluate(rules, mine).status === "over") over++;
-      });
-    });
-    return '<button class="divcard" data-divgo="' + esc(divSlug(d)) + '"><div><b>' + esc(d) + '</b><div class="meta">' + teams.length + (teams.length === 1 ? " team" : " teams") + " &middot; " + games.length + (games.length === 1 ? " game" : " games") + (over ? ' &middot; <span class="warn">' + over + " over the practice guideline</span>" : "") + '</div></div><span class="arrow">&rsaquo;</span></button>';
+    return '<button class="divcard" data-divgo="' + esc(divSlug(d)) + '"><div><b>' + esc(d) + '</b><div class="meta">' + teams.length + (teams.length === 1 ? " team" : " teams") + " &middot; " + games.length + (games.length === 1 ? " game" : " games") + '</div></div><span class="arrow">&rsaquo;</span></button>';
   }).join("") || '<p class="hint">No divisions yet. Add teams below with a division name, like Majors BB, and each division shows up here.</p>';
   box.querySelectorAll("[data-divgo]").forEach(function (b) {
     b.addEventListener("click", function () { location.hash = "#divisions/" + b.getAttribute("data-divgo"); });
@@ -2723,17 +2710,6 @@ function renderDivDetail(div) {
   var standRows = (tables[div] || []).map(function (r) {
     return '<tr><td style="font-weight:600;">' + esc(r.name) + '</td><td class="num">' + r.w + '</td><td class="num">' + r.l + '</td><td class="num">' + r.t + '</td><td class="num">' + (r.diff > 0 ? "+" : "") + r.diff + "</td></tr>";
   }).join("");
-
-  var rules = leagueRules();
-  var compCards = [];
-  activeSeasons().forEach(function (sn) {
-    teams.forEach(function (t) {
-      var mine = D.slots.filter(function (s) { return s.season_id === sn.id && s.team_id === t.id; });
-      var ev = FLM_RULES.evaluate(rules, mine);
-      if (ev.status === "over") compCards.push('<div class="compcard over"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.message) + '</div><div class="cwin">' + esc(sn.label) + "</div></div>");
-      else if (ev.status === "under") compCards.push('<div class="compcard under"><div class="cname">' + esc(t.name) + '</div><div class="cwhy">' + esc(ev.availLabels.join(". ") || "Under the guideline") + '.</div><div class="cwin">' + esc(sn.label) + "</div></div>");
-    });
-  });
 
   var shown = games.filter(function (g) { return g.status !== "draft"; }).sort(function (a, b) { return (a.game_date + String(a.start_time)).localeCompare(b.game_date + String(b.start_time)); });
   var gameRows = shown.map(function (g) {
@@ -2762,8 +2738,6 @@ function renderDivDetail(div) {
     '<div class="panel span2"><div class="bar"><h2>Standings</h2></div><div class="body">' +
     '<label style="font-size:13px;font-weight:600;display:block;margin-bottom:8px;"><input type="checkbox" id="dvPub"' + (pub ? " checked" : "") + ' style="width:auto;margin-right:6px;" />Show these standings on the parent portal</label>' +
     (standRows ? '<table class="list"><thead><tr><th>Team</th><th class="num">W</th><th class="num">L</th><th class="num">T</th><th class="num">Runs +/-</th></tr></thead><tbody>' + standRows + "</tbody></table>" : '<p class="hint">No final scores in this division yet. Enter one from a game&#39;s Final score button on the season board.</p>') + "</div></div>" +
-    '<div class="panel span2"><div class="bar"><h2>Practice status</h2></div><div class="body">' +
-    (compCards.length ? '<div class="compgrid">' + compCards.join("") + "</div>" : '<p class="hint">Every scheduled team in this division is on the practice guideline.</p>') + "</div></div>" +
     '<div class="panel span2"><div class="bar"><h2>Games (' + shown.length + ')</h2><button class="btn sm ghost" id="dvBoard">Open on the season board</button></div><div class="body">' +
     (gameRows || '<p class="hint">No games for this division yet. Build them with the season generator in Season tools.</p>') + "</div></div>" +
     '<div class="panel span2"><div class="bar"><h2>Generator setup</h2><button class="btn sm ghost" id="dvGen">Open the generator</button></div><div class="body"><p class="hint" style="margin:0;">' + esc(genLine) + "</p></div></div>" +
@@ -2829,7 +2803,7 @@ function wizardModal() {
       { t: "Fields", body: "You have <b>" + c.fields + " fields</b>. Add every place your league practices or plays. If a field is only for some divisions (say, 46/60 fields for the older kids), tag it with those divisions and the schedule tools respect that." +
         '<div class="row" style="margin-top:10px;"><button class="btn sm" id="wzAddField">Add a field now</button></div>' },
       { t: "Practice times", body: "There are <b>" + c.slots + " practice slots</b> claimed right now. Practices work like a sign-up sheet: the weekly grid has a spot for every field on every weekday evening and Saturday block, and coaches claim their own spots on the coach portal. You can also place teams yourself, or import a finished grid from Excel." +
-        '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoRules">Set the practice guideline</button><button class="btn sm ghost" id="wzGoImport2">Import a grid from Excel</button></div>' },
+        '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoImport2">Import a grid from Excel</button></div>' },
       { t: "Games", body: "When teams and fields are in, the Season generator builds the whole game schedule for you: pick a quick start template, hit Generate, and review the draft. Drafts are schedule ideas only you can see. Publish when it looks right, and parents can put every game on their phone calendar with one tap." +
         '<div class="row" style="margin-top:10px;"><button class="btn sm ghost" id="wzGoGen">Take me to the generator</button></div>' },
       { t: "Done", body: "That is the whole setup. From here the Needs your attention strip on the home screen keeps a running to-do list for you: drafts to publish, games needing umpires, rainouts to make up. When this season ends, the Start next season button carries everything over." }
@@ -2873,7 +2847,6 @@ function wizardModal() {
     if (q("wzAddField")) q("wzAddField").onclick = function () { fieldModal(null); };
     if (q("wzGoImport")) q("wzGoImport").onclick = function () { jump("panelImport"); };
     if (q("wzGoImport2")) q("wzGoImport2").onclick = function () { jump("panelImport"); };
-    if (q("wzGoRules")) q("wzGoRules").onclick = function () { jump("panelSettings"); };
     if (q("wzGoGen")) q("wzGoGen").onclick = function () { jump("panelGen"); };
   }
   render();

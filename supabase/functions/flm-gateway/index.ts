@@ -594,6 +594,18 @@ Deno.serve(async (req: Request) => {
       if (!(coach.team_ids || []).includes(String(team_id))) {
         return json({ ok: false, error: "you can only claim time for your own team" }, 403);
       }
+      // 9/10: recurring-vs-single-week claims. Absent single_date = recurring
+      // (day_key template, every week — the original/default behavior, unchanged).
+      // A YYYY-MM-DD single_date scopes the claim to just that one week; the
+      // portal only renders it during the week it falls in and the slot is open
+      // again every other week. Additive + backward-compatible: existing rows
+      // and existing clients that never send single_date behave exactly as before.
+      let singleDate: string | null = null;
+      if (b.single_date) {
+        const sd = String(b.single_date).slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(sd)) return json({ ok: false, error: "invalid single_date" }, 400);
+        singleDate = sd;
+      }
       const [{ data: season }, { data: rulesRow }] = await Promise.all([
         db.from("flm_seasons").select("label,locked").eq("id", season_id).single(),
         db.from("flm_settings").select("value").eq("key", "practice_rules").maybeSingle(),
@@ -610,11 +622,19 @@ Deno.serve(async (req: Request) => {
           return json({ ok: false, error: "Saturday practice slots are not available in this window — Saturdays are game days." }, 403);
         }
       }
-      const { data: existing } = await db.from("flm_slots").select("id,team_id,label").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
-      if ((existing ?? []).some((s: { team_id: string | null }) => s.team_id === team_id)) {
+      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,label,single_date").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
+      // Only rows relevant to the week being claimed count as "already there":
+      // recurring rows (single_date null) always apply, a single-date row only
+      // applies when it is the SAME date as this claim. Every pre-existing slot
+      // has single_date=null (new column), so for a recurring claim (the only
+      // kind that existed before today) this filter is a no-op — same rows,
+      // same cancelled-row handling, as the original unfiltered query.
+      const existing = (existingRaw ?? []).filter((s: { single_date: string | null }) =>
+        s.single_date === null || s.single_date === singleDate);
+      if (existing.some((s: { team_id: string | null }) => s.team_id === team_id)) {
         return json({ ok: false, error: "Your team already holds this slot." }, 409);
       }
-      if ((existing ?? []).length > 0 && !b.allow_share) {
+      if (existing.length > 0 && !b.allow_share) {
         return json({ ok: false, error: "taken", taken: true, existing }, 409);
       }
       const { data: team } = await db.from("flm_teams").select("name").eq("id", team_id).single();
@@ -622,10 +642,10 @@ Deno.serve(async (req: Request) => {
       const note = String(b.note ?? "").slice(0, 200);
       const { data: slot, error } = await db.from("flm_slots").insert({
         season_id, day_key, field_id, team_id,
-        label: team.name, note, claimed_by: "coach",
+        label: team.name, note, claimed_by: "coach", single_date: singleDate,
       }).select().single();
       if (error) return json({ ok: false, error: error.message }, 500);
-      await log("claim", `${team.name} claimed ${day_key} (season ${season.label})${note ? " — " + note : ""}`, team.name);
+      await log("claim", `${team.name} claimed ${day_key}${singleDate ? " (" + singleDate + " only)" : ""} (season ${season.label})${note ? " — " + note : ""}`, team.name);
       return json({ ok: true, slot });
     }
 

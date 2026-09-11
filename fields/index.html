@@ -39,9 +39,6 @@
 
   .wrap { max-width: 1280px; margin: 0 auto; padding: 16px 14px 60px; }
 
-  .rules { background: var(--white); border: 1px solid var(--line); border-left: 5px solid var(--clay); border-radius: 12px; box-shadow: var(--shadow); padding: 11px 15px; font-size: 14px; color: #3c463f; margin-bottom: 14px; }
-  .rules b { color: var(--ink); }
-
   /* ---------- ANNOUNCEMENTS ---------- */
   .announce { background: var(--white); border: 1px solid var(--line); border-left: 6px solid var(--grass); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; margin-bottom: 10px; }
   .announce.warning { border-left-color: var(--clay); background: #fdf6ec; }
@@ -53,14 +50,9 @@
   .myteam { background: var(--white); border: 1px solid var(--line); border-top: 5px solid var(--pine); border-radius: 14px; box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 14px; }
   .myteam .mt-name { font-family: var(--disp); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; text-transform: uppercase; }
   .myteam .mt-div { font-size: 13px; color: var(--muted); }
-  .myteam .mt-rule { font-size: 13.5px; color: #3c463f; margin-top: 6px; }
   .myteam ul { list-style: none; margin-top: 8px; }
   .myteam li { font-size: 14px; padding: 2px 0; color: #3c463f; }
   .myteam li b { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.03em; }
-  .mt-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .mt-chip { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 14px; padding: 4px 12px; }
-  .mt-chip.good { background: #dcefe2; color: #21622f; }
-  .mt-alert { background: #fbe4dc; border: 1px solid #eec4b5; color: #a33c1b; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-top: 10px; }
 
   /* ---------- WELCOME PICKER ---------- */
   .wsearch { width: 100%; font-size: 16px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 10px; padding: 12px; margin: 10px 0 12px; }
@@ -84,6 +76,12 @@
   .legend { display: flex; gap: 6px 12px; flex-wrap: wrap; margin: 2px 2px 12px; }
   .lg { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
   .lg i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+
+  /* ---------- FIELD START-TIME LABELS (Matt: middle schools start at 6pm, everyone else 5pm) ---------- */
+  .fstart { display: inline-block; margin-top: 3px; }
+  .fstart.six { font-family: var(--disp); font-weight: 800; font-size: 13px; letter-spacing: 0.05em; color: #fff; background: var(--clay-dark); border-radius: 6px; padding: 3px 9px; }
+  .fstart.five { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: none; letter-spacing: normal; }
+  table.grid thead th .fstart.five { color: #b7cfc2; }
 
   /* ---------- GRID VIEW ---------- */
   .grid-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--white); box-shadow: var(--shadow); }
@@ -395,7 +393,7 @@
   @media (max-width: 560px) { .pnbtn { font-size: 14px; padding: 11px 12px; letter-spacing: 0.04em; } }
   /* When the Hub view is active (desktop or phone), hide the schedule-facing
      chrome so the Hub owns the whole page. Signed-in coaches land here first. */
-  body.view-hub #myTeam, body.view-hub #announceBox, body.view-hub #rulesBox,
+  body.view-hub #myTeam, body.view-hub #announceBox,
   body.view-hub #mtPrompt, body.view-hub .bar, body.view-hub .legend,
   body.view-hub #viewGrid, body.view-hub #viewDays, body.view-hub #viewSched, body.view-hub #viewTeams { display: none !important; }
   body.view-hub #viewHub { display: block !important; }
@@ -427,7 +425,6 @@
     body[data-mtab="alerts"] .ubanner { display: none; }
     body:not([data-mtab="alerts"]) #announceBox { display: none; }
     body:not([data-mtab="myteam"]) #myTeam,
-    body:not([data-mtab="myteam"]) #rulesBox,
     body:not([data-mtab="myteam"]) #mtPrompt { display: none !important; }
     body:not([data-mtab="fields"]) .legend { display: none; }
     body:not([data-mtab="fields"]):not([data-mtab="sched"]) .bar { display: none; }
@@ -437,7 +434,7 @@
     body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched, body[data-mtab="alerts"] #viewHub,
     body[data-mtab="hub"] #viewGrid, body[data-mtab="hub"] #viewDays, body[data-mtab="hub"] #viewTeams, body[data-mtab="hub"] #viewSched { display: none !important; }
     body:not([data-mtab="hub"]) #viewHub { display: none !important; }
-    body[data-mtab="hub"] #myTeam, body[data-mtab="hub"] #rulesBox, body[data-mtab="hub"] #mtPrompt, body[data-mtab="hub"] #announceBox, body[data-mtab="hub"] .bar, body[data-mtab="hub"] .legend { display: none !important; }
+    body[data-mtab="hub"] #myTeam, body[data-mtab="hub"] #mtPrompt, body[data-mtab="hub"] #announceBox, body[data-mtab="hub"] .bar, body[data-mtab="hub"] .legend { display: none !important; }
     /* Phone tab bar covers nav; skip the desktop primary pills to avoid dupes */
     .primenav { display: none; }
     body[data-mtab="myteam"] #mtPrompt:not(.hidden) { display: block !important; }
@@ -476,10 +473,9 @@
     <div class="quietline hidden" id="alertsQuiet">All quiet right now. No league announcements.</div>
     <div class="myteam hidden" id="myTeam"></div>
     <div class="mtprompt hidden" id="mtPrompt">
-      <p>Pick your team to see your practices, your next game, and where you stand on the league guideline.</p>
+      <p>Pick your team to see your practices and your next game.</p>
       <button class="mb go" id="mtPickBtn">Pick my team</button>
     </div>
-    <div class="rules" id="rulesBox" style="display:none"></div>
 
     <div class="bar">
       <div class="tabs" id="seasonTabs"></div>
@@ -638,6 +634,16 @@ function divColor(team) { return DIV_COLORS[team && team.division ? team.divisio
 function tint(hex) { return hex + "1a"; }
 function teamById(id) { return (S.data.teams || []).filter(function (t) { return t.id === id; })[0] || null; }
 function fieldById(id) { return (S.data.fields || []).filter(function (f) { return f.id === id; })[0] || null; }
+/* Start-time label (Matt, 9/10): middle-school fields start at 6pm, every other
+   field at 5pm. Data-driven off flm_fields.default_start ("18:00" = 6pm fields,
+   anything else/blank = 5pm) so adding another field is one admin edit, never a
+   code change. */
+function fieldStartLabel(f) {
+  if (!f) return "";
+  return f.default_start === "18:00"
+    ? '<span class="fstart six">6PM START</span>'
+    : '<span class="fstart five">5pm</span>';
+}
 /* Interlock opponents from other leagues (Auburn LL, Kent LL...) live in
    ext_teams and never mix with our teams. */
 function extTeamById(id) { return (S.data.ext_teams || []).filter(function (x) { return x.id === id; })[0] || null; }
@@ -655,8 +661,40 @@ function gameVenue(g) {
 }
 function seasonObj() { return (S.data.seasons || []).filter(function (x) { return x.id === S.season; })[0] || null; }
 function dayLabel(k) { var d = DAYS.filter(function (x) { return x.k === k; })[0]; return d ? d.label : k; }
+/* 9/10: "just this week" claims carry a single_date (YYYY-MM-DD). The grid/day
+   views are day-of-week templates with no date axis, so a single-date slot is
+   shown only during the Mon-Sun week its date falls in, then quietly drops off
+   (the field goes back to Open) — no new week-navigation UI needed. */
+function mondayOf(d) {
+  var day = d.getDay(); // 0 Sun .. 6 Sat
+  var diff = day === 0 ? -6 : 1 - day;
+  var m = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+  return m;
+}
+function weekKeyOf(dateStr) {
+  var p = String(dateStr || "").split("-");
+  var d = new Date(+p[0] || 1970, (+p[1] || 1) - 1, +p[2] || 1);
+  var m = mondayOf(d);
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  return m.getFullYear() + "-" + pad(m.getMonth() + 1) + "-" + pad(m.getDate());
+}
+function isCurrentWeek(dateStr) { return weekKeyOf(dateStr) === weekKeyOf(todayStr()); }
+var DOW_INDEX = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
+/* The actual calendar date for a day_key IN THE CURRENT WEEK — used when a
+   coach picks "Just this week" so the one-off claim lands on the right date. */
+function dateForDayThisWeek(dayK) {
+  var idx = DOW_INDEX[dayK];
+  if (!idx) return null;
+  var mon = mondayOf(new Date());
+  var target = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + (idx - 1));
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  return target.getFullYear() + "-" + pad(target.getMonth() + 1) + "-" + pad(target.getDate());
+}
 function slotsFor(dayK, fieldId) {
-  return (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.day_key === dayK && s.field_id === fieldId; });
+  return (S.data.slots || []).filter(function (s) {
+    if (s.season_id !== S.season || s.day_key !== dayK || s.field_id !== fieldId) return false;
+    return s.single_date ? isCurrentWeek(s.single_date) : true;
+  });
 }
 function todayStr() {
   var d = new Date();
@@ -710,9 +748,6 @@ function renderAll() {
   var d = S.data;
   document.getElementById("leagueName").textContent = d.settings.league_name || "Field Command";
   document.title = (d.settings.league_name || "Field Command") + " — Field Manager";
-  var rb = document.getElementById("rulesBox");
-  rb.style.display = "";
-  rb.innerHTML = "<b>League guideline:</b> " + esc(FLM_RULES.describe(leagueRules())) + (d.settings.rules ? " " + esc(d.settings.rules) : "");
   applyLayout();
   renderAnnouncements(); renderMyTeam();
   renderWho(); renderSeasons(); renderLegend(); renderView();
@@ -755,15 +790,13 @@ function renderMyTeam() {
   mine.sort(function (a, b) {
     return DAYS.map(function (d) { return d.k; }).indexOf(a.day_key) - DAYS.map(function (d) { return d.k; }).indexOf(b.day_key);
   });
-  var ev = FLM_RULES.evaluate(leagueRules(), mine);
   var lis = mine.map(function (s) {
     var f = fieldById(s.field_id);
-    return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> at " + esc(f ? f.name : "?") + (s.note ? ' <span style="color:var(--muted)">(' + esc(s.note) + ")</span>" : "") + "</li>";
+    return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> at " + esc(f ? f.name : "?") + " " + fieldStartLabel(f) + (s.note ? ' <span style="color:var(--muted)">(' + esc(s.note) + ")</span>" : "") + "</li>";
   }).join("");
   var sn = seasonObj();
   var html = '<div class="mt-name">' + esc(t.name) + "</div>" +
     '<div class="mt-div">' + esc([t.division, t.coach_name].filter(Boolean).join(" · ")) + "</div>" +
-    '<div class="mt-rule">' + esc(FLM_RULES.describe(leagueRules())) + "</div>" +
     "<ul>" + (lis || '<li style="color:var(--muted)">No practice slots claimed' + (sn ? " for " + esc(sn.label) : "") + ' yet. Tap an open slot below to claim one.</li>') + "</ul>";
   var today = todayStr();
   var ng = (S.data.games || []).filter(function (g) {
@@ -783,12 +816,10 @@ function renderMyTeam() {
     }
     html += '<div class="mt-next">Next game: vs ' + esc(oppName) + ", " + esc(fmtGameDate(ng.game_date)) + " at " + esc(FLM_RULES.fmtTime(ng.start_time)) + ", " + esc(gameVenue(ng)) + homeAway + (ng.status === "postponed" ? " (postponed)" : "") + "</div>";
   }
-  if (ev.status === "over") html += '<div class="mt-alert">' + esc(ev.message) + "</div>";
-  if (ev.availLabels.length) html += '<div class="mt-chips">' + ev.availLabels.map(function (l) { return '<span class="mt-chip good">' + esc(l) + "</span>"; }).join("") + "</div>";
   /* Calendar subscription hidden for now (Coach 8/31): no games published yet
      so the feed is empty and the buttons read as broken. The flm-ics feed
      still works — restore this block when the game schedule goes live. */
-  box.style.borderTopColor = ev.status === "over" ? "#b3432b" : divColor(t);
+  box.style.borderTopColor = divColor(t);
   box.innerHTML = html;
   box.classList.remove("hidden");
 }
@@ -849,6 +880,8 @@ function chipHtml(slot) {
   var mine = myTeamId && slot.team_id === myTeamId;
   var cancelled = !!slot.cancelled_at;
   var extraTxt = slot.note ? slot.note : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? t.coach_name : "");
+  // "Just this week" claims say so, so other coaches know the field reopens next week.
+  if (slot.single_date) extraTxt = (extraTxt ? extraTxt + " · " : "") + "This week only";
   var extra = "";
   if (cancelled) {
     extra = "<small><b>Cancelled</b>" + (slot.cancel_reason ? ": " + esc(slot.cancel_reason) : "") + "</small>";
@@ -915,7 +948,7 @@ function renderGrid() {
   var fields = (S.data.fields || []).filter(function (f) { return f.is_active; });
   var days = activeDays();
   var html = "<thead><tr><th class=\"day\">Day</th>";
-  fields.forEach(function (f) { html += "<th>" + esc(f.name) + "</th>"; });
+  fields.forEach(function (f) { html += "<th>" + esc(f.name) + "<br />" + fieldStartLabel(f) + "</th>"; });
   html += "</tr></thead><tbody>";
   days.forEach(function (d) {
     html += '<tr><td class="day">' + d.label + "</td>";
@@ -953,7 +986,7 @@ function renderDays() {
   var html = "";
   (S.data.fields || []).filter(function (f) { return f.is_active; }).forEach(function (f) {
     var ss = slotsFor(S.day, f.id);
-    html += '<div class="frow"><div class="fname">' + esc(f.name) + '</div><div class="occ">';
+    html += '<div class="frow"><div class="fname">' + esc(f.name) + '<br />' + fieldStartLabel(f) + '</div><div class="occ">';
     ss.forEach(function (s) { html += chipHtml(s); });
     gamesFor(S.day, f.id).forEach(function (g) { html += gameChipHtml(g); });
     html += '<div class="open" data-day="' + S.day + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open — tap to claim") + "</div>";
@@ -1111,13 +1144,12 @@ function openGameModal(gameId) {
   v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
 }
 
+// The practice guideline concept is gone (league dropped it 9/10 now that games
+// are scheduled). This just groups a team's slots for the public Teams cards —
+// cls only distinguishes "no slots yet" from "has slots" for the empty-state check.
 function teamCompliance(teamId) {
   var mine = (S.data.slots || []).filter(function (s) { return s.season_id === S.season && s.team_id === teamId; });
-  var ev = FLM_RULES.evaluate(leagueRules(), mine);
-  if (ev.status === "none") return { cls: "none", txt: "No slots yet", slots: mine };
-  if (ev.status === "over") return { cls: "over", txt: "Over the guideline (" + ev.total + " slots)", slots: mine };
-  if (ev.status === "under") return { cls: "under", txt: ev.availLabels.join(" · ") || "Under the guideline", slots: mine };
-  return { cls: "ok", txt: "On guideline (" + ev.total + " slots)", slots: mine };
+  return { cls: mine.length ? "ok" : "none", slots: mine };
 }
 
 function renderTeams() {
@@ -1128,9 +1160,7 @@ function renderTeams() {
   (S.data.teams || []).filter(function (t) { return t.is_active; }).forEach(function (t) {
     var c = teamCompliance(t.id);
     if (c.cls === "none" && !t.coach_name) return;
-    // Days + fields only. No slot notes and no guideline status here — how a
-    // team stands against the guideline is between that coach and the league
-    // (admin console keeps the compliance panel), not for the public card.
+    // Days + fields only. No slot notes on the public card.
     var lis = c.slots.map(function (s) {
       var f = fieldById(s.field_id);
       return "<li><b>" + esc(dayLabel(s.day_key)) + "</b> — " + esc(f ? f.name : "?") + "</li>";
@@ -1254,21 +1284,30 @@ function openClaimModal(dayK, fieldId) {
   var t = teamById(S.myTeam), f = fieldById(fieldId);
   var existing = slotsFor(dayK, fieldId);
   var shareNote = existing.length ? '<div class="shared-note">This slot already has <b>' + esc(existing.map(function (s) { var tt = teamById(s.team_id); return tt ? tt.name : s.label; }).join(", ")) + "</b>. Claiming it means sharing the field — the league encourages joint practices and scrimmages within your division.</div>" : "";
+  // Open slot (first-come, first-serve) = coach picks recurring vs one week.
+  // Sharing an already-held slot skips this — the join flow stays as-is.
+  var freqHtml = existing.length ? "" :
+    '<div class="freqchoice">' +
+      '<p style="font-size:14px;margin:0 0 6px;">Do you want <b>' + esc(f ? f.name : "this field") + '</b> every <b>' + esc(dayLabel(dayK)) + '</b> for the rest of the season, or just this week?</p>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:14.5px;margin-bottom:6px;"><input type="radio" name="mFreq" value="recurring" checked /> Every ' + esc(dayLabel(dayK)) + ' for the rest of the season</label>' +
+      '<label style="display:flex;align-items:center;gap:8px;font-size:14.5px;margin-bottom:8px;"><input type="radio" name="mFreq" value="once" /> Just this week</label>' +
+    '</div>';
   var v = modal("<h3>Claim this slot</h3><div class=\"ctx\"><b>" + esc(t.name) + "</b> &rarr; " + esc(dayLabel(dayK)) + " at <b>" + esc(f ? f.name : "") + "</b></div>" +
-    shareNote +
+    shareNote + freqHtml +
     '<label for="mNote">Note (optional)</label><input id="mNote" maxlength="60" placeholder="e.g. @ 5:30, starting 8/26" />' +
     '<div class="mbtns"><button class="mb quiet" id="mCancel">Cancel</button><button class="mb ' + (existing.length ? "warn" : "go") + '" id="mGo">' + (existing.length ? "Share the field" : "Claim it") + "</button></div><div class=\"merr hidden\" id=\"mErr\"></div>");
   v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
   v.querySelector("#mGo").addEventListener("click", function () {
     var btn = v.querySelector("#mGo"); btn.disabled = true; btn.textContent = "Saving…";
+    var freqEl = v.querySelector('input[name="mFreq"]:checked');
+    var singleDate = (freqEl && freqEl.value === "once") ? dateForDayThisWeek(dayK) : null;
     fetch(API + "?action=claim", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
+      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0, single_date: singleDate }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || "failed");
         v.remove(); toast("Slot claimed — you're on the schedule");
         load();
-        setTimeout(checkOverAfterClaim, 1100); // after fresh state lands
       })
       .catch(function (e) {
         btn.disabled = false; btn.textContent = existing.length ? "Share the field" : "Claim it";
@@ -1715,7 +1754,7 @@ function renderHub() {
   if (!h.schedule_confirmed_at) { renderConfirmSchedule(box, h); return; }
 
   var reqs = h.my_requests || [];
-  var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General", schedule_approval: "Schedule Approval" };
+  var CAT_LABELS = { gear: "Gear", field_issue: "Field Issue", practice_concern: "Practice Concern", volunteer_needed: "Volunteer Needed", general: "General" };
   var reqHtml = reqs.map(function (r) {
     var when = new Date(r.created_at).toLocaleDateString([], { month: "short", day: "numeric" });
     return '<div class="myreq">' +
@@ -1799,7 +1838,6 @@ function renderHub() {
       missingBanner +
     '</div>' +
     '<div class="hubwrap">' +
-      scheduleApprovalBannerHtml(h) +
       (joinsInHtml ? '<div class="hubpanel warn"><h3>Practice join requests<span class="badgemini">' + joinsIn.length + ' PENDING</span></h3><div class="lede">Another coach wants to share a practice with you. Approve to add their team to your slot, or deny.</div>' + joinsInHtml + '</div>' : '') +
       tnnHtml +
       '<div class="hubactions">' +
@@ -2070,22 +2108,6 @@ function scheduleSummaryText(slots) {
   }).join("\n");
 }
 
-function evalMySchedule(slots) {
-  // The guideline is a PER-TEAM allowance. A coach running two teams (one
-  // baseball + one softball, e.g. Harguess) gets each team judged on its own —
-  // never the combined pile, which would false-flag every multi-team coach.
-  try {
-    var byTeam = {};
-    slots.forEach(function (s) { (byTeam[s.team_id] = byTeam[s.team_id] || []).push(s); });
-    var over = false;
-    Object.keys(byTeam).forEach(function (k) {
-      var ev = FLM_RULES.evaluate(leagueRules(), byTeam[k]);
-      if (ev && ev.status === "over") over = true;
-    });
-    return { status: over ? "over" : "ok" };
-  } catch (e) { return { status: "ok" }; }
-}
-
 function renderConfirmSchedule(box, h) {
   // Needs the schedule data; if it hasn't landed yet, wait for it.
   if (!S.data || !S.season) {
@@ -2101,10 +2123,6 @@ function renderConfirmSchedule(box, h) {
     box.innerHTML = '<div class="loading">Setting up your hub&hellip;</div>';
     return;
   }
-  var ev = evalMySchedule(slots);
-  var over = ev && ev.status === "over";
-  var ruleText = "";
-  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday practice slot per team"; }
   var lis = slots.map(function (s) {
     var f = fieldById(s.field_id);
     var t = teamById(s.team_id);
@@ -2113,14 +2131,11 @@ function renderConfirmSchedule(box, h) {
   box.innerHTML =
     '<div class="hubgate" style="max-width:520px;">' +
       '<h3>Confirm your practices</h3>' +
-      '<p class="sub">One-time check before your hub opens. This is the practice schedule we have on file for your team. Is it right?</p>' +
+      '<p class="sub">Here are your practices for the season. Confirm they\'re right, then you can grab any open field time.</p>' +
       '<ul style="list-style:none;margin:10px 0 14px;">' + lis + '</ul>' +
-      (over
-        ? '<div style="background:#fdf1dc;border-left:4px solid var(--clay);border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:12px;"><b>Heads up:</b> the league guideline is <b>' + esc(ruleText) + '</b>. Your schedule is outside that. If the league already approved it, confirm below and the board will get it for a quick sign-off. Your practices stay on the schedule while it is reviewed.</div>'
-        : '') +
       '<div class="mbtns" style="display:flex;gap:10px;">' +
         '<button class="mb quiet" id="csFix">Something\'s off</button>' +
-        '<button class="mb ' + (over ? 'clay' : 'go') + '" id="csYes">' + (over ? 'Yes, I have approval' : 'Confirm, they\'re right') + '</button>' +
+        '<button class="mb go" id="csYes">Confirm my practices</button>' +
       '</div>' +
       '<p class="gerr hidden" id="csErr"></p>' +
     '</div>';
@@ -2132,30 +2147,28 @@ function renderConfirmSchedule(box, h) {
   box.querySelector("#csYes").addEventListener("click", function () {
     var btn = box.querySelector("#csYes");
     btn.disabled = true; btn.textContent = "Saving…";
-    coachApi("coach_confirm_schedule", { over: over, summary: "Guideline: " + ruleText + "\nSchedule:\n" + scheduleSummaryText(slots) })
+    coachApi("coach_confirm_schedule", { over: false, summary: "Schedule:\n" + scheduleSummaryText(slots) })
       .then(function (j) {
-        if (!j.ok) { var e = box.querySelector("#csErr"); e.textContent = j.error || "Could not save."; e.classList.remove("hidden"); btn.disabled = false; btn.textContent = over ? "Yes, I have approval" : "Confirm, they're right"; return; }
+        if (!j.ok) { var e = box.querySelector("#csErr"); e.textContent = j.error || "Could not save."; e.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Confirm my practices"; return; }
         // Mark confirmed locally so nothing depends on a server re-read,
         // then pay it off: success screen + quick tour, land on the hub.
         if (HUB.data) HUB.data.schedule_confirmed_at = new Date().toISOString();
-        renderWelcomeTour(box, over); // hub state refreshes when the tour ends
+        renderWelcomeTour(box); // hub state refreshes when the tour ends
       })
       .catch(function () { var e = box.querySelector("#csErr"); e.textContent = "Could not reach the server."; e.classList.remove("hidden"); btn.disabled = false; });
   });
 }
 
 // -------------- Success + quick tour (post-confirmation payoff) --------------
-function renderWelcomeTour(box, over) {
+function renderWelcomeTour(box) {
   // Lock the hub box: a coach_state load kicked off at sign-in can land right
   // after the tour paints, and its renderHub() would wipe the tour mid-read.
   TOUR_ACTIVE = true;
   var steps = [
     {
       icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:46px;height:46px;color:#2d6a4f;"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>',
-      title: over ? "Confirmed — you're in" : "Welcome to Field Command",
-      body: over
-        ? "Your schedule went to the board for a quick sign-off. Your practices stay on the calendar while they review, and you'll get an email with their answer. Meanwhile, here's your hub in 3 quick beats."
-        : "Schedule confirmed. Here's your hub in 3 quick beats.",
+      title: "Welcome to Field Command",
+      body: "Schedule confirmed. Here's your hub in 3 quick beats.",
       btn: "Show me"
     },
     {
@@ -2207,39 +2220,6 @@ function renderWelcomeTour(box, over) {
     if (skip) skip.addEventListener("click", function (e) { e.preventDefault(); finish(); });
   }
   draw();
-}
-
-function scheduleApprovalBannerHtml(h) {
-  var sa = h.schedule_approval;
-  if (!sa) return "";
-  if (sa.status === "open" || sa.status === "in_progress") {
-    // Auto-flagged claims stay invisible to the coach (silent board review).
-    // Only self-confirmed over-guideline schedules show the pending banner.
-    if (/\(auto\)/.test(sa.subject || "")) return "";
-    return '<div class="hubpanel" style="border-left:4px solid var(--clay);background:#fdf6ed;"><h3>Schedule pending board sign-off</h3><div class="lede">Your over-guideline schedule went to the board. Your practices stay on the calendar while they review. You\'ll get an email when it\'s decided.</div></div>';
-  }
-  if (sa.status === "closed" && sa.response) {
-    return '<div class="hubpanel" style="border-left:4px solid #b3432b;background:#fdf0ee;"><h3>Schedule change needed</h3><div class="lede">The board reviewed your schedule: ' + esc(sa.response) + '</div></div>';
-  }
-  return "";
-}
-
-// After a claim pushes a coach over the guideline, flag the board QUIETLY
-// (Coach's rule, 9/01): open slots are truly open — never warn or block the
-// coach at claim time. The guideline check was for initial setup; from here
-// an over-guideline claim just opens a review item for the board.
-function checkOverAfterClaim() {
-  if (!isCoachSignedIn() || !HUB.data) return;
-  var sa = HUB.data.schedule_approval;
-  if (sa && (sa.status === "open" || sa.status === "in_progress" || sa.status === "resolved")) return; // already with the board
-  var slots = myScheduleSlots();
-  var ev = evalMySchedule(slots);
-  if (!ev || ev.status !== "over") return;
-  var ruleText = "";
-  try { ruleText = FLM_RULES.describe(leagueRules()); } catch (e) { ruleText = "1 weekday practice slot per team"; }
-  coachApi("coach_confirm_schedule", { over: true, auto: true, summary: "Guideline: " + ruleText + "\nSchedule after new claim:\n" + scheduleSummaryText(slots) })
-    .then(function () { loadHubState(function () {}); })
-    .catch(function () {});
 }
 
 // -------------- Sign-in prompt (for coach actions while signed out) --------------

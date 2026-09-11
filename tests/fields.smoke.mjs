@@ -422,7 +422,10 @@ section('season generator: interlock (other leagues)');
 // ------- 2. Portal hooks -------
 section('fields/index.html: required hooks');
 const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
-for (const s of ['Follow a team', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'FLM_RULES.evaluate', 'FLM_RULES.describe', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
+// 9/10: the league dropped the practice guideline/compliance concept, so the
+// coach portal no longer calls FLM_RULES.evaluate/.describe (games, standings,
+// and time formatting still use the shared engine — see gameDayKeys below).
+for (const s of ['Follow a team', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
   if (indexHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
@@ -472,9 +475,37 @@ for (const [s, why] of [
   else fail('MISSING (' + why + '): ' + s);
 }
 // New customer-facing copy stays clean: no em/en dashes in the shell strings.
-for (const line of ['All quiet right now. No league announcements.', 'Pick your team to see your practices, your next game, and where you stand on the league guideline.']) {
+for (const line of ['All quiet right now. No league announcements.', 'Pick your team to see your practices and your next game.']) {
   if (indexHtml.includes(line) && !/[—–]/.test(line)) ok('copy present and dash-free: ' + line.slice(0, 40) + '...');
   else fail('copy missing or dashed: ' + line);
+}
+
+// ------- Practice guideline/compliance concept dropped from the coach portal (9/10) -------
+section('fields/index.html: guideline concept removed (league is first-come, first-serve)');
+for (const [s, why] of [
+  ['id="rulesBox"', 'League guideline banner element removed'],
+  ['League guideline:', 'guideline banner copy removed'],
+  ['class="mt-rule"', 'My Team guideline-rule line removed'],
+  ['class="mt-alert"', 'My Team over-guideline alert removed'],
+  ['mt-chips', 'My Team availability chips removed'],
+  ['Over the guideline', 'guideline verdict text removed from teamCompliance'],
+  ['On guideline (', 'guideline verdict text removed from teamCompliance'],
+  ['function evalMySchedule', 'per-team guideline evaluator removed (dead after confirm-flow simplification)'],
+  ['function checkOverAfterClaim', 'quiet over-guideline board-flag-on-claim removed'],
+  ['function scheduleApprovalBannerHtml', 'schedule-approval pending banner removed'],
+  ['Yes, I have approval', 'over-guideline confirm branch removed'],
+  ['Schedule pending board sign-off', 'pending-signoff banner copy removed'],
+  ['schedule_approval: "Schedule Approval"', 'schedule_approval dropped from coach-facing CAT_LABELS'],
+]) {
+  if (!indexHtml.includes(s)) ok(why);
+  else fail('STILL CONTAINS (' + why + '): ' + s);
+}
+for (const [s, why] of [
+  ['Confirm my practices', 'new plain confirm button present'],
+  ['Here are your practices for the season.', 'new plain confirm copy present'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
 }
 
 // ------- 2d. Schedule defaults to the coach's own team -------
@@ -1486,12 +1517,9 @@ for (const [s, why] of [
   ['id="hgErrSupport"', 'unknown email links straight to the support form'],
   ['id="hgResend"', 'set-PIN success offers a resend link'],
   ['id="hgOkSupport"', 'set-PIN success offers a support ticket link'],
-  ['byTeam[s.team_id] = byTeam[s.team_id] || []', 'guideline check evaluates each team separately (multi-team coaches)'],
   ['Add practices to GameChanger', 'GameChanger helper card present'],
   ['class="gccopy" data-loc=', 'GC card rows carry copy-location buttons'],
   ['routed straight to your division Player Agent', 'submit modal states auto-routing'],
-  ['auto: true, summary: "Guideline: "', 'over-guideline claims auto-flag the board silently'],
-  ['/\\(auto\\)/.test(sa.subject || "")', 'hub hides the pending banner for auto-flagged reviews'],
   ['flm_v2grid', 'one-time stored-view migration to grid'],
   ['if (!_bootSignedIn) { _bootView = null; _bootTab = null; }', 'anyone not signed in lands on the Coaches Hub sign-in'],
 ]) {
@@ -1549,13 +1577,70 @@ section('gateway: second-half practice window (Sept 8 - Oct 31)');
 
     const ay1 = byName('AY#1');
     const grande = teams.find((t) => /grande/i.test(t.name || ''));
-    // Grande's AY1 use on 9/08 is a one-off, NOT a recurring weekly claim
-    // (date-scoped entries must not become recurring slots). AY1 stays open.
-    const ay1recurring = ay1 && mine.some((s) => s.field_id === ay1.id && s.team_id);
-    if (!ay1recurring) ok('Allen Yorke 1 has no recurring claim (stays open for coaches)');
-    else fail('AY1 unexpectedly holds a recurring claim in the second-half window');
+    // 9/10: Matt granted the field — Coach's Cougars now hold AY1 Tuesday
+    // RECURRING all season (games are Saturdays, no conflict). single_date
+    // must be null (recurring, not a one-off).
+    const grandeAy1Tue = grande && ay1 && mine.find((s) =>
+      s.field_id === ay1.id && s.day_key === 'tue' && s.team_id === grande.id && !s.cancelled_at);
+    if (grandeAy1Tue && !grandeAy1Tue.single_date) ok('Allen Yorke 1 Tuesday holds the Grande Cougars recurring claim (single_date null)');
+    else fail('Allen Yorke 1 Tuesday recurring Grande claim missing or wrongly date-scoped: ' + JSON.stringify(grandeAy1Tue || null));
   }
 }
+
+// ------- Recurring-vs-single-week claims + field start-time labels (9/10) -------
+section('fields/index.html: recurring vs single-week claim choice');
+for (const [s, why] of [
+  ['single_date', 'claim payload carries the optional single_date param'],
+  ['Just this week', 'plain-language "just this week" option present'],
+  ['for the rest of the season', 'plain-language recurring option present'],
+  ['function dateForDayThisWeek', 'this-week date helper for single-date claims'],
+  ['function isCurrentWeek', 'week-scoping helper for rendering single-date slots'],
+  ['This week only', 'single-date chips tell other coaches the slot reopens next week'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+
+section('fields/index.html: field start-time labels (6pm middle schools, 5pm everyone else)');
+for (const [s, why] of [
+  ['function fieldStartLabel', 'start-time label helper present'],
+  ['default_start === "18:00"', 'label is data-driven off flm_fields.default_start'],
+  ['6PM START', 'big/bold 6pm badge copy present'],
+  ['fstart five', '5pm quiet label class present'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+
+section('gateway + data: 6pm field designation is data-driven');
+{
+  const r = await fetch(GATEWAY + '?action=state');
+  const d = await r.json();
+  const fields = d.fields || [];
+  const sixPm = ['SUMNER MS 60/70', 'LAKERIDGE 60', 'LAKERIDGE 60/70/90', 'MOUNTAINVIEW 60', 'MOUNTAINVIEW 60/90', 'MAPLE LAWN EAST', 'MAPLE LAWN WEST'];
+  const allSix = sixPm.every((n) => { const f = fields.find((x) => x.name === n); return f && f.default_start === '18:00'; });
+  if (allSix) ok('all 7 confirmed middle-school fields carry default_start=18:00');
+  else fail('one or more middle-school fields missing the 6pm marker');
+
+  const tahaleh = fields.find((f) => f.name === 'TAHALEH HEIGHTS');
+  if (tahaleh && !tahaleh.default_start) ok('Tahaleh Heights stays 5pm (pending confirmation)');
+  else fail('Tahaleh Heights unexpectedly marked 6pm');
+
+  const others = fields.filter((f) => !sixPm.includes(f.name));
+  if (others.every((f) => !f.default_start)) ok('every other field has no default_start (defaults to 5pm)');
+  else fail('an unexpected field carries a default_start value');
+}
+
+section('flm-gateway: claim action accepts single_date (no writes)');
+try {
+  const r = await fetch(GATEWAY + '?action=claim', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coach_id: 'bad', coach_pin: '0000', season_id: 'x', day_key: 'tue', field_id: 'x', team_id: 'x', single_date: '2026-09-16' })
+  });
+  const j = await r.json();
+  if (r.status === 401 && j.ok === false) ok('claim with single_date + bad creds -> 401 (param accepted, auth still enforced)');
+  else fail('claim single_date sanity check wrong: ' + r.status + ' ' + JSON.stringify(j));
+} catch (e) { fail('live claim single_date test threw: ' + e.message); }
 
 // ------- Report -------
 console.log('\n---');
