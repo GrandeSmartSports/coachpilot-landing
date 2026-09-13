@@ -474,6 +474,7 @@
       <button class="pnbtn" data-primenav="schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Field Schedule</button>
     </div>
     <div id="announceBox"></div>
+    <div id="gameNoticeBox"></div>
     <div class="quietline hidden" id="alertsQuiet">All quiet right now. No league announcements.</div>
     <div class="myteam hidden" id="myTeam"></div>
     <div class="mtprompt hidden" id="mtPrompt">
@@ -758,7 +759,7 @@ function renderAll() {
   document.getElementById("leagueName").textContent = d.settings.league_name || "Field Command";
   document.title = (d.settings.league_name || "Field Command") + " — Field Manager";
   applyLayout();
-  renderAnnouncements(); renderMyTeam();
+  renderAnnouncements(); renderGameNotices(); renderMyTeam();
   renderWho(); renderSeasons(); renderLegend(); renderView();
   var sn = seasonObj();
   var isLocked = !!(sn && sn.locked);
@@ -788,6 +789,42 @@ function renderAnnouncements() {
   var ub = document.getElementById("urgentBanner");
   ub.innerHTML = hot.map(function (a) { return '<div class="ub ' + esc(a.severity) + '">' + esc(a.title) + "</div>"; }).join("");
   ub.classList.toggle("hidden", hot.length === 0);
+}
+
+/* Game-day field-unavailability notices (Part 2 — 9/13/2026).
+   For the current week: any flm_games row with field_id set (one of our fields)
+   generates a warning notice "AY#1 not available Wed Sept 16 — Minors game 5:30pm".
+   Only shows games that have NOT yet passed. Hidden in the Hub view. */
+function renderGameNotices() {
+  var box = document.getElementById("gameNoticeBox");
+  if (!box || !S.data) { return; }
+  var today = todayStr();
+  /* Find the Monday and Sunday bounding this week (Mon–Sun). */
+  function weekBounds() {
+    var d = new Date();
+    var day = d.getDay(); // 0=Sun…6=Sat
+    var diff = day === 0 ? -6 : 1 - day;
+    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+    var sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+    function fmt(dt) { return dt.getFullYear() + "-" + pad(dt.getMonth() + 1) + "-" + pad(dt.getDate()); }
+    return { start: fmt(mon), end: fmt(sun) };
+  }
+  var bounds = weekBounds();
+  /* Gather upcoming field games on OUR fields (field_id set) this week */
+  var notices = (S.data.games || []).filter(function (g) {
+    return g.field_id && g.game_date >= today && g.game_date >= bounds.start && g.game_date <= bounds.end && g.status !== "cancelled" && g.status !== "draft";
+  });
+  notices.sort(function (a, b) { return (a.game_date + a.start_time).localeCompare(b.game_date + b.start_time); });
+  if (!notices.length) { box.innerHTML = ""; return; }
+  box.innerHTML = notices.map(function (g) {
+    var f = fieldById(g.field_id);
+    var fname = f ? f.name : "Field";
+    var dt = fmtGameDate(g.game_date);
+    var t = FLM_RULES.fmtTime(g.start_time);
+    var div = g.division || "game";
+    return '<div class="announce warning"><h4>' + esc(fname + " not available " + dt) + '</h4><p>' + esc(div + " game " + t) + '</p></div>';
+  }).join("");
 }
 
 function renderMyTeam() {

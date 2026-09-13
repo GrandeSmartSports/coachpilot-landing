@@ -425,7 +425,7 @@ const indexHtml = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8
 // 9/10: the league dropped the practice guideline/compliance concept, so the
 // coach portal no longer calls FLM_RULES.evaluate/.describe (games, standings,
 // and time formatting still use the shared engine — see gameDayKeys below).
-for (const s of ['Follow a team', 'Just browsing', 'id="announceBox"', 'id="myTeam"', 'src="flm-rules.js"', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
+for (const s of ['Follow a team', 'Just browsing', 'id="announceBox"', 'id="gameNoticeBox"', 'renderGameNotices', 'id="myTeam"', 'src="flm-rules.js"', 'flm_browse', 'lsSet("flm_team"', 'data-view="sched"', 'id="viewSched"', 'gameChipHtml', 'openGameModal', 'mt-next', 'Next game: vs', 'FLM_RULES.gameDayKeys', 'extTeamById', 'function gameOpp', 'function gameVenue', 'gleague', 'Interlock game against']) {
   if (indexHtml.includes(s)) ok('contains: ' + s);
   else fail('MISSING: ' + s);
 }
@@ -1878,32 +1878,54 @@ try {
   else fail('slot_release_token bogus token wrong: ' + r6.status + ' ' + t6.slice(0, 80));
 } catch (e) { fail('live v16 auth tests threw: ' + e.message); }
 
-section('v16: Guertin slot data (live — verify migration, do NOT release)');
+section('v16+: Guertin slot data (live — verify 9/13 migration, do NOT release)');
 try {
   const r = await fetch(GATEWAY + '?action=state');
   const d = await r.json();
   const slots = d.slots || [];
+  const games = d.games || [];
+  const GUERTIN_TEAM = '4c98641e-ec9f-4581-9bd6-135a242ed6ac';
+  const AY1_FIELD = 'a39a00f3-2c8f-4f6b-8d97-14a9413932f3';
+  const AY4_FIELD = '46c9f85e-d871-4dd5-9d9e-eda9bd4c29e3';
 
-  // AY#1 wed slot should have skip_dates=['2026-09-16'] (after migration)
-  const AY1_WED_ID = 'ddb3894e-7e3a-4b1e-8315-abc17f93febf';
-  const ay1Wed = slots.find((s) => s.id === AY1_WED_ID);
-  if (ay1Wed) ok('Guertin AY#1 Wednesday slot visible in state');
-  else fail('Guertin AY#1 Wednesday slot missing from state (id: ' + AY1_WED_ID + ')');
-  // skip_dates not exposed in public state yet (populated but not checked live here)
-  // — just verify slot exists; skip_dates checked post-migration via admin
+  // AY#1 recurring wed slot: skip_dates must include both 2026-09-16 and 2026-09-23
+  const ay1Wed = slots.find((s) => s.team_id === GUERTIN_TEAM && s.field_id === AY1_FIELD && s.day_key === 'wed' && !s.single_date);
+  if (ay1Wed) ok('Guertin AY#1 recurring Wednesday slot visible in state (by team+field+day)');
+  else fail('Guertin AY#1 recurring Wednesday slot missing from state (team ' + GUERTIN_TEAM + ', field AY#1)');
+  if (ay1Wed && Array.isArray(ay1Wed.skip_dates) && ay1Wed.skip_dates.includes('2026-09-16') && ay1Wed.skip_dates.includes('2026-09-23'))
+    ok('Guertin AY#1 slot has skip_dates containing both 2026-09-16 and 2026-09-23');
+  else fail('Guertin AY#1 slot skip_dates missing 9/16 or 9/23 (got: ' + JSON.stringify(ay1Wed && ay1Wed.skip_dates) + ')');
 
-  // AY#4 wed slot should exist and render as single_date='2026-09-16'
-  const AY4_WED_ID = '579e01e8-5de9-43bc-8c15-af4c51630fb8';
-  const ay4Wed = slots.find((s) => s.id === AY4_WED_ID);
-  if (ay4Wed) ok('Guertin AY#4 Wednesday slot visible in state');
-  else fail('Guertin AY#4 Wednesday slot missing from state (id: ' + AY4_WED_ID + ')');
+  // AY#4 single_date=2026-09-16 slot
+  const ay4_916 = slots.find((s) => s.id === '579e01e8-5de9-43bc-8c15-af4c51630fb8');
+  if (ay4_916) ok('Guertin AY#4 single_date=9/16 slot visible in state');
+  else fail('Guertin AY#4 single_date=9/16 slot missing from state (id: 579e01e8)');
 
-  // AY#3 wed slot (debris): still exists until Guertin clicks the release link
-  const AY3_WED_ID = '9150d8c1-f42c-4aa2-8c7c-fac1666dfc19';
-  const ay3Wed = slots.find((s) => s.id === AY3_WED_ID);
-  // This may or may not exist depending on whether Guertin clicked; test is informational
-  if (ay3Wed) ok('Guertin AY#3 Wednesday debris slot still present (Guertin has not yet clicked release)');
-  else ok('Guertin AY#3 Wednesday slot already released (Guertin clicked the email link)');
+  // AY#4 single_date=2026-09-23 slot (9/13 addition)
+  const ay4_923 = slots.find((s) => s.team_id === GUERTIN_TEAM && s.field_id === AY4_FIELD && s.day_key === 'wed' && s.single_date === '2026-09-23');
+  if (ay4_923) ok('Guertin AY#4 single_date=9/23 slot visible in state (9/13 addition)');
+  else fail('Guertin AY#4 single_date=9/23 slot missing from state');
+
+  // Midweek games in flm_games: should have 10 Wednesday games
+  const wedGames = games.filter((g) => {
+    const p = String(g.game_date || '').split('-');
+    const dt = new Date(+p[0], +p[1] - 1, +p[2]);
+    return dt.getDay() === 3; // Wednesday
+  });
+  if (wedGames.length === 10) ok('10 Wednesday midweek games in flm_games (tab-2 import complete)');
+  else fail('Expected 10 Wednesday games, got ' + wedGames.length);
+
+  // AY#1 should have 4 Wednesday games (BB Min-AAA: 9/16, 9/23, 9/30, 10/7)
+  const ay1WedGames = wedGames.filter((g) => g.field_id === AY1_FIELD);
+  if (ay1WedGames.length === 4) ok('AY#1 has 4 Wednesday games (Minors BB)');
+  else fail('AY#1 Wednesday game count wrong: ' + ay1WedGames.length);
+
+  // AY#4 should have 3 Wednesday games (SB Min-A: 9/16, 9/23, 9/30)
+  const ay4WedGames = wedGames.filter((g) => g.field_id === AY4_FIELD);
+  if (ay4WedGames.length === 3) ok('AY#4 has 3 Wednesday games (Minors A Softball)');
+  else fail('AY#4 Wednesday game count wrong: ' + ay4WedGames.length);
+
+  // gameNoticeBox hook present in the portal HTML
 } catch (e) { fail('live Guertin slot checks threw: ' + e.message); }
 
 // ------- Report -------
