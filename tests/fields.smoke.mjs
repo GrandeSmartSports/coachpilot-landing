@@ -1591,15 +1591,34 @@ section('gateway: second-half practice window (Sept 8 - Oct 31)');
   }
 }
 
-// ------- Recurring-vs-single-week claims + field start-time labels (9/10) -------
-section('fields/index.html: recurring vs single-week claim choice');
+// ------- Simplified claim flow (9/12): recurring only, no date-scoped option for coaches -------
+section('fields/index.html: simplified claim flow — full-season only');
+// Portal always claims the recurring weekly slot. No radio buttons, no date-scoped path.
 for (const [s, why] of [
-  ['single_date', 'claim payload carries the optional single_date param'],
-  ['Just this week', 'plain-language "just this week" option present'],
-  ['for the rest of the season', 'plain-language recurring option present'],
-  ['function dateForDayThisWeek', 'this-week date helper for single-date claims'],
-  ['function isCurrentWeek', 'week-scoping helper for rendering single-date slots'],
-  ['This week only', 'single-date chips tell other coaches the slot reopens next week'],
+  ['Claim ', 'confirm line uses plain "Claim" language'],
+  ['for the rest of the season?', 'confirm line ends with season question mark'],
+  ['class="claim-confirm"', 'confirm line uses the claim-confirm style class'],
+  ['allow_share: existing.length > 0', 'claim payload still sends allow_share'],
+  ['function isCurrentWeek', 'week-scoping helper kept for rendering existing single-date slots'],
+  ['This week only', 'existing single-date slot chips still render (backward-compat display)'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+// The date-scoped UI is gone. These must NOT appear in the portal.
+for (const [s, why] of [
+  ['Just this week', 'one-week option removed from claim modal'],
+  ['input[name="mFreq"]', 'frequency radio group removed from claim modal'],
+  ['value="once"', 'once radio removed from claim modal'],
+  ['freqchoice', 'freqchoice div removed from claim modal'],
+]) {
+  if (!indexHtml.includes(s)) ok(why);
+  else fail('STILL PRESENT (' + why + '): ' + s);
+}
+// The gateway still accepts single_date for admin use — ensure the helpers that
+// support rendering existing date-scoped rows are preserved.
+for (const [s, why] of [
+  ['function dateForDayThisWeek', 'dateForDayThisWeek helper kept (used by isCurrentWeek)'],
 ]) {
   if (indexHtml.includes(s)) ok(why);
   else fail('MISSING (' + why + '): ' + s);

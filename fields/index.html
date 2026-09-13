@@ -193,6 +193,7 @@
   .mb.quiet { background: var(--chalk-2); color: var(--ink); }
   .mb.danger { background: #b3432b; color: #fff; }
   .cancelbadge { display: inline-block; background: #b3432b; color: #fff; font-family: var(--disp); font-weight: 700; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+  .claim-confirm { font-size: 15px; font-weight: 500; color: var(--ink); margin: 0 0 12px; }
   .merr { color: #b3261e; font-size: 13.5px; margin-top: 10px; }
   .shared-note { background: #fdf1dc; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: #6b4a12; margin-top: 12px; }
 
@@ -661,10 +662,11 @@ function gameVenue(g) {
 }
 function seasonObj() { return (S.data.seasons || []).filter(function (x) { return x.id === S.season; })[0] || null; }
 function dayLabel(k) { var d = DAYS.filter(function (x) { return x.k === k; })[0]; return d ? d.label : k; }
-/* 9/10: "just this week" claims carry a single_date (YYYY-MM-DD). The grid/day
-   views are day-of-week templates with no date axis, so a single-date slot is
-   shown only during the Mon-Sun week its date falls in, then quietly drops off
-   (the field goes back to Open) — no new week-navigation UI needed. */
+/* 9/10: single_date (YYYY-MM-DD) was a one-week claim feature. Removed from the
+   portal UI on 9/12 — coaches always claim the full recurring season slot now.
+   The gateway still accepts single_date for admin use. The rendering helpers
+   (isCurrentWeek, dateForDayThisWeek) are kept so any admin-created date-scoped
+   slots continue to display correctly in the grid. */
 function mondayOf(d) {
   var day = d.getDay(); // 0 Sun .. 6 Sat
   var diff = day === 0 ? -6 : 1 - day;
@@ -680,8 +682,8 @@ function weekKeyOf(dateStr) {
 }
 function isCurrentWeek(dateStr) { return weekKeyOf(dateStr) === weekKeyOf(todayStr()); }
 var DOW_INDEX = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
-/* The actual calendar date for a day_key IN THE CURRENT WEEK — used when a
-   coach picks "Just this week" so the one-off claim lands on the right date. */
+/* The actual calendar date for a day_key IN THE CURRENT WEEK — used by
+   isCurrentWeek to scope existing single-date slots to the right display week. */
 function dateForDayThisWeek(dayK) {
   var idx = DOW_INDEX[dayK];
   if (!idx) return null;
@@ -881,7 +883,7 @@ function chipHtml(slot) {
   var mine = myTeamId && slot.team_id === myTeamId;
   var cancelled = !!slot.cancelled_at;
   var extraTxt = slot.note ? slot.note : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? t.coach_name : "");
-  // "Just this week" claims say so, so other coaches know the field reopens next week.
+  // Admin-created single-date slots say "This week only" so coaches know the field reopens.
   if (slot.single_date) extraTxt = (extraTxt ? extraTxt + " · " : "") + "This week only";
   var extra = "";
   if (cancelled) {
@@ -1288,25 +1290,20 @@ function openClaimModal(dayK, fieldId) {
   var t = teamById(S.myTeam), f = fieldById(fieldId);
   var existing = slotsFor(dayK, fieldId);
   var shareNote = existing.length ? '<div class="shared-note">This slot already has <b>' + esc(existing.map(function (s) { var tt = teamById(s.team_id); return tt ? tt.name : s.label; }).join(", ")) + "</b>. Claiming it means sharing the field — the league encourages joint practices and scrimmages within your division.</div>" : "";
-  // Open slot (first-come, first-serve) = coach picks recurring vs one week.
-  // Sharing an already-held slot skips this — the join flow stays as-is.
-  var freqHtml = existing.length ? "" :
-    '<div class="freqchoice">' +
-      '<p style="font-size:14px;margin:0 0 6px;">Do you want <b>' + esc(f ? f.name : "this field") + '</b> every <b>' + esc(dayLabel(dayK)) + '</b> for the rest of the season, or just this week?</p>' +
-      '<label style="display:flex;align-items:center;gap:8px;font-size:14.5px;margin-bottom:6px;"><input type="radio" name="mFreq" value="recurring" checked /> Every ' + esc(dayLabel(dayK)) + ' for the rest of the season</label>' +
-      '<label style="display:flex;align-items:center;gap:8px;font-size:14.5px;margin-bottom:8px;"><input type="radio" name="mFreq" value="once" /> Just this week</label>' +
-    '</div>';
+  // Open slot: always claims the RECURRING weekly slot for the full season window.
+  // No date-scoped option for coaches. The gateway still accepts single_date for
+  // admin use — this UI never sends it (always null).
+  var confirmLine = existing.length ? "" :
+    '<p class="claim-confirm">Claim ' + esc(dayLabel(dayK)) + 's at <b>' + esc(f ? f.name : "this field") + '</b> for your team for the rest of the season?</p>';
   var v = modal("<h3>Claim this slot</h3><div class=\"ctx\"><b>" + esc(t.name) + "</b> &rarr; " + esc(dayLabel(dayK)) + " at <b>" + esc(f ? f.name : "") + "</b></div>" +
-    shareNote + freqHtml +
+    shareNote + confirmLine +
     '<label for="mNote">Note (optional)</label><input id="mNote" maxlength="60" placeholder="e.g. @ 5:30, starting 8/26" />' +
     '<div class="mbtns"><button class="mb quiet" id="mCancel">Cancel</button><button class="mb ' + (existing.length ? "warn" : "go") + '" id="mGo">' + (existing.length ? "Share the field" : "Claim it") + "</button></div><div class=\"merr hidden\" id=\"mErr\"></div>");
   v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
   v.querySelector("#mGo").addEventListener("click", function () {
     var btn = v.querySelector("#mGo"); btn.disabled = true; btn.textContent = "Saving…";
-    var freqEl = v.querySelector('input[name="mFreq"]:checked');
-    var singleDate = (freqEl && freqEl.value === "once") ? dateForDayThisWeek(dayK) : null;
     fetch(API + "?action=claim", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0, single_date: singleDate }) })
+      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || "failed");
