@@ -622,15 +622,16 @@ Deno.serve(async (req: Request) => {
           return json({ ok: false, error: "Saturday practice slots are not available in this window — Saturdays are game days." }, 403);
         }
       }
-      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,label,single_date").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
+      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,label,single_date,cancelled_at").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
       // Only rows relevant to the week being claimed count as "already there":
       // recurring rows (single_date null) always apply, a single-date row only
       // applies when it is the SAME date as this claim. Every pre-existing slot
       // has single_date=null (new column), so for a recurring claim (the only
-      // kind that existed before today) this filter is a no-op — same rows,
-      // same cancelled-row handling, as the original unfiltered query.
-      const existing = (existingRaw ?? []).filter((s: { single_date: string | null }) =>
-        s.single_date === null || s.single_date === singleDate);
+      // kind that existed before today) this filter is a no-op — same rows.
+      // Cancelled rows (cancelled_at non-null) are invisible to the portal and
+      // must not block a new claim — treat them as if they don't exist.
+      const existing = (existingRaw ?? []).filter((s: { single_date: string | null; cancelled_at: string | null }) =>
+        !s.cancelled_at && (s.single_date === null || s.single_date === singleDate));
       if (existing.some((s: { team_id: string | null }) => s.team_id === team_id)) {
         return json({ ok: false, error: "Your team already holds this slot." }, 409);
       }

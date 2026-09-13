@@ -1665,6 +1665,32 @@ try {
   else fail('claim single_date sanity check wrong: ' + r.status + ' ' + JSON.stringify(j));
 } catch (e) { fail('live claim single_date test threw: ' + e.message); }
 
+// ------- Cancelled-slot invisibility fix (9/12) -------
+section('fields/index.html: cancelled slots invisible to portal');
+// slotsFor() must skip rows where cancelled_at is truthy — cell renders as open,
+// not as a struck-through "Cancelled" chip that blocks new claims.
+{
+  const fnStart = indexHtml.indexOf('function slotsFor(dayK, fieldId)');
+  const fnEnd   = indexHtml.indexOf('\n}', fnStart) + 2;
+  const fn = indexHtml.slice(fnStart, fnEnd);
+  if (fn.includes('cancelled_at')) ok('slotsFor() filters out cancelled_at rows');
+  else fail('slotsFor() does not filter cancelled_at — cancelled slots still appear as chips');
+  // The filter must return false (skip) for a row that has cancelled_at set.
+  if (/cancelled_at\s*\)\s*return\s+false/.test(fn)) ok('slotsFor() returns false for cancelled rows (early return guard)');
+  else fail('slotsFor() cancelled_at guard is not a return false');
+}
+
+section('flm-gateway/index.ts: cancelled rows excluded from claim conflict check');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  // Find the claim action block
+  const claimBlock = gwSrc.slice(gwSrc.indexOf('action === "claim"'), gwSrc.indexOf('action === "release"'));
+  if (claimBlock.includes('cancelled_at')) ok('claim action selects cancelled_at from flm_slots');
+  else fail('claim action does not read cancelled_at — cannot exclude cancelled rows from conflict check');
+  if (claimBlock.includes('!s.cancelled_at')) ok('existing rows filter excludes cancelled_at rows (!s.cancelled_at)');
+  else fail('existing rows filter missing !s.cancelled_at — cancelled rows still block claims');
+}
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

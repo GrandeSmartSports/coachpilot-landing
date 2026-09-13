@@ -695,6 +695,7 @@ function dateForDayThisWeek(dayK) {
 function slotsFor(dayK, fieldId) {
   return (S.data.slots || []).filter(function (s) {
     if (s.season_id !== S.season || s.day_key !== dayK || s.field_id !== fieldId) return false;
+    if (s.cancelled_at) return false;  // cancelled slots are invisible — cell renders as open
     return s.single_date ? isCurrentWeek(s.single_date) : true;
   });
 }
