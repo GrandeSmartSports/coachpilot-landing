@@ -1691,6 +1691,84 @@ section('flm-gateway/index.ts: cancelled rows excluded from claim conflict check
   else fail('existing rows filter missing !s.cancelled_at — cancelled rows still block claims');
 }
 
+// ------- Hold feature (v15, 2026-09-12) -------
+section('gateway source: v15 hold feature present');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  if (/gateway \(v1[5-9]\)|gateway \(v[2-9]\d\)/.test(gwSrc)) ok('gateway version banner is v15 or newer (hold feature deployed)');
+  else fail('gateway version banner is not v15+ — did you forget to bump it?');
+  if (gwSrc.includes('held_for_coach_id')) ok('held_for_coach_id column referenced in gateway');
+  else fail('held_for_coach_id missing from gateway');
+  if (gwSrc.includes('held: true')) ok('state action adds held:true flag to public slots');
+  else fail('state action does not add held:true flag');
+  if (gwSrc.includes('held_for_coach_id: _omit')) ok('state action strips held_for_coach_id from public payload (destructured out)');
+  else fail('held_for_coach_id may still leak in public state');
+  if (gwSrc.includes('claimable_hold_slot_ids')) ok('coach_state returns claimable_hold_slot_ids');
+  else fail('coach_state missing claimable_hold_slot_ids');
+  if (gwSrc.includes('heldForUs') && gwSrc.includes('heldForOther')) ok('claim action handles held-for-us and held-for-other cases');
+  else fail('claim action missing hold checks');
+  if (gwSrc.includes('claimed a held slot')) ok('hold claim logs "claimed a held slot"');
+  else fail('hold claim missing activity log');
+  if (gwSrc.includes("This field time is pending a league assignment")) ok('non-target claim blocked with friendly message');
+  else fail('non-target block message missing');
+  // admin_slot update must accept held_for_coach_id
+  const adminSlotBlock = gwSrc.slice(gwSrc.indexOf('action === "admin_slot"'), gwSrc.indexOf('action === "admin_game"'));
+  if (adminSlotBlock.includes('held_for_coach_id')) ok('admin_slot accepts held_for_coach_id in create/update');
+  else fail('admin_slot does not handle held_for_coach_id');
+}
+
+section('fields/index.html: hold feature portal hooks');
+{
+  if (indexHtml.includes('isClaimableHoldForMe')) ok('isClaimableHoldForMe helper present');
+  else fail('isClaimableHoldForMe missing');
+  if (indexHtml.includes('claimable_hold_slot_ids')) ok('portal reads claimable_hold_slot_ids from HUB data');
+  else fail('portal does not read claimable_hold_slot_ids');
+  if (indexHtml.includes('chip.pending')) ok('Pending chip CSS class present');
+  else fail('Pending chip CSS missing');
+  if (indexHtml.includes('Pending&hellip;')) ok('chipHtml emits Pending... for held slots');
+  else fail('chipHtml missing Pending... render');
+  if (indexHtml.includes('pendingBlocked')) ok('renderGrid and renderDays suppress Open cell for pending-blocked slots');
+  else fail('pendingBlocked logic missing from render functions');
+  if (indexHtml.includes(':not(.pending)')) ok('bindCells skips click handler on pending chips');
+  else fail('pending chips get click binding (should be display-only)');
+  // pending chip must not be clickable: .pending class must exclude from .chip[data-slot] query
+}
+
+section('gateway: hold feature live checks (real slot, no claiming)');
+try {
+  // 1. Public state: the held slot must appear with held:true and NO held_for_coach_id
+  const rs = await fetch(GATEWAY + '?action=state');
+  const ds = await rs.json();
+  // Target slot: 9c326d93-9453-4cbc-bff1-b875634285b7 (set up before tests ran)
+  const HOLD_SLOT_ID = '9c326d93-9453-4cbc-bff1-b875634285b7';
+  const hSlot = (ds.slots || []).find((s) => s.id === HOLD_SLOT_ID);
+  if (hSlot) ok('held slot is visible in public state');
+  else fail('held slot missing from public state: ' + HOLD_SLOT_ID);
+  if (hSlot && hSlot.held === true) ok('held slot carries held:true in public state');
+  else fail('held slot is missing held:true flag (got: ' + JSON.stringify(hSlot && hSlot.held) + ')');
+  if (hSlot && !('held_for_coach_id' in hSlot)) ok('held_for_coach_id NOT in public state payload (coach identity protected)');
+  else fail('held_for_coach_id LEAKED in public state!');
+  if (hSlot && hSlot.team_id === null) ok('held slot has no team_id (unclaimed)');
+  else fail('held slot unexpectedly has a team_id');
+
+  // 2. Non-target claim attempt must return 403 with friendly message
+  const rc = await fetch(GATEWAY + '?action=claim', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      coach_id: 'bad-id-00000000-0000-0000-0000-000000000000',
+      coach_pin: '9999',
+      season_id: '8d97097d-3216-4e27-a637-a28c8ebc3458',
+      day_key: 'wed',
+      field_id: '46e71aa9-6365-4e22-a86a-639cbdf10945',
+      team_id: 'bad-team-id',
+    })
+  });
+  const jc = await rc.json();
+  // Bad creds returns 401 (auth wall), not 403, so this checks auth is still required
+  if (rc.status === 401) ok('claim on held slot with bad creds -> 401 (auth gate still first)');
+  else fail('hold claim with bad creds should be 401, got: ' + rc.status);
+} catch (e) { fail('live hold feature checks threw: ' + e.message); }
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

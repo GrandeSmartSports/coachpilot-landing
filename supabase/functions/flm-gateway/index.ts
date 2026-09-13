@@ -1,4 +1,4 @@
-// Field Command gateway (v14). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v15). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -12,6 +12,11 @@
 // pull (admin_message_body) reveals one body AND logs the pull to flm_activity
 // so the audit works both ways. Every coach outbound email still uses Resend
 // (planned Q3 cutover to a coachpilot.org sender; see reference-coachpilot-resend).
+// v15 (2026-09-12): Hold feature — flm_slots.held_for_coach_id. Admin can
+// reserve an open slot for a specific coach. Public state sees held:true (no
+// coach identity). Target coach gets claimable_hold_slot_ids via coach_state
+// so the portal renders it as Open for them; everyone else sees Pending.
+// claim action converts the hold row on success instead of inserting a new row.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -567,7 +572,18 @@ Deno.serve(async (req: Request) => {
         gameRows = gameRows.filter((g: { season_id: string }) => !archived.has(g.season_id));
         slotRows = slotRows.filter((sl: { season_id: string }) => !archived.has(sl.season_id));
       }
-      const out: Record<string, unknown> = { ok: true, settings: s, seasons: seasonRows, fields: fields.data, teams: teams.data, slots: slotRows, announcements: announcements.data, games: gameRows, ext_teams: extTeams.data };
+      // Hold feature: public payload adds a boolean `held` flag on slots that are
+      // reserved for a specific coach but not yet claimed. The target coach id is
+      // NEVER sent to the public portal — it would leak identity. Admin console
+      // sees the raw rows (showDrafts path) so coach id is visible there.
+      // deno-lint-ignore no-explicit-any
+      const publicSlots = showDrafts ? slotRows : slotRows.map((sl: any) => {
+        if (!sl.held_for_coach_id) return sl;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { held_for_coach_id: _omit, ...rest } = sl;
+        return { ...rest, held: true };
+      });
+      const out: Record<string, unknown> = { ok: true, settings: s, seasons: seasonRows, fields: fields.data, teams: teams.data, slots: publicSlots, announcements: announcements.data, games: gameRows, ext_teams: extTeams.data };
       // Umpire roster + assignments ride on state ONLY for the admin console.
       // The public portal never receives an umps key at all.
       if (showDrafts) {
@@ -622,7 +638,7 @@ Deno.serve(async (req: Request) => {
           return json({ ok: false, error: "Saturday practice slots are not available in this window — Saturdays are game days." }, 403);
         }
       }
-      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,label,single_date,cancelled_at").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
+      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,label,single_date,cancelled_at,held_for_coach_id").eq("season_id", season_id).eq("day_key", day_key).eq("field_id", field_id);
       // Only rows relevant to the week being claimed count as "already there":
       // recurring rows (single_date null) always apply, a single-date row only
       // applies when it is the SAME date as this claim. Every pre-existing slot
@@ -632,15 +648,36 @@ Deno.serve(async (req: Request) => {
       // must not block a new claim — treat them as if they don't exist.
       const existing = (existingRaw ?? []).filter((s: { single_date: string | null; cancelled_at: string | null }) =>
         !s.cancelled_at && (s.single_date === null || s.single_date === singleDate));
+      // Hold feature: a slot with held_for_coach_id set and no team_id is a
+      // league-reserved slot. Only the target coach can claim it; the claim
+      // CONVERTS the existing row rather than inserting a new one. Any other
+      // coach's attempt gets a friendly "pending" error.
+      // deno-lint-ignore no-explicit-any
+      const heldForUs = existing.find((s: any) => s.held_for_coach_id && !s.team_id && s.held_for_coach_id === coach.id);
+      // deno-lint-ignore no-explicit-any
+      const heldForOther = existing.find((s: any) => s.held_for_coach_id && !s.team_id && s.held_for_coach_id !== coach.id);
+      if (heldForOther) {
+        return json({ ok: false, error: "This field time is pending a league assignment. Contact the league if you have questions." }, 403);
+      }
       if (existing.some((s: { team_id: string | null }) => s.team_id === team_id)) {
         return json({ ok: false, error: "Your team already holds this slot." }, 409);
-      }
-      if (existing.length > 0 && !b.allow_share) {
-        return json({ ok: false, error: "taken", taken: true, existing }, 409);
       }
       const { data: team } = await db.from("flm_teams").select("name").eq("id", team_id).single();
       if (!team) return json({ ok: false, error: "unknown team" }, 400);
       const note = String(b.note ?? "").slice(0, 200);
+      if (heldForUs) {
+        // Convert the hold row: assign to this coach's chosen team, clear the hold.
+        const { data: slot, error } = await db.from("flm_slots").update({
+          team_id, label: team.name, note, claimed_by: "coach", held_for_coach_id: null,
+        }).eq("id", heldForUs.id).select().single();
+        if (error) return json({ ok: false, error: error.message }, 500);
+        await log("claim", `${team.name} claimed a held slot on ${day_key} (season ${season.label})${note ? " — " + note : ""}`, team.name);
+        return json({ ok: true, slot });
+      }
+      // Normal open-slot claim path: no hold rows involved.
+      if (existing.length > 0 && !b.allow_share) {
+        return json({ ok: false, error: "taken", taken: true, existing }, 409);
+      }
       const { data: slot, error } = await db.from("flm_slots").insert({
         season_id, day_key, field_id, team_id,
         label: team.name, note, claimed_by: "coach", single_date: singleDate,
@@ -967,6 +1004,13 @@ Deno.serve(async (req: Request) => {
         joins_to_me: joinsIn.data || [],
         joins_from_me: joinsOut.data || [],
         schedule_confirmed_at: c.schedule_confirmed_at ?? null,
+        // Hold feature: slot IDs the signed-in coach is allowed to claim.
+        // The portal uses this to render the held slot as "Open — tap to claim"
+        // instead of "Pending..." for the target coach only.
+        claimable_hold_slot_ids: await (async () => {
+          const { data: held } = await db.from("flm_slots").select("id").eq("held_for_coach_id", coach.id).is("team_id", null).is("cancelled_at", null);
+          return (held || []).map((r: { id: string }) => r.id);
+        })(),
         schedule_approval: (() => {
           // Latest schedule-approval item drives the hub banner:
           // open = pending with the board, resolved = approved,
@@ -1891,6 +1935,8 @@ Deno.serve(async (req: Request) => {
         if (b.team_id !== undefined) row.team_id = b.team_id || null;
         if (b.label !== undefined) row.label = String(b.label).slice(0, 160);
         if (b.note !== undefined) row.note = String(b.note).slice(0, 200);
+        // Hold feature: admin can set or clear the target coach for a held slot.
+        if (b.held_for_coach_id !== undefined) row.held_for_coach_id = b.held_for_coach_id || null;
         const res = await db.from("flm_slots").update(row).eq("id", b.id).select().single();
         if (res.error) return json({ ok: false, error: res.error.message }, 500);
         await log("slot", `Admin updated slot ${res.data?.label}`, "admin");
@@ -1903,7 +1949,7 @@ Deno.serve(async (req: Request) => {
         const { data: t } = await db.from("flm_teams").select("name").eq("id", b.team_id).single();
         label = t?.name ?? "";
       }
-      const res = await db.from("flm_slots").insert({ season_id, day_key, field_id, team_id: b.team_id || null, label, note: String(b.note ?? "").slice(0, 200), claimed_by: "admin" }).select().single();
+      const res = await db.from("flm_slots").insert({ season_id, day_key, field_id, team_id: b.team_id || null, label, note: String(b.note ?? "").slice(0, 200), claimed_by: "admin", held_for_coach_id: b.held_for_coach_id || null }).select().single();
       if (res.error) return json({ ok: false, error: res.error.message }, 500);
       await log("slot", `Admin placed ${label} on ${day_key}`, "admin");
       return json({ ok: true, slot: res.data });

@@ -97,6 +97,8 @@
   .chip.mine { outline: 2px solid var(--clay); }
   .chip.cancelled { opacity: 0.55; text-decoration: line-through; text-decoration-color: rgba(179,67,43,0.7); }
   .chip.cancelled small { text-decoration: none; color: #b3432b; font-weight: 600; }
+  .chip.pending { border-left-color: #b9b3a0; background: #f4f2eb; color: #8a8678; cursor: default; font-style: italic; letter-spacing: 0.03em; }
+  .chip.pending small { color: #b9b3a0; }
   .open { border: 1.5px dashed #cfcaba; border-radius: 8px; color: #b9b3a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; padding: 8px 4px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; }
   .open:hover { border-color: var(--clay); color: var(--clay); }
   body.locked .open { cursor: default; }
@@ -877,7 +879,20 @@ function gameChipHtml(g) {
     "<small>" + esc(fmtGameDate(g.game_date) + " · " + FLM_RULES.fmtTime(g.start_time) + st) + "</small></div>";
 }
 
+// Hold feature: returns true if this slot is reserved for the signed-in coach
+// (meaning they should see it as "Open — tap to claim" rather than "Pending...").
+function isClaimableHoldForMe(slotId) {
+  var ids = (HUB.data && HUB.data.claimable_hold_slot_ids) || [];
+  return ids.indexOf(slotId) >= 0;
+}
+
 function chipHtml(slot) {
+  // Hold feature: a held slot (no team, held:true) renders as "Pending..." for
+  // everyone except the signed-in target coach (who sees an Open cell instead —
+  // see renderGrid/renderDays where held-for-me slots are skipped in chipHtml).
+  if (slot.held && !slot.team_id && !isClaimableHoldForMe(slot.id)) {
+    return '<div class="chip pending" data-slot="' + slot.id + '">Pending&hellip;</div>';
+  }
   var t = teamById(slot.team_id);
   var c = divColor(t);
   var myTeamId = (CRED_C && CRED_C.team_id) || S.myTeam;
@@ -897,7 +912,8 @@ function chipHtml(slot) {
 }
 
 function bindCells(root) {
-  root.querySelectorAll(".chip[data-slot]").forEach(function (el) {
+  // Hold feature: pending chips are display-only — they have no click action.
+  root.querySelectorAll(".chip[data-slot]:not(.pending)").forEach(function (el) {
     el.addEventListener("click", function () { openSlotModal(el.getAttribute("data-slot")); });
   });
   root.querySelectorAll(".chip[data-game]").forEach(function (el) {
@@ -958,10 +974,18 @@ function renderGrid() {
     html += '<tr><td class="day">' + d.label + "</td>";
     fields.forEach(function (f) {
       var ss = slotsFor(d.k, f.id);
+      // Hold feature: slots held for-me render as an Open cell, not a chip.
+      // Slots held for someone else render as "Pending..." and block the Open cell.
+      var heldForMe = ss.filter(function (s) { return s.held && !s.team_id && isClaimableHoldForMe(s.id); });
+      var chipSlots = ss.filter(function (s) { return !heldForMe.some(function (h) { return h.id === s.id; }); });
+      var pendingBlocked = chipSlots.some(function (s) { return s.held && !s.team_id; });
+      var nonHeldSlots = chipSlots.filter(function (s) { return !(s.held && !s.team_id); });
       html += '<td class="cell"><div class="cellbox">';
-      ss.forEach(function (s) { html += chipHtml(s); });
+      chipSlots.forEach(function (s) { html += chipHtml(s); });
       gamesFor(d.k, f.id).forEach(function (g) { html += gameChipHtml(g); });
-      html += '<div class="open" data-day="' + d.k + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open") + "</div>";
+      if (!pendingBlocked) {
+        html += '<div class="open" data-day="' + d.k + '" data-field="' + f.id + '">' + (nonHeldSlots.length || heldForMe.length ? "+ join" : "Open") + "</div>";
+      }
       html += "</div></td>";
     });
     html += "</tr>";
@@ -990,10 +1014,17 @@ function renderDays() {
   var html = "";
   (S.data.fields || []).filter(function (f) { return f.is_active; }).forEach(function (f) {
     var ss = slotsFor(S.day, f.id);
+    // Hold feature: same logic as renderGrid — held-for-me = open cell, pending = blocked.
+    var heldForMe = ss.filter(function (s) { return s.held && !s.team_id && isClaimableHoldForMe(s.id); });
+    var chipSlots = ss.filter(function (s) { return !heldForMe.some(function (h) { return h.id === s.id; }); });
+    var pendingBlocked = chipSlots.some(function (s) { return s.held && !s.team_id; });
+    var nonHeldSlots = chipSlots.filter(function (s) { return !(s.held && !s.team_id); });
     html += '<div class="frow"><div class="fname">' + esc(f.name) + '<br />' + fieldStartLabel(f) + '</div><div class="occ">';
-    ss.forEach(function (s) { html += chipHtml(s); });
+    chipSlots.forEach(function (s) { html += chipHtml(s); });
     gamesFor(S.day, f.id).forEach(function (g) { html += gameChipHtml(g); });
-    html += '<div class="open" data-day="' + S.day + '" data-field="' + f.id + '">' + (ss.length ? "+ join" : "Open — tap to claim") + "</div>";
+    if (!pendingBlocked) {
+      html += '<div class="open" data-day="' + S.day + '" data-field="' + f.id + '">' + (nonHeldSlots.length || heldForMe.length ? "+ join" : "Open — tap to claim") + "</div>";
+    }
     html += "</div></div>";
   });
   list.innerHTML = html;
