@@ -1,4 +1,4 @@
-// Field Command gateway (v15). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v16). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -17,6 +17,12 @@
 // coach identity). Target coach gets claimable_hold_slot_ids via coach_state
 // so the portal renders it as Open for them; everyone else sees Pending.
 // claim action converts the hold row on success instead of inserting a new row.
+// v16 (2026-09-13): "Change one date" feature. flm_slots gains skip_dates date[]
+// (default '{}') so a recurring slot can be marked "skip 9/16" instead of hand-
+// editing the note. Coach-authed actions: slot_skip_date, slot_unskip_date,
+// slot_move_date (creates a single_date claim on a different field + skips the
+// original). Token-based one-click release: flm_action_tokens table + actions
+// slot_mint_token (admin-gated) and slot_release_token (public GET, idempotent).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -702,6 +708,133 @@ Deno.serve(async (req: Request) => {
       await db.from("flm_slots").delete().eq("id", slot_id);
       await log("release", `${slot.label} released ${slot.day_key}`, slot.label);
       return json({ ok: true });
+    }
+
+    // ---------- v16: "Change one date" — skip/unskip/move coach-authed actions ----------
+
+    if (action === "slot_skip_date" && req.method === "POST") {
+      // Add a date to skip_dates on a recurring slot the coach owns.
+      const b = await req.json();
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to manage your practices" }, 401);
+      const slot_id = String(b.slot_id ?? "").trim();
+      const skip_date = String(b.skip_date ?? "").slice(0, 10);
+      if (!slot_id || !/^\d{4}-\d{2}-\d{2}$/.test(skip_date)) return json({ ok: false, error: "slot_id and YYYY-MM-DD skip_date required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key,skip_dates,season_id,single_date").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (!(coach.team_ids || []).includes(String(slot.team_id))) return json({ ok: false, error: "You can only change your own practice slots." }, 403);
+      if (slot.single_date) return json({ ok: false, error: "Use slot_release to remove a single-date slot." }, 400);
+      const current: string[] = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+      if (current.includes(skip_date)) return json({ ok: true, slot }); // idempotent
+      const next = [...current, skip_date].sort();
+      const { data: updated, error } = await db.from("flm_slots").update({ skip_dates: next }).eq("id", slot_id).select().single();
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("slot_skip_date", `${slot.label} skipping ${skip_date} on ${slot.day_key}`, slot.label);
+      return json({ ok: true, slot: updated });
+    }
+
+    if (action === "slot_unskip_date" && req.method === "POST") {
+      // Remove a date from skip_dates (undo a skip).
+      const b = await req.json();
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to manage your practices" }, 401);
+      const slot_id = String(b.slot_id ?? "").trim();
+      const skip_date = String(b.skip_date ?? "").slice(0, 10);
+      if (!slot_id || !/^\d{4}-\d{2}-\d{2}$/.test(skip_date)) return json({ ok: false, error: "slot_id and YYYY-MM-DD skip_date required" }, 400);
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key,skip_dates,season_id").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (!(coach.team_ids || []).includes(String(slot.team_id))) return json({ ok: false, error: "You can only change your own practice slots." }, 403);
+      const current: string[] = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+      const next = current.filter((d) => d !== skip_date);
+      const { data: updated, error } = await db.from("flm_slots").update({ skip_dates: next }).eq("id", slot_id).select().single();
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("slot_unskip_date", `${slot.label} restored ${skip_date} on ${slot.day_key}`, slot.label);
+      return json({ ok: true, slot: updated });
+    }
+
+    if (action === "slot_move_date" && req.method === "POST") {
+      // Move one occurrence of a recurring slot to a different field on the same date.
+      // Creates a single_date claim on the new field + adds the date to skip_dates on the
+      // original slot. The coach must own the original slot; the target field must be open.
+      const b = await req.json();
+      const coach = await coachAuth(b);
+      if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to manage your practices" }, 401);
+      const slot_id = String(b.slot_id ?? "").trim();
+      const move_date = String(b.move_date ?? "").slice(0, 10);
+      const new_field_id = String(b.new_field_id ?? "").trim();
+      if (!slot_id || !/^\d{4}-\d{2}-\d{2}$/.test(move_date) || !new_field_id) {
+        return json({ ok: false, error: "slot_id, YYYY-MM-DD move_date, and new_field_id required" }, 400);
+      }
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key,skip_dates,season_id,field_id,single_date").eq("id", slot_id).single();
+      if (!slot) return json({ ok: false, error: "slot not found" }, 404);
+      if (!(coach.team_ids || []).includes(String(slot.team_id))) return json({ ok: false, error: "You can only move your own practice slots." }, 403);
+      if (slot.single_date) return json({ ok: false, error: "That is already a single-date slot. Release it and claim the new field instead." }, 400);
+      const { data: season } = await db.from("flm_seasons").select("locked").eq("id", slot.season_id).single();
+      if (season?.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
+      // Check the target field is open on that day+date.
+      const { data: existingRaw } = await db.from("flm_slots").select("id,team_id,single_date,cancelled_at").eq("season_id", slot.season_id).eq("day_key", slot.day_key).eq("field_id", new_field_id);
+      const blockingSlots = (existingRaw ?? []).filter((s: { single_date: string | null; cancelled_at: string | null }) =>
+        !s.cancelled_at && (s.single_date === null || s.single_date === move_date));
+      if (blockingSlots.length > 0 && !b.allow_share) {
+        return json({ ok: false, error: "That field already has a practice on that day.", taken: true }, 409);
+      }
+      // Check for game conflicts on the target field.
+      const { data: targetField } = await db.from("flm_fields").select("name").eq("id", new_field_id).single();
+      const { data: gamesOnDate } = await db.from("flm_games").select("id,home_team_id,away_team_id,start_time,end_time,division,status").eq("field_id", new_field_id).eq("game_date", move_date).neq("status", "cancelled").neq("status", "draft");
+      const gameConflictNote = (gamesOnDate ?? []).length > 0
+        ? ` Note: ${targetField?.name ?? new_field_id} has ${gamesOnDate!.length} game(s) on ${move_date}.`
+        : "";
+      // Create the single_date claim.
+      const { data: team } = await db.from("flm_teams").select("name").eq("id", slot.team_id).single();
+      const { data: newSlot, error: insErr } = await db.from("flm_slots").insert({
+        season_id: slot.season_id, day_key: slot.day_key, field_id: new_field_id,
+        team_id: slot.team_id, label: team?.name ?? slot.label,
+        note: b.note ? String(b.note).slice(0, 200) : `${move_date} (moved)`,
+        claimed_by: "coach", single_date: move_date,
+      }).select().single();
+      if (insErr) return json({ ok: false, error: insErr.message }, 500);
+      // Add the date to skip_dates on the original slot.
+      const current: string[] = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+      const next = current.includes(move_date) ? current : [...current, move_date].sort();
+      const { data: updatedOriginal, error: updErr } = await db.from("flm_slots").update({ skip_dates: next }).eq("id", slot_id).select().single();
+      if (updErr) return json({ ok: false, error: updErr.message }, 500);
+      await log("slot_move_date", `${slot.label} moved ${move_date} from ${slot.day_key} field ${slot.field_id} to field ${new_field_id}${gameConflictNote}`, slot.label);
+      return json({ ok: true, new_slot: newSlot, original_slot: updatedOriginal, game_conflict_note: gameConflictNote || null });
+    }
+
+    // ---------- v16: one-click email action token (public GET, no auth) ----------
+
+    if (action === "slot_release_token" && req.method === "GET") {
+      // Single-use, 7-day token that releases a specific slot. Used for email
+      // "one-click" buttons so the recipient never needs to sign in.
+      const token = url.searchParams.get("token") ?? "";
+      if (!token) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#b3432b;margin:0 0 12px;">Missing link</h2><p>This link is missing the release token. Use the button in the original email.</p></div></body></html>`, { status: 400, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      }
+      const { data: tok } = await db.from("flm_action_tokens").select("id,slot_id,purpose,expires_at,used_at").eq("token", token).maybeSingle();
+      if (!tok) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#b3432b;margin:0 0 12px;">Link not found</h2><p>This release link is not valid or has already expired. If you still need to remove that slot, sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status: 404, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      }
+      // Expired
+      if (new Date(tok.expires_at).getTime() < Date.now()) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#a8571d;margin:0 0 12px;">Link expired</h2><p>This release link expired on ${new Date(tok.expires_at).toLocaleDateString()}. The slot is still on the schedule. Sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a> to manage it.</p></div></body></html>`, { status: 410, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      }
+      // Already used — show friendly confirmation (idempotent)
+      if (tok.used_at) {
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Already done</h2><p>That slot was already released. Nothing more to do. If you have questions, reply to the original email.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      }
+      // Release the slot
+      const { data: slotRow } = await db.from("flm_slots").select("id,label,day_key,field_id,team_id,season_id").eq("id", tok.slot_id).maybeSingle();
+      if (!slotRow) {
+        // Slot already gone; mark token used anyway
+        await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Already done</h2><p>That slot was already removed from the schedule. Nothing more to do.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      }
+      const { data: fieldRow } = await db.from("flm_fields").select("name").eq("id", slotRow.field_id).maybeSingle();
+      await db.from("flm_slots").delete().eq("id", tok.slot_id);
+      await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
+      await log("slot_release_token", `${slotRow.label} released ${slotRow.day_key} on ${fieldRow?.name ?? slotRow.field_id} via email link`, slotRow.label);
+      return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Done</h2><p style="font-size:15px;color:#3c463f;line-height:1.55;">The extra ${escHtml(slotRow.day_key === "wed" ? "Wednesday" : slotRow.day_key)} slot on ${escHtml(fieldRow?.name ?? slotRow.field_id)} has been released. The field is open again on that day.</p><p style="margin-top:18px;font-size:13px;color:#6d7a72;">See the full field schedule at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
     }
 
     // ---------- umpires (per-ump PIN, never the admin PIN) ----------
@@ -1937,6 +2070,12 @@ Deno.serve(async (req: Request) => {
         if (b.note !== undefined) row.note = String(b.note).slice(0, 200);
         // Hold feature: admin can set or clear the target coach for a held slot.
         if (b.held_for_coach_id !== undefined) row.held_for_coach_id = b.held_for_coach_id || null;
+        // v16: admin can set skip_dates directly (migration + Guertin setup)
+        if (b.skip_dates !== undefined) {
+          const sd = Array.isArray(b.skip_dates) ? b.skip_dates.filter((d: unknown) => /^\d{4}-\d{2}-\d{2}$/.test(String(d))) : [];
+          row.skip_dates = sd;
+        }
+        if (b.single_date !== undefined) row.single_date = b.single_date ? String(b.single_date).slice(0, 10) : null;
         const res = await db.from("flm_slots").update(row).eq("id", b.id).select().single();
         if (res.error) return json({ ok: false, error: res.error.message }, 500);
         await log("slot", `Admin updated slot ${res.data?.label}`, "admin");
@@ -1953,6 +2092,25 @@ Deno.serve(async (req: Request) => {
       if (res.error) return json({ ok: false, error: res.error.message }, 500);
       await log("slot", `Admin placed ${label} on ${day_key}`, "admin");
       return json({ ok: true, slot: res.data });
+    }
+
+    if (action === "slot_mint_token") {
+      // Admin-gated: mint a single-use 7-day release token for a specific slot.
+      // Used to create the "one-click remove" button in emails.
+      const slot_id = String(b.slot_id ?? "").trim();
+      if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
+      const { data: slotRow } = await db.from("flm_slots").select("id,label,day_key").eq("id", slot_id).maybeSingle();
+      if (!slotRow) return json({ ok: false, error: "slot not found" }, 404);
+      const token = crypto.randomUUID().replace(/-/g, "");
+      const expires = new Date();
+      expires.setUTCDate(expires.getUTCDate() + 7);
+      const { data: tok, error: tokErr } = await db.from("flm_action_tokens").insert({
+        token, slot_id, purpose: "slot_release", expires_at: expires.toISOString(),
+      }).select().single();
+      if (tokErr) return json({ ok: false, error: tokErr.message }, 500);
+      await log("slot_mint_token", `Minted release token for ${slotRow.label} (${slotRow.day_key})`, "admin");
+      const tokenUrl = `https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway?action=slot_release_token&token=${token}`;
+      return json({ ok: true, token, expires_at: tok.expires_at, url: tokenUrl });
     }
 
     if (action === "admin_game") {

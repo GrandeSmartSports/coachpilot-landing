@@ -1769,6 +1769,143 @@ try {
   else fail('hold claim with bad creds should be 401, got: ' + rc.status);
 } catch (e) { fail('live hold feature checks threw: ' + e.message); }
 
+// ------- v16: skip_dates + token release -------
+section('v16: skip_dates and token release — source checks');
+{
+  const portalSrc = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
+  const gwSrc2 = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+
+  // Portal: chipHtml shows except tag for slots with skip_dates
+  if (portalSrc.includes('class="except"')) ok('chipHtml carries .except CSS class for skip_dates display');
+  else fail('chipHtml missing .except class');
+  if (portalSrc.includes('exceptTag')) ok('chipHtml builds exceptTag for recurring slots with skip_dates');
+  else fail('chipHtml missing exceptTag variable');
+  if (portalSrc.includes("except ' + esc(skipLabels)")) ok('exceptTag renders "except <dates>" label text');
+  else fail('exceptTag missing label text');
+
+  // Portal: slotsFor skips occurrences in skip_dates
+  {
+    const fnStart = portalSrc.indexOf('function slotsFor(dayK, fieldId)');
+    const fnEnd   = portalSrc.indexOf('\n}', fnStart) + 2;
+    const fn = portalSrc.slice(fnStart, fnEnd);
+    if (fn.includes('skip_dates') && fn.includes('dateForDayThisWeek')) ok('slotsFor() filters recurring occurrences using skip_dates and dateForDayThisWeek');
+    else fail('slotsFor() skip_dates filter missing');
+  }
+
+  // Portal: "Change one date" button and handler present
+  if (portalSrc.includes('Change one date')) ok('openSlotModal includes "Change one date" button');
+  else fail('"Change one date" button missing from openSlotModal');
+  if (portalSrc.includes('function openChangeOneDate')) ok('openChangeOneDate function present');
+  else fail('openChangeOneDate function missing');
+  if (portalSrc.includes('slot_skip_date') && portalSrc.includes('slot_move_date')) ok('openChangeOneDate calls slot_skip_date and slot_move_date actions');
+  else fail('openChangeOneDate missing action calls');
+
+  // Gateway: new v16 actions present
+  for (const [act, why] of [
+    ['action === "slot_skip_date"', 'slot_skip_date action block'],
+    ['action === "slot_unskip_date"', 'slot_unskip_date action block'],
+    ['action === "slot_move_date"', 'slot_move_date action block'],
+    ['action === "slot_release_token"', 'slot_release_token action block (public GET)'],
+    ['action === "slot_mint_token"', 'slot_mint_token action block (admin)'],
+  ]) {
+    if (gwSrc2.includes(act)) ok('gateway: ' + why);
+    else fail('gateway MISSING: ' + why);
+  }
+
+  // Gateway: skip_dates handled in admin_slot
+  if (gwSrc2.includes('flm_action_tokens')) ok('gateway references flm_action_tokens table');
+  else fail('gateway missing flm_action_tokens reference');
+
+  // Token release: idempotent paths
+  if (gwSrc2.includes('already done') || gwSrc2.includes('already released') || gwSrc2.includes('This slot was already released')) ok('slot_release_token has idempotent used-token path');
+  else fail('slot_release_token missing idempotent path for used tokens');
+  if (gwSrc2.includes('link expired') || gwSrc2.includes('expired')) ok('slot_release_token handles expired tokens');
+  else fail('slot_release_token missing expired token handling');
+
+  // Gateway: version is v16+
+  if (/gateway \(v1[6-9]\)|gateway \(v[2-9]\d\)/.test(gwSrc2)) ok('gateway version banner is v16 or newer (skip_dates deployed)');
+  else fail('gateway version banner is not v16+ — did you forget to bump it?');
+}
+
+section('v16: skip_dates live gateway auth walls (no writes)');
+try {
+  // slot_skip_date without coach creds -> 401
+  const r1 = await fetch(GATEWAY + '?action=slot_skip_date', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot_id: 'x', skip_date: '2026-09-16' })
+  });
+  const j1 = await r1.json();
+  if (r1.status === 401 && j1.ok === false) ok('slot_skip_date unauth -> 401');
+  else fail('slot_skip_date unauth wrong: ' + r1.status + ' ' + JSON.stringify(j1));
+
+  // slot_unskip_date without coach creds -> 401
+  const r2 = await fetch(GATEWAY + '?action=slot_unskip_date', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot_id: 'x', skip_date: '2026-09-16' })
+  });
+  const j2 = await r2.json();
+  if (r2.status === 401 && j2.ok === false) ok('slot_unskip_date unauth -> 401');
+  else fail('slot_unskip_date unauth wrong: ' + r2.status + ' ' + JSON.stringify(j2));
+
+  // slot_move_date without coach creds -> 401
+  const r3 = await fetch(GATEWAY + '?action=slot_move_date', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot_id: 'x', move_date: '2026-09-16', to_field_id: 'x' })
+  });
+  const j3 = await r3.json();
+  if (r3.status === 401 && j3.ok === false) ok('slot_move_date unauth -> 401');
+  else fail('slot_move_date unauth wrong: ' + r3.status + ' ' + JSON.stringify(j3));
+
+  // slot_mint_token without admin PIN -> 401
+  const r4 = await fetch(GATEWAY + '?action=slot_mint_token', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ slot_id: 'x' })
+  });
+  const j4 = await r4.json();
+  if (r4.status === 401 && j4.ok === false) ok('slot_mint_token without admin PIN -> 401');
+  else fail('slot_mint_token unauth wrong: ' + r4.status + ' ' + JSON.stringify(j4));
+
+  // slot_release_token with no token param -> friendly HTML or error (not a raw 500)
+  const r5 = await fetch(GATEWAY + '?action=slot_release_token');
+  const t5 = await r5.text();
+  if (r5.status === 400 || (r5.status === 200 && (t5.includes('expired') || t5.includes('not valid') || t5.includes('not found')))) ok('slot_release_token with no token returns friendly response (not a 500)');
+  else fail('slot_release_token no-token wrong: ' + r5.status + ' ' + t5.slice(0, 80));
+
+  // slot_release_token with a bogus token -> friendly HTML (not a raw 500)
+  const r6 = await fetch(GATEWAY + '?action=slot_release_token&token=bogustoken12345xyz');
+  const t6 = await r6.text();
+  if ((r6.status === 200 && (t6.includes('not valid') || t6.includes('expired') || t6.includes('not found') || t6.includes('already'))) || r6.status === 404) ok('slot_release_token bogus token returns friendly HTML response');
+  else fail('slot_release_token bogus token wrong: ' + r6.status + ' ' + t6.slice(0, 80));
+} catch (e) { fail('live v16 auth tests threw: ' + e.message); }
+
+section('v16: Guertin slot data (live — verify migration, do NOT release)');
+try {
+  const r = await fetch(GATEWAY + '?action=state');
+  const d = await r.json();
+  const slots = d.slots || [];
+
+  // AY#1 wed slot should have skip_dates=['2026-09-16'] (after migration)
+  const AY1_WED_ID = 'ddb3894e-7e3a-4b1e-8315-abc17f93febf';
+  const ay1Wed = slots.find((s) => s.id === AY1_WED_ID);
+  if (ay1Wed) ok('Guertin AY#1 Wednesday slot visible in state');
+  else fail('Guertin AY#1 Wednesday slot missing from state (id: ' + AY1_WED_ID + ')');
+  // skip_dates not exposed in public state yet (populated but not checked live here)
+  // — just verify slot exists; skip_dates checked post-migration via admin
+
+  // AY#4 wed slot should exist and render as single_date='2026-09-16'
+  const AY4_WED_ID = '579e01e8-5de9-43bc-8c15-af4c51630fb8';
+  const ay4Wed = slots.find((s) => s.id === AY4_WED_ID);
+  if (ay4Wed) ok('Guertin AY#4 Wednesday slot visible in state');
+  else fail('Guertin AY#4 Wednesday slot missing from state (id: ' + AY4_WED_ID + ')');
+
+  // AY#3 wed slot (debris): still exists until Guertin clicks the release link
+  const AY3_WED_ID = '9150d8c1-f42c-4aa2-8c7c-fac1666dfc19';
+  const ay3Wed = slots.find((s) => s.id === AY3_WED_ID);
+  // This may or may not exist depending on whether Guertin clicked; test is informational
+  if (ay3Wed) ok('Guertin AY#3 Wednesday debris slot still present (Guertin has not yet clicked release)');
+  else ok('Guertin AY#3 Wednesday slot already released (Guertin clicked the email link)');
+} catch (e) { fail('live Guertin slot checks threw: ' + e.message); }
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

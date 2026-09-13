@@ -99,6 +99,7 @@
   .chip.cancelled small { text-decoration: none; color: #b3432b; font-weight: 600; }
   .chip.pending { border-left-color: #b9b3a0; background: #f4f2eb; color: #8a8678; cursor: default; font-style: italic; letter-spacing: 0.03em; }
   .chip.pending small { color: #b9b3a0; }
+  .chip .except { display:inline-block; font-size:9.5px; font-weight:600; background:rgba(0,0,0,0.07); border-radius:4px; padding:1px 5px; margin-left:4px; vertical-align:middle; letter-spacing:0.02em; }
   .open { border: 1.5px dashed #cfcaba; border-radius: 8px; color: #b9b3a0; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; text-align: center; padding: 8px 4px; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; }
   .open:hover { border-color: var(--clay); color: var(--clay); }
   body.locked .open { cursor: default; }
@@ -698,7 +699,11 @@ function slotsFor(dayK, fieldId) {
   return (S.data.slots || []).filter(function (s) {
     if (s.season_id !== S.season || s.day_key !== dayK || s.field_id !== fieldId) return false;
     if (s.cancelled_at) return false;  // cancelled slots are invisible — cell renders as open
-    return s.single_date ? isCurrentWeek(s.single_date) : true;
+    if (s.single_date) return isCurrentWeek(s.single_date);
+    // v16: skip this week's occurrence if the date is in skip_dates
+    var thisWeekDate = dateForDayThisWeek(dayK);
+    if (thisWeekDate && Array.isArray(s.skip_dates) && s.skip_dates.indexOf(thisWeekDate) >= 0) return false;
+    return true;
   });
 }
 function todayStr() {
@@ -901,6 +906,14 @@ function chipHtml(slot) {
   var extraTxt = slot.note ? slot.note : (t && t.coach_name && t.name.indexOf(t.coach_name.split(" ").pop()) < 0 ? t.coach_name : "");
   // Admin-created single-date slots say "This week only" so coaches know the field reopens.
   if (slot.single_date) extraTxt = (extraTxt ? extraTxt + " · " : "") + "This week only";
+  // v16: recurring slots with skip_dates show "except <dates>" tag
+  var exceptTag = "";
+  if (!slot.single_date && Array.isArray(slot.skip_dates) && slot.skip_dates.length > 0) {
+    var skipLabels = slot.skip_dates.map(function (d) {
+      var p = d.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString([], { month: "short", day: "numeric" });
+    }).join(", ");
+    exceptTag = '<span class="except">except ' + esc(skipLabels) + '</span>';
+  }
   var extra = "";
   if (cancelled) {
     extra = "<small><b>Cancelled</b>" + (slot.cancel_reason ? ": " + esc(slot.cancel_reason) : "") + "</small>";
@@ -908,7 +921,7 @@ function chipHtml(slot) {
     extra = "<small>" + esc(extraTxt) + "</small>";
   }
   var classes = "chip" + (mine ? " mine" : "") + (cancelled ? " cancelled" : "");
-  return '<div class="' + classes + '" data-slot="' + slot.id + '" style="border-left-color:' + c + ";background:" + tint(c) + '">' + esc(t ? t.name : slot.label) + extra + "</div>";
+  return '<div class="' + classes + '" data-slot="' + slot.id + '" style="border-left-color:' + c + ";background:" + tint(c) + '">' + esc(t ? t.name : slot.label) + exceptTag + extra + "</div>";
 }
 
 function bindCells(root) {
@@ -1373,9 +1386,12 @@ function openSlotModal(slotId) {
     if (cancelled) {
       body += '<div class="mbtns"><button class="mb quiet" id="mCancel">Close</button><button class="mb go" id="mRestore">Restore practice</button></div>';
     } else {
+      // v16: "Change one date" only for recurring slots (single_date slots can only be released)
+      var changeDateBtn = slot.single_date ? "" : '<button class="mb" id="mChgDate" style="background:#f0f4ff;color:#3a5fb8;border:1.5px solid #c5d3f5;">Change one date</button>';
       body += '<div class="mbtns" style="flex-wrap:wrap;">' +
         '<button class="mb quiet" id="mCancel">Close</button>' +
         '<button class="mb go" id="mEditSlot">Edit</button>' +
+        changeDateBtn +
         '<button class="mb clay" id="mCancelSlot">Cancel practice</button>' +
         '<button class="mb danger" id="mRel">Release</button>' +
         '</div>';
@@ -1404,6 +1420,8 @@ function openSlotModal(slotId) {
   });
   var edit = v.querySelector("#mEditSlot");
   if (edit) edit.addEventListener("click", function () { v.remove(); openEditSlot(slot); });
+  var chgDate = v.querySelector("#mChgDate");
+  if (chgDate) chgDate.addEventListener("click", function () { v.remove(); openChangeOneDate(slot); });
   var cnc = v.querySelector("#mCancelSlot");
   if (cnc) cnc.addEventListener("click", function () { v.remove(); openCancelSlot(slot); });
   var rst = v.querySelector("#mRestore");
@@ -1454,6 +1472,115 @@ function openEditSlot(slot) {
       .then(function (j) {
         if (!j.ok) { err.textContent = j.error || "Could not save."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; return; }
         v.remove(); toast("Practice updated"); load();
+      })
+      .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; });
+  });
+}
+
+// v16: "Change one date" — skip or move a single occurrence of a recurring slot
+function openChangeOneDate(slot) {
+  var sn = seasonObj();
+  if (!sn) return;
+  // Build list of upcoming dates for this slot's weekday within the season
+  var dayIdx = DOW_INDEX[slot.day_key]; // 1=Mon … 7=Sun
+  if (!dayIdx) return;
+  var today = todayStr();
+  var seasonEnd = sn.end_date || "";
+  var existing = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+  // Generate every occurrence for this weekday from today through season end
+  var occurrences = [];
+  var cursor = new Date();
+  // Advance cursor to the next (or same) occurrence of dayIdx
+  // JS getDay(): 0=Sun,1=Mon…6=Sat; dayIdx: 1=Mon…7=Sun → map to JS: (dayIdx % 7)
+  var jsDow = dayIdx % 7;
+  while (cursor.getDay() !== jsDow) { cursor.setDate(cursor.getDate() + 1); }
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  for (var i = 0; i < 20; i++) {
+    var ds = cursor.getFullYear() + "-" + pad(cursor.getMonth() + 1) + "-" + pad(cursor.getDate());
+    if (seasonEnd && ds > seasonEnd) break;
+    occurrences.push(ds);
+    cursor.setDate(cursor.getDate() + 7);
+  }
+  if (!occurrences.length) { toast("No upcoming dates in this season."); return; }
+  var opts = occurrences.map(function (d) {
+    var label = fmtGameDate(d) + (existing.indexOf(d) >= 0 ? " (already skipped)" : "");
+    return '<option value="' + d + '"' + (existing.indexOf(d) >= 0 ? " disabled" : "") + '>' + label + '</option>';
+  }).join('');
+  var v = modal(
+    '<h3>Change one date</h3>' +
+    '<div class="ctx">Pick a date to adjust. You can skip it (field stays open that day) or move it to a different field for that date only.</div>' +
+    '<label class="mlabel">Which date?</label>' +
+    '<select id="cdDate" style="width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit;background:#fff;">' + opts + '</select>' +
+    '<label class="mlabel">What do you want to do?</label>' +
+    '<div style="display:flex;gap:10px;margin-bottom:4px;">' +
+    '<label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;"><input type="radio" name="cdAction" value="skip" checked /> Skip — field is open that day</label>' +
+    '<label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px;border:1.5px solid var(--line);border-radius:10px;cursor:pointer;"><input type="radio" name="cdAction" value="move" /> Move to a different field</label>' +
+    '</div>' +
+    '<div id="cdMoveSection" class="hidden">' +
+    '<label class="mlabel">Available fields that ' + esc(dayLabel(slot.day_key)) + '</label>' +
+    '<div id="cdFieldList" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;"></div>' +
+    '</div>' +
+    '<p class="merr hidden" id="cdErr"></p>' +
+    '<div class="mbtns"><button class="mb quiet" id="cdX">Cancel</button><button class="mb go" id="cdGo">Save</button></div>'
+  );
+  v.querySelector("#cdX").addEventListener("click", function () { v.remove(); });
+  var radios = v.querySelectorAll('input[name="cdAction"]');
+  var moveSection = v.querySelector("#cdMoveSection");
+  var fieldList = v.querySelector("#cdFieldList");
+  var selectedFieldId = null;
+  function buildFieldList() {
+    var chosenDate = v.querySelector("#cdDate").value;
+    var allFields = (S.data.fields || []).slice().sort(function (a, b) { return (a.name || "").localeCompare(b.name || ""); });
+    fieldList.innerHTML = "";
+    selectedFieldId = null;
+    allFields.forEach(function (fx) {
+      if (fx.id === slot.field_id) return; // skip current field
+      // Check if any slot is on this field that day that isn't skipped for this date
+      var occupied = (S.data.slots || []).some(function (s) {
+        if (s.cancelled_at || s.field_id !== fx.id || s.day_key !== slot.day_key || s.season_id !== slot.season_id) return false;
+        if (s.single_date) return s.single_date === chosenDate;
+        var skips = Array.isArray(s.skip_dates) ? s.skip_dates : [];
+        return skips.indexOf(chosenDate) < 0;
+      });
+      // Check for games on this field on that date
+      var hasGame = (S.data.games || []).some(function (g) {
+        return g.field_id === fx.id && g.game_date === chosenDate;
+      });
+      var note = occupied ? " (occupied)" : (hasGame ? " (game day)" : " (open)");
+      var dis = occupied ? " disabled" : "";
+      var el = document.createElement("label");
+      el.style.cssText = "display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--line);border-radius:9px;cursor:" + (occupied ? "not-allowed" : "pointer") + ";opacity:" + (occupied ? "0.5" : "1") + ";";
+      el.innerHTML = '<input type="radio" name="cdField" value="' + fx.id + '"' + dis + ' /> ' + esc(fx.name) + '<span style="font-size:11px;color:var(--muted);margin-left:auto;">' + esc(note) + '</span>';
+      el.querySelector("input").addEventListener("change", function () { selectedFieldId = fx.id; });
+      fieldList.appendChild(el);
+    });
+  }
+  v.querySelector("#cdDate").addEventListener("change", function () { if (moveSection && !moveSection.classList.contains("hidden")) buildFieldList(); });
+  radios.forEach(function (r) {
+    r.addEventListener("change", function () {
+      var isMove = v.querySelector('input[name="cdAction"]:checked').value === "move";
+      moveSection.classList.toggle("hidden", !isMove);
+      if (isMove) buildFieldList();
+    });
+  });
+  v.querySelector("#cdGo").addEventListener("click", function () {
+    var btn = v.querySelector("#cdGo"), err = v.querySelector("#cdErr");
+    var chosenDate = v.querySelector("#cdDate").value;
+    var action = v.querySelector('input[name="cdAction"]:checked').value;
+    err.classList.add("hidden");
+    if (action === "move" && !selectedFieldId) {
+      err.textContent = "Pick an open field to move to."; err.classList.remove("hidden"); return;
+    }
+    btn.disabled = true; btn.textContent = "Saving…";
+    var apiCall = action === "skip"
+      ? coachApi("slot_skip_date", { slot_id: slot.id, skip_date: chosenDate })
+      : coachApi("slot_move_date", { slot_id: slot.id, move_date: chosenDate, to_field_id: selectedFieldId });
+    apiCall
+      .then(function (j) {
+        if (!j.ok) { err.textContent = j.error || "Could not save."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; return; }
+        v.remove();
+        toast(action === "skip" ? "Date skipped — field is open that day." : "Moved to the new field for that date.");
+        load();
       })
       .catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Save"; });
   });

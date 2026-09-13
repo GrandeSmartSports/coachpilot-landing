@@ -12,5 +12,8 @@
   "type": "commonjs",
   "dependencies": {
     "surge": "^0.25.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
   }
 }
