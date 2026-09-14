@@ -58,7 +58,7 @@ for (const s of mustContain) {
 // ------- 2. Forbidden chars in parent-facing files -------
 section('parent-facing: no em/en dashes or curly quotes');
 const forbidden = { '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '‘': 'curly-apos-l', '“': 'curly-quote-l', '”': 'curly-quote-r' };
-const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs', 'cougars/cagevote.html', 'cougars/share.html'];
+const parentFiles = ['cougars/funds.html', 'cougars/updates.html', 'cougars/index.html', 'cougars/funds-core.mjs', 'cougars/cagevote.html', 'cougars/share.html', 'cougars/practice.html', 'cougars/welcome.html'];
 let charHits = 0;
 for (const rel of parentFiles) {
   const body = fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -119,6 +119,37 @@ if (!hubHtml.includes('doneCount + " of 4"') && hubHtml.includes('doneCount + " 
 else fail('to-do denominator still references 4 items');
 const volHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'volunteer.html'), 'utf8');
 if (!/Raise my hand|gcInterest|The Big Ask/i.test(volHtml)) ok('volunteer page: scorekeeper ask removed'); else fail('volunteer page still has scorekeeper ask');
+
+// ------- practice.html + welcome.html: Tuesday/Thursday split schedule -------
+section('practice + welcome: new two-day schedule, no stale Thursdays-only copy');
+const practiceHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'practice.html'), 'utf8');
+const practiceMust = [
+  'Hitting practice at Allen Yorke 1',
+  'Fielding practice at Tehaleh Heights Elementary',
+  'Pitchers and catchers, come at 5:30 both days for skill work',
+  'Hitting night',
+  'Fielding night',
+];
+for (const s of practiceMust) {
+  if (practiceHtml.includes(s)) ok('practice.html contains: ' + s.slice(0, 50));
+  else fail('practice.html MISSING: ' + s);
+}
+if (!practiceHtml.includes('Thursdays, 6:00 until dark (about 8:00 right now)') && !practiceHtml.includes('Everything night')) ok('practice.html: old Thursdays-only schedule removed');
+else fail('practice.html still has old Thursdays-only schedule');
+
+const welcomeHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'welcome.html'), 'utf8');
+const welcomeMust = [
+  'Hitting practice at Allen Yorke 1',
+  'Fielding practice at Tehaleh Heights Elementary',
+  'Pitchers and catchers, come at 5:30 both days for skill work',
+  'Tuesdays for hitting at Allen Yorke 1, Thursdays for fielding at Tehaleh Heights',
+];
+for (const s of welcomeMust) {
+  if (welcomeHtml.includes(s)) ok('welcome.html contains: ' + s.slice(0, 50));
+  else fail('welcome.html MISSING: ' + s);
+}
+if (!welcomeHtml.includes('Thursdays, 6:00 until dark (about 8:00 right now)') && !welcomeHtml.includes('See everyone at Thursday practices')) ok('welcome.html: old Thursdays-only schedule removed');
+else fail('welcome.html still has old Thursdays-only schedule');
 
 // ------- This Week panel: config-driven sidebar card -------
 section('this week: live panel content');
