@@ -1,4 +1,4 @@
-// Field Command gateway (v16). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v17). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -23,6 +23,12 @@
 // slot_move_date (creates a single_date claim on a different field + skips the
 // original). Token-based one-click release: flm_action_tokens table + actions
 // slot_mint_token (admin-gated) and slot_release_token (public GET, idempotent).
+// v17 (2026-09-13): date-checklist claim. The claim action now accepts an
+// optional skip_dates array (mutually exclusive with single_date) so a coach
+// can uncheck specific weeks on the claim confirm instead of always claiming
+// every occurrence. Every date in single_date/skip_dates is validated against
+// the slot's weekday and the season's start_date/end_date window. Absent both
+// fields, claim behaves exactly as before (full season, empty skip_dates).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -53,6 +59,13 @@ async function log(action: string, detail: string, actor = "") {
 }
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"];
+// JS Date#getDay() weekday (0=Sun..6=Sat) each day_key maps to — used to validate
+// claim dates (single_date / skip_dates) actually fall on the right weekday.
+const DOW_FOR_DAY_KEY: Record<string, number> = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
+function dateDow(ds: string): number {
+  const p = ds.split("-");
+  return new Date(+p[0] || 1970, (+p[1] || 1) - 1, +p[2] || 1).getDay();
+}
 const SEVERITIES = ["info", "warning", "urgent"];
 const GAME_STATUSES = ["draft", "scheduled", "postponed", "cancelled", "completed"];
 const UMP_ROLES = ["plate", "base"];
@@ -628,12 +641,44 @@ Deno.serve(async (req: Request) => {
         if (!/^\d{4}-\d{2}-\d{2}$/.test(sd)) return json({ ok: false, error: "invalid single_date" }, 400);
         singleDate = sd;
       }
+      // v17 (2026-09-13): date-checklist claim. A recurring claim can arrive with
+      // an optional skip_dates array — the coach unchecked those weeks on the
+      // claim confirm, so the new slot starts life already skipping them.
+      // Mutually exclusive with single_date (checking exactly one date is a
+      // single_date claim, handled by the portal before it ever calls this).
+      let claimSkipDates: string[] = [];
+      if (b.skip_dates !== undefined) {
+        if (singleDate) return json({ ok: false, error: "cannot combine single_date and skip_dates" }, 400);
+        const arr = Array.isArray(b.skip_dates) ? b.skip_dates : [];
+        const seen = new Set<string>();
+        for (const raw of arr) {
+          const d = String(raw).slice(0, 10);
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return json({ ok: false, error: "invalid date in skip_dates" }, 400);
+          seen.add(d);
+        }
+        claimSkipDates = [...seen].sort();
+      }
       const [{ data: season }, { data: rulesRow }] = await Promise.all([
-        db.from("flm_seasons").select("label,locked").eq("id", season_id).single(),
+        db.from("flm_seasons").select("label,locked,start_date,end_date").eq("id", season_id).single(),
         db.from("flm_settings").select("value").eq("key", "practice_rules").maybeSingle(),
       ]);
       if (!season) return json({ ok: false, error: "unknown season" }, 400);
       if (season.locked) return json({ ok: false, error: "This schedule window is locked by the league." }, 403);
+      // Validate every date-scoped claim date against the slot's weekday and the
+      // season window (past dates, or dates outside start_date/end_date, are rejected).
+      const datesToValidate = singleDate ? [singleDate] : claimSkipDates;
+      if (datesToValidate.length) {
+        const expectedDow = DOW_FOR_DAY_KEY[day_key];
+        const today = pacificToday();
+        for (const d of datesToValidate) {
+          if (expectedDow !== undefined && dateDow(d) !== expectedDow) {
+            return json({ ok: false, error: `${d} does not fall on ${day_key}` }, 400);
+          }
+          if (d < today) return json({ ok: false, error: `${d} is in the past` }, 400);
+          if (season.start_date && d < season.start_date) return json({ ok: false, error: `${d} is before this season window starts` }, 400);
+          if (season.end_date && d > season.end_date) return json({ ok: false, error: `${d} is after this season window ends` }, 400);
+        }
+      }
       /* Fall (and any season with max_weekend=0): Saturday practice slots are not
          allowed — all Saturdays are game days. Reject at the gateway so a crafted
          request can never bypass the UI filter. */
@@ -686,10 +731,11 @@ Deno.serve(async (req: Request) => {
       }
       const { data: slot, error } = await db.from("flm_slots").insert({
         season_id, day_key, field_id, team_id,
-        label: team.name, note, claimed_by: "coach", single_date: singleDate,
+        label: team.name, note, claimed_by: "coach", single_date: singleDate, skip_dates: claimSkipDates,
       }).select().single();
       if (error) return json({ ok: false, error: error.message }, 500);
-      await log("claim", `${team.name} claimed ${day_key}${singleDate ? " (" + singleDate + " only)" : ""} (season ${season.label})${note ? " — " + note : ""}`, team.name);
+      const skipNote = claimSkipDates.length ? ` (skipping ${claimSkipDates.length} date${claimSkipDates.length === 1 ? "" : "s"})` : "";
+      await log("claim", `${team.name} claimed ${day_key}${singleDate ? " (" + singleDate + " only)" : ""}${skipNote} (season ${season.label})${note ? " — " + note : ""}`, team.name);
       return json({ ok: true, slot });
     }
 

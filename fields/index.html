@@ -199,6 +199,12 @@
   .claim-confirm { font-size: 15px; font-weight: 500; color: var(--ink); margin: 0 0 12px; }
   .merr { color: #b3261e; font-size: 13.5px; margin-top: 10px; }
   .shared-note { background: #fdf1dc; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: #6b4a12; margin-top: 12px; }
+  .dateChecklist { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+  .dateItem { display: flex; align-items: flex-start; gap: 10px; padding: 9px 10px; border-radius: 8px; }
+  .dateItem input { width: auto; margin-top: 2px; }
+  .dateItem .dLabel { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .dateItem .dWarn { display: block; font-size: 12px; font-weight: 500; color: var(--clay-dark); margin-top: 1px; }
+  .dateItem.gameWarn { background: #fdf6ec; }
 
   .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; padding: 11px 22px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); z-index: 60; }
 
@@ -1372,20 +1378,72 @@ function openClaimModal(dayK, fieldId) {
   var t = teamById(S.myTeam), f = fieldById(fieldId);
   var existing = slotsFor(dayK, fieldId);
   var shareNote = existing.length ? '<div class="shared-note">This slot already has <b>' + esc(existing.map(function (s) { var tt = teamById(s.team_id); return tt ? tt.name : s.label; }).join(", ")) + "</b>. Claiming it means sharing the field — the league encourages joint practices and scrimmages within your division.</div>" : "";
-  // Open slot: always claims the RECURRING weekly slot for the full season window.
-  // No date-scoped option for coaches. The gateway still accepts single_date for
-  // admin use — this UI never sends it (always null).
+  // v17 (2026-09-13): date-checklist claim. Every remaining occurrence of this
+  // weekday within the season window is listed, checked by default (checking
+  // everything = the original full-season recurring claim, unchanged). A coach
+  // can uncheck specific weeks (skip_dates) or narrow to exactly one (single_date,
+  // same output as Change one date's move). Dates where THIS field already has a
+  // game default UNCHECKED with an inline warning so game-night collisions don't
+  // happen by accident. Past dates are never generated. If the season window
+  // leaves no remaining occurrence, fall back to the plain full-season claim.
+  var occurrences = [];
+  var dayIdx = DOW_INDEX[dayK];
+  if (dayIdx) {
+    var seasonEnd = sn ? (sn.end_date || "") : "";
+    var cursor = new Date();
+    var jsDow = dayIdx % 7;
+    while (cursor.getDay() !== jsDow) { cursor.setDate(cursor.getDate() + 1); }
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    for (var oi = 0; oi < 20; oi++) {
+      var ods = cursor.getFullYear() + "-" + pad(cursor.getMonth() + 1) + "-" + pad(cursor.getDate());
+      if (seasonEnd && ods > seasonEnd) break;
+      occurrences.push(ods);
+      cursor.setDate(cursor.getDate() + 7);
+    }
+  }
+  function gamesOnDate(ds) {
+    return (S.data.games || []).filter(function (g) {
+      return g.field_id === fieldId && g.game_date === ds && g.status !== "cancelled" && g.status !== "draft";
+    });
+  }
+  var checklistHtml = "";
+  if (occurrences.length) {
+    var dateItemsHtml = occurrences.map(function (ds) {
+      var games = gamesOnDate(ds);
+      var hasGame = games.length > 0;
+      var warn = hasGame ? '<span class="dWarn">' + esc((games[0].division || "Game") + " " + FLM_RULES.fmtTime(games[0].start_time) + (games.length > 1 ? " +" + (games.length - 1) + " more" : "")) + "</span>" : "";
+      return '<label class="dateItem' + (hasGame ? " gameWarn" : "") + '"><input type="checkbox" class="mDate" value="' + ds + '"' + (hasGame ? "" : " checked") + ' /><span><span class="dLabel">' + esc(fmtGameDate(ds)) + "</span>" + warn + "</span></label>";
+    }).join("");
+    checklistHtml = '<label class="mlabel">You are claiming these ' + esc(dayLabel(dayK)) + 's</label><div class="dateChecklist">' + dateItemsHtml + "</div>";
+  }
   var confirmLine = existing.length ? "" :
     '<p class="claim-confirm">Claim ' + esc(dayLabel(dayK)) + 's at <b>' + esc(f ? f.name : "this field") + '</b> for your team for the rest of the season?</p>';
   var v = modal("<h3>Claim this slot</h3><div class=\"ctx\"><b>" + esc(t.name) + "</b> &rarr; " + esc(dayLabel(dayK)) + " at <b>" + esc(f ? f.name : "") + "</b></div>" +
-    shareNote + confirmLine +
+    shareNote + confirmLine + checklistHtml +
     '<label for="mNote">Note (optional)</label><input id="mNote" maxlength="60" placeholder="e.g. @ 5:30, starting 8/26" />' +
     '<div class="mbtns"><button class="mb quiet" id="mCancel">Cancel</button><button class="mb ' + (existing.length ? "warn" : "go") + '" id="mGo">' + (existing.length ? "Share the field" : "Claim it") + "</button></div><div class=\"merr hidden\" id=\"mErr\"></div>");
   v.querySelector("#mCancel").addEventListener("click", function () { v.remove(); });
+  v.querySelectorAll(".mDate").forEach(function (cb) { cb.addEventListener("change", function () { v.querySelector("#mErr").classList.add("hidden"); }); });
   v.querySelector("#mGo").addEventListener("click", function () {
-    var btn = v.querySelector("#mGo"); btn.disabled = true; btn.textContent = "Saving…";
+    var btn = v.querySelector("#mGo"), err = v.querySelector("#mErr");
+    err.classList.add("hidden");
+    var payload = { coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 };
+    if (occurrences.length) {
+      var checkedDates = Array.prototype.filter.call(v.querySelectorAll(".mDate"), function (cb) { return cb.checked; }).map(function (cb) { return cb.value; });
+      if (checkedDates.length === 0) { err.textContent = "Pick at least one date to claim."; err.classList.remove("hidden"); return; }
+      if (checkedDates.length === occurrences.length) {
+        // Every date checked — the original full-season recurring claim, unchanged.
+      } else if (checkedDates.length === 1) {
+        payload.single_date = checkedDates[0];
+      } else {
+        var checkedSet = {};
+        checkedDates.forEach(function (d) { checkedSet[d] = 1; });
+        payload.skip_dates = occurrences.filter(function (d) { return !checkedSet[d]; });
+      }
+    }
+    btn.disabled = true; btn.textContent = "Saving…";
     fetch(API + "?action=claim", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ coach_id: CRED_C.id, coach_pin: CRED_C.pin, season_id: S.season, day_key: dayK, field_id: fieldId, team_id: S.myTeam, note: v.querySelector("#mNote").value.trim(), allow_share: existing.length > 0 }) })
+      body: JSON.stringify(payload) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || "failed");
@@ -1394,7 +1452,7 @@ function openClaimModal(dayK, fieldId) {
       })
       .catch(function (e) {
         btn.disabled = false; btn.textContent = existing.length ? "Share the field" : "Claim it";
-        var err = v.querySelector("#mErr"); err.textContent = String(e.message || e).replace("Error: ", ""); err.classList.remove("hidden");
+        err.textContent = String(e.message || e).replace("Error: ", ""); err.classList.remove("hidden");
       });
   });
 }

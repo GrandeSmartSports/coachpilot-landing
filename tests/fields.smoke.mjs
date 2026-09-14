@@ -1592,6 +1592,9 @@ section('gateway: second-half practice window (Sept 8 - Oct 31)');
 }
 
 // ------- Simplified claim flow (9/12): recurring only, no date-scoped option for coaches -------
+// Superseded by the v17 date-checklist claim (see below) — the checklist offers
+// per-date control again, but through checkboxes, not the old radio-group UI.
+// These assertions still hold: the old "once"/mFreq radio group stays gone.
 section('fields/index.html: simplified claim flow — full-season only');
 // Portal always claims the recurring weekly slot. No radio buttons, no date-scoped path.
 for (const [s, why] of [
@@ -1927,6 +1930,89 @@ try {
 
   // gameNoticeBox hook present in the portal HTML
 } catch (e) { fail('live Guertin slot checks threw: ' + e.message); }
+
+// ------- v17: date-checklist claim (2026-09-13) -------
+section('fields/index.html: v17 date-checklist claim UI');
+{
+  const src = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
+  for (const [s, why] of [
+    ['class="dateChecklist"', 'checklist container CSS class present'],
+    ['class="mDate' , 'per-date checkbox class present'],
+    ['You are claiming these ', 'checklist header copy present'],
+    ['gameWarn', 'game-conflict CSS class present'],
+    ['(hasGame ? "" : " checked")', 'checkbox defaults checked unless this field has a game that date'],
+    ['Pick at least one date to claim.', 'zero-checked guard message present'],
+  ]) {
+    if (src.includes(s)) ok(why);
+    else fail('MISSING (' + why + '): ' + s);
+  }
+  // Payload logic: all checked -> nothing extra sent (full season, unchanged default).
+  if (src.includes('checkedDates.length === occurrences.length')) ok('all-dates-checked short-circuits to the original full-season claim (no dates payload)');
+  else fail('all-dates-checked branch missing');
+  // Exactly one checked -> single_date (same output as Change one date's move).
+  if (src.includes('payload.single_date = checkedDates[0]')) ok('exactly-one-checked sends single_date');
+  else fail('single_date-on-exactly-one branch missing');
+  // Some unchecked (2+ checked, not all) -> skip_dates carries the UNCHECKED dates.
+  if (src.includes('payload.skip_dates = occurrences.filter')) ok('partial selection sends skip_dates (the unchecked dates)');
+  else fail('skip_dates branch missing');
+  // Past dates never generated: occurrences start from "new Date()" (today), not season start_date.
+  const fnStart = src.indexOf('function openClaimModal(dayK, fieldId)');
+  const fnBody = src.slice(fnStart, src.indexOf('\nfunction openSlotModal', fnStart));
+  if (fnBody.includes('var cursor = new Date();')) ok('occurrence generation starts from today, never the past');
+  else fail('openClaimModal does not anchor date generation on today');
+  if (fnBody.includes('g.status !== "cancelled" && g.status !== "draft"')) ok('game-conflict check excludes cancelled/draft games');
+  else fail('game-conflict check missing cancelled/draft exclusion');
+}
+
+section('flm-gateway/index.ts: v17 claim skip_dates + weekday/window validation');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  if (/gateway \(v1[7-9]\)|gateway \(v[2-9]\d\)/.test(gwSrc)) ok('gateway version banner is v17 or newer (date-checklist claim deployed)');
+  else fail('gateway version banner is not v17+ — did you forget to bump it?');
+  for (const [s, why] of [
+    ['b.skip_dates !== undefined', 'claim action reads skip_dates from the request body'],
+    ['cannot combine single_date and skip_dates', 'single_date + skip_dates are mutually exclusive'],
+    ['DOW_FOR_DAY_KEY', 'weekday lookup table present'],
+    ['dateDow(d) !== expectedDow', 'each claim date is checked against the slot weekday'],
+    ['does not fall on', 'wrong-weekday date is rejected with a clear error'],
+    ['is in the past', 'past date is rejected'],
+    ['before this season window starts', 'date before season start_date is rejected'],
+    ['after this season window ends', 'date after season end_date is rejected'],
+    ['skip_dates: claimSkipDates', 'new recurring claim insert carries skip_dates'],
+    ['flm_seasons").select("label,locked,start_date,end_date")', 'claim action reads season start_date/end_date for window validation'],
+  ]) {
+    if (gwSrc.includes(s)) ok(why);
+    else fail('MISSING (' + why + '): ' + s);
+  }
+  // Absent both single_date and skip_dates, claim keeps the old default (backward-compatible).
+  const claimBlock = gwSrc.slice(gwSrc.indexOf('if (action === "claim"'), gwSrc.indexOf('if (action === "release"'));
+  if (claimBlock.includes('let claimSkipDates: string[] = []')) ok('claimSkipDates defaults to empty array when the field is absent (old clients unaffected)');
+  else fail('claimSkipDates default missing — old clients could break');
+}
+
+section('v17: weekday validation math sanity check (independent of gateway source)');
+{
+  const DOW_FOR_DAY_KEY = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
+  const checks = [['2026-09-14', 'mon'], ['2026-09-16', 'wed'], ['2026-09-19', 'sat_9_11'], ['2026-09-23', 'wed']];
+  let allMatch = true;
+  for (const [ds, dayK] of checks) {
+    const p = ds.split('-');
+    const dow = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+    if (dow !== DOW_FOR_DAY_KEY[dayK]) { allMatch = false; fail(ds + ' expected weekday for ' + dayK + ' (' + DOW_FOR_DAY_KEY[dayK] + ') but real calendar says ' + dow); }
+  }
+  if (allMatch) ok('DOW_FOR_DAY_KEY mapping matches real calendar weekdays for sample 2026 dates');
+}
+
+section('flm-gateway: claim action accepts skip_dates (no writes)');
+try {
+  const r = await fetch(GATEWAY + '?action=claim', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coach_id: 'bad', coach_pin: '0000', season_id: 'x', day_key: 'wed', field_id: 'x', team_id: 'x', skip_dates: ['2026-09-16', '2026-09-30'] })
+  });
+  const j = await r.json();
+  if (r.status === 401 && j.ok === false) ok('claim with skip_dates + bad creds -> 401 (param accepted, auth still enforced first)');
+  else fail('claim skip_dates sanity check wrong: ' + r.status + ' ' + JSON.stringify(j));
+} catch (e) { fail('live claim skip_dates test threw: ' + e.message); }
 
 // ------- Report -------
 console.log('\n---');
