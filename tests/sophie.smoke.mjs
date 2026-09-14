@@ -30,6 +30,18 @@
 //      Otherwise they are left in place, tagged, with cleanup instructions
 //      printed at the end.
 //
+// EMAIL SAFETY: this suite creates real pending requests, which trigger a
+// real "new lesson request" alert email. Before any test runs, setup reads
+// the CURRENT sls_settings.sophie_alert_email, forces it to Resend's
+// blackhole address (delivered@resend.dev), and confirms the forced value
+// read back correctly (aborting the whole run if it can't confirm this).
+// A try/finally restores the exact pre-test value afterward, even if a test
+// throws, so a run can never leave a real inbox re-armed. The gateway ALSO
+// carries its own independent guard (resendSend in sls-gateway/index.ts):
+// any email whose recipient or content references a ZZTEST-marked entity is
+// forced to the blackhole regardless of settings — defense in depth, not
+// reliant on this file remembering to do the right thing.
+//
 // What is NOT covered here (needs manual/browser QA, see final report):
 //   - Actually receiving a magic-link email and completing the "book again"
 //     flow in a browser (request_login/login_verify success path can't be
@@ -84,6 +96,7 @@ function api(action, opts = {}) {
   });
 }
 
+async function main() {
 // ==================================================================
 section('files: pages + PWA assets exist');
 const REQUIRED_FILES = [
@@ -797,6 +810,50 @@ if (SERVICE_KEY) {
   console.log(`         sls_clients where parent_email like 'zztest-sls-%'`);
   console.log(`         sls_locations where name = 'ZZTEST Location'`);
   console.log(`         (cascades to sls_requests/sls_sessions/sls_recurring via client_id/location_id)`);
+}
+}
+
+// ==================================================================
+// Safety wrapper: this test suite creates real pending requests, which
+// trigger a real "new lesson request" alert email via sls_settings.
+// sophie_alert_email. Force that setting to Resend's blackhole address for
+// the duration of the run and restore whatever it was set to beforehand —
+// even if a test throws — so a run can NEVER re-arm a real inbox and NEVER
+// leaves the setting stuck on the blackhole after a normal run either.
+section('safety: alert email forced to a blackhole for this run');
+let originalAlertEmail = null;
+{
+  const before = await api('admin_state', { pin: ADMIN_PIN });
+  originalAlertEmail = before.sophie_alert_email;
+  const forced = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: 'delivered@resend.dev' } });
+  const confirm = await api('admin_state', { pin: ADMIN_PIN });
+  if (forced.ok && confirm.sophie_alert_email === 'delivered@resend.dev') {
+    ok('sophie_alert_email confirmed forced to delivered@resend.dev before any email-triggering test runs');
+  } else {
+    console.error('ABORTING: could not confirm sophie_alert_email is blackholed. Refusing to run email-triggering tests.');
+    process.exit(1);
+  }
+}
+
+try {
+  await main();
+} finally {
+  try {
+    if (originalAlertEmail) {
+      const restored = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: originalAlertEmail } });
+      const confirmRestored = await api('admin_state', { pin: ADMIN_PIN });
+      if (restored.ok && confirmRestored.sophie_alert_email === originalAlertEmail) {
+        ok(`teardown: restored sophie_alert_email to its pre-test value (${originalAlertEmail})`);
+      } else {
+        fail(`teardown: could NOT confirm sophie_alert_email was restored to ${originalAlertEmail} — check sls_settings manually`);
+      }
+    } else {
+      fail('teardown: no pre-test sophie_alert_email value was captured, nothing to restore — check sls_settings manually');
+    }
+  } catch (e) {
+    console.error('teardown: restore attempt itself threw — check sls_settings.sophie_alert_email manually:', e.message);
+    failed++;
+  }
 }
 
 // ==================================================================

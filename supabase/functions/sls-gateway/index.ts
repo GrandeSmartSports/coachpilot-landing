@@ -106,15 +106,40 @@ function overlaps(aStart: number, aDur: number, bStart: number, bDur: number): b
 }
 
 // -------------- Resend email --------------
+// Last-line-of-defense test guard: any email whose recipient OR content
+// references a ZZTEST-marked entity is forced to Resend's blackhole address
+// regardless of what sls_settings/client records say. Test data always
+// carries the literal string "ZZTEST" in athlete/parent names, which flow
+// into every subject line and body — so this catches the real leak pattern
+// (a ZZTEST request triggering an alert to Sophie/Coach's REAL configured
+// address), not just sends to already-fake test addresses.
+const RESEND_BLACKHOLE = "delivered@resend.dev";
+function domainsOf(addrs: string[]): string {
+  return addrs.map((a) => (a.split("@")[1] || "unknown")).join(",");
+}
 async function resendSend(payload: Record<string, unknown>): Promise<{ ok: boolean; id?: string; error?: string }> {
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
   if (!RESEND_API_KEY) return { ok: false, error: "email is not configured" };
+
+  let toList = Array.isArray(payload.to) ? (payload.to as string[]) : [];
+  const subject = String(payload.subject || "");
+  const html = String(payload.html || "");
+  const isZztest = toList.some((t) => /zztest/i.test(t)) || /ZZTEST/.test(subject) || /ZZTEST/.test(html);
+  if (isZztest && !toList.every((t) => t === RESEND_BLACKHOLE)) {
+    toList = [RESEND_BLACKHOLE];
+    payload = { ...payload, to: toList };
+  }
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  if (!res.ok) return { ok: false, error: await res.text().catch(() => "resend error") };
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "resend error");
+    console.error(`sls email send failed: subject="${subject.slice(0, 60)}" to_domain=${domainsOf(toList)} status=${res.status}`);
+    return { ok: false, error: errText };
+  }
   const j = await res.json().catch(() => ({}));
   return { ok: true, id: j.id };
 }
