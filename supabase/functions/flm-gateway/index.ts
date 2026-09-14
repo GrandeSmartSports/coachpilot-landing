@@ -807,9 +807,12 @@ Deno.serve(async (req: Request) => {
       if (!coach) return json({ ok: false, error: "sign in on the Coaches Hub to manage your practices" }, 401);
       const slot_id = String(b.slot_id ?? "").trim();
       const move_date = String(b.move_date ?? "").slice(0, 10);
-      const new_field_id = String(b.new_field_id ?? "").trim();
+      // The portal sends to_field_id; accept new_field_id too for back-compat with
+      // any other caller. This was the bug: the field only ever read new_field_id,
+      // so every portal-initiated move 400'd on "new_field_id required".
+      const new_field_id = String(b.new_field_id ?? b.to_field_id ?? "").trim();
       if (!slot_id || !/^\d{4}-\d{2}-\d{2}$/.test(move_date) || !new_field_id) {
-        return json({ ok: false, error: "slot_id, YYYY-MM-DD move_date, and new_field_id required" }, 400);
+        return json({ ok: false, error: "slot_id, YYYY-MM-DD move_date, and new_field_id (or to_field_id) required" }, 400);
       }
       const { data: slot } = await db.from("flm_slots").select("id,team_id,label,day_key,skip_dates,season_id,field_id,single_date").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "slot not found" }, 404);

@@ -1737,24 +1737,27 @@ section('fields/index.html: hold feature portal hooks');
   // pending chip must not be clickable: .pending class must exclude from .chip[data-slot] query
 }
 
-section('gateway: hold feature live checks (real slot, no claiming)');
+section('gateway: hold feature live checks (data-independent invariants)');
 try {
-  // 1. Public state: the held slot must appear with held:true and NO held_for_coach_id
+  // Data-independent by design: a hardcoded held-slot id rots the moment the league
+  // resolves that hold (claimed or released). Instead, check the invariant against
+  // WHATEVER is currently held, however many (including zero — vacuously true).
   const rs = await fetch(GATEWAY + '?action=state');
   const ds = await rs.json();
-  // Target slot: 9c326d93-9453-4cbc-bff1-b875634285b7 (set up before tests ran)
-  const HOLD_SLOT_ID = '9c326d93-9453-4cbc-bff1-b875634285b7';
-  const hSlot = (ds.slots || []).find((s) => s.id === HOLD_SLOT_ID);
-  if (hSlot) ok('held slot is visible in public state');
-  else fail('held slot missing from public state: ' + HOLD_SLOT_ID);
-  if (hSlot && hSlot.held === true) ok('held slot carries held:true in public state');
-  else fail('held slot is missing held:true flag (got: ' + JSON.stringify(hSlot && hSlot.held) + ')');
-  if (hSlot && !('held_for_coach_id' in hSlot)) ok('held_for_coach_id NOT in public state payload (coach identity protected)');
-  else fail('held_for_coach_id LEAKED in public state!');
-  if (hSlot && hSlot.team_id === null) ok('held slot has no team_id (unclaimed)');
-  else fail('held slot unexpectedly has a team_id');
+  const heldSlots = (ds.slots || []).filter((s) => s.held === true);
+  if (heldSlots.length === 0) {
+    ok('no slots currently held for league assignment — hold-feature invariants hold vacuously (nothing to leak)');
+  } else {
+    const leaks = heldSlots.filter((s) => 'held_for_coach_id' in s);
+    if (leaks.length === 0) ok('held_for_coach_id NOT in public state payload for any of ' + heldSlots.length + ' currently-held slot(s) (coach identity protected)');
+    else fail('held_for_coach_id LEAKED in public state for ' + leaks.length + ' of ' + heldSlots.length + ' held slot(s)!');
+    const withTeam = heldSlots.filter((s) => s.team_id !== null);
+    if (withTeam.length === 0) ok('every currently-held slot has no team_id (unclaimed) — ' + heldSlots.length + ' checked');
+    else fail(withTeam.length + ' of ' + heldSlots.length + ' held slot(s) unexpectedly have a team_id');
+  }
 
-  // 2. Non-target claim attempt must return 403 with friendly message
+  // Bad-creds claim attempt against a real (but arbitrary) season/field/team must
+  // still hit the auth wall first, regardless of whether anything is held.
   const rc = await fetch(GATEWAY + '?action=claim', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1904,10 +1907,15 @@ try {
   if (ay4_916) ok('Guertin AY#4 single_date=9/16 slot visible in state');
   else fail('Guertin AY#4 single_date=9/16 slot missing from state (id: 579e01e8)');
 
-  // AY#4 single_date=2026-09-23 slot (9/13 addition)
-  const ay4_923 = slots.find((s) => s.team_id === GUERTIN_TEAM && s.field_id === AY4_FIELD && s.day_key === 'wed' && s.single_date === '2026-09-23');
-  if (ay4_923) ok('Guertin AY#4 single_date=9/23 slot visible in state (9/13 addition)');
-  else fail('Guertin AY#4 single_date=9/23 slot missing from state');
+  // single_date=2026-09-23 slot (9/13 addition) — field-agnostic: this occurrence has
+  // already moved fields once (AY#4 -> AY#3) via Change one date, so match on
+  // team+day+date only and report wherever it actually lives today, rather than
+  // hardcoding a field id that live coach edits can move out from under the test.
+  const guertin923 = slots.find((s) => s.team_id === GUERTIN_TEAM && s.day_key === 'wed' && s.single_date === '2026-09-23');
+  if (guertin923) {
+    const f923 = (d.fields || []).find((fx) => fx.id === guertin923.field_id);
+    ok('Guertin single_date=9/23 slot visible in state (currently on ' + (f923 ? f923.name : guertin923.field_id) + ')');
+  } else fail('Guertin single_date=9/23 slot missing from state entirely (checked all fields)');
 
   // Midweek games in flm_games: should have 10 Wednesday games
   const wedGames = games.filter((g) => {
@@ -1988,6 +1996,18 @@ section('flm-gateway/index.ts: v17 claim skip_dates + weekday/window validation'
   const claimBlock = gwSrc.slice(gwSrc.indexOf('if (action === "claim"'), gwSrc.indexOf('if (action === "release"'));
   if (claimBlock.includes('let claimSkipDates: string[] = []')) ok('claimSkipDates defaults to empty array when the field is absent (old clients unaffected)');
   else fail('claimSkipDates default missing — old clients could break');
+}
+
+section('flm-gateway/index.ts: slot_move_date accepts to_field_id (portal param-name bug fix)');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  const portalSrc = fs.readFileSync(path.join(ROOT, 'fields', 'index.html'), 'utf8');
+  // The portal has always sent to_field_id (openChangeOneDate's "move" action) —
+  // the gateway only ever read new_field_id, so every portal-initiated move 400'd.
+  if (portalSrc.includes('to_field_id: selectedFieldId')) ok('portal still sends to_field_id (unchanged call site)');
+  else fail('portal move call site changed unexpectedly — re-check to_field_id usage');
+  if (gwSrc.includes('b.new_field_id ?? b.to_field_id')) ok('gateway slot_move_date now reads to_field_id as a fallback (fixes the 400)');
+  else fail('gateway slot_move_date does not accept to_field_id — portal moves still broken');
 }
 
 section('v17: weekday validation math sanity check (independent of gateway source)');
