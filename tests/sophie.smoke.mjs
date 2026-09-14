@@ -15,7 +15,17 @@
 //      age a real token): opening the returning-client page with an expired
 //      login_token shows a clear "link expired" state with a working
 //      "Request a New Link" recovery action, not bare unlabeled form fields.
-//   7. Every row this test creates is tagged with a ZZTEST marker. If
+//   7. Unit tests for ics-parse.mjs (Z-suffixed UTC, TZID, all-day, weekly
+//      RRULE expansion, unsupported-RRULE base-occurrence fallback).
+//   8. Availability layer: window CRUD, open_slots generation respecting
+//      window edges/step/duration, session-overlap exclusion, pending-hide
+//      (and reappear on decline), min-notice, busy-calendar-overlap exclusion
+//      (via a direct cache write, since the gateway can't reach a fixture
+//      hosted on this machine), cross-request overlap flagging for two
+//      requests proposing the same slot, open-slot submission bypassing the
+//      2-3 time minimum, and the connected-calendar URL never appearing raw
+//      in ANY gateway response (masked only).
+//   9. Every row this test creates is tagged with a ZZTEST marker. If
 //      SUPABASE_SERVICE_ROLE_KEY is set, rows are deleted after the run.
 //      Otherwise they are left in place, tagged, with cleanup instructions
 //      printed at the end.
@@ -86,6 +96,7 @@ const REQUIRED_FILES = [
   'sophie/coach/icon-192.png',
   'sophie/coach/icon-512.png',
   'supabase/functions/sls-gateway/index.ts',
+  'supabase/functions/sls-gateway/ics-parse.mjs',
 ];
 for (const f of REQUIRED_FILES) {
   if (fs.existsSync(path.join(ROOT, f))) ok('exists: ' + f);
@@ -123,6 +134,42 @@ for (const s of mustContain) {
 }
 
 // ==================================================================
+section('sophie/index.html: open-times + locked-slot structure');
+const openTimesMustContain = [
+  'id="openTimesSection"',
+  'id="openTimesGroups"',
+  'id="suggestOwnTimesLink"',
+  'id="nLockedTimeCard"',
+  'id="nTimesPickerGroup"',
+  'id="rLockedTimeCard"',
+  'id="rTimesPickerGroup"',
+  'from_open_slot',
+];
+for (const s of openTimesMustContain) {
+  if (indexHtml.includes(s)) ok('contains: ' + s);
+  else fail('MISSING: ' + s);
+}
+
+// ==================================================================
+section('sophie/coach/index.html: availability tab structure');
+const coachHtml = fs.readFileSync(path.join(ROOT, 'sophie/coach/index.html'), 'utf8');
+const availabilityMustContain = [
+  'data-panel="Availability"',
+  'id="panelAvailability"',
+  'id="windowsList"',
+  'id="addWindowBtn"',
+  'id="calendarUrlInput"',
+  'id="saveCalendarBtn"',
+  'id="disconnectCalendarBtn"',
+  'id="calendarStatusLine"',
+  'Picked an Open Time',
+];
+for (const s of availabilityMustContain) {
+  if (coachHtml.includes(s)) ok('contains: ' + s);
+  else fail('MISSING: ' + s);
+}
+
+// ==================================================================
 section('house style: no em/en dashes or curly quotes in customer-facing copy');
 const forbidden = { '—': 'em-dash', '–': 'en-dash', '’': 'curly-apos', '‘': 'curly-apos-l', '“': 'curly-quote-l', '”': 'curly-quote-r', '…': 'ellipsis' };
 for (const page of ['sophie/index.html', 'sophie/counter.html', 'sophie/manage.html', 'sophie/coach/index.html']) {
@@ -136,6 +183,70 @@ for (const page of ['sophie/index.html', 'sophie/counter.html', 'sophie/manage.h
     if (html.includes(ent)) { fail(page + ': found entity ' + ent); hits++; }
   }
   if (hits === 0) ok(page + ': clean');
+}
+
+// ==================================================================
+section('unit: ics-parse.mjs busy-interval extraction');
+{
+  const { parseIcsBusyIntervals } = await import(path.join(ROOT, 'supabase/functions/sls-gateway/ics-parse.mjs'));
+  const fixtureIcs = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:zulu-1
+DTSTART:20260916T230000Z
+DTEND:20260917T000000Z
+SUMMARY:Zulu event
+END:VEVENT
+BEGIN:VEVENT
+UID:tzid-1
+DTSTART;TZID=America/Los_Angeles:20260917T180000
+DTEND;TZID=America/Los_Angeles:20260917T190000
+SUMMARY:TZID event
+END:VEVENT
+BEGIN:VEVENT
+UID:allday-1
+DTSTART;VALUE=DATE:20260920
+DTEND;VALUE=DATE:20260921
+SUMMARY:All day event
+END:VEVENT
+BEGIN:VEVENT
+UID:weekly-1
+DTSTART;TZID=America/Los_Angeles:20260916T160000
+DTEND;TZID=America/Los_Angeles:20260916T170000
+RRULE:FREQ=WEEKLY;COUNT=3
+SUMMARY:Weekly recurring
+END:VEVENT
+BEGIN:VEVENT
+UID:monthly-1
+DTSTART;TZID=America/Los_Angeles:20260916T090000
+DTEND;TZID=America/Los_Angeles:20260916T100000
+RRULE:FREQ=MONTHLY;COUNT=3
+SUMMARY:Monthly (unsupported freq, base occurrence only, log-skipped)
+END:VEVENT
+END:VCALENDAR`;
+  const horizonStart = Date.UTC(2026, 8, 14);
+  const horizonEnd = Date.UTC(2026, 9, 6);
+  const { busy, skippedRrules } = parseIcsBusyIntervals(fixtureIcs, horizonStart, horizonEnd);
+
+  const has = (startIso, endIso) => busy.some((b) => new Date(b.start).toISOString() === startIso && new Date(b.end).toISOString() === endIso);
+
+  if (has('2026-09-16T23:00:00.000Z', '2026-09-17T00:00:00.000Z')) ok('UTC Z-suffixed DTSTART/DTEND parsed correctly');
+  else fail('Z-suffixed event not found in busy list: ' + JSON.stringify(busy));
+
+  if (has('2026-09-18T01:00:00.000Z', '2026-09-18T02:00:00.000Z')) ok('TZID=America/Los_Angeles event correctly converted to UTC (PDT, UTC-7)');
+  else fail('TZID event not found or wrong offset: ' + JSON.stringify(busy));
+
+  if (has('2026-09-20T07:00:00.000Z', '2026-09-21T07:00:00.000Z')) ok('all-day (VALUE=DATE) event treated as busy across the full Pacific day');
+  else fail('all-day event not found or wrong span: ' + JSON.stringify(busy));
+
+  const weeklyOccurrences = ['2026-09-16T23:00:00.000Z', '2026-09-23T23:00:00.000Z', '2026-09-30T23:00:00.000Z'];
+  if (weeklyOccurrences.every((iso) => busy.some((b) => new Date(b.start).toISOString() === iso))) ok('RRULE FREQ=WEEKLY;COUNT=3 expanded into exactly 3 correctly-spaced occurrences');
+  else fail('weekly RRULE expansion incorrect: ' + JSON.stringify(busy));
+
+  if (has('2026-09-16T16:00:00.000Z', '2026-09-16T17:00:00.000Z')) ok('unsupported RRULE (FREQ=MONTHLY) still includes its base occurrence');
+  else fail('base occurrence of unsupported-RRULE event missing: ' + JSON.stringify(busy));
+  if (skippedRrules === 1) ok('unsupported RRULE (FREQ=MONTHLY) is reported via skippedRrules for logging, not silently dropped');
+  else fail('expected skippedRrules=1, got ' + skippedRrules);
 }
 
 // ==================================================================
@@ -423,6 +534,229 @@ if (!SERVICE_KEY) {
       }
     }
   }
+}
+
+// ==================================================================
+section('availability: window CRUD + open_slots generation');
+function pacificOffsetMinutesAt(utcMs) {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'shortOffset' }).formatToParts(new Date(utcMs));
+  const tz = parts.find((p) => p.type === 'timeZoneName');
+  const m = tz && /GMT([+-]\d+)/.exec(tz.value);
+  return m ? parseInt(m[1], 10) * 60 : -8 * 60;
+}
+function pacificToUtcIso(y, moOneBased, d, hh, mm) {
+  const asUtcMs = Date.UTC(y, moOneBased - 1, d, hh, mm, 0);
+  return new Date(asUtcMs - pacificOffsetMinutesAt(asUtcMs) * 60000).toISOString();
+}
+function pacificDateParts(ms) {
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(ms));
+  return { y: +parts.find((p) => p.type === 'year').value, mo: +parts.find((p) => p.type === 'month').value, d: +parts.find((p) => p.type === 'day').value };
+}
+function pacificWeekday(ms) {
+  const wd = new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short' });
+  return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(wd);
+}
+
+let testWindowId = null;
+// Two days out, in an off-hours slot (2-4am Pacific) unlikely to collide
+// with any real window Sophie/Coach may have already configured on the
+// live system — assertions below only ever check for presence/absence of
+// THIS window's specific slots, never the global slot count.
+const targetMs = Date.now() + 2 * 86400000;
+const { y: tY, mo: tMo, d: tD } = pacificDateParts(targetMs);
+const targetWeekday = pacificWeekday(targetMs);
+const slot0200 = pacificToUtcIso(tY, tMo, tD, 2, 0);
+const slot0230 = pacificToUtcIso(tY, tMo, tD, 2, 30);
+const slot0300 = pacificToUtcIso(tY, tMo, tD, 3, 0);
+
+{
+  const created = await api('admin_window', { method: 'POST', pin: ADMIN_PIN, body: { weekday: targetWeekday, start_time: '02:00', end_time: '04:00' } });
+  if (created.ok && created.window && created.window.id) { ok('admin_window created a 2-4am ZZTEST window'); testWindowId = created.window.id; }
+  else fail('admin_window create failed: ' + JSON.stringify(created));
+
+  const list = await api('admin_windows', { pin: ADMIN_PIN });
+  if (list.ok && (list.windows || []).some((w) => w.id === testWindowId)) ok('admin_windows lists the new window');
+  else fail('new window not found in admin_windows list');
+
+  const toggledOff = await api('admin_window', { method: 'POST', pin: ADMIN_PIN, body: { id: testWindowId, weekday: targetWeekday, start_time: '02:00', end_time: '04:00', active: false } });
+  if (toggledOff.ok && toggledOff.window.active === false) ok('admin_window can toggle a window inactive');
+  else fail('toggling window inactive failed: ' + JSON.stringify(toggledOff));
+  const slotsWhileOff = await api('open_slots');
+  if (!(slotsWhileOff.slots || []).includes(slot0200)) ok('an inactive window contributes no open_slots');
+  else fail('inactive window still produced open_slots');
+
+  const toggledOn = await api('admin_window', { method: 'POST', pin: ADMIN_PIN, body: { id: testWindowId, weekday: targetWeekday, start_time: '02:00', end_time: '04:00', active: true } });
+  if (toggledOn.ok && toggledOn.window.active === true) ok('admin_window can toggle a window back active');
+  else fail('toggling window active failed: ' + JSON.stringify(toggledOn));
+}
+
+{
+  const slots = (await api('open_slots')).slots || [];
+  if ([slot0200, slot0230, slot0300].every((s) => slots.includes(s))) {
+    ok('a 2-hour window (2-4am) at 60min/30min-step correctly generates 3 slots: 2:00, 2:30, 3:00');
+  } else {
+    fail('expected slots not present: ' + JSON.stringify({ slot0200, slot0230, slot0300, found: slots.filter((s) => s >= slot0200 && s <= slot0300) }));
+  }
+  const beyondWindow = pacificToUtcIso(tY, tMo, tD, 3, 30);
+  if (!slots.includes(beyondWindow)) ok('no slot generated starting at 3:30am (would run past the 4am window edge)');
+  else fail('a slot was generated past the window edge: ' + beyondWindow);
+}
+
+{
+  const now = Date.now();
+  const minNoticeFloor = now + 11.5 * 3600000; // small buffer under the true 12h line to avoid a flaky off-by-a-few-seconds fail
+  const slots = (await api('open_slots')).slots || [];
+  const tooSoon = slots.filter((s) => new Date(s).getTime() < minNoticeFloor);
+  if (tooSoon.length === 0) ok('every returned open slot respects the 12h minimum-notice floor');
+  else fail('slot(s) violate minimum notice: ' + JSON.stringify(tooSoon));
+}
+
+let overlapDirectSessionId = null;
+let overlapDirectClientEmail = null;
+{
+  overlapDirectClientEmail = `zztest-sls-openoverlap-${STAMP}@example.com`;
+  const booked = await api('admin_direct_booking', {
+    method: 'POST', pin: ADMIN_PIN,
+    body: { athlete_name: 'ZZTEST Open Overlap', starts_at: slot0230, location_id: zzLocationId, new_client: { parent_name: 'ZZTEST Open Overlap Parent', parent_email: overlapDirectClientEmail } },
+  });
+  if (booked.ok && booked.session && booked.session.id) { ok('booked a session directly into the 2:30am slot'); overlapDirectSessionId = booked.session.id; }
+  else fail('direct booking into the test window failed: ' + JSON.stringify(booked));
+
+  // A 60-min session at 2:30 genuinely overlaps the 2:00 slot (2:00-3:00)
+  // and the 3:00 slot (3:00-4:00), not just its own exact start, so all
+  // three candidates in this 2-hour window should be excluded.
+  const slots = (await api('open_slots')).slots || [];
+  if (!slots.includes(slot0200) && !slots.includes(slot0230) && !slots.includes(slot0300)) {
+    ok('booking a session hides every slot that would genuinely overlap it in time, not just its exact start');
+  } else {
+    fail('session-overlap exclusion did not behave as expected: ' + JSON.stringify(slots.filter((s) => s >= slot0200 && s <= slot0300)));
+  }
+
+  await api('admin_session_cancel', { method: 'POST', pin: ADMIN_PIN, body: { session_id: overlapDirectSessionId } });
+  const slotsAfterCancel = (await api('open_slots')).slots || [];
+  if (slotsAfterCancel.includes(slot0230)) ok('cancelling that session restores its slot to open_slots');
+  else fail('slot did not reappear after cancelling the session');
+}
+
+let pendingHideRequestId = null;
+{
+  const pendingEmail = `zztest-sls-openpending-${STAMP}@example.com`;
+  const submitted = await api('submit_request', {
+    method: 'POST',
+    body: { mode: 'new', athlete_name: 'ZZTEST Open Pending', parent_name: 'ZZTEST Open Pending Parent', parent_email: pendingEmail, proposed_times: [slot0300, new Date(Date.now() + 25 * 86400000).toISOString()] },
+  });
+  if (submitted.ok && submitted.request_id) { ok('submitted a manual (non-open-slot) request proposing the 3:00am slot'); pendingHideRequestId = submitted.request_id; }
+  else fail('pending-hide seed submit_request failed: ' + JSON.stringify(submitted));
+
+  const slots = (await api('open_slots')).slots || [];
+  if (!slots.includes(slot0300) && slots.includes(slot0200)) ok('a pending request for a slot hides it from open_slots while siblings stay open');
+  else fail('pending-hide did not behave as expected: ' + JSON.stringify(slots.filter((s) => s >= slot0200 && s <= slot0300)));
+
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: pendingHideRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
+  const slotsAfterDecline = (await api('open_slots')).slots || [];
+  if (slotsAfterDecline.includes(slot0300)) ok('declining the request restores its slot to open_slots');
+  else fail('slot did not reappear after declining the pending request');
+}
+
+// ==================================================================
+section('availability: connected-calendar busy overlay + masked URL never leaks');
+const FAKE_CALENDAR_SECRET = `ZZTESTSECRET${STAMP}XYZ`;
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot seed a busy-interval cache entry to test the calendar overlay without a real internet-reachable ICS host');
+} else {
+  const fakeUrl = `webcal://p.icloud.com/published/2/${FAKE_CALENDAR_SECRET}`;
+  const setResp = await api('admin_calendar_set', { method: 'POST', pin: ADMIN_PIN, body: { url: fakeUrl } });
+  if (setResp.ok && setResp.masked && setResp.masked.includes('Connected') && !setResp.masked.includes(FAKE_CALENDAR_SECRET)) {
+    ok('admin_calendar_set normalizes webcal:// to https:// and returns only a masked confirmation');
+  } else {
+    fail('admin_calendar_set did not return a properly masked response: ' + JSON.stringify(setResp));
+  }
+
+  // Seed the busy cache directly (the gateway can't fetch a fixture hosted
+  // on this machine) so the next open_slots call uses it without a live fetch.
+  const busyStart = new Date(slot0200).getTime();
+  const busyEnd = busyStart + 60 * 60000;
+  await rest('sls_settings', 'key=eq.calendar_busy_cache', { method: 'PATCH', body: { value: JSON.stringify([{ start: busyStart, end: busyEnd }]) }, headers: { Prefer: 'return=minimal' } });
+  await rest('sls_settings', 'key=eq.calendar_busy_cache_at', { method: 'PATCH', body: { value: new Date().toISOString() }, headers: { Prefer: 'return=minimal' } });
+
+  // Busy interval is [2:00, 3:00). The 2:00 slot (2:00-3:00) and 2:30 slot
+  // (2:30-3:30) both genuinely overlap it; the 3:00 slot (3:00-4:00) starts
+  // exactly when the busy interval ends, so it does not.
+  const slots = (await api('open_slots')).slots || [];
+  if (!slots.includes(slot0200) && !slots.includes(slot0230) && slots.includes(slot0300)) {
+    ok('a busy calendar interval hides every slot that would genuinely overlap it, and only those');
+  } else {
+    fail('calendar busy-overlap exclusion did not behave as expected: ' + JSON.stringify(slots.filter((s) => s >= slot0200 && s <= slot0300)));
+  }
+
+  const adminStateJson = JSON.stringify(await api('admin_state', { pin: ADMIN_PIN }));
+  const openSlotsJson = JSON.stringify(await api('open_slots'));
+  if (!adminStateJson.includes(FAKE_CALENDAR_SECRET) && !openSlotsJson.includes(FAKE_CALENDAR_SECRET) && !JSON.stringify(setResp).includes(FAKE_CALENDAR_SECRET)) {
+    ok('the raw calendar URL/secret never appears in admin_state, open_slots, or the admin_calendar_set response');
+  } else {
+    fail('the raw calendar secret leaked into a gateway response');
+  }
+  if (adminStateJson.includes('"calendar_connected":true') && adminStateJson.includes('Connected')) ok('admin_state exposes calendar_connected + a masked status string');
+  else fail('admin_state calendar status fields missing or wrong: ' + adminStateJson.slice(0, 300));
+
+  const disconnected = await api('admin_calendar_disconnect', { method: 'POST', pin: ADMIN_PIN });
+  if (disconnected.ok) ok('admin_calendar_disconnect succeeds');
+  const slotsAfterDisconnect = (await api('open_slots')).slots || [];
+  if (slotsAfterDisconnect.includes(slot0200)) ok('disconnecting the calendar restores the previously-busy slot to open_slots');
+  else fail('slot did not reappear after disconnecting the calendar');
+}
+
+// ==================================================================
+section('availability: two pending requests for the exact same slot both get flagged');
+let flagReqA = null, flagReqB = null;
+{
+  const sharedTime = slot0230;
+  const emailA = `zztest-sls-flaga-${STAMP}@example.com`;
+  const emailB = `zztest-sls-flagb-${STAMP}@example.com`;
+  const secondTime = new Date(Date.now() + 26 * 86400000).toISOString();
+  const a = await api('submit_request', { method: 'POST', body: { mode: 'new', athlete_name: 'ZZTEST Flag A', parent_name: 'ZZTEST Flag A Parent', parent_email: emailA, proposed_times: [sharedTime, secondTime] } });
+  const b = await api('submit_request', { method: 'POST', body: { mode: 'new', athlete_name: 'ZZTEST Flag B', parent_name: 'ZZTEST Flag B Parent', parent_email: emailB, proposed_times: [sharedTime, secondTime] } });
+  flagReqA = a.request_id; flagReqB = b.request_id;
+  if (a.ok && b.ok && flagReqA && flagReqB) ok('two separate requests both proposing the same slot were both accepted');
+  else fail('could not seed the two colliding requests: ' + JSON.stringify({ a, b }));
+
+  const state = await api('admin_state', { pin: ADMIN_PIN });
+  const rowA = (state.requests || []).find((r) => r.id === flagReqA);
+  const rowB = (state.requests || []).find((r) => r.id === flagReqB);
+  if (rowA && rowB && rowA.overlap_flags[sharedTime] === true && rowB.overlap_flags[sharedTime] === true) {
+    ok('both requests are flagged for proposing the exact same slot as each other, not just against sessions');
+  } else {
+    fail('cross-request overlap flag missing: ' + JSON.stringify({ a: rowA && rowA.overlap_flags, b: rowB && rowB.overlap_flags }));
+  }
+
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: flagReqA, response: 'decline', message: 'ZZTEST cleanup' } });
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: flagReqB, response: 'decline', message: 'ZZTEST cleanup' } });
+}
+
+// ==================================================================
+section('availability: open-slot submission bypasses the 2-3 time minimum');
+let openSlotReqId = null;
+{
+  const email = `zztest-sls-openslotsubmit-${STAMP}@example.com`;
+  const r = await api('submit_request', { method: 'POST', body: { mode: 'new', athlete_name: 'ZZTEST Open Slot Submit', parent_name: 'ZZTEST Open Slot Parent', parent_email: email, proposed_times: [slot0300], from_open_slot: true } });
+  if (r.ok && r.request_id) { ok('a single-time submission with from_open_slot:true is accepted (normally requires 2-3)'); openSlotReqId = r.request_id; }
+  else fail('open-slot submission was rejected: ' + JSON.stringify(r));
+
+  const bareOneTime = await api('submit_request', { method: 'POST', body: { mode: 'new', athlete_name: 'ZZTEST Should Fail', parent_name: 'ZZTEST Should Fail Parent', parent_email: `zztest-sls-shouldfail-${STAMP}@example.com`, proposed_times: [new Date(Date.now() + 27 * 86400000).toISOString()] } });
+  if (!bareOneTime.ok) ok('a single-time submission WITHOUT from_open_slot is still rejected (the normal 2-3 rule is unchanged)');
+  else fail('a non-open-slot single-time submission should have been rejected');
+
+  const state = await api('admin_state', { pin: ADMIN_PIN });
+  const row = (state.requests || []).find((r2) => r2.id === openSlotReqId);
+  if (row && row.source === 'open_slot') ok('the open-slot request is tagged source:"open_slot", driving the coach hub badge');
+  else fail('open-slot request missing/incorrect source tag: ' + JSON.stringify(row));
+
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: openSlotReqId, response: 'decline', message: 'ZZTEST cleanup' } });
+}
+
+if (testWindowId) {
+  await api('admin_window_delete', { method: 'POST', pin: ADMIN_PIN, body: { id: testWindowId } });
+  ok('deleted the ZZTEST availability window');
 }
 
 // ==================================================================

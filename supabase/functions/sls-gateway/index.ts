@@ -9,16 +9,21 @@
 //
 // Public actions: request_login, login_verify, submit_request, counter_info,
 // counter_respond, manage_info, session_cancel, session_reschedule_start,
-// ics_session.
+// ics_session, open_slots.
 // Admin actions (x-admin-pin header, checked against sls_settings.admin_pin):
 // admin_state, admin_respond, admin_location, admin_locations, admin_clients,
 // admin_direct_booking, admin_recurring_create, admin_recurring_cancel,
-// admin_session_cancel, admin_push_subscribe, admin_set_alert_email.
+// admin_session_cancel, admin_push_subscribe, admin_set_alert_email,
+// admin_windows, admin_window, admin_window_delete, admin_calendar_set,
+// admin_calendar_disconnect. The calendar URL (sls_settings.sophie_calendar_url)
+// is gateway-only and never appears in ANY response — every read exposes a
+// masked string (maskCalendarUrl) instead.
 // Cron action (x-cron-key header, checked against sls_settings.cron_key, OR
 // a valid x-admin-pin): cron_tick — expires stale requests, sends Sophie's
 // pre-expiry nudge, sends parent 24h-before reminders, tops up recurring
 // materialization.
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { parseIcsBusyIntervals } from "./ics-parse.mjs";
 
 const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -310,6 +315,137 @@ async function resolveLocation(body: Record<string, unknown>, field = "location_
   return data ?? null;
 }
 
+// -------------- Availability windows + calendar overlay --------------
+// Windows only decide what SHOWS on the public page as a tappable open
+// slot. Every booking (open-slot or manually proposed) still lands as a
+// normal pending sls_requests row requiring Sophie's approval — there is
+// no auto-confirm path here, by design.
+const SLOT_DURATION_MIN = 60;
+const SLOT_STEP_MIN = 30;
+const OPEN_SLOT_HORIZON_DAYS = 21;
+const MIN_NOTICE_HOURS = 12;
+const CALENDAR_CACHE_MS = 15 * 60000;
+
+function normalizeCalendarUrl(raw: string): string | null {
+  const url = String(raw || "").trim();
+  if (!url) return null;
+  if (url.startsWith("webcal://")) return "https://" + url.slice("webcal://".length);
+  if (url.startsWith("https://")) return url;
+  return null;
+}
+function maskCalendarUrl(url: string): string {
+  const tail = url.slice(-6).replace(/[^a-zA-Z0-9]/g, "");
+  return `Connected ✓ · calendar ending …${tail || "?????"}`;
+}
+
+// Pacific weekday + "HH:MM" wall-clock time for a given UTC instant.
+function pacificWeekdayAndTime(ms: number): { weekday: number; hh: number; mm: number } {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date(ms));
+  const wdMap: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  const wdStr = parts.find((p) => p.type === "weekday")?.value ?? "Sun";
+  let hh = parseInt(parts.find((p) => p.type === "hour")?.value ?? "0", 10);
+  const mm = parseInt(parts.find((p) => p.type === "minute")?.value ?? "0", 10);
+  if (hh === 24) hh = 0;
+  return { weekday: wdMap[wdStr] ?? 0, hh, mm };
+}
+function pacificDateParts(ms: number): { y: number; mo: number; d: number } {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(ms));
+  return {
+    y: parseInt(parts.find((p) => p.type === "year")!.value, 10),
+    mo: parseInt(parts.find((p) => p.type === "month")!.value, 10),
+    d: parseInt(parts.find((p) => p.type === "day")!.value, 10),
+  };
+}
+function pacificOffsetMinutesAt(utcMs: number): number {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", timeZoneName: "shortOffset" }).formatToParts(new Date(utcMs));
+  const tz = parts.find((p) => p.type === "timeZoneName");
+  const m = tz && /GMT([+-]\d+)/.exec(tz.value);
+  return m ? parseInt(m[1], 10) * 60 : -8 * 60;
+}
+function zonedWallClockToUtcMs(y: number, moZeroBased: number, d: number, hh: number, mi: number): number {
+  const asUtcMs = Date.UTC(y, moZeroBased, d, hh, mi, 0);
+  return asUtcMs - pacificOffsetMinutesAt(asUtcMs) * 60000;
+}
+
+// Fetches + parses the connected calendar, cached ~15 min in sls_settings.
+// On any failure: logs it and returns an empty busy list (never throws,
+// never blocks slot generation on windows-minus-sessions).
+async function getBusyIntervals(horizonStartMs: number, horizonEndMs: number): Promise<{ start: number; end: number }[]> {
+  const url = await getSetting("sophie_calendar_url");
+  if (!url) return [];
+  const cachedAt = await getSetting("calendar_busy_cache_at");
+  if (cachedAt && Date.now() - new Date(cachedAt).getTime() < CALENDAR_CACHE_MS) {
+    const cached = await getSetting("calendar_busy_cache");
+    if (cached) {
+      try { return JSON.parse(cached); } catch { /* fall through to refetch */ }
+    }
+  }
+  try {
+    const res = await fetch(url, { headers: { "User-Agent": "LessonsWithSophie/1.0" } });
+    if (!res.ok) throw new Error(`calendar fetch failed: ${res.status}`);
+    const text = await res.text();
+    const { busy } = parseIcsBusyIntervals(text, horizonStartMs, horizonEndMs);
+    await setSetting("calendar_busy_cache", JSON.stringify(busy));
+    await setSetting("calendar_busy_cache_at", new Date().toISOString());
+    return busy;
+  } catch (e) {
+    console.error("calendar fetch/parse failed:", (e as Error).message);
+    return [];
+  }
+}
+
+async function computeOpenSlots(): Promise<string[]> {
+  const { data: windows } = await db.from("sls_windows").select("*").eq("active", true);
+  if (!windows || !windows.length) return [];
+
+  const now = Date.now();
+  const horizonStartMs = now;
+  const horizonEndMs = now + OPEN_SLOT_HORIZON_DAYS * 86400000;
+  const minNoticeMs = now + MIN_NOTICE_HOURS * 3600000;
+
+  const [{ data: sessions }, busy, { data: pendingRequests }] = await Promise.all([
+    db.from("sls_sessions").select("starts_at,duration_minutes").eq("status", "scheduled"),
+    getBusyIntervals(horizonStartMs, horizonEndMs),
+    db.from("sls_requests").select("proposed_times,counter_time,status").in("status", ["pending", "countered"]),
+  ]);
+
+  const pendingTimes = new Set<string>();
+  for (const r of pendingRequests ?? []) {
+    for (const t of (r.proposed_times as string[]) ?? []) pendingTimes.add(new Date(t).toISOString());
+    if (r.counter_time) pendingTimes.add(new Date(r.counter_time as string).toISOString());
+  }
+
+  const candidates: number[] = [];
+  for (let dayOffset = 0; dayOffset <= OPEN_SLOT_HORIZON_DAYS; dayOffset++) {
+    const dayMs = now + dayOffset * 86400000;
+    const { y, mo, d } = pacificDateParts(dayMs);
+    const { weekday } = pacificWeekdayAndTime(dayMs);
+    for (const w of windows) {
+      if (w.weekday !== weekday) continue;
+      const [startH, startM] = String(w.start_time).slice(0, 5).split(":").map(Number);
+      const [endH, endM] = String(w.end_time).slice(0, 5).split(":").map(Number);
+      const windowStartMs = zonedWallClockToUtcMs(y, mo - 1, d, startH, startM);
+      const windowEndMs = zonedWallClockToUtcMs(y, mo - 1, d, endH, endM);
+      for (let t = windowStartMs; t + SLOT_DURATION_MIN * 60000 <= windowEndMs; t += SLOT_STEP_MIN * 60000) {
+        candidates.push(t);
+      }
+    }
+  }
+
+  const openSlots: string[] = [];
+  for (const t of candidates) {
+    if (t < minNoticeMs) continue;
+    const iso = new Date(t).toISOString();
+    if (pendingTimes.has(iso)) continue;
+    const clashesSession = (sessions ?? []).some((s: Record<string, unknown>) => overlaps(t, SLOT_DURATION_MIN, new Date(s.starts_at as string).getTime(), s.duration_minutes as number));
+    if (clashesSession) continue;
+    const clashesBusy = busy.some((b) => overlaps(t, SLOT_DURATION_MIN, b.start, (b.end - b.start) / 60000));
+    if (clashesBusy) continue;
+    openSlots.push(iso);
+  }
+  return openSlots.sort();
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   const url = new URL(req.url);
@@ -357,8 +493,12 @@ Deno.serve(async (req: Request) => {
 
     if (action === "submit_request" && req.method === "POST") {
       const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+      const fromOpenSlot = b.from_open_slot === true;
       const proposed = Array.isArray(b.proposed_times) ? b.proposed_times.filter((t) => isFutureIso(t)) : [];
-      if (proposed.length < 2 || proposed.length > 3) return json({ ok: false, error: "Please propose 2 or 3 times that work for you." }, 400);
+      const minTimes = fromOpenSlot ? 1 : 2;
+      if (proposed.length < minTimes || proposed.length > 3) {
+        return json({ ok: false, error: fromOpenSlot ? "That time is no longer valid — pick another." : "Please propose 2 or 3 times that work for you." }, 400);
+      }
       const athlete_name = String(b.athlete_name || "").trim();
       if (!athlete_name) return json({ ok: false, error: "Athlete name is required." }, 400);
       const focus_notes = String(b.focus_notes || "").trim().slice(0, 1000);
@@ -423,6 +563,7 @@ Deno.serve(async (req: Request) => {
         parent_name, parent_phone, parent_email, how_found,
         proposed_times: proposed,
         reschedule_of_session_id: rescheduleOf,
+        source: fromOpenSlot ? "open_slot" : "manual",
       }).select("id").single();
       if (reqErr) return json({ ok: false, error: "Could not submit your request." }, 500);
 
@@ -533,6 +674,11 @@ Deno.serve(async (req: Request) => {
       return new Response(body, { headers: { ...CORS, "Content-Type": "text/calendar; charset=utf-8" } });
     }
 
+    if (action === "open_slots" && req.method === "GET") {
+      const slots = await computeOpenSlots();
+      return json({ ok: true, slots });
+    }
+
     // ============ ADMIN ============
     if (action.startsWith("admin_")) {
       if (!(await requireAdminPin(req))) return json({ error: "unauthorized" }, 401);
@@ -542,21 +688,34 @@ Deno.serve(async (req: Request) => {
         const { data: sessions } = await db.from("sls_sessions").select("*").eq("status", "scheduled").order("starts_at", { ascending: true }).limit(200);
         const { data: locations } = await db.from("sls_locations").select("*").eq("active", true).order("name");
         const { data: recurring } = await db.from("sls_recurring").select("*").eq("active", true).order("created_at", { ascending: false });
+        const { data: windows } = await db.from("sls_windows").select("*").order("weekday").order("start_time");
         const sessList = sessions ?? [];
-        const withFlags = (requests ?? []).map((r: Record<string, unknown>) => {
-          const times = [...(r.proposed_times as string[]), ...(r.counter_time ? [r.counter_time as string] : [])];
+        const reqList = requests ?? [];
+        const timesFor = (r: Record<string, unknown>) => [...(r.proposed_times as string[]), ...(r.counter_time ? [r.counter_time as string] : [])];
+        const withFlags = reqList.map((r: Record<string, unknown>) => {
+          const times = timesFor(r);
           const flags: Record<string, boolean> = {};
           let flagged = false;
           for (const t of times) {
             const ms = new Date(t).getTime();
-            const hit = sessList.some((s: Record<string, unknown>) => overlaps(ms, DURATION_MIN, new Date(s.starts_at as string).getTime(), s.duration_minutes as number));
+            const hitSession = sessList.some((s: Record<string, unknown>) => overlaps(ms, DURATION_MIN, new Date(s.starts_at as string).getTime(), s.duration_minutes as number));
+            // Two different pending/countered requests proposing the exact
+            // same slot should ALSO flag, so Sophie sees the collision
+            // before she accepts one and creates a real session conflict.
+            const hitOtherRequest = reqList.some((other) => other !== r && timesFor(other).some((ot) => overlaps(ms, DURATION_MIN, new Date(ot).getTime(), DURATION_MIN)));
+            const hit = hitSession || hitOtherRequest;
             flags[t] = hit;
             if (hit) flagged = true;
           }
           return { ...r, overlap_flags: flags, flagged };
         });
         const alertEmail = await getSetting("sophie_alert_email");
-        return json({ ok: true, requests: withFlags, sessions: sessList, locations: locations ?? [], recurring: recurring ?? [], sophie_alert_email: alertEmail });
+        const calendarUrl = await getSetting("sophie_calendar_url");
+        return json({
+          ok: true, requests: withFlags, sessions: sessList, locations: locations ?? [], recurring: recurring ?? [],
+          windows: windows ?? [], sophie_alert_email: alertEmail,
+          calendar_connected: !!calendarUrl, calendar_masked: calendarUrl ? maskCalendarUrl(calendarUrl) : null,
+        });
       }
 
       if (action === "admin_respond" && req.method === "POST") {
@@ -641,6 +800,55 @@ Deno.serve(async (req: Request) => {
       if (action === "admin_clients" && req.method === "GET") {
         const { data } = await db.from("sls_clients").select("id,parent_name,parent_phone,parent_email,athletes").order("parent_name").limit(500);
         return json({ ok: true, clients: data ?? [] });
+      }
+
+      if (action === "admin_windows" && req.method === "GET") {
+        const { data } = await db.from("sls_windows").select("*").order("weekday").order("start_time");
+        return json({ ok: true, windows: data ?? [] });
+      }
+
+      if (action === "admin_window" && req.method === "POST") {
+        const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+        const weekday = Number(b.weekday);
+        const start_time = String(b.start_time || "");
+        const end_time = String(b.end_time || "");
+        if (Number.isNaN(weekday) || weekday < 0 || weekday > 6 || !start_time || !end_time) {
+          return json({ ok: false, error: "weekday, start_time, and end_time are required." }, 400);
+        }
+        if (start_time >= end_time) return json({ ok: false, error: "Start time must be before end time." }, 400);
+        const row = { weekday, start_time, end_time, active: b.active !== false };
+        if (b.id) {
+          const { data, error } = await db.from("sls_windows").update(row).eq("id", b.id).select("*").single();
+          if (error) return json({ ok: false, error: "Could not update window." }, 500);
+          return json({ ok: true, window: data });
+        }
+        const { data, error } = await db.from("sls_windows").insert(row).select("*").single();
+        if (error) return json({ ok: false, error: "Could not create window." }, 500);
+        return json({ ok: true, window: data });
+      }
+
+      if (action === "admin_window_delete" && req.method === "POST") {
+        const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+        if (!b.id) return json({ ok: false, error: "id required" }, 400);
+        await db.from("sls_windows").delete().eq("id", b.id);
+        return json({ ok: true });
+      }
+
+      if (action === "admin_calendar_set" && req.method === "POST") {
+        const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+        const normalized = normalizeCalendarUrl(String(b.url || ""));
+        if (!normalized) return json({ ok: false, error: "Paste a valid webcal:// or https:// calendar link." }, 400);
+        await setSetting("sophie_calendar_url", normalized);
+        await setSetting("calendar_busy_cache", "");
+        await setSetting("calendar_busy_cache_at", "");
+        return json({ ok: true, masked: maskCalendarUrl(normalized) });
+      }
+
+      if (action === "admin_calendar_disconnect" && req.method === "POST") {
+        await setSetting("sophie_calendar_url", "");
+        await setSetting("calendar_busy_cache", "");
+        await setSetting("calendar_busy_cache_at", "");
+        return json({ ok: true });
       }
 
       if (action === "admin_direct_booking" && req.method === "POST") {

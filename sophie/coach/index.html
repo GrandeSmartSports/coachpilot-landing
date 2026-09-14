@@ -120,6 +120,36 @@
     <div class="panel active" id="panelRequests"><div id="requestsList"></div></div>
     <div class="panel" id="panelSessions"><div id="sessionsList"></div></div>
     <div class="panel" id="panelRecurring"><div id="recurringList"></div></div>
+    <div class="panel" id="panelAvailability">
+      <div class="card">
+        <div class="cardTitle">Weekly Windows</div>
+        <div class="cardSub">Pick the days/times it's OK to show as "Open Times" on your public page. Every booking, open-slot or not, still lands in your queue for approval. Nothing books itself.</div>
+        <div id="windowsList"></div>
+        <div class="expandPanel">
+          <label>Day</label>
+          <select id="newWindowDay">
+            <option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option>
+            <option value="3" selected>Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option>
+          </select>
+          <label>Start Time</label>
+          <div class="chipsRow" id="newWindowStartChips"></div>
+          <label>End Time</label>
+          <div class="chipsRow" id="newWindowEndChips"></div>
+          <button class="confirmBtn" id="addWindowBtn">+ Add Window</button>
+          <p class="smallErr hidden" id="windowErr"></p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="cardTitle">Connect Your Calendar</div>
+        <div class="cardSub">Optional. Sophie's busy events hide their times from Open Times automatically.</div>
+        <div id="calendarStatusLine" class="cardSub"></div>
+        <input type="text" id="calendarUrlInput" placeholder="webcal://p.icloud.com/published/..." style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:10px;margin-bottom:10px;background:var(--cream);" />
+        <button class="confirmBtn" id="saveCalendarBtn">Connect</button>
+        <button class="confirmBtn hidden" id="disconnectCalendarBtn" style="background:#fff;color:var(--danger);border:1.5px solid var(--line);">Disconnect</button>
+        <p class="smallErr hidden" id="calendarErr"></p>
+        <p class="smallMsg" style="margin-top:14px;">On your iPhone: Calendar app &rarr; Calendars &rarr; tap the (i) next to a calendar &rarr; turn on Public Calendar &rarr; Share Link &rarr; paste that link here.</p>
+      </div>
+    </div>
     <div class="panel" id="panelLocations"><div id="locationsList"></div></div>
     <div class="panel" id="panelSettings">
       <div class="card">
@@ -138,6 +168,7 @@
     <button class="tabBtn active" data-panel="Requests">Requests</button>
     <button class="tabBtn" data-panel="Sessions">Sessions</button>
     <button class="tabBtn" data-panel="Recurring">Recurring</button>
+    <button class="tabBtn" data-panel="Availability">Availability</button>
     <button class="tabBtn" data-panel="Locations">Locations</button>
     <button class="tabBtn" data-panel="Settings">Settings</button>
   </nav>
@@ -197,7 +228,7 @@
   boot();
 
   // ---------------- tabs ----------------
-  var PANELS = ["Requests", "Sessions", "Recurring", "Locations", "Settings"];
+  var PANELS = ["Requests", "Sessions", "Recurring", "Availability", "Locations", "Settings"];
   document.querySelectorAll(".tabBtn").forEach(function (btn) {
     btn.addEventListener("click", function () {
       document.querySelectorAll(".tabBtn").forEach(function (b) { b.classList.remove("active"); });
@@ -221,7 +252,7 @@
       var clients = results[1];
       if (state.ok) {
         STATE = state;
-        renderRequests(); renderSessions(); renderRecurring(); renderLocations();
+        renderRequests(); renderSessions(); renderRecurring(); renderLocations(); renderWindows(); renderCalendarStatus();
         if (state.sophie_alert_email) el("alertEmailInput").value = state.sophie_alert_email;
       }
       if (clients.ok) CLIENTS = clients.clients;
@@ -248,6 +279,7 @@
       card.innerHTML =
         '<span class="badge ' + (r.is_new_client ? "new" : "returning") + '">' + (r.is_new_client ? "New" : "Returning") + '</span>' +
         (r.status === "countered" ? ' <span class="badge request">Awaiting Reply</span>' : "") +
+        (r.source === "open_slot" ? ' <span class="badge recurring">Picked an Open Time</span>' : "") +
         '<div class="cardTitle">' + esc(r.athlete_name) + (r.athlete_age ? " (" + esc(r.athlete_age) + ")" : "") + "</div>" +
         '<div class="cardSub">for ' + esc(r.parent_name) + " &middot; " + esc(r.parent_email) + (r.parent_phone ? " &middot; " + esc(r.parent_phone) : "") + "</div>" +
         (r.focus_notes ? '<div class="quote">' + esc(r.focus_notes) + "</div>" : "") +
@@ -432,6 +464,82 @@
       list.appendChild(card);
     });
   }
+
+  // ---------------- Availability tab: windows ----------------
+  var newWindowStart = null, newWindowEnd = null;
+  (function setupNewWindowChips() {
+    var startWrap = el("newWindowStartChips");
+    var endWrap = el("newWindowEndChips");
+    buildChipTimes().forEach(function (c) {
+      var sb = document.createElement("button");
+      sb.type = "button"; sb.className = "chipBtn"; sb.textContent = c.label; sb.dataset.value = c.value;
+      sb.addEventListener("click", function () { startWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); sb.classList.add("active"); newWindowStart = c.value; });
+      startWrap.appendChild(sb);
+      var eb = document.createElement("button");
+      eb.type = "button"; eb.className = "chipBtn"; eb.textContent = c.label; eb.dataset.value = c.value;
+      eb.addEventListener("click", function () { endWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); eb.classList.add("active"); newWindowEnd = c.value; });
+      endWrap.appendChild(eb);
+    });
+  })();
+  function renderWindows() {
+    var list = el("windowsList");
+    var windows = STATE.windows || [];
+    if (!windows.length) { list.innerHTML = '<div class="emptyState">No windows yet. Add one below to start showing Open Times.</div>'; return; }
+    list.innerHTML = "";
+    windows.forEach(function (w) {
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="cardTitle">' + DOW[w.weekday] + "</div>" +
+        '<div class="cardSub">' + esc(w.start_time.slice(0, 5)) + " to " + esc(w.end_time.slice(0, 5)) + (w.active ? "" : " (off)") + "</div>" +
+        '<div class="actionsRow"><button class="btnCounter toggleWindowBtn">' + (w.active ? "Turn Off" : "Turn On") + '</button><button class="btnDecline deleteWindowBtn">Delete</button></div>';
+      card.querySelector(".toggleWindowBtn").addEventListener("click", function () {
+        api("admin_window", "POST", { id: w.id, weekday: w.weekday, start_time: w.start_time, end_time: w.end_time, active: !w.active }).then(function () { loadAll(); });
+      });
+      card.querySelector(".deleteWindowBtn").addEventListener("click", function () {
+        if (!confirm("Delete this window?")) return;
+        api("admin_window_delete", "POST", { id: w.id }).then(function () { loadAll(); });
+      });
+      list.appendChild(card);
+    });
+  }
+  el("addWindowBtn").addEventListener("click", function () {
+    var errEl = el("windowErr");
+    errEl.classList.add("hidden");
+    if (!newWindowStart || !newWindowEnd) { errEl.textContent = "Pick a start and end time."; errEl.classList.remove("hidden"); return; }
+    api("admin_window", "POST", { weekday: Number(el("newWindowDay").value), start_time: newWindowStart, end_time: newWindowEnd }).then(function (j) {
+      if (!j.ok) { errEl.textContent = j.error || "Could not add window."; errEl.classList.remove("hidden"); return; }
+      loadAll();
+    });
+  });
+
+  // ---------------- Availability tab: calendar overlay ----------------
+  function renderCalendarStatus() {
+    var line = el("calendarStatusLine");
+    var disconnectBtn = el("disconnectCalendarBtn");
+    if (STATE.calendar_connected) {
+      line.textContent = STATE.calendar_masked || "Connected";
+      disconnectBtn.classList.remove("hidden");
+    } else {
+      line.textContent = "Not connected.";
+      disconnectBtn.classList.add("hidden");
+    }
+  }
+  el("saveCalendarBtn").addEventListener("click", function () {
+    var errEl = el("calendarErr");
+    errEl.classList.add("hidden");
+    var url = el("calendarUrlInput").value.trim();
+    if (!url) { errEl.textContent = "Paste your calendar link first."; errEl.classList.remove("hidden"); return; }
+    api("admin_calendar_set", "POST", { url: url }).then(function (j) {
+      if (!j.ok) { errEl.textContent = j.error || "Could not connect that calendar."; errEl.classList.remove("hidden"); return; }
+      el("calendarUrlInput").value = "";
+      loadAll();
+    });
+  });
+  el("disconnectCalendarBtn").addEventListener("click", function () {
+    if (!confirm("Disconnect your calendar? Open Times will stop checking it for busy events.")) return;
+    api("admin_calendar_disconnect", "POST", {}).then(function () { loadAll(); });
+  });
 
   // ---------------- Locations tab ----------------
   function renderLocations() {

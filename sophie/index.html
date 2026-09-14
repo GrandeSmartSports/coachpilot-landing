@@ -72,6 +72,17 @@
   .success p { color: var(--muted); font-size: 14.5px; }
 
   .footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 34px; }
+
+  .openDateGroup { margin-bottom: 16px; }
+  .openDateGroup .dateLabel { font-family: var(--disp); font-weight: 600; font-size: 14px; color: var(--navy); margin-bottom: 8px; }
+  .openChips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .openChip { border: 1.5px solid var(--line); background: var(--cream); color: var(--ink); border-radius: 999px; padding: 9px 15px; font-size: 13.5px; font-weight: 600; }
+  .openChip:hover { border-color: var(--coral); }
+  .suggestOwnLink { display: block; text-align: center; margin-top: 6px; color: var(--muted); font-size: 13px; text-decoration: underline; }
+  .lockedTimeCard { background: var(--cream-2); border: 1.5px solid var(--gold); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
+  .lockedTimeCard .lockedLabel { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--navy); margin-bottom: 3px; }
+  .lockedTimeCard .lockedTime { font-weight: 700; color: var(--navy); font-size: 15.5px; }
+  .lockedTimeCard a { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--muted); text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -86,6 +97,15 @@
 </div>
 
 <div class="wrap">
+  <div class="section hidden" id="openTimesSection">
+    <div class="card">
+      <h2 class="formTitle">Open Times</h2>
+      <p class="sub">Tap a time that works. Sophie still confirms every booking.</p>
+      <div id="openTimesGroups"></div>
+      <a href="#requestForm" class="suggestOwnLink" id="suggestOwnTimesLink">None of these work? Suggest your own times</a>
+    </div>
+  </div>
+
   <div class="section" id="requestForm">
     <div class="card">
 
@@ -122,9 +142,12 @@
           </div>
           <label>What should Sophie work on?</label>
           <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
-          <label>Proposed Times</label>
-          <div id="rTimeRows"></div>
-          <button type="button" class="addTimeBtn" id="rAddTime">+ Add Another Time</button>
+          <div id="rLockedTimeCard" class="lockedTimeCard hidden"></div>
+          <div id="rTimesPickerGroup">
+            <label>Proposed Times</label>
+            <div id="rTimeRows"></div>
+            <button type="button" class="addTimeBtn" id="rAddTime">+ Add Another Time</button>
+          </div>
           <button class="btnPrimary" id="rSubmitBtn">Send Request</button>
           <p class="err hidden" id="rErr"></p>
         </div>
@@ -164,9 +187,12 @@
           <option value="Other">Other</option>
         </select>
 
-        <label>Proposed Times</label>
-        <div id="nTimeRows"></div>
-        <button type="button" class="addTimeBtn" id="nAddTime">+ Add Another Time</button>
+        <div id="nLockedTimeCard" class="lockedTimeCard hidden"></div>
+        <div id="nTimesPickerGroup">
+          <label>Proposed Times</label>
+          <div id="nTimeRows"></div>
+          <button type="button" class="addTimeBtn" id="nAddTime">+ Add Another Time</button>
+        </div>
 
         <button class="btnPrimary" id="nSubmitBtn">Send Request</button>
         <p class="err hidden" id="nErr"></p>
@@ -293,6 +319,104 @@
   setupTimeRows("nTimeRows", "nAddTime");
   setupTimeRows("rTimeRows", "rAddTime");
 
+  // -------- open times (posted availability) --------
+  var LOCK_KEY = "sls_locked_slot";
+  var LOCK_TTL_MS = 30 * 60000;
+  var lockedSlotIso = null;
+
+  function fmtSlotDate(iso) {
+    return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric" });
+  }
+  function fmtSlotTime(iso) {
+    return new Date(iso).toLocaleTimeString("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit" });
+  }
+  function fmtSlotFull(iso) {
+    return fmtSlotDate(iso) + " at " + fmtSlotTime(iso) + " PT";
+  }
+
+  function renderLockedTimeUi() {
+    ["n", "r"].forEach(function (prefix) {
+      var card = el(prefix + "LockedTimeCard");
+      var group = el(prefix + "TimesPickerGroup");
+      if (lockedSlotIso) {
+        card.innerHTML = '<div class="lockedLabel">Selected Time</div><div class="lockedTime">' + fmtSlotFull(lockedSlotIso) + '</div><a href="#" class="unlockLink">Choose a different time instead</a>';
+        card.classList.remove("hidden");
+        group.classList.add("hidden");
+        card.querySelector(".unlockLink").addEventListener("click", function (e) {
+          e.preventDefault();
+          clearLockedSlot();
+        });
+      } else {
+        card.classList.add("hidden");
+        group.classList.remove("hidden");
+      }
+    });
+  }
+  function setLockedSlot(iso) {
+    lockedSlotIso = iso;
+    try { localStorage.setItem(LOCK_KEY, JSON.stringify({ iso: iso, ts: Date.now() })); } catch (e) { /* private mode, non-fatal */ }
+    renderLockedTimeUi();
+  }
+  function clearLockedSlot() {
+    lockedSlotIso = null;
+    try { localStorage.removeItem(LOCK_KEY); } catch (e) { /* private mode, non-fatal */ }
+    renderLockedTimeUi();
+  }
+  function restoreLockedSlotFromStorage() {
+    try {
+      var raw = localStorage.getItem(LOCK_KEY);
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.iso && Date.now() - parsed.ts < LOCK_TTL_MS && new Date(parsed.iso).getTime() > Date.now()) {
+        lockedSlotIso = parsed.iso;
+        renderLockedTimeUi();
+      } else {
+        localStorage.removeItem(LOCK_KEY);
+      }
+    } catch (e) { /* private mode, non-fatal */ }
+  }
+
+  function loadOpenSlots() {
+    fetch(API + "?action=open_slots").then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok || !j.slots || !j.slots.length) return;
+      var groups = {};
+      var order = [];
+      j.slots.forEach(function (iso) {
+        var key = fmtSlotDate(iso);
+        if (!groups[key]) { groups[key] = []; order.push(key); }
+        groups[key].push(iso);
+      });
+      var wrap = el("openTimesGroups");
+      wrap.innerHTML = "";
+      order.forEach(function (dateLabel) {
+        var group = document.createElement("div");
+        group.className = "openDateGroup";
+        var label = document.createElement("div");
+        label.className = "dateLabel";
+        label.textContent = dateLabel;
+        group.appendChild(label);
+        var chipsWrap = document.createElement("div");
+        chipsWrap.className = "openChips";
+        groups[dateLabel].forEach(function (iso) {
+          var chip = document.createElement("button");
+          chip.type = "button";
+          chip.className = "openChip";
+          chip.textContent = fmtSlotTime(iso);
+          chip.addEventListener("click", function () {
+            setLockedSlot(iso);
+            el("requestForm").scrollIntoView({ behavior: "smooth", block: "start" });
+          });
+          chipsWrap.appendChild(chip);
+        });
+        group.appendChild(chipsWrap);
+        wrap.appendChild(group);
+      });
+      el("openTimesSection").classList.remove("hidden");
+    }).catch(function () { /* open times are a bonus; failure just means the section stays hidden */ });
+  }
+  loadOpenSlots();
+  restoreLockedSlotFromStorage();
+
   // -------- mode toggle --------
   el("tabNew").addEventListener("click", function () {
     el("tabNew").classList.add("active"); el("tabReturning").classList.remove("active");
@@ -390,14 +514,21 @@
     var btn = el(isReturning ? "rSubmitBtn" : "nSubmitBtn");
     errEl.classList.add("hidden");
 
-    var times = rowsToIso(el(timesContainerId));
-    if (times.length < 2) {
-      errEl.textContent = "Pick at least 2 proposed times.";
-      errEl.classList.remove("hidden");
-      return;
+    var times, fromOpenSlot = false;
+    if (lockedSlotIso) {
+      times = [lockedSlotIso];
+      fromOpenSlot = true;
+    } else {
+      times = rowsToIso(el(timesContainerId));
+      if (times.length < 2) {
+        errEl.textContent = "Pick at least 2 proposed times.";
+        errEl.classList.remove("hidden");
+        return;
+      }
     }
 
     var payload = { proposed_times: times };
+    if (fromOpenSlot) payload.from_open_slot = true;
     if (rescheduleOf) payload.reschedule_of_session_id = rescheduleOf;
 
     if (isReturning) {
@@ -437,7 +568,8 @@
     api("submit_request", "POST", payload).then(function (j) {
       btn.disabled = false;
       if (!j.ok) { errEl.textContent = j.error || "Something went wrong. Please try again."; errEl.classList.remove("hidden"); return; }
-      document.querySelectorAll("#pickMode, #newForm, #returningLookup, #returningForm").forEach(function (x) { x.classList.add("hidden"); });
+      clearLockedSlot();
+      document.querySelectorAll("#pickMode, #newForm, #returningLookup, #returningForm, #openTimesSection").forEach(function (x) { x.classList.add("hidden"); });
       el("successState").classList.remove("hidden");
       window.scrollTo({ top: el("successState").getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
     }).catch(function () {
