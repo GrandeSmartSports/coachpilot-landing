@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Coach's Hub - Lessons with Sophie</title>
+<link rel="manifest" href="/sophie/coach/manifest.webmanifest" />
+<meta name="theme-color" content="#1b2a4a" />
+<link rel="apple-touch-icon" href="/sophie/coach/icon-192.png" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231b2a4a'/><text x='50' y='68' font-family='Georgia,serif' font-size='56' font-weight='700' fill='%23faf6ef' text-anchor='middle'>S</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy:#1b2a4a; --navy-2:#263a63; --coral:#e8623c; --coral-dark:#c94f2c; --cream:#faf6ef;
+    --cream-2:#f1ead9; --gold:#d4a24c; --ink:#26324f; --muted:#8a8378; --line:#e6ddc9; --white:#fff;
+    --danger:#c94f2c; --flag:#fdeceb; --flag-line:#e8a49a;
+  }
+  * { box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--cream); color: var(--ink); }
+  body { font-family: "Inter", system-ui, -apple-system, sans-serif; padding-bottom: 78px; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; }
+  .hidden { display: none !important; }
+
+  /* ---- PIN gate ---- */
+  #pinGate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--navy); }
+  .pinCard { max-width: 340px; width: 100%; background: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+  .pinCard h1 { font-family: "Fraunces", Georgia, serif; color: var(--navy); font-size: 22px; margin-bottom: 4px; }
+  .pinCard .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+  input.pin { width: 100%; text-align: center; font-size: 28px; letter-spacing: 0.5em; border: 1.5px solid var(--line); border-radius: 12px; padding: 14px 10px; background: var(--cream); font-weight: 700; margin-bottom: 12px; }
+  .btnPrimary { width: 100%; background: var(--coral); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; padding: 14px; }
+  .err { color: var(--danger); font-size: 13px; margin-top: 10px; font-weight: 600; }
+
+  /* ---- shell ---- */
+  #app { display: none; }
+  header.top { background: var(--navy); color: var(--cream); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; }
+  header.top .brand { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 18px; }
+  header.top .brand small { display:block; font-family:"Inter",sans-serif; font-weight:600; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
+  .bell { background: rgba(255,255,255,0.12); border: none; color: var(--cream); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 600; }
+
+  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 14px rgba(27,42,74,0.06); }
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; }
+  .badge.new { background: #e6f0ff; color: #2a4d8f; }
+  .badge.returning { background: #eaf4ea; color: #2f6b3c; }
+  .badge.request { background: var(--cream-2); color: var(--navy); }
+  .badge.direct { background: #f0e6ff; color: #6a3fa0; }
+  .badge.recurring { background: #fff2df; color: #9a6a1a; }
+
+  .cardTitle { font-family: "Fraunces", Georgia, serif; font-size: 17px; color: var(--navy); margin: 8px 0 2px; }
+  .cardSub { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+  .quote { background: var(--cream); border-left: 3px solid var(--gold); padding: 8px 10px; font-size: 13.5px; color: var(--ink); border-radius: 6px; margin-bottom: 10px; font-style: italic; }
+
+  .timeChip { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 600; margin: 3px 4px 3px 0; background: var(--cream); }
+  .timeChip.flag { background: var(--flag); border-color: var(--flag-line); color: var(--coral-dark); }
+  .timeChip.counterChip { background: #fff2df; border-color: var(--gold); color: #7a5313; }
+
+  .actionsRow { display: flex; gap: 8px; margin-top: 10px; }
+  .actionsRow button { flex: 1; border: none; border-radius: 10px; padding: 10px; font-size: 13.5px; font-weight: 700; }
+  .btnAccept { background: var(--coral); color: #fff; }
+  .btnCounter { background: var(--cream-2); color: var(--navy); }
+  .btnDecline { background: #fff; color: var(--muted); border: 1.5px solid var(--line) !important; }
+
+  .expandPanel { background: var(--cream); border-radius: 12px; padding: 14px; margin-top: 10px; }
+  .expandPanel label { display:block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--navy); margin-bottom: 5px; margin-top: 10px; }
+  .expandPanel select, .expandPanel input[type=text], .expandPanel input[type=date], .expandPanel textarea {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 10px; font-size: 14px; background: #fff;
+  }
+  .radioTime { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1.5px solid var(--line); border-radius: 9px; margin-bottom: 6px; background: #fff; cursor: pointer; }
+  .radioTime.flag { border-color: var(--flag-line); background: var(--flag); }
+  .radioTime input { margin: 0; }
+  .confirmBtn { width: 100%; background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 11px; font-weight: 700; margin-top: 12px; }
+  .cancelLink { display: block; text-align: center; color: var(--muted); font-size: 12.5px; margin-top: 8px; }
+  .smallErr { color: var(--danger); font-size: 12.5px; margin-top: 8px; font-weight: 600; }
+  .smallMsg { color: var(--navy-2); font-size: 12.5px; margin-top: 8px; }
+  .chipsRow { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px; }
+  .chipBtn { flex: 0 0 auto; border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; }
+  .chipBtn.active { background: var(--coral); border-color: var(--coral); color: #fff; }
+
+  .emptyState { text-align: center; color: var(--muted); padding: 40px 10px; font-size: 14px; }
+
+  .fab { position: fixed; bottom: 86px; right: 18px; background: var(--coral); color: #fff; border: none; border-radius: 999px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(232,98,60,0.4); z-index: 20; }
+
+  nav.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line); display: flex; z-index: 30; }
+  nav.tabbar button { flex: 1; background: none; border: none; padding: 10px 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted); }
+  nav.tabbar button.active { color: var(--coral); }
+
+  .modalOverlay { position: fixed; inset: 0; background: rgba(27,42,74,0.5); display: flex; align-items: flex-end; justify-content: center; z-index: 50; }
+  .modalCard { background: #fff; border-radius: 18px 18px 0 0; padding: 20px 18px 26px; width: 100%; max-width: 640px; max-height: 88vh; overflow-y: auto; }
+  .modalCard h3 { font-family: "Fraunces", Georgia, serif; color: var(--navy); font-size: 19px; margin-bottom: 12px; }
+  .modalCard label { display:block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--navy); margin-bottom: 5px; margin-top: 10px; }
+  .modalCard input, .modalCard select, .modalCard textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 9px; padding: 10px; font-size: 14px; background: var(--cream); }
+  .closeModal { display:block; text-align:center; color: var(--muted); font-size: 13px; margin-top: 14px; }
+</style>
+</head>
+<body>
+
+<div id="pinGate">
+  <div class="pinCard">
+    <h1>Coach's Hub</h1>
+    <div class="sub">Lessons with Sophie</div>
+    <input class="pin" id="pinInput" type="password" inputmode="numeric" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" />
+    <button class="btnPrimary" id="pinGo">Unlock</button>
+    <p class="err hidden" id="pinErr"></p>
+  </div>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">Coach's Hub<small>Lessons with Sophie</small></div>
+    <button class="bell" id="pushBtn">Notifications Off</button>
+  </header>
+
+  <main>
+    <div class="panel active" id="panelRequests"><div id="requestsList"></div></div>
+    <div class="panel" id="panelSessions"><div id="sessionsList"></div></div>
+    <div class="panel" id="panelRecurring"><div id="recurringList"></div></div>
+    <div class="panel" id="panelLocations"><div id="locationsList"></div></div>
+    <div class="panel" id="panelSettings">
+      <div class="card">
+        <div class="cardTitle">Alert Email</div>
+        <div class="cardSub">New-request alerts and expiry nudges go here.</div>
+        <input type="text" id="alertEmailInput" placeholder="you@example.com" style="width:100%;border:1.5px solid var(--line);border-radius:9px;padding:10px;margin-bottom:10px;background:var(--cream);" />
+        <button class="confirmBtn" id="saveAlertEmail">Save</button>
+        <p class="smallMsg hidden" id="alertSaveMsg">Saved.</p>
+      </div>
+    </div>
+  </main>
+
+  <button class="fab hidden" id="fabAdd">+ Add</button>
+
+  <nav class="tabbar">
+    <button class="tabBtn active" data-panel="Requests">Requests</button>
+    <button class="tabBtn" data-panel="Sessions">Sessions</button>
+    <button class="tabBtn" data-panel="Recurring">Recurring</button>
+    <button class="tabBtn" data-panel="Locations">Locations</button>
+    <button class="tabBtn" data-panel="Settings">Settings</button>
+  </nav>
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway";
+  var VAPID_PUBLIC_KEY = "BDvNJFl3B89RD88uFJRJy01SQeZ2CLLZdPlKaPjQEtOilQng__xQoZ2tdQ0DXseF-7rsem9sfm45O0joeQ6Nn8s";
+  var el = function (id) { return document.getElementById(id); };
+  var PIN = localStorage.getItem("sls_admin_pin") || "";
+  var STATE = { requests: [], sessions: [], locations: [], recurring: [] };
+  var CLIENTS = [];
+
+  function api(action, method, body) {
+    return fetch(API + "?action=" + action, {
+      method: method || "GET",
+      headers: Object.assign({ "Content-Type": "application/json" }, PIN ? { "x-admin-pin": PIN } : {}),
+      body: body ? JSON.stringify(body) : undefined,
+    }).then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+  }
+
+  function fmt(iso) {
+    return new Date(iso).toLocaleString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " PT";
+  }
+
+  // ---------------- PIN gate ----------------
+  function tryUnlock(pin) {
+    var testPin = pin;
+    return fetch(API + "?action=admin_state", { headers: { "x-admin-pin": testPin } }).then(function (r) { return r.json(); }).then(function (j) {
+      return j.ok === true || Array.isArray(j.requests);
+    });
+  }
+  function boot() {
+    if (!PIN) { el("pinGate").classList.remove("hidden"); return; }
+    tryUnlock(PIN).then(function (ok) {
+      if (ok) { el("pinGate").classList.add("hidden"); el("app").style.display = "block"; loadAll(); }
+      else { localStorage.removeItem("sls_admin_pin"); PIN = ""; el("pinGate").classList.remove("hidden"); }
+    });
+  }
+  el("pinGo").addEventListener("click", function () {
+    var pin = el("pinInput").value.trim();
+    el("pinErr").classList.add("hidden");
+    if (!/^\d{4}$/.test(pin)) { el("pinErr").textContent = "Enter your 4-digit PIN."; el("pinErr").classList.remove("hidden"); return; }
+    tryUnlock(pin).then(function (ok) {
+      if (!ok) { el("pinErr").textContent = "Wrong PIN."; el("pinErr").classList.remove("hidden"); return; }
+      PIN = pin;
+      localStorage.setItem("sls_admin_pin", pin);
+      el("pinGate").classList.add("hidden");
+      el("app").style.display = "block";
+      loadAll();
+    });
+  });
+  el("pinInput").addEventListener("keydown", function (e) { if (e.key === "Enter") el("pinGo").click(); });
+  boot();
+
+  // ---------------- tabs ----------------
+  var PANELS = ["Requests", "Sessions", "Recurring", "Locations", "Settings"];
+  document.querySelectorAll(".tabBtn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".tabBtn").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      PANELS.forEach(function (p) { el("panel" + p).classList.toggle("active", "panel" + p === "panel" + btn.dataset.panel); });
+      var fab = el("fabAdd");
+      if (btn.dataset.panel === "Sessions") { fab.classList.remove("hidden"); fab.textContent = "+ Direct Booking"; fab.onclick = openDirectBookingModal; }
+      else if (btn.dataset.panel === "Recurring") { fab.classList.remove("hidden"); fab.textContent = "+ Recurring Series"; fab.onclick = openRecurringModal; }
+      else if (btn.dataset.panel === "Locations") { fab.classList.remove("hidden"); fab.textContent = "+ Add Location"; fab.onclick = openLocationModal; }
+      else { fab.classList.add("hidden"); }
+    });
+  });
+
+  // ---------------- load ----------------
+  function loadAll() {
+    Promise.all([
+      api("admin_state"),
+      api("admin_clients"),
+    ]).then(function (results) {
+      var state = results[0];
+      var clients = results[1];
+      if (state.ok) {
+        STATE = state;
+        renderRequests(); renderSessions(); renderRecurring(); renderLocations();
+        if (state.sophie_alert_email) el("alertEmailInput").value = state.sophie_alert_email;
+      }
+      if (clients.ok) CLIENTS = clients.clients;
+    });
+  }
+
+  // ---------------- Requests tab ----------------
+  function renderRequests() {
+    var list = el("requestsList");
+    if (!STATE.requests.length) { list.innerHTML = '<div class="emptyState">No pending requests. Nice and clear!</div>'; return; }
+    list.innerHTML = "";
+    STATE.requests.forEach(function (r) {
+      var card = document.createElement("div");
+      card.className = "card";
+      var timesHtml = (r.proposed_times || []).map(function (t) {
+        var flagged = r.overlap_flags && r.overlap_flags[t];
+        return '<span class="timeChip' + (flagged ? " flag" : "") + '">' + fmt(t) + (flagged ? " ⚠" : "") + "</span>";
+      }).join("");
+      var counterHtml = "";
+      if (r.status === "countered" && r.counter_time) {
+        var cFlagged = r.overlap_flags && r.overlap_flags[r.counter_time];
+        counterHtml = '<div style="margin-top:6px;"><span class="timeChip counterChip">Your counter: ' + fmt(r.counter_time) + (cFlagged ? " ⚠" : "") + '</span></div>';
+      }
+      card.innerHTML =
+        '<span class="badge ' + (r.is_new_client ? "new" : "returning") + '">' + (r.is_new_client ? "New" : "Returning") + '</span>' +
+        (r.status === "countered" ? ' <span class="badge request">Awaiting Reply</span>' : "") +
+        '<div class="cardTitle">' + esc(r.athlete_name) + (r.athlete_age ? " (" + esc(r.athlete_age) + ")" : "") + "</div>" +
+        '<div class="cardSub">for ' + esc(r.parent_name) + " &middot; " + esc(r.parent_email) + (r.parent_phone ? " &middot; " + esc(r.parent_phone) : "") + "</div>" +
+        (r.focus_notes ? '<div class="quote">' + esc(r.focus_notes) + "</div>" : "") +
+        (r.reschedule_of_session_id ? '<div class="smallMsg">Reschedule request</div>' : "") +
+        '<div>' + timesHtml + "</div>" + counterHtml +
+        '<div class="actionsRow" data-idx="' + r.id + '">' +
+        (r.status === "pending" ? '<button class="btnAccept" data-act="accept">Accept</button><button class="btnCounter" data-act="counter">Counter</button><button class="btnDecline" data-act="decline">Decline</button>' : '<button class="btnAccept" data-act="accept">Accept Counter</button><button class="btnDecline" data-act="decline">Decline</button>') +
+        "</div>" +
+        '<div class="expandArea"></div>';
+      list.appendChild(card);
+      card.querySelectorAll(".actionsRow button").forEach(function (btn) {
+        btn.addEventListener("click", function () { openRequestAction(card, r, btn.dataset.act); });
+      });
+    });
+  }
+
+  function locationOptionsHtml(selectedId) {
+    return STATE.locations.map(function (l) {
+      return '<option value="' + l.id + '"' + (l.id === selectedId ? " selected" : "") + ">" + esc(l.name) + "</option>";
+    }).join("");
+  }
+
+  function openRequestAction(card, r, act) {
+    var area = card.querySelector(".expandArea");
+    area.innerHTML = "";
+    var panel = document.createElement("div");
+    panel.className = "expandPanel";
+
+    if (act === "accept") {
+      var times = (r.proposed_times || []).slice();
+      if (r.status === "countered" && r.counter_time) times = [r.counter_time];
+      panel.innerHTML = "<label>Pick the time</label>" +
+        times.map(function (t, i) {
+          var flagged = r.overlap_flags && r.overlap_flags[t];
+          return '<label class="radioTime' + (flagged ? " flag" : "") + '"><input type="radio" name="acceptTime" value="' + t + '"' + (i === 0 ? " checked" : "") + "/> " + fmt(t) + (flagged ? " (overlaps another session)" : "") + "</label>";
+        }).join("") +
+        '<label>Location</label><select class="locSelect"><option value="">Choose a preset...</option>' + locationOptionsHtml() + '<option value="__new__">+ New location</option></select>' +
+        '<div class="newLocFields hidden"><input type="text" class="newLocName" placeholder="Location name" style="margin-bottom:6px;" /><input type="text" class="newLocAddr" placeholder="Address (optional)" /></div>' +
+        '<button class="confirmBtn">Confirm Accept</button><a class="cancelLink">Cancel</a><p class="smallErr hidden"></p>';
+      panel.querySelector(".locSelect").addEventListener("change", function () {
+        panel.querySelector(".newLocFields").classList.toggle("hidden", this.value !== "__new__");
+      });
+      panel.querySelector(".confirmBtn").addEventListener("click", function (forceFlag) {
+        return function () {
+          var chosen = panel.querySelector('input[name="acceptTime"]:checked').value;
+          var body = { request_id: r.id, response: "accept", chosen_time: chosen };
+          var locSel = panel.querySelector(".locSelect").value;
+          if (locSel === "__new__") body.new_location = { name: panel.querySelector(".newLocName").value.trim(), address: panel.querySelector(".newLocAddr").value.trim() };
+          else if (locSel) body.location_id = locSel;
+          submitAdminRespond(panel, body);
+        };
+      }());
+      panel.querySelector(".cancelLink").addEventListener("click", function () { area.innerHTML = ""; });
+    }
+
+    if (act === "counter") {
+      panel.innerHTML = "<label>Counter Date</label><input type='date' class='counterDate' min='" + new Date().toISOString().slice(0, 10) + "' />" +
+        "<label>Counter Time</label><div class='chipsRow counterChips'></div>" +
+        '<label>Location</label><select class="locSelect"><option value="">Choose a preset...</option>' + locationOptionsHtml() + '<option value="__new__">+ New location</option></select>' +
+        '<div class="newLocFields hidden"><input type="text" class="newLocName" placeholder="Location name" style="margin-bottom:6px;" /><input type="text" class="newLocAddr" placeholder="Address (optional)" /></div>' +
+        '<button class="confirmBtn">Send Counter-Offer</button><a class="cancelLink">Cancel</a><p class="smallErr hidden"></p>';
+      var chipsWrap = panel.querySelector(".counterChips");
+      buildChipTimes().forEach(function (c) {
+        var b = document.createElement("button");
+        b.type = "button"; b.className = "chipBtn"; b.textContent = c.label; b.dataset.value = c.value;
+        b.addEventListener("click", function () {
+          chipsWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); });
+          b.classList.add("active");
+        });
+        chipsWrap.appendChild(b);
+      });
+      panel.querySelector(".locSelect").addEventListener("change", function () {
+        panel.querySelector(".newLocFields").classList.toggle("hidden", this.value !== "__new__");
+      });
+      panel.querySelector(".cancelLink").addEventListener("click", function () { area.innerHTML = ""; });
+      panel.querySelector(".confirmBtn").addEventListener("click", function () {
+        var errEl = panel.querySelector(".smallErr");
+        var date = panel.querySelector(".counterDate").value;
+        var activeChip = panel.querySelector(".chipBtn.active");
+        if (!date || !activeChip) { errEl.textContent = "Pick a date and time."; errEl.classList.remove("hidden"); return; }
+        var iso = new Date(date + "T" + activeChip.dataset.value + ":00").toISOString();
+        var body = { request_id: r.id, response: "counter", counter_time: iso };
+        var locSel = panel.querySelector(".locSelect").value;
+        if (locSel === "__new__") body.new_location = { name: panel.querySelector(".newLocName").value.trim(), address: panel.querySelector(".newLocAddr").value.trim() };
+        else if (locSel) body.location_id = locSel;
+        else { errEl.textContent = "Pick a location."; errEl.classList.remove("hidden"); return; }
+        submitAdminRespond(panel, body);
+      });
+    }
+
+    if (act === "decline") {
+      panel.innerHTML = "<label>Message (optional)</label><textarea class='declineMsg' placeholder='e.g. those times don\\'t work but I can do next week...'></textarea>" +
+        '<button class="confirmBtn">Confirm Decline</button><a class="cancelLink">Cancel</a><p class="smallErr hidden"></p>';
+      panel.querySelector(".cancelLink").addEventListener("click", function () { area.innerHTML = ""; });
+      panel.querySelector(".confirmBtn").addEventListener("click", function () {
+        submitAdminRespond(panel, { request_id: r.id, response: "decline", message: panel.querySelector(".declineMsg").value.trim() });
+      });
+    }
+
+    area.appendChild(panel);
+  }
+
+  function submitAdminRespond(panel, body) {
+    var errEl = panel.querySelector(".smallErr");
+    if (errEl) errEl.classList.add("hidden");
+    api("admin_respond", "POST", body).then(function (j) {
+      if (!j.ok) {
+        if (j.error === "overlap") {
+          if (errEl) {
+            errEl.textContent = "This overlaps another session.";
+            errEl.classList.remove("hidden");
+          }
+          var force = document.createElement("button");
+          force.className = "confirmBtn";
+          force.style.background = "#c94f2c";
+          force.textContent = "Book Anyway";
+          force.addEventListener("click", function () { submitAdminRespond(panel, Object.assign({}, body, { force: true })); });
+          panel.appendChild(force);
+          return;
+        }
+        if (errEl) { errEl.textContent = j.error || "Something went wrong."; errEl.classList.remove("hidden"); }
+        return;
+      }
+      loadAll();
+    });
+  }
+
+  function buildChipTimes() {
+    var chips = [];
+    for (var h = 6; h <= 20; h++) {
+      for (var m = 0; m < 60; m += 30) {
+        if (h === 20 && m > 30) continue;
+        var hh = String(h).padStart(2, "0"), mm = String(m).padStart(2, "0");
+        var ampm = h < 12 ? "AM" : "PM"; var h12 = h % 12 === 0 ? 12 : h % 12;
+        chips.push({ value: hh + ":" + mm, label: h12 + (m === 0 ? ":00" : ":30") + " " + ampm });
+      }
+    }
+    return chips;
+  }
+
+  // ---------------- Sessions tab ----------------
+  function renderSessions() {
+    var list = el("sessionsList");
+    if (!STATE.sessions.length) { list.innerHTML = '<div class="emptyState">No upcoming sessions yet.</div>'; return; }
+    list.innerHTML = "";
+    STATE.sessions.forEach(function (s) {
+      var loc = STATE.locations.find(function (l) { return l.id === s.location_id; });
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<span class="badge ' + s.source + '">' + s.source + "</span>" +
+        '<div class="cardTitle">' + esc(s.athlete_name) + "</div>" +
+        '<div class="cardSub">' + fmt(s.starts_at) + (loc ? " &middot; " + esc(loc.name) : "") + "</div>" +
+        '<div class="actionsRow"><button class="btnDecline cancelSessBtn">Cancel Session</button></div>';
+      card.querySelector(".cancelSessBtn").addEventListener("click", function () {
+        if (!confirm("Cancel this session?")) return;
+        api("admin_session_cancel", "POST", { session_id: s.id }).then(function () { loadAll(); });
+      });
+      list.appendChild(card);
+    });
+  }
+
+  // ---------------- Recurring tab ----------------
+  var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  function renderRecurring() {
+    var list = el("recurringList");
+    if (!STATE.recurring.length) { list.innerHTML = '<div class="emptyState">No recurring series yet.</div>'; return; }
+    list.innerHTML = "";
+    STATE.recurring.forEach(function (r) {
+      var loc = STATE.locations.find(function (l) { return l.id === r.location_id; });
+      var client = CLIENTS.find(function (c) { return c.id === r.client_id; });
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="cardTitle">' + esc(r.athlete_name) + "</div>" +
+        '<div class="cardSub">Every ' + DOW[r.weekday] + " at " + esc(r.start_time.slice(0, 5)) + (client ? " &middot; " + esc(client.parent_name) : "") + (loc ? " &middot; " + esc(loc.name) : "") + "</div>" +
+        '<div class="actionsRow"><button class="btnDecline cancelRecBtn">Stop Series</button></div>';
+      card.querySelector(".cancelRecBtn").addEventListener("click", function () {
+        if (!confirm("Stop this recurring series? Future sessions will be cancelled.")) return;
+        api("admin_recurring_cancel", "POST", { recurring_id: r.id }).then(function () { loadAll(); });
+      });
+      list.appendChild(card);
+    });
+  }
+
+  // ---------------- Locations tab ----------------
+  function renderLocations() {
+    var list = el("locationsList");
+    if (!STATE.locations.length) { list.innerHTML = '<div class="emptyState">No locations yet. Add one with the button below.</div>'; return; }
+    list.innerHTML = "";
+    STATE.locations.forEach(function (l) {
+      var card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = '<div class="cardTitle">' + esc(l.name) + "</div>" + (l.address ? '<div class="cardSub">' + esc(l.address) + "</div>" : "");
+      list.appendChild(card);
+    });
+  }
+
+  // ---------------- Settings ----------------
+  el("saveAlertEmail").addEventListener("click", function () {
+    var email = el("alertEmailInput").value.trim();
+    if (!email) return;
+    api("admin_set_alert_email", "POST", { email: email }).then(function (j) {
+      if (j.ok) { el("alertSaveMsg").classList.remove("hidden"); setTimeout(function () { el("alertSaveMsg").classList.add("hidden"); }, 2500); }
+    });
+  });
+
+  // ---------------- modals ----------------
+  function closeModal() { el("modalRoot").innerHTML = ""; }
+  function clientPickerHtml() {
+    return '<label>Client</label><input type="text" class="clientSearch" placeholder="Search by name or email..." />' +
+      '<div class="clientResults" style="max-height:140px;overflow-y:auto;margin-top:4px;"></div>' +
+      '<input type="hidden" class="clientIdField" />' +
+      '<div class="newClientFields hidden"><label>New Parent Name</label><input type="text" class="ncParentName" />' +
+      '<label>New Parent Email</label><input type="text" class="ncParentEmail" /><label>New Parent Phone</label><input type="text" class="ncParentPhone" /></div>' +
+      '<a class="closeModal toggleNewClient" style="display:inline-block;margin-top:6px;">+ New client instead</a>';
+  }
+  function wireClientPicker(root) {
+    var search = root.querySelector(".clientSearch");
+    var results = root.querySelector(".clientResults");
+    var idField = root.querySelector(".clientIdField");
+    var newFields = root.querySelector(".newClientFields");
+    var toggle = root.querySelector(".toggleNewClient");
+    var usingNew = false;
+    toggle.addEventListener("click", function () {
+      usingNew = !usingNew;
+      newFields.classList.toggle("hidden", !usingNew);
+      search.classList.toggle("hidden", usingNew);
+      results.classList.toggle("hidden", usingNew);
+      toggle.textContent = usingNew ? "Use an existing client instead" : "+ New client instead";
+      if (usingNew) idField.value = "";
+    });
+    search.addEventListener("input", function () {
+      var q = search.value.trim().toLowerCase();
+      results.innerHTML = "";
+      if (!q) return;
+      CLIENTS.filter(function (c) { return (c.parent_name + " " + c.parent_email).toLowerCase().indexOf(q) !== -1; }).slice(0, 8).forEach(function (c) {
+        var row = document.createElement("div");
+        row.style.padding = "8px"; row.style.borderBottom = "1px solid var(--line)"; row.style.cursor = "pointer"; row.style.fontSize = "13.5px";
+        row.textContent = c.parent_name + " (" + c.parent_email + ")";
+        row.addEventListener("click", function () { idField.value = c.id; search.value = c.parent_name; results.innerHTML = ""; });
+        results.appendChild(row);
+      });
+    });
+    return { isNew: function () { return usingNew; } };
+  }
+
+  function openDirectBookingModal() {
+    var html = '<div class="modalOverlay"><div class="modalCard"><h3>New Direct Booking</h3>' +
+      clientPickerHtml() +
+      '<label>Athlete Name</label><input type="text" class="athleteName" />' +
+      '<label>Date</label><input type="date" class="bookDate" min="' + new Date().toISOString().slice(0, 10) + '" />' +
+      '<label>Time</label><div class="chipsRow bookChips"></div>' +
+      '<label>Location</label><select class="locSelect"><option value="">None</option>' + locationOptionsHtml() + '</select>' +
+      '<label>Notes</label><textarea class="bookNotes"></textarea>' +
+      '<button class="confirmBtn">Create Booking</button><p class="smallErr hidden"></p>' +
+      '<a class="closeModal">Cancel</a></div></div>';
+    el("modalRoot").innerHTML = html;
+    var root = el("modalRoot");
+    var picker = wireClientPicker(root);
+    var chipsWrap = root.querySelector(".bookChips");
+    buildChipTimes().forEach(function (c) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chipBtn"; b.textContent = c.label; b.dataset.value = c.value;
+      b.addEventListener("click", function () { chipsWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); b.classList.add("active"); });
+      chipsWrap.appendChild(b);
+    });
+    root.querySelectorAll(".closeModal").forEach(function (x) { x.addEventListener("click", closeModal); });
+    root.querySelector(".confirmBtn").addEventListener("click", function () {
+      var errEl = root.querySelector(".smallErr");
+      var date = root.querySelector(".bookDate").value;
+      var chip = root.querySelector(".bookChips .chipBtn.active");
+      var athleteName = root.querySelector(".athleteName").value.trim();
+      if (!date || !chip || !athleteName) { errEl.textContent = "Fill in athlete, date, and time."; errEl.classList.remove("hidden"); return; }
+      var body = {
+        athlete_name: athleteName,
+        starts_at: new Date(date + "T" + chip.dataset.value + ":00").toISOString(),
+        location_id: root.querySelector(".locSelect").value || undefined,
+        notes: root.querySelector(".bookNotes").value.trim(),
+      };
+      var clientId = root.querySelector(".clientIdField").value;
+      if (clientId) body.client_id = clientId;
+      else if (picker.isNew()) {
+        body.new_client = {
+          parent_name: root.querySelector(".ncParentName").value.trim(),
+          parent_email: root.querySelector(".ncParentEmail").value.trim(),
+          parent_phone: root.querySelector(".ncParentPhone").value.trim(),
+        };
+      } else { errEl.textContent = "Pick a client or add a new one."; errEl.classList.remove("hidden"); return; }
+      api("admin_direct_booking", "POST", body).then(function (j) {
+        if (!j.ok) {
+          if (j.error === "overlap") {
+            errEl.textContent = "This overlaps another session.";
+            errEl.classList.remove("hidden");
+            var force = document.createElement("button");
+            force.className = "confirmBtn"; force.style.background = "#c94f2c"; force.textContent = "Book Anyway";
+            force.addEventListener("click", function () { api("admin_direct_booking", "POST", Object.assign({}, body, { force: true })).then(function (j2) { if (j2.ok) { closeModal(); loadAll(); } }); });
+            root.querySelector(".modalCard").appendChild(force);
+            return;
+          }
+          errEl.textContent = j.error || "Could not book."; errEl.classList.remove("hidden"); return;
+        }
+        closeModal(); loadAll();
+      });
+    });
+  }
+
+  function openRecurringModal() {
+    var html = '<div class="modalOverlay"><div class="modalCard"><h3>New Recurring Series</h3>' +
+      clientPickerHtml() +
+      '<label>Athlete Name</label><input type="text" class="athleteName" />' +
+      '<label>Day of Week</label><select class="weekdaySelect">' + DOW.map(function (d, i) { return '<option value="' + i + '">' + d + "</option>"; }).join("") + "</select>" +
+      '<label>Time</label><div class="chipsRow bookChips"></div>' +
+      '<label>Location</label><select class="locSelect"><option value="">None</option>' + locationOptionsHtml() + '</select>' +
+      '<label>Starts On</label><input type="date" class="startsOn" value="' + new Date().toISOString().slice(0, 10) + '" />' +
+      '<label>Ends On (optional)</label><input type="date" class="endsOn" />' +
+      '<label>Notes</label><textarea class="bookNotes"></textarea>' +
+      '<button class="confirmBtn">Create Series</button><p class="smallErr hidden"></p>' +
+      '<a class="closeModal">Cancel</a></div></div>';
+    el("modalRoot").innerHTML = html;
+    var root = el("modalRoot");
+    var picker = wireClientPicker(root);
+    var chipsWrap = root.querySelector(".bookChips");
+    buildChipTimes().forEach(function (c) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chipBtn"; b.textContent = c.label; b.dataset.value = c.value;
+      b.addEventListener("click", function () { chipsWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); b.classList.add("active"); });
+      chipsWrap.appendChild(b);
+    });
+    root.querySelectorAll(".closeModal").forEach(function (x) { x.addEventListener("click", closeModal); });
+    root.querySelector(".confirmBtn").addEventListener("click", function () {
+      var errEl = root.querySelector(".smallErr");
+      var chip = root.querySelector(".bookChips .chipBtn.active");
+      var athleteName = root.querySelector(".athleteName").value.trim();
+      var clientId = root.querySelector(".clientIdField").value;
+      if (!chip || !athleteName || !clientId) { errEl.textContent = "Pick a client, athlete, and time (new clients must be created via Direct Booking first)."; errEl.classList.remove("hidden"); return; }
+      var body = {
+        client_id: clientId,
+        athlete_name: athleteName,
+        weekday: Number(root.querySelector(".weekdaySelect").value),
+        start_time: chip.dataset.value,
+        location_id: root.querySelector(".locSelect").value || undefined,
+        starts_on: root.querySelector(".startsOn").value,
+        ends_on: root.querySelector(".endsOn").value || undefined,
+        notes: root.querySelector(".bookNotes").value.trim(),
+      };
+      api("admin_recurring_create", "POST", body).then(function (j) {
+        if (!j.ok) { errEl.textContent = j.error || "Could not create series."; errEl.classList.remove("hidden"); return; }
+        closeModal(); loadAll();
+      });
+    });
+  }
+
+  function openLocationModal() {
+    var html = '<div class="modalOverlay"><div class="modalCard"><h3>Add Location</h3>' +
+      '<label>Name</label><input type="text" class="locName" placeholder="e.g. Bonney Lake HS Field" />' +
+      '<label>Address (optional)</label><input type="text" class="locAddr" />' +
+      '<button class="confirmBtn">Save Location</button><p class="smallErr hidden"></p>' +
+      '<a class="closeModal">Cancel</a></div></div>';
+    el("modalRoot").innerHTML = html;
+    var root = el("modalRoot");
+    root.querySelectorAll(".closeModal").forEach(function (x) { x.addEventListener("click", closeModal); });
+    root.querySelector(".confirmBtn").addEventListener("click", function () {
+      var errEl = root.querySelector(".smallErr");
+      var name = root.querySelector(".locName").value.trim();
+      if (!name) { errEl.textContent = "Name is required."; errEl.classList.remove("hidden"); return; }
+      api("admin_location", "POST", { name: name, address: root.querySelector(".locAddr").value.trim() }).then(function (j) {
+        if (!j.ok) { errEl.textContent = j.error || "Could not save."; errEl.classList.remove("hidden"); return; }
+        closeModal(); loadAll();
+      });
+    });
+  }
+
+  // ---------------- push notifications ----------------
+  function urlBase64ToUint8Array(s) {
+    s = (s + "===".slice((s.length + 3) % 4)).replace(/-/g, "+").replace(/_/g, "/");
+    var raw = atob(s); var out = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+    return out;
+  }
+  function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+  function ensureSW() {
+    if (!pushSupported()) return Promise.reject(new Error("Not supported on this device."));
+    return navigator.serviceWorker.getRegistration("/sophie/coach/sw.js").then(function (reg) {
+      return reg || navigator.serviceWorker.register("/sophie/coach/sw.js", { scope: "/sophie/coach/" });
+    });
+  }
+  function refreshBell() {
+    if (!pushSupported()) { el("pushBtn").textContent = "Not Supported"; return; }
+    ensureSW().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+      el("pushBtn").textContent = sub ? "Notifications On" : "Notifications Off";
+    }).catch(function () {});
+  }
+  el("pushBtn").addEventListener("click", function () {
+    if (!pushSupported()) { alert("Push notifications aren't supported on this browser/device."); return; }
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") return;
+      ensureSW().then(function (reg) {
+        return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      }).then(function (sub) {
+        var raw = sub.toJSON();
+        return api("admin_push_subscribe", "POST", { subscription: { endpoint: raw.endpoint, keys: raw.keys } });
+      }).then(function () { refreshBell(); });
+    });
+  });
+  refreshBell();
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; });
+  }
+})();
+</script>
+</body>
+</html>

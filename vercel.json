@@ -4,6 +4,16 @@
       "source": "/fields",
       "destination": "/fields/",
       "permanent": false
+    },
+    {
+      "source": "/sophie",
+      "destination": "/sophie/",
+      "permanent": false
+    },
+    {
+      "source": "/sophie/coach",
+      "destination": "/sophie/coach/",
+      "permanent": false
     }
   ],
   "rewrites": [

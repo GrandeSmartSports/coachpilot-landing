@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Lessons with Sophie - Private Softball &amp; Baseball Lessons</title>
+<meta name="description" content="Book a private 1-on-1 lesson with Sophie. Request a time, Sophie confirms. No accounts, no hassle." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231b2a4a'/><text x='50' y='68' font-family='Georgia,serif' font-size='56' font-weight='700' fill='%23faf6ef' text-anchor='middle'>S</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #1b2a4a; --navy-2: #263a63; --coral: #e8623c; --coral-dark: #c94f2c;
+    --cream: #faf6ef; --cream-2: #f1ead9; --gold: #d4a24c; --ink: #26324f; --muted: #8a8378;
+    --line: #e6ddc9; --white: #ffffff;
+    --shadow: 0 10px 30px rgba(27, 42, 74, 0.10);
+    --disp: "Fraunces", Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--cream); color: var(--ink); }
+  body { font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; padding-bottom: 60px; }
+  button { font-family: inherit; cursor: pointer; }
+  a { color: var(--coral); }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 18px; }
+
+  .hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, #35507f 100%); padding: 46px 18px 54px; text-align: center; color: var(--cream); }
+  .avatar { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 16px; background: linear-gradient(135deg, var(--coral), var(--gold)); display: flex; align-items: center; justify-content: center; font-family: var(--disp); font-weight: 700; font-size: 40px; color: var(--white); box-shadow: 0 8px 22px rgba(0,0,0,0.25); }
+  .photo-note { display: inline-block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(250,246,239,0.55); border: 1px dashed rgba(250,246,239,0.35); border-radius: 999px; padding: 3px 10px; margin-bottom: 18px; }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: 34px; letter-spacing: 0.01em; margin-bottom: 6px; }
+  .hero .tag { font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 20px; }
+  .hero .bio { font-size: 14.5px; color: rgba(250,246,239,0.82); max-width: 420px; margin: 0 auto 24px; font-style: italic; border-left: 2px solid rgba(212,162,76,0.5); padding-left: 12px; text-align: left; }
+  .cta { display: inline-block; background: var(--coral); color: var(--white); text-decoration: none; font-weight: 600; font-size: 16px; padding: 14px 30px; border-radius: 999px; box-shadow: 0 8px 20px rgba(232,98,60,0.35); }
+
+  .section { padding: 34px 0 0; }
+  .card { background: var(--white); border-radius: 18px; padding: 24px 20px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+
+  .modeToggle { display: flex; background: var(--cream-2); border-radius: 999px; padding: 4px; margin-bottom: 22px; }
+  .modeToggle button { flex: 1; border: none; background: none; padding: 10px; border-radius: 999px; font-weight: 600; font-size: 14px; color: var(--muted); transition: all 0.15s; }
+  .modeToggle button.active { background: var(--navy); color: var(--cream); }
+
+  h2.formTitle { font-family: var(--disp); font-size: 22px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .sub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; }
+
+  label { display: block; font-size: 12.5px; font-weight: 600; letter-spacing: 0.03em; color: var(--navy); margin-bottom: 6px; text-transform: uppercase; }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=date], select, textarea {
+    width: 100%; font-family: inherit; font-size: 15px; border: 1.5px solid var(--line); border-radius: 10px;
+    padding: 11px 12px; background: var(--cream); color: var(--ink); margin-bottom: 14px;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--coral); background: var(--white); }
+  textarea { resize: vertical; min-height: 70px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .field-row > div { min-width: 0; }
+
+  .timeRow { border: 1.5px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; background: var(--cream); position: relative; }
+  .timeRow .rmBtn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--muted); font-size: 18px; line-height: 1; padding: 4px 8px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 6px; -webkit-overflow-scrolling: touch; }
+  .chip { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); border-radius: 999px; padding: 9px 15px; font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+  .chip.active { background: var(--coral); border-color: var(--coral); color: var(--white); }
+  .addTimeBtn { width: 100%; border: 1.5px dashed var(--line); background: none; color: var(--navy); font-weight: 600; font-size: 14px; padding: 11px; border-radius: 10px; margin-bottom: 8px; }
+
+  .btnPrimary { width: 100%; background: var(--coral); color: var(--white); border: none; border-radius: 12px; font-weight: 700; font-size: 16px; padding: 15px; margin-top: 6px; }
+  .btnPrimary:disabled { opacity: 0.5; }
+  .btnGhost { width: 100%; background: var(--cream-2); color: var(--navy); border: none; border-radius: 12px; font-weight: 600; font-size: 15px; padding: 13px; margin-top: 10px; }
+  .err { color: var(--coral-dark); font-size: 13.5px; margin-top: 10px; font-weight: 600; }
+  .msg { color: var(--navy-2); font-size: 13.5px; margin-top: 10px; }
+  .hidden { display: none !important; }
+
+  .success { text-align: center; padding: 20px 6px; }
+  .success .check { width: 58px; height: 58px; border-radius: 50%; background: var(--navy); color: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 16px; }
+  .success h3 { font-family: var(--disp); font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+  .success p { color: var(--muted); font-size: 14.5px; }
+
+  .footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 34px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="avatar">S</div>
+  <div><span class="photo-note">Sophie's photo goes here</span></div>
+  <h1>Lessons with Sophie</h1>
+  <div class="tag">Private Softball &amp; Baseball Lessons</div>
+  <p class="bio" id="bioPlaceholder">Sophie's bio goes here. A couple sentences on her playing background, positions, and coaching experience. (Coach: swap this paragraph for Sophie's own words.)</p>
+  <a class="cta" href="#requestForm">Request a Session</a>
+</div>
+
+<div class="wrap">
+  <div class="section" id="requestForm">
+    <div class="card">
+
+      <div id="pickMode">
+        <div class="modeToggle">
+          <button type="button" id="tabNew" class="active">New Client</button>
+          <button type="button" id="tabReturning">Returning Client</button>
+        </div>
+      </div>
+
+      <!-- RETURNING: lookup -->
+      <div id="returningLookup" class="hidden">
+        <h2 class="formTitle">Book Again</h2>
+        <p class="sub">Enter the phone or email on file and we'll send a one-tap booking link.</p>
+        <label for="contact">Phone or Email</label>
+        <input type="text" id="contact" placeholder="you@example.com or (555) 555-5555" autocomplete="off" />
+        <button class="btnPrimary" id="sendLinkBtn">Email Me a Booking Link</button>
+        <p class="msg hidden" id="lookupMsg"></p>
+        <p class="err hidden" id="lookupErr"></p>
+      </div>
+
+      <!-- RETURNING: pre-filled after magic link -->
+      <div id="returningForm" class="hidden">
+        <h2 class="formTitle" id="welcomeBack">Welcome back!</h2>
+        <p class="sub" id="rescheduleNote">Pick 2-3 times that work and we'll take it from there.</p>
+        <label for="rAthlete">Athlete</label>
+        <select id="rAthleteSelect"></select>
+        <div id="rNewAthleteWrap" class="hidden">
+          <label for="rAthleteName">Athlete Name</label>
+          <input type="text" id="rAthleteName" placeholder="Athlete's name" />
+          <label for="rAthleteAge">Age</label>
+          <input type="text" id="rAthleteAge" placeholder="Age" />
+        </div>
+        <label>What should Sophie work on?</label>
+        <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
+        <label>Proposed Times</label>
+        <div id="rTimeRows"></div>
+        <button type="button" class="addTimeBtn" id="rAddTime">+ Add Another Time</button>
+        <button class="btnPrimary" id="rSubmitBtn">Send Request</button>
+        <p class="err hidden" id="rErr"></p>
+      </div>
+
+      <!-- NEW client -->
+      <div id="newForm">
+        <h2 class="formTitle">Request a Session</h2>
+        <p class="sub">Propose 2-3 times and tell us a bit about your athlete. Sophie will respond within 48 hours.</p>
+
+        <label for="nAthleteName">Athlete Name</label>
+        <input type="text" id="nAthleteName" placeholder="Athlete's name" />
+        <label for="nAthleteAge">Age</label>
+        <input type="text" id="nAthleteAge" placeholder="Age" />
+        <label>What should Sophie work on?</label>
+        <textarea id="nNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
+
+        <label for="nParentName">Parent Name</label>
+        <input type="text" id="nParentName" placeholder="Your name" />
+        <div class="field-row">
+          <div>
+            <label for="nParentPhone">Phone</label>
+            <input type="tel" id="nParentPhone" placeholder="(555) 555-5555" />
+          </div>
+          <div>
+            <label for="nParentEmail">Email</label>
+            <input type="email" id="nParentEmail" placeholder="you@example.com" />
+          </div>
+        </div>
+        <label for="nHowFound">How did you hear about Sophie?</label>
+        <select id="nHowFound">
+          <option value="">Select one</option>
+          <option value="Word of mouth">Word of mouth</option>
+          <option value="Facebook / Instagram">Facebook / Instagram</option>
+          <option value="Little League / Cougars">Little League / Cougars</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Proposed Times</label>
+        <div id="nTimeRows"></div>
+        <button type="button" class="addTimeBtn" id="nAddTime">+ Add Another Time</button>
+
+        <button class="btnPrimary" id="nSubmitBtn">Send Request</button>
+        <p class="err hidden" id="nErr"></p>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="successState" class="success hidden">
+        <div class="check">&#10003;</div>
+        <h3>Request Sent</h3>
+        <p>Sophie will respond within 48 hours.</p>
+      </div>
+
+    </div>
+  </div>
+  <div class="footer">Scheduling powered by CoachPilot</div>
+</div>
+
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway";
+  var el = function (id) { return document.getElementById(id); };
+  var params = new URLSearchParams(window.location.search);
+
+  function api(action, method, body) {
+    return fetch(API + "?action=" + action, {
+      method: method,
+      headers: { "Content-Type": "application/json" },
+      body: body ? JSON.stringify(body) : undefined,
+    }).then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+  }
+
+  // -------- time chip picker --------
+  function buildChips() {
+    var chips = [];
+    for (var h = 6; h <= 20; h++) {
+      for (var m = 0; m < 60; m += 30) {
+        if (h === 20 && m > 30) continue;
+        var hh = String(h).padStart(2, "0");
+        var mm = String(m).padStart(2, "0");
+        var ampm = h < 12 ? "AM" : "PM";
+        var h12 = h % 12 === 0 ? 12 : h % 12;
+        chips.push({ value: hh + ":" + mm, label: h12 + (m === 0 ? ":00" : ":30") + " " + ampm });
+      }
+    }
+    return chips;
+  }
+  var CHIPS = buildChips();
+
+  function todayStr() {
+    var d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function makeTimeRow(container, canRemove) {
+    var row = document.createElement("div");
+    row.className = "timeRow";
+    row.innerHTML =
+      (canRemove ? '<button type="button" class="rmBtn">&times;</button>' : "") +
+      '<label>Date</label>' +
+      '<input type="date" class="rowDate" min="' + todayStr() + '" />' +
+      '<label>Time</label>' +
+      '<div class="chips rowChips"></div>';
+    var chipsWrap = row.querySelector(".rowChips");
+    CHIPS.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip";
+      b.textContent = c.label;
+      b.dataset.value = c.value;
+      b.addEventListener("click", function () {
+        chipsWrap.querySelectorAll(".chip").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+      });
+      chipsWrap.appendChild(b);
+    });
+    if (canRemove) {
+      row.querySelector(".rmBtn").addEventListener("click", function () { row.remove(); });
+    }
+    container.appendChild(row);
+    return row;
+  }
+
+  function rowsToIso(container) {
+    var out = [];
+    container.querySelectorAll(".timeRow").forEach(function (row) {
+      var date = row.querySelector(".rowDate").value;
+      var activeChip = row.querySelector(".chip.active");
+      if (date && activeChip) {
+        var iso = new Date(date + "T" + activeChip.dataset.value + ":00").toISOString();
+        out.push(iso);
+      }
+    });
+    return out;
+  }
+
+  function setupTimeRows(containerId, addBtnId) {
+    var container = el(containerId);
+    makeTimeRow(container, false);
+    makeTimeRow(container, false);
+    el(addBtnId).addEventListener("click", function () {
+      if (container.querySelectorAll(".timeRow").length >= 3) return;
+      makeTimeRow(container, true);
+      if (container.querySelectorAll(".timeRow").length >= 3) el(addBtnId).classList.add("hidden");
+    });
+  }
+  setupTimeRows("nTimeRows", "nAddTime");
+  setupTimeRows("rTimeRows", "rAddTime");
+
+  // -------- mode toggle --------
+  el("tabNew").addEventListener("click", function () {
+    el("tabNew").classList.add("active"); el("tabReturning").classList.remove("active");
+    el("newForm").classList.remove("hidden");
+    el("returningLookup").classList.add("hidden");
+    el("returningForm").classList.add("hidden");
+  });
+  el("tabReturning").addEventListener("click", function () {
+    el("tabReturning").classList.add("active"); el("tabNew").classList.remove("active");
+    el("newForm").classList.add("hidden");
+    el("returningLookup").classList.remove("hidden");
+    el("returningForm").classList.add("hidden");
+  });
+
+  // -------- returning: request a login link --------
+  el("sendLinkBtn").addEventListener("click", function () {
+    var contact = el("contact").value.trim();
+    el("lookupErr").classList.add("hidden");
+    el("lookupMsg").classList.add("hidden");
+    if (!contact) { el("lookupErr").textContent = "Enter your phone or email."; el("lookupErr").classList.remove("hidden"); return; }
+    el("sendLinkBtn").disabled = true;
+    api("request_login", "POST", { contact: contact }).then(function (j) {
+      el("sendLinkBtn").disabled = false;
+      if (!j.ok) { el("lookupErr").textContent = j.error || "Something went wrong."; el("lookupErr").classList.remove("hidden"); return; }
+      if (!j.found) {
+        el("lookupErr").textContent = "We couldn't find an account with that info. Try the New Client tab instead.";
+        el("lookupErr").classList.remove("hidden");
+        return;
+      }
+      el("lookupMsg").textContent = "Check your email! The link works for 10 minutes.";
+      el("lookupMsg").classList.remove("hidden");
+    }).catch(function () {
+      el("sendLinkBtn").disabled = false;
+      el("lookupErr").textContent = "Could not reach the server. Try again.";
+      el("lookupErr").classList.remove("hidden");
+    });
+  });
+
+  // -------- returning: magic link landing --------
+  var loginToken = params.get("login_token");
+  var rescheduleOf = params.get("reschedule_of");
+  var currentClient = null;
+  if (loginToken) {
+    fetch(API + "?action=login_verify&token=" + encodeURIComponent(loginToken)).then(function (r) {
+      return r.json().then(function (j) { j._status = r.status; return j; });
+    }).then(function (j) {
+      el("pickMode").classList.add("hidden");
+      el("newForm").classList.add("hidden");
+      el("returningLookup").classList.add("hidden");
+      if (!j.ok) {
+        el("returningForm").classList.remove("hidden");
+        el("welcomeBack").textContent = "Link expired";
+        document.getElementById("rTimeRows").parentElement.querySelectorAll("label,select,textarea,button").forEach(function (x) { x.classList.add("hidden"); });
+        el("rescheduleNote").textContent = j.error || "This booking link has expired. Please use Returning Client to request a new one.";
+        return;
+      }
+      currentClient = j.client;
+      el("returningForm").classList.remove("hidden");
+      var first = (j.client.parent_name || "").split(" ")[0] || "there";
+      el("welcomeBack").textContent = "Welcome back, " + first + "!";
+      if (rescheduleOf) el("rescheduleNote").textContent = "Pick 2-3 new times and we'll get this rescheduled.";
+      var sel = el("rAthleteSelect");
+      sel.innerHTML = "";
+      (j.client.athletes || []).forEach(function (a) {
+        var opt = document.createElement("option");
+        opt.value = a.name; opt.textContent = a.name;
+        sel.appendChild(opt);
+      });
+      var newOpt = document.createElement("option");
+      newOpt.value = "__new__"; newOpt.textContent = "Someone new";
+      sel.appendChild(newOpt);
+      sel.addEventListener("change", function () {
+        el("rNewAthleteWrap").classList.toggle("hidden", sel.value !== "__new__");
+      });
+    }).catch(function () {
+      el("returningForm").classList.remove("hidden");
+      el("rescheduleNote").textContent = "Could not reach the server. Try again.";
+    });
+  }
+
+  function validateAndSubmit(mode) {
+    var isReturning = mode === "returning";
+    var timesContainerId = isReturning ? "rTimeRows" : "nTimeRows";
+    var errEl = el(isReturning ? "rErr" : "nErr");
+    var btn = el(isReturning ? "rSubmitBtn" : "nSubmitBtn");
+    errEl.classList.add("hidden");
+
+    var times = rowsToIso(el(timesContainerId));
+    if (times.length < 2) {
+      errEl.textContent = "Pick at least 2 proposed times.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    var payload = { proposed_times: times };
+    if (rescheduleOf) payload.reschedule_of_session_id = rescheduleOf;
+
+    if (isReturning) {
+      var athleteName, athleteAge;
+      var sel = el("rAthleteSelect");
+      if (sel.value === "__new__") {
+        athleteName = el("rAthleteName").value.trim();
+        athleteAge = el("rAthleteAge").value.trim();
+        if (!athleteName) { errEl.textContent = "Enter the athlete's name."; errEl.classList.remove("hidden"); return; }
+      } else {
+        athleteName = sel.value;
+        athleteAge = "";
+      }
+      payload.mode = "returning";
+      payload.login_token = loginToken;
+      payload.athlete_name = athleteName;
+      payload.athlete_age = athleteAge;
+      payload.focus_notes = el("rNotes").value.trim();
+    } else {
+      var athlete_name = el("nAthleteName").value.trim();
+      var parent_name = el("nParentName").value.trim();
+      var parent_email = el("nParentEmail").value.trim();
+      if (!athlete_name) { errEl.textContent = "Enter the athlete's name."; errEl.classList.remove("hidden"); return; }
+      if (!parent_name) { errEl.textContent = "Enter your name."; errEl.classList.remove("hidden"); return; }
+      if (!parent_email || parent_email.indexOf("@") === -1) { errEl.textContent = "Enter a valid email."; errEl.classList.remove("hidden"); return; }
+      payload.mode = "new";
+      payload.athlete_name = athlete_name;
+      payload.athlete_age = el("nAthleteAge").value.trim();
+      payload.focus_notes = el("nNotes").value.trim();
+      payload.parent_name = parent_name;
+      payload.parent_phone = el("nParentPhone").value.trim();
+      payload.parent_email = parent_email;
+      payload.how_found = el("nHowFound").value;
+    }
+
+    btn.disabled = true;
+    api("submit_request", "POST", payload).then(function (j) {
+      btn.disabled = false;
+      if (!j.ok) { errEl.textContent = j.error || "Something went wrong. Please try again."; errEl.classList.remove("hidden"); return; }
+      document.querySelectorAll("#pickMode, #newForm, #returningLookup, #returningForm").forEach(function (x) { x.classList.add("hidden"); });
+      el("successState").classList.remove("hidden");
+      window.scrollTo({ top: el("successState").getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
+    }).catch(function () {
+      btn.disabled = false;
+      errEl.textContent = "Could not reach the server. Try again.";
+      errEl.classList.remove("hidden");
+    });
+  }
+
+  el("nSubmitBtn").addEventListener("click", function () { validateAndSubmit("new"); });
+  el("rSubmitBtn").addEventListener("click", function () { validateAndSubmit("returning"); });
+})();
+</script>
+</body>
+</html>

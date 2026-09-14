@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Manage Your Session - Lessons with Sophie</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%231b2a4a'/><text x='50' y='68' font-family='Georgia,serif' font-size='56' font-weight='700' fill='%23faf6ef' text-anchor='middle'>S</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root { --navy:#1b2a4a; --coral:#e8623c; --coral-dark:#c94f2c; --cream:#faf6ef; --gold:#d4a24c; --ink:#26324f; --muted:#8a8378; --line:#e6ddc9; }
+  * { box-sizing: border-box; margin:0; padding:0; }
+  html, body { background: var(--cream); color: var(--ink); font-family: "Inter", system-ui, sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding: 20px; }
+  .card { max-width: 420px; width: 100%; background: #fff; border-radius: 18px; padding: 28px 24px; box-shadow: 0 14px 34px rgba(27,42,74,0.14); }
+  h1 { font-family: "Fraunces", Georgia, serif; font-size: 22px; color: var(--navy); margin-bottom: 6px; }
+  .time { font-size: 19px; font-weight: 700; color: var(--navy); margin: 10px 0 4px; }
+  .loc { color: var(--muted); font-size: 14px; margin-bottom: 22px; }
+  .status { display:inline-block; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:4px 10px; border-radius:999px; background:#f1ead9; color:var(--navy); margin-bottom:10px; }
+  .btn { width: 100%; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; padding: 15px; margin-bottom: 10px; }
+  .btnGhost { background: #f1ead9; color: var(--navy); }
+  .btnDanger { background: #fff; color: var(--coral-dark); border: 1.5px solid var(--coral); }
+  .hidden { display: none !important; }
+  .loading, .done, .err { text-align: center; color: var(--muted); padding: 10px 0; }
+  .done h2 { font-family: "Fraunces", Georgia, serif; color: var(--navy); margin-bottom: 6px; }
+  .confirmBox { background: var(--cream); border-radius: 12px; padding: 14px; margin-bottom: 14px; font-size: 13.5px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="card">
+  <div id="loading" class="loading">Loading&hellip;</div>
+  <div id="session" class="hidden">
+    <span class="status" id="statusBadge"></span>
+    <h1>Lesson with Sophie</h1>
+    <p id="athleteLine"></p>
+    <p class="time" id="timeLine"></p>
+    <p class="loc" id="locLine"></p>
+
+    <div id="mainActions">
+      <button class="btn btnGhost" id="rescheduleBtn">Request a Different Time</button>
+      <button class="btn btnDanger" id="cancelBtn">Cancel This Session</button>
+    </div>
+    <div id="confirmCancel" class="hidden">
+      <div class="confirmBox">Are you sure you want to cancel this session? This can't be undone.</div>
+      <button class="btn btnDanger" id="confirmCancelBtn">Yes, Cancel It</button>
+      <button class="btn btnGhost" id="backBtn">Never Mind</button>
+    </div>
+  </div>
+  <div id="done" class="done hidden">
+    <h2 id="doneTitle"></h2>
+    <p id="doneBody"></p>
+  </div>
+  <div id="err" class="err hidden"></div>
+</div>
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway";
+  var el = function (id) { return document.getElementById(id); };
+  var token = new URLSearchParams(window.location.search).get("token") || "";
+  function show(id) { ["loading", "session", "done", "err"].forEach(function (x) { el(x).classList.toggle("hidden", x !== id); }); }
+
+  if (!token) { show("err"); el("err").textContent = "This link is missing its token."; return; }
+
+  function load() {
+    fetch(API + "?action=manage_info&token=" + encodeURIComponent(token)).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) { show("err"); el("err").textContent = j.error || "This session could not be found."; return; }
+      var s = j.session;
+      show("session");
+      el("statusBadge").textContent = s.status;
+      el("athleteLine").textContent = "For " + s.athlete_name;
+      el("timeLine").textContent = s.starts_at_display;
+      if (s.location) el("locLine").textContent = s.location.name + (s.location.address ? ", " + s.location.address : "");
+      el("mainActions").classList.toggle("hidden", s.status !== "scheduled");
+      if (s.status !== "scheduled") {
+        el("timeLine").insertAdjacentHTML("afterend", '<p style="color:#8a8378;font-size:13.5px;">This session is ' + s.status + ' and can no longer be changed here.</p>');
+      }
+    }).catch(function () { show("err"); el("err").textContent = "Could not reach the server."; });
+  }
+  load();
+
+  el("cancelBtn").addEventListener("click", function () {
+    el("mainActions").classList.add("hidden");
+    el("confirmCancel").classList.remove("hidden");
+  });
+  el("backBtn").addEventListener("click", function () {
+    el("confirmCancel").classList.add("hidden");
+    el("mainActions").classList.remove("hidden");
+  });
+  el("confirmCancelBtn").addEventListener("click", function () {
+    show("loading");
+    fetch(API + "?action=session_cancel", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: token }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) { show("err"); el("err").textContent = j.error || "Could not cancel."; return; }
+      show("done");
+      el("doneTitle").textContent = "Cancelled";
+      el("doneBody").textContent = "This session has been cancelled. Reach out to Sophie any time to book a new one.";
+    }).catch(function () { show("err"); el("err").textContent = "Could not reach the server."; });
+  });
+  el("rescheduleBtn").addEventListener("click", function () {
+    show("loading");
+    fetch(API + "?action=session_reschedule_start", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: token }),
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) { show("err"); el("err").textContent = j.error || "Could not start reschedule."; return; }
+      window.location.href = "/sophie/?login_token=" + encodeURIComponent(j.login_token) + "&reschedule_of=" + encodeURIComponent(j.session_id);
+    }).catch(function () { show("err"); el("err").textContent = "Could not reach the server."; });
+  });
+})();
+</script>
+</body>
+</html>
