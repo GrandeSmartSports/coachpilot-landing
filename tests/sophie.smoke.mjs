@@ -397,7 +397,7 @@ if (!SERVICE_KEY) {
         const fieldsHidden = await page.locator('#returningFormFields').isHidden();
         const recoveryBtn = page.locator('#rRequestNewLinkBtn');
         const recoveryVisible = await recoveryBtn.isVisible();
-        const dateInputsVisible = await page.locator('#rTimeRows input[type="date"]').count();
+        const dateInputsVisible = await page.locator('#rTimeRows input[type="date"]:visible').count();
 
         if (/expired/i.test(welcomeText || '')) ok('expired-link page shows a clear "link expired" heading');
         else fail('expired-link page heading did not mention expiry: ' + JSON.stringify(welcomeText));
