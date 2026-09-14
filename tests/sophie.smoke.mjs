@@ -8,9 +8,14 @@
 //   4. Live gateway: new-client request creation, new-vs-returning fork
 //      shape, decline transition, counter transition + expiry window,
 //      double-booking overlap flagging, direct booking, recurring series
-//      materialization, and the cron_tick endpoint (auth via admin PIN,
-//      since the real cron_key secret is not available to this test).
-//   5. Every row this test creates is tagged with a ZZTEST marker. If
+//      materialization, duplicate-submit guard, and the cron_tick endpoint
+//      (auth via admin PIN, since the real cron_key secret is not available
+//      to this test).
+//   6. Browser regression (Playwright, requires SUPABASE_SERVICE_ROLE_KEY to
+//      age a real token): opening the returning-client page with an expired
+//      login_token shows a clear "link expired" state with a working
+//      "Request a New Link" recovery action, not bare unlabeled form fields.
+//   7. Every row this test creates is tagged with a ZZTEST marker. If
 //      SUPABASE_SERVICE_ROLE_KEY is set, rows are deleted after the run.
 //      Otherwise they are left in place, tagged, with cleanup instructions
 //      printed at the end.
@@ -33,9 +38,20 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
 const GATEWAY = 'https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway';
+const SUPABASE_URL = 'https://geigvuysptjvvqanumld.supabase.co';
 const ADMIN_PIN = '7492';
 const STAMP = Date.now();
 const ZZ_EMAIL = `zztest-sls-${STAMP}@example.com`;
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+function rest(table, query = '', opts = {}) {
+  const { method = 'GET', body, headers = {} } = opts;
+  return fetch(`${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`, {
+    method,
+    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, 'Content-Type': 'application/json', ...headers },
+    body: body ? JSON.stringify(body) : undefined,
+  }).then(async (r) => ({ status: r.status, data: await r.json().catch(() => []) }));
+}
 
 let passed = 0, failed = 0, skipped = 0;
 function ok(msg) { console.log('  PASS ' + msg); passed++; }
@@ -318,6 +334,98 @@ section('gateway: cron_tick endpoint (admin-PIN auth path)');
 }
 
 // ==================================================================
+section('gateway: duplicate-submit guard');
+{
+  const dupeEmail = `zztest-sls-dupe-${STAMP}@example.com`;
+  const dupeBody = {
+    mode: 'new',
+    athlete_name: 'ZZTEST Dupe Athlete',
+    parent_name: 'ZZTEST Dupe Parent',
+    parent_email: dupeEmail,
+    proposed_times: [
+      new Date(Date.now() + 17 * 86400000).toISOString(),
+      new Date(Date.now() + 18 * 86400000).toISOString(),
+    ],
+  };
+  const first = await api('submit_request', { method: 'POST', body: dupeBody });
+  const second = await api('submit_request', { method: 'POST', body: dupeBody });
+  if (first.ok && first.request_id && second.ok && second.request_id === first.request_id && second.duplicate === true) {
+    ok('resubmitting the same request (page reload/double-tap) returns the existing request_id instead of creating a duplicate');
+  } else {
+    fail('duplicate-submit guard did not dedupe as expected: first=' + JSON.stringify(first) + ' second=' + JSON.stringify(second));
+  }
+  if (SERVICE_KEY) {
+    const { data: rows } = await rest('sls_requests', `parent_email=eq.${encodeURIComponent(dupeEmail)}&select=id`);
+    if ((rows || []).length === 1) ok('exactly one sls_requests row exists in the database for the duplicate-submit pair');
+    else fail('expected exactly 1 request row, found ' + (rows || []).length);
+  } else {
+    skip('SUPABASE_SERVICE_ROLE_KEY not set; could not verify only one DB row was created (API response already confirms the dedupe)');
+  }
+}
+
+// ==================================================================
+section('browser: expired magic link shows recovery, not a dead end');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot age a real token to reproduce the expired-link state');
+} else {
+  const zzEmail = `zztest-sls-expiry-${STAMP}@example.com`;
+  const seed = await api('submit_request', {
+    method: 'POST',
+    body: {
+      mode: 'new', athlete_name: 'ZZTEST Expiry Athlete', parent_name: 'ZZTEST Expiry Parent', parent_email: zzEmail,
+      proposed_times: [new Date(Date.now() + 19 * 86400000).toISOString(), new Date(Date.now() + 20 * 86400000).toISOString()],
+    },
+  });
+  if (!seed.ok) {
+    fail('could not seed a client for the expired-link browser test: ' + JSON.stringify(seed));
+  } else {
+    const login = await api('request_login', { method: 'POST', body: { contact: zzEmail } });
+    const { data: clientRows } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(zzEmail)}&select=id`);
+    const clientId = clientRows?.[0]?.id;
+    const { data: tokRows } = await rest('sls_tokens', `client_id=eq.${clientId}&purpose=eq.login&order=created_at.desc&limit=1`);
+    const tok = tokRows?.[0];
+    if (!login.ok || !login.found || !tok) {
+      fail('could not obtain a login token to age for the expired-link browser test');
+    } else {
+      await rest('sls_tokens', `id=eq.${tok.id}`, { method: 'PATCH', body: { expires_at: new Date(Date.now() - 60000).toISOString() }, headers: { Prefer: 'return=minimal' } });
+      const { chromium } = await import('@playwright/test');
+      const browser = await chromium.launch();
+      try {
+        const page = await browser.newPage();
+        await page.goto(`https://coachpilot.org/sophie/?login_token=${tok.token}`, { waitUntil: 'networkidle' });
+        const welcomeText = await page.locator('#welcomeBack').textContent();
+        const fieldsHidden = await page.locator('#returningFormFields').isHidden();
+        const recoveryBtn = page.locator('#rRequestNewLinkBtn');
+        const recoveryVisible = await recoveryBtn.isVisible();
+        const dateInputsVisible = await page.locator('#rTimeRows input[type="date"]').count();
+
+        if (/expired/i.test(welcomeText || '')) ok('expired-link page shows a clear "link expired" heading');
+        else fail('expired-link page heading did not mention expiry: ' + JSON.stringify(welcomeText));
+
+        if (fieldsHidden) ok('the book-again form fields (athlete/notes/time rows) are hidden on an expired link');
+        else fail('book-again form fields are still visible on an expired link (the original dead-end bug)');
+
+        if (dateInputsVisible === 0) ok('no bare/unlabeled date inputs are left visible on the expired-link state');
+        else fail(`${dateInputsVisible} date input(s) still visible on the expired-link state`);
+
+        if (recoveryVisible) ok('a "Request a New Link" recovery action is visible on the expired-link state');
+        else fail('no recovery action is visible on the expired-link state, this is the dead-end bug');
+
+        if (recoveryVisible) {
+          await recoveryBtn.click();
+          await page.waitForURL('**/sophie/', { timeout: 5000 }).catch(() => {});
+          const url = page.url();
+          if (/\/sophie\/?$/.test(url) && !url.includes('login_token')) ok('clicking "Request a New Link" returns to a clean /sophie/ with no stale token in the URL');
+          else fail('recovery button did not navigate back to a clean /sophie/: ' + url);
+        }
+      } finally {
+        await browser.close();
+      }
+    }
+  }
+}
+
+// ==================================================================
 section('cleanup: ZZTEST rows');
 if (recurringId) {
   const r = await api('admin_recurring_cancel', { method: 'POST', pin: ADMIN_PIN, body: { recurring_id: recurringId } });
@@ -336,25 +444,19 @@ if (counterRequestId) {
   await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: counterRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
 }
 
-const SUPABASE_URL = 'https://geigvuysptjvvqanumld.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 if (SERVICE_KEY) {
-  const rest = (table, query) => fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
-    method: 'DELETE',
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, Prefer: 'return=minimal' },
-  });
+  const del = (table, query) => rest(table, query, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
   // PostgREST has no subselects in query params; delete in dependency order via each ZZTEST client's id.
-  const clientsResp = await fetch(`${SUPABASE_URL}/rest/v1/sls_clients?parent_email=like.zztest-sls-*`, {
-    headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` },
-  }).then((r) => r.json()).catch(() => []);
+  const { data: clientsResp } = await rest('sls_clients', 'parent_email=like.zztest-sls-*&select=id');
   const ids = (clientsResp || []).map((c) => c.id);
   for (const id of ids) {
-    await rest('sls_sessions', `client_id=eq.${id}`);
-    await rest('sls_requests', `client_id=eq.${id}`);
-    await rest('sls_recurring', `client_id=eq.${id}`);
+    await del('sls_sessions', `client_id=eq.${id}`);
+    await del('sls_requests', `client_id=eq.${id}`);
+    await del('sls_recurring', `client_id=eq.${id}`);
+    await del('sls_tokens', `client_id=eq.${id}`);
   }
-  await rest('sls_clients', `parent_email=like.zztest-sls-*`);
-  await rest('sls_locations', `name=eq.ZZTEST Location`);
+  await del('sls_clients', 'parent_email=like.zztest-sls-*');
+  await del('sls_locations', 'name=eq.ZZTEST Location');
   ok(`deleted ZZTEST rows via service role (clients: ${ids.length})`);
 } else {
   skip('SUPABASE_SERVICE_ROLE_KEY not set. ZZTEST rows left in place, tagged for manual cleanup:');

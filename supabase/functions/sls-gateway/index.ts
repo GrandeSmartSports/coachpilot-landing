@@ -405,6 +405,15 @@ Deno.serve(async (req: Request) => {
         if (sess && sess.client_id === clientId && sess.status === "scheduled") rescheduleOf = sess.id;
       }
 
+      // Duplicate-submit guard: a page reload/double-tap within the same
+      // couple of minutes for the same client + athlete + times should not
+      // create a second pending request. Return the existing one instead.
+      const recentCutoff = new Date(Date.now() - 3 * 60000).toISOString();
+      const { data: recent } = await db.from("sls_requests").select("id,proposed_times")
+        .eq("client_id", clientId).eq("athlete_name", athlete_name).eq("status", "pending").gte("created_at", recentCutoff);
+      const dupe = (recent ?? []).find((r: Record<string, unknown>) => JSON.stringify(r.proposed_times) === JSON.stringify(proposed));
+      if (dupe) return json({ ok: true, request_id: dupe.id, duplicate: true });
+
       const { data: reqRow, error: reqErr } = await db.from("sls_requests").insert({
         client_id: clientId,
         is_new_client: isNew,

@@ -111,21 +111,24 @@
       <div id="returningForm" class="hidden">
         <h2 class="formTitle" id="welcomeBack">Welcome back!</h2>
         <p class="sub" id="rescheduleNote">Pick 2-3 times that work and we'll take it from there.</p>
-        <label for="rAthlete">Athlete</label>
-        <select id="rAthleteSelect"></select>
-        <div id="rNewAthleteWrap" class="hidden">
-          <label for="rAthleteName">Athlete Name</label>
-          <input type="text" id="rAthleteName" placeholder="Athlete's name" />
-          <label for="rAthleteAge">Age</label>
-          <input type="text" id="rAthleteAge" placeholder="Age" />
+        <div id="returningFormFields">
+          <label for="rAthlete">Athlete</label>
+          <select id="rAthleteSelect"></select>
+          <div id="rNewAthleteWrap" class="hidden">
+            <label for="rAthleteName">Athlete Name</label>
+            <input type="text" id="rAthleteName" placeholder="Athlete's name" />
+            <label for="rAthleteAge">Age</label>
+            <input type="text" id="rAthleteAge" placeholder="Age" />
+          </div>
+          <label>What should Sophie work on?</label>
+          <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
+          <label>Proposed Times</label>
+          <div id="rTimeRows"></div>
+          <button type="button" class="addTimeBtn" id="rAddTime">+ Add Another Time</button>
+          <button class="btnPrimary" id="rSubmitBtn">Send Request</button>
+          <p class="err hidden" id="rErr"></p>
         </div>
-        <label>What should Sophie work on?</label>
-        <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
-        <label>Proposed Times</label>
-        <div id="rTimeRows"></div>
-        <button type="button" class="addTimeBtn" id="rAddTime">+ Add Another Time</button>
-        <button class="btnPrimary" id="rSubmitBtn">Send Request</button>
-        <p class="err hidden" id="rErr"></p>
+        <button type="button" class="btnGhost hidden" id="rRequestNewLinkBtn">Request a New Link</button>
       </div>
 
       <!-- NEW client -->
@@ -247,14 +250,31 @@
     return row;
   }
 
+  // The picker always means Pacific wall-clock time, regardless of the
+  // device's own timezone (a family booking while traveling should not
+  // silently shift Sophie's actual local time).
+  function pacificOffsetMinutesAt(utcMs) {
+    var parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", timeZoneName: "shortOffset" }).formatToParts(new Date(utcMs));
+    var tz = parts.find(function (p) { return p.type === "timeZoneName"; });
+    var m = tz && /GMT([+-]\d+)/.exec(tz.value);
+    var hours = m ? parseInt(m[1], 10) : -8;
+    return hours * 60;
+  }
+  function pacificWallClockToIso(dateStr, timeStr) {
+    var d = dateStr.split("-").map(Number);
+    var t = timeStr.split(":").map(Number);
+    var asUtcMs = Date.UTC(d[0], d[1] - 1, d[2], t[0], t[1], 0);
+    var offsetMin = pacificOffsetMinutesAt(asUtcMs);
+    return new Date(asUtcMs - offsetMin * 60000).toISOString();
+  }
+
   function rowsToIso(container) {
     var out = [];
     container.querySelectorAll(".timeRow").forEach(function (row) {
       var date = row.querySelector(".rowDate").value;
       var activeChip = row.querySelector(".chip.active");
       if (date && activeChip) {
-        var iso = new Date(date + "T" + activeChip.dataset.value + ":00").toISOString();
-        out.push(iso);
+        out.push(pacificWallClockToIso(date, activeChip.dataset.value));
       }
     });
     return out;
@@ -325,12 +345,15 @@
       if (!j.ok) {
         el("returningForm").classList.remove("hidden");
         el("welcomeBack").textContent = "Link expired";
-        document.getElementById("rTimeRows").parentElement.querySelectorAll("label,select,textarea,button").forEach(function (x) { x.classList.add("hidden"); });
-        el("rescheduleNote").textContent = j.error || "This booking link has expired. Please use Returning Client to request a new one.";
+        el("returningFormFields").classList.add("hidden");
+        el("rRequestNewLinkBtn").classList.remove("hidden");
+        el("rescheduleNote").textContent = j.error || "This booking link has expired. Please request a new one.";
         return;
       }
       currentClient = j.client;
       el("returningForm").classList.remove("hidden");
+      el("returningFormFields").classList.remove("hidden");
+      el("rRequestNewLinkBtn").classList.add("hidden");
       var first = (j.client.parent_name || "").split(" ")[0] || "there";
       el("welcomeBack").textContent = "Welcome back, " + first + "!";
       if (rescheduleOf) el("rescheduleNote").textContent = "Pick 2-3 new times and we'll get this rescheduled.";
@@ -349,9 +372,16 @@
       });
     }).catch(function () {
       el("returningForm").classList.remove("hidden");
+      el("welcomeBack").textContent = "Something went wrong";
+      el("returningFormFields").classList.add("hidden");
+      el("rRequestNewLinkBtn").classList.remove("hidden");
       el("rescheduleNote").textContent = "Could not reach the server. Try again.";
     });
   }
+
+  el("rRequestNewLinkBtn").addEventListener("click", function () {
+    window.location.href = "/sophie/";
+  });
 
   function validateAndSubmit(mode) {
     var isReturning = mode === "returning";
