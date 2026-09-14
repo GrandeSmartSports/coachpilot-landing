@@ -273,11 +273,6 @@
             <span class="qtitle">Practice info</span><span class="qs">Days, times, what to bring</span>
             <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
           </a>
-          <a class="rev" href="/cougars/cagevote.html" data-check="cage_vote" data-sub="Pick your evenings">
-            <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h9"/></svg></i>
-            <span class="qtitle">Cage night vote</span><span class="qs">Pick your evenings</span>
-            <span class="qgo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
-          </a>
           <a class="rev" href="/cougars/sweatshirt.html" data-check="sweatshirt" data-sub="$20, name on the back">
             <i class="qic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.47a1 1 0 00.99.84H6v10a2 2 0 002 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.47a2 2 0 00-1.34-2.23z"/></svg></i>
             <span class="qtitle">Sweatshirt form</span><span class="qs">$20, name on the back</span>
@@ -318,15 +313,10 @@
     </div>
 
     <div class="rail">
-      <div class="season-card rev">
-        <div class="bar"><h3>The Season</h3><span class="yr">Fall 2026</span></div>
-        <div class="rows">
-          <div class="row"><span class="k">Where</span><span class="v">Tehaleh Heights Elementary, 17520 Berkeley Parkway East, Bonney Lake</span></div>
-          <div class="row"><span class="k">Practices</span><span class="v">Thursdays 6:00 until dark (about 8:00 right now)</span></div>
-          <div class="row"><span class="k">Saturdays</span><span class="v">Mountain View Middle School, 10921 199th Ave Ct E, Bonney Lake. Our field is reserved; optional practices announced week to week.</span></div>
-          <div class="row"><span class="k">Games</span><span class="v">Saturdays, starting September 12. Locations come with the official schedule in GameChanger.</span></div>
-        </div>
-        <p class="note">Official schedule, attendance, and notifications run through GameChanger. This page is informational. Extra optional sessions get announced in the weekly updates.</p>
+      <div class="season-card rev" id="week-card" style="display:none;">
+        <div class="bar"><h3>This Week</h3><span class="yr" id="week-label"></span></div>
+        <div class="rows" id="week-rows"></div>
+        <p class="note" id="week-standing" style="display:none;"></p>
       </div>
 
       <a class="clinic rev" href="sms:6233322251">
@@ -479,7 +469,6 @@
 
   function renderBoard(fam, st) {
     var items = [];
-    if (!st.cage_vote) items.push(todoCard("/cougars/cagevote.html", "Vote for cage night", "Tap every evening that works for your family. Optional event."));
     if (!st.sweatshirt) items.push(todoCard("/cougars/sweatshirt.html", "Sweatshirt form", "Sizes and the name on the back. $20."));
     if (!st.walkup) items.push(todoCard("/cougars/walkup.html", "Pick her walk-up song", "Her song for game days, plus how to announce her name."));
     if (!st.pants) {
@@ -491,7 +480,7 @@
         "</div>"
       );
     }
-    var doneCount = 4 - items.length;
+    var doneCount = 3 - items.length;
     var list = document.getElementById("todo-list");
     if (items.length === 0) {
       list.innerHTML = '<div class="caughtup"><div class="big">You are all caught up.</div><div class="sm">Nothing needs you right now.</div></div>';
@@ -500,7 +489,7 @@
     }
     show("todo-list", true);
     var dc = document.getElementById("done-count");
-    if (doneCount > 0 && items.length > 0) { dc.textContent = "Done: " + doneCount + " of 4"; show("done-count", true); }
+    if (doneCount > 0 && items.length > 0) { dc.textContent = "Done: " + doneCount + " of 3"; show("done-count", true); }
     else { show("done-count", false); }
     var who = document.getElementById("whoami");
     who.innerHTML = "Showing " + esc(fam.label) + "'s family. <button onclick=\"switchFamily()\">Not you? Switch</button>";
@@ -555,6 +544,55 @@ import { parseFunds, fundProgress } from "/cougars/funds-core.mjs";
         return '<div class="frow"><div class="ftop"><span class="fname">' + esc(f.name) + '</span><span class="famt">' + esc(p.label) + "</span></div>" + bar + "</div>";
       }).join("");
       document.getElementById("funds-card").style.display = "";
+    })
+    .catch(function () {});
+})();
+</script>
+<script>
+// This Week card: config-driven (cougars_config key this_week), refreshed weekly with no code changes.
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function row(k, v) { return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v">' + esc(v) + "</span></div>"; }
+
+  fetch(API + "?action=this_week")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var w = d && d.week;
+      if (!w) return;
+      var rows = [];
+
+      (w.items || []).forEach(function (it) {
+        if (!it || !it.day) return;
+        var v = [it.what, it.where].filter(Boolean).join(" at ");
+        if (it.time) v += (v ? ", " : "") + it.time;
+        if (it.note) v += ". " + it.note;
+        rows.push(row(it.day, v + (v.slice(-1) === "." ? "" : ".")));
+      });
+
+      if (w.game && w.game.date) {
+        var g = w.game;
+        var gv = [];
+        if (g.opponent) gv.push("vs " + g.opponent);
+        if (g.date) gv.push(g.date);
+        if (g.time) gv.push(g.time);
+        var line1 = gv.join(", ");
+        var line2 = [g.venue, g.home_away ? (g.home_away === "home" ? "Home game." : "Away game.") : ""].filter(Boolean).join(". ");
+        rows.push(row("Game", line1 + (line1 ? ". " : "") + line2));
+      }
+
+      if (w.snacks) rows.push(row("Snacks", w.snacks));
+
+      if (!rows.length && !w.standing) return;
+
+      document.getElementById("week-rows").innerHTML = rows.join("");
+      if (w.week_label) document.getElementById("week-label").textContent = w.week_label;
+      if (w.standing) {
+        var note = document.getElementById("week-standing");
+        note.textContent = w.standing;
+        note.style.display = "";
+      }
+      document.getElementById("week-card").style.display = "";
     })
     .catch(function () {});
 })();

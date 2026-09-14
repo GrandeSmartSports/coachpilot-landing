@@ -854,6 +854,31 @@ Deno.serve(async (req) => {
       return json({ ok: true, event_key: eventKey, label });
     }
 
+    // GET this_week -> public: sidebar weekly panel content, refreshed by Coach/Cortex
+    if (req.method === "GET" && action === "this_week") {
+      const { data, error } = await supabase
+        .from("cougars_config")
+        .select("value, updated_at")
+        .eq("key", "this_week")
+        .maybeSingle();
+      if (error) return json({ error: error.message }, 500);
+      let week: any = null;
+      try { week = data?.value ? JSON.parse(data.value) : null; } catch { week = null; }
+      return json({ week, updated_at: data?.updated_at ?? null });
+    }
+
+    // POST admin_this_week (PIN) -> replace the whole weekly panel JSON
+    if (req.method === "POST" && action === "admin_this_week") {
+      if (!requirePin()) return json({ error: "unauthorized" }, 401);
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body !== "object") return json({ error: "invalid body" }, 400);
+      const { error } = await supabase.from("cougars_config").upsert({
+        key: "this_week", value: JSON.stringify(body), label: "This Week panel", updated_at: new Date().toISOString(),
+      });
+      if (error) return json({ error: error.message }, 500);
+      return json({ ok: true, week: body });
+    }
+
     // POST submit_attendance -> dormant but kept
     if (req.method === "POST" && action === "submit_attendance") {
       const body = await req.json().catch(() => null);

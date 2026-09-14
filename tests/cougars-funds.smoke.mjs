@@ -88,7 +88,6 @@ const hubMust = [
   'Team pages',
   '/cougars/updates.html',
   '/cougars/practice.html',
-  '/cougars/cagevote.html',
   '/cougars/sweatshirt.html',
   '/cougars/walkup.html',
   'Mivei-2T-16Years-Softball-Toddler-Baseball',
@@ -96,10 +95,11 @@ const hubMust = [
   '/cougars/snacks.html',
   '/cougars/volunteer.html',
   'Tell me how you want to help',
-  'Thursdays 6:00 until dark (about 8:00 right now)',
+  'This Week',
+  'action=this_week',
+  'week-rows',
   'funds-card',
   'funds-core.mjs',
-  'data-check="cage_vote"',
   'data-check="sweatshirt"',
   'data-check="walkup"',
   'data-check="pants"',
@@ -112,8 +112,38 @@ for (const s2 of hubMust) {
 }
 if (!hubHtml.includes('New big ask')) ok('hub Get involved copy has no scorekeeper ask'); else fail('hub still has scorekeeper ask copy');
 if (!hubHtml.includes('<span>Cougar Funds</span><span class="qs">')) ok('thin Cougar Funds row removed from Team pages (big card instead)'); else fail('thin Cougar Funds row still in Team pages list');
+if (!hubHtml.includes('cagevote.html') && !hubHtml.includes('data-check="cage_vote"') && !hubHtml.includes('Cage night vote')) ok('cage night vote card removed from Team pages');
+else fail('cage night vote card still present in hub');
+if (!hubHtml.includes('The Season')) ok('old The Season panel removed'); else fail('old The Season panel still present');
+if (!hubHtml.includes('doneCount + " of 4"') && hubHtml.includes('doneCount + " of 3"')) ok('to-do denominator updated to 3 (cage vote removed)');
+else fail('to-do denominator still references 4 items');
 const volHtml = fs.readFileSync(path.join(ROOT, 'cougars', 'volunteer.html'), 'utf8');
 if (!/Raise my hand|gcInterest|The Big Ask/i.test(volHtml)) ok('volunteer page: scorekeeper ask removed'); else fail('volunteer page still has scorekeeper ask');
+
+// ------- This Week panel: config-driven sidebar card -------
+section('this week: live panel content');
+try {
+  const r = await fetch(GATEWAY + '?action=this_week');
+  const d = await r.json();
+  const w = d.week || {};
+  if (r.ok && w.week_label === 'Week of Sept 14') ok('this_week label: ' + w.week_label); else fail('this_week label wrong: ' + JSON.stringify(w));
+  const days = (w.items || []).map((i) => i.day);
+  if (days.includes('Tuesday Sept 15') && days.includes('Thursday Sept 17')) ok('this_week has both practice days');
+  else fail('this_week items wrong: ' + JSON.stringify(w.items));
+  const tue = (w.items || []).find((i) => i.day === 'Tuesday Sept 15');
+  if (tue && tue.what === 'Hitting practice' && tue.where === 'Allen Yorke 1') ok('Tuesday: hitting practice at Allen Yorke 1');
+  else fail('Tuesday item wrong: ' + JSON.stringify(tue));
+  if (w.game && w.game.opponent === 'the Bears' && w.game.venue === 'Orting Lions Park, field 1 (northwest)' && w.game.home_away === 'away') ok('game: vs the Bears at Orting Lions Park, away');
+  else fail('game wrong: ' + JSON.stringify(w.game));
+  if (w.snacks === 'The Noel Family') ok('snacks: The Noel Family'); else fail('snacks wrong: ' + JSON.stringify(w.snacks));
+} catch (e) { fail('this_week fetch threw: ' + e.message); }
+
+try {
+  const noPin = await fetch(GATEWAY + '?action=admin_this_week', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}),
+  });
+  if (noPin.status === 401) ok('admin_this_week without PIN rejected 401'); else fail('admin_this_week no-PIN should be 401, got ' + noPin.status);
+} catch (e) { fail('admin_this_week no-PIN threw: ' + e.message); }
 
 // ------- 3. funds-core unit tests -------
 section('funds-core: parse + math');
@@ -174,16 +204,29 @@ try {
   const r = await fetch(GATEWAY + '?action=funds');
   const d = await r.json();
   const funds = d.funds || [];
-  if (r.ok && funds.length === 2) ok('funds returns exactly 2 funds (socks + bows removed)'); else fail('funds returned ' + r.status + ' with ' + funds.length + ' funds, expected 2');
+  if (r.ok && funds.length === 1) ok('funds returns exactly 1 active fund (cage fund removed)'); else fail('funds returned ' + r.status + ' with ' + funds.length + ' funds, expected 1');
   const byId = Object.fromEntries(funds.map((f) => [f.id, f]));
   const sw = byId['sweatshirts'];
   if (sw && sw.name === 'Sweatshirt Fund' && sw.goal_cents === 26000 && sw.per_note === 'about $20 per girl') ok('sweatshirts: $260 goal + about $20 per girl');
   else fail('sweatshirts wrong: ' + JSON.stringify(sw));
+  if (sw) {
+    const p = fundProgress(sw);
+    if (p.label === '$160 of $260') ok('sweatshirts progress renders: ' + p.label); else fail('sweatshirts progress wrong: ' + p.label);
+  }
   if (!byId['socks'] && !byId['bows']) ok('no socks or bows funds present'); else fail('socks/bows still present in funds');
-  const cage = byId['cage'];
-  if (cage && cage.name === 'Mike and Terrys Cage Fund' && cage.goal_cents === null && (cage.blurb || '').includes('which comes out to far less')) ok('cage: open goal + corrected token blurb');
-  else fail('cage wrong: ' + JSON.stringify(cage));
+  if (!byId['cage']) ok('cage fund absent from public funds view'); else fail('cage fund still showing publicly: ' + JSON.stringify(byId['cage']));
 } catch (e) { fail('funds fetch threw: ' + e.message); }
+
+if (PIN) {
+  try {
+    const r = await fetch(GATEWAY + '?action=funds', { headers: { 'x-admin-pin': PIN } });
+    const d = await r.json();
+    const cage = (d.funds || []).find((f) => f.id === 'cage');
+    if (cage && cage.active === false) ok('cage fund present in PIN view, marked inactive (not deleted)'); else fail('cage fund missing/active in PIN view: ' + JSON.stringify(cage));
+  } catch (e) { fail('PIN funds fetch threw: ' + e.message); }
+} else {
+  console.log('  NOTE  COUGARS_PIN not set; skipped PIN funds inactive-cage check.');
+}
 
 try {
   const r = await fetch(GATEWAY + '?action=admin_funds', {
