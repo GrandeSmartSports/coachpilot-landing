@@ -7,12 +7,31 @@
 <title>Cougars Team Hub, Fall 2026</title>
 <script>
   // First visit on this device: show Coach's welcome walkthrough once, then straight to the app forever.
+  // Then: forward anyone who has not seen the latest weekly update straight to it, since the
+  // weekly email links here and most parents don't know to look for "Team pages" once they land.
+  // ?stay always wins (Coach's own way back to the hub), and it also skips the welcome check
+  // (unchanged behavior), so welcome.html's own "GO TO THE COUGARS APP" link is never re-forwarded.
   (function () {
-    try {
-      if (!localStorage.getItem('cougars_welcomed') && location.search.indexOf('stay') === -1) {
-        location.replace('/cougars/welcome.html');
-      }
-    } catch (e) { /* storage blocked: never trap anyone, just show the app */ }
+    function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function safeSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+    var stay = location.search.indexOf('stay') !== -1;
+    if (!safeGet('cougars_welcomed') && !stay) {
+      location.replace('/cougars/welcome.html');
+      return;
+    }
+    if (stay) return;
+    var SEEN_KEY = 'cougars_seen_update';
+    fetch('https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway?action=updates')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var ups = (d && d.updates) || [];
+        if (!ups.length) return;
+        var latestId = String(ups[0].id);
+        if (safeGet(SEEN_KEY) === latestId) return;
+        safeSet(SEEN_KEY, latestId);
+        location.replace('/cougars/updates.html');
+      })
+      .catch(function () { /* network or storage blocked: never trap anyone, just show the hub */ });
   })();
 </script>
 <link rel="manifest" href="/cougars/manifest.json" />
