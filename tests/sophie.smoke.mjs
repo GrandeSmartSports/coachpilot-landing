@@ -109,6 +109,34 @@ function api(action, opts = {}) {
   });
 }
 
+// Coach Hub browser tests that need the tabs (not the first-run wizard)
+// visible must not assume sophie_alert_email is already configured --
+// it's a real shared production setting, and the wizard is DESIGNED to
+// intercept the tabs whenever it's empty/the blackhole sentinel. Only
+// touches the setting (and only ever restores it) when it's actually in
+// that state; leaves an already-configured value alone entirely. Used as
+// a begin/end pair (not a callback wrapper) so it can bracket an existing
+// section's test body via try/finally without re-indenting it.
+async function beginConfiguredAlertEmail() {
+  const before = await api('admin_state', { pin: ADMIN_PIN });
+  const original = before.sophie_alert_email;
+  const needsTemp = !original || original === 'delivered@resend.dev';
+  if (needsTemp) {
+    const forced = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: `zztest-sls-coachhubtemp-${STAMP}@example.com` } });
+    if (forced.ok) ok('temporarily configured a real alert email so the first-run wizard does not intercept these Coach Hub UI tests');
+    else fail('could not temporarily configure an alert email for Coach Hub UI tests: ' + JSON.stringify(forced));
+  }
+  return { needsTemp, original };
+}
+async function endConfiguredAlertEmail(guard) {
+  if (!guard || !guard.needsTemp) return;
+  const expected = guard.original || 'delivered@resend.dev';
+  const restored = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: expected } });
+  const confirm = await api('admin_state', { pin: ADMIN_PIN });
+  if (restored.ok && confirm.sophie_alert_email === expected) ok(`restored sophie_alert_email after the Coach Hub UI tests (back to ${expected})`);
+  else fail(`could not confirm sophie_alert_email restored to ${expected} after Coach Hub UI tests`);
+}
+
 async function main() {
 // ==================================================================
 section('files: pages + PWA assets exist');
@@ -792,6 +820,7 @@ if (!SERVICE_KEY) {
   const browser = await chromium.launch();
   const navEmail = `zztest-sls-navtest-${STAMP}@example.com`;
   let navRequestId = null;
+  const emailGuard = await beginConfiguredAlertEmail();
   try {
     const seed = await api('submit_request', {
       method: 'POST', body: {
@@ -899,6 +928,7 @@ if (!SERVICE_KEY) {
   } finally {
     await browser.close();
     if (navRequestId) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: navRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
+    await endConfiguredAlertEmail(emailGuard);
   }
 }
 
@@ -914,6 +944,7 @@ section('browser: iOS Safari fixed-bottom-bar fix (nav + FAB stay visible as the
   // actual mechanism the dynamic toolbar uses to change the visible area.
   const { chromium } = await import('@playwright/test');
   const browser = await chromium.launch();
+  const emailGuard = await beginConfiguredAlertEmail();
   try {
     for (const h of [844, 700]) {
       const page = await browser.newContext({ viewport: { width: 390, height: h } }).then((c) => c.newPage());
@@ -943,6 +974,7 @@ section('browser: iOS Safari fixed-bottom-bar fix (nav + FAB stay visible as the
     }
   } finally {
     await browser.close();
+    await endConfiguredAlertEmail(emailGuard);
   }
 }
 // NOTE for the report: this proxy test simulates the toolbar's effect on
@@ -958,6 +990,7 @@ section('browser: push notification onboarding (no raw "Not Supported" leak, per
 {
   const { chromium } = await import('@playwright/test');
   const browser = await chromium.launch();
+  const emailGuard = await beginConfiguredAlertEmail();
   async function unlock(page) {
     await page.goto('https://coachpilot.org/sophie/coach/', { waitUntil: 'networkidle' });
     await page.locator('#pinInput').fill('7492');
@@ -1028,6 +1061,7 @@ section('browser: push notification onboarding (no raw "Not Supported" leak, per
     }
   } finally {
     await browser.close();
+    await endConfiguredAlertEmail(emailGuard);
   }
 }
 
@@ -1053,7 +1087,11 @@ if (!SERVICE_KEY) {
       await page.locator('#pinInput').fill('7492');
       await page.locator('#pinGo').click();
       await page.locator('#app').waitFor({ state: 'visible', timeout: 8000 });
-      await page.waitForTimeout(500);
+      // Poll for the wizard to actually become active rather than a fixed
+      // wait -- loadAll()'s two round-trips to a live API can take longer
+      // than a flat timeout under variable network conditions, especially
+      // deep into a long suite run.
+      await page.locator('#setupWizard.active').waitFor({ state: 'attached', timeout: 8000 }).catch(() => {});
 
       const wizardActive = await page.locator('#setupWizard').evaluate((el) => el.classList.contains('active'));
       const appBodyHidden = await page.locator('#appBody').isHidden();
@@ -1062,14 +1100,14 @@ if (!SERVICE_KEY) {
 
       await page.locator('#wizAlertEmail').fill('not-an-email');
       await page.locator('#wizStep1Next').click();
-      await page.waitForTimeout(200);
+      await page.locator('#wizStep1Err').waitFor({ state: 'visible', timeout: 5000 }).catch(() => {});
       if (await page.locator('#wizStep1Err').isVisible()) ok('step 1 rejects an invalid email');
       else fail('step 1 did not reject an invalid email');
 
       const testEmail = `zztest-sls-wizardtest-${STAMP}@example.com`;
       await page.locator('#wizAlertEmail').fill(testEmail);
       await page.locator('#wizStep1Next').click();
-      await page.waitForTimeout(500);
+      await page.locator('.wizStepEl[data-wiz-step="2"].active').waitFor({ state: 'attached', timeout: 8000 }).catch(() => {});
       const step2Active = await page.locator('.wizStepEl[data-wiz-step="2"]').evaluate((el) => el.classList.contains('active'));
       if (step2Active) ok('step 1 saves a valid email and advances to step 2'); else fail('step 1 did not advance to step 2');
       const savedCheck = await api('admin_state', { pin: ADMIN_PIN });
