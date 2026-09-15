@@ -9,7 +9,17 @@
 //
 // Public actions: request_login, login_verify, submit_request, counter_info,
 // counter_respond, manage_info, session_cancel, session_reschedule_start,
-// ics_session, open_slots.
+// ics_session, open_slots, whoami, device_revoke.
+// Device recognition (Feature B, 2026-09-15): submit_request accepts a
+// session_type ('one_on_one'|'small_group') + athletes[] array (Feature A)
+// AND an optional device_token in place of parent contact fields. Trust
+// rules: brand-new email+phone -> device token issued immediately;
+// email/phone matches an EXISTING client from an unrecognized device ->
+// request still goes through but NO token is issued, an "connect this
+// device" magic-link email goes to the ON-FILE address instead, and the
+// whoami response never echoes email/phone (only parent_first_name +
+// athlete names/ages) so an unverified device can't fish out saved PII.
+// login_verify (tapping any magic link) always issues a fresh device token.
 // Admin actions (x-admin-pin header, checked against sls_settings.admin_pin):
 // admin_state, admin_respond, admin_location, admin_locations, admin_clients,
 // admin_direct_booking, admin_recurring_create, admin_recurring_cancel,
@@ -105,6 +115,81 @@ function overlaps(aStart: number, aDur: number, bStart: number, bDur: number): b
   return aStart < bEnd && bStart < aEnd;
 }
 
+// -------------- session types (1-on-1 / Small Group) --------------
+// athlete_name/athlete_age remain the back-compat display columns (joined
+// name label / first athlete's age) so every pre-existing reader (emails,
+// ICS, push) keeps working untouched; `athletes` jsonb is the source of
+// truth for new rows. Old rows and admin-created rows (direct booking,
+// recurring) leave athletes empty, so every reader falls back to
+// athlete_name/athlete_age when the array is empty.
+type Athlete = { name: string; age: string };
+function sanitizeAthletes(raw: unknown): Athlete[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .map((a) => ({ name: String((a as Record<string, unknown>)?.name || "").trim(), age: String((a as Record<string, unknown>)?.age || "").trim() }))
+    .filter((a) => a.name);
+}
+function athletesFromRow(row: Record<string, unknown>): Athlete[] {
+  const arr = sanitizeAthletes(row.athletes);
+  if (arr.length) return arr;
+  const name = String(row.athlete_name || "").trim();
+  return name ? [{ name, age: String(row.athlete_age || "") }] : [];
+}
+function athletesNamesJoined(athletes: Athlete[]): string {
+  return athletes.map((a) => a.name).join(" & ");
+}
+function athletesLineHtml(athletes: Athlete[]): string {
+  return athletes.map((a) => escHtml(a.name) + (a.age ? ` (${escHtml(a.age)})` : "")).join(", ");
+}
+function sessionTypeLabel(sessionType: unknown, count: number): string {
+  return sessionType === "small_group" ? `Small Group (${count})` : "1-on-1";
+}
+// Adds any athlete not already on the client's saved roster (case-
+// insensitive name match); returns the possibly-grown roster + whether it
+// actually changed, so callers only write when there's something new.
+function growAthleteRoster(existingAthletes: unknown, incoming: Athlete[]): { athletes: Athlete[]; changed: boolean } {
+  const athletes = sanitizeAthletes(existingAthletes);
+  const known = new Set(athletes.map((a) => a.name.toLowerCase()));
+  let changed = false;
+  for (const a of incoming) {
+    if (!known.has(a.name.toLowerCase())) {
+      athletes.push(a);
+      known.add(a.name.toLowerCase());
+      changed = true;
+    }
+  }
+  return { athletes, changed };
+}
+
+// -------------- device recognition --------------
+// Raw tokens live only in the browser's localStorage; the DB only ever
+// sees a SHA-256 hash (sls_devices.token_hash), same "never store the
+// secret itself" posture as every credential in this empire.
+async function sha256Hex(s: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+async function issueDeviceToken(clientId: string): Promise<string> {
+  const raw = randomToken();
+  const token_hash = await sha256Hex(raw);
+  await db.from("sls_devices").insert({ client_id: clientId, token_hash, expires_at: new Date(Date.now() + 365 * 86400000).toISOString() });
+  return raw;
+}
+async function findDeviceByRawToken(raw: string): Promise<{ id: string; client_id: string; revoked: boolean; expires_at: string } | null> {
+  if (!raw) return null;
+  const token_hash = await sha256Hex(raw);
+  const { data } = await db.from("sls_devices").select("id,client_id,revoked,expires_at").eq("token_hash", token_hash).maybeSingle();
+  return data ?? null;
+}
+// Verifying a token also slides its expiry forward (365d from now), so an
+// actively-used device never silently expires.
+async function verifyDeviceToken(raw: string): Promise<{ id: string; client_id: string } | null> {
+  const d = await findDeviceByRawToken(raw);
+  if (!d || d.revoked || new Date(d.expires_at).getTime() < Date.now()) return null;
+  await db.from("sls_devices").update({ last_seen_at: new Date().toISOString(), expires_at: new Date(Date.now() + 365 * 86400000).toISOString() }).eq("id", d.id);
+  return { id: d.id, client_id: d.client_id };
+}
+
 // -------------- Resend email --------------
 // Last-line-of-defense test guard: any email whose recipient OR content
 // references a ZZTEST-marked entity is forced to Resend's blackhole address
@@ -172,6 +257,23 @@ async function sendMail(to: string, subject: string, html: string, replyTo?: str
 }
 async function sophieAlertEmail(): Promise<string> {
   return (await getSetting("sophie_alert_email")) || "daniel.grande@ymail.com";
+}
+// Sent when a submission's email/phone matches an existing client but the
+// device itself isn't recognized (trust rule: attach the booking to the
+// existing record, but don't hand a device token to an unverified
+// browser). Reuses the same 10-minute single-use login token as "Book
+// again with Sophie" — tapping it both logs them in AND, per login_verify,
+// issues this device a token for next time.
+async function sendDeviceLinkEmail(client: { id: string; parent_name: string; parent_email: string }) {
+  const token = randomToken();
+  await db.from("sls_tokens").insert({ token, purpose: "login", client_id: client.id, expires_at: new Date(Date.now() + 10 * 60000).toISOString() });
+  const link = `${SITE}/sophie/?login_token=${token}`;
+  await sendMail(client.parent_email, "Connect this device to your Sophie account", emailShell(`
+    <p style="margin:0 0 14px;">Hi ${escHtml((client.parent_name || "").split(" ")[0] || "there")},</p>
+    <p style="margin:0 0 14px;">Looks like you've booked with Sophie before. Tap below to connect this device so next time you can skip straight to picking a time.</p>
+    <p style="margin:0 0 18px;">${btn(link, "Connect This Device")}</p>
+    <p style="margin:0;color:#8a8378;font-size:13px;">This link works for the next 10 minutes. If this wasn't you, you can ignore this email.</p>
+  `));
 }
 
 // -------------- Web Push (ported from flm-gateway; same raw-WebCrypto VAPID
@@ -513,7 +615,28 @@ Deno.serve(async (req: Request) => {
       if (!t || t.used_at || new Date(t.expires_at).getTime() < Date.now()) return json({ ok: false, error: "This link has expired. Please request a new one." }, 410);
       const { data: client } = await db.from("sls_clients").select("id,parent_name,parent_phone,parent_email,athletes").eq("id", t.client_id).maybeSingle();
       if (!client) return json({ ok: false, error: "We couldn't find your account." }, 404);
-      return json({ ok: true, client });
+      const device_token = await issueDeviceToken(client.id);
+      return json({ ok: true, client, device_token });
+    }
+
+    if (action === "whoami" && req.method === "POST") {
+      const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+      const dev = await verifyDeviceToken(String(b.device_token || ""));
+      if (!dev) return json({ ok: true, found: false });
+      const { data: client } = await db.from("sls_clients").select("parent_name,athletes").eq("id", dev.client_id).maybeSingle();
+      if (!client) return json({ ok: true, found: false });
+      // Data minimization: no email/phone, ever — an unverified browser
+      // holding a valid device token only learns a first name + athlete
+      // names/ages, never enough to be useful if the token were stolen.
+      const athletes = sanitizeAthletes(client.athletes);
+      return json({ ok: true, found: true, parent_first_name: (client.parent_name || "").split(" ")[0] || "", athletes });
+    }
+
+    if (action === "device_revoke" && req.method === "POST") {
+      const b = await req.json().catch(() => ({})) as Record<string, unknown>;
+      const d = await findDeviceByRawToken(String(b.device_token || ""));
+      if (d) await db.from("sls_devices").update({ revoked: true }).eq("id", d.id);
+      return json({ ok: true });
     }
 
     if (action === "submit_request" && req.method === "POST") {
@@ -524,11 +647,23 @@ Deno.serve(async (req: Request) => {
       if (proposed.length < minTimes || proposed.length > 3) {
         return json({ ok: false, error: fromOpenSlot ? "That time is no longer valid — pick another." : "Please propose 2 or 3 times that work for you." }, 400);
       }
-      const athlete_name = String(b.athlete_name || "").trim();
-      if (!athlete_name) return json({ ok: false, error: "Athlete name is required." }, 400);
+
+      const session_type = b.session_type === "small_group" ? "small_group" : "one_on_one";
+      let athletesIn = sanitizeAthletes(b.athletes);
+      if (!athletesIn.length && b.athlete_name) {
+        // Legacy single-athlete shape, still accepted for back-compat.
+        athletesIn = sanitizeAthletes([{ name: b.athlete_name, age: b.athlete_age }]);
+      }
+      if (!athletesIn.length) return json({ ok: false, error: "At least one athlete is required." }, 400);
+      if (session_type === "one_on_one" && athletesIn.length !== 1) return json({ ok: false, error: "1-on-1 sessions need exactly one athlete." }, 400);
+      if (session_type === "small_group" && (athletesIn.length < 2 || athletesIn.length > 4)) return json({ ok: false, error: "Small Group sessions need 2 to 4 athletes." }, 400);
+      const athlete_name = athletesNamesJoined(athletesIn);
+      const athlete_age = athletesIn[0].age;
       const focus_notes = String(b.focus_notes || "").trim().slice(0, 1000);
 
       let clientId: string; let parent_name: string; let parent_phone: string | null; let parent_email: string; let how_found: string | null; let isNew: boolean;
+      let deviceTokenOut: string | null = null;
+      let deviceLinkSent = false;
 
       if (b.mode === "returning") {
         const token = String(b.login_token || "");
@@ -538,30 +673,47 @@ Deno.serve(async (req: Request) => {
         if (!client) return json({ ok: false, error: "Account not found." }, 404);
         await db.from("sls_tokens").update({ used_at: new Date().toISOString() }).eq("id", t.id);
         clientId = client.id; parent_name = client.parent_name; parent_phone = client.parent_phone; parent_email = client.parent_email; how_found = client.how_found; isNew = false;
-        const athletes = Array.isArray(client.athletes) ? client.athletes : [];
-        if (!athletes.some((a: Record<string, unknown>) => String(a.name).toLowerCase() === athlete_name.toLowerCase())) {
-          athletes.push({ name: athlete_name, age: String(b.athlete_age || "") });
-          await db.from("sls_clients").update({ athletes, updated_at: new Date().toISOString() }).eq("id", clientId);
-        }
+        const { athletes: grown, changed } = growAthleteRoster(client.athletes, athletesIn);
+        if (changed) await db.from("sls_clients").update({ athletes: grown, updated_at: new Date().toISOString() }).eq("id", clientId);
+      } else if (typeof b.device_token === "string" && b.device_token) {
+        const dev = await verifyDeviceToken(b.device_token);
+        if (!dev) return json({ ok: false, error: "This device isn't recognized anymore. Please verify by email.", device_invalid: true }, 401);
+        const { data: client } = await db.from("sls_clients").select("*").eq("id", dev.client_id).maybeSingle();
+        if (!client) return json({ ok: false, error: "Account not found." }, 404);
+        clientId = client.id; parent_name = client.parent_name; parent_phone = client.parent_phone; parent_email = client.parent_email; how_found = client.how_found; isNew = false;
+        const { athletes: grown, changed } = growAthleteRoster(client.athletes, athletesIn);
+        if (changed) await db.from("sls_clients").update({ athletes: grown, updated_at: new Date().toISOString() }).eq("id", clientId);
       } else {
         parent_name = String(b.parent_name || "").trim();
         parent_email = String(b.parent_email || "").trim();
         parent_phone = String(b.parent_phone || "").trim() || null;
         how_found = String(b.how_found || "").trim() || null;
         if (!parent_name || !isEmail(parent_email)) return json({ ok: false, error: "Parent name and a valid email are required." }, 400);
-        const athleteEntry = { name: athlete_name, age: String(b.athlete_age || "") };
-        const { data: existing } = await db.from("sls_clients").select("*").ilike("parent_email", parent_email).maybeSingle();
+        // Trust-rule matching: an unrecognized device claiming an email OR
+        // phone already on file does NOT get a device token — see the
+        // header comment for the full rule.
+        const { data: existingByEmail } = await db.from("sls_clients").select("*").ilike("parent_email", parent_email).maybeSingle();
+        let existing = existingByEmail;
+        if (!existing && parent_phone) {
+          const digits = normPhone(parent_phone);
+          if (digits.length >= 7) {
+            const { data: withPhones } = await db.from("sls_clients").select("*").not("parent_phone", "is", null);
+            existing = (withPhones ?? []).find((c: Record<string, unknown>) => normPhone((c as { parent_phone?: string }).parent_phone) === digits) as unknown as Record<string, unknown> | undefined ?? null;
+          }
+        }
         if (existing) {
           clientId = existing.id;
-          const athletes = Array.isArray(existing.athletes) ? existing.athletes : [];
-          if (!athletes.some((a: Record<string, unknown>) => String(a.name).toLowerCase() === athlete_name.toLowerCase())) athletes.push(athleteEntry);
-          await db.from("sls_clients").update({ parent_name, parent_phone: parent_phone || existing.parent_phone, how_found: how_found || existing.how_found, athletes, updated_at: new Date().toISOString() }).eq("id", clientId);
+          const { athletes: grown } = growAthleteRoster(existing.athletes, athletesIn);
+          await db.from("sls_clients").update({ parent_name, parent_phone: parent_phone || existing.parent_phone, how_found: how_found || existing.how_found, athletes: grown, updated_at: new Date().toISOString() }).eq("id", clientId);
+          isNew = false;
+          deviceLinkSent = true;
         } else {
-          const { data: created, error } = await db.from("sls_clients").insert({ parent_name, parent_phone, parent_email, how_found, athletes: [athleteEntry] }).select("id").single();
+          const { data: created, error } = await db.from("sls_clients").insert({ parent_name, parent_phone, parent_email, how_found, athletes: athletesIn }).select("id").single();
           if (error) return json({ ok: false, error: "Could not save your info." }, 500);
           clientId = created.id;
+          isNew = true;
+          deviceTokenOut = await issueDeviceToken(clientId);
         }
-        isNew = true;
       }
 
       let rescheduleOf: string | null = null;
@@ -571,8 +723,8 @@ Deno.serve(async (req: Request) => {
       }
 
       // Duplicate-submit guard: a page reload/double-tap within the same
-      // couple of minutes for the same client + athlete + times should not
-      // create a second pending request. Return the existing one instead.
+      // couple of minutes for the same client + athlete(s) + times should
+      // not create a second pending request. Return the existing one instead.
       const recentCutoff = new Date(Date.now() - 3 * 60000).toISOString();
       const { data: recent } = await db.from("sls_requests").select("id,proposed_times")
         .eq("client_id", clientId).eq("athlete_name", athlete_name).eq("status", "pending").gte("created_at", recentCutoff);
@@ -582,8 +734,8 @@ Deno.serve(async (req: Request) => {
       const { data: reqRow, error: reqErr } = await db.from("sls_requests").insert({
         client_id: clientId,
         is_new_client: isNew,
-        athlete_name,
-        athlete_age: String(b.athlete_age || ""),
+        athlete_name, athlete_age,
+        session_type, athletes: athletesIn,
         focus_notes,
         parent_name, parent_phone, parent_email, how_found,
         proposed_times: proposed,
@@ -592,22 +744,30 @@ Deno.serve(async (req: Request) => {
       }).select("id").single();
       if (reqErr) return json({ ok: false, error: "Could not submit your request." }, 500);
 
+      const typeLabel = sessionTypeLabel(session_type, athletesIn.length);
+      const athleteLine = athletesLineHtml(athletesIn);
       await sendMail(parent_email, "Request sent to Sophie", emailShell(`
         <p style="margin:0 0 14px;">Hi ${escHtml(parent_name.split(" ")[0])},</p>
-        <p style="margin:0 0 14px;">Your lesson request for <b>${escHtml(athlete_name)}</b> is in. Sophie will respond within 48 hours.</p>
+        <p style="margin:0 0 14px;">Your ${escHtml(typeLabel)} lesson request for <b>${athleteLine}</b> is in. Sophie will respond within 48 hours.</p>
         <p style="margin:0;color:#8a8378;font-size:13px;">Proposed times: ${proposed.map((t: string) => escHtml(fmtPacific(t))).join(" &middot; ")}</p>
       `));
       const alertTo = await sophieAlertEmail();
       await sendMail(alertTo, `New lesson request: ${athlete_name}`, emailShell(`
-        <p style="margin:0 0 14px;"><b>${escHtml(isNew ? "New client" : "Returning client")}</b> request for <b>${escHtml(athlete_name)}</b>.</p>
+        <p style="margin:0 0 14px;"><b>${escHtml(isNew ? "New client" : "Returning client")}</b> ${escHtml(typeLabel)} request for <b>${athleteLine}</b>.</p>
         <p style="margin:0 0 14px;">From ${escHtml(parent_name)} (${escHtml(parent_email)}${parent_phone ? ", " + escHtml(parent_phone) : ""})</p>
         ${focus_notes ? `<p style="margin:0 0 14px;">"${escHtml(focus_notes)}"</p>` : ""}
         <p style="margin:0 0 14px;">Times: ${proposed.map((t: string) => escHtml(fmtPacific(t))).join(" &middot; ")}</p>
         <p style="margin:0;">${btn(`${SITE}/sophie/coach/`, "Open Coach's Hub")}</p>
       `), "Daniel.Grande@ymail.com");
-      await notifyAdminPush({ title: "New lesson request", body: `${athlete_name}, ${proposed.length} times proposed`, url: "/sophie/coach/", tag: "sls-new-request" });
+      await notifyAdminPush({ title: "New lesson request", body: `${typeLabel} — ${athlete_name}, ${proposed.length} times proposed`, url: "/sophie/coach/", tag: "sls-new-request" });
 
-      return json({ ok: true, request_id: reqRow.id });
+      if (deviceLinkSent) await sendDeviceLinkEmail({ id: clientId, parent_name, parent_email });
+
+      return json({
+        ok: true, request_id: reqRow.id,
+        ...(deviceTokenOut ? { device_token: deviceTokenOut } : {}),
+        ...(deviceLinkSent ? { device_link_sent: true } : {}),
+      });
     }
 
     if (action === "counter_info" && req.method === "GET") {
@@ -648,6 +808,7 @@ Deno.serve(async (req: Request) => {
       if (r.reschedule_of_session_id) await db.from("sls_sessions").update({ status: "cancelled", notes: "Rescheduled" }).eq("id", r.reschedule_of_session_id);
       const { data: session, error: sessErr } = await db.from("sls_sessions").insert({
         client_id: r.client_id, athlete_name: r.athlete_name, starts_at: r.counter_time, duration_minutes: DURATION_MIN,
+        session_type: r.session_type, athletes: r.athletes,
         location_id: loc.id, source: "request", request_id: r.id, status: "scheduled",
       }).select("*").single();
       if (sessErr) return json({ ok: false, error: "Could not confirm the session." }, 500);
@@ -797,6 +958,7 @@ Deno.serve(async (req: Request) => {
           if (r.reschedule_of_session_id) await db.from("sls_sessions").update({ status: "cancelled", notes: "Rescheduled" }).eq("id", r.reschedule_of_session_id);
           const { data: session, error: sessErr } = await db.from("sls_sessions").insert({
             client_id: r.client_id, athlete_name: r.athlete_name, starts_at: chosen, duration_minutes: DURATION_MIN,
+            session_type: r.session_type, athletes: r.athletes,
             location_id: loc.id, source: "request", request_id: r.id, status: "scheduled",
           }).select("*").single();
           if (sessErr) return json({ ok: false, error: "Could not create the session." }, 500);
@@ -999,9 +1161,10 @@ Deno.serve(async (req: Request) => {
         const { data: client } = await db.from("sls_clients").select("parent_name,parent_email").eq("id", s.client_id).maybeSingle();
         if (!client) continue;
         const { data: loc } = s.location_id ? await db.from("sls_locations").select("name,address").eq("id", s.location_id).maybeSingle() : { data: null };
+        const reminderAthletes = athletesFromRow(s);
         await sendMail(client.parent_email, `Reminder: lesson tomorrow with Sophie`, emailShell(`
           <p style="margin:0 0 14px;">Hi ${escHtml((client.parent_name || "").split(" ")[0] || "there")},</p>
-          <p style="margin:0 0 14px;">Reminder: ${escHtml(s.athlete_name)}'s lesson with Sophie is tomorrow:</p>
+          <p style="margin:0 0 14px;">Reminder: ${athletesLineHtml(reminderAthletes)}'s ${escHtml(sessionTypeLabel(s.session_type, reminderAthletes.length))} lesson with Sophie is tomorrow:</p>
           <p style="margin:0 0 8px;font-weight:600;color:#1b2a4a;">${escHtml(fmtPacific(s.starts_at))}</p>
           ${loc ? `<p style="margin:0;color:#8a8378;">${escHtml(loc.name)}${loc.address ? ", " + escHtml(loc.address) : ""}</p>` : ""}
         `));
@@ -1031,9 +1194,11 @@ async function sendConfirmation(r: Record<string, unknown>, session: Record<stri
   const manageUrl = `${SITE}/sophie/manage.html?token=${cancelToken}`;
   const icsUrl = `https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway?action=ics_session&id=${session.id}`;
   const gcal = gcalLink({ athlete_name: r.athlete_name as string, starts_at: session.starts_at as string, duration_minutes: session.duration_minutes as number, location_name: loc.name, location_address: loc.address });
+  const confirmedAthletes = athletesFromRow(session);
+  const confirmedTypeLabel = sessionTypeLabel(session.session_type, confirmedAthletes.length);
   await sendMail(r.parent_email as string, "You're booked with Sophie!", emailShell(`
     <p style="margin:0 0 14px;">Hi ${escHtml((r.parent_name as string).split(" ")[0])},</p>
-    <p style="margin:0 0 14px;">${escHtml(r.athlete_name as string)}'s lesson with Sophie is confirmed:</p>
+    <p style="margin:0 0 14px;">${athletesLineHtml(confirmedAthletes)}'s ${escHtml(confirmedTypeLabel)} lesson with Sophie is confirmed:</p>
     <p style="margin:0 0 6px;font-size:18px;font-weight:600;color:#1b2a4a;">${escHtml(fmtPacific(session.starts_at as string))}</p>
     <p style="margin:0 0 18px;color:#8a8378;">${escHtml(loc.name)}${loc.address ? ", " + escHtml(loc.address) : ""}</p>
     <p style="margin:0 0 10px;">${btn(gcal, "Add to Google Calendar")} &nbsp; ${btn(icsUrl, "Add to Apple Calendar", "#1b2a4a")}</p>
