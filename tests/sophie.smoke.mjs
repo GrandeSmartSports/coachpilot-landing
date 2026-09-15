@@ -903,6 +903,230 @@ if (!SERVICE_KEY) {
 }
 
 // ==================================================================
+section('browser: iOS Safari fixed-bottom-bar fix (nav + FAB stay visible as the visible viewport height changes)');
+{
+  // Coach's real iPhone Safari (tab mode) hid the nav bar and the FAB
+  // entirely -- the classic iOS Safari bug where fixed-bottom elements
+  // render behind the browser's own dynamic toolbar. Fixed by making #app
+  // a flex column (100dvh) with the nav bar and FAB as normal flex-scoped
+  // elements instead of position:fixed to the true viewport. Proxy-tested
+  // here by shrinking the viewport height at the same width, which is the
+  // actual mechanism the dynamic toolbar uses to change the visible area.
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  try {
+    for (const h of [844, 700]) {
+      const page = await browser.newContext({ viewport: { width: 390, height: h } }).then((c) => c.newPage());
+      await page.goto('https://coachpilot.org/sophie/coach/', { waitUntil: 'networkidle' });
+      await page.locator('#pinInput').fill('7492');
+      await page.locator('#pinGo').click();
+      await page.locator('#app').waitFor({ state: 'visible', timeout: 8000 });
+      await page.waitForTimeout(400);
+
+      const navBox = await page.locator('nav.tabbar').boundingBox();
+      const navVisible = await page.locator('nav.tabbar').isVisible();
+      if (navVisible && navBox && navBox.y >= 0 && navBox.y + navBox.height <= h + 1) {
+        ok(`[390x${h}] nav.tabbar is visible and fully within the viewport`);
+      } else fail(`[390x${h}] nav.tabbar not correctly visible: visible=${navVisible}, box=${JSON.stringify(navBox)}`);
+
+      await page.locator('#moreTabBtn').click();
+      await page.waitForTimeout(250);
+      await page.locator('.moreRow[data-panel="Locations"]').click();
+      await page.waitForTimeout(250);
+      const fabVisible = await page.locator('#fabAdd').isVisible();
+      const fabBox = await page.locator('#fabAdd').boundingBox();
+      if (fabVisible && fabBox && fabBox.y >= 0 && fabBox.y + fabBox.height <= h + 1) {
+        ok(`[390x${h}] the "+ Add Location" FAB is visible and within the viewport (this is exactly what was broken on Coach's device)`);
+      } else fail(`[390x${h}] FAB not correctly visible: visible=${fabVisible}, box=${JSON.stringify(fabBox)}`);
+
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+  }
+}
+// NOTE for the report: this proxy test simulates the toolbar's effect on
+// available viewport height, which is the actual layout mechanism at
+// play, but it cannot reproduce literal Safari browser chrome. WebKit
+// browser automation was attempted for a closer approximation but hit an
+// environment-level network/timeout issue in this sandbox unrelated to
+// the fix itself (navigation succeeds, further interaction hangs). A
+// real iOS Safari check by Coach remains the authoritative confirmation.
+
+// ==================================================================
+section('browser: push notification onboarding (no raw "Not Supported" leak, per-state header pill)');
+{
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  async function unlock(page) {
+    await page.goto('https://coachpilot.org/sophie/coach/', { waitUntil: 'networkidle' });
+    await page.locator('#pinInput').fill('7492');
+    await page.locator('#pinGo').click();
+    await page.locator('#app').waitFor({ state: 'visible', timeout: 8000 });
+    await page.waitForTimeout(400);
+  }
+  try {
+    // (a) Browser tab (not standalone): friendly chip, opens a 3-step walkthrough.
+    {
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await unlock(page);
+      const chipText = await page.locator('#pushStatusArea .bell').textContent();
+      if (chipText && chipText.includes('Get Notified')) ok('(a) tab mode shows a friendly "Get Notified" chip, not raw internal state');
+      else fail('(a) unexpected header pill text: ' + chipText);
+      await page.locator('#pushStatusArea .bell').click();
+      await page.waitForTimeout(300);
+      const walkSteps = await page.locator('.modalCard .walkStep').count();
+      if (walkSteps === 3) ok('(a) tapping the chip opens the 3-step add-to-home-screen walkthrough');
+      else fail('(a) expected 3 walkthrough steps, got ' + walkSteps);
+      await page.close();
+    }
+    // (b) Standalone, not granted: "Enable Notifications" button.
+    {
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await page.addInitScript(() => {
+        Object.defineProperty(window.navigator, 'standalone', { value: true, configurable: true });
+        Object.defineProperty(Notification, 'permission', { value: 'default', configurable: true });
+      });
+      await unlock(page);
+      const btnText = await page.locator('#pushStatusArea .bell').textContent();
+      if (btnText && btnText.includes('Enable Notifications')) ok('(b) standalone + not-yet-granted shows "Enable Notifications"');
+      else fail('(b) unexpected header pill text: ' + btnText);
+      await page.close();
+    }
+    // (c) Standalone, granted: subtle "On" pill, Settings unsupported-note stays hidden.
+    {
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await page.addInitScript(() => {
+        Object.defineProperty(window.navigator, 'standalone', { value: true, configurable: true });
+        Object.defineProperty(Notification, 'permission', { value: 'granted', configurable: true });
+      });
+      await unlock(page);
+      const onText = await page.locator('#pushStatusArea .bellOn').textContent();
+      if (onText && onText.includes('On')) ok('(c) standalone + granted shows a subtle "On" pill');
+      else fail('(c) unexpected header pill text: ' + onText);
+      const settingsNotifHidden = await page.evaluate(() => document.getElementById('settingsNotifCard').classList.contains('hidden'));
+      if (settingsNotifHidden) ok('(c) the "email alerts still work" Settings note stays hidden when push IS supported');
+      else fail('(c) unsupported-note should be hidden when push is supported');
+      await page.close();
+    }
+    // (d) Genuinely unsupported: header push UI hidden entirely, no leaked internal state.
+    {
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await page.addInitScript(() => {
+        Object.defineProperty(window.navigator, 'standalone', { value: true, configurable: true });
+        delete window.Notification;
+        delete window.PushManager;
+      });
+      await unlock(page);
+      const areaEmpty = await page.evaluate(() => document.getElementById('pushStatusArea').innerHTML.trim() === '');
+      if (areaEmpty) ok('(d) genuinely unsupported (old iOS): header push UI is hidden entirely');
+      else fail('(d) header push area should be empty when unsupported');
+      const headerHtml = await page.locator('header.top').innerHTML();
+      if (!headerHtml.includes('Not Supported')) ok('(d) the literal string "Not Supported" never appears anywhere in the header');
+      else fail('(d) "Not Supported" leaked into the header');
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+  }
+}
+
+// ==================================================================
+section('browser: first-run setup wizard (trigger, steps, skip paths, More > Settings)');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; skipping the wizard flow (it manipulates the shared sophie_alert_email setting and needs a verified restore)');
+} else {
+  const { chromium } = await import('@playwright/test');
+  const before = await api('admin_state', { pin: ADMIN_PIN });
+  const originalAlertEmail = before.sophie_alert_email;
+  if (!originalAlertEmail) {
+    fail('could not read the original sophie_alert_email before the wizard test; refusing to proceed');
+  } else {
+    let restored = false;
+    try {
+      const forced = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: 'delivered@resend.dev' } });
+      if (!forced.ok) { fail('could not force the blackhole sentinel to trigger the wizard'); throw new Error('setup failed'); }
+
+      const browser = await chromium.launch();
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await page.goto('https://coachpilot.org/sophie/coach/', { waitUntil: 'networkidle' });
+      await page.locator('#pinInput').fill('7492');
+      await page.locator('#pinGo').click();
+      await page.locator('#app').waitFor({ state: 'visible', timeout: 8000 });
+      await page.waitForTimeout(500);
+
+      const wizardActive = await page.locator('#setupWizard').evaluate((el) => el.classList.contains('active'));
+      const appBodyHidden = await page.locator('#appBody').isHidden();
+      if (wizardActive && appBodyHidden) ok('wizard triggers when the alert email is empty/the blackhole sentinel, tabs hidden');
+      else fail(`wizard did not trigger as expected (wizardActive=${wizardActive}, appBodyHidden=${appBodyHidden})`);
+
+      await page.locator('#wizAlertEmail').fill('not-an-email');
+      await page.locator('#wizStep1Next').click();
+      await page.waitForTimeout(200);
+      if (await page.locator('#wizStep1Err').isVisible()) ok('step 1 rejects an invalid email');
+      else fail('step 1 did not reject an invalid email');
+
+      const testEmail = `zztest-sls-wizardtest-${STAMP}@example.com`;
+      await page.locator('#wizAlertEmail').fill(testEmail);
+      await page.locator('#wizStep1Next').click();
+      await page.waitForTimeout(500);
+      const step2Active = await page.locator('.wizStepEl[data-wiz-step="2"]').evaluate((el) => el.classList.contains('active'));
+      if (step2Active) ok('step 1 saves a valid email and advances to step 2'); else fail('step 1 did not advance to step 2');
+      const savedCheck = await api('admin_state', { pin: ADMIN_PIN });
+      if (savedCheck.sophie_alert_email === testEmail) ok('the email was actually saved server-side via admin_set_alert_email');
+      else fail('server-side email does not match what step 1 saved: ' + savedCheck.sophie_alert_email);
+
+      await page.locator('#wizStep2Skip').click();
+      await page.waitForTimeout(300);
+      if (await page.locator('.wizStepEl[data-wiz-step="3"]').evaluate((el) => el.classList.contains('active'))) ok('step 2 Skip advances to step 3');
+      else fail('step 2 Skip did not advance to step 3');
+
+      await page.locator('#wizStep3Skip').click();
+      await page.waitForTimeout(300);
+      if (await page.locator('.wizStepEl[data-wiz-step="4"]').evaluate((el) => el.classList.contains('active'))) ok('step 3 Skip advances to step 4 (finish)');
+      else fail('step 3 Skip did not advance to step 4');
+
+      await page.locator('#wizFinishBtn').click();
+      await page.waitForTimeout(600);
+      const wizardHiddenAfter = await page.locator('#setupWizard').evaluate((el) => !el.classList.contains('active'));
+      const appBodyVisibleAfter = await page.locator('#appBody').isVisible();
+      const requestsPanelActive = await page.locator('#panelRequests').evaluate((el) => el.classList.contains('active'));
+      if (wizardHiddenAfter && appBodyVisibleAfter && requestsPanelActive) ok('Finish closes the wizard, shows the tabs, and lands on Requests');
+      else fail(`Finish did not behave as expected (wizardHidden=${wizardHiddenAfter}, appBodyVisible=${appBodyVisibleAfter}, requestsActive=${requestsPanelActive})`);
+
+      await page.reload({ waitUntil: 'networkidle' });
+      await page.waitForTimeout(600);
+      if (await page.locator('#setupWizard').evaluate((el) => !el.classList.contains('active'))) ok('with a real email now configured, reloading does NOT re-trigger the wizard');
+      else fail('wizard incorrectly re-triggered after a real email was already saved');
+
+      await page.locator('#moreTabBtn').click();
+      await page.waitForTimeout(250);
+      await page.locator('.moreRow[data-panel="Settings"]').click();
+      await page.waitForTimeout(250);
+      const settingsEmailValue = await page.locator('#alertEmailInput').inputValue();
+      if (settingsEmailValue === testEmail) ok('More > Settings still shows/edits the current alert email correctly');
+      else fail('Settings alert email field mismatch: ' + settingsEmailValue);
+
+      await page.locator('#rerunWizardBtn').click();
+      await page.waitForTimeout(300);
+      const rerunActive = await page.locator('#setupWizard').evaluate((el) => el.classList.contains('active'));
+      const rerunPrefill = await page.locator('#wizAlertEmail').inputValue();
+      if (rerunActive && rerunPrefill === testEmail) ok('"Run Setup Wizard" from Settings reopens it, pre-filled with the current email');
+      else fail(`rerun wizard did not behave as expected (active=${rerunActive}, prefill=${rerunPrefill})`);
+
+      await page.close();
+      await browser.close();
+    } finally {
+      const restoreResp = await api('admin_set_alert_email', { method: 'POST', pin: ADMIN_PIN, body: { email: originalAlertEmail } });
+      const confirmRestore = await api('admin_state', { pin: ADMIN_PIN });
+      if (restoreResp.ok && confirmRestore.sophie_alert_email === originalAlertEmail) { ok(`restored sophie_alert_email to its pre-test value (${originalAlertEmail})`); restored = true; }
+      else console.error(`!!! could not confirm sophie_alert_email restored to ${originalAlertEmail} -- check sls_settings manually`);
+      if (!restored) failed++;
+    }
+  }
+}
+
+// ==================================================================
 section('availability: window CRUD + open_slots generation');
 function pacificOffsetMinutesAt(utcMs) {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'shortOffset' }).formatToParts(new Date(utcMs));
