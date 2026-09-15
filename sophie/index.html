@@ -83,9 +83,46 @@
   .lockedTimeCard .lockedLabel { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--navy); margin-bottom: 3px; }
   .lockedTimeCard .lockedTime { font-weight: 700; color: var(--navy); font-size: 15.5px; }
   .lockedTimeCard a { display: inline-block; margin-top: 6px; font-size: 12.5px; color: var(--muted); text-decoration: underline; }
+
+  /* Below 900px these rules have zero visual effect: pageLayout/leftPanel/
+     rightPanel are plain unstyled blocks, so .hero/.wrap/.footer render
+     exactly as they did before this container was added. howItWorks and
+     the left-panel footer copy are hidden until the desktop breakpoint. */
+  .pageLayout, .leftPanel, .rightPanel { display: block; }
+  .howItWorks, .footerDesktop { display: none; }
+
+  @media (min-width: 900px) {
+    body { padding-bottom: 0; }
+    .pageLayout {
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(560px, 640px);
+      gap: 44px;
+      max-width: 1100px;
+      margin: 0 auto;
+      align-items: start;
+      padding: 56px 28px 80px;
+    }
+    .leftPanel { position: sticky; top: 32px; }
+    .leftPanel .hero { border-radius: 24px; box-shadow: 0 22px 50px rgba(27, 42, 74, 0.28); }
+    .rightPanel .wrap { max-width: 640px; margin: 0; padding: 0; }
+    .rightPanel .wrap > .section:first-child { padding-top: 0; }
+
+    .howItWorks { display: block; background: var(--white); border-radius: 18px; padding: 22px 20px; margin-top: 20px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+    .howItWorks .hiwTitle { font-family: var(--disp); font-weight: 600; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--navy); margin-bottom: 14px; }
+    .howItWorks .hiwStep { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+    .howItWorks .hiwStep:last-child { margin-bottom: 0; }
+    .howItWorks .hiwNum { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--coral); color: var(--white); font-family: var(--disp); font-weight: 700; font-size: 12.5px; display: flex; align-items: center; justify-content: center; }
+    .howItWorks .hiwText { font-size: 13.5px; color: var(--ink); padding-top: 2px; }
+
+    .footerDesktop { display: block; margin-top: 20px; }
+    .rightPanel .wrap > .footer:not(.footerDesktop) { display: none; }
+  }
 </style>
 </head>
 <body>
+
+<div class="pageLayout">
+<div class="leftPanel">
 
 <div class="hero">
   <div class="avatar">S</div>
@@ -96,6 +133,17 @@
   <a class="cta" href="#requestForm">Request a Session</a>
 </div>
 
+<div class="howItWorks">
+  <div class="hiwTitle">How It Works</div>
+  <div class="hiwStep"><span class="hiwNum">1</span><span class="hiwText">Pick an open time or propose your own</span></div>
+  <div class="hiwStep"><span class="hiwNum">2</span><span class="hiwText">Sophie approves, counters, or declines</span></div>
+  <div class="hiwStep"><span class="hiwNum">3</span><span class="hiwText">You get a confirmation with a calendar invite</span></div>
+</div>
+
+<div class="footer footerDesktop">Scheduling powered by CoachPilot</div>
+
+</div>
+<div class="rightPanel">
 <div class="wrap">
   <div class="section hidden" id="openTimesSection">
     <div class="card">
@@ -208,6 +256,8 @@
     </div>
   </div>
   <div class="footer">Scheduling powered by CoachPilot</div>
+</div>
+</div>
 </div>
 
 <script>
