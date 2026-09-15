@@ -170,12 +170,7 @@
   <div class="section" id="requestForm">
     <div class="card">
 
-      <div id="pickMode">
-        <div class="modeToggle">
-          <button type="button" id="tabNew" class="active">New Client</button>
-          <button type="button" id="tabReturning">Returning Client</button>
-        </div>
-      </div>
+      <div id="pickMode"></div>
 
       <!-- RETURNING: lookup -->
       <div id="returningLookup" class="hidden">
@@ -186,6 +181,28 @@
         <button class="btnPrimary" id="sendLinkBtn">Email Me a Booking Link</button>
         <p class="msg hidden" id="lookupMsg"></p>
         <p class="err hidden" id="lookupErr"></p>
+        <a href="#" class="suggestOwnLink" id="backToNewLink">&larr; Back to New Client</a>
+      </div>
+
+      <!-- RECOGNIZED DEVICE: welcome back, no contact fields -->
+      <div id="deviceWelcome" class="hidden">
+        <h2 class="formTitle" id="dWelcomeTitle">Welcome back!</h2>
+        <p class="sub">Pick a time, then who's coming.</p>
+        <div id="dLockedTimeCard" class="lockedTimeCard hidden"></div>
+        <div id="dTimesPickerGroup">
+          <label>Proposed Times</label>
+          <div id="dTimeRows"></div>
+          <button type="button" class="addTimeBtn" id="dAddTime">+ Add Another Time</button>
+        </div>
+        <label>Athlete(s)</label>
+        <div class="chips" id="dAthleteChips"></div>
+        <div id="dNewAthleteRows"></div>
+        <button type="button" class="addTimeBtn" id="dAddAthlete">+ Add an Athlete</button>
+        <label>What should Sophie work on?</label>
+        <textarea id="dNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
+        <button class="btnPrimary" id="dSubmitBtn">Send Request</button>
+        <p class="err hidden" id="dErr"></p>
+        <a href="#" class="suggestOwnLink" id="dSwitchLink">Not you? Switch</a>
       </div>
 
       <!-- RETURNING: pre-filled after magic link -->
@@ -194,14 +211,10 @@
         <p class="sub" id="rescheduleNote">Pick 2-3 times that work and we'll take it from there.</p>
         <div id="returningFormFields">
           <div id="rLockedTimeCard" class="lockedTimeCard hidden"></div>
-          <label for="rAthlete">Athlete</label>
-          <select id="rAthleteSelect"></select>
-          <div id="rNewAthleteWrap" class="hidden">
-            <label for="rAthleteName">Athlete Name</label>
-            <input type="text" id="rAthleteName" placeholder="Athlete's name" />
-            <label for="rAthleteAge">Age</label>
-            <input type="text" id="rAthleteAge" placeholder="Age" />
-          </div>
+          <label>Athlete(s)</label>
+          <div class="chips" id="rAthleteChips"></div>
+          <div id="rNewAthleteRows"></div>
+          <button type="button" class="addTimeBtn" id="rAddAthlete">+ Add an Athlete</button>
           <label>What should Sophie work on?</label>
           <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
           <div id="rTimesPickerGroup">
@@ -219,12 +232,16 @@
       <div id="newForm">
         <h2 class="formTitle">Request a Session</h2>
         <p class="sub">Propose 2-3 times and tell us a bit about your athlete. Sophie will respond within 48 hours.</p>
+        <a href="#" class="suggestOwnLink" id="bookedBeforeLink">Booked with Sophie before?</a>
 
         <div id="nLockedTimeCard" class="lockedTimeCard hidden"></div>
-        <label for="nAthleteName">Athlete Name</label>
-        <input type="text" id="nAthleteName" placeholder="Athlete's name" />
-        <label for="nAthleteAge">Age</label>
-        <input type="text" id="nAthleteAge" placeholder="Age" />
+        <label>Session Type</label>
+        <div class="modeToggle" id="nTypeToggle">
+          <button type="button" class="typeBtn active" data-type="one_on_one">1-on-1</button>
+          <button type="button" class="typeBtn" data-type="small_group">Small Group (2-4)</button>
+        </div>
+        <div id="nAthleteRows"></div>
+        <button type="button" class="addTimeBtn hidden" id="nAddAthlete">+ Add Another Athlete</button>
         <label>What should Sophie work on?</label>
         <textarea id="nNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
 
@@ -278,6 +295,25 @@
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/sls-gateway";
   var el = function (id) { return document.getElementById(id); };
   var params = new URLSearchParams(window.location.search);
+
+  // -------- device recognition --------
+  // The raw token lives only here (localStorage); the gateway only ever
+  // sees/stores its SHA-256 hash. A recognized device skips straight to
+  // "Welcome back" with no contact fields at all.
+  var DEVICE_KEY = "sls_device_token";
+  var deviceToken = null;
+  try { deviceToken = localStorage.getItem(DEVICE_KEY); } catch (e) { /* private mode, non-fatal */ }
+  function saveDeviceToken(token) {
+    if (!token) return;
+    deviceToken = token;
+    try { localStorage.setItem(DEVICE_KEY, token); } catch (e) { /* private mode, non-fatal */ }
+  }
+  function clearDeviceToken() {
+    var old = deviceToken;
+    deviceToken = null;
+    try { localStorage.removeItem(DEVICE_KEY); } catch (e) { /* private mode, non-fatal */ }
+    return old;
+  }
 
   function api(action, method, body) {
     return fetch(API + "?action=" + action, {
@@ -335,6 +371,109 @@
     return row;
   }
 
+  // -------- session type + athletes (1-on-1 vs Small Group) --------
+  // Two entry shapes: a New Client types fresh repeatable name/age rows
+  // (setupAthleteRows + setupTypeToggle, explicit type buttons); a
+  // returning family (magic link) or a recognized device picks from
+  // tap-to-select chips of their saved roster (renderAthleteChips) with
+  // "+ Add an athlete" for anyone not yet saved -- session type there is
+  // just inferred from how many are selected (2+ = Small Group).
+  function makeAthleteRow(container, canRemove) {
+    var row = document.createElement("div");
+    row.className = "timeRow athleteRow";
+    row.innerHTML =
+      (canRemove ? '<button type="button" class="rmBtn">&times;</button>' : "") +
+      '<label>Athlete Name</label>' +
+      '<input type="text" class="athleteRowName" placeholder="Athlete\'s name" />' +
+      '<label>Age</label>' +
+      '<input type="text" class="athleteRowAge" placeholder="Age" />';
+    if (canRemove) row.querySelector(".rmBtn").addEventListener("click", function () { row.remove(); });
+    container.appendChild(row);
+    return row;
+  }
+  function getSelectedAthleteCount(prefix) {
+    var chipCount = el(prefix + "AthleteChips") ? el(prefix + "AthleteChips").querySelectorAll(".chip.active").length : 0;
+    var rowCount = el(prefix + "NewAthleteRows") ? el(prefix + "NewAthleteRows").querySelectorAll(".athleteRow").length : 0;
+    return chipCount + rowCount;
+  }
+  function collectAthletes(prefix, fromChips) {
+    var out = [];
+    if (fromChips && el(prefix + "AthleteChips")) {
+      el(prefix + "AthleteChips").querySelectorAll(".chip.active").forEach(function (c) {
+        out.push({ name: c.dataset.name, age: c.dataset.age });
+      });
+    }
+    var rowsWrap = fromChips ? el(prefix + "NewAthleteRows") : el(prefix + "AthleteRows");
+    if (rowsWrap) {
+      rowsWrap.querySelectorAll(".athleteRow").forEach(function (row) {
+        var name = row.querySelector(".athleteRowName").value.trim();
+        var age = row.querySelector(".athleteRowAge").value.trim();
+        if (name) out.push({ name: name, age: age });
+      });
+    }
+    return out;
+  }
+  // New-client flow: one fixed row + an explicit 1-on-1/Small Group toggle
+  // that reveals up to 4 rows (min 2 kept once Small Group is picked).
+  function setupAthleteRows(prefix) {
+    var container = el(prefix + "AthleteRows");
+    makeAthleteRow(container, false);
+    var addBtn = el(prefix + "AddAthlete");
+    addBtn.addEventListener("click", function () {
+      if (container.querySelectorAll(".athleteRow").length >= 4) return;
+      makeAthleteRow(container, true);
+      if (container.querySelectorAll(".athleteRow").length >= 4) addBtn.classList.add("hidden");
+    });
+  }
+  function setupTypeToggle(prefix) {
+    var toggle = el(prefix + "TypeToggle");
+    var addBtn = el(prefix + "AddAthlete");
+    var container = el(prefix + "AthleteRows");
+    toggle.querySelectorAll(".typeBtn").forEach(function (b) {
+      b.addEventListener("click", function () {
+        toggle.querySelectorAll(".typeBtn").forEach(function (x) { x.classList.remove("active"); });
+        b.classList.add("active");
+        var isGroup = b.dataset.type === "small_group";
+        addBtn.classList.toggle("hidden", !isGroup || container.querySelectorAll(".athleteRow").length >= 4);
+        if (!isGroup) {
+          container.querySelectorAll(".athleteRow").forEach(function (row, i) { if (i > 0) row.remove(); });
+        } else {
+          while (container.querySelectorAll(".athleteRow").length < 2) makeAthleteRow(container, true);
+        }
+      });
+    });
+  }
+  // Returning/recognized flow: saved roster as multi-select chips, capped
+  // at 4 total (chips + added rows) to match the gateway's Small Group max.
+  function renderAthleteChips(prefix, athletes) {
+    var wrap = el(prefix + "AthleteChips");
+    var extraContainer = el(prefix + "NewAthleteRows");
+    var addBtn = el(prefix + "AddAthlete");
+    wrap.innerHTML = "";
+    extraContainer.innerHTML = "";
+    function refreshCap() { addBtn.classList.toggle("hidden", getSelectedAthleteCount(prefix) >= 4); }
+    (athletes || []).forEach(function (a) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = a.name + (a.age ? " (" + a.age + ")" : "");
+      chip.dataset.name = a.name;
+      chip.dataset.age = a.age || "";
+      chip.addEventListener("click", function () {
+        if (!chip.classList.contains("active") && getSelectedAthleteCount(prefix) >= 4) return;
+        chip.classList.toggle("active");
+        refreshCap();
+      });
+      wrap.appendChild(chip);
+    });
+    addBtn.onclick = function () {
+      if (getSelectedAthleteCount(prefix) >= 4) return;
+      makeAthleteRow(extraContainer, true);
+      refreshCap();
+    };
+    refreshCap();
+  }
+
   // The picker always means Pacific wall-clock time, regardless of the
   // device's own timezone (a family booking while traveling should not
   // silently shift Sophie's actual local time).
@@ -377,7 +516,10 @@
   }
   setupTimeRows("nTimeRows", "nAddTime");
   setupTimeRows("rTimeRows", "rAddTime");
+  setupTimeRows("dTimeRows", "dAddTime");
   setupTimeRows("otManualTimeRows", "otAddTime");
+  setupAthleteRows("n");
+  setupTypeToggle("n");
 
   // -------- open times (posted availability) --------
   // Day-first progressive disclosure: a horizontal day strip, one day's
@@ -417,7 +559,7 @@
   }
 
   function renderLockedTimeUi() {
-    ["n", "r"].forEach(function (prefix) {
+    ["n", "r", "d"].forEach(function (prefix) {
       var card = el(prefix + "LockedTimeCard");
       var group = el(prefix + "TimesPickerGroup");
       if (lockedSlotIso) {
@@ -530,18 +672,48 @@
     showOpenTimesPickerView();
   });
 
-  // -------- mode toggle --------
-  el("tabNew").addEventListener("click", function () {
-    el("tabNew").classList.add("active"); el("tabReturning").classList.remove("active");
-    el("newForm").classList.remove("hidden");
+  // -------- unrecognized-device default: New Client form + a link to the
+  // phone/email lookup, instead of an always-visible Returning tab --------
+  function showUnrecognizedDefault() {
+    el("deviceWelcome").classList.add("hidden");
     el("returningLookup").classList.add("hidden");
     el("returningForm").classList.add("hidden");
-  });
-  el("tabReturning").addEventListener("click", function () {
-    el("tabReturning").classList.add("active"); el("tabNew").classList.remove("active");
+    el("newForm").classList.remove("hidden");
+  }
+  el("bookedBeforeLink").addEventListener("click", function (e) {
+    e.preventDefault();
     el("newForm").classList.add("hidden");
     el("returningLookup").classList.remove("hidden");
+  });
+  el("backToNewLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    showUnrecognizedDefault();
+  });
+
+  // -------- recognized device: skip straight to "Welcome back" --------
+  function showRecognizedWelcome(j) {
+    el("newForm").classList.add("hidden");
+    el("returningLookup").classList.add("hidden");
     el("returningForm").classList.add("hidden");
+    el("deviceWelcome").classList.remove("hidden");
+    var first = j.parent_first_name || "there";
+    el("dWelcomeTitle").textContent = "Welcome back, " + first + "!";
+    el("dSwitchLink").textContent = "Not " + first + "? Switch";
+    renderAthleteChips("d", j.athletes || []);
+    renderLockedTimeUi();
+  }
+  function checkRecognizedDevice() {
+    if (!deviceToken) { showUnrecognizedDefault(); return; }
+    api("whoami", "POST", { device_token: deviceToken }).then(function (j) {
+      if (!j.ok || !j.found) { clearDeviceToken(); showUnrecognizedDefault(); return; }
+      showRecognizedWelcome(j);
+    }).catch(function () { showUnrecognizedDefault(); });
+  }
+  el("dSwitchLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    var old = clearDeviceToken();
+    if (old) api("device_revoke", "POST", { device_token: old });
+    showUnrecognizedDefault();
   });
 
   // -------- returning: request a login link --------
@@ -588,25 +760,17 @@
         return;
       }
       currentClient = j.client;
+      // Tapping any magic link is a trusted moment -- quietly save a device
+      // token so the NEXT visit lands recognized, without changing what's
+      // shown right now (this is still the familiar "Welcome back" form).
+      if (j.device_token) saveDeviceToken(j.device_token);
       el("returningForm").classList.remove("hidden");
       el("returningFormFields").classList.remove("hidden");
       el("rRequestNewLinkBtn").classList.add("hidden");
       var first = (j.client.parent_name || "").split(" ")[0] || "there";
       el("welcomeBack").textContent = "Welcome back, " + first + "!";
       if (rescheduleOf) el("rescheduleNote").textContent = "Pick 2-3 new times and we'll get this rescheduled.";
-      var sel = el("rAthleteSelect");
-      sel.innerHTML = "";
-      (j.client.athletes || []).forEach(function (a) {
-        var opt = document.createElement("option");
-        opt.value = a.name; opt.textContent = a.name;
-        sel.appendChild(opt);
-      });
-      var newOpt = document.createElement("option");
-      newOpt.value = "__new__"; newOpt.textContent = "Someone new";
-      sel.appendChild(newOpt);
-      sel.addEventListener("change", function () {
-        el("rNewAthleteWrap").classList.toggle("hidden", sel.value !== "__new__");
-      });
+      renderAthleteChips("r", j.client.athletes || []);
     }).catch(function () {
       el("returningForm").classList.remove("hidden");
       el("welcomeBack").textContent = "Something went wrong";
@@ -614,6 +778,8 @@
       el("rRequestNewLinkBtn").classList.remove("hidden");
       el("rescheduleNote").textContent = "Could not reach the server. Try again.";
     });
+  } else {
+    checkRecognizedDevice();
   }
 
   el("rRequestNewLinkBtn").addEventListener("click", function () {
@@ -621,14 +787,14 @@
   });
 
   function validateAndSubmit(mode) {
-    var isReturning = mode === "returning";
     // Times come from exactly one of three places, never more than one
     // visible at a time: a tapped open slot, the shared "suggest your own
     // times" picker inside Open Times (when slots exist), or this form's
     // own picker (only ever shown when there are no open slots at all).
-    var timesContainerId = hasOpenSlots ? "otManualTimeRows" : (isReturning ? "rTimeRows" : "nTimeRows");
-    var errEl = el(isReturning ? "rErr" : "nErr");
-    var btn = el(isReturning ? "rSubmitBtn" : "nSubmitBtn");
+    var timePrefix = mode === "returning" ? "r" : mode === "device" ? "d" : "n";
+    var timesContainerId = hasOpenSlots ? "otManualTimeRows" : (timePrefix + "TimeRows");
+    var errEl = el(mode === "returning" ? "rErr" : mode === "device" ? "dErr" : "nErr");
+    var btn = el(mode === "returning" ? "rSubmitBtn" : mode === "device" ? "dSubmitBtn" : "nSubmitBtn");
     errEl.classList.add("hidden");
 
     var times, fromOpenSlot = false;
@@ -648,32 +814,34 @@
     if (fromOpenSlot) payload.from_open_slot = true;
     if (rescheduleOf) payload.reschedule_of_session_id = rescheduleOf;
 
-    if (isReturning) {
-      var athleteName, athleteAge;
-      var sel = el("rAthleteSelect");
-      if (sel.value === "__new__") {
-        athleteName = el("rAthleteName").value.trim();
-        athleteAge = el("rAthleteAge").value.trim();
-        if (!athleteName) { errEl.textContent = "Enter the athlete's name."; errEl.classList.remove("hidden"); return; }
+    if (mode === "returning" || mode === "device") {
+      // Saved-roster chips + any newly-typed rows; session type is
+      // inferred purely from how many athletes ended up selected.
+      var athletes = collectAthletes(mode === "returning" ? "r" : "d", true);
+      if (!athletes.length) { errEl.textContent = "Select or add at least one athlete."; errEl.classList.remove("hidden"); return; }
+      payload.session_type = athletes.length >= 2 ? "small_group" : "one_on_one";
+      payload.athletes = athletes;
+      if (mode === "returning") {
+        payload.mode = "returning";
+        payload.login_token = loginToken;
+        payload.focus_notes = el("rNotes").value.trim();
       } else {
-        athleteName = sel.value;
-        athleteAge = "";
+        payload.device_token = deviceToken;
+        payload.focus_notes = el("dNotes").value.trim();
       }
-      payload.mode = "returning";
-      payload.login_token = loginToken;
-      payload.athlete_name = athleteName;
-      payload.athlete_age = athleteAge;
-      payload.focus_notes = el("rNotes").value.trim();
     } else {
-      var athlete_name = el("nAthleteName").value.trim();
+      var typeBtn = el("nTypeToggle").querySelector(".typeBtn.active");
+      var session_type = typeBtn ? typeBtn.dataset.type : "one_on_one";
+      var athletesNew = collectAthletes("n", false);
+      if (!athletesNew.length) { errEl.textContent = "Enter at least one athlete."; errEl.classList.remove("hidden"); return; }
+      if (session_type === "small_group" && athletesNew.length < 2) { errEl.textContent = "Small Group needs at least 2 athletes."; errEl.classList.remove("hidden"); return; }
       var parent_name = el("nParentName").value.trim();
       var parent_email = el("nParentEmail").value.trim();
-      if (!athlete_name) { errEl.textContent = "Enter the athlete's name."; errEl.classList.remove("hidden"); return; }
       if (!parent_name) { errEl.textContent = "Enter your name."; errEl.classList.remove("hidden"); return; }
       if (!parent_email || parent_email.indexOf("@") === -1) { errEl.textContent = "Enter a valid email."; errEl.classList.remove("hidden"); return; }
       payload.mode = "new";
-      payload.athlete_name = athlete_name;
-      payload.athlete_age = el("nAthleteAge").value.trim();
+      payload.session_type = session_type;
+      payload.athletes = athletesNew;
       payload.focus_notes = el("nNotes").value.trim();
       payload.parent_name = parent_name;
       payload.parent_phone = el("nParentPhone").value.trim();
@@ -686,7 +854,11 @@
       btn.disabled = false;
       if (!j.ok) { errEl.textContent = j.error || "Something went wrong. Please try again."; errEl.classList.remove("hidden"); return; }
       clearLockedSlot();
-      document.querySelectorAll("#pickMode, #newForm, #returningLookup, #returningForm, #openTimesSection").forEach(function (x) { x.classList.add("hidden"); });
+      if (j.device_token) saveDeviceToken(j.device_token);
+      document.querySelectorAll("#pickMode, #newForm, #returningLookup, #returningForm, #deviceWelcome, #openTimesSection").forEach(function (x) { x.classList.add("hidden"); });
+      el("successState").querySelector("p").textContent = j.device_link_sent
+        ? "Sophie will respond within 48 hours. We also emailed you a link to connect this device for faster booking next time."
+        : "Sophie will respond within 48 hours.";
       el("successState").classList.remove("hidden");
       window.scrollTo({ top: el("successState").getBoundingClientRect().top + window.scrollY - 20, behavior: "smooth" });
     }).catch(function () {
@@ -698,6 +870,7 @@
 
   el("nSubmitBtn").addEventListener("click", function () { validateAndSubmit("new"); });
   el("rSubmitBtn").addEventListener("click", function () { validateAndSubmit("returning"); });
+  el("dSubmitBtn").addEventListener("click", function () { validateAndSubmit("device"); });
 })();
 </script>
 </body>
