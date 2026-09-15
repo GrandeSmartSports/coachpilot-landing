@@ -331,14 +331,20 @@ const MGMT_PAT = process.env.SUPABASE_MANAGEMENT_PAT || '';
   if (!MGMT_PAT) {
     skip('SUPABASE_MANAGEMENT_PAT not set; cannot query function logs to directly confirm suppression for THIS run (manually verified live during the incident fix -- see commit message)');
   } else {
-    await new Promise((r) => setTimeout(r, 4000)); // let logs land
+    // Log propagation into the analytics endpoint is eventually-consistent
+    // (observed anywhere from ~3s to ~8s); poll instead of a single fixed
+    // wait so this doesn't flake under slower propagation.
     const sql = "select event_message from function_logs where event_message like '%test-email suppressed%' order by timestamp desc limit 20";
-    const logsResp = await fetch(`https://api.supabase.com/v1/projects/geigvuysptjvvqanumld/analytics/endpoints/logs.all?sql=${encodeURIComponent(sql)}`, {
-      headers: { Authorization: `Bearer ${MGMT_PAT}` },
-    }).then((r) => r.json()).catch((e) => ({ error: e.message }));
-    const rows = (logsResp && logsResp.result) || [];
+    let rows = [];
+    for (let attempt = 0; attempt < 6 && rows.length === 0; attempt++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const logsResp = await fetch(`https://api.supabase.com/v1/projects/geigvuysptjvvqanumld/analytics/endpoints/logs.all?sql=${encodeURIComponent(sql)}`, {
+        headers: { Authorization: `Bearer ${MGMT_PAT}` },
+      }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+      rows = (logsResp && logsResp.result) || [];
+    }
     if (rows.length > 0) ok(`found ${rows.length} recent "[test-email suppressed]" log line(s) -- the quota guard is live and firing`);
-    else fail('no "[test-email suppressed]" log lines found; the quota guard may not be deployed: ' + JSON.stringify(logsResp).slice(0, 300));
+    else fail('no "[test-email suppressed]" log lines found after polling for 18s; the quota guard may not be deployed');
   }
 
   if (sub.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: sub.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
@@ -844,10 +850,19 @@ if (!SERVICE_KEY) {
 
       await page.locator('.tabBtn[data-panel="Requests"]').click();
       await page.waitForTimeout(300);
+      // Other tests running earlier in this same suite pass can leave
+      // several ZZTEST rows pending/countered at once, so the Requests
+      // panel may be tall enough to scroll -- scroll the last card INTO
+      // view first so its bounding box reflects where it actually renders
+      // once a coach scrolls all the way down, not wherever it happens to
+      // sit off-screen in the unscrolled page.
+      const lastCard = page.locator('.panel.active .card, .panel.active .emptyState').last();
+      await lastCard.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(150);
       const navBox = await page.locator('nav.tabbar').boundingBox();
-      const lastBox = await page.locator('.panel.active .card, .panel.active .emptyState').last().boundingBox();
+      const lastBox = await lastCard.boundingBox();
       if (navBox && lastBox && lastBox.y + lastBox.height <= navBox.y) ok('mobile: no content/bar overlap at the new 64px bar height (content clearance stayed in sync)');
-      else fail('mobile: overlap detected between content and the resized bar');
+      else fail(`mobile: overlap detected between content and the resized bar (lastBox=${JSON.stringify(lastBox)}, navBox=${JSON.stringify(navBox)})`);
 
       await page.screenshot({ path: '/private/tmp/claude-501/-Users-danielgrande/2dcd7eb4-7009-4ce7-9830-8a88926637d6/scratchpad/sophie-qa-nav-mobile.png' }).catch(() => {});
       await page.close();
