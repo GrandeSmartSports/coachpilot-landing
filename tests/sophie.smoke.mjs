@@ -314,7 +314,12 @@ let declineRequestId = null;
     athlete_age: '10',
     focus_notes: 'ZZTEST smoke test request (decline path)',
     parent_name: 'ZZTEST Parent',
-    parent_phone: '2535550100',
+    // Unique per run (not a fixed number): the phone-match trust rule
+    // added for device recognition means a leftover client from a prior
+    // crashed run sharing this same phone would otherwise get silently
+    // attached to instead of creating a fresh one, flipping is_new_client
+    // and breaking this test's assumption.
+    parent_phone: `253555${String(STAMP).slice(-4)}`,
     parent_email: ZZ_EMAIL,
     how_found: 'Other',
     proposed_times: [
