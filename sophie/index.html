@@ -291,14 +291,10 @@
   function buildChips() {
     var chips = [];
     for (var h = 6; h <= 20; h++) {
-      for (var m = 0; m < 60; m += 30) {
-        if (h === 20 && m > 30) continue;
-        var hh = String(h).padStart(2, "0");
-        var mm = String(m).padStart(2, "0");
-        var ampm = h < 12 ? "AM" : "PM";
-        var h12 = h % 12 === 0 ? 12 : h % 12;
-        chips.push({ value: hh + ":" + mm, label: h12 + (m === 0 ? ":00" : ":30") + " " + ampm });
-      }
+      var hh = String(h).padStart(2, "0");
+      var ampm = h < 12 ? "AM" : "PM";
+      var h12 = h % 12 === 0 ? 12 : h % 12;
+      chips.push({ value: hh + ":00", label: h12 + ":00 " + ampm });
     }
     return chips;
   }

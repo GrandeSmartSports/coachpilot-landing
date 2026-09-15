@@ -735,10 +735,10 @@ const slot0300 = pacificToUtcIso(tY, tMo, tD, 3, 0);
 
 {
   const slots = (await api('open_slots')).slots || [];
-  if ([slot0200, slot0230, slot0300].every((s) => slots.includes(s))) {
-    ok('a 2-hour window (2-4am) at 60min/30min-step correctly generates 3 slots: 2:00, 2:30, 3:00');
+  if (slots.includes(slot0200) && slots.includes(slot0300) && !slots.includes(slot0230)) {
+    ok('a 2-hour window (2-4am) at 60min-step correctly generates 2 hourly slots: 2:00, 3:00 (no 2:30 mark)');
   } else {
-    fail('expected slots not present: ' + JSON.stringify({ slot0200, slot0230, slot0300, found: slots.filter((s) => s >= slot0200 && s <= slot0300) }));
+    fail('expected hourly-only slots not as expected: ' + JSON.stringify({ slot0200, slot0230, slot0300, found: slots.filter((s) => s >= slot0200 && s <= slot0300) }));
   }
   const beyondWindow = pacificToUtcIso(tY, tMo, tD, 3, 30);
   if (!slots.includes(beyondWindow)) ok('no slot generated starting at 3:30am (would run past the 4am window edge)');
@@ -762,23 +762,24 @@ let overlapDirectClientEmail = null;
     method: 'POST', pin: ADMIN_PIN,
     body: { athlete_name: 'ZZTEST Open Overlap', starts_at: slot0230, location_id: zzLocationId, new_client: { parent_name: 'ZZTEST Open Overlap Parent', parent_email: overlapDirectClientEmail } },
   });
-  if (booked.ok && booked.session && booked.session.id) { ok('booked a session directly into the 2:30am slot'); overlapDirectSessionId = booked.session.id; }
+  if (booked.ok && booked.session && booked.session.id) { ok('booked a session directly into the 2:30am slot (off-hour, non-chip direct booking)'); overlapDirectSessionId = booked.session.id; }
   else fail('direct booking into the test window failed: ' + JSON.stringify(booked));
 
-  // A 60-min session at 2:30 genuinely overlaps the 2:00 slot (2:00-3:00)
-  // and the 3:00 slot (3:00-4:00), not just its own exact start, so all
-  // three candidates in this 2-hour window should be excluded.
+  // A 60-min session at 2:30 genuinely overlaps the 2:00 hourly slot
+  // (2:00-3:00) and the 3:00 hourly slot (3:00-4:00), not just its own
+  // exact start, even though 2:30 itself is no longer a generated
+  // candidate under the hourly-only grid.
   const slots = (await api('open_slots')).slots || [];
-  if (!slots.includes(slot0200) && !slots.includes(slot0230) && !slots.includes(slot0300)) {
-    ok('booking a session hides every slot that would genuinely overlap it in time, not just its exact start');
+  if (!slots.includes(slot0200) && !slots.includes(slot0300)) {
+    ok('booking an off-hour session still hides every hourly slot that would genuinely overlap it');
   } else {
     fail('session-overlap exclusion did not behave as expected: ' + JSON.stringify(slots.filter((s) => s >= slot0200 && s <= slot0300)));
   }
 
   await api('admin_session_cancel', { method: 'POST', pin: ADMIN_PIN, body: { session_id: overlapDirectSessionId } });
   const slotsAfterCancel = (await api('open_slots')).slots || [];
-  if (slotsAfterCancel.includes(slot0230)) ok('cancelling that session restores its slot to open_slots');
-  else fail('slot did not reappear after cancelling the session');
+  if (slotsAfterCancel.includes(slot0200) && slotsAfterCancel.includes(slot0300)) ok('cancelling that session restores its hourly slots to open_slots');
+  else fail('slots did not reappear after cancelling the session');
 }
 
 let pendingHideRequestId = null;
@@ -822,12 +823,13 @@ if (!SERVICE_KEY) {
   await rest('sls_settings', 'key=eq.calendar_busy_cache', { method: 'PATCH', body: { value: JSON.stringify([{ start: busyStart, end: busyEnd }]) }, headers: { Prefer: 'return=minimal' } });
   await rest('sls_settings', 'key=eq.calendar_busy_cache_at', { method: 'PATCH', body: { value: new Date().toISOString() }, headers: { Prefer: 'return=minimal' } });
 
-  // Busy interval is [2:00, 3:00). The 2:00 slot (2:00-3:00) and 2:30 slot
-  // (2:30-3:30) both genuinely overlap it; the 3:00 slot (3:00-4:00) starts
-  // exactly when the busy interval ends, so it does not.
+  // Busy interval is [2:00, 3:00). The 2:00 hourly slot (2:00-3:00)
+  // genuinely overlaps it; the 3:00 hourly slot (3:00-4:00) starts exactly
+  // when the busy interval ends, so it does not. (2:30 is no longer a
+  // generated candidate under the hourly-only grid.)
   const slots = (await api('open_slots')).slots || [];
-  if (!slots.includes(slot0200) && !slots.includes(slot0230) && slots.includes(slot0300)) {
-    ok('a busy calendar interval hides every slot that would genuinely overlap it, and only those');
+  if (!slots.includes(slot0200) && slots.includes(slot0300)) {
+    ok('a busy calendar interval hides the hourly slot that would genuinely overlap it, and only that one');
   } else {
     fail('calendar busy-overlap exclusion did not behave as expected: ' + JSON.stringify(slots.filter((s) => s >= slot0200 && s <= slot0300)));
   }

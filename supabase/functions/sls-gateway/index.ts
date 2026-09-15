@@ -346,7 +346,7 @@ async function resolveLocation(body: Record<string, unknown>, field = "location_
 // normal pending sls_requests row requiring Sophie's approval — there is
 // no auto-confirm path here, by design.
 const SLOT_DURATION_MIN = 60;
-const SLOT_STEP_MIN = 30;
+const SLOT_STEP_MIN = 60;
 const OPEN_SLOT_HORIZON_DAYS = 21;
 const MIN_NOTICE_HOURS = 12;
 const CALENDAR_CACHE_MS = 15 * 60000;
