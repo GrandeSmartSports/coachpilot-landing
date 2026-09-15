@@ -739,6 +739,45 @@ if (!SERVICE_KEY) {
 }
 
 // ==================================================================
+section('browser: New Client Small Group "+ Add Another Athlete" re-shows after removing a row below the cap');
+{
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  try {
+    const page = await browser.newPage();
+    await page.goto('https://coachpilot.org/sophie/', { waitUntil: 'networkidle' });
+    await page.locator('#nTypeToggle .typeBtn[data-type="small_group"]').click();
+    await page.waitForTimeout(150);
+    if ((await page.locator('#nAthleteRows .athleteRow').count()) === 2 && await page.locator('#nAddAthlete').isVisible()) {
+      ok('Small Group starts at 2 rows with the add button visible');
+    } else fail('unexpected starting state after switching to Small Group');
+
+    await page.locator('#nAddAthlete').click();
+    await page.waitForTimeout(100);
+    await page.locator('#nAddAthlete').click();
+    await page.waitForTimeout(100);
+    const rowsAtCap = await page.locator('#nAthleteRows .athleteRow').count();
+    const addHiddenAtCap = await page.locator('#nAddAthlete').isHidden();
+    if (rowsAtCap === 4 && addHiddenAtCap) ok('adding up to the 4-athlete cap hides the add button');
+    else fail(`expected 4 rows + hidden add button, got ${rowsAtCap} rows, hidden=${addHiddenAtCap}`);
+
+    await page.locator('#nAthleteRows .athleteRow .rmBtn').last().click();
+    await page.waitForTimeout(150);
+    const rowsAfterRemove = await page.locator('#nAthleteRows .athleteRow').count();
+    const addVisibleAfterRemove = await page.locator('#nAddAthlete').isVisible();
+    if (rowsAfterRemove === 3 && addVisibleAfterRemove) {
+      ok('removing a row back below the cap (4 -> 3) re-shows the add button, not just on the type-toggle switch');
+    } else {
+      fail(`add button did not re-show after removing a row: rows=${rowsAfterRemove}, addVisible=${addVisibleAfterRemove}`);
+    }
+    await browser.close();
+  } catch (e) {
+    await browser.close();
+    fail('Small Group add/remove browser check threw: ' + e.message);
+  }
+}
+
+// ==================================================================
 section('availability: window CRUD + open_slots generation');
 function pacificOffsetMinutesAt(utcMs) {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'shortOffset' }).formatToParts(new Date(utcMs));
@@ -1160,6 +1199,62 @@ section('device recognition: trust-rule matrix (matching email/phone = no token 
       const verify = await fetch(`${GATEWAY}?action=login_verify&token=${encodeURIComponent(tok.token)}`).then((r) => r.json());
       if (verify.ok && verify.device_token) ok('login_verify (tapping a magic link) issues a fresh device_token');
       else fail('login_verify did not issue a device_token: ' + JSON.stringify(verify));
+    }
+  }
+}
+
+// ==================================================================
+section('security: magic link tokens are single-use (login_verify no longer mints unlimited device_tokens on replay)');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot read a real login token to test single-use enforcement');
+} else {
+  const email = `zztest-sls-singleuse-${STAMP}@example.com`;
+  const seed = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST SingleUse Kid', age: '10' }], parent_name: 'ZZTEST SingleUse Parent', parent_email: email, proposed_times: [new Date(Date.now() + 84 * 86400000).toISOString(), new Date(Date.now() + 85 * 86400000).toISOString()] } });
+  if (seed.ok && seed.request_id) ok('seeded a ZZTEST client for the single-use token test');
+  else fail('single-use seed submission failed: ' + JSON.stringify(seed));
+  if (seed.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: seed.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+  const { data: clientRows } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(email)}&select=id`);
+  const clientId = clientRows && clientRows[0] && clientRows[0].id;
+  const loginResp = await api('request_login', { method: 'POST', body: { contact: email } });
+  if (loginResp.ok && loginResp.found) ok('request_login found the single-use-test client');
+  else fail('request_login could not find the single-use-test client: ' + JSON.stringify(loginResp));
+
+  const { data: tokRows } = await rest('sls_tokens', `client_id=eq.${clientId}&purpose=eq.login&order=created_at.desc&limit=1`);
+  const tok = tokRows && tokRows[0];
+  if (!tok) {
+    fail('no login token available to test single-use enforcement');
+  } else {
+    const { data: devicesBefore } = await rest('sls_devices', `client_id=eq.${clientId}&select=id`);
+    const countBefore = (devicesBefore || []).length;
+
+    const first = await fetch(`${GATEWAY}?action=login_verify&token=${encodeURIComponent(tok.token)}`).then((r) => r.json());
+    if (first.ok && first.device_token) ok('first login_verify call on this token succeeds and issues a device_token');
+    else fail('first login_verify call unexpectedly failed: ' + JSON.stringify(first));
+
+    const second = await fetch(`${GATEWAY}?action=login_verify&token=${encodeURIComponent(tok.token)}`).then((r) => r.json());
+    if (!second.ok) ok('replaying the SAME token a second time is rejected (single-use enforced, lands on the expired-link state)');
+    else fail('a login token was accepted a second time: ' + JSON.stringify(second));
+
+    const { data: devicesAfter } = await rest('sls_devices', `client_id=eq.${clientId}&select=id`);
+    const countAfter = (devicesAfter || []).length;
+    if (countAfter === countBefore + 1) ok('exactly one device_token was minted for this link, not one per call (the exploit this closes)');
+    else fail(`expected device count to grow by exactly 1, went from ${countBefore} to ${countAfter}`);
+
+    // The legitimate flow must still work end-to-end: the device_token
+    // issued by that single successful call finalizes a real booking,
+    // proving single-use enforcement didn't also break checkout.
+    if (first.device_token) {
+      const bookViaDevice = await api('submit_request', {
+        method: 'POST', body: {
+          device_token: first.device_token, session_type: 'one_on_one', athletes: [{ name: 'ZZTEST SingleUse Kid', age: '10' }],
+          proposed_times: [new Date(Date.now() + 86 * 86400000).toISOString(), new Date(Date.now() + 87 * 86400000).toISOString()],
+        },
+      });
+      if (bookViaDevice.ok && bookViaDevice.request_id) {
+        ok('the device_token from that one login_verify call still finalizes a real booking (single-use fix does not break checkout)');
+        await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: bookViaDevice.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+      } else fail('booking via the device_token from login_verify failed: ' + JSON.stringify(bookViaDevice));
     }
   }
 }
