@@ -625,6 +625,14 @@ Deno.serve(async (req: Request) => {
       if (!t || t.used_at || new Date(t.expires_at).getTime() < Date.now()) return json({ ok: false, error: "This link has expired. Please request a new one." }, 410);
       const { data: client } = await db.from("sls_clients").select("id,parent_name,parent_phone,parent_email,athletes").eq("id", t.client_id).maybeSingle();
       if (!client) return json({ ok: false, error: "We couldn't find your account." }, 404);
+      // Single-use: without this, a tapped magic link could be replayed
+      // (scanners, multiple tabs/devices, a deliberate refetch) to mint an
+      // unbounded number of persistent device_tokens from one email. The
+      // matching submit_request path now authenticates the booking itself
+      // with the device_token issued right below, not by resubmitting this
+      // same login_token -- so marking it used here doesn't block finishing
+      // the booking a legitimate tap started.
+      await db.from("sls_tokens").update({ used_at: new Date().toISOString() }).eq("id", t.id);
       const device_token = await issueDeviceToken(client.id);
       return json({ ok: true, client, device_token });
     }
