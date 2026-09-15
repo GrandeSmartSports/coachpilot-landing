@@ -19,7 +19,11 @@
   }
   * { box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
   html, body { background: var(--cream); color: var(--ink); }
-  body { font-family: "Inter", system-ui, -apple-system, sans-serif; padding-bottom: 78px; }
+  /* 78px clears the tab bar's own content; env(safe-area-inset-bottom)
+     additionally clears the home-indicator gesture area on notched
+     phones, which the tab bar's fixed position sits underneath -- without
+     it, the last card's content renders (partially) behind the bar. */
+  body { font-family: "Inter", system-ui, -apple-system, sans-serif; padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
   button { font-family: inherit; cursor: pointer; }
   input, select, textarea { font-family: inherit; }
   .hidden { display: none !important; }
@@ -86,7 +90,7 @@
 
   .fab { position: fixed; bottom: 86px; right: 18px; background: var(--coral); color: #fff; border: none; border-radius: 999px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(232,98,60,0.4); z-index: 20; }
 
-  nav.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line); display: flex; z-index: 30; }
+  nav.tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--line); display: flex; z-index: 30; padding-bottom: env(safe-area-inset-bottom, 0px); }
   nav.tabbar button { flex: 1; background: none; border: none; padding: 10px 4px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; color: var(--muted); }
   nav.tabbar button.active { color: var(--coral); }
 
