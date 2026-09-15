@@ -215,6 +215,16 @@ async function resendSend(payload: Record<string, unknown>): Promise<{ ok: boole
     payload = { ...payload, to: toList };
   }
 
+  // Quota guard (2026-09-15): the blackhole reroute above still made a REAL
+  // Resend API call, burning quota shared with other production domains
+  // (CueOps auth email included) on every single test run. Any final
+  // recipient on @resend.dev is a test sink by definition -- never actually
+  // send it, just log and report success.
+  if (toList.length && toList.every((t) => /@resend\.dev$/i.test(t))) {
+    console.log(`[test-email suppressed] subject="${subject.slice(0, 60)}" to_domain=${domainsOf(toList)}`);
+    return { ok: true, id: "suppressed" };
+  }
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },

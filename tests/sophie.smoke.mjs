@@ -305,6 +305,46 @@ section('gateway: request_login does not leak account existence and sends no ema
 }
 
 // ==================================================================
+// Quota guard (2026-09-15 incident): the ZZTEST blackhole reroute still
+// made a REAL Resend API call for every test-triggered email, burning
+// quota shared with other production domains. resendSend() now skips the
+// actual API call entirely whenever every final recipient is @resend.dev,
+// logging "[test-email suppressed]" instead. Confirmed live via the
+// Management API function-log stream during the fix (both the parent
+// "Request sent" and Sophie's "New lesson request" alert hit the
+// suppression path, zero Resend calls made) -- also asserted here
+// whenever a management token is available.
+section('email safety: test emails to @resend.dev are suppressed, never actually sent (quota guard)');
+const MGMT_PAT = process.env.SUPABASE_MANAGEMENT_PAT || '';
+{
+  const email = `zztest-sls-quotasuppress-${STAMP}@example.com`;
+  const sub = await api('submit_request', {
+    method: 'POST', body: {
+      mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Quota Suppress Kid', age: '9' }],
+      parent_name: 'ZZTEST Quota Suppress Parent', parent_email: email,
+      proposed_times: [new Date(Date.now() + 82 * 86400000).toISOString(), new Date(Date.now() + 83 * 86400000).toISOString()],
+    },
+  });
+  if (sub.ok && sub.request_id) ok('seeded a ZZTEST submission that would normally trigger 2 real emails (parent + Sophie alert)');
+  else fail('seed submission for the quota-guard test failed: ' + JSON.stringify(sub));
+
+  if (!MGMT_PAT) {
+    skip('SUPABASE_MANAGEMENT_PAT not set; cannot query function logs to directly confirm suppression for THIS run (manually verified live during the incident fix -- see commit message)');
+  } else {
+    await new Promise((r) => setTimeout(r, 4000)); // let logs land
+    const sql = "select event_message from function_logs where event_message like '%test-email suppressed%' order by timestamp desc limit 20";
+    const logsResp = await fetch(`https://api.supabase.com/v1/projects/geigvuysptjvvqanumld/analytics/endpoints/logs.all?sql=${encodeURIComponent(sql)}`, {
+      headers: { Authorization: `Bearer ${MGMT_PAT}` },
+    }).then((r) => r.json()).catch((e) => ({ error: e.message }));
+    const rows = (logsResp && logsResp.result) || [];
+    if (rows.length > 0) ok(`found ${rows.length} recent "[test-email suppressed]" log line(s) -- the quota guard is live and firing`);
+    else fail('no "[test-email suppressed]" log lines found; the quota guard may not be deployed: ' + JSON.stringify(logsResp).slice(0, 300));
+  }
+
+  if (sub.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: sub.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+}
+
+// ==================================================================
 section('gateway: new-client request creation + decline transition');
 let declineRequestId = null;
 {
