@@ -29,6 +29,19 @@
 //      SUPABASE_SERVICE_ROLE_KEY is set, rows are deleted after the run.
 //      Otherwise they are left in place, tagged, with cleanup instructions
 //      printed at the end.
+//  10. Session types (2026-09-15): 1-on-1 vs Small Group submission +
+//      min/max athlete validation, the legacy athlete_name column holding
+//      a joined-names label, athlete-roster growth on a returning-mode
+//      submit, and back-compat with a raw pre-Feature-A single-athlete row
+//      (column defaults alone, no application code).
+//  11. Device recognition (2026-09-15): a brand-new client is issued a
+//      device_token immediately; whoami is data-minimized (no email/phone,
+//      ever) and drives a device_token-authenticated booking; device_revoke
+//      kills a token; the email/phone trust-rule matrix (matching contact
+//      info from an unrecognized device gets NO token + a "connect this
+//      device" email instead); login_verify issues a fresh device_token;
+//      and verifying a token slides its expiry forward while an actually-
+//      expired one is rejected.
 //
 // EMAIL SAFETY: this suite creates real pending requests, which trigger a
 // real "new lesson request" alert email. Before any test runs, setup reads
@@ -126,9 +139,10 @@ const indexHtml = fs.readFileSync(path.join(ROOT, 'sophie/index.html'), 'utf8');
 const mustContain = [
   'Lessons with Sophie',
   'Scheduling powered by CoachPilot',
-  'id="tabNew"',
-  'id="tabReturning"',
-  'id="nAthleteName"',
+  'id="bookedBeforeLink"',
+  'id="deviceWelcome"',
+  'id="nTypeToggle"',
+  'id="nAthleteRows"',
   'id="nParentName"',
   'id="nParentPhone"',
   'id="nParentEmail"',
@@ -646,7 +660,7 @@ if (!SERVICE_KEY) {
       await page.locator('#dayTimeChips .openChip').first().click();
       await page.waitForTimeout(300);
       const zzEmail = `zztest-sls-dayfirst-${STAMP}@example.com`;
-      await page.locator('#nAthleteName').fill('ZZTEST DayFirst Athlete');
+      await page.locator('#nAthleteRows .athleteRowName').first().fill('ZZTEST DayFirst Athlete');
       await page.locator('#nParentName').fill('ZZTEST DayFirst Parent');
       await page.locator('#nParentEmail').fill(zzEmail);
       await page.locator('#nSubmitBtn').click();
@@ -905,6 +919,281 @@ if (testWindowId) {
 }
 
 // ==================================================================
+section('session types: 1-on-1 vs Small Group submission + validation');
+let soloRequestId = null, groupRequestId = null;
+{
+  const t1 = new Date(Date.now() + 60 * 86400000).toISOString();
+  const t2 = new Date(Date.now() + 61 * 86400000).toISOString();
+
+  const solo = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Solo Kid', age: '10' }], parent_name: 'ZZTEST Solo Parent', parent_email: `zztest-sls-solo-${STAMP}@example.com`, proposed_times: [t1, t2] } });
+  if (solo.ok && solo.request_id) { ok('1-on-1 submission with a single athletes[] entry is accepted'); soloRequestId = solo.request_id; }
+  else fail('1-on-1 submission failed: ' + JSON.stringify(solo));
+
+  const noAthletes = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [], parent_name: 'ZZTEST Nobody Parent', parent_email: `zztest-sls-noathlete-${STAMP}@example.com`, proposed_times: [t1, t2] } });
+  if (!noAthletes.ok) ok('a submission with zero athletes is rejected'); else fail('zero-athlete submission should have been rejected');
+
+  const tooManySolo = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST A', age: '' }, { name: 'ZZTEST B', age: '' }], parent_name: 'ZZTEST Parent', parent_email: `zztest-sls-toomanysolo-${STAMP}@example.com`, proposed_times: [t1, t2] } });
+  if (!tooManySolo.ok) ok('1-on-1 submission rejects more than 1 athlete'); else fail('1-on-1 with 2 athletes should have been rejected');
+
+  const underGroup = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'small_group', athletes: [{ name: 'ZZTEST Solo In Group', age: '' }], parent_name: 'ZZTEST Parent', parent_email: `zztest-sls-undergroup-${STAMP}@example.com`, proposed_times: [t1, t2] } });
+  if (!underGroup.ok) ok('Small Group submission rejects fewer than 2 athletes'); else fail('Small Group with 1 athlete should have been rejected');
+
+  const overGroup = await api('submit_request', {
+    method: 'POST', body: {
+      mode: 'new', session_type: 'small_group',
+      athletes: [{ name: 'ZZTEST A', age: '' }, { name: 'ZZTEST B', age: '' }, { name: 'ZZTEST C', age: '' }, { name: 'ZZTEST D', age: '' }, { name: 'ZZTEST E', age: '' }],
+      parent_name: 'ZZTEST Parent', parent_email: `zztest-sls-overgroup-${STAMP}@example.com`, proposed_times: [t1, t2],
+    },
+  });
+  if (!overGroup.ok) ok('Small Group submission rejects more than 4 athletes'); else fail('Small Group with 5 athletes should have been rejected');
+
+  const group = await api('submit_request', {
+    method: 'POST', body: {
+      mode: 'new', session_type: 'small_group',
+      athletes: [{ name: 'ZZTEST Group A', age: '8' }, { name: 'ZZTEST Group B', age: '9' }, { name: 'ZZTEST Group C', age: '10' }],
+      parent_name: 'ZZTEST Group Parent', parent_email: `zztest-sls-group-${STAMP}@example.com`, proposed_times: [t1, t2],
+    },
+  });
+  if (group.ok && group.request_id) { ok('Small Group submission with 3 athletes is accepted'); groupRequestId = group.request_id; }
+  else fail('Small Group submission failed: ' + JSON.stringify(group));
+
+  const state = await api('admin_state', { pin: ADMIN_PIN });
+  const soloRow = (state.requests || []).find((r) => r.id === soloRequestId);
+  const groupRow = (state.requests || []).find((r) => r.id === groupRequestId);
+  if (soloRow && soloRow.session_type === 'one_on_one' && Array.isArray(soloRow.athletes) && soloRow.athletes.length === 1 && soloRow.athletes[0].name === 'ZZTEST Solo Kid') {
+    ok('admin_state reflects the 1-on-1 request\'s session_type + athletes[]');
+  } else fail('1-on-1 row shape unexpected: ' + JSON.stringify(soloRow));
+  if (groupRow && groupRow.session_type === 'small_group' && Array.isArray(groupRow.athletes) && groupRow.athletes.length === 3) {
+    ok('admin_state reflects the Small Group request\'s session_type + all 3 athletes');
+  } else fail('Small Group row shape unexpected: ' + JSON.stringify(groupRow));
+  if (groupRow && groupRow.athlete_name === 'ZZTEST Group A & ZZTEST Group B & ZZTEST Group C') {
+    ok('the legacy athlete_name column holds the joined-names label for back-compat readers');
+  } else fail('unexpected legacy athlete_name label: ' + JSON.stringify(groupRow && groupRow.athlete_name));
+
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: soloRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
+  await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: groupRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
+}
+
+// ==================================================================
+section('session types: athlete roster growth on submit');
+{
+  const rosterEmail = `zztest-sls-roster-${STAMP}@example.com`;
+  const seed = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Roster Kid1', age: '7' }], parent_name: 'ZZTEST Roster Parent', parent_email: rosterEmail, proposed_times: [new Date(Date.now() + 62 * 86400000).toISOString(), new Date(Date.now() + 63 * 86400000).toISOString()] } });
+  if (seed.ok && seed.request_id) ok('seeded a ZZTEST client with exactly one saved athlete');
+  else fail('roster-growth seed submission failed: ' + JSON.stringify(seed));
+  if (seed.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: seed.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+  if (!SERVICE_KEY) {
+    skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot read a real login token to test roster growth');
+  } else {
+    const { data: clientRows } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(rosterEmail)}&select=id,athletes`);
+    const client = clientRows && clientRows[0];
+    if (!client) { fail('could not find the seeded roster-growth client'); }
+    else {
+      if (Array.isArray(client.athletes) && client.athletes.length === 1) ok('client roster starts with exactly the one seeded athlete');
+      else fail('unexpected starting roster: ' + JSON.stringify(client.athletes));
+
+      const loginResp = await api('request_login', { method: 'POST', body: { contact: rosterEmail } });
+      if (loginResp.ok && loginResp.found) ok('request_login found the roster-growth client');
+      else fail('request_login could not find the roster-growth client: ' + JSON.stringify(loginResp));
+
+      const { data: tokRows } = await rest('sls_tokens', `client_id=eq.${client.id}&purpose=eq.login&order=created_at.desc&limit=1`);
+      const tok = tokRows && tokRows[0];
+      if (!tok) { fail('no login token found to continue the roster-growth test'); }
+      else {
+        // Small Group of the already-known athlete + one brand-new one.
+        const grow = await api('submit_request', {
+          method: 'POST', body: {
+            mode: 'returning', login_token: tok.token, session_type: 'small_group',
+            athletes: [{ name: 'ZZTEST Roster Kid1', age: '7' }, { name: 'ZZTEST Roster Kid2', age: '9' }],
+            proposed_times: [new Date(Date.now() + 64 * 86400000).toISOString(), new Date(Date.now() + 65 * 86400000).toISOString()],
+          },
+        });
+        if (grow.ok && grow.request_id) ok('returning-mode Small Group submission with one known + one new athlete is accepted');
+        else fail('roster-growth submission failed: ' + JSON.stringify(grow));
+
+        const { data: afterRows } = await rest('sls_clients', `id=eq.${client.id}&select=athletes`);
+        const afterAthletes = afterRows && afterRows[0] && afterRows[0].athletes;
+        if (Array.isArray(afterAthletes) && afterAthletes.length === 2 && afterAthletes.some((a) => a.name === 'ZZTEST Roster Kid2')) {
+          ok('the new athlete was added to the saved roster; the already-known one was not duplicated');
+        } else fail('roster did not grow as expected: ' + JSON.stringify(afterAthletes));
+
+        if (grow.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: grow.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+      }
+    }
+  }
+}
+
+// ==================================================================
+section('device recognition: brand-new client gets a device_token, whoami is data-minimized, booking by device_token works, revoke kills it');
+{
+  const devEmail = `zztest-sls-device-${STAMP}@example.com`;
+  const seed = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Device Kid', age: '11' }], parent_name: 'ZZTEST Device Parent', parent_email: devEmail, proposed_times: [new Date(Date.now() + 66 * 86400000).toISOString(), new Date(Date.now() + 67 * 86400000).toISOString()] } });
+  if (seed.ok && seed.device_token) ok('a brand-new client (no email/phone match) gets a device_token back immediately');
+  else fail('expected a device_token on a brand-new submission: ' + JSON.stringify(seed));
+  const devToken = seed.device_token;
+  if (seed.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: seed.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+  if (!devToken) {
+    skip('no device_token issued; skipping the rest of the device-recognition lifecycle test');
+  } else {
+    const who = await api('whoami', { method: 'POST', body: { device_token: devToken } });
+    if (who.ok && who.found && who.parent_first_name === 'ZZTEST' && Array.isArray(who.athletes) && who.athletes.some((a) => a.name === 'ZZTEST Device Kid')) {
+      ok('whoami recognizes the new device and returns a first name + athlete roster');
+    } else fail('whoami did not return the expected recognized shape: ' + JSON.stringify(who));
+    const whoJson = JSON.stringify(who).toLowerCase();
+    if (!whoJson.includes(devEmail.toLowerCase()) && !whoJson.includes('phone') && !whoJson.includes('email')) {
+      ok('whoami response never includes email or phone (data minimization)');
+    } else fail('whoami leaked contact info: ' + JSON.stringify(who));
+
+    const bookAgain = await api('submit_request', { method: 'POST', body: { device_token: devToken, session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Device Kid', age: '11' }], proposed_times: [new Date(Date.now() + 68 * 86400000).toISOString(), new Date(Date.now() + 69 * 86400000).toISOString()] } });
+    if (bookAgain.ok && bookAgain.request_id) ok('a second booking authenticated purely by device_token (no mode, no parent fields) succeeds');
+    else fail('device_token-authenticated booking failed: ' + JSON.stringify(bookAgain));
+    if (bookAgain.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: bookAgain.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+    const revoked = await api('device_revoke', { method: 'POST', body: { device_token: devToken } });
+    if (revoked.ok) ok('device_revoke succeeds'); else fail('device_revoke failed: ' + JSON.stringify(revoked));
+    const whoAfter = await api('whoami', { method: 'POST', body: { device_token: devToken } });
+    if (whoAfter.ok && whoAfter.found === false) ok('whoami no longer recognizes a revoked device_token');
+    else fail('a revoked device_token was still recognized by whoami: ' + JSON.stringify(whoAfter));
+    const bookAfterRevoke = await api('submit_request', { method: 'POST', body: { device_token: devToken, session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Device Kid', age: '11' }], proposed_times: [new Date(Date.now() + 70 * 86400000).toISOString(), new Date(Date.now() + 71 * 86400000).toISOString()] } });
+    if (!bookAfterRevoke.ok && bookAfterRevoke._status === 401) ok('a revoked device_token can no longer authenticate a booking');
+    else fail('a revoked device_token still authenticated a booking: ' + JSON.stringify(bookAfterRevoke));
+  }
+}
+
+// ==================================================================
+section('device recognition: trust-rule matrix (matching email/phone = no token + connect-device email, login_verify issues a token)');
+{
+  const trustEmail = `zztest-sls-trust-${STAMP}@example.com`;
+  const trustPhone = '2065551234';
+  const seed = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Trust Kid', age: '12' }], parent_name: 'ZZTEST Trust Parent', parent_phone: trustPhone, parent_email: trustEmail, proposed_times: [new Date(Date.now() + 72 * 86400000).toISOString(), new Date(Date.now() + 73 * 86400000).toISOString()] } });
+  if (seed.ok && seed.device_token) ok('seed booking for the trust-rule tests is brand-new, as expected (device_token issued)');
+  else fail('trust-rule seed submission failed: ' + JSON.stringify(seed));
+  if (seed.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: seed.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+  // Matching EMAIL, from an unrecognized device (no device_token sent):
+  // attach to the existing client, issue NO device_token, flag device_link_sent.
+  const emailMatch = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Trust Kid', age: '12' }], parent_name: 'ZZTEST Trust Parent', parent_email: trustEmail, proposed_times: [new Date(Date.now() + 74 * 86400000).toISOString(), new Date(Date.now() + 75 * 86400000).toISOString()] } });
+  if (emailMatch.ok && !emailMatch.device_token && emailMatch.device_link_sent === true) {
+    ok('a submission matching an existing EMAIL from an unrecognized device gets no device_token and is flagged device_link_sent');
+  } else fail('email-match trust rule did not behave as expected: ' + JSON.stringify(emailMatch));
+  const stateAfterEmail = await api('admin_state', { pin: ADMIN_PIN });
+  const emailMatchRow = (stateAfterEmail.requests || []).find((r) => r.id === emailMatch.request_id);
+  if (emailMatchRow && emailMatchRow.is_new_client === false) {
+    ok('the email-matched request is correctly tagged is_new_client:false (attached to the existing client, not a fresh one)');
+  } else fail('email-matched request has unexpected is_new_client: ' + JSON.stringify(emailMatchRow));
+  if (emailMatch.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: emailMatch.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+
+  // Matching PHONE only (a different, brand-new email) -- same trust rule,
+  // and it must NOT spin up a second client under the new email.
+  const phoneMatchEmail = `zztest-sls-trustphone-${STAMP}@example.com`;
+  const phoneMatch = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Trust Kid', age: '12' }], parent_name: 'ZZTEST Trust Parent', parent_phone: trustPhone, parent_email: phoneMatchEmail, proposed_times: [new Date(Date.now() + 76 * 86400000).toISOString(), new Date(Date.now() + 77 * 86400000).toISOString()] } });
+  if (phoneMatch.ok && !phoneMatch.device_token && phoneMatch.device_link_sent === true) {
+    ok('a submission matching an existing PHONE (different email) also gets no device_token and is flagged device_link_sent');
+  } else fail('phone-match trust rule did not behave as expected: ' + JSON.stringify(phoneMatch));
+  if (phoneMatch.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: phoneMatch.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+  if (SERVICE_KEY) {
+    const { data: dupClient } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(phoneMatchEmail)}&select=id`);
+    if (!dupClient || dupClient.length === 0) ok('the phone-matched submission did not create a second client under the new email');
+    else fail('a duplicate client was created for the phone-matched submission: ' + JSON.stringify(dupClient));
+  }
+
+  // login_verify (tapping any magic link) issues a fresh device_token.
+  if (!SERVICE_KEY) {
+    skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot read a real login token to test login_verify device-token issuance');
+  } else {
+    const { data: cRows } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(trustEmail)}&select=id`);
+    const trustClientId = cRows && cRows[0] && cRows[0].id;
+    const loginResp = await api('request_login', { method: 'POST', body: { contact: trustEmail } });
+    if (loginResp.ok && loginResp.found) ok('request_login found the trust-rule client for the login_verify test');
+    else fail('request_login could not find the trust-rule client: ' + JSON.stringify(loginResp));
+    const { data: tokRows } = await rest('sls_tokens', `client_id=eq.${trustClientId}&purpose=eq.login&order=created_at.desc&limit=1`);
+    const tok = tokRows && tokRows[0];
+    if (!tok) { fail('no login token available to test login_verify device-token issuance'); }
+    else {
+      const verify = await fetch(`${GATEWAY}?action=login_verify&token=${encodeURIComponent(tok.token)}`).then((r) => r.json());
+      if (verify.ok && verify.device_token) ok('login_verify (tapping a magic link) issues a fresh device_token');
+      else fail('login_verify did not issue a device_token: ' + JSON.stringify(verify));
+    }
+  }
+}
+
+// ==================================================================
+section('device recognition: verifying a token slides its expiry forward; an actually-expired token is rejected');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot inspect/mutate sls_devices directly to test expiry refresh');
+} else {
+  const { createHash } = await import('node:crypto');
+  const seed = await api('submit_request', { method: 'POST', body: { mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST Refresh Kid', age: '10' }], parent_name: 'ZZTEST Refresh Parent', parent_email: `zztest-sls-refresh-${STAMP}@example.com`, proposed_times: [new Date(Date.now() + 78 * 86400000).toISOString(), new Date(Date.now() + 79 * 86400000).toISOString()] } });
+  if (!seed.ok || !seed.device_token) {
+    fail('could not seed a device token for the expiry-refresh test: ' + JSON.stringify(seed));
+  } else {
+    if (seed.request_id) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: seed.request_id, response: 'decline', message: 'ZZTEST cleanup' } });
+    const tokenHash = createHash('sha256').update(seed.device_token).digest('hex');
+
+    await rest('sls_devices', `token_hash=eq.${tokenHash}`, { method: 'PATCH', body: { expires_at: new Date(Date.now() + 10 * 60000).toISOString() }, headers: { Prefer: 'return=minimal' } });
+    const { data: beforeRows } = await rest('sls_devices', `token_hash=eq.${tokenHash}&select=expires_at`);
+    const beforeExpiry = beforeRows && beforeRows[0] && beforeRows[0].expires_at;
+    if (beforeExpiry && new Date(beforeExpiry).getTime() < Date.now() + 15 * 60000) ok('device row artificially set to expire soon, as a baseline for this test');
+    else fail('could not set up the near-expiry baseline: ' + JSON.stringify(beforeRows));
+
+    const who = await api('whoami', { method: 'POST', body: { device_token: seed.device_token } });
+    if (who.ok && who.found) ok('a near-expiry (but not yet expired) device_token still authenticates');
+    else fail('near-expiry token unexpectedly rejected: ' + JSON.stringify(who));
+
+    const { data: afterRows } = await rest('sls_devices', `token_hash=eq.${tokenHash}&select=expires_at`);
+    const afterExpiry = afterRows && afterRows[0] && afterRows[0].expires_at;
+    const daysOut = afterExpiry ? (new Date(afterExpiry).getTime() - Date.now()) / 86400000 : 0;
+    if (daysOut > 360) ok('verifying the token slid its expiry back out to ~365 days, so an actively-used device never silently expires');
+    else fail('expiry was not refreshed on use: ' + JSON.stringify(afterRows));
+
+    await rest('sls_devices', `token_hash=eq.${tokenHash}`, { method: 'PATCH', body: { expires_at: new Date(Date.now() - 60000).toISOString() }, headers: { Prefer: 'return=minimal' } });
+    const whoExpired = await api('whoami', { method: 'POST', body: { device_token: seed.device_token } });
+    if (whoExpired.ok && whoExpired.found === false) ok('an actually-expired device_token is no longer recognized');
+    else fail('an expired device_token was still recognized: ' + JSON.stringify(whoExpired));
+  }
+}
+
+// ==================================================================
+section('session types: back-compat with pre-existing single-athlete records');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; cannot seed a raw legacy-shape row to test back-compat');
+} else {
+  const legacyEmail = `zztest-sls-legacy-${STAMP}@example.com`;
+  const { data: createdClient } = await rest('sls_clients', '', { method: 'POST', body: { parent_name: 'ZZTEST Legacy Parent', parent_email: legacyEmail, athletes: [{ name: 'ZZTEST Legacy Kid', age: '9' }] }, headers: { Prefer: 'return=representation' } });
+  const legacyClientId = createdClient && createdClient[0] && createdClient[0].id;
+  if (!legacyClientId) {
+    fail('could not seed the legacy-shape client');
+  } else {
+    // Insert a request row the OLD way: only athlete_name/athlete_age set,
+    // session_type/athletes left untouched to take their column defaults
+    // (the exact shape of every pre-Feature-A row still in the database).
+    const { data: legacyReq } = await rest('sls_requests', '', {
+      method: 'POST',
+      body: {
+        client_id: legacyClientId, is_new_client: true, athlete_name: 'ZZTEST Legacy Kid', athlete_age: '9',
+        parent_name: 'ZZTEST Legacy Parent', parent_email: legacyEmail,
+        proposed_times: [new Date(Date.now() + 80 * 86400000).toISOString(), new Date(Date.now() + 81 * 86400000).toISOString()],
+      },
+      headers: { Prefer: 'return=representation' },
+    });
+    const legacyReqRow = legacyReq && legacyReq[0];
+    if (legacyReqRow && legacyReqRow.session_type === 'one_on_one' && Array.isArray(legacyReqRow.athletes) && legacyReqRow.athletes.length === 0) {
+      ok('a raw pre-Feature-A row defaults to session_type:"one_on_one" and athletes:[] from the column defaults alone');
+    } else fail('legacy row did not get the expected column defaults: ' + JSON.stringify(legacyReqRow));
+
+    const state = await api('admin_state', { pin: ADMIN_PIN });
+    const seenRow = (state.requests || []).find((r) => r.id === legacyReqRow.id);
+    if (seenRow && seenRow.athlete_name === 'ZZTEST Legacy Kid' && seenRow.athlete_age === '9' && Array.isArray(seenRow.athletes) && seenRow.athletes.length === 0) {
+      ok('admin_state serves the legacy row untouched (athlete_name/age intact, athletes empty) so the Coach Hub falls back correctly');
+    } else fail('admin_state did not serve the legacy row as expected: ' + JSON.stringify(seenRow));
+
+    if (legacyReqRow) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: legacyReqRow.id, response: 'decline', message: 'ZZTEST cleanup' } });
+  }
+}
+
+// ==================================================================
 section('cleanup: ZZTEST rows');
 if (recurringId) {
   const r = await api('admin_recurring_cancel', { method: 'POST', pin: ADMIN_PIN, body: { recurring_id: recurringId } });
@@ -941,7 +1230,7 @@ if (SERVICE_KEY) {
   skip('SUPABASE_SERVICE_ROLE_KEY not set. ZZTEST rows left in place, tagged for manual cleanup:');
   console.log(`         sls_clients where parent_email like 'zztest-sls-%'`);
   console.log(`         sls_locations where name = 'ZZTEST Location'`);
-  console.log(`         (cascades to sls_requests/sls_sessions/sls_recurring via client_id/location_id)`);
+  console.log(`         (cascades to sls_requests/sls_sessions/sls_recurring/sls_devices via client_id/location_id)`);
 }
 }
 
