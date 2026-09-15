@@ -18,19 +18,14 @@
     --danger:#c94f2c; --flag:#fdeceb; --flag-line:#e8a49a;
   }
   * { box-sizing: border-box; margin:0; padding:0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--cream); color: var(--ink); }
-  /* 64px is the tab bar's own height (kept in sync with nav.tabbar below)
-     plus 16px breathing room; env(safe-area-inset-bottom) additionally
-     clears the home-indicator gesture area on notched phones, which the
-     tab bar's fixed position sits underneath -- without it, the last
-     card's content renders (partially) behind the bar. */
-  body { font-family: "Inter", system-ui, -apple-system, sans-serif; padding-bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px)); }
+  html, body { background: var(--cream); color: var(--ink); height: 100%; }
+  body { font-family: "Inter", system-ui, -apple-system, sans-serif; }
   button { font-family: inherit; cursor: pointer; }
   input, select, textarea { font-family: inherit; }
   .hidden { display: none !important; }
 
   /* ---- PIN gate ---- */
-  #pinGate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--navy); }
+  #pinGate { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--navy); }
   .pinCard { max-width: 340px; width: 100%; background: #fff; border-radius: 18px; padding: 28px 24px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
   .pinCard h1 { font-family: "Fraunces", Georgia, serif; color: var(--navy); font-size: 22px; margin-bottom: 4px; }
   .pinCard .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
@@ -38,14 +33,42 @@
   .btnPrimary { width: 100%; background: var(--coral); color: #fff; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; padding: 14px; }
   .err { color: var(--danger); font-size: 13px; margin-top: 10px; font-weight: 600; }
 
-  /* ---- shell ---- */
-  #app { display: none; }
-  header.top { background: var(--navy); color: var(--cream); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; }
+  /* ---- shell ----
+     iOS Safari fix: fixed-bottom elements (the tab bar, the FAB) can render
+     hidden underneath Safari's own dynamic toolbar when it's expanded --
+     a well-known iOS Safari bug with position:fixed near the bottom edge,
+     confirmed on Coach's real device (nav bar AND the Locations "+ Add"
+     button both invisible in Safari tab mode). Fixed by never using
+     position:fixed for these: #app is a flex column sized to the actual
+     current viewport (100dvh, falling back to 100vh on older browsers),
+     the tab bar is a normal flex sibling at the bottom (can't be hidden
+     under browser chrome since it's not detached from layout), and the
+     FAB is position:absolute within a position:relative wrapper sized by
+     flex layout, not position:fixed to the true viewport. */
+  #app { display: none; flex-direction: column; height: 100vh; height: 100dvh; }
+  header.top { flex: 0 0 auto; background: var(--navy); color: var(--cream); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   header.top .brand { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 18px; }
   header.top .brand small { display:block; font-family:"Inter",sans-serif; font-weight:600; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color: var(--gold); }
-  .bell { background: rgba(255,255,255,0.12); border: none; color: var(--cream); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 600; }
+  .bell { background: rgba(255,255,255,0.12); border: none; color: var(--cream); border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .bell.bellOn { background: rgba(255,255,255,0.08); opacity: 0.85; cursor: default; }
 
-  main { max-width: 640px; margin: 0 auto; padding: 16px; }
+  /* First-run setup wizard: a flex sibling of .appBody (only one of the
+     two is ever visible), same scroll/no-position:fixed pattern as main. */
+  #setupWizard { display: none; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #setupWizard.active { display: block; flex: 1 1 auto; }
+  .wizScroll { max-width: 480px; margin: 0 auto; padding: 28px 20px 40px; }
+  .wizStepEl { display: none; }
+  .wizStepEl.active { display: block; }
+  .wizStepBadge { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .wizTitle { font-family: "Fraunces", Georgia, serif; font-size: 22px; color: var(--navy); margin-bottom: 6px; }
+  .wizSub { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; }
+  .wizDone { width: 64px; height: 64px; border-radius: 50%; background: var(--navy); color: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 18px; }
+  #setupWizard label { display:block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--navy); margin-bottom: 5px; margin-top: 10px; }
+  #setupWizard input[type=email], #setupWizard select { width: 100%; border: 1.5px solid var(--line); border-radius: 9px; padding: 10px; font-size: 14px; background: var(--cream); margin-bottom: 6px; }
+
+  .appBody { flex: 1 1 auto; display: flex; min-height: 0; }
+  .mainWrap { flex: 1 1 auto; position: relative; min-width: 0; }
+  main { height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; max-width: 640px; margin: 0 auto; padding: 16px; }
   .panel { display: none; }
   .panel.active { display: block; }
 
@@ -89,15 +112,16 @@
 
   .emptyState { text-align: center; color: var(--muted); padding: 40px 10px; font-size: 14px; }
 
-  .fab { position: fixed; bottom: calc(64px + 20px + env(safe-area-inset-bottom, 0px)); right: 18px; background: var(--coral); color: #fff; border: none; border-radius: 999px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(232,98,60,0.4); z-index: 20; }
+  .fab { position: absolute; bottom: 16px; right: 16px; background: var(--coral); color: #fff; border: none; border-radius: 999px; padding: 13px 18px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(232,98,60,0.4); z-index: 20; }
 
   /* Mobile bottom bar: max 4 tabs (Requests/Sessions/Availability/More),
      the rest live in the More sheet. 64px + safe-area, 44x44 minimum tap
      targets, active state is a filled pill behind the icon plus color +
-     weight change -- not just a text tint. */
+     weight change -- not just a text tint. A normal flex sibling (NOT
+     position:fixed) -- see the iOS Safari note on #app above. */
   nav.tabbar {
-    position: fixed; bottom: 0; left: 0; right: 0; height: 64px;
-    background: #fff; border-top: 1px solid var(--line); display: flex; z-index: 30;
+    flex: 0 0 auto; height: 64px;
+    background: #fff; border-top: 1px solid var(--line); display: flex;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   nav.tabbar button {
@@ -123,6 +147,13 @@
   .modalCard input, .modalCard select, .modalCard textarea { width: 100%; border: 1.5px solid var(--line); border-radius: 9px; padding: 10px; font-size: 14px; background: var(--cream); }
   .closeModal { display:block; text-align:center; color: var(--muted); font-size: 13px; margin-top: 14px; }
 
+  /* Notification walkthrough / wizard step rows: numbered icon circle + text. */
+  .walkStep { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .walkStep .walkIcon { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; background: var(--cream-2); display: flex; align-items: center; justify-content: center; color: var(--navy); }
+  .walkStep .walkIcon svg { width: 18px; height: 18px; }
+  .walkStep .walkTitle { font-weight: 700; color: var(--navy); font-size: 14.5px; }
+  .walkStep .walkSub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
   /* More sheet: reuses the same bottom-sheet modal shell, larger rows. */
   .moreRow { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--cream); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 10px; text-align: left; }
   .moreRow.active { border-color: var(--coral); background: var(--flag); }
@@ -132,21 +163,19 @@
   .moreRow .moreRowArrow { color: var(--muted); font-size: 20px; flex: 0 0 auto; }
 
   /* Desktop (>=900px): a left rail with every item visible replaces the
-     cramped bottom bar entirely -- no "More" needed once there's room. */
+     cramped bottom bar entirely -- no "More" needed once there's room. A
+     normal flex sibling of .mainWrap within .appBody, not position:fixed. */
   .railNav { display: none; }
   @media (min-width: 900px) {
-    body { padding-bottom: 24px; }
     nav.tabbar { display: none; }
-    .fab { bottom: 24px; }
-    main { margin-left: 224px; max-width: 760px; padding: 28px; }
-    header.top { position: sticky; top: 0; z-index: 26; }
+    .fab { bottom: 24px; right: 24px; }
+    main { max-width: 760px; padding: 28px; }
 
     .railNav {
       display: flex; flex-direction: column; gap: 3px;
-      position: fixed; top: 0; bottom: 0; left: 0; width: 224px;
+      flex: 0 0 224px; overflow-y: auto;
       background: #fff; border-right: 1px solid var(--line);
-      padding: 86px 12px 20px;
-      z-index: 25;
+      padding: 20px 12px;
     }
     .railNav button {
       display: flex; align-items: center; gap: 12px; background: none; border: none; border-radius: 10px;
@@ -175,9 +204,68 @@
 <div id="app">
   <header class="top">
     <div class="brand">Coach's Hub<small>Lessons with Sophie</small></div>
-    <button class="bell" id="pushBtn">Notifications Off</button>
+    <div id="pushStatusArea"></div>
   </header>
 
+  <!-- First-run setup wizard: shown instead of the tabs whenever
+       sophie_alert_email is empty or the delivered@resend.dev sentinel.
+       Re-runnable from More > Settings once configured. -->
+  <div id="setupWizard">
+    <div class="wizScroll">
+      <div class="wizStepEl" data-wiz-step="1">
+        <div class="wizStepBadge">Step 1 of 3</div>
+        <h2 class="wizTitle">Where should we send booking alerts?</h2>
+        <p class="wizSub">Sophie gets a heads-up here every time a family requests a lesson.</p>
+        <label for="wizAlertEmail">Alert Email</label>
+        <input type="email" id="wizAlertEmail" placeholder="you@example.com" />
+        <p class="smallErr hidden" id="wizStep1Err"></p>
+        <button class="confirmBtn" id="wizStep1Next">Continue</button>
+      </div>
+
+      <div class="wizStepEl" data-wiz-step="2">
+        <div class="wizStepBadge">Step 2 of 3 &middot; optional</div>
+        <h2 class="wizTitle">When are you usually open for lessons?</h2>
+        <p class="wizSub">This decides what shows as "Open Times" on your public booking page. You can always change it later in Availability.</p>
+        <div id="wizWindowsList"></div>
+        <div class="expandPanel">
+          <label>Day</label>
+          <select id="wizWindowDay">
+            <option value="0">Sunday</option><option value="1">Monday</option><option value="2">Tuesday</option>
+            <option value="3" selected>Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option>
+          </select>
+          <label>Start Time</label>
+          <div class="chipsRow" id="wizWindowStartChips"></div>
+          <label>End Time</label>
+          <div class="chipsRow" id="wizWindowEndChips"></div>
+          <button class="confirmBtn" id="wizAddWindowBtn">+ Add Window</button>
+          <p class="smallErr hidden" id="wizWindowErr"></p>
+        </div>
+        <div class="actionsRow" style="margin-top:14px;">
+          <button class="btnDecline" id="wizStep2Skip">Skip</button>
+          <button class="btnAccept" id="wizStep2Next">Continue</button>
+        </div>
+      </div>
+
+      <div class="wizStepEl" data-wiz-step="3">
+        <div class="wizStepBadge">Step 3 of 3 &middot; optional</div>
+        <h2 class="wizTitle">Want a ping when a request comes in?</h2>
+        <div id="wizNotifArea"></div>
+        <div class="actionsRow" style="margin-top:14px;">
+          <button class="btnDecline" id="wizStep3Skip">Skip</button>
+          <button class="btnAccept" id="wizStep3Next">Continue</button>
+        </div>
+      </div>
+
+      <div class="wizStepEl" data-wiz-step="4">
+        <div class="wizDone">&#10003;</div>
+        <h2 class="wizTitle" style="text-align:center;">You're set!</h2>
+        <p class="wizSub" style="text-align:center;">Sophie's Coach Hub is ready to go.</p>
+        <button class="confirmBtn" id="wizFinishBtn">Go to Requests</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="appBody" id="appBody">
   <!-- Desktop-only left rail (>=900px): every item visible, no More sheet
        needed once there's room. Kept in sync with the mobile tab bar by
        switchToPanel(), which drives both. -->
@@ -209,6 +297,7 @@
     </button>
   </nav>
 
+  <div class="mainWrap">
   <main>
     <div class="panel active" id="panelRequests"><div id="requestsList"></div></div>
     <div class="panel" id="panelSessions"><div id="sessionsList"></div></div>
@@ -252,12 +341,22 @@
         <button class="confirmBtn" id="saveAlertEmail">Save</button>
         <p class="smallMsg hidden" id="alertSaveMsg">Saved.</p>
       </div>
+      <div class="card hidden" id="settingsNotifCard">
+        <div class="cardTitle">Push Notifications</div>
+        <div class="cardSub">Notifications aren't available on this device/browser, but email alerts above still work for every new request.</div>
+      </div>
+      <div class="card">
+        <div class="cardTitle">Setup Wizard</div>
+        <div class="cardSub">Re-run the guided first-time setup (alert email, availability, notifications).</div>
+        <button class="confirmBtn" id="rerunWizardBtn" style="background:#fff;color:var(--navy);border:1.5px solid var(--line);">Run Setup Wizard</button>
+      </div>
     </div>
   </main>
-
   <button class="fab hidden" id="fabAdd">+ Add</button>
+  </div>
+  </div>
 
-  <nav class="tabbar">
+  <nav class="tabbar" id="mainTabbar">
     <button class="tabBtn active" data-panel="Requests">
       <span class="tabIconWrap">
         <svg class="tabIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
@@ -327,7 +426,7 @@
   function boot() {
     if (!PIN) { el("pinGate").classList.remove("hidden"); return; }
     tryUnlock(PIN).then(function (ok) {
-      if (ok) { el("pinGate").classList.add("hidden"); el("app").style.display = "block"; loadAll(); }
+      if (ok) { el("pinGate").classList.add("hidden"); el("app").style.display = "flex"; loadAll(); }
       else { localStorage.removeItem("sls_admin_pin"); PIN = ""; el("pinGate").classList.remove("hidden"); }
     });
   }
@@ -340,7 +439,7 @@
       PIN = pin;
       localStorage.setItem("sls_admin_pin", pin);
       el("pinGate").classList.add("hidden");
-      el("app").style.display = "block";
+      el("app").style.display = "flex";
       loadAll();
     });
   });
@@ -411,6 +510,54 @@
     });
   }
 
+  // ---------------- first-run setup wizard ----------------
+  // Trigger is strictly "empty or the delivered@resend.dev sentinel" --
+  // never treats a real (even test) address as unconfigured.
+  function needsSetupWizard(state) {
+    var email = state.sophie_alert_email;
+    return !email || email === "delivered@resend.dev";
+  }
+  function showWizStep(n) {
+    document.querySelectorAll(".wizStepEl").forEach(function (s) { s.classList.toggle("active", Number(s.dataset.wizStep) === n); });
+    el("setupWizard").scrollTop = 0;
+  }
+  function openSetupWizard() {
+    el("setupWizard").classList.add("active");
+    el("appBody").classList.add("hidden");
+    el("mainTabbar").classList.add("hidden");
+    var current = STATE.sophie_alert_email;
+    el("wizAlertEmail").value = (current && current !== "delivered@resend.dev") ? current : "";
+    el("wizNotifArea").innerHTML = notifSetupInlineHtml();
+    wireWizNotifArea();
+    showWizStep(1);
+  }
+  function closeSetupWizard() {
+    el("setupWizard").classList.remove("active");
+    el("appBody").classList.remove("hidden");
+    el("mainTabbar").classList.remove("hidden");
+  }
+  el("wizStep1Next").addEventListener("click", function () {
+    var email = el("wizAlertEmail").value.trim();
+    var errEl = el("wizStep1Err");
+    errEl.classList.add("hidden");
+    if (!email || email.indexOf("@") === -1) { errEl.textContent = "Enter a valid email."; errEl.classList.remove("hidden"); return; }
+    api("admin_set_alert_email", "POST", { email: email }).then(function (j) {
+      if (!j.ok) { errEl.textContent = j.error || "Could not save."; errEl.classList.remove("hidden"); return; }
+      el("alertEmailInput").value = email;
+      showWizStep(2);
+    });
+  });
+  el("wizStep2Skip").addEventListener("click", function () { showWizStep(3); });
+  el("wizStep2Next").addEventListener("click", function () { showWizStep(3); });
+  el("wizStep3Skip").addEventListener("click", function () { showWizStep(4); });
+  el("wizStep3Next").addEventListener("click", function () { showWizStep(4); });
+  el("wizFinishBtn").addEventListener("click", function () {
+    closeSetupWizard();
+    switchToPanel("Requests");
+    loadAll();
+  });
+  el("rerunWizardBtn").addEventListener("click", function () { openSetupWizard(); });
+
   // ---------------- load ----------------
   function loadAll() {
     Promise.all([
@@ -421,9 +568,15 @@
       var clients = results[1];
       if (state.ok) {
         STATE = state;
-        renderRequests(); renderSessions(); renderRecurring(); renderLocations(); renderWindows(); renderCalendarStatus();
+        renderRequests(); renderSessions(); renderRecurring(); renderLocations(); renderCalendarStatus();
+        availabilityWindowEditor.render(); wizardWindowEditor.render();
         updateRequestsBadge();
         if (state.sophie_alert_email) el("alertEmailInput").value = state.sophie_alert_email;
+        // First-run gate: only auto-opens on the transition into "needs
+        // setup" -- never re-triggers while the wizard is already open, so
+        // saving step 1 (which makes needsSetupWizard() go false) doesn't
+        // yank the coach out of steps 2/3 they haven't finished yet.
+        if (needsSetupWizard(state) && !el("setupWizard").classList.contains("active")) openSetupWizard();
       }
       if (clients.ok) CLIENTS = clients.clients;
     });
@@ -635,53 +788,60 @@
     });
   }
 
-  // ---------------- Availability tab: windows ----------------
-  var newWindowStart = null, newWindowEnd = null;
-  (function setupNewWindowChips() {
-    var startWrap = el("newWindowStartChips");
-    var endWrap = el("newWindowEndChips");
+  // ---------------- Availability windows editor (reusable) ----------------
+  // The same day-chips/time-range editor is used in two places: the
+  // Availability tab and Step 2 of the setup wizard -- one factory, two
+  // independent instances (different DOM ids), both driven by the same
+  // admin_window API and re-rendered from the same STATE.windows on every
+  // loadAll().
+  function createWindowEditor(ids) {
+    var start = null, end = null;
+    var startWrap = el(ids.startChips), endWrap = el(ids.endChips);
     buildChipTimes().forEach(function (c) {
       var sb = document.createElement("button");
       sb.type = "button"; sb.className = "chipBtn"; sb.textContent = c.label; sb.dataset.value = c.value;
-      sb.addEventListener("click", function () { startWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); sb.classList.add("active"); newWindowStart = c.value; });
+      sb.addEventListener("click", function () { startWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); sb.classList.add("active"); start = c.value; });
       startWrap.appendChild(sb);
       var eb = document.createElement("button");
       eb.type = "button"; eb.className = "chipBtn"; eb.textContent = c.label; eb.dataset.value = c.value;
-      eb.addEventListener("click", function () { endWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); eb.classList.add("active"); newWindowEnd = c.value; });
+      eb.addEventListener("click", function () { endWrap.querySelectorAll(".chipBtn").forEach(function (x) { x.classList.remove("active"); }); eb.classList.add("active"); end = c.value; });
       endWrap.appendChild(eb);
     });
-  })();
-  function renderWindows() {
-    var list = el("windowsList");
-    var windows = STATE.windows || [];
-    if (!windows.length) { list.innerHTML = '<div class="emptyState">No windows yet. Add one below to start showing Open Times.</div>'; return; }
-    list.innerHTML = "";
-    windows.forEach(function (w) {
-      var card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML =
-        '<div class="cardTitle">' + DOW[w.weekday] + "</div>" +
-        '<div class="cardSub">' + esc(w.start_time.slice(0, 5)) + " to " + esc(w.end_time.slice(0, 5)) + (w.active ? "" : " (off)") + "</div>" +
-        '<div class="actionsRow"><button class="btnCounter toggleWindowBtn">' + (w.active ? "Turn Off" : "Turn On") + '</button><button class="btnDecline deleteWindowBtn">Delete</button></div>';
-      card.querySelector(".toggleWindowBtn").addEventListener("click", function () {
-        api("admin_window", "POST", { id: w.id, weekday: w.weekday, start_time: w.start_time, end_time: w.end_time, active: !w.active }).then(function () { loadAll(); });
+    el(ids.addBtn).addEventListener("click", function () {
+      var errEl = el(ids.err);
+      errEl.classList.add("hidden");
+      if (!start || !end) { errEl.textContent = "Pick a start and end time."; errEl.classList.remove("hidden"); return; }
+      api("admin_window", "POST", { weekday: Number(el(ids.day).value), start_time: start, end_time: end }).then(function (j) {
+        if (!j.ok) { errEl.textContent = j.error || "Could not add window."; errEl.classList.remove("hidden"); return; }
+        loadAll();
       });
-      card.querySelector(".deleteWindowBtn").addEventListener("click", function () {
-        if (!confirm("Delete this window?")) return;
-        api("admin_window_delete", "POST", { id: w.id }).then(function () { loadAll(); });
-      });
-      list.appendChild(card);
     });
+    function render() {
+      var list = el(ids.list);
+      var windows = STATE.windows || [];
+      if (!windows.length) { list.innerHTML = '<div class="emptyState">No windows yet. Add one below to start showing Open Times.</div>'; return; }
+      list.innerHTML = "";
+      windows.forEach(function (w) {
+        var card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML =
+          '<div class="cardTitle">' + DOW[w.weekday] + "</div>" +
+          '<div class="cardSub">' + esc(w.start_time.slice(0, 5)) + " to " + esc(w.end_time.slice(0, 5)) + (w.active ? "" : " (off)") + "</div>" +
+          '<div class="actionsRow"><button class="btnCounter toggleWindowBtn">' + (w.active ? "Turn Off" : "Turn On") + '</button><button class="btnDecline deleteWindowBtn">Delete</button></div>';
+        card.querySelector(".toggleWindowBtn").addEventListener("click", function () {
+          api("admin_window", "POST", { id: w.id, weekday: w.weekday, start_time: w.start_time, end_time: w.end_time, active: !w.active }).then(function () { loadAll(); });
+        });
+        card.querySelector(".deleteWindowBtn").addEventListener("click", function () {
+          if (!confirm("Delete this window?")) return;
+          api("admin_window_delete", "POST", { id: w.id }).then(function () { loadAll(); });
+        });
+        list.appendChild(card);
+      });
+    }
+    return { render: render };
   }
-  el("addWindowBtn").addEventListener("click", function () {
-    var errEl = el("windowErr");
-    errEl.classList.add("hidden");
-    if (!newWindowStart || !newWindowEnd) { errEl.textContent = "Pick a start and end time."; errEl.classList.remove("hidden"); return; }
-    api("admin_window", "POST", { weekday: Number(el("newWindowDay").value), start_time: newWindowStart, end_time: newWindowEnd }).then(function (j) {
-      if (!j.ok) { errEl.textContent = j.error || "Could not add window."; errEl.classList.remove("hidden"); return; }
-      loadAll();
-    });
-  });
+  var availabilityWindowEditor = createWindowEditor({ day: "newWindowDay", startChips: "newWindowStartChips", endChips: "newWindowEndChips", addBtn: "addWindowBtn", err: "windowErr", list: "windowsList" });
+  var wizardWindowEditor = createWindowEditor({ day: "wizWindowDay", startChips: "wizWindowStartChips", endChips: "wizWindowEndChips", addBtn: "wizAddWindowBtn", err: "wizWindowErr", list: "wizWindowsList" });
 
   // ---------------- Availability tab: calendar overlay ----------------
   function renderCalendarStatus() {
@@ -905,31 +1065,96 @@
     return out;
   }
   function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+  // iOS requires the app be installed to the home screen for web push to
+  // work AT ALL -- Safari-tab-mode always needs the install walkthrough
+  // first, regardless of what the raw APIs report as "supported".
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  }
   function ensureSW() {
     if (!pushSupported()) return Promise.reject(new Error("Not supported on this device."));
     return navigator.serviceWorker.getRegistration("/sophie/coach/sw.js").then(function (reg) {
       return reg || navigator.serviceWorker.register("/sophie/coach/sw.js", { scope: "/sophie/coach/" });
     });
   }
-  function refreshBell() {
-    if (!pushSupported()) { el("pushBtn").textContent = "Not Supported"; return; }
-    ensureSW().then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
-      el("pushBtn").textContent = sub ? "Notifications On" : "Notifications Off";
-    }).catch(function () {});
+
+  var ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+  var ICON_ADDHOME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>';
+  var ICON_BELL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>';
+  function walkStepHtml(num, icon, title, sub) {
+    return '<div class="walkStep"><div class="walkIcon">' + icon + '</div><div><div class="walkTitle">' + num + ". " + esc(title) + '</div><div class="walkSub">' + esc(sub) + "</div></div></div>";
   }
-  el("pushBtn").addEventListener("click", function () {
-    if (!pushSupported()) { alert("Push notifications aren't supported on this browser/device."); return; }
+  function notifWalkthroughHtml() {
+    return '<p class="cardSub" style="margin-bottom:16px;">Add Coach\'s Hub to your home screen once, and you\'ll get a ping the moment a family requests a lesson.</p>' +
+      walkStepHtml(1, ICON_SHARE, "Tap the Share button", "It's in your browser's toolbar.") +
+      walkStepHtml(2, ICON_ADDHOME, 'Tap "Add to Home Screen"', "You may need to scroll down to find it.") +
+      walkStepHtml(3, ICON_BELL, "Open it from your home screen", 'Then tap "Enable Notifications" up top.');
+  }
+  function openNotifWalkthrough() {
+    el("modalRoot").innerHTML = '<div class="modalOverlay"><div class="modalCard"><h3>Get Notified of New Requests</h3>' + notifWalkthroughHtml() + '<a class="closeModal">Got it</a></div></div>';
+    el("modalRoot").querySelectorAll(".closeModal").forEach(function (x) { x.addEventListener("click", closeModal); });
+  }
+  // Step 3 of the setup wizard renders the same states inline instead of
+  // as a modal walkthrough -- same underlying logic as renderPushStatus().
+  function notifSetupInlineHtml() {
+    if (!isStandalone()) return notifWalkthroughHtml();
+    if (!pushSupported()) return '<p class="cardSub">Notifications aren\'t available on this device/browser, but email alerts still work for every new request.</p>';
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") return '<p class="cardSub">🔔 Notifications are already on for this device.</p>';
+    return '<p class="cardSub" style="margin-bottom:14px;">Get a ping the moment a family requests a lesson.</p><button class="confirmBtn" id="wizEnableNotifBtn">Enable Notifications</button>';
+  }
+  function wireWizNotifArea() {
+    var btn = el("wizEnableNotifBtn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      requestPush(function () {
+        el("wizNotifArea").innerHTML = notifSetupInlineHtml();
+        wireWizNotifArea();
+      });
+    });
+  }
+  function requestPush(onDone) {
     Notification.requestPermission().then(function (perm) {
-      if (perm !== "granted") return;
+      if (perm !== "granted") { if (onDone) onDone(); return; }
       ensureSW().then(function (reg) {
         return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
       }).then(function (sub) {
         var raw = sub.toJSON();
         return api("admin_push_subscribe", "POST", { subscription: { endpoint: raw.endpoint, keys: raw.keys } });
-      }).then(function () { refreshBell(); });
+      }).then(function () { if (onDone) onDone(); }).catch(function () { if (onDone) onDone(); });
     });
-  });
-  refreshBell();
+  }
+  // Header pill: never leaks raw internal state like "Not Supported" --
+  // (a) Safari tab: a friendly "Get Notified" chip opens the walkthrough.
+  // (b) Installed, not yet granted: an "Enable Notifications" button.
+  // (c) Installed, granted: a subtle "On" pill, not clickable.
+  // (d) Genuinely unsupported (old iOS): hidden entirely from the header.
+  function renderPushStatus() {
+    var area = el("pushStatusArea");
+    area.innerHTML = "";
+    el("settingsNotifCard").classList.toggle("hidden", isStandalone() ? pushSupported() : false);
+    if (!isStandalone()) {
+      var chip = document.createElement("button");
+      chip.type = "button"; chip.className = "bell";
+      chip.textContent = "🔔 Get Notified";
+      chip.addEventListener("click", openNotifWalkthrough);
+      area.appendChild(chip);
+      return;
+    }
+    if (!pushSupported()) return;
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+      var on = document.createElement("span");
+      on.className = "bell bellOn";
+      on.textContent = "🔔 On";
+      area.appendChild(on);
+      return;
+    }
+    var enableBtn = document.createElement("button");
+    enableBtn.type = "button"; enableBtn.className = "bell";
+    enableBtn.textContent = "Enable Notifications";
+    enableBtn.addEventListener("click", function () { requestPush(renderPushStatus); });
+    area.appendChild(enableBtn);
+  }
+  renderPushStatus();
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]; });
