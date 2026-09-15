@@ -147,10 +147,15 @@ for (const s of mustContain) {
 }
 
 // ==================================================================
-section('sophie/index.html: open-times + locked-slot structure');
+section('sophie/index.html: day-first open-times + locked-slot structure');
 const openTimesMustContain = [
   'id="openTimesSection"',
-  'id="openTimesGroups"',
+  'id="openTimesPicker"',
+  'id="dayStrip"',
+  'id="dayTimeChips"',
+  'id="openTimesManual"',
+  'id="otManualTimeRows"',
+  'id="backToOpenTimesLink"',
   'id="suggestOwnTimesLink"',
   'id="nLockedTimeCard"',
   'id="nTimesPickerGroup"',
@@ -546,6 +551,131 @@ if (!SERVICE_KEY) {
         await browser.close();
       }
     }
+  }
+}
+
+// ==================================================================
+section('browser: day-first Open Times flow (tap-a-slot, suggest-own swap, no-slots fallback)');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; skipping the live browser flow + cleanup');
+} else {
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  try {
+    for (const viewport of [{ name: 'desktop 1440', width: 1440, height: 900 }, { name: 'mobile 390', width: 390, height: 844 }]) {
+      const ctx = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height } });
+      const page = await ctx.newPage();
+      await page.goto('https://coachpilot.org/sophie/', { waitUntil: 'networkidle' });
+
+      const dayChipCount = await page.locator('.dayChip').count();
+      const firstDayActive = await page.locator('.dayChip.active').count();
+      if (dayChipCount > 0 && firstDayActive === 1) ok(`[${viewport.name}] day strip renders with the first available day pre-selected (${dayChipCount} day(s))`);
+      else fail(`[${viewport.name}] day strip did not render as expected (chips=${dayChipCount}, active=${firstDayActive})`);
+
+      const timeChipCount = await page.locator('#dayTimeChips .openChip').count();
+      if (timeChipCount > 0) ok(`[${viewport.name}] the pre-selected day's time chips render below the strip (${timeChipCount} chip(s))`);
+      else fail(`[${viewport.name}] no time chips rendered for the default-selected day`);
+
+      const pickerBeforeHidden = await page.locator('#nTimesPickerGroup').isHidden();
+      if (pickerBeforeHidden) ok(`[${viewport.name}] the manual propose-times picker is hidden from the form while open slots exist`);
+      else fail(`[${viewport.name}] the manual picker is visible in the form even though open slots exist`);
+
+      await page.locator('#dayTimeChips .openChip').first().click();
+      await page.waitForTimeout(300);
+      const openTimesSectionHiddenAfterPick = await page.locator('#openTimesSection').isHidden();
+      const lockedCardVisible = await page.locator('#nLockedTimeCard').isVisible();
+      const lockedText = (await page.locator('#nLockedTimeCard').textContent() || '').replace(/\s+/g, ' ').trim();
+      if (openTimesSectionHiddenAfterPick) ok(`[${viewport.name}] Open Times collapses entirely once a slot is tapped (no giant wall of chips left showing)`);
+      else fail(`[${viewport.name}] Open Times section is still visible after tapping a slot`);
+      if (lockedCardVisible && /Selected/.test(lockedText) && /Change/.test(lockedText)) ok(`[${viewport.name}] a compact "Selected ... Change" summary appears at the top of the form: "${lockedText}"`);
+      else fail(`[${viewport.name}] locked-time summary missing or malformed: "${lockedText}"`);
+
+      // "Change" should bring back the day picker, not the manual picker.
+      await page.locator('#nLockedTimeCard .unlockLink').click();
+      await page.waitForTimeout(300);
+      const dayPickerBackVisible = await page.locator('#openTimesPicker').isVisible();
+      const manualStillHidden = await page.locator('#openTimesManual').isHidden();
+      if (dayPickerBackVisible && manualStillHidden) ok(`[${viewport.name}] "Change" returns to the day picker (not the manual picker)`);
+      else fail(`[${viewport.name}] "Change" did not correctly restore the day-picker view`);
+
+      // "Suggest your own times" swaps in the shared manual picker, in place.
+      await page.locator('#suggestOwnTimesLink').click();
+      await page.waitForTimeout(300);
+      const manualVisibleAfterSuggest = await page.locator('#openTimesManual').isVisible();
+      const dayPickerHiddenAfterSuggest = await page.locator('#openTimesPicker').isHidden();
+      const formPickerStillHidden = await page.locator('#nTimesPickerGroup').isHidden();
+      if (manualVisibleAfterSuggest && dayPickerHiddenAfterSuggest) ok(`[${viewport.name}] "Suggest your own times" swaps the day picker for the manual picker in place`);
+      else fail(`[${viewport.name}] the suggest-own-times swap did not behave as expected`);
+      if (formPickerStillHidden) ok(`[${viewport.name}] the form's own picker stays hidden even in manual-suggest mode (only one times-UI visible at once)`);
+      else fail(`[${viewport.name}] the form's own picker became visible during manual-suggest mode`);
+
+      await page.locator('#backToOpenTimesLink').click();
+      await page.waitForTimeout(300);
+      const backToPickerVisible = await page.locator('#openTimesPicker').isVisible();
+      if (backToPickerVisible) ok(`[${viewport.name}] "Back to open times" returns to the day picker`);
+      else fail(`[${viewport.name}] "Back to open times" did not restore the day picker`);
+
+      await ctx.close();
+    }
+
+    // No-slots fallback: mock open_slots to return an empty array so the
+    // LIVE deployed JS is exercised end-to-end, without touching Coach's
+    // real seeded windows on the server at all.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const page = await ctx.newPage();
+      await page.route('**/sls-gateway?action=open_slots', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, slots: [] }) }));
+      await page.goto('https://coachpilot.org/sophie/', { waitUntil: 'networkidle' });
+      await page.waitForTimeout(500);
+      const openTimesHiddenNoSlots = await page.locator('#openTimesSection').isHidden();
+      const formPickerVisibleNoSlots = await page.locator('#nTimesPickerGroup').isVisible();
+      if (openTimesHiddenNoSlots && formPickerVisibleNoSlots) {
+        ok('with zero open slots (mocked), Open Times stays hidden and the form falls back to its own manual picker, exactly as before this redesign');
+      } else {
+        fail(`no-slots fallback did not behave as expected: openTimesHidden=${openTimesHiddenNoSlots} formPickerVisible=${formPickerVisibleNoSlots}`);
+      }
+      await ctx.close();
+    }
+
+    // Full live submission through the actual day-first UI, tagged ZZTEST,
+    // verified server-side, then cleaned up.
+    {
+      const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const page = await ctx.newPage();
+      await page.goto('https://coachpilot.org/sophie/', { waitUntil: 'networkidle' });
+      await page.locator('#dayTimeChips .openChip').first().click();
+      await page.waitForTimeout(300);
+      const zzEmail = `zztest-sls-dayfirst-${STAMP}@example.com`;
+      await page.locator('#nAthleteName').fill('ZZTEST DayFirst Athlete');
+      await page.locator('#nParentName').fill('ZZTEST DayFirst Parent');
+      await page.locator('#nParentEmail').fill(zzEmail);
+      await page.locator('#nSubmitBtn').click();
+      await page.waitForTimeout(1500);
+      const successVisible = await page.locator('#successState').isVisible();
+      if (successVisible) ok('a full submission through the day-first tap-a-slot UI reaches the success state');
+      else fail('submission through the day-first UI did not reach the success state');
+      await ctx.close();
+
+      const state = await api('admin_state', { pin: ADMIN_PIN });
+      const row = (state.requests || []).find((r) => r.parent_email === zzEmail);
+      if (row && row.source === 'open_slot' && row.proposed_times.length === 1) {
+        ok('the server-side request from that flow is correctly tagged source:"open_slot" with exactly one proposed time');
+      } else {
+        fail('server-side request from the day-first UI submission has unexpected shape: ' + JSON.stringify(row));
+      }
+      if (row) {
+        await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: row.id, response: 'decline', message: 'ZZTEST cleanup' } });
+        const { data: clientRows } = await rest('sls_clients', `parent_email=eq.${encodeURIComponent(zzEmail)}&select=id`);
+        const cid = clientRows && clientRows[0] && clientRows[0].id;
+        if (cid) {
+          await rest('sls_requests', `client_id=eq.${cid}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+          await rest('sls_clients', `id=eq.${cid}`, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+        }
+        ok('cleaned up the ZZTEST day-first submission (request declined, row removed)');
+      }
+    }
+  } finally {
+    await browser.close();
   }
 }
 

@@ -73,11 +73,13 @@
 
   .footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 34px; }
 
-  .openDateGroup { margin-bottom: 16px; }
-  .openDateGroup .dateLabel { font-family: var(--disp); font-weight: 600; font-size: 14px; color: var(--navy); margin-bottom: 8px; }
-  .openChips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .dayStrip { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; -webkit-overflow-scrolling: touch; margin-bottom: 4px; }
+  .dayChip { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); border-radius: 999px; padding: 9px 16px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .dayChip.active { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+  .openChips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
   .openChip { border: 1.5px solid var(--line); background: var(--cream); color: var(--ink); border-radius: 999px; padding: 9px 15px; font-size: 13.5px; font-weight: 600; }
   .openChip:hover { border-color: var(--coral); }
+  .openChip.active { background: var(--coral); border-color: var(--coral); color: var(--white); }
   .suggestOwnLink { display: block; text-align: center; margin-top: 6px; color: var(--muted); font-size: 13px; text-decoration: underline; }
   .lockedTimeCard { background: var(--cream-2); border: 1.5px solid var(--gold); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; }
   .lockedTimeCard .lockedLabel { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--navy); margin-bottom: 3px; }
@@ -149,8 +151,19 @@
     <div class="card">
       <h2 class="formTitle">Open Times</h2>
       <p class="sub">Tap a time that works. Sophie still confirms every booking.</p>
-      <div id="openTimesGroups"></div>
-      <a href="#requestForm" class="suggestOwnLink" id="suggestOwnTimesLink">None of these work? Suggest your own times</a>
+
+      <div id="openTimesPicker">
+        <div class="dayStrip" id="dayStrip"></div>
+        <div class="openChips" id="dayTimeChips"></div>
+        <a href="#requestForm" class="suggestOwnLink" id="suggestOwnTimesLink">None of these work? Suggest your own times</a>
+      </div>
+
+      <div id="openTimesManual" class="hidden">
+        <label>Proposed Times</label>
+        <div id="otManualTimeRows"></div>
+        <button type="button" class="addTimeBtn" id="otAddTime">+ Add Another Time</button>
+        <a href="#" class="suggestOwnLink" id="backToOpenTimesLink">&larr; Back to open times</a>
+      </div>
     </div>
   </div>
 
@@ -180,6 +193,7 @@
         <h2 class="formTitle" id="welcomeBack">Welcome back!</h2>
         <p class="sub" id="rescheduleNote">Pick 2-3 times that work and we'll take it from there.</p>
         <div id="returningFormFields">
+          <div id="rLockedTimeCard" class="lockedTimeCard hidden"></div>
           <label for="rAthlete">Athlete</label>
           <select id="rAthleteSelect"></select>
           <div id="rNewAthleteWrap" class="hidden">
@@ -190,7 +204,6 @@
           </div>
           <label>What should Sophie work on?</label>
           <textarea id="rNotes" placeholder="e.g. glove work, hitting mechanics, pitching..."></textarea>
-          <div id="rLockedTimeCard" class="lockedTimeCard hidden"></div>
           <div id="rTimesPickerGroup">
             <label>Proposed Times</label>
             <div id="rTimeRows"></div>
@@ -207,6 +220,7 @@
         <h2 class="formTitle">Request a Session</h2>
         <p class="sub">Propose 2-3 times and tell us a bit about your athlete. Sophie will respond within 48 hours.</p>
 
+        <div id="nLockedTimeCard" class="lockedTimeCard hidden"></div>
         <label for="nAthleteName">Athlete Name</label>
         <input type="text" id="nAthleteName" placeholder="Athlete's name" />
         <label for="nAthleteAge">Age</label>
@@ -235,7 +249,6 @@
           <option value="Other">Other</option>
         </select>
 
-        <div id="nLockedTimeCard" class="lockedTimeCard hidden"></div>
         <div id="nTimesPickerGroup">
           <label>Proposed Times</label>
           <div id="nTimeRows"></div>
@@ -368,11 +381,23 @@
   }
   setupTimeRows("nTimeRows", "nAddTime");
   setupTimeRows("rTimeRows", "rAddTime");
+  setupTimeRows("otManualTimeRows", "otAddTime");
 
   // -------- open times (posted availability) --------
+  // Day-first progressive disclosure: a horizontal day strip, one day's
+  // times shown at a time. When slots exist, the manual propose-2-3-times
+  // picker is hidden from both client forms entirely -- it only reappears
+  // (shared between New/Returning) via "suggest your own times", swapped in
+  // place of the day picker. When no slots exist at all, everything behaves
+  // exactly as it always has: the manual picker lives inside each form.
   var LOCK_KEY = "sls_locked_slot";
   var LOCK_TTL_MS = 30 * 60000;
   var lockedSlotIso = null;
+  var hasOpenSlots = false;
+  var usingManualInOpenTimes = false;
+  var slotGroups = {};
+  var slotOrder = [];
+  var selectedDayKey = null;
 
   function fmtSlotDate(iso) {
     return new Date(iso).toLocaleDateString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric" });
@@ -381,7 +406,18 @@
     return new Date(iso).toLocaleTimeString("en-US", { timeZone: "America/Los_Angeles", hour: "numeric", minute: "2-digit" });
   }
   function fmtSlotFull(iso) {
-    return fmtSlotDate(iso) + " at " + fmtSlotTime(iso) + " PT";
+    return fmtSlotDate(iso) + " · " + fmtSlotTime(iso) + " PT";
+  }
+
+  function showOpenTimesPickerView() {
+    usingManualInOpenTimes = false;
+    el("openTimesPicker").classList.remove("hidden");
+    el("openTimesManual").classList.add("hidden");
+  }
+  function showOpenTimesManualView() {
+    usingManualInOpenTimes = true;
+    el("openTimesPicker").classList.add("hidden");
+    el("openTimesManual").classList.remove("hidden");
   }
 
   function renderLockedTimeUi() {
@@ -389,7 +425,7 @@
       var card = el(prefix + "LockedTimeCard");
       var group = el(prefix + "TimesPickerGroup");
       if (lockedSlotIso) {
-        card.innerHTML = '<div class="lockedLabel">Selected Time</div><div class="lockedTime">' + fmtSlotFull(lockedSlotIso) + '</div><a href="#" class="unlockLink">Choose a different time instead</a>';
+        card.innerHTML = '<div class="lockedLabel">Selected</div><div class="lockedTime">' + fmtSlotFull(lockedSlotIso) + '</div><a href="#" class="unlockLink">Change</a>';
         card.classList.remove("hidden");
         group.classList.add("hidden");
         card.querySelector(".unlockLink").addEventListener("click", function (e) {
@@ -398,9 +434,20 @@
         });
       } else {
         card.classList.add("hidden");
-        group.classList.remove("hidden");
+        // The manual picker only ever lives inside the form when there are
+        // NO open slots at all -- when slots exist, times are decided up in
+        // openTimesSection instead (day picker or its "suggest own" swap).
+        group.classList.toggle("hidden", hasOpenSlots);
       }
     });
+    if (hasOpenSlots) {
+      if (lockedSlotIso) {
+        el("openTimesSection").classList.add("hidden");
+      } else {
+        el("openTimesSection").classList.remove("hidden");
+        if (!usingManualInOpenTimes) showOpenTimesPickerView();
+      }
+    }
   }
   function setLockedSlot(iso) {
     lockedSlotIso = iso;
@@ -426,46 +473,66 @@
     } catch (e) { /* private mode, non-fatal */ }
   }
 
+  function renderDayStrip() {
+    var strip = el("dayStrip");
+    strip.innerHTML = "";
+    slotOrder.forEach(function (dayKey) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "dayChip" + (dayKey === selectedDayKey ? " active" : "");
+      chip.textContent = dayKey;
+      chip.addEventListener("click", function () {
+        selectedDayKey = dayKey;
+        renderDayStrip();
+        renderDayTimeChips();
+      });
+      strip.appendChild(chip);
+    });
+  }
+  function renderDayTimeChips() {
+    var wrap = el("dayTimeChips");
+    wrap.innerHTML = "";
+    (slotGroups[selectedDayKey] || []).forEach(function (iso) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "openChip";
+      chip.textContent = fmtSlotTime(iso);
+      chip.addEventListener("click", function () {
+        setLockedSlot(iso);
+        el("requestForm").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      wrap.appendChild(chip);
+    });
+  }
+
   function loadOpenSlots() {
     fetch(API + "?action=open_slots").then(function (r) { return r.json(); }).then(function (j) {
       if (!j.ok || !j.slots || !j.slots.length) return;
-      var groups = {};
-      var order = [];
+      slotGroups = {};
+      slotOrder = [];
       j.slots.forEach(function (iso) {
         var key = fmtSlotDate(iso);
-        if (!groups[key]) { groups[key] = []; order.push(key); }
-        groups[key].push(iso);
+        if (!slotGroups[key]) { slotGroups[key] = []; slotOrder.push(key); }
+        slotGroups[key].push(iso);
       });
-      var wrap = el("openTimesGroups");
-      wrap.innerHTML = "";
-      order.forEach(function (dateLabel) {
-        var group = document.createElement("div");
-        group.className = "openDateGroup";
-        var label = document.createElement("div");
-        label.className = "dateLabel";
-        label.textContent = dateLabel;
-        group.appendChild(label);
-        var chipsWrap = document.createElement("div");
-        chipsWrap.className = "openChips";
-        groups[dateLabel].forEach(function (iso) {
-          var chip = document.createElement("button");
-          chip.type = "button";
-          chip.className = "openChip";
-          chip.textContent = fmtSlotTime(iso);
-          chip.addEventListener("click", function () {
-            setLockedSlot(iso);
-            el("requestForm").scrollIntoView({ behavior: "smooth", block: "start" });
-          });
-          chipsWrap.appendChild(chip);
-        });
-        group.appendChild(chipsWrap);
-        wrap.appendChild(group);
-      });
-      el("openTimesSection").classList.remove("hidden");
+      hasOpenSlots = true;
+      selectedDayKey = slotOrder[0];
+      renderDayStrip();
+      renderDayTimeChips();
+      renderLockedTimeUi();
     }).catch(function () { /* open times are a bonus; failure just means the section stays hidden */ });
   }
   loadOpenSlots();
   restoreLockedSlotFromStorage();
+
+  el("suggestOwnTimesLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    showOpenTimesManualView();
+  });
+  el("backToOpenTimesLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    showOpenTimesPickerView();
+  });
 
   // -------- mode toggle --------
   el("tabNew").addEventListener("click", function () {
@@ -559,7 +626,11 @@
 
   function validateAndSubmit(mode) {
     var isReturning = mode === "returning";
-    var timesContainerId = isReturning ? "rTimeRows" : "nTimeRows";
+    // Times come from exactly one of three places, never more than one
+    // visible at a time: a tapped open slot, the shared "suggest your own
+    // times" picker inside Open Times (when slots exist), or this form's
+    // own picker (only ever shown when there are no open slots at all).
+    var timesContainerId = hasOpenSlots ? "otManualTimeRows" : (isReturning ? "rTimeRows" : "nTimeRows");
     var errEl = el(isReturning ? "rErr" : "nErr");
     var btn = el(isReturning ? "rSubmitBtn" : "nSubmitBtn");
     errEl.classList.add("hidden");
