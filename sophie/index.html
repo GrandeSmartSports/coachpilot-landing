@@ -378,7 +378,7 @@
   // tap-to-select chips of their saved roster (renderAthleteChips) with
   // "+ Add an athlete" for anyone not yet saved -- session type there is
   // just inferred from how many are selected (2+ = Small Group).
-  function makeAthleteRow(container, canRemove) {
+  function makeAthleteRow(container, canRemove, onRemove) {
     var row = document.createElement("div");
     row.className = "timeRow athleteRow";
     row.innerHTML =
@@ -387,7 +387,10 @@
       '<input type="text" class="athleteRowName" placeholder="Athlete\'s name" />' +
       '<label>Age</label>' +
       '<input type="text" class="athleteRowAge" placeholder="Age" />';
-    if (canRemove) row.querySelector(".rmBtn").addEventListener("click", function () { row.remove(); });
+    if (canRemove) row.querySelector(".rmBtn").addEventListener("click", function () {
+      row.remove();
+      if (onRemove) onRemove();
+    });
     container.appendChild(row);
     return row;
   }
@@ -417,12 +420,19 @@
   // that reveals up to 4 rows (min 2 kept once Small Group is picked).
   function setupAthleteRows(prefix) {
     var container = el(prefix + "AthleteRows");
-    makeAthleteRow(container, false);
     var addBtn = el(prefix + "AddAthlete");
+    // Recalculated on every add AND every remove -- previously only ran on
+    // add (and on the type-toggle switch), so removing a row back below the
+    // 4-cap left the button hidden with no way to add another.
+    function refreshAddBtn() {
+      var isGroup = el(prefix + "TypeToggle").querySelector(".typeBtn.active").dataset.type === "small_group";
+      addBtn.classList.toggle("hidden", !isGroup || container.querySelectorAll(".athleteRow").length >= 4);
+    }
+    makeAthleteRow(container, false);
     addBtn.addEventListener("click", function () {
       if (container.querySelectorAll(".athleteRow").length >= 4) return;
-      makeAthleteRow(container, true);
-      if (container.querySelectorAll(".athleteRow").length >= 4) addBtn.classList.add("hidden");
+      makeAthleteRow(container, true, refreshAddBtn);
+      refreshAddBtn();
     });
   }
   function setupTypeToggle(prefix) {
@@ -468,7 +478,7 @@
     });
     addBtn.onclick = function () {
       if (getSelectedAthleteCount(prefix) >= 4) return;
-      makeAthleteRow(extraContainer, true);
+      makeAthleteRow(extraContainer, true, refreshCap);
       refreshCap();
     };
     refreshCap();
@@ -822,8 +832,13 @@
       payload.session_type = athletes.length >= 2 ? "small_group" : "one_on_one";
       payload.athletes = athletes;
       if (mode === "returning") {
-        payload.mode = "returning";
-        payload.login_token = loginToken;
+        // login_verify (fired when this magic link was first opened)
+        // single-use-consumes login_token and hands back a device_token in
+        // the same response -- finalize the booking with that instead of
+        // resubmitting the now-spent login_token. Falls back to the
+        // login_token path only if for some reason no device_token landed.
+        if (deviceToken) payload.device_token = deviceToken;
+        else { payload.mode = "returning"; payload.login_token = loginToken; }
         payload.focus_notes = el("rNotes").value.trim();
       } else {
         payload.device_token = deviceToken;
