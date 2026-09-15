@@ -778,6 +778,116 @@ section('browser: New Client Small Group "+ Add Another Athlete" re-shows after 
 }
 
 // ==================================================================
+section('browser: Coach Hub nav redesign (mobile 4-tab bar + More sheet, desktop left rail)');
+if (!SERVICE_KEY) {
+  skip('SUPABASE_SERVICE_ROLE_KEY not set; skipping the live nav browser flow + cleanup');
+} else {
+  const { chromium } = await import('@playwright/test');
+  const browser = await chromium.launch();
+  const navEmail = `zztest-sls-navtest-${STAMP}@example.com`;
+  let navRequestId = null;
+  try {
+    const seed = await api('submit_request', {
+      method: 'POST', body: {
+        mode: 'new', session_type: 'one_on_one', athletes: [{ name: 'ZZTEST NavTest Kid', age: '9' }],
+        parent_name: 'ZZTEST NavTest Parent', parent_email: navEmail,
+        proposed_times: [new Date(Date.now() + 102 * 86400000).toISOString(), new Date(Date.now() + 103 * 86400000).toISOString()],
+      },
+    });
+    if (seed.ok && seed.request_id) { ok('seeded a pending ZZTEST request so the Requests badge has a nonzero count to check'); navRequestId = seed.request_id; }
+    else fail('nav-test seed submission failed: ' + JSON.stringify(seed));
+
+    async function unlockCoachHub(page) {
+      await page.goto('https://coachpilot.org/sophie/coach/', { waitUntil: 'networkidle' });
+      await page.locator('#pinInput').fill('7492');
+      await page.locator('#pinGo').click();
+      await page.locator('#app').waitFor({ state: 'visible', timeout: 8000 });
+      await page.locator('#requestsBadge:not(:empty)').waitFor({ state: 'attached', timeout: 8000 }).catch(() => {});
+      await page.waitForTimeout(300);
+    }
+
+    // ---- mobile (390px): 4 tabs, badge, tap targets, More sheet ----
+    {
+      const page = await browser.newContext({ viewport: { width: 390, height: 844 } }).then((c) => c.newPage());
+      await unlockCoachHub(page);
+
+      const tabCount = await page.locator('nav.tabbar .tabBtn').count();
+      if (tabCount === 4) ok('mobile: exactly 4 tabs in the bottom bar (Requests/Sessions/Availability/More)');
+      else fail('mobile: expected 4 tabs, got ' + tabCount);
+
+      const badgeText = await page.locator('#requestsBadge').textContent();
+      if (await page.locator('#requestsBadge').isVisible() && Number(badgeText) >= 1) ok(`mobile: Requests tab shows a pending-count badge (${badgeText})`);
+      else fail('mobile: Requests badge not visible or zero, text=' + badgeText);
+
+      const barBox = await page.locator('nav.tabbar').boundingBox();
+      if (barBox && Math.round(barBox.height) === 64) ok('mobile: tab bar height is 64px per spec');
+      else fail('mobile: unexpected tab bar height ' + (barBox && barBox.height));
+
+      const btnBox = await page.locator('nav.tabbar .tabBtn').first().boundingBox();
+      if (btnBox && btnBox.height >= 44 && btnBox.width >= 44) ok('mobile: tab tap target is at least 44x44');
+      else fail('mobile: tap target too small: ' + JSON.stringify(btnBox));
+
+      await page.locator('#moreTabBtn').click();
+      await page.waitForTimeout(300);
+      const moreRowCount = await page.locator('.moreRow').count();
+      if (moreRowCount === 3) ok('mobile: More sheet lists exactly the 3 overflow items (Recurring, Locations, Settings)');
+      else fail('mobile: expected 3 More sheet rows, got ' + moreRowCount);
+
+      await page.locator('.moreRow[data-panel="Locations"]').click();
+      await page.waitForTimeout(300);
+      const locationsPanelActive = await page.locator('#panelLocations').evaluate((el) => el.classList.contains('active'));
+      const moreTabActive = await page.locator('#moreTabBtn').evaluate((el) => el.classList.contains('active'));
+      const sheetClosed = await page.locator('.modalOverlay').count();
+      if (locationsPanelActive && moreTabActive && sheetClosed === 0) {
+        ok('mobile: tapping a More sheet row navigates there, closes the sheet, and highlights the More tab as active');
+      } else fail(`mobile: More row navigation unexpected (panelActive=${locationsPanelActive}, moreActive=${moreTabActive}, sheetOpen=${sheetClosed})`);
+
+      await page.locator('.tabBtn[data-panel="Requests"]').click();
+      await page.waitForTimeout(300);
+      const navBox = await page.locator('nav.tabbar').boundingBox();
+      const lastBox = await page.locator('.panel.active .card, .panel.active .emptyState').last().boundingBox();
+      if (navBox && lastBox && lastBox.y + lastBox.height <= navBox.y) ok('mobile: no content/bar overlap at the new 64px bar height (content clearance stayed in sync)');
+      else fail('mobile: overlap detected between content and the resized bar');
+
+      await page.screenshot({ path: '/private/tmp/claude-501/-Users-danielgrande/2dcd7eb4-7009-4ce7-9830-8a88926637d6/scratchpad/sophie-qa-nav-mobile.png' }).catch(() => {});
+      await page.close();
+    }
+
+    // ---- desktop (1440px): left rail, all 6 items, bottom bar hidden ----
+    {
+      const page = await browser.newContext({ viewport: { width: 1440, height: 900 } }).then((c) => c.newPage());
+      await unlockCoachHub(page);
+
+      const railVisible = await page.locator('#railNav').isVisible();
+      const barHidden = await page.locator('nav.tabbar').isHidden();
+      if (railVisible && barHidden) ok('desktop: left rail nav visible, mobile bottom bar hidden');
+      else fail(`desktop: nav visibility wrong (railVisible=${railVisible}, barHidden=${barHidden})`);
+
+      const railCount = await page.locator('.railBtn').count();
+      if (railCount === 6) ok('desktop: all 6 items visible directly in the rail, no More needed');
+      else fail('desktop: expected 6 rail items, got ' + railCount);
+
+      const railBadgeText = await page.locator('#railRequestsBadge').textContent();
+      if (await page.locator('#railRequestsBadge').isVisible() && Number(railBadgeText) >= 1) ok(`desktop: rail Requests item shows the same pending-count badge (${railBadgeText})`);
+      else fail('desktop: rail badge not visible or zero, text=' + railBadgeText);
+
+      await page.locator('.railBtn[data-panel="Recurring"]').click();
+      await page.waitForTimeout(200);
+      const recurringActive = await page.locator('#panelRecurring').evaluate((el) => el.classList.contains('active'));
+      const railItemActive = await page.locator('.railBtn[data-panel="Recurring"]').evaluate((el) => el.classList.contains('active'));
+      if (recurringActive && railItemActive) ok('desktop: clicking a rail item navigates and highlights correctly');
+      else fail('desktop: rail navigation did not behave as expected');
+
+      await page.screenshot({ path: '/private/tmp/claude-501/-Users-danielgrande/2dcd7eb4-7009-4ce7-9830-8a88926637d6/scratchpad/sophie-qa-nav-desktop.png' }).catch(() => {});
+      await page.close();
+    }
+  } finally {
+    await browser.close();
+    if (navRequestId) await api('admin_respond', { method: 'POST', pin: ADMIN_PIN, body: { request_id: navRequestId, response: 'decline', message: 'ZZTEST cleanup' } });
+  }
+}
+
+// ==================================================================
 section('availability: window CRUD + open_slots generation');
 function pacificOffsetMinutesAt(utcMs) {
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'shortOffset' }).formatToParts(new Date(utcMs));
