@@ -197,6 +197,20 @@
     return new Date(iso).toLocaleString("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " PT";
   }
 
+  // Session types: rows carry an explicit athletes[] array going forward;
+  // older rows and admin-created (direct booking/recurring) rows leave it
+  // empty, so every reader falls back to the single athlete_name/age pair.
+  function athletesFromRow(r) {
+    if (Array.isArray(r.athletes) && r.athletes.length) return r.athletes;
+    return r.athlete_name ? [{ name: r.athlete_name, age: r.athlete_age || "" }] : [];
+  }
+  function athletesLine(athletes) {
+    return athletes.map(function (a) { return esc(a.name) + (a.age ? " (" + esc(a.age) + ")" : ""); }).join(", ");
+  }
+  function typeBadgeHtml(r, athletes) {
+    return r.session_type === "small_group" ? '<span class="badge recurring">Small Group (' + athletes.length + ')</span> ' : "";
+  }
+
   // ---------------- PIN gate ----------------
   function tryUnlock(pin) {
     var testPin = pin;
@@ -276,11 +290,13 @@
         var cFlagged = r.overlap_flags && r.overlap_flags[r.counter_time];
         counterHtml = '<div style="margin-top:6px;"><span class="timeChip counterChip">Your counter: ' + fmt(r.counter_time) + (cFlagged ? " ⚠" : "") + '</span></div>';
       }
+      var athletes = athletesFromRow(r);
       card.innerHTML =
         '<span class="badge ' + (r.is_new_client ? "new" : "returning") + '">' + (r.is_new_client ? "New" : "Returning") + '</span>' +
         (r.status === "countered" ? ' <span class="badge request">Awaiting Reply</span>' : "") +
         (r.source === "open_slot" ? ' <span class="badge recurring">Picked an Open Time</span>' : "") +
-        '<div class="cardTitle">' + esc(r.athlete_name) + (r.athlete_age ? " (" + esc(r.athlete_age) + ")" : "") + "</div>" +
+        " " + typeBadgeHtml(r, athletes) +
+        '<div class="cardTitle">' + athletesLine(athletes) + "</div>" +
         '<div class="cardSub">for ' + esc(r.parent_name) + " &middot; " + esc(r.parent_email) + (r.parent_phone ? " &middot; " + esc(r.parent_phone) : "") + "</div>" +
         (r.focus_notes ? '<div class="quote">' + esc(r.focus_notes) + "</div>" : "") +
         (r.reschedule_of_session_id ? '<div class="smallMsg">Reschedule request</div>' : "") +
@@ -424,11 +440,12 @@
     list.innerHTML = "";
     STATE.sessions.forEach(function (s) {
       var loc = STATE.locations.find(function (l) { return l.id === s.location_id; });
+      var athletes = athletesFromRow(s);
       var card = document.createElement("div");
       card.className = "card";
       card.innerHTML =
-        '<span class="badge ' + s.source + '">' + s.source + "</span>" +
-        '<div class="cardTitle">' + esc(s.athlete_name) + "</div>" +
+        '<span class="badge ' + s.source + '">' + s.source + "</span> " + typeBadgeHtml(s, athletes) +
+        '<div class="cardTitle">' + athletesLine(athletes) + "</div>" +
         '<div class="cardSub">' + fmt(s.starts_at) + (loc ? " &middot; " + esc(loc.name) : "") + "</div>" +
         '<div class="actionsRow"><button class="btnDecline cancelSessBtn">Cancel Session</button></div>';
       card.querySelector(".cancelSessBtn").addEventListener("click", function () {
