@@ -1446,7 +1446,7 @@ Deno.serve(async (req: Request) => {
       if (!coach || !(coach.team_ids || []).length) return json({ ok: false, error: "not signed in with a team" }, 401);
       const slot_id = String(b.slot_id ?? "");
       if (!slot_id) return json({ ok: false, error: "slot_id required" }, 400);
-      const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,day_key,field_id,label").eq("id", slot_id).single();
+      const { data: slot } = await db.from("flm_slots").select("id,team_id,season_id,day_key,field_id,label,single_date").eq("id", slot_id).single();
       if (!slot) return json({ ok: false, error: "slot not found" }, 404);
       if (!(coach.team_ids || []).includes(slot.team_id)) return json({ ok: false, error: "You can only edit practices for your own team." }, 403);
       const { data: season } = await db.from("flm_seasons").select("locked,label").eq("id", slot.season_id).single();
@@ -1460,12 +1460,23 @@ Deno.serve(async (req: Request) => {
       if (b.field_id !== undefined && b.field_id !== null) patch.field_id = String(b.field_id);
       if (b.note !== undefined) patch.note = String(b.note ?? "").slice(0, 200);
       if (!Object.keys(patch).length) return json({ ok: false, error: "nothing to update" }, 400);
-      // If they're changing time or field, check the new spot for conflicts.
+      // If they're MOVING (day/field actually changed), check the new spot.
+      // Note-only edits skip this: the form always posts day+field, and the
+      // old presence check made a pure note save collide with the team's own
+      // second single-date booking (Galvez, 9/15 vs 9/22 on AY#3).
       if (patch.day_key || patch.field_id) {
         const newDay = patch.day_key ?? slot.day_key;
         const newField = patch.field_id ?? slot.field_id;
-        const { data: clash } = await db.from("flm_slots").select("id,team_id").eq("season_id", slot.season_id).eq("day_key", newDay).eq("field_id", newField).neq("id", slot_id);
-        if ((clash ?? []).length && !b.allow_share) return json({ ok: false, error: "That day + field is already taken. Ask the other coach if they want to share.", taken: true }, 409);
+        const moved = newDay !== slot.day_key || String(newField) !== String(slot.field_id);
+        if (moved) {
+          const { data: clash } = await db.from("flm_slots").select("id,team_id,single_date").eq("season_id", slot.season_id).eq("day_key", newDay).eq("field_id", newField).neq("id", slot_id).is("cancelled_at", null);
+          // A real conflict is another TEAM whose dates can actually overlap:
+          // two different single-date bookings never clash with each other.
+          const real = (clash ?? []).filter((c) =>
+            c.team_id !== slot.team_id &&
+            !(c.single_date && slot.single_date && c.single_date !== slot.single_date));
+          if (real.length && !b.allow_share) return json({ ok: false, error: "That day + field is already taken. Ask the other coach if they want to share.", taken: true }, 409);
+        }
       }
       const { error } = await db.from("flm_slots").update(patch).eq("id", slot_id);
       if (error) return json({ ok: false, error: error.message }, 500);
