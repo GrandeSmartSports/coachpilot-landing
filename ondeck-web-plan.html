@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OnDeck for the Web — The Plan</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg:#121212; --surface:#1E1E1E; --card:#2A2A2A; --border:#3D3D3D; --muted:#9A9A9A; --amber:#F59E0B; --green:#22C55E; --red:#EF4444; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 0 0 80px; }
+  .hero { text-align: center; padding: 44px 18px 30px; background: radial-gradient(120% 160% at 50% -20%, #241a05 0%, var(--bg) 55%); }
+  .hero .mic { font-size: 44px; }
+  h1 { font-size: 30px; font-weight: 800; margin: 8px 0 6px; }
+  h1 em { color: var(--amber); font-style: normal; }
+  .tag { color: var(--muted); font-size: 15px; max-width: 500px; margin: 0 auto; line-height: 1.5; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h2 { font-size: 16px; font-weight: 800; margin: 0 0 10px; color: var(--amber); }
+  p, li { font-size: 14.5px; color: #ddd; line-height: 1.55; }
+  ul { margin: 6px 0 2px; padding-left: 0; list-style: none; }
+  li { padding-left: 24px; position: relative; margin-bottom: 6px; }
+  li::before { content: "✓"; position: absolute; left: 2px; color: var(--green); font-weight: 800; }
+  .later li::before { content: "→"; color: var(--amber); }
+  .sw { display: inline-block; width: 15px; height: 15px; border-radius: 4px; vertical-align: -2px; margin-right: 3px; border: 1px solid var(--border); }
+  .phase { display: flex; gap: 12px; margin-bottom: 12px; }
+  .phase .n { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--amber); color: #000; font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .phase b { display: block; margin-bottom: 2px; }
+  .phase p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .promise { background: var(--card); border-radius: 10px; padding: 12px 14px; font-size: 13.5px; color: #eee; margin-top: 10px; border-left: 3px solid var(--amber); }
+  .demo-btn { display: block; text-align: center; background: var(--amber); color: #000; font-weight: 800; padding: 14px; border-radius: 12px; margin: 14px 0 4px; font-size: 15px; }
+  .foot { text-align: center; color: var(--muted); font-size: 12px; padding: 24px 16px 0; }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="mic">🎙️</div>
+    <h1>OnDeck <em>for the Web</em></h1>
+    <div class="tag">The walkup music PA system — every capability of the iPhone app, rebuilt to run on <b>any phone</b>. Android, iPhone, tablet: open a link, set up your team, run your PA.</div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>What You Get</h2>
+      <ul>
+        <li><b>Your whole roster, player by player</b> — add a player in seconds, free, no limits</li>
+        <li><b>Pro announcer voice</b> — every name rendered by a studio-grade AI announcer: "Now batting..., number 7, Mia RODRIGUEZ!!"</li>
+        <li><b>Names said right</b> — a pronunciation system with a 4,500-name dictionary, suggestions from other coaches, or record the name once and the app learns it</li>
+        <li><b>Walkup songs</b> — browse by vibe (Hype, Pop, Country, Kids...), grab from 40 ready-to-go picks with pre-set start times, or search anything and set the exact start second yourself</li>
+        <li><b>Game Day mode</b> — big-button PA console: current batter, on-deck, play, next. Tap and coach.</li>
+        <li><b>Teams</b> — multiple squads, jersey numbers, drag-to-order batting lineup</li>
+        <li><b>Guided first-time setup</b> — a 3-minute training that walks a new coach through their first player and earns them starter credits</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>The Look</h2>
+      <p>Identical to the iPhone app: dark, clean, amber on black.
+        <span class="sw" style="background:#121212"></span><span class="sw" style="background:#1E1E1E"></span><span class="sw" style="background:#2A2A2A"></span><span class="sw" style="background:#F59E0B"></span><span class="sw" style="background:#22C55E"></span>
+        Light mode included, follows your phone. This page is dressed in it.</p>
+    </div>
+
+    <div class="card">
+      <h2>The Build, In Order</h2>
+      <div class="phase"><div class="n">1</div><div><b>Foundation + Library</b><p>Sign-in, the Library, Add Player, and the Template Editor — the heart of the app.</p></div></div>
+      <div class="phase"><div class="n">2</div><div><b>The Two Big Flows</b><p>The full pronunciation flow (dictionary, coach suggestions, record-and-learn) and the song picker (vibes, ready-to-go list, search, start-time scrubber).</p></div></div>
+      <div class="phase"><div class="n">3</div><div><b>Teams + Game Day</b><p>Rosters, lineups, jerseys, and the big-button PA console.</p></div></div>
+      <div class="phase"><div class="n">4</div><div><b>Training + Settings</b><p>The guided first-player setup, themes, support, backup export.</p></div></div>
+      <div class="phase"><div class="n">5</div><div><b>First outside coach</b><p>A real coach on a real Android sets up a real team. Their experience is the final exam.</p></div></div>
+      <div class="promise">Every screen is checked off against the iPhone app before it counts as done — same layout, same words, same behavior. Nothing invented, nothing "reimagined."</div>
+    </div>
+
+    <div class="card later">
+      <h2>Coming After Launch</h2>
+      <ul>
+        <li><b>Full-song audio</b> — v1 uses instant 30-second previews for song picking (identical picker experience); the full-length game-day audio system rolls in as its own phase</li>
+        <li><b>Credit store purchases</b> — the store screen ships, buying stays off until it matters (right now nothing costs credits)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>House Rules</h2>
+      <ul>
+        <li>The Cougars' live game-day setup is untouched by all of this</li>
+        <li>Nothing ships without working on a real phone first</li>
+        <li>The whole system is watched by uptime alarms — if it breaks, we know in minutes, not hours</li>
+      </ul>
+    </div>
+
+    <div class="foot">OnDeck by CoachPilot · plan of record · September 2026</div>
+  </div>
+</body>
+</html>
