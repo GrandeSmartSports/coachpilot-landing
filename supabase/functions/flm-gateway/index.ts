@@ -886,6 +886,65 @@ Deno.serve(async (req: Request) => {
       return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Done</h2><p style="font-size:15px;color:#3c463f;line-height:1.55;">The extra ${escHtml(slotRow.day_key === "wed" ? "Wednesday" : slotRow.day_key)} slot on ${escHtml(fieldRow?.name ?? slotRow.field_id)} has been released. The field is open again on that day.</p><p style="margin-top:18px;font-size:13px;color:#6d7a72;">See the full field schedule at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
     }
 
+    // ---------- v18: one-tap "move my practice to this field for one date" ----------
+    // Born from the AY#4 9/16 game-vs-practice double-booking. The conflict
+    // email lists open fields for the affected date; each button carries a
+    // token with slot_id + move_date + to_field_id. First tap creates the
+    // single-date claim and burns every sibling token for that slot+date, so
+    // one email with several options can only produce one outcome.
+    if (action === "slot_move_token" && req.method === "GET") {
+      const shell = (title: string, color: string, inner: string, status: number) =>
+        new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:${color};margin:0 0 12px;">${title}</h2>${inner}<p style="margin-top:18px;font-size:13px;color:#6d7a72;">Full schedule at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      const token = url.searchParams.get("token") ?? "";
+      if (!token) return shell("Missing link", "#b3432b", `<p>This link is missing its token. Use a button from the original email.</p>`, 400);
+      const { data: tok } = await db.from("flm_action_tokens").select("id,slot_id,purpose,expires_at,used_at,move_date,to_field_id").eq("token", token).maybeSingle();
+      if (!tok || tok.purpose !== "move_date" || !tok.move_date || !tok.to_field_id) {
+        return shell("Link not found", "#b3432b", `<p>This link is not valid or has expired. Sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a> to manage your schedule.</p>`, 404);
+      }
+      if (new Date(tok.expires_at).getTime() < Date.now()) {
+        return shell("Link expired", "#a8571d", `<p>This link expired on ${new Date(tok.expires_at).toLocaleDateString()}. Sign in at the portal to move the practice instead.</p>`, 410);
+      }
+      if (tok.used_at) {
+        return shell("Already handled", "#2d6a4f", `<p>That date has already been taken care of (you or the league picked an option). Check the portal if you want to see where the practice landed.</p>`, 200);
+      }
+      const moveDate = String(tok.move_date);
+      const { data: slot } = await db.from("flm_slots").select("id,label,day_key,field_id,team_id,season_id,skip_dates").eq("id", tok.slot_id).maybeSingle();
+      if (!slot) {
+        await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
+        return shell("Already handled", "#2d6a4f", `<p>That practice slot no longer exists. Nothing more to do.</p>`, 200);
+      }
+      // Target field must still be free that day+date: no live practice, no game.
+      const { data: existingRaw } = await db.from("flm_slots").select("id,single_date,cancelled_at,skip_dates").eq("season_id", slot.season_id).eq("day_key", slot.day_key).eq("field_id", tok.to_field_id);
+      const blocking = (existingRaw ?? []).filter((s: { single_date: string | null; cancelled_at: string | null; skip_dates: string[] | null }) =>
+        !s.cancelled_at && (s.single_date === null ? !(s.skip_dates ?? []).includes(moveDate) : s.single_date === moveDate));
+      const { data: gamesOnDate } = await db.from("flm_games").select("id").eq("field_id", tok.to_field_id).eq("game_date", moveDate).neq("status", "cancelled").neq("status", "draft");
+      const { data: targetField } = await db.from("flm_fields").select("name,default_start").eq("id", tok.to_field_id).maybeSingle();
+      if (blocking.length > 0 || (gamesOnDate ?? []).length > 0) {
+        return shell("That field just got taken", "#a8571d", `<p>${escHtml(targetField?.name ?? "That field")} is no longer open on that date. Pick a different option from your email, or sign in at the portal and use Change one date.</p>`, 409);
+      }
+      // Create the one-date claim, guarantee the original date is skipped.
+      const { data: team } = await db.from("flm_teams").select("name").eq("id", slot.team_id).maybeSingle();
+      const { error: insErr } = await db.from("flm_slots").insert({
+        season_id: slot.season_id, day_key: slot.day_key, field_id: tok.to_field_id,
+        team_id: slot.team_id, label: team?.name ?? slot.label,
+        note: `${moveDate} (moved: game on home field)`,
+        claimed_by: "coach", single_date: moveDate,
+      });
+      if (insErr) return shell("Something went wrong", "#b3432b", `<p>The move did not save (${escHtml(insErr.message)}). Reply to the league email and we will fix it by hand.</p>`, 500);
+      const current: string[] = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+      if (!current.includes(moveDate)) {
+        await db.from("flm_slots").update({ skip_dates: [...current, moveDate].sort() }).eq("id", slot.id);
+      }
+      // Burn this token and every sibling for the same slot+date.
+      await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() })
+        .eq("purpose", "move_date").eq("slot_id", slot.id).eq("move_date", moveDate).is("used_at", null);
+      const startLbl = targetField?.default_start === "18:00" ? "6:00 PM" : "5:00 PM";
+      await log("slot_move_token", `${slot.label} moved ${moveDate} practice to ${targetField?.name ?? tok.to_field_id} via email one-tap (game on home field)`, slot.label);
+      await sendAdminEmail(`Field Command: ${team?.name ?? slot.label} took ${targetField?.name ?? "a field"} for ${moveDate}`,
+        `<p>${escHtml(team?.name ?? slot.label)} tapped the conflict email and moved their ${escHtml(moveDate)} practice to <b>${escHtml(targetField?.name ?? String(tok.to_field_id))}</b>. The original field stays skipped that date. No action needed.</p>`);
+      return shell("You're set", "#2d6a4f", `<p style="font-size:15px;color:#3c463f;line-height:1.55;">Your ${escHtml(moveDate)} practice is now at <b>${escHtml(targetField?.name ?? "the new field")}</b> (field opens ${startLbl}). Your regular field stays skipped that date only; the rest of your schedule is unchanged.</p>`, 200);
+    }
+
     // ---------- umpires (per-ump PIN, never the admin PIN) ----------
     if (action === "ump_list") {
       // Login picker only: names, no contact info, ever.
