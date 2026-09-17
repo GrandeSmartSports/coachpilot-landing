@@ -2653,8 +2653,14 @@ function renderPracticeGrid() {
   if (!box || !D) return;
   var flds = D.fields.filter(function (f) { return f.is_active; });
   var dayKeys = ["mon", "tue", "wed", "thu", "fri", "sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"];
+  // Live slots only: released (cancelled) slots and one-off dates that have
+  // already passed must not render - a dead Greer chip next to Cowger read as
+  // a double-booking to Coach (9/17).
+  var todayStr = new Date().toISOString().slice(0, 10);
   var html = activeSeasons().map(function (sn) {
-    var slots = D.slots.filter(function (s) { return s.season_id === sn.id; });
+    var slots = D.slots.filter(function (s) {
+      return s.season_id === sn.id && !s.cancelled_at && (!s.single_date || s.single_date >= todayStr);
+    });
     if (!slots.length) return '<div class="sgweek" style="padding-top:4px;">' + esc(sn.label) + '</div><p class="hint">No practice slots claimed in this window yet.</p>';
     var used = flds.filter(function (f) { return slots.some(function (s) { return s.field_id === f.id; }); });
     var rows = dayKeys.map(function (dk) {
@@ -2662,7 +2668,8 @@ function renderPracticeGrid() {
         var mine = slots.filter(function (s) { return s.day_key === dk && s.field_id === f.id; });
         return "<td>" + mine.map(function (s) {
           var t = D.teams.filter(function (x) { return x.id === s.team_id; })[0];
-          return esc(t ? t.name : (s.label || ""));
+          var one = s.single_date ? ' <span style="opacity:0.65;">(' + esc(s.single_date.slice(5).replace('-', '/')) + ' only)</span>' : '';
+          return esc(t ? t.name : (s.label || "")) + one;
         }).join("<br />") + "</td>";
       }).join("");
       return '<tr><td class="day">' + esc(DAY_LABELS[dk] || dk) + "</td>" + cells + "</tr>";
