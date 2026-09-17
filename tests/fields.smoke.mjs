@@ -1884,7 +1884,7 @@ try {
   else fail('slot_release_token bogus token wrong: ' + r6.status + ' ' + t6.slice(0, 80));
 } catch (e) { fail('live v16 auth tests threw: ' + e.message); }
 
-section('v16+: Guertin slot data (live — verify 9/13 migration, do NOT release)');
+section('v18: Guertin = AY#3 only (his 9/17 phone request; AY#1 released FOR him)');
 try {
   const r = await fetch(GATEWAY + '?action=state');
   const d = await r.json();
@@ -1892,30 +1892,22 @@ try {
   const games = d.games || [];
   const GUERTIN_TEAM = '4c98641e-ec9f-4581-9bd6-135a242ed6ac';
   const AY1_FIELD = 'a39a00f3-2c8f-4f6b-8d97-14a9413932f3';
-  const AY4_FIELD = '46c9f85e-d871-4dd5-9d9e-eda9bd4c29e3';
+  const AY3_FIELD = (d.fields || []).find((fx) => fx.name === 'AY#3')?.id;
 
-  // AY#1 recurring wed slot: skip_dates must include both 2026-09-16 and 2026-09-23
-  const ay1Wed = slots.find((s) => s.team_id === GUERTIN_TEAM && s.field_id === AY1_FIELD && s.day_key === 'wed' && !s.single_date);
-  if (ay1Wed) ok('Guertin AY#1 recurring Wednesday slot visible in state (by team+field+day)');
-  else fail('Guertin AY#1 recurring Wednesday slot missing from state (team ' + GUERTIN_TEAM + ', field AY#1)');
-  if (ay1Wed && Array.isArray(ay1Wed.skip_dates) && ay1Wed.skip_dates.includes('2026-09-16') && ay1Wed.skip_dates.includes('2026-09-23'))
-    ok('Guertin AY#1 slot has skip_dates containing both 2026-09-16 and 2026-09-23');
-  else fail('Guertin AY#1 slot skip_dates missing 9/16 or 9/23 (got: ' + JSON.stringify(ay1Wed && ay1Wed.skip_dates) + ')');
+  // 9/17: Jason asked for AY#3 every Wednesday and nothing else. His AY#1
+  // recurring slot was released and the redundant AY#3 one-offs removed.
+  const guertinSlots = slots.filter((s) => s.team_id === GUERTIN_TEAM && !s.cancelled_at);
+  if (guertinSlots.length === 1) ok('Guertin holds exactly one slot');
+  else fail('Guertin should hold exactly 1 slot, found ' + guertinSlots.length + ': ' + JSON.stringify(guertinSlots.map((s) => ({ f: s.field_id, d: s.day_key, sd: s.single_date }))));
+  const theSlot = guertinSlots[0];
+  if (theSlot && theSlot.field_id === AY3_FIELD && theSlot.day_key === 'wed' && !theSlot.single_date)
+    ok('The slot is the recurring Wednesday AY#3 (no single_date, no skips needed)');
+  else fail('Guertin slot is not the expected AY#3 recurring wed: ' + JSON.stringify(theSlot));
 
-  // AY#4 single_date=2026-09-16 slot
-  const ay4_916 = slots.find((s) => s.id === '579e01e8-5de9-43bc-8c15-af4c51630fb8');
-  if (ay4_916) ok('Guertin AY#4 single_date=9/16 slot visible in state');
-  else fail('Guertin AY#4 single_date=9/16 slot missing from state (id: 579e01e8)');
-
-  // single_date=2026-09-23 slot (9/13 addition) — field-agnostic: this occurrence has
-  // already moved fields once (AY#4 -> AY#3) via Change one date, so match on
-  // team+day+date only and report wherever it actually lives today, rather than
-  // hardcoding a field id that live coach edits can move out from under the test.
-  const guertin923 = slots.find((s) => s.team_id === GUERTIN_TEAM && s.day_key === 'wed' && s.single_date === '2026-09-23');
-  if (guertin923) {
-    const f923 = (d.fields || []).find((fx) => fx.id === guertin923.field_id);
-    ok('Guertin single_date=9/23 slot visible in state (currently on ' + (f923 ? f923.name : guertin923.field_id) + ')');
-  } else fail('Guertin single_date=9/23 slot missing from state entirely (checked all fields)');
+  // AY#1 Wednesday must be free of Guertin (open for other teams)
+  const ay1WedGuertin = slots.find((s) => s.team_id === GUERTIN_TEAM && s.field_id === AY1_FIELD);
+  if (!ay1WedGuertin) ok('Guertin no longer appears on AY#1 at all');
+  else fail('Guertin still has an AY#1 slot: ' + JSON.stringify(ay1WedGuertin));
 
   // Midweek games in flm_games: should have 10 Wednesday games
   const wedGames = games.filter((g) => {
@@ -1932,6 +1924,7 @@ try {
   else fail('AY#1 Wednesday game count wrong: ' + ay1WedGames.length);
 
   // AY#4 should have 3 Wednesday games (SB Min-A: 9/16, 9/23, 9/30)
+  const AY4_FIELD = '46c9f85e-d871-4dd5-9d9e-eda9bd4c29e3';
   const ay4WedGames = wedGames.filter((g) => g.field_id === AY4_FIELD);
   if (ay4WedGames.length === 3) ok('AY#4 has 3 Wednesday games (Minors A Softball)');
   else fail('AY#4 Wednesday game count wrong: ' + ay4WedGames.length);
