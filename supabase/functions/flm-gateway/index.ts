@@ -1787,6 +1787,24 @@ Deno.serve(async (req: Request) => {
     if (req.method !== "POST") return json({ ok: false, error: "POST required" }, 405);
     const b = await req.json();
 
+    // v19: push an announcement to every device that enabled notifications.
+    // Complements admin_announcement (banner) and admin_announcement_email;
+    // like email, pushing is always an explicit second step, never automatic.
+    if (action === "admin_push_announcement") {
+      const title = String(b.title ?? "").trim().slice(0, 80);
+      const body = String(b.body ?? "").trim().slice(0, 200);
+      if (!title || !body) return json({ ok: false, error: "title and body required" }, 400);
+      const { data: subs } = await db.from("flm_push_subscriptions").select("id,endpoint,p256dh,auth,coach_id").eq("active", true);
+      let sent = 0, failed = 0;
+      for (const s of (subs ?? [])) {
+        const r = await sendWebPush(s, { title, body, url: "https://coachpilot.org/fields/", tag: "flm-announcement" }).catch(() => ({ ok: false }));
+        if (r && (r as { ok?: boolean }).ok) sent++; else failed++;
+      }
+      await log("announce", `Push sent: "${title}" to ${sent} device(s)${failed ? `, ${failed} failed` : ""}`, "admin");
+      return json({ ok: true, sent, failed, subscriptions: (subs ?? []).length });
+    }
+
+
     if (action === "admin_ump") {
       if (b.delete_id) {
         const { data: u } = await db.from("flm_umps").select("name").eq("id", b.delete_id).maybeSingle();
