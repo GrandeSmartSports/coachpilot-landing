@@ -2077,8 +2077,9 @@ section('fields/map.html: required hooks');
     ['Nothing scheduled', 'empty-field state is visible, not just blank'],
     ['function openDetail', 'clicking a block opens a detail view'],
     ['Open in admin', 'detail view links back to admin.html for fixes'],
-    ['overflow-x: auto', 'horizontal scroll for the time axis on small screens'],
+    ['.gridscroll { overflow: auto', 'grid is one scroll pane (both axes) so sticky headers work'],
     ['position: sticky; left: 0', 'field-name column stays pinned while scrolling'],
+    ['position: sticky; top: 0', 'hour axis stays pinned while scrolling vertically'],
   ]) {
     if (mapHtml.includes(s)) ok(why);
     else fail('map.html MISSING (' + why + '): ' + s);
