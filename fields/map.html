@@ -54,13 +54,15 @@
 
   /* grid */
   .gridwrap { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
-  .gridscroll { overflow-x: auto; }
-  .griddims { position: relative; }
-  .axis { display: flex; border-bottom: 2px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 3; }
+  /* One scroll pane for both axes so sticky works: names pin left, hour bar pins top.
+     (sticky dies when a wrapping ancestor owns the scrolling — iOS Safari especially) */
+  .gridscroll { overflow: auto; max-height: calc(100vh - 150px); max-height: calc(100dvh - 150px); -webkit-overflow-scrolling: touch; }
+  .griddims { position: relative; width: max-content; min-width: 100%; }
+  .axis { display: flex; border-bottom: 2px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 3; width: max-content; min-width: 100%; }
   .axis .namecol { flex: none; width: 150px; position: sticky; left: 0; background: var(--white); z-index: 4; border-right: 2px solid var(--line); }
   .axis .hours { position: relative; flex: none; }
   .hourlbl { position: absolute; top: 0; bottom: 0; font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding: 8px 0 8px 6px; border-left: 1px solid var(--line); }
-  .frow { display: flex; border-bottom: 1px solid var(--line); }
+  .frow { display: flex; border-bottom: 1px solid var(--line); width: max-content; min-width: 100%; }
   .frow:last-child { border-bottom: none; }
   .frow .namecol { flex: none; width: 150px; position: sticky; left: 0; background: var(--white); z-index: 2; border-right: 2px solid var(--line); padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
   .frow .fname { font-family: var(--disp); font-weight: 700; font-size: 14.5px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink); line-height: 1.2; }
