@@ -732,6 +732,17 @@ function gamesFor(dayK, fieldId) {
 function load() {
   fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
     if (!d.ok) throw new Error("bad state");
+    // Defensive: gateway state has intermittently returned an empty/missing
+    // settings map (crash Sep 16 evening blocked coaches). Every downstream
+    // reader assumes an object, so normalize once here.
+    if (!d.settings || typeof d.settings !== "object") d.settings = {};
+    if (!Array.isArray(d.seasons)) d.seasons = [];
+    if (!Array.isArray(d.slots)) d.slots = [];
+    if (!Array.isArray(d.games)) d.games = [];
+    if (!Array.isArray(d.teams)) d.teams = [];
+    if (!Array.isArray(d.fields)) d.fields = [];
+    if (!Array.isArray(d.announcements)) d.announcements = [];
+    if (!Array.isArray(d.ext_teams)) d.ext_teams = [];
     S.data = d;
     if (!S.season || !d.seasons.some(function (x) { return x.id === S.season && !x.locked; })) {
       var remembered = lsGet("flm_season");
@@ -817,9 +828,15 @@ function renderGameNotices() {
     return { start: fmt(mon), end: fmt(sun) };
   }
   var bounds = weekBounds();
-  /* Gather upcoming field games on OUR fields (field_id set) this week */
+  /* Gather upcoming field games on OUR fields (field_id set) this week.
+     Skip Saturdays — Saturday practice reservations were dropped this fall
+     so "field not available Saturday" is noise, not a warning coaches need. */
+  function isSat(dateStr) {
+    var p = String(dateStr || "").split("-");
+    return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).getDay() === 6;
+  }
   var notices = (S.data.games || []).filter(function (g) {
-    return g.field_id && g.game_date >= today && g.game_date >= bounds.start && g.game_date <= bounds.end && g.status !== "cancelled" && g.status !== "draft";
+    return g.field_id && g.game_date >= today && g.game_date >= bounds.start && g.game_date <= bounds.end && g.status !== "cancelled" && g.status !== "draft" && !isSat(g.game_date);
   });
   notices.sort(function (a, b) { return (a.game_date + a.start_time).localeCompare(b.game_date + b.start_time); });
   if (!notices.length) { box.innerHTML = ""; return; }
