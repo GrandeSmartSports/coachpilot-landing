@@ -2027,6 +2027,137 @@ try {
   else fail('claim skip_dates sanity check wrong: ' + r.status + ' ' + JSON.stringify(j));
 } catch (e) { fail('live claim skip_dates test threw: ' + e.message); }
 
+// ------- League Field Map (v20) -------
+section('gateway source: admin_field_map action');
+{
+  const gwSrc = fs.readFileSync(path.join(ROOT, 'supabase', 'functions', 'flm-gateway', 'index.ts'), 'utf8');
+  for (const [s, why] of [
+    ['action === "admin_field_map"', 'admin_field_map action exists'],
+    ['const SAT_WINDOWS:', 'Saturday practice windows mirrored server-side'],
+    ['WEEKDAY_PRACTICE_MINUTES', 'weekday practice display duration constant present'],
+    ['function slotWindow', 'shared start/end window resolver for practice slots'],
+    ['a.field_id !== b.field_id) continue', 'conflict scan is scoped per field'],
+    ['conflictPairs++', 'conflict pairs are counted, not just flagged'],
+    ['empty_fields: fieldsOut.filter', 'empty-field count computed from active occupancy'],
+  ]) {
+    if (gwSrc.includes(s)) ok(why);
+    else fail('admin_field_map MISSING (' + why + '): ' + s);
+  }
+  // Action sits among the other GET-only admin reads, before the POST-required
+  // gate and its req.json() parse — so it can never trip the const-b TDZ bug
+  // that hit earlier POST actions.
+  const adminBlock = gwSrc.slice(gwSrc.indexOf('// ---------- admin ----------'), gwSrc.indexOf('if (req.method !== "POST")'));
+  if (adminBlock.includes('action === "admin_field_map"') && !adminBlock.includes('const b = await req.json()')) ok('admin_field_map reads only from the URL (no request body needed, no TDZ risk)');
+  else fail('admin_field_map placement or body-read assumption changed — re-check for the TDZ bug');
+  if (adminBlock.indexOf('const pin = req.headers.get("x-admin-pin")') < adminBlock.indexOf('action === "admin_field_map"')) ok('PIN check runs before admin_field_map is reachable');
+  else fail('admin_field_map is not gated behind the admin PIN check');
+  if (/date=YYYY-MM-DD required/.test(gwSrc)) ok('missing/malformed date is rejected with a clear 400, not a silent empty map');
+  else fail('date validation error message missing');
+}
+
+section('fields/map.html: required hooks');
+{
+  const mapHtml = fs.readFileSync(path.join(ROOT, 'fields', 'map.html'), 'utf8');
+  for (const [s, why] of [
+    ['id="gate"', 'PIN gate present'],
+    ['sessionStorage.getItem("flm_pin")', 'reuses the shared admin PIN session so admin.html -> map.html needs no re-login'],
+    ['action=admin_field_map', 'calls the new gateway action'],
+    ['id="dPrev"', 'previous-week arrow'],
+    ['id="dNext"', 'next-week arrow'],
+    ['id="dPick"', 'native date input for any day'],
+    ['function nextSaturdayOrToday', 'defaults to the next Saturday (or today if Saturday)'],
+    ['function addDays', 'week arrows jump by 7 days'],
+    ['id="tiles"', 'summary tile bar'],
+    ['Conflicts', 'conflict count tile'],
+    ['Empty fields', 'empty-field count tile'],
+    ['function assignLanes', 'overlapping blocks stack into lanes instead of hiding each other'],
+    ['.blk.game {', 'game blocks styled solid'],
+    ['.blk.practice {', 'practice blocks styled distinctly (striped)'],
+    ['cbadge', 'conflict badge on overlapping blocks'],
+    ['Nothing scheduled', 'empty-field state is visible, not just blank'],
+    ['function openDetail', 'clicking a block opens a detail view'],
+    ['Open in admin', 'detail view links back to admin.html for fixes'],
+    ['overflow-x: auto', 'horizontal scroll for the time axis on small screens'],
+    ['position: sticky; left: 0', 'field-name column stays pinned while scrolling'],
+  ]) {
+    if (mapHtml.includes(s)) ok(why);
+    else fail('map.html MISSING (' + why + '): ' + s);
+  }
+  // No-emoji product UI rule: inline SVG only.
+  const emojiHit = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(mapHtml);
+  if (!emojiHit) ok('no emoji in map.html UI (inline SVG only)');
+  else fail('emoji found in map.html');
+  if (mapHtml.includes('<svg')) ok('nav arrows use inline SVG');
+  else fail('no inline SVG found for nav icons');
+}
+
+section('fields/admin.html: field map link');
+{
+  if (adminHtml.includes('href="/fields/map.html"')) ok('Fields panel links out to the new field map');
+  else fail('admin.html MISSING the field map link');
+}
+
+section('field map: lane assignment + overlap math (independent sanity check)');
+{
+  // Mirrors gateway's admin_field_map conflict scan and map.html's assignLanes,
+  // reimplemented standalone so a regression in either file cannot also hide it here.
+  function overlap(a, b) { return a.start_min < b.end_min && b.start_min < a.end_min; }
+  function assignLanes(blocks) {
+    const sorted = blocks.slice().sort((a, b) => a.start_min - b.start_min);
+    const laneEnd = [];
+    sorted.forEach((b) => {
+      let placed = false;
+      for (let i = 0; i < laneEnd.length; i++) {
+        if (laneEnd[i] <= b.start_min) { b.lane = i; laneEnd[i] = b.end_min; placed = true; break; }
+      }
+      if (!placed) { b.lane = laneEnd.length; laneEnd.push(b.end_min); }
+    });
+    return Math.max(1, laneEnd.length);
+  }
+  const a = { id: 'a', start_min: 540, end_min: 660 };   // 9:00-11:00
+  const b = { id: 'b', start_min: 630, end_min: 750 };   // 10:30-12:30 (overlaps a)
+  const c = { id: 'c', start_min: 660, end_min: 780 };   // 11:00-13:00 (touches a, not b)
+  if (overlap(a, b) && !overlap(a, c) && overlap(b, c)) ok('overlap() matches expected pairs: a-b overlap, a-c back-to-back (no overlap), b-c overlap');
+  else fail('overlap() math wrong for the fixture set');
+  const lanes = assignLanes([a, b, c]);
+  if (lanes === 2 && a.lane === 0 && b.lane === 1 && c.lane === 0) ok('assignLanes: 3 blocks needing pairwise overlap resolve into 2 stacked lanes, c reuses a\'s freed lane');
+  else fail('assignLanes broken: lanes=' + lanes + ' ' + JSON.stringify([a.lane, b.lane, c.lane]));
+  const clean = [{ id: 'x', start_min: 480, end_min: 540 }, { id: 'y', start_min: 540, end_min: 600 }];
+  if (assignLanes(clean) === 1) ok('back-to-back, non-overlapping blocks share a single lane');
+  else fail('non-overlapping blocks wrongly split into multiple lanes');
+
+  // SAT_WINDOWS + weekday default_start mirror (matches fields/index.html's client
+  // SAT_WINDOWS and the gateway's slotWindow()).
+  const SAT_WINDOWS = { sat_9_11: [540, 660], sat_11_1: [660, 780], sat_1_3: [780, 900], sat_3_5: [900, 1020] };
+  function slotWindow(dayKey, defaultStart) {
+    if (dayKey in SAT_WINDOWS) return SAT_WINDOWS[dayKey];
+    const startMin = defaultStart === '18:00' ? 18 * 60 : 17 * 60;
+    return [startMin, startMin + 90];
+  }
+  if (JSON.stringify(slotWindow('sat_1_3', null)) === JSON.stringify([780, 900])) ok('Saturday window resolves from day_key regardless of field default_start');
+  else fail('Saturday window resolution broken');
+  if (JSON.stringify(slotWindow('wed', '18:00')) === JSON.stringify([1080, 1170])) ok('6pm field weekday practice resolves to 6:00-7:30 PM');
+  else fail('6pm field weekday window broken');
+  if (JSON.stringify(slotWindow('mon', null)) === JSON.stringify([1020, 1110])) ok('default (non-6pm) field weekday practice resolves to 5:00-6:30 PM');
+  else fail('default field weekday window broken');
+}
+
+section('gateway: live field map auth walls (read-only)');
+try {
+  const r = await fetch(GATEWAY + '?action=admin_field_map&date=2026-09-26');
+  if (r.status === 401) ok('admin_field_map without PIN rejected 401');
+  else fail('admin_field_map without PIN should be 401, got ' + r.status);
+} catch (e) {
+  fail('admin_field_map auth test threw: ' + e.message);
+}
+try {
+  const r = await fetch(GATEWAY + '?action=admin_field_map&date=2026-09-26', { headers: { 'x-admin-pin': '0908' } });
+  if (r.status === 401) ok('admin_field_map with the retired PIN 0908 rejected 401 (league PIN rotation held)');
+  else fail('admin_field_map with retired PIN should be 401, got ' + r.status);
+} catch (e) {
+  fail('admin_field_map retired-PIN test threw: ' + e.message);
+}
+
 // ------- Report -------
 console.log('\n---');
 console.log('passed: ' + passed);

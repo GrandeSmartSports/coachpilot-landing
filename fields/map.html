@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Field Command — Field Map</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --clay-dark: #a8571d; --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #fff;
+    --red: #b3432b; --red-bg: #fbe4dc;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--chalk); color: var(--ink); }
+  body { font-family: "Barlow", system-ui, sans-serif; line-height: 1.45; padding-bottom: 50px; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  .hidden { display: none !important; }
+
+  header { background: linear-gradient(160deg, var(--pine), var(--pine-2)); color: var(--chalk); padding: 16px 18px; }
+  .head-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  header h1 { font-family: var(--disp); font-weight: 700; font-size: 25px; text-transform: uppercase; letter-spacing: 0.04em; }
+  header h1 span { color: #ffd9b8; }
+  header a.back { font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: #b7cfc2; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 46px, var(--chalk) 46px 58px); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 18px 14px; }
+
+  /* date strip */
+  .datebar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .dnav { background: var(--white); border: 1px solid var(--line); border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow); flex: none; }
+  .dnav:hover { border-color: var(--clay); color: var(--clay); }
+  .dnav svg { width: 18px; height: 18px; }
+  .dlabel { font-family: var(--disp); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--pine); min-width: 220px; }
+  .dsub { font-size: 12.5px; color: var(--muted); }
+  .datebar input[type="date"] { font-size: 14px; font-family: inherit; border: 1.5px solid var(--line); border-radius: 9px; padding: 9px 11px; background: var(--white); color: var(--ink); margin-left: auto; }
+  .datebar input[type="date"]:focus { outline: none; border-color: var(--clay); }
+
+  /* summary tiles */
+  .tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+  @media (min-width: 760px) { .tiles { grid-template-columns: repeat(4, 1fr); } }
+  .tile { background: var(--white); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; }
+  .tile .n { font-family: var(--disp); font-weight: 700; font-size: 30px; line-height: 1; color: var(--pine); }
+  .tile.conflict .n { color: var(--red); }
+  .tile.empty .n { color: #8a5a12; }
+  .tile .l { font-size: 11.5px; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 4px; }
+  .allclear { background: #dcefe2; color: #21622f; border-radius: 12px; padding: 10px 16px; font-weight: 600; font-size: 14.5px; margin-bottom: 16px; }
+
+  /* grid */
+  .gridwrap { background: var(--white); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+  .gridscroll { overflow-x: auto; }
+  .griddims { position: relative; }
+  .axis { display: flex; border-bottom: 2px solid var(--line); position: sticky; top: 0; background: var(--white); z-index: 3; }
+  .axis .namecol { flex: none; width: 150px; position: sticky; left: 0; background: var(--white); z-index: 4; border-right: 2px solid var(--line); }
+  .axis .hours { position: relative; flex: none; }
+  .hourlbl { position: absolute; top: 0; bottom: 0; font-family: var(--disp); font-weight: 600; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); padding: 8px 0 8px 6px; border-left: 1px solid var(--line); }
+  .frow { display: flex; border-bottom: 1px solid var(--line); }
+  .frow:last-child { border-bottom: none; }
+  .frow .namecol { flex: none; width: 150px; position: sticky; left: 0; background: var(--white); z-index: 2; border-right: 2px solid var(--line); padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+  .frow .fname { font-family: var(--disp); font-weight: 700; font-size: 14.5px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--ink); line-height: 1.2; }
+  .frow .fdot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); flex: none; }
+  .frow.empty .namecol { background: #fbf8f1; }
+  .track { position: relative; flex: none; }
+  .track .hourline { position: absolute; top: 0; bottom: 0; border-left: 1px solid #efece1; }
+  .track .emptylbl { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: #b9b3a0; font-weight: 600; }
+
+  .blk { position: absolute; border-radius: 8px; padding: 4px 8px; font-size: 11.5px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: transform 0.1s, box-shadow 0.1s; }
+  .blk:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.18); z-index: 5; }
+  .blk b { display: block; font-family: var(--disp); font-weight: 700; font-size: 12.5px; letter-spacing: 0.01em; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .blk .t { display: block; font-size: 10px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .blk.game { background: var(--pine-2); color: var(--chalk); border-left: 4px solid var(--clay); }
+  .blk.game .t { color: #b7cfc2; }
+  .blk.practice { background: #eef4ef; color: var(--grass); border-left: 4px solid var(--grass); background-image: repeating-linear-gradient(135deg, rgba(45,106,79,0.08) 0 8px, transparent 8px 16px); }
+  .blk.inactive { opacity: 0.5; }
+  .blk.inactive.game { background: var(--chalk-2); color: var(--muted); border-left-color: var(--muted); }
+  .blk.conflict { outline: 2.5px solid var(--red); outline-offset: -2px; }
+  .cbadge { position: absolute; top: -7px; right: 4px; background: var(--red); color: #fff; font-family: var(--disp); font-weight: 700; font-size: 8.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 8px; padding: 1px 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+  .loading { text-align: center; color: var(--muted); padding: 60px 0; font-family: var(--disp); font-size: 18px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .quietrow { text-align: center; color: var(--muted); padding: 40px 16px; font-size: 14.5px; }
+
+  /* modal */
+  .veil { position: fixed; inset: 0; background: rgba(14, 30, 24, 0.55); display: flex; align-items: center; justify-content: center; z-index: 60; padding: 14px; }
+  .modal { background: var(--white); border-radius: 14px; padding: 20px 22px; width: 100%; max-width: 420px; }
+  .modal .sev { display: inline-block; font-family: var(--disp); font-weight: 700; font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 10px; padding: 2px 9px; margin-bottom: 8px; }
+  .modal .sev.conflict { background: var(--red-bg); color: var(--red); }
+  .modal .sev.draft { background: #e9e4f6; color: #52418f; }
+  .modal .sev.cancelled, .modal .sev.postponed { background: #eceadf; color: var(--muted); }
+  .modal h3 { font-family: var(--disp); font-weight: 700; font-size: 21px; letter-spacing: 0.02em; margin-bottom: 6px; }
+  .modal .mrow { font-size: 14px; color: #3c463f; padding: 5px 0; border-bottom: 1px dashed #efece4; }
+  .modal .mrow:last-of-type { border-bottom: none; }
+  .modal .mrow b { color: var(--muted); font-weight: 600; margin-right: 4px; }
+  .modal .mfoot { margin-top: 16px; display: flex; gap: 8px; }
+  .btn { font-family: var(--disp); font-weight: 600; font-size: 14px; letter-spacing: 0.06em; text-transform: uppercase; border: none; border-radius: 9px; padding: 10px 16px; background: var(--pine); color: var(--chalk); }
+  .btn.ghost { background: var(--chalk-2); color: var(--ink); }
+
+  #gate { position: fixed; inset: 0; background: var(--pine); display: flex; align-items: center; justify-content: center; z-index: 99; }
+  .gatebox { background: var(--white); border-radius: 16px; padding: 28px; width: 92%; max-width: 360px; text-align: center; }
+  .gatebox h2 { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .gatebox p { color: var(--muted); font-size: 13.5px; margin-bottom: 14px; }
+  .gatebox input { width: 100%; text-align: center; font-size: 24px; letter-spacing: 0.4em; font-family: inherit; border: 1.5px solid var(--line); border-radius: 9px; padding: 11px; }
+  .gatebox .btn { width: 100%; margin-top: 12px; font-size: 17px; padding: 12px; }
+  .warn { color: #a33c1b; }
+</style>
+</head>
+<body>
+  <div id="gate">
+    <div class="gatebox">
+      <h2>League Admin</h2>
+      <p>Enter the admin PIN to open the field map.</p>
+      <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" />
+      <button class="btn" id="pinGo">Open the map</button>
+      <p id="pinErr" class="warn hidden" style="margin-top:10px;">That PIN didn't work.</p>
+    </div>
+  </div>
+
+  <header>
+    <div class="head-inner">
+      <h1>League Field <span>Map</span></h1>
+      <a class="back" href="/fields/admin.html">&larr; Admin console</a>
+    </div>
+  </header>
+  <div class="chalkline"></div>
+
+  <div class="wrap">
+    <div class="datebar">
+      <button class="dnav" id="dPrev" title="Previous week" aria-label="Previous week">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div>
+        <div class="dlabel" id="dLabel">&nbsp;</div>
+        <div class="dsub" id="dSub">&nbsp;</div>
+      </div>
+      <button class="dnav" id="dNext" title="Next week" aria-label="Next week">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+      <input type="date" id="dPick" />
+    </div>
+
+    <div id="tiles" class="tiles"></div>
+    <div id="allClear" class="allclear hidden">No double-bookings today. Every field is clean.</div>
+
+    <div class="gridwrap">
+      <div id="loading" class="loading">Loading&hellip;</div>
+      <div id="gridscroll" class="gridscroll hidden">
+        <div class="griddims" id="gridDims"></div>
+      </div>
+      <div id="quietFields" class="quietrow hidden">No active fields yet. Add fields in the admin console.</div>
+    </div>
+  </div>
+
+<script src="flm-rules.js"></script>
+<script>
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+var PIN = sessionStorage.getItem("flm_pin") || "";
+var DAY_MS = 86400000;
+var DAY_START_MIN = 8 * 60, DAY_END_MIN = 20 * 60, PX_PER_MIN = 2.4;
+var TRACK_W = (DAY_END_MIN - DAY_START_MIN) * PX_PER_MIN;
+var LANE_H = 44;
+var S = { date: "" };
+
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+function toYMD(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+function ymdToDate(s) { var p = s.split("-"); return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1); }
+function addDays(ymd, n) { var d = ymdToDate(ymd); d.setDate(d.getDate() + n); return toYMD(d); }
+function nextSaturdayOrToday() {
+  var d = new Date();
+  var add = (6 - d.getDay() + 7) % 7;
+  d.setDate(d.getDate() + add);
+  return toYMD(d);
+}
+function fmtDateLabel(ymd) {
+  var d = ymdToDate(ymd);
+  return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+}
+
+/* ---------- gate ---------- */
+function boot() {
+  fetch(API + "?action=activity", { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { if (r.status === 401) throw new Error("pin"); return r.json(); })
+    .then(function () {
+      sessionStorage.setItem("flm_pin", PIN);
+      document.getElementById("gate").classList.add("hidden");
+      initDate();
+      loadMap();
+    })
+    .catch(function () {
+      document.getElementById("pinErr").classList.remove("hidden");
+      sessionStorage.removeItem("flm_pin");
+    });
+}
+document.getElementById("pinGo").addEventListener("click", function () { PIN = document.getElementById("pin").value.trim(); boot(); });
+document.getElementById("pin").addEventListener("keydown", function (e) { if (e.key === "Enter") { PIN = e.target.value.trim(); boot(); } });
+if (PIN) boot();
+
+/* ---------- date navigation ---------- */
+function initDate() {
+  var qd = new URLSearchParams(location.search).get("date");
+  S.date = (qd && /^\d{4}-\d{2}-\d{2}$/.test(qd)) ? qd : nextSaturdayOrToday();
+  syncDateUi();
+}
+function syncDateUi() {
+  document.getElementById("dLabel").textContent = fmtDateLabel(S.date);
+  document.getElementById("dSub").textContent = S.date;
+  document.getElementById("dPick").value = S.date;
+  history.replaceState(null, "", location.pathname + "?date=" + S.date);
+}
+function goDate(ymd) { S.date = ymd; syncDateUi(); loadMap(); }
+document.getElementById("dPrev").addEventListener("click", function () { goDate(addDays(S.date, -7)); });
+document.getElementById("dNext").addEventListener("click", function () { goDate(addDays(S.date, 7)); });
+document.getElementById("dPick").addEventListener("change", function (e) { if (e.target.value) goDate(e.target.value); });
+
+/* ---------- data ---------- */
+function loadMap() {
+  document.getElementById("loading").classList.remove("hidden");
+  document.getElementById("gridscroll").classList.add("hidden");
+  document.getElementById("quietFields").classList.add("hidden");
+  fetch(API + "?action=admin_field_map&date=" + encodeURIComponent(S.date), { headers: { "x-admin-pin": PIN } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      document.getElementById("loading").classList.add("hidden");
+      if (!d.ok) { document.getElementById("quietFields").textContent = "Could not load the map: " + (d.error || "unknown error"); document.getElementById("quietFields").classList.remove("hidden"); return; }
+      renderTiles(d.summary);
+      renderGrid(d.fields, d.blocks);
+    })
+    .catch(function () {
+      document.getElementById("loading").classList.add("hidden");
+      document.getElementById("quietFields").textContent = "Could not reach the gateway. Check your connection and try again.";
+      document.getElementById("quietFields").classList.remove("hidden");
+    });
+}
+
+/* ---------- summary tiles ---------- */
+function renderTiles(sum) {
+  sum = sum || { games: 0, practices: 0, conflicts: 0, empty_fields: 0 };
+  document.getElementById("tiles").innerHTML =
+    '<div class="tile"><div class="n">' + sum.games + '</div><div class="l">Games</div></div>' +
+    '<div class="tile"><div class="n">' + sum.practices + '</div><div class="l">Practices</div></div>' +
+    '<div class="tile' + (sum.conflicts ? ' conflict' : '') + '"><div class="n">' + sum.conflicts + '</div><div class="l">Conflicts</div></div>' +
+    '<div class="tile' + (sum.empty_fields ? ' empty' : '') + '"><div class="n">' + sum.empty_fields + '</div><div class="l">Empty fields</div></div>';
+  document.getElementById("allClear").classList.toggle("hidden", sum.conflicts !== 0);
+}
+
+/* ---------- grid ---------- */
+var BLOCKS_BY_ID = {};
+function assignLanes(blocks) {
+  var sorted = blocks.slice().sort(function (a, b) { return a.start_min - b.start_min; });
+  var laneEnd = [];
+  sorted.forEach(function (b) {
+    var placed = false;
+    for (var i = 0; i < laneEnd.length; i++) {
+      if (laneEnd[i] <= b.start_min) { b.lane = i; laneEnd[i] = b.end_min; placed = true; break; }
+    }
+    if (!placed) { b.lane = laneEnd.length; laneEnd.push(b.end_min); }
+  });
+  return Math.max(1, laneEnd.length);
+}
+function hourLabel(min) {
+  var h = Math.floor(min / 60), ap = h >= 12 ? "PM" : "AM", h12 = h % 12 || 12;
+  return h12 + " " + ap;
+}
+function renderGrid(fields, blocks) {
+  BLOCKS_BY_ID = {};
+  blocks.forEach(function (b) { BLOCKS_BY_ID[b.id] = b; });
+
+  var hoursHtml = "";
+  for (var m = DAY_START_MIN; m <= DAY_END_MIN; m += 60) {
+    hoursHtml += '<div class="hourlbl" style="left:' + ((m - DAY_START_MIN) * PX_PER_MIN) + 'px;width:' + (60 * PX_PER_MIN) + 'px;">' + hourLabel(m) + '</div>';
+  }
+  var axis = '<div class="axis"><div class="namecol"></div><div class="hours" style="width:' + TRACK_W + 'px;height:32px;">' + hoursHtml + '</div></div>';
+
+  var rows = fields.map(function (f) {
+    var mine = blocks.filter(function (b) { return b.field_id === f.id; });
+    var lanes = mine.length ? assignLanes(mine) : 1;
+    var hasConflict = mine.some(function (b) { return b.conflict; });
+    var hasActive = mine.some(function (b) { return b.active; });
+    var rowH = Math.max(56, lanes * LANE_H + 10);
+
+    var hourlines = "";
+    for (var m2 = DAY_START_MIN; m2 <= DAY_END_MIN; m2 += 60) {
+      hourlines += '<div class="hourline" style="left:' + ((m2 - DAY_START_MIN) * PX_PER_MIN) + 'px;"></div>';
+    }
+    var blockHtml = mine.map(function (b) {
+      var left = Math.max(0, (b.start_min - DAY_START_MIN) * PX_PER_MIN);
+      var width = Math.max(30, (b.end_min - b.start_min) * PX_PER_MIN - 3);
+      var top = 5 + b.lane * LANE_H;
+      var cls = "blk " + (b.kind === "game" ? "game" : "practice") + (b.active ? "" : " inactive") + (b.conflict ? " conflict" : "");
+      var title = b.kind === "game" ? (esc(b.home) + " vs " + esc(b.away)) : esc(b.team || "Practice");
+      var sub = b.start + "&ndash;" + b.end + (b.kind === "game" && b.status !== "scheduled" ? " &middot; " + esc(statusLabel(b.status)) : "");
+      return '<div class="' + cls + '" data-id="' + esc(b.id) + '" style="left:' + left + 'px;width:' + width + 'px;top:' + top + 'px;height:' + (LANE_H - 6) + 'px;">' +
+        (b.conflict ? '<span class="cbadge">Conflict</span>' : "") +
+        '<b>' + title + '</b><span class="t">' + sub + '</span></div>';
+    }).join("");
+    var emptylbl = !hasActive ? '<div class="emptylbl">Nothing scheduled</div>' : "";
+
+    return '<div class="frow' + (!hasActive ? ' empty' : '') + '">' +
+      '<div class="namecol">' + (hasConflict ? '<span class="fdot"></span>' : "") + '<span class="fname">' + esc(f.name) + '</span></div>' +
+      '<div class="track" style="width:' + TRACK_W + 'px;height:' + rowH + 'px;">' + hourlines + emptylbl + blockHtml + '</div>' +
+      '</div>';
+  }).join("");
+
+  document.getElementById("gridDims").innerHTML = axis + rows;
+  document.getElementById("gridscroll").classList.remove("hidden");
+  document.getElementById("quietFields").classList.toggle("hidden", fields.length > 0);
+  document.querySelectorAll(".blk").forEach(function (el) {
+    el.addEventListener("click", function () { openDetail(BLOCKS_BY_ID[el.getAttribute("data-id")]); });
+  });
+}
+
+function statusLabel(status) {
+  return { draft: "Draft", postponed: "Postponed", cancelled: "Cancelled", completed: "Final", scheduled: "Scheduled" }[status] || status;
+}
+
+/* ---------- detail modal ---------- */
+function openDetail(b) {
+  if (!b) return;
+  var veil = document.createElement("div");
+  veil.className = "veil";
+  var sevHtml = "";
+  if (b.conflict) sevHtml = '<span class="sev conflict">Conflict</span>';
+  else if (b.kind === "game" && (b.status === "draft" || b.status === "postponed" || b.status === "cancelled")) sevHtml = '<span class="sev ' + b.status + '">' + statusLabel(b.status) + '</span>';
+  var title = b.kind === "game" ? (esc(b.home) + " vs " + esc(b.away)) : esc(b.team || "Practice");
+  var rows = '<div class="mrow"><b>Time</b>' + b.start + '&ndash;' + b.end + '</div>';
+  if (b.kind === "game") {
+    if (b.division) rows += '<div class="mrow"><b>Division</b>' + esc(b.division) + '</div>';
+    rows += '<div class="mrow"><b>Status</b>' + esc(statusLabel(b.status)) + '</div>';
+  }
+  if (b.notes) rows += '<div class="mrow"><b>Notes</b>' + esc(b.notes) + '</div>';
+  veil.innerHTML = '<div class="modal">' + sevHtml + '<h3>' + title + '</h3>' + rows +
+    '<div class="mfoot"><a class="btn" href="/fields/admin.html#' + (b.kind === "game" ? "games" : "practices") + '">Open in admin &rarr;</a><button class="btn ghost" id="mClose">Close</button></div></div>';
+  veil.addEventListener("click", function (e) { if (e.target === veil) veil.remove(); });
+  document.body.appendChild(veil);
+  veil.querySelector("#mClose").addEventListener("click", function () { veil.remove(); });
+}
+
+/* ---------- usage beacon (fire-and-forget, never blocks the page) ---------- */
+(function () {
+  var EV_URL = "https://geigvuysptjvvqanumld.supabase.co/rest/v1/flm_events";
+  var EV_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdlaWd2dXlzcHRqdnZxYW51bWxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyMzIxODIsImV4cCI6MjA5MDgwODE4Mn0.DlzXoU3XUa7kAD9oN6hJ1MBXnC_KxzviqpL2vQxWSX8";
+  function track(ev, detail) {
+    try {
+      fetch(EV_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": EV_KEY, "Authorization": "Bearer " + EV_KEY, "Prefer": "return=minimal" },
+        body: JSON.stringify({ page: "fields-map", event: ev, detail: detail || null }),
+        keepalive: true
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  track("page_view", { referrer: document.referrer || "direct" });
+  window.addEventListener("error", function (e) {
+    track("js_error", { message: String((e && e.message) || "").slice(0, 300), source: String((e && e.filename) || "").slice(0, 200), line: (e && e.lineno) || 0 });
+  });
+})();
+</script>
+</body>
+</html>

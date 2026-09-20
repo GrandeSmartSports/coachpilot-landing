@@ -29,6 +29,12 @@
 // every occurrence. Every date in single_date/skip_dates is validated against
 // the slot's weekday and the season's start_date/end_date window. Absent both
 // fields, claim behaves exactly as before (full season, empty skip_dates).
+// v20 (2026-09-20): admin_field_map — one-day command center. GET action
+// returns every active field plus the games and practice slots that actually
+// land on a given date, with overlap detection so double-bookings (and empty
+// fields) are visible in one shot. Archived seasons are excluded, matching
+// the admin practice grid's activeSeasons() filter. Cancelled/draft/postponed
+// games render for context but never count toward occupancy or conflicts.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -65,6 +71,23 @@ const DOW_FOR_DAY_KEY: Record<string, number> = { mon: 1, tue: 2, wed: 3, thu: 4
 function dateDow(ds: string): number {
   const p = ds.split("-");
   return new Date(+p[0] || 1970, (+p[1] || 1) - 1, +p[2] || 1).getDay();
+}
+// Saturday practice windows in minutes-since-midnight (mirrors fields/index.html's
+// client-side SAT_WINDOWS). Weekday (mon-fri) slots carry no stored duration —
+// only a start time via the field's default_start (fields/index.html
+// fieldStartLabel: "18:00" = 6pm fields, anything else = 5pm) — so the map uses
+// a fixed practice length for those blocks; it is a display assumption only,
+// never persisted.
+const SAT_WINDOWS: Record<string, [number, number]> = { sat_9_11: [540, 660], sat_11_1: [660, 780], sat_1_3: [780, 900], sat_3_5: [900, 1020] };
+const WEEKDAY_PRACTICE_MINUTES = 90;
+function slotWindow(dayKey: string, fieldDefaultStart: string | null): [number, number] {
+  if (dayKey in SAT_WINDOWS) return SAT_WINDOWS[dayKey];
+  const startMin = fieldDefaultStart === "18:00" ? 18 * 60 : 17 * 60;
+  return [startMin, startMin + WEEKDAY_PRACTICE_MINUTES];
+}
+function minToHHMM(min: number): string {
+  const h = Math.floor(min / 60), m = min % 60;
+  return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
 }
 const SEVERITIES = ["info", "warning", "urgent"];
 const GAME_STATUSES = ["draft", "scheduled", "postponed", "cancelled", "completed"];
@@ -1781,6 +1804,111 @@ Deno.serve(async (req: Request) => {
         views_total: counts[0], views_7d: counts[1],
         views_7d_public: counts[2], views_7d_admin: counts[3],
         errors_total: counts[4], errors_7d: counts[5],
+      });
+    }
+
+    // v20: one-day league field map. ?date=YYYY-MM-DD -> every active field,
+    // that day's games (team names resolved) and practice slots (day_key
+    // matched to the date's weekday, skip_dates/single_date/cancelled_at
+    // honored), plus overlap detection so double-bookings surface in one read.
+    if (action === "admin_field_map") {
+      const date = url.searchParams.get("date") ?? "";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return json({ ok: false, error: "date=YYYY-MM-DD required" }, 400);
+      const dow = dateDow(date);
+      const dayKeysToday = DAY_KEYS.filter((k) => DOW_FOR_DAY_KEY[k] === dow);
+
+      const [fieldsRes, gamesRes, slotsRes, teamsRes, extTeamsRes, seasonsRes] = await Promise.all([
+        db.from("flm_fields").select("*").eq("is_active", true).order("sort"),
+        db.from("flm_games").select("*").eq("game_date", date),
+        dayKeysToday.length
+          ? db.from("flm_slots").select("*").in("day_key", dayKeysToday)
+          : Promise.resolve({ data: [] }),
+        db.from("flm_teams").select("id,name"),
+        db.from("flm_ext_teams").select("id,team_name,league_name"),
+        db.from("flm_seasons").select("id,archived"),
+      ]);
+
+      const archivedSeasons = new Set(
+        (seasonsRes.data ?? []).filter((s: { archived?: boolean }) => s.archived).map((s: { id: string }) => s.id),
+      );
+      const teamName = (id: string | null) => {
+        if (!id) return null;
+        const t = (teamsRes.data ?? []).find((x: { id: string; name: string }) => x.id === id);
+        return t ? t.name : "?";
+      };
+      const fieldRow = (id: string | null) => (fieldsRes.data ?? []).find((f: { id: string }) => f.id === id);
+      const oppName = (g: { away_team_id: string | null; ext_team_id: string | null }) => {
+        if (g.ext_team_id) {
+          const x = (extTeamsRes.data ?? []).find((e: { id: string }) => e.id === g.ext_team_id);
+          return x ? `${x.team_name} (${x.league_name})` : "Interlock opponent";
+        }
+        return teamName(g.away_team_id) ?? "?";
+      };
+
+      type Block = {
+        id: string; kind: "game" | "practice"; field_id: string;
+        start: string; end: string; start_min: number; end_min: number;
+        active: boolean; conflict: boolean;
+        status?: string; division?: string | null; home?: string | null; away?: string | null; notes?: string | null;
+        team?: string | null; day_key?: string;
+      };
+
+      const games: Block[] = (gamesRes.data ?? [])
+        .filter((g: { field_id: string | null; season_id: string }) => g.field_id && !archivedSeasons.has(g.season_id))
+        .map((g: {
+          id: string; field_id: string; division: string | null; status: string;
+          start_time: string; end_time: string; home_team_id: string; away_team_id: string | null;
+          ext_team_id: string | null; notes: string | null;
+        }) => ({
+          id: g.id, kind: "game", field_id: g.field_id,
+          start: String(g.start_time).slice(0, 5), end: String(g.end_time).slice(0, 5),
+          start_min: tMin(g.start_time), end_min: tMin(g.end_time),
+          active: g.status === "scheduled" || g.status === "completed",
+          conflict: false,
+          status: g.status, division: g.division, home: teamName(g.home_team_id), away: oppName(g), notes: g.notes,
+        }));
+
+      const practices: Block[] = (slotsRes.data ?? [])
+        .filter((s: { season_id: string; cancelled_at: string | null; single_date: string | null; skip_dates: string[] | null }) =>
+          !archivedSeasons.has(s.season_id) && !s.cancelled_at &&
+          (s.single_date ? s.single_date === date : !(Array.isArray(s.skip_dates) && s.skip_dates.includes(date))))
+        .map((s: { id: string; field_id: string; day_key: string; team_id: string | null; label: string | null; note: string | null }) => {
+          const [startMin, endMin] = slotWindow(s.day_key, fieldRow(s.field_id)?.default_start ?? null);
+          return {
+            id: s.id, kind: "practice", field_id: s.field_id, day_key: s.day_key,
+            start: minToHHMM(startMin), end: minToHHMM(endMin), start_min: startMin, end_min: endMin,
+            active: true, conflict: false,
+            team: s.team_id ? teamName(s.team_id) : (s.label || "Practice"), notes: s.note,
+          };
+        });
+
+      const blocks = [...games, ...practices];
+      let conflictPairs = 0;
+      for (let i = 0; i < blocks.length; i++) {
+        for (let j = i + 1; j < blocks.length; j++) {
+          const a = blocks[i], b = blocks[j];
+          if (!a.active || !b.active || a.field_id !== b.field_id) continue;
+          if (a.start_min < b.end_min && b.start_min < a.end_min) {
+            a.conflict = true; b.conflict = true; conflictPairs++;
+          }
+        }
+      }
+
+      const fieldsOut = (fieldsRes.data ?? []).map((f: { id: string; name: string; sort: number; default_start: string | null; notes: string | null }) => ({
+        id: f.id, name: f.name, sort: f.sort, default_start: f.default_start, notes: f.notes,
+      }));
+      const usedFieldIds = new Set(blocks.filter((b) => b.active).map((b) => b.field_id));
+
+      return json({
+        ok: true, date, day_of_week: dow,
+        fields: fieldsOut,
+        blocks,
+        summary: {
+          games: games.filter((g) => g.active).length,
+          practices: practices.length,
+          conflicts: conflictPairs,
+          empty_fields: fieldsOut.filter((f) => !usedFieldIds.has(f.id)).length,
+        },
       });
     }
 
