@@ -168,6 +168,32 @@
   .gweek { grid-column: 1 / -1; font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grass); border-bottom: 2px solid var(--line); padding: 10px 2px 4px; }
   .gfinal { display: inline-block; margin-top: 7px; font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--pine); background: #dcefe2; border-radius: 12px; padding: 2px 11px; }
 
+  /* ---------- BOARD VIEW (phone-first daily agenda, grouped by day) ---------- */
+  .bfilters { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 2px 14px; }
+  .bday { margin-bottom: 18px; }
+  .bday:last-child { margin-bottom: 0; }
+  .bdate { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pine); padding: 4px 2px 8px; border-bottom: 2px solid var(--line); margin-bottom: 8px; }
+  .bdate .btoday { color: var(--clay-dark); }
+  .brows { display: flex; flex-direction: column; gap: 7px; }
+  .brow { background: var(--white); border: 1px solid var(--line); border-left: 5px solid var(--muted); border-radius: 10px; box-shadow: var(--shadow); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; min-height: 44px; }
+  .brow.practice { border-left-color: var(--grass); }
+  .brow.game { border-left-color: #a3132b; }
+  .brow.dim { opacity: 0.6; }
+  .brow.mine { outline: 2px solid var(--clay); }
+  .brow .btime { font-family: var(--disp); font-weight: 700; font-size: 13.5px; letter-spacing: 0.03em; color: var(--muted); flex: 0 0 68px; white-space: nowrap; }
+  .brow.game .btime { color: #a3132b; }
+  .brow .bmain { flex: 1; min-width: 0; }
+  .brow .btitle { font-weight: 700; font-size: 15px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .brow.game .btitle { font-family: var(--disp); text-transform: uppercase; letter-spacing: 0.02em; }
+  .brow .btitle .gstatus { margin: 0 0 0 8px; vertical-align: 1px; }
+  .brow .bfield { font-size: 12.5px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bmore-wrap { text-align: center; margin-top: 10px; }
+  .bempty { text-align: center; color: var(--muted); font-size: 14px; padding: 30px 10px; }
+  /* Board rows aren't color-coded by division, so the legend is dead weight
+     above a glance board — hide it only in this view. */
+  body.view-board .legend { display: none; }
+  @media (min-width: 900px) { #viewBoard { max-width: 760px; margin: 0 auto; } }
+
   /* ---------- STANDINGS (divisions the league turns on) ---------- */
   .standings { background: var(--white); border: 1px solid var(--line); border-top: 4px solid var(--grass); border-radius: 12px; box-shadow: var(--shadow); padding: 12px 15px; margin-bottom: 10px; }
   .standings h4 { font-family: var(--disp); font-weight: 700; font-size: 16px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--grass); margin-bottom: 6px; }
@@ -405,7 +431,7 @@
      chrome so the Hub owns the whole page. Signed-in coaches land here first. */
   body.view-hub #myTeam, body.view-hub #announceBox,
   body.view-hub #mtPrompt, body.view-hub .bar, body.view-hub .legend,
-  body.view-hub #viewGrid, body.view-hub #viewDays, body.view-hub #viewSched, body.view-hub #viewTeams { display: none !important; }
+  body.view-hub #viewGrid, body.view-hub #viewDays, body.view-hub #viewSched, body.view-hub #viewTeams, body.view-hub #viewBoard { display: none !important; }
   body.view-hub #viewHub { display: block !important; }
 
   .hidden { display: none !important; }
@@ -440,9 +466,9 @@
     body:not([data-mtab="fields"]):not([data-mtab="sched"]) .bar { display: none; }
     body[data-mtab="sched"] .views { display: none; }
     .vbtn[data-view="sched"] { display: none; }
-    body[data-mtab="myteam"] #viewGrid, body[data-mtab="myteam"] #viewDays, body[data-mtab="myteam"] #viewTeams, body[data-mtab="myteam"] #viewSched, body[data-mtab="myteam"] #viewHub,
-    body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched, body[data-mtab="alerts"] #viewHub,
-    body[data-mtab="hub"] #viewGrid, body[data-mtab="hub"] #viewDays, body[data-mtab="hub"] #viewTeams, body[data-mtab="hub"] #viewSched { display: none !important; }
+    body[data-mtab="myteam"] #viewGrid, body[data-mtab="myteam"] #viewDays, body[data-mtab="myteam"] #viewTeams, body[data-mtab="myteam"] #viewSched, body[data-mtab="myteam"] #viewHub, body[data-mtab="myteam"] #viewBoard,
+    body[data-mtab="alerts"] #viewGrid, body[data-mtab="alerts"] #viewDays, body[data-mtab="alerts"] #viewTeams, body[data-mtab="alerts"] #viewSched, body[data-mtab="alerts"] #viewHub, body[data-mtab="alerts"] #viewBoard,
+    body[data-mtab="hub"] #viewGrid, body[data-mtab="hub"] #viewDays, body[data-mtab="hub"] #viewTeams, body[data-mtab="hub"] #viewSched, body[data-mtab="hub"] #viewBoard { display: none !important; }
     body:not([data-mtab="hub"]) #viewHub { display: none !important; }
     body[data-mtab="hub"] #myTeam, body[data-mtab="hub"] #mtPrompt, body[data-mtab="hub"] #announceBox, body[data-mtab="hub"] .bar, body[data-mtab="hub"] .legend { display: none !important; }
     /* Phone tab bar covers nav; skip the desktop primary pills to avoid dupes */
@@ -491,6 +517,7 @@
     <div class="bar">
       <div class="tabs" id="seasonTabs"></div>
       <div class="views">
+        <button class="vbtn" data-view="board">Board</button>
         <button class="vbtn" data-view="days">By day</button>
         <button class="vbtn" data-view="grid">Full grid</button>
         <button class="vbtn" data-view="sched">Schedule</button>
@@ -502,6 +529,10 @@
     <div class="legend" id="legend"></div>
 
     <div id="loading" class="loading">Loading the fields&hellip;</div>
+    <div id="viewBoard" class="hidden">
+      <div class="bfilters" id="boardFilters"></div>
+      <div id="boardList"></div>
+    </div>
     <div id="viewGrid" class="hidden"><div class="grid-scroll"><table class="grid" id="gridTable"></table></div></div>
     <div id="viewDays" class="hidden">
       <div class="daypick" id="dayPick"></div>
@@ -582,7 +613,7 @@ if (_bootTeam.charAt(0) === "{") {
 // stored before the change so every device starts on the grid.
 if (!lsGet("flm_v2grid")) { lsSet("flm_v2grid", "1"); if (lsGet("flm_view") === "days") lsDel("flm_view"); if (lsGet("flm_last_sched_view") === "days") lsDel("flm_last_sched_view"); }
 var _bootView = lsGet("flm_view");
-if (["grid", "days", "teams", "sched", "hub"].indexOf(_bootView) < 0) _bootView = null;
+if (["grid", "days", "teams", "sched", "hub", "board"].indexOf(_bootView) < 0) _bootView = null;
 var _bootTab = lsGet("flm_mtab");
 if (["myteam", "sched", "fields", "alerts", "hub"].indexOf(_bootTab) < 0) _bootTab = null;
 /* Signed-in coaches land on the Hub if they haven't explicitly picked a view.
@@ -591,7 +622,7 @@ var _bootSignedIn = !!(lsGet("flm_coach_id") && lsGet("flm_coach_pin"));
 /* Coach/league tool only for now (9/01): anyone not signed in lands straight
    on the Coaches Hub sign-in, whatever this device had stored. */
 if (!_bootSignedIn) { _bootView = null; _bootTab = null; }
-var S = { data: null, season: null, view: _bootView || "hub", day: "mon", myTeam: _bootTeam, mtab: _bootTab };
+var S = { data: null, season: null, view: _bootView || "hub", day: "mon", myTeam: _bootTeam, mtab: _bootTab, boardExpanded: false };
 var welcomed = false;
 
 /* Coaches Hub credentials (per-coach email + PIN). Separate from the anonymous
@@ -622,7 +653,10 @@ function effView() {
     if (ct === "hub") return "hub";
     if (ct === "sched") return "sched";
     if (S.view === "sched") return "days";
-    if (S.view === "hub") return "grid"; // signed-in coaches carry view=hub; the Fields tab must still show the grid
+    // signed-in coaches carry view=hub; the Fields tab must show something.
+    // Phones default to the Board agenda (the "out of control" grid is a poor
+    // fit for a phone screen); an explicit vbtn pick always wins from here on.
+    if (S.view === "hub") return "board";
   }
   return S.view;
 }
@@ -731,6 +765,32 @@ function gamesFor(dayK, fieldId) {
   return (S.data.games || []).filter(function (g) {
     return g.field_id === fieldId && g.status !== "draft" && g.game_date >= today && FLM_RULES.gameDayKeys(g).indexOf(dayK) >= 0;
   });
+}
+
+/* ---------- Board view helpers ----------
+   slotsFor/dateForDayThisWeek only resolve "this week" (a recurring-template
+   assumption baked in everywhere else). The Board agenda looks ahead multiple
+   weeks, so these generalize the same cancelled_at/single_date/skip_dates
+   rules to an ARBITRARY calendar date. */
+function ymd(d) {
+  function p(n) { return (n < 10 ? "0" : "") + n; }
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+var BOARD_SAT_START = { sat_9_11: "09:00", sat_11_1: "11:00", sat_1_3: "13:00", sat_3_5: "15:00" };
+var DOW_DAYKEYS = { 1: ["mon"], 2: ["tue"], 3: ["wed"], 4: ["thu"], 5: ["fri"], 6: ["sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"] };
+function slotsOnDate(dateStr, dayK, fieldId) {
+  return (S.data.slots || []).filter(function (s) {
+    if (s.season_id !== S.season || s.day_key !== dayK || s.field_id !== fieldId) return false;
+    if (s.cancelled_at) return false;
+    if (s.held && !s.team_id) return false; // pending admin holds aren't a real event yet
+    if (s.single_date) return s.single_date === dateStr;
+    if (Array.isArray(s.skip_dates) && s.skip_dates.indexOf(dateStr) >= 0) return false;
+    return true;
+  });
+}
+function boardFilter() {
+  var f = lsGet("flm_board_filter");
+  return ["all", "games", "practices", "myteam"].indexOf(f) >= 0 ? f : "all";
 }
 
 function load() {
@@ -1002,9 +1062,10 @@ function bindCells(root) {
 }
 
 function renderView() {
-  ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
+  ["viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub", "viewBoard"].forEach(function (id) { document.getElementById(id).classList.add("hidden"); });
   var v = effView();
   document.body.classList.toggle("view-hub", v === "hub");
+  document.body.classList.toggle("view-board", v === "board");
   document.querySelectorAll(".vbtn").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-view") === v); });
   updatePrimeNav();
   if (v === "hub") { renderHub(); return; }  /* hub gate/state doesn't need S.data */
@@ -1012,6 +1073,7 @@ function renderView() {
   if (v === "grid") renderGrid();
   else if (v === "days") renderDays();
   else if (v === "sched") renderSched();
+  else if (v === "board") renderBoard();
   else renderTeams();
 }
 
@@ -1106,6 +1168,125 @@ function renderDays() {
   });
   list.innerHTML = html;
   bindCells(el);
+}
+
+/* ---------- Board view: vertical agenda grouped by day, TODAY pinned first.
+   Glance-only (no claim affordance) — tap a row to open the same detail
+   modal the grid/day views use. Games always show (own dated field);
+   practices resolve off the day-of-week template for each calendar date. */
+function boardMyTeamId() { return (CRED_C && CRED_C.team_id) || S.myTeam; }
+
+function boardPracticeRow(s, dayK, f) {
+  var t = teamById(s.team_id);
+  var timeStr = dayK.indexOf("sat_") === 0 ? BOARD_SAT_START[dayK] : (f.default_start === "18:00" ? "18:00" : "17:00");
+  var myTeamId = boardMyTeamId();
+  return {
+    type: "practice",
+    minutes: FLM_RULES.toMinutes(timeStr),
+    time: FLM_RULES.fmtTime(timeStr),
+    title: t ? t.name : (s.label || "Practice"),
+    field: f.name,
+    mine: !!(myTeamId && s.team_id === myTeamId),
+    dim: false,
+    status: "",
+    slotId: s.id
+  };
+}
+function boardGameRow(g) {
+  var h = teamById(g.home_team_id), opp = gameOpp(g);
+  var myTeamId = boardMyTeamId();
+  return {
+    type: "game",
+    minutes: FLM_RULES.toMinutes(g.start_time),
+    time: FLM_RULES.fmtTime(g.start_time),
+    title: (h ? h.name : "?") + " vs " + opp.name,
+    field: gameVenue(g),
+    mine: !!(myTeamId && (g.home_team_id === myTeamId || g.away_team_id === myTeamId)),
+    dim: g.status === "cancelled" || g.status === "postponed",
+    status: g.status !== "scheduled" ? g.status : "",
+    gameId: g.id
+  };
+}
+function boardRowHtml(r) {
+  var badge = r.status ? '<span class="gstatus ' + esc(r.status) + '">' + esc(r.status) + "</span>" : "";
+  return '<div class="brow ' + r.type + (r.dim ? " dim" : "") + (r.mine ? " mine" : "") + '"' +
+    (r.slotId ? ' data-slot="' + r.slotId + '"' : "") + (r.gameId ? ' data-game="' + r.gameId + '"' : "") + ">" +
+    '<div class="btime">' + esc(r.time) + '</div><div class="bmain"><div class="btitle">' + esc(r.title) + badge +
+    '</div><div class="bfield">' + esc(r.field) + "</div></div></div>";
+}
+function bindBoardRows(root) {
+  root.querySelectorAll(".brow[data-slot]").forEach(function (el) {
+    el.addEventListener("click", function () { openSlotModal(el.getAttribute("data-slot")); });
+  });
+  root.querySelectorAll(".brow[data-game]").forEach(function (el) {
+    el.addEventListener("click", function () { openGameModal(el.getAttribute("data-game")); });
+  });
+}
+function renderBoard() {
+  var el = document.getElementById("viewBoard");
+  el.classList.remove("hidden");
+  var filt = boardFilter();
+  var labels = { all: "All", games: "Games", practices: "Practices", myteam: "My team" };
+  var fbox = document.getElementById("boardFilters");
+  fbox.innerHTML = Object.keys(labels).map(function (k) {
+    return '<button class="schip' + (filt === k ? " on" : "") + '" data-bf="' + k + '">' + labels[k] + "</button>";
+  }).join("");
+  fbox.querySelectorAll("[data-bf]").forEach(function (b) {
+    b.addEventListener("click", function () { lsSet("flm_board_filter", b.getAttribute("data-bf")); renderBoard(); });
+  });
+
+  var list = document.getElementById("boardList");
+  var myTeamId = boardMyTeamId();
+  if (filt === "myteam" && !myTeamId) {
+    list.innerHTML = '<div class="bempty">Follow a team to see just their games and practices.<br /><br />' +
+      '<button class="calbtn" id="boardFollowBtn">Follow a team</button></div>';
+    var fb = document.getElementById("boardFollowBtn");
+    if (fb) fb.addEventListener("click", function () { pickTeamModal(); });
+    return;
+  }
+
+  var fields = (S.data.fields || []).filter(function (f) { return f.is_active; });
+  var satAllowed = activeDays().some(function (d) { return d.sat; });
+  var span = S.boardExpanded ? 90 : 14;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var html = "";
+  var any = false;
+  for (var i = 0; i < span; i++) {
+    var d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
+    var ds = ymd(d);
+    var rows = [];
+    (S.data.games || []).forEach(function (g) {
+      if (g.game_date === ds && g.status !== "draft") rows.push(boardGameRow(g));
+    });
+    var keys = DOW_DAYKEYS[d.getDay()] || [];
+    keys.forEach(function (k) {
+      if (k.indexOf("sat_") === 0 && !satAllowed) return;
+      fields.forEach(function (f) {
+        slotsOnDate(ds, k, f.id).forEach(function (s) { rows.push(boardPracticeRow(s, k, f)); });
+      });
+    });
+    if (filt === "games") rows = rows.filter(function (r) { return r.type === "game"; });
+    else if (filt === "practices") rows = rows.filter(function (r) { return r.type === "practice"; });
+    else if (filt === "myteam") rows = rows.filter(function (r) { return r.mine; });
+    if (!rows.length) continue;
+    rows.sort(function (a, b) { return a.minutes - b.minutes; });
+    any = true;
+    var prefix = i === 0 ? "Today &middot; " : (i === 1 ? "Tomorrow &middot; " : "");
+    var wd = d.toLocaleDateString([], { weekday: "short" });
+    var md = d.toLocaleDateString([], { month: "short", day: "numeric" });
+    html += '<div class="bday"><div class="bdate">' + (prefix ? '<span class="btoday">' + prefix + "</span>" : "") +
+      esc(wd + " " + md) + '</div><div class="brows">' + rows.map(boardRowHtml).join("") + "</div></div>";
+  }
+  if (!any) {
+    html = '<div class="bempty">Nothing on the board right now.</div>';
+  } else if (!S.boardExpanded) {
+    html += '<div class="bmore-wrap"><button class="calbtn ghost" id="boardMoreBtn">Show the rest of the season</button></div>';
+  }
+  list.innerHTML = html;
+  bindBoardRows(list);
+  var more = document.getElementById("boardMoreBtn");
+  if (more) more.addEventListener("click", function () { S.boardExpanded = true; renderBoard(); });
 }
 
 function renderSched() {
@@ -2696,7 +2877,7 @@ document.querySelectorAll("[data-primenav]").forEach(function (b) {
       /* Field Schedule pill restores the last non-hub view they used, or a
          sensible default. Their pick is remembered per device via flm_view. */
       var last = lsGet("flm_last_sched_view");
-      if (["grid", "days", "sched", "teams"].indexOf(last) < 0) last = null;
+      if (["grid", "days", "sched", "teams", "board"].indexOf(last) < 0) last = null;
       S.view = last || "grid";
     }
     lsSet("flm_view", S.view);

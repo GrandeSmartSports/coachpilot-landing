@@ -537,6 +537,56 @@ for (const line of ['My team', 'My division', 'All divisions']) {
   else fail('chip copy has a dash: ' + line);
 }
 
+// ------- 2e. Board view: phone-first agenda grouped by day -------
+section('fields/index.html: Board view hooks');
+for (const [s, why] of [
+  ['data-view="board"', 'Board view-switcher button exists'],
+  ['id="viewBoard"', 'Board view container exists'],
+  ['id="boardFilters"', 'Board filter-chip row exists'],
+  ['id="boardList"', 'Board agenda list container exists'],
+  ['function slotsOnDate', 'generalized (any-calendar-date) slot resolver exists, distinct from the this-week-only slotsFor'],
+  ['function boardMyTeamId', 'My team filter resolves signed-in coach team OR followed team'],
+  ['function boardPracticeRow', 'practice row builder exists'],
+  ['function boardGameRow', 'game row builder exists'],
+  ['function bindBoardRows', 'row tap-through wired separately from bindCells'],
+  ['function renderBoard', 'board renderer exists'],
+  ['lsGet("flm_board_filter")', 'last filter choice is read back from storage'],
+  ['lsSet("flm_board_filter"', 'filter choice is remembered'],
+  ['Show the rest of the season', 'later affordance to reveal the rest of the season'],
+  ['S.boardExpanded = true', 'later affordance actually expands the window'],
+  ['Nothing on the board right now.', 'empty-state copy when nothing is scheduled'],
+  ['Follow a team to see just their games and practices.', 'My team filter prompts an unidentified visitor to follow a team'],
+  ['if (s.held && !s.team_id) return false;', 'pending admin holds excluded from the glance board (not a real event yet)'],
+  ['body.view-board .legend { display: none; }', 'division-color legend hidden on Board (rows are not color-coded by division)'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+// Board is listed first among the view buttons -- it is the primary glance view.
+if (indexHtml.indexOf('data-view="board"') >= 0 && indexHtml.indexOf('data-view="board"') < indexHtml.indexOf('data-view="days"')) {
+  ok('Board button ordered first among view buttons');
+} else fail('Board button is not first among view buttons');
+// Board must be a recognized view everywhere views are validated, or a stale/legacy
+// stored choice would silently fall back and strand a coach who picked Board.
+for (const [s, why] of [
+  ['["grid", "days", "teams", "sched", "hub", "board"]', 'boot-time stored view validation accepts "board"'],
+  ['["grid", "days", "sched", "teams", "board"]', 'Field Schedule pill "last view" restore accepts "board"'],
+  ['"viewGrid", "viewDays", "viewTeams", "viewSched", "viewHub", "viewBoard"', 'renderView hide-list includes the Board container'],
+]) {
+  if (indexHtml.includes(s)) ok(why);
+  else fail('MISSING (' + why + '): ' + s);
+}
+// Phones default to Board (not the grid) when a coach has never picked a view;
+// desktop's default is untouched (still falls through to S.view, i.e. "grid" via primenav).
+if (indexHtml.includes('if (S.view === "hub") return "board";')) ok('phone Fields-tab default is Board, not the grid');
+else fail('phone Fields-tab default was not changed to Board');
+if (indexHtml.includes('S.view = last || "grid";')) ok('desktop Field Schedule pill default is unchanged (grid)');
+else fail('desktop default view changed unexpectedly');
+for (const line of ['Show the rest of the season', 'Nothing on the board right now.', 'Follow a team to see just their games and practices.']) {
+  if (indexHtml.includes(line) && !/[—–]/.test(line)) ok('Board copy present and dash-free: ' + line);
+  else fail('Board copy missing or dashed: ' + line);
+}
+
 // ------- 3. Admin hooks -------
 section('fields/admin.html: required hooks');
 const adminHtml = fs.readFileSync(path.join(ROOT, 'fields', 'admin.html'), 'utf8');
