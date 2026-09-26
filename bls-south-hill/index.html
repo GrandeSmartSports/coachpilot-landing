@@ -1,0 +1,428 @@
+<title>BLS × South Hill Remaining</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #f7f4ee;
+  --card: #ffffff;
+  --card-alt: #fbf9f4;
+  --ink: #1a1f2e;
+  --ink-2: #4a5568;
+  --ink-dim: #7a8394;
+  --line: #e6e0d3;
+  --line-soft: #f0eadb;
+  --accent-bls: #c8102e;
+  --accent-sh: #1e3a8a;
+  --accent-sb: #b45309;
+  --sun: #fbf3d4;
+  --sun-ink: #7c4a03;
+  color-scheme: light;
+  --shadow-sm: 0 1px 2px rgba(20,20,30,0.04), 0 0 0 1px rgba(20,20,30,0.02);
+  --shadow-md: 0 4px 14px rgba(20,20,30,0.05), 0 1px 3px rgba(20,20,30,0.04);
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14181f;
+    --card: #1c222c;
+    --card-alt: #191e27;
+    --ink: #eef2f8;
+    --ink-2: #b5bdcc;
+    --ink-dim: #7d8699;
+    --line: #2b323e;
+    --line-soft: #232933;
+    --accent-bls: #ff5a72;
+    --accent-sh: #7aa7ff;
+    --accent-sb: #f0b96b;
+    --sun: rgba(240,185,107,0.14);
+    --sun-ink: #f0b96b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14181f;
+  --card: #1c222c;
+  --card-alt: #191e27;
+  --ink: #eef2f8;
+  --ink-2: #b5bdcc;
+  --ink-dim: #7d8699;
+  --line: #2b323e;
+  --line-soft: #232933;
+  --accent-bls: #ff5a72;
+  --accent-sh: #7aa7ff;
+  --accent-sb: #f0b96b;
+  --sun: rgba(240,185,107,0.14);
+  --sun-ink: #f0b96b;
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 22px 10px;
+}
+@media (max-width: 480px) { .wrap { padding: 16px 16px 20px; } }
+
+.header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-bls);
+  margin: 0 0 10px;
+}
+h1 {
+  font-family: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1.08;
+  margin: 0 0 10px;
+  color: var(--ink);
+  text-wrap: balance;
+  letter-spacing: -0.005em;
+}
+@media (max-width: 480px) { h1 { font-size: 26px; } }
+.meta {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  margin: 0;
+}
+.meta strong { color: var(--ink); font-weight: 600; }
+.meta a { color: var(--accent-bls); text-decoration: underline; text-underline-offset: 2px; }
+
+.callout {
+  background: var(--sun);
+  color: var(--sun-ink);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 20px 0 28px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  border: 1px solid rgba(180,120,20,0.18);
+}
+.callout strong { color: var(--sun-ink); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 0 0 10px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: 78px 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+@media (max-width: 480px) {
+  .card { grid-template-columns: 1fr; gap: 12px; padding: 12px 14px; }
+}
+.card.today {
+  background: var(--card-alt);
+}
+.date-block {
+  border-right: 1px solid var(--line-soft);
+  padding-right: 16px;
+}
+@media (max-width: 480px) {
+  .date-block { border-right: 0; border-bottom: 1px solid var(--line-soft); padding: 0 0 12px 0; display: flex; align-items: baseline; gap: 12px; }
+}
+.date-day {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 2px;
+}
+.date-num {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--ink);
+  margin: 0 0 3px;
+}
+@media (max-width: 480px) { .date-num { margin: 0; } }
+.date-time {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+}
+.matchup {
+  min-width: 0;
+}
+.matchup-line {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink-2);
+  margin: 0 0 4px;
+  word-wrap: break-word;
+}
+.team {
+  font-weight: 600;
+  color: var(--ink);
+}
+.team.bls { color: var(--accent-bls); font-weight: 700; }
+.team.sh { color: var(--accent-sh); font-weight: 600; }
+.at { color: var(--ink-dim); font-weight: 500; margin: 0 4px; }
+.field-line {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.field-line .dot { color: var(--ink-dim); }
+.host-badge {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(200,16,46,0.08);
+  color: var(--accent-bls);
+  margin-left: 6px;
+}
+.host-badge.away {
+  background: rgba(30,58,138,0.08);
+  color: var(--accent-sh);
+}
+:root:not([data-theme="light"]) .host-badge { background: rgba(255,90,114,0.14); }
+:root:not([data-theme="light"]) .host-badge.away { background: rgba(122,167,255,0.14); }
+:root[data-theme="dark"] .host-badge { background: rgba(255,90,114,0.14); }
+:root[data-theme="dark"] .host-badge.away { background: rgba(122,167,255,0.14); }
+
+.div-chip {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-self: start;
+}
+.div-chip.bb { background: rgba(30,58,138,0.08); color: var(--accent-sh); }
+.div-chip.sb { background: rgba(180,83,9,0.10); color: var(--accent-sb); }
+:root:not([data-theme="light"]) .div-chip.bb { background: rgba(122,167,255,0.14); }
+:root:not([data-theme="light"]) .div-chip.sb { background: rgba(240,185,107,0.14); }
+:root[data-theme="dark"] .div-chip.bb { background: rgba(122,167,255,0.14); }
+:root[data-theme="dark"] .div-chip.sb { background: rgba(240,185,107,0.14); }
+
+.today-flag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--accent-bls);
+  margin-right: 8px;
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 6px 0 6px;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+.stat {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 14px;
+}
+.stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 4px;
+}
+.stat-value {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 20px;
+  color: var(--ink);
+  line-height: 1.05;
+  margin: 0;
+}
+.stat-value small { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--ink-dim); font-weight: 500; margin-left: 4px; }
+
+.status-note {
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  font-style: italic;
+  margin: 6px 0 0;
+  font-weight: 500;
+}
+.foot {
+  margin-top: 6px;
+  padding-top: 7px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+.foot a { color: var(--ink-2); }
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <p class="eyebrow">Bonney Lake × South Hill · Fall 2026</p>
+    <h1>Remaining games this fall</h1>
+    <p class="meta">
+      Reference sheet for South Hill LL leadership. Source: <strong>2026 D10 Fall Master Schedule</strong>, maintained by scheduler@fwnll.org. Pulled Sat, Sep 26 2026.
+      Compiled by <strong>Daniel Grande</strong>, Bonney Lake–Sumner LL.
+    </p>
+  </div>
+
+  <div class="summary">
+    <div class="stat">
+      <p class="stat-label">Games Remaining</p>
+      <p class="stat-value">6 <small>total</small></p>
+    </div>
+    <div class="stat">
+      <p class="stat-label">Divisions</p>
+      <p class="stat-value">2 <small>BB Majors · SB Majors</small></p>
+    </div>
+  </div>
+
+  <p class="section-title">The Six Games</p>
+
+  <div class="card today">
+    <div class="date-block">
+      <p class="date-day">Sat · Today</p>
+      <p class="date-num">Sep 26</p>
+      <p class="date-time">12:00 PM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="today-flag">TODAY</span><br>
+        <span class="team bls">BLS Majors SB Orta</span>
+        <span class="at">vs</span>
+        <span class="team sh">South Hill-1 SB-MAJ</span>
+      </p>
+      <p class="field-line">Maple Lawn Elem West <span class="dot">·</span> Sumner<span class="host-badge">BLS host</span></p>
+      <p class="status-note">Not played today — awaiting reschedule discussion.</p>
+    </div>
+    <span class="div-chip sb">SB Majors</span>
+  </div>
+
+  <div class="card today">
+    <div class="date-block">
+      <p class="date-day">Sat · Today</p>
+      <p class="date-num">Sep 26</p>
+      <p class="date-time">2:30 PM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="team bls">BLS Majors BB Conant</span>
+        <span class="at">vs</span>
+        <span class="team sh">SH-4 BB REDS-Maj</span>
+      </p>
+      <p class="field-line">Mt View Middle <span class="dot">·</span> Bonney Lake<span class="host-badge">BLS host</span></p>
+    </div>
+    <span class="div-chip bb">BB Majors</span>
+  </div>
+
+  <div class="card">
+    <div class="date-block">
+      <p class="date-day">Sat</p>
+      <p class="date-num">Oct 3</p>
+      <p class="date-time">10:00 AM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="team sh">SH-1 BB-Maj</span>
+        <span class="at">vs</span>
+        <span class="team bls">BLS Majors BB Guertin</span>
+      </p>
+      <p class="field-line">Brouillet Elementary (Playground Field) <span class="dot">·</span> Puyallup<span class="host-badge away">SH host</span></p>
+    </div>
+    <span class="div-chip bb">BB Majors</span>
+  </div>
+
+  <div class="card">
+    <div class="date-block">
+      <p class="date-day">Sat</p>
+      <p class="date-num">Oct 10</p>
+      <p class="date-time">9:00 AM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="team bls">BLS Majors BB Harguess</span>
+        <span class="at">vs</span>
+        <span class="team sh">SH-3 BB-Maj</span>
+      </p>
+      <p class="field-line">Mt View Middle <span class="dot">·</span> Bonney Lake<span class="host-badge">BLS host</span></p>
+    </div>
+    <span class="div-chip bb">BB Majors</span>
+  </div>
+
+  <div class="card">
+    <div class="date-block">
+      <p class="date-day">Sat</p>
+      <p class="date-num">Oct 17</p>
+      <p class="date-time">12:00 PM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="team sh">SH-2 BB-Maj</span>
+        <span class="at">vs</span>
+        <span class="team bls">BLS Majors BB Conant</span>
+      </p>
+      <p class="field-line">Brouillet Elementary (Playground Field) <span class="dot">·</span> Puyallup<span class="host-badge away">SH host</span></p>
+    </div>
+    <span class="div-chip bb">BB Majors</span>
+  </div>
+
+  <div class="card">
+    <div class="date-block">
+      <p class="date-day">Sat</p>
+      <p class="date-num">Oct 31</p>
+      <p class="date-time">9:00 AM</p>
+    </div>
+    <div class="matchup">
+      <p class="matchup-line">
+        <span class="team sh">SH-3 BB-Maj</span>
+        <span class="at">vs</span>
+        <span class="team bls">BLS Majors BB Gilbertsen</span>
+      </p>
+      <p class="field-line">Brouillet Elementary (Playground Field) <span class="dot">·</span> Puyallup<span class="host-badge away">SH host</span></p>
+    </div>
+    <span class="div-chip bb">BB Majors</span>
+  </div>
+
+  <div class="foot">
+    Times, fields and matchups mirror the D10 Fall Master Schedule as of Sep 26 2026. Any change would route through the District 10 rep.
+  </div>
+</div>
