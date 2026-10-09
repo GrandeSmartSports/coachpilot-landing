@@ -87,7 +87,7 @@ try {
   if (await count(asst.client, 'cp_guardians') === 0) ok('cannot see guardian contact rows'); else fail('assistant sees guardians');
   { const { data } = await asst.client.from('cp_players').update({ jersey: '8' }).eq('id', P1.id).select(); if (!data || data.length === 0) ok('cannot edit roster'); else fail('assistant edited roster'); }
   if (await count(asst.client, 'cp_player_private', null, 'player_id') === 0) ok('cannot see player private rows'); else fail('assistant sees player_private');
-  { const n = await count(asst.client, 'cp_people'); if (n === 1) ok('sees only self in people'); else fail('assistant sees other people (count=' + n + ')'); }
+  { const { data } = await asst.client.from('cp_people').select('email'); const emails = (data || []).map(r => r.email); if (emails.length === 2 && !emails.includes('parent@zz-cp-test.invalid')) ok('sees staff rows (self + head coach) but not guardian contact'); else fail('assistant cp_people visibility wrong: ' + JSON.stringify(emails)); }
 
   section('guardian');
   if (await count(parent.client, 'cp_players') === 1) ok('sees only own kid'); else fail('guardian sees wrong number of kids');
