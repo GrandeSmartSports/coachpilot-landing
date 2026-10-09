@@ -20,6 +20,13 @@
     {
       "source": "/fields/ics/:path*",
       "destination": "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-ics/:path*"
-    }
+    },
+    { "source": "/signin", "destination": "/cp/signin.html" },
+    { "source": "/me", "destination": "/cp/me.html" },
+    { "source": "/join/:token", "destination": "/cp/join.html" },
+    { "source": "/l/:league/admin/settings", "destination": "/cp/settings.html" },
+    { "source": "/l/:league/t/:team", "destination": "/cp/team.html" },
+    { "source": "/l/:league", "destination": "/cp/league.html" },
+    { "source": "/t/:team", "destination": "/cp/team.html" }
   ]
 }

@@ -42,5 +42,12 @@ for (const f of files) {
   if (m) fail(`${path.relative(ROOT, f)} contains U+${m[0].codePointAt(0).toString(16).toUpperCase()}`); else ok(`${path.relative(ROOT, f)} clean`);
 }
 
+section('vercel.json: spine rewrites present, existing entries untouched');
+const vj = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
+const srcs = vj.rewrites.map(r => r.source);
+for (const s of ['/signin','/me','/join/:token','/l/:league/admin/settings','/l/:league/t/:team','/l/:league','/t/:team']) (srcs.includes(s) ? ok : fail)('rewrite ' + s);
+(vj.rewrites[0].source === '/fields/ics/:path*' ? ok : fail)('fields ics rewrite still first');
+(vj.redirects.length === 3 ? ok : fail)('redirects unchanged (3)');
+
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);
