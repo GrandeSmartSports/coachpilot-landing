@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>League | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><a href="/me" style="color:inherit;text-decoration:none">Home</a><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>League</span><span class="spacer"></span><a id="settingsLink" href="#" hidden style="color:inherit">Settings</a></div>
+<main class="cp-wrap">
+  <h1 id="h">League</h1>
+  <div id="teams" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div id="msg" class="cp-msg bad" hidden></div>
+</main>
+<script>
+(function(){
+  var r = CP.route();
+  CP.requireSession().then(function(s){ if (!s) return;
+    return CP.loadLeague(r.league).then(function(lg){
+      if (!lg) { document.getElementById('msg').textContent = 'You do not have access to this league.'; document.getElementById('msg').hidden = false; return; }
+      var box = CP.paint(lg.settings);
+      document.getElementById('h').textContent = box.display_name;
+      return Promise.all([CP.hats(), CP.client().from('cp_teams').select('id,slug,name,sport,season_label,settings').eq('league_id', lg.id).eq('is_active', true).order('name')]).then(function(rs){
+        var isAdmin = rs[0].some(function(h){ return h.role === 'league_admin' && h.league_id === lg.id && h.status === 'active'; }) || rs[0].some(function(h){ return h.role === 'platform_admin' && h.status === 'active'; });
+        if (isAdmin) { var a = document.getElementById('settingsLink'); a.hidden = false; a.href = '/l/' + lg.slug + '/admin/settings'; }
+        var wrap = document.getElementById('teams');
+        (rs[1].data || []).forEach(function(t){
+          var tb = CP.mergeBox(lg.settings, t.settings);
+          var a = document.createElement('a'); a.className = 'cp-card tap'; a.style.textDecoration = 'none'; a.style.color = 'inherit'; a.style.borderLeft = '6px solid ' + tb.colors.primary;
+          a.href = '/l/' + lg.slug + '/t/' + t.slug; a.innerHTML = '<h2></h2><div style="color:var(--cp-muted)"></div>';
+          a.querySelector('h2').textContent = t.name; a.querySelector('div').textContent = t.sport + ' | ' + t.season_label; wrap.appendChild(a);
+        });
+        if (!(rs[1].data || []).length) { var d = document.createElement('div'); d.className = 'cp-card'; d.textContent = 'No teams visible to you in this league yet.'; wrap.appendChild(d); }
+      });
+    });
+  });
+})();
+</script>
+</body></html>

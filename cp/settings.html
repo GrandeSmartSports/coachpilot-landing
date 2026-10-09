@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Settings | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><a id="back" href="/me" style="color:inherit;text-decoration:none">Back</a><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>Settings</span></div>
+<main class="cp-wrap">
+  <h1>League settings</h1>
+  <form id="f" class="cp-card">
+    <label>Display name<input id="display_name" required></label>
+    <label>Short name<input id="short_name"></label>
+    <label>Logo URL<input id="logo_url" placeholder="https://..."></label>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><label style="flex:1">Primary color<input id="c_primary" type="color"></label><label style="flex:1">Accent color<input id="c_accent" type="color"></label><label style="flex:1">Text on primary<input id="c_on" type="color"></label></div>
+    <label>Contact email<input id="contact_email" type="email"></label>
+    <label>Support email<input id="support_email" type="email"></label>
+    <fieldset style="border:1px solid var(--cp-line);border-radius:8px"><legend>Features</legend>
+      <label style="flex-direction:row;align-items:center;gap:8px;font-weight:400"><input id="f_public_schedule" type="checkbox">Public schedule</label>
+      <label style="flex-direction:row;align-items:center;gap:8px;font-weight:400"><input id="f_public_standings" type="checkbox">Public standings</label>
+      <label style="flex-direction:row;align-items:center;gap:8px;font-weight:400"><input id="f_team_hubs" type="checkbox">Team hubs</label>
+    </fieldset>
+    <div id="preview" style="padding:12px;border-radius:8px;background:var(--cp-primary);color:var(--cp-on-primary)">Preview: this is how your header looks.</div>
+    <button class="cp-btn" type="submit">Save</button>
+  </form>
+  <div id="msg" class="cp-msg" hidden></div>
+</main>
+<script>
+(function(){
+  var r = CP.route(); var lg;
+  var msg = document.getElementById('msg'); function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
+  var $ = function(id){ return document.getElementById(id); };
+  function fill(box){ $('display_name').value = box.display_name; $('short_name').value = box.short_name; $('logo_url').value = box.logo_url; $('c_primary').value = box.colors.primary; $('c_accent').value = box.colors.accent; $('c_on').value = box.colors.on_primary; $('contact_email').value = box.contact_email; $('support_email').value = box.support_email; $('f_public_schedule').checked = !!box.features.public_schedule; $('f_public_standings').checked = !!box.features.public_standings; $('f_team_hubs').checked = !!box.features.team_hubs; }
+  function read(){ var cur = lg.settings && typeof lg.settings === 'object' ? lg.settings : {}; return Object.assign({}, cur, { schema_version: 1, display_name: $('display_name').value.trim(), short_name: $('short_name').value.trim(), logo_url: $('logo_url').value.trim() || CP.DEFAULTS.logo_url, colors: { primary: $('c_primary').value, accent: $('c_accent').value, on_primary: $('c_on').value }, contact_email: $('contact_email').value.trim(), support_email: $('support_email').value.trim(), features: { public_schedule: $('f_public_schedule').checked, public_standings: $('f_public_standings').checked, team_hubs: $('f_team_hubs').checked } }); }
+  CP.requireSession().then(function(s){ if (!s) return; return CP.loadLeague(r.league).then(function(l){ if (!l) { say('You do not have access to this league.', true); return; } lg = l; $('back').href = '/l/' + l.slug; var box = CP.paint(l.settings); fill(box); }); });
+  ['c_primary','c_accent','c_on'].forEach(function(id){ $(id).addEventListener('input', function(){ CP.paint(read()); }); });
+  $('f').addEventListener('submit', function(e){ e.preventDefault(); var box = read(); CP.client().from('cp_leagues').update({ settings: box }).eq('id', lg.id).select().then(function(x){ if (x.error || !x.data || !x.data.length) { say('Could not save. You may not be an admin of this league.', true); return; } lg = x.data[0]; CP.paint(box); say('Saved.'); }); });
+})();
+</script>
+</body></html>

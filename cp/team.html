@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Team | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><a href="/me" style="color:inherit;text-decoration:none">Home</a><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>Team</span></div>
+<main class="cp-wrap">
+  <h1 id="h">Team</h1>
+  <div id="pending" class="cp-card" hidden><h2>Waiting on you</h2><div id="pendingList"></div></div>
+  <section class="cp-card"><h2>Roster</h2><div id="roster"></div>
+    <form id="addPlayer" data-role-gate="head_coach" hidden style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+      <input id="pFirst" placeholder="First name" required style="flex:1;min-width:120px"><input id="pLast" placeholder="Last name" style="flex:1;min-width:120px"><input id="pBirth" type="date" title="Birthdate" style="flex:1;min-width:150px"><button class="cp-btn" type="submit">Add player</button>
+    </form>
+  </section>
+  <section class="cp-card" id="staffCard" data-role-gate="head_coach" hidden><h2>Staff</h2><div id="staff"></div>
+    <form id="addAsst" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><input id="aEmail" type="email" placeholder="Assistant coach email" required style="flex:1;min-width:200px"><button class="cp-btn" type="submit">Invite assistant</button></form>
+  </section>
+  <div id="msg" class="cp-msg" hidden></div>
+</main>
+<script>
+(function(){
+  var r = CP.route(); var team, box, myRoles = [];
+  var msg = document.getElementById('msg');
+  function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
+  function can(role){ return myRoles.indexOf(role) >= 0 || myRoles.indexOf('league_admin') >= 0 || myRoles.indexOf('platform_admin') >= 0; }
+  function pill(inv){ var p = document.createElement('span'); p.className = 'cp-pill'; if (!inv) { p.textContent = 'not sent'; return p; } if (inv.accepted_at) { p.className += ' accepted'; p.textContent = 'accepted'; } else if (inv.locked_at) { p.className += ' locked'; p.textContent = 'locked'; } else if (inv.sent_at) { p.className += ' sent'; p.textContent = 'sent'; } else p.textContent = 'not sent'; return p; }
+  function load(){
+    return Promise.all([
+      CP.client().from('cp_players').select('id,first_name,last_name,jersey').eq('team_id', team.id).eq('is_active', true).order('last_name'),
+      CP.client().from('cp_invites').select('id,email,role,player_id,sent_at,accepted_at,locked_at').eq('team_id', team.id),
+      CP.client().from('cp_guardians').select('id,player_id,status,is_primary,cp_people(name,email)'),
+      CP.client().from('cp_memberships').select('id,role,status,cp_people(name,email)').eq('team_id', team.id)
+    ]).then(function(rs){
+      var players = rs[0].data || [], invites = rs[1].data || [], guardians = rs[2].data || [], members = rs[3].data || [];
+      var wrap = document.getElementById('roster'); wrap.innerHTML = '';
+      players.forEach(function(p){
+        var row = document.createElement('div'); row.className = 'cp-row';
+        var g = document.createElement('div'); g.className = 'grow'; g.textContent = p.first_name + ' ' + p.last_name + (p.jersey ? ' #' + p.jersey : ''); row.appendChild(g);
+        if (can('head_coach')) {
+          var gs = guardians.filter(function(x){ return x.player_id === p.id; }); var inv = invites.filter(function(x){ return x.player_id === p.id; }).sort(function(a,b){ return a.accepted_at ? -1 : 1; })[0];
+          var who = document.createElement('span'); who.style.color = 'var(--cp-muted)'; who.style.fontSize = '13px'; who.textContent = gs.length ? gs.map(function(x){ return x.cp_people ? x.cp_people.name : ''; }).join(', ') : 'no guardian yet'; row.appendChild(who);
+          row.appendChild(pill(inv));
+          var b = document.createElement('button'); b.className = 'cp-btn ghost'; b.type = 'button';
+          if (!inv) { b.textContent = 'Invite parent'; b.onclick = function(){ var e = prompt('Parent email for ' + p.first_name + ':'); if (!e) return; CP.gateway('invite_create', { email: e, role: 'guardian', team_id: team.id, player_id: p.id }).then(function(x){ if (x.status !== 200) { say(x.body.error || 'Could not create invite', true); return; } return CP.gateway('invite_send', { invite_id: x.body.invite.id }); }).then(function(x){ if (x) say(x.body.suppressed ? 'Invite saved. Email sending is off, so nothing was sent.' : 'Invite sent.'); load(); }); }; }
+          else if (!inv.accepted_at) { b.textContent = 'Resend'; b.onclick = function(){ CP.gateway('invite_resend', { invite_id: inv.id }).then(function(x){ say(x.body.suppressed ? 'Email sending is off, so nothing was sent.' : (x.body.ok ? 'Sent.' : (x.body.error || 'Failed')), !x.body.ok); load(); }); }; }
+          else b.hidden = true;
+          row.appendChild(b);
+        }
+        wrap.appendChild(row);
+      });
+      if (!players.length) { var d = document.createElement('div'); d.className = 'cp-row'; d.textContent = 'No players yet.'; wrap.appendChild(d); }
+      var pend = guardians.filter(function(x){ return x.status === 'pending'; });
+      if (pend.length && can('head_coach')) { document.getElementById('pending').hidden = false; var pl = document.getElementById('pendingList'); pl.innerHTML = '';
+        pend.forEach(function(x){ var p = players.find(function(q){ return q.id === x.player_id; }); var row = document.createElement('div'); row.className = 'cp-row'; var g = document.createElement('div'); g.className = 'grow'; g.textContent = (x.cp_people ? x.cp_people.name : 'Someone') + ' wants to be a guardian of ' + (p ? p.first_name : 'a player'); row.appendChild(g); var b = document.createElement('button'); b.className = 'cp-btn'; b.type = 'button'; b.textContent = 'Approve'; b.onclick = function(){ CP.gateway('guardian_approve', { guardian_id: x.id }).then(function(){ load(); }); }; row.appendChild(b); pl.appendChild(row); }); }
+      var st = document.getElementById('staff'); st.innerHTML = '';
+      members.filter(function(m){ return m.role === 'head_coach' || m.role === 'assistant_coach'; }).forEach(function(m){ var row = document.createElement('div'); row.className = 'cp-row'; row.textContent = (m.cp_people ? m.cp_people.name : '') + ' (' + m.role.replace('_',' ') + ', ' + m.status + ')'; st.appendChild(row); });
+      invites.filter(function(i){ return i.role === 'assistant_coach' && !i.accepted_at; }).forEach(function(i){ var row = document.createElement('div'); row.className = 'cp-row'; var g = document.createElement('div'); g.className = 'grow'; g.textContent = i.email + ' (assistant invite)'; row.appendChild(g); row.appendChild(pill(i)); st.appendChild(row); });
+    });
+  }
+  CP.requireSession().then(function(s){ if (!s) return;
+    return CP.loadTeam(r.league, r.team).then(function(t){
+      if (!t) { say('You do not have access to this team.', true); return; }
+      team = t; box = CP.paint(CP.mergeBox(t.cp_leagues ? t.cp_leagues.settings : null, t.settings));
+      document.getElementById('h').textContent = t.name;
+      return CP.hats().then(function(hats){
+        myRoles = hats.filter(function(h){ return h.status === 'active' && (h.team_id === t.id || (t.league_id && h.league_id === t.league_id) || h.role === 'platform_admin'); }).map(function(h){ return h.role; });
+        document.querySelectorAll('[data-role-gate]').forEach(function(el){ el.hidden = !can(el.getAttribute('data-role-gate')); });
+        return load();
+      });
+    });
+  });
+  document.getElementById('addPlayer').addEventListener('submit', function(e){
+    e.preventDefault();
+    var birth = document.getElementById('pBirth').value || null;
+    CP.client().from('cp_players').insert({ team_id: team.id, season_label: team.season_label, first_name: document.getElementById('pFirst').value.trim(), last_name: document.getElementById('pLast').value.trim() }).select().single().then(function(x){
+      if (x.error) { say(x.error.message, true); return; }
+      e.target.reset();
+      if (!birth) { load(); return; }
+      CP.client().from('cp_player_private').upsert({ player_id: x.data.id, birthdate: birth }).then(function(y){
+        if (y.error) say(y.error.message, true);
+        load();
+      });
+    });
+  });
+  document.getElementById('addAsst').addEventListener('submit', function(e){ e.preventDefault(); var em = document.getElementById('aEmail').value.trim(); CP.gateway('invite_create', { email: em, role: 'assistant_coach', team_id: team.id }).then(function(x){ if (x.status !== 200) { say(x.body.error || 'Could not invite', true); return; } return CP.gateway('invite_send', { invite_id: x.body.invite.id }).then(function(y){ say(y.body.suppressed ? 'Invite saved. Email sending is off, so nothing was sent.' : 'Invite sent.'); e.target.reset(); load(); }); }); });
+})();
+</script>
+</body></html>

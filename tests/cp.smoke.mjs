@@ -54,6 +54,9 @@ function has(file, needles) { const t = fs.readFileSync(path.join(ROOT, 'cp', fi
 has('signin.html', ['signInWithOtp', 'shouldCreateUser: false', 'verifyOtp', 'id="email"', 'id="code"', 'cp-core.js']);
 has('me.html', ['cp_my_hats', 'requireSession', 'data-cp-name', 'cp-tabs', 'No teams yet']);
 has('join.html', ['invite_lookup', 'invite_accept', 'id="birthdate"', 'needs_birthdate', 'cp_join_email', '410']);
+has('league.html', ['loadLeague', 'CP.paint', 'cp_teams', '/admin/settings']);
+has('team.html', ['loadTeam', 'cp_players', 'cp_invites', 'invite_create', 'invite_send', 'invite_resend', 'guardian_approve', 'not sent', 'data-role-gate']);
+has('settings.html', ['schema_version', 'display_name', 'colors', 'contact_email', 'features', 'cp_leagues']);
 
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);
