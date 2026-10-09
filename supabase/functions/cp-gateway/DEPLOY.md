@@ -11,4 +11,7 @@
 ## Deploy
 supabase functions deploy cp-auth-email --project-ref geigvuysptjvvqanumld --no-verify-jwt
 
-(The cp-gateway deploy section is added by Task 4.)
+## cp-gateway deploy
+supabase functions deploy cp-gateway --project-ref geigvuysptjvvqanumld --no-verify-jwt
+Secrets: RESEND_API_KEY already exists as a project-wide edge secret (confirmed via `supabase secrets list --project-ref geigvuysptjvvqanumld` on 2026-10-09); no `secrets set` needed.
+Why --no-verify-jwt: invite_lookup and invite_accept run before the person has an account. Every other action calls auth.getUser(token) and rejects 401 without a valid session.
