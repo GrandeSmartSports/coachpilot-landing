@@ -29,5 +29,15 @@ console.log('\nsigned, dry-run recipient');
   const j = await r.json().catch(() => null);
   if (r.status === 200 && j && j.dry_run === true && j.subject === 'Your CoachPilot sign-in code' && j.html.includes('123456')) ok('accepted, subject + code rendered, not sent'); else fail('got ' + r.status + ' ' + JSON.stringify(j)); }
 
+console.log('\nstale timestamp (now minus 600s), correctly signed');
+{ const staleTs = String(Math.floor(Date.now() / 1000) - 600);
+  const r = await fetch(FN, { method: 'POST', headers: { 'content-type': 'application/json', 'webhook-id': id, 'webhook-timestamp': staleTs, 'webhook-signature': sign(body, SECRET, id, staleTs) }, body });
+  if (r.status === 401) ok('rejected 401'); else fail('expected 401 got ' + r.status); }
+
+console.log('\nnon-numeric timestamp, correctly signed for that string');
+{ const badTs = 'abc';
+  const r = await fetch(FN, { method: 'POST', headers: { 'content-type': 'application/json', 'webhook-id': id, 'webhook-timestamp': badTs, 'webhook-signature': sign(body, SECRET, id, badTs) }, body });
+  if (r.status === 401) ok('rejected 401'); else fail('expected 401 got ' + r.status); }
+
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);

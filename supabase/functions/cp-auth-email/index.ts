@@ -7,14 +7,27 @@ const SECRET_B64 = (Deno.env.get("AUTH_EMAIL_HOOK_SECRET") || "").replace(/^v1,w
 const FROM = "CoachPilot <noreply@coachpilot.org>";
 
 function b64ToBytes(b64: string): Uint8Array { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); }
-function bytesToB64(bytes: ArrayBuffer): string { return btoa(String.fromCharCode(...new Uint8Array(bytes))); }
+function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  return diff === 0;
+}
 async function verify(req: Request, raw: string): Promise<boolean> {
   const id = req.headers.get("webhook-id") || ""; const ts = req.headers.get("webhook-timestamp") || ""; const sigs = req.headers.get("webhook-signature") || "";
   if (!id || !ts || !sigs || !SECRET_B64) return false;
-  if (Math.abs(Date.now() / 1000 - Number(ts)) > 300) return false;
+  const numTs = Number(ts);
+  if (!Number.isFinite(numTs)) return false;
+  if (Math.abs(Date.now() / 1000 - numTs) > 300) return false;
   const key = await crypto.subtle.importKey("raw", b64ToBytes(SECRET_B64), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const expected = bytesToB64(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${id}.${ts}.${raw}`)));
-  return sigs.split(" ").some(s => s.split(",")[1] === expected);
+  const expectedBytes = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${id}.${ts}.${raw}`)));
+  return sigs.split(" ").some(s => {
+    const part = s.split(",")[1];
+    if (!part) return false;
+    let candidateBytes: Uint8Array;
+    try { candidateBytes = b64ToBytes(part); } catch { return false; }
+    return timingSafeEqual(candidateBytes, expectedBytes);
+  });
 }
 function render(type: string, token: string, link: string): { subject: string; html: string } {
   const code = `<p style="font-size:28px;font-weight:bold;letter-spacing:4px;margin:12px 0">${token}</p>`;
