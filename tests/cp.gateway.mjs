@@ -153,6 +153,11 @@ try {
     const { data: u } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
     const matches = u.users.filter(x => x.email === 'existing@zz-cp-test.invalid');
     if (matches.length === 1) ok('exactly one auth user for the existing@ email'); else fail('duplicate auth users ' + matches.length); }
+
+  section('expired invite');
+  const { data: EXP } = await admin.from('cp_invites').insert({ email: 'expired@zz-cp-test.invalid', role: 'assistant_coach', team_id: T1.id, invited_by: coach.personId, expires_at: new Date(Date.now() - 1000).toISOString() }).select().single();
+  { const r = await call('invite_lookup', { token: EXP.token }); if (r.status === 410) ok('expired invite_lookup 410'); else fail('expired lookup ' + r.status); }
+  { const r = await call('invite_accept', { token: EXP.token, name: 'Expired Person' }); if (r.status === 410) ok('expired invite_accept 410'); else fail('expired accept ' + r.status); }
 } catch (e) { fail('exception: ' + (e.message || e)); }
 finally {
   // cp_teams.league_id is ON DELETE RESTRICT, so teams must go before their league.

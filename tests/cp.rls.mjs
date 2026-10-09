@@ -81,6 +81,9 @@ try {
   { const { error } = await coach.client.from('cp_players').update({ jersey: '7' }).eq('id', P1.id); if (!error) ok('can edit own roster'); else fail('coach cannot edit roster: ' + error.message); }
   { const { data } = await coach.client.from('cp_players').update({ jersey: '9' }).eq('id', P2.id).select(); if (!data || data.length === 0) ok('cannot edit other team roster'); else fail('coach edited other team'); }
   if (await count(coach.client, 'cp_player_private', q => q.eq('player_id', P1.id), 'player_id') === 1) ok('sees own player private (birthdate) row'); else fail('coach cannot see player_private row');
+  { const { data, error } = await coach.client.from('cp_people').update({ email: 'coach2@zz-cp-test.invalid' }).eq('id', coach.personId).select();
+    const { data: after } = await admin.from('cp_people').select('email').eq('id', coach.personId).single();
+    if ((error || !data || data.length === 0) && after.email === 'coach@zz-cp-test.invalid') ok('cannot change own email once account is linked'); else fail('coach changed own email: ' + JSON.stringify(data) + ' / ' + JSON.stringify(after)); }
 
   section('assistant coach');
   if (await count(asst.client, 'cp_players', q => q.eq('team_id', T1.id)) === 1) ok('sees roster'); else fail('assistant cannot see roster');
@@ -106,6 +109,9 @@ try {
   if (await count(stranger.client, 'cp_leagues', q => q.eq('id', L1.id)) === 0) ok('cannot see test league'); else fail('stranger leaked league');
   if (await count(stranger.client, 'cp_invites') === 0) ok('cannot see invites'); else fail('stranger sees invites');
   if (await count(stranger.client, 'cp_player_private', q => q.eq('player_id', P1.id), 'player_id') === 0) ok('cannot see test team player private data'); else fail('stranger leaked player_private');
+  { const { data } = await stranger.client.from('cp_settings').select('key');
+    const keys = (data || []).map(r => r.key);
+    if (keys.length === 3 && !keys.includes('mirror_report')) ok('stranger sees only the 3 kill-switch settings, not mirror_report'); else fail('stranger cp_settings visibility wrong: ' + JSON.stringify(keys)); }
 
   section('anonymous');
   const anon = createClient(URL_, ANON, { auth: { persistSession: false } });

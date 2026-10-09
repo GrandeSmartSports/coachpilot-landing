@@ -31,10 +31,15 @@
     return Promise.all([
       CP.client().from('cp_players').select('id,first_name,last_name,jersey').eq('team_id', team.id).eq('is_active', true).order('last_name'),
       CP.client().from('cp_invites').select('id,email,role,player_id,sent_at,accepted_at,locked_at').eq('team_id', team.id),
-      CP.client().from('cp_guardians').select('id,player_id,status,is_primary,cp_people(name,email)'),
       CP.client().from('cp_memberships').select('id,role,status,cp_people(name,email)').eq('team_id', team.id)
     ]).then(function(rs){
-      var players = rs[0].data || [], invites = rs[1].data || [], guardians = rs[2].data || [], members = rs[3].data || [];
+      var players = rs[0].data || [], invites = rs[1].data || [], members = rs[2].data || [];
+      var playerIds = players.map(function(p){ return p.id; });
+      var guardiansP = playerIds.length
+        ? CP.client().from('cp_guardians').select('id,player_id,status,is_primary,cp_people(name,email)').in('player_id', playerIds)
+        : Promise.resolve({ data: [] });
+      return guardiansP.then(function(gr){
+      var guardians = gr.data || [];
       var wrap = document.getElementById('roster'); wrap.innerHTML = '';
       players.forEach(function(p){
         var row = document.createElement('div'); row.className = 'cp-row';
@@ -58,6 +63,7 @@
       var st = document.getElementById('staff'); st.innerHTML = '';
       members.filter(function(m){ return m.role === 'head_coach' || m.role === 'assistant_coach'; }).forEach(function(m){ var row = document.createElement('div'); row.className = 'cp-row'; row.textContent = (m.cp_people ? m.cp_people.name : '') + ' (' + m.role.replace('_',' ') + ', ' + m.status + ')'; st.appendChild(row); });
       invites.filter(function(i){ return i.role === 'assistant_coach' && !i.accepted_at; }).forEach(function(i){ var row = document.createElement('div'); row.className = 'cp-row'; var g = document.createElement('div'); g.className = 'grow'; g.textContent = i.email + ' (assistant invite)'; row.appendChild(g); row.appendChild(pill(i)); st.appendChild(row); });
+      });
     });
   }
   CP.requireSession().then(function(s){ if (!s) return;

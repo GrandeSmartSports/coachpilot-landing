@@ -46,7 +46,7 @@ async function audit(actor: string | null, action: string, table: string | null,
   await db.from("cp_audit").insert({ actor_person_id: actor, action, subject_table: table, subject_id: id, meta });
 }
 async function flag(key: string): Promise<boolean> { const { data } = await db.from("cp_settings").select("value").eq("key", key).maybeSingle(); return data?.value === true; }
-const mask = (e: string) => { const [u, d] = e.split("@"); return (u.slice(0, 1) + "***") + "@" + d; };
+const mask = (e: string) => { const [u, d] = e.split("@"); return (u.length <= 1 ? "***" : u.slice(0, 1) + "***") + "@" + d; };
 
 // Select-then-insert, not ON CONFLICT upsert: the backstop unique indexes are partial
 // (e.g. "where team_id is not null"), and Postgres's ON CONFLICT column-list inference only
@@ -184,7 +184,7 @@ Deno.serve(async (req) => {
     }
     if (!allowed) return json({ error: "You cannot send that invite" }, 403);
     const { data: inv, error } = await db.from("cp_invites").insert({ email, role, league_id: leagueId, team_id: teamId, player_id: playerId, invited_by: me.personId }).select("id,token,email,role,expires_at").single();
-    if (error) return json({ error: error.message }, 400);
+    if (error) { console.error("invite_create insert failed:", error.message); return json({ error: "Could not create invite" }, 400); }
     await audit(me.personId, "invite_created", "cp_invites", inv.id, { role, email });
     return json({ ok: true, invite: inv });
   }
