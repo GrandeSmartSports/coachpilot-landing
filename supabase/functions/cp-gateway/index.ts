@@ -48,6 +48,19 @@ async function audit(actor: string | null, action: string, table: string | null,
 async function flag(key: string): Promise<boolean> { const { data } = await db.from("cp_settings").select("value").eq("key", key).maybeSingle(); return data?.value === true; }
 const mask = (e: string) => { const [u, d] = e.split("@"); return (u.slice(0, 1) + "***") + "@" + d; };
 
+// Select-then-insert, not ON CONFLICT upsert: the backstop unique indexes are partial
+// (e.g. "where team_id is not null"), and Postgres's ON CONFLICT column-list inference only
+// matches non-partial indexes unless the predicate is restated in the conflict clause, which
+// PostgREST's upsert(onConflict:) has no way to pass. A 23505 on the insert here means someone
+// else's concurrent request just created the same row; treat that as success, not an error.
+async function ensureMembership(fields: Record<string, unknown>, match: Record<string, string>): Promise<string | null> {
+  const { count } = await db.from("cp_memberships").select("id", { count: "exact", head: true }).match(match);
+  if ((count ?? 0) > 0) return null;
+  const { error } = await db.from("cp_memberships").insert(fields);
+  if (error && error.code !== "23505") return error.message;
+  return null;
+}
+
 async function sendInviteEmail(inv: { id: string; email: string; token: string; role: string }, actor: string): Promise<{ sent: boolean; suppressed: boolean }> {
   if (!(await flag("email_enabled"))) { await audit(actor, "email_suppressed", "cp_invites", inv.id, { to: inv.email }); return { sent: false, suppressed: true }; }
   const link = `${SITE}/join/${inv.token}`;
@@ -93,21 +106,59 @@ Deno.serve(async (req) => {
     const name = String(body.name || "").trim();
     const { data: person } = await db.from("cp_people").upsert({ email: inv.email, name: name || inv.email.split("@")[0] }, { onConflict: "email", ignoreDuplicates: false }).select().single();
     if (name && person.name !== name) await db.from("cp_people").update({ name }).eq("id", person.id);
-    if (!person.auth_user_id) {
-      const { data: created, error } = await db.auth.admin.createUser({ email: inv.email, email_confirm: true });
-      if (error && !/already/i.test(error.message)) return json({ error: "Could not create your account. Try again in a minute." }, 500);
-      if (created?.user) await db.from("cp_people").update({ auth_user_id: created.user.id }).eq("id", person.id);
+    let authUserId: string | null = person.auth_user_id;
+    if (!authUserId) {
+      const { data: existingId } = await db.rpc("cp_auth_user_id_by_email", { p_email: inv.email });
+      if (existingId) {
+        authUserId = existingId as string;
+        await db.from("cp_people").update({ auth_user_id: authUserId }).eq("id", person.id);
+      } else {
+        const { data: created, error } = await db.auth.admin.createUser({ email: inv.email, email_confirm: true });
+        if (created?.user) {
+          authUserId = created.user.id;
+          await db.from("cp_people").update({ auth_user_id: authUserId }).eq("id", person.id);
+        } else if (error && /already/i.test(error.message)) {
+          const { data: retryId } = await db.rpc("cp_auth_user_id_by_email", { p_email: inv.email });
+          if (retryId) { authUserId = retryId as string; await db.from("cp_people").update({ auth_user_id: authUserId }).eq("id", person.id); }
+        } else if (error) {
+          return json({ error: "Could not create your account. Try again in a minute." }, 500);
+        }
+      }
+      if (!authUserId) return json({ error: "Could not link your account. Contact support." }, 500);
     }
+    // accepted first: a crash past this point leaves the invite dead, not reusable.
+    await db.from("cp_invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
     // memberships / guardian rows
     if (inv.role === "guardian") {
       const { count } = await db.from("cp_guardians").select("id", { count: "exact", head: true }).eq("player_id", inv.player_id).eq("status", "approved");
       const first = (count ?? 0) === 0;
-      await db.from("cp_guardians").upsert({ player_id: inv.player_id, person_id: person.id, is_primary: first, status: first ? "approved" : "pending", approved_by: first ? inv.invited_by : null }, { onConflict: "player_id,person_id" });
-      await db.from("cp_memberships").upsert({ person_id: person.id, team_id: inv.team_id, role: "guardian", status: "active", season_label: null, invited_by: inv.invited_by, activated_at: new Date().toISOString() }, { onConflict: "id" });
+      const row = { player_id: inv.player_id, person_id: person.id, is_primary: first, status: first ? "approved" : "pending", approved_by: first ? inv.invited_by : null };
+      const { error: gErr } = await db.from("cp_guardians").insert(row);
+      if (gErr && gErr.code === "23505") {
+        const msg = (gErr.message || "") + (gErr.details || "");
+        if (/player_id.*person_id/i.test(msg)) {
+          // this person already holds a guardian row for this kid (re-accept case): upsert as before.
+          await db.from("cp_guardians").upsert(row, { onConflict: "player_id,person_id" });
+        } else {
+          // lost the race to be primary: fall back to a pending co-guardian row.
+          await db.from("cp_guardians").insert({ player_id: inv.player_id, person_id: person.id, is_primary: false, status: "pending", approved_by: null });
+        }
+      } else if (gErr) {
+        return json({ error: "Could not record guardian. Try again." }, 500);
+      }
+      const mErr = await ensureMembership(
+        { person_id: person.id, team_id: inv.team_id, role: "guardian", status: "active", season_label: null, invited_by: inv.invited_by, activated_at: new Date().toISOString() },
+        { person_id: person.id, team_id: inv.team_id, role: "guardian" }
+      );
+      if (mErr) return json({ error: "Could not record membership. Try again." }, 500);
     } else {
-      await db.from("cp_memberships").insert({ person_id: person.id, team_id: inv.team_id, league_id: inv.league_id, role: inv.role, status: "active", invited_by: inv.invited_by, activated_at: new Date().toISOString() });
+      const match = inv.league_id ? { person_id: person.id, league_id: inv.league_id, role: inv.role } : { person_id: person.id, team_id: inv.team_id, role: inv.role };
+      const mErr = await ensureMembership(
+        { person_id: person.id, team_id: inv.team_id, league_id: inv.league_id, role: inv.role, status: "active", invited_by: inv.invited_by, activated_at: new Date().toISOString() },
+        match
+      );
+      if (mErr) return json({ error: "Could not record membership. Try again." }, 500);
     }
-    await db.from("cp_invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
     await audit(person.id, "invite_accepted", "cp_invites", inv.id, { role: inv.role });
     return json({ ok: true, email: inv.email });
   }
@@ -119,8 +170,9 @@ Deno.serve(async (req) => {
   if (action === "invite_create") {
     const role = String(body.role || "");
     const teamId = body.team_id ? String(body.team_id) : null;
-    const leagueId = body.league_id ? String(body.league_id) : null;
+    let leagueId = body.league_id ? String(body.league_id) : null;
     const playerId = body.player_id ? String(body.player_id) : null;
+    if (role === "head_coach" || role === "assistant_coach" || role === "guardian") leagueId = null;
     const email = String(body.email || "").trim().toLowerCase();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "Enter a valid email" }, 400);
     let allowed = false;
