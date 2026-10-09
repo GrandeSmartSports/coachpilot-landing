@@ -135,8 +135,9 @@ try {
   await admin.from('cp_invites').update({ accepted_at: null }).eq('id', INV2.id);
   { const r = await call('invite_accept', { token: INV2.token, name: 'Parent Two', birthdate: '2017-05-05' });
     if (r.status === 200 && r.body.ok) ok('re-accept after simulated crash succeeds'); else fail('re-accept ' + r.status + JSON.stringify(r.body));
-    const { data: g } = await admin.from('cp_guardians').select('id').eq('player_id', P1.id).eq('person_id', parentTwo.personId);
+    const { data: g } = await admin.from('cp_guardians').select('id,is_primary,status').eq('player_id', P1.id).eq('person_id', parentTwo.personId);
     if (g && g.length === 1) ok('still exactly one cp_guardians row after re-accept'); else fail('guardian rows after re-accept ' + JSON.stringify(g));
+    if (g && g.length === 1 && g[0].is_primary === true && g[0].status === 'approved') ok('guardian row still primary + approved after re-accept'); else fail('guardian row demoted after re-accept ' + JSON.stringify(g));
     const { data: m } = await admin.from('cp_memberships').select('id').eq('team_id', T1.id).eq('role', 'guardian').eq('person_id', parentTwo.personId);
     if (m && m.length === 1) ok('still exactly one guardian membership row after re-accept'); else fail('membership rows after re-accept ' + JSON.stringify(m)); }
 

@@ -130,21 +130,19 @@ Deno.serve(async (req) => {
     await db.from("cp_invites").update({ accepted_at: new Date().toISOString() }).eq("id", inv.id);
     // memberships / guardian rows
     if (inv.role === "guardian") {
-      const { count } = await db.from("cp_guardians").select("id", { count: "exact", head: true }).eq("player_id", inv.player_id).eq("status", "approved");
-      const first = (count ?? 0) === 0;
-      const row = { player_id: inv.player_id, person_id: person.id, is_primary: first, status: first ? "approved" : "pending", approved_by: first ? inv.invited_by : null };
-      const { error: gErr } = await db.from("cp_guardians").insert(row);
-      if (gErr && gErr.code === "23505") {
-        const msg = (gErr.message || "") + (gErr.details || "");
-        if (/player_id.*person_id/i.test(msg)) {
-          // this person already holds a guardian row for this kid (re-accept case): upsert as before.
-          await db.from("cp_guardians").upsert(row, { onConflict: "player_id,person_id" });
-        } else {
-          // lost the race to be primary: fall back to a pending co-guardian row.
+      // re-accept case: this person already holds a guardian row for this kid. Leave its is_primary/status untouched.
+      const { data: existingGuardian } = await db.from("cp_guardians").select("id").eq("player_id", inv.player_id).eq("person_id", person.id).maybeSingle();
+      if (!existingGuardian) {
+        const { count } = await db.from("cp_guardians").select("id", { count: "exact", head: true }).eq("player_id", inv.player_id).eq("status", "approved").neq("person_id", person.id);
+        const first = (count ?? 0) === 0;
+        const row = { player_id: inv.player_id, person_id: person.id, is_primary: first, status: first ? "approved" : "pending", approved_by: first ? inv.invited_by : null };
+        const { error: gErr } = await db.from("cp_guardians").insert(row);
+        if (gErr && gErr.code === "23505") {
+          // lost the race to be primary (two different people accepted at once): fall back to a pending co-guardian row.
           await db.from("cp_guardians").insert({ player_id: inv.player_id, person_id: person.id, is_primary: false, status: "pending", approved_by: null });
+        } else if (gErr) {
+          return json({ error: "Could not record guardian. Try again." }, 500);
         }
-      } else if (gErr) {
-        return json({ error: "Could not record guardian. Try again." }, 500);
       }
       const mErr = await ensureMembership(
         { person_id: person.id, team_id: inv.team_id, role: "guardian", status: "active", season_label: null, invited_by: inv.invited_by, activated_at: new Date().toISOString() },
