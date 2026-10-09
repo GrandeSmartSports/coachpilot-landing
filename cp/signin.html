@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sign in | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>CoachPilot</span></div>
+<main class="cp-wrap">
+  <h1>Sign in</h1>
+  <form id="stepEmail">
+    <label>Email<input id="email" type="email" autocomplete="email" required placeholder="you@example.com"></label>
+    <p style="color:var(--cp-muted);margin:8px 0 14px">We will email you a 6-digit code. No password.</p>
+    <button class="cp-btn" type="submit" id="sendBtn">Send code</button>
+  </form>
+  <form id="stepCode" hidden>
+    <p>Enter the code we sent to <b id="sentTo"></b>.</p>
+    <label>Code<input id="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label>
+    <div style="display:flex;gap:10px;margin-top:14px"><button class="cp-btn" type="submit">Sign in</button><button class="cp-btn ghost" type="button" id="againBtn">Send again</button></div>
+  </form>
+  <div id="msg" class="cp-msg" hidden></div>
+</main>
+<script>
+(function(){
+  CP.paint(null);
+  var sb = CP.client();
+  var params = new URLSearchParams(location.search);
+  var next = params.get('next') || '/me';
+  if (!/^\/[A-Za-z0-9\/_-]*$/.test(next)) next = '/me';
+  var email = '';
+  var msg = document.getElementById('msg');
+  function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
+  CP.session().then(function(s){ if (s) location.href = next; });
+  function send(){
+    return sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false } }).then(function(r){
+      if (r.error) { say(r.error.message.indexOf('Signups not allowed') >= 0 ? 'We do not have an account for that email yet. Ask your coach or league for an invite.' : r.error.message, true); return false; }
+      document.getElementById('sentTo').textContent = email;
+      document.getElementById('stepEmail').hidden = true; document.getElementById('stepCode').hidden = false;
+      document.getElementById('code').focus(); say('Code sent. Check your email.');
+      return true;
+    });
+  }
+  document.getElementById('stepEmail').addEventListener('submit', function(e){ e.preventDefault(); email = document.getElementById('email').value.trim().toLowerCase(); document.getElementById('sendBtn').disabled = true; send().finally(function(){ document.getElementById('sendBtn').disabled = false; }); });
+  document.getElementById('againBtn').addEventListener('click', function(){ send(); });
+  document.getElementById('stepCode').addEventListener('submit', function(e){
+    e.preventDefault();
+    var code = document.getElementById('code').value.trim();
+    sb.auth.verifyOtp({ email: email, token: code, type: 'email' }).then(function(r){
+      if (r.error) { say('That code did not work. Check it or send a new one.', true); return; }
+      location.href = next;
+    });
+  });
+})();
+</script>
+</body></html>

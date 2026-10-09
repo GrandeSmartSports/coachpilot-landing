@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Home | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>CoachPilot</span><span class="spacer"></span><button id="outBtn" class="cp-btn ghost" type="button" style="color:var(--cp-on-primary);border-color:rgba(255,255,255,.4)">Sign out</button></div>
+<main class="cp-wrap">
+  <h1 id="hello">Your teams</h1>
+  <div id="waiting" class="cp-card" hidden><h2>Waiting on you</h2><div id="waitingList"></div></div>
+  <div id="hats" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div id="empty" class="cp-card" hidden>No teams yet. When a coach or league invites you, your team shows up here.</div>
+</main>
+<nav class="cp-tabs">
+  <a href="/me" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+  <a href="/me#teams"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20a6 6 0 0 1 12 0M14 20a4.5 4.5 0 0 1 7 0"/></svg>Teams</a>
+  <a href="/me#me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Me</a>
+</nav>
+<script>
+(function(){
+  // CP.hats() reads from the cp_my_hats view (see cp/cp-core.js), scoped to the signed-in person by RLS.
+  CP.paint(null);
+  document.getElementById('outBtn').addEventListener('click', CP.signOut);
+  CP.requireSession().then(function(s){
+    if (!s) return;
+    return CP.client().from('cp_people').select('name').eq('auth_user_id', s.user.id).maybeSingle().then(function(r){
+      if (r.data && r.data.name) document.getElementById('hello').textContent = 'Hi ' + r.data.name.split(' ')[0];
+      return CP.hats();
+    }).then(function(hats){
+      var wrap = document.getElementById('hats');
+      var active = hats.filter(function(h){ return h.status === 'active'; });
+      if (!active.length) { document.getElementById('empty').hidden = false; return; }
+      var labels = { platform_admin: 'Platform admin', league_admin: 'League admin', league_scheduler: 'Scheduler', head_coach: 'Head coach', assistant_coach: 'Assistant coach', guardian: 'Parent' };
+      active.forEach(function(h){
+        var box = CP.mergeBox(h.league_settings, h.team_settings);
+        var card = document.createElement('a');
+        card.className = 'cp-card tap'; card.style.textDecoration = 'none'; card.style.color = 'inherit'; card.style.borderLeft = '6px solid ' + box.colors.primary;
+        var title = h.team_name || h.league_name || 'CoachPilot';
+        var sub = h.team_name && h.league_name ? h.league_name : (h.season_label || '');
+        card.href = h.team_slug ? (h.league_slug ? '/l/' + h.league_slug + '/t/' + h.team_slug : '/t/' + h.team_slug) : (h.league_slug ? '/l/' + h.league_slug : '/me');
+        card.innerHTML = '<div class="role"></div><h2></h2><div style="color:var(--cp-muted)"></div>';
+        card.querySelector('.role').textContent = labels[h.role] || h.role;
+        card.querySelector('h2').textContent = title;
+        card.querySelector('div:last-child').textContent = sub;
+        wrap.appendChild(card);
+      });
+      // Waiting on you: pending second-guardian approvals for kids I primary-guard, unsent invites I created
+      return Promise.all([
+        CP.client().from('cp_guardians').select('id, status, cp_players(first_name,last_name)').eq('status', 'pending'),
+        CP.client().from('cp_invites').select('id,email,role,sent_at,accepted_at').is('sent_at', null).is('accepted_at', null)
+      ]).then(function(rs){
+        var items = [];
+        (rs[0].data || []).forEach(function(g){ items.push('Approve a second guardian for ' + (g.cp_players ? g.cp_players.first_name + ' ' + g.cp_players.last_name : 'a player')); });
+        (rs[1].data || []).forEach(function(i){ items.push('Invite not sent yet: ' + i.email + ' (' + i.role.replace('_',' ') + ')'); });
+        if (items.length) { document.getElementById('waiting').hidden = false; var ul = document.getElementById('waitingList'); items.forEach(function(t){ var d = document.createElement('div'); d.className = 'cp-row'; d.textContent = t; ul.appendChild(d); }); }
+      });
+    });
+  });
+})();
+</script>
+</body></html>

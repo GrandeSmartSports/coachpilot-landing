@@ -49,5 +49,10 @@ for (const s of ['/signin','/me','/join/:token','/l/:league/admin/settings','/l/
 (vj.rewrites[0].source === '/fields/ics/:path*' ? ok : fail)('fields ics rewrite still first');
 (vj.redirects.length === 3 ? ok : fail)('redirects unchanged (3)');
 
+section('pages: required hooks');
+function has(file, needles) { const t = fs.readFileSync(path.join(ROOT, 'cp', file), 'utf8'); for (const n of needles) (t.includes(n) ? ok : fail)(`${file} has ${n}`); }
+has('signin.html', ['signInWithOtp', 'shouldCreateUser: false', 'verifyOtp', 'id="email"', 'id="code"', 'cp-core.js']);
+has('me.html', ['cp_my_hats', 'requireSession', 'data-cp-name', 'cp-tabs', 'No teams yet']);
+
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);
