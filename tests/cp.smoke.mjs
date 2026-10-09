@@ -13,8 +13,8 @@ const fail = (m) => { console.log('  FAIL ' + m); failed++; };
 const section = (n) => console.log('\n' + n);
 
 section('schema: cp_ tables exist and reject anonymous reads');
-const TABLES = ['cp_people','cp_leagues','cp_teams','cp_memberships','cp_players','cp_guardians','cp_invites','cp_settings','cp_audit'];
-const SELECT_COL = { cp_settings: 'key' }; // cp_settings has no id column; its primary key is `key`
+const TABLES = ['cp_people','cp_leagues','cp_teams','cp_memberships','cp_players','cp_guardians','cp_invites','cp_settings','cp_audit','cp_player_private'];
+const SELECT_COL = { cp_settings: 'key', cp_player_private: 'player_id' }; // cp_settings has no id column (PK is `key`); cp_player_private's PK is `player_id`
 for (const t of TABLES) {
   const col = SELECT_COL[t] || 'id';
   const r = await fetch(`${URL_}/rest/v1/${t}?select=${col}&limit=1`, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
