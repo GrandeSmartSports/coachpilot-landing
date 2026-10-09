@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/CoachPilot-AppIcon.png">
 <title>Team | CoachPilot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
 <link rel="stylesheet" href="/cp/cp.css">
@@ -26,6 +27,7 @@
   var msg = document.getElementById('msg');
   function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
   function can(role){ return myRoles.indexOf(role) >= 0 || myRoles.indexOf('league_admin') >= 0 || myRoles.indexOf('platform_admin') >= 0; }
+  if (!r.team) { say('Open this page from your home screen.', true); return; }
   function pill(inv){ var p = document.createElement('span'); p.className = 'cp-pill'; if (!inv) { p.textContent = 'not sent'; return p; } if (inv.accepted_at) { p.className += ' accepted'; p.textContent = 'accepted'; } else if (inv.locked_at) { p.className += ' locked'; p.textContent = 'locked'; } else if (inv.sent_at) { p.className += ' sent'; p.textContent = 'sent'; } else p.textContent = 'not sent'; return p; }
   function load(){
     return Promise.all([

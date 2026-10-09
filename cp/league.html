@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/CoachPilot-AppIcon.png">
 <title>League | CoachPilot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
 <link rel="stylesheet" href="/cp/cp.css">
@@ -15,6 +16,7 @@
 <script>
 (function(){
   var r = CP.route();
+  if (!r.league) { document.getElementById('msg').textContent = 'Open this page from your home screen.'; document.getElementById('msg').hidden = false; return; }
   CP.requireSession().then(function(s){ if (!s) return;
     return CP.loadLeague(r.league).then(function(lg){
       if (!lg) { document.getElementById('msg').textContent = 'You do not have access to this league.'; document.getElementById('msg').hidden = false; return; }

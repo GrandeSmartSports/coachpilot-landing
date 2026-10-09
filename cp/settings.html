@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/CoachPilot-AppIcon.png">
 <title>Settings | CoachPilot</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
 <link rel="stylesheet" href="/cp/cp.css">
@@ -31,6 +32,7 @@
   var r = CP.route(); var lg;
   var msg = document.getElementById('msg'); function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
   var $ = function(id){ return document.getElementById(id); };
+  if (!r.league) { say('Open this page from your home screen.', true); return; }
   function fill(box){ $('display_name').value = box.display_name; $('short_name').value = box.short_name; $('logo_url').value = box.logo_url; $('c_primary').value = box.colors.primary; $('c_accent').value = box.colors.accent; $('c_on').value = box.colors.on_primary; $('contact_email').value = box.contact_email; $('support_email').value = box.support_email; $('f_public_schedule').checked = !!box.features.public_schedule; $('f_public_standings').checked = !!box.features.public_standings; $('f_team_hubs').checked = !!box.features.team_hubs; }
   function read(){ var cur = lg.settings && typeof lg.settings === 'object' ? lg.settings : {}; return Object.assign({}, cur, { schema_version: 1, display_name: $('display_name').value.trim(), short_name: $('short_name').value.trim(), logo_url: $('logo_url').value.trim() || CP.DEFAULTS.logo_url, colors: { primary: $('c_primary').value, accent: $('c_accent').value, on_primary: $('c_on').value }, contact_email: $('contact_email').value.trim(), support_email: $('support_email').value.trim(), features: { public_schedule: $('f_public_schedule').checked, public_standings: $('f_public_standings').checked, team_hubs: $('f_team_hubs').checked } }); }
   CP.requireSession().then(function(s){ if (!s) return; return CP.loadLeague(r.league).then(function(l){ if (!l) { say('You do not have access to this league.', true); return; } lg = l; $('back').href = '/l/' + l.slug; var box = CP.paint(l.settings); fill(box); }); });
