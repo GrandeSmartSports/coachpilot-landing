@@ -53,6 +53,7 @@ section('pages: required hooks');
 function has(file, needles) { const t = fs.readFileSync(path.join(ROOT, 'cp', file), 'utf8'); for (const n of needles) (t.includes(n) ? ok : fail)(`${file} has ${n}`); }
 has('signin.html', ['signInWithOtp', 'shouldCreateUser: false', 'verifyOtp', 'id="email"', 'id="code"', 'cp-core.js']);
 has('me.html', ['cp_my_hats', 'requireSession', 'data-cp-name', 'cp-tabs', 'No teams yet']);
+has('join.html', ['invite_lookup', 'invite_accept', 'id="birthdate"', 'needs_birthdate', 'cp_join_email', '410']);
 
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);

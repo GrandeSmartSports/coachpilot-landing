@@ -28,7 +28,9 @@
   var params = new URLSearchParams(location.search);
   var next = params.get('next') || '/me';
   if (!/^\/[A-Za-z0-9\/_-]*$/.test(next)) next = '/me';
+  if (next.indexOf('//') === 0) next = '/me';
   var email = '';
+  try { var pre = sessionStorage.getItem('cp_join_email'); if (pre) { document.getElementById('email').value = pre; sessionStorage.removeItem('cp_join_email'); } } catch (err) {}
   var msg = document.getElementById('msg');
   function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
   CP.session().then(function(s){ if (s) location.href = next; });

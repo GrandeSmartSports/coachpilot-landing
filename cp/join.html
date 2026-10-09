@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Join | CoachPilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="/cp/cp.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js"></script>
+<script src="/cp/cp-core.js"></script>
+</head><body>
+<div class="cp-top"><img data-cp-logo src="/CoachPilot-AppIcon.png" alt=""><span class="name" data-cp-name>CoachPilot</span></div>
+<main class="cp-wrap">
+  <h1 id="title">Checking your invite</h1>
+  <p id="lead" style="color:var(--cp-muted)"></p>
+  <form id="form" hidden>
+    <label>Your name<input id="name" required autocomplete="name"></label>
+    <label id="bdWrap" hidden style="margin-top:12px">Player's birthdate<input id="birthdate" type="date"></label>
+    <p id="bdHelp" hidden style="color:var(--cp-muted);margin:6px 0 0">This confirms you are this player's guardian. It never shows anywhere else.</p>
+    <button class="cp-btn" type="submit" style="margin-top:16px">Join</button>
+  </form>
+  <div id="msg" class="cp-msg" hidden></div>
+</main>
+<script>
+(function(){
+  CP.paint(null);
+  var token = CP.route().token;
+  var msg = document.getElementById('msg');
+  function say(t, bad){ msg.textContent = t; msg.hidden = false; msg.classList.toggle('bad', !!bad); }
+  if (!token) { document.getElementById('title').textContent = 'No invite here'; say('Open the link from your invite email.', true); return; }
+  CP.gateway('invite_lookup', { token: token }).then(function(r){
+    if (r.status === 410 || !r.body || !r.body.ok) { document.getElementById('title').textContent = 'This invite is no longer valid'; say((r.body && r.body.error) || 'Ask your coach to send a new one.', true); return; }
+    var inv = r.body.invite;
+    var who = inv.team_name || inv.league_name || 'CoachPilot';
+    document.getElementById('title').textContent = 'Join ' + who;
+    document.getElementById('lead').textContent = 'Invite for ' + inv.email_masked + ' as ' + inv.role.replace('_',' ') + '.';
+    if (inv.needs_birthdate) { document.getElementById('bdWrap').hidden = false; document.getElementById('bdHelp').hidden = false; document.getElementById('birthdate').required = true; }
+    document.getElementById('form').hidden = false;
+  });
+  document.getElementById('form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var body = { token: token, name: document.getElementById('name').value.trim() };
+    var bd = document.getElementById('birthdate').value; if (bd) body.birthdate = bd;
+    CP.gateway('invite_accept', body).then(function(r){
+      if (r.status === 200 && r.body && r.body.ok) {
+        try { sessionStorage.setItem('cp_join_email', r.body.email); } catch (err) {}
+        say('You are in. Next, we will email you a sign-in code.');
+        setTimeout(function(){ location.href = '/signin?next=%2Fme'; }, 900);
+        return;
+      }
+      if (r.status === 423) { document.getElementById('form').hidden = true; }
+      say((r.body && r.body.error) || 'Something went wrong. Try again.', true);
+    });
+  });
+})();
+</script>
+</body></html>
