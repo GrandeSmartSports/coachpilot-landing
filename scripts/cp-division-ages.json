@@ -1,0 +1,10 @@
+{
+  "T-Ball": [4, 6],
+  "Coach Pitch": [6, 8],
+  "Minors A Softball": [7, 9],
+  "Minors B Softball": [9, 11],
+  "Minors Baseball": [9, 11],
+  "AA": [7, 9],
+  "Majors": [10, 12],
+  "default": [6, 12]
+}

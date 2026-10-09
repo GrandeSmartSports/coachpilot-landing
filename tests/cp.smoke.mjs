@@ -58,5 +58,9 @@ has('league.html', ['loadLeague', 'CP.paint', 'cp_teams', '/admin/settings']);
 has('team.html', ['loadTeam', 'cp_players', 'cp_invites', 'invite_create', 'invite_send', 'invite_resend', 'guardian_approve', 'not sent', 'data-role-gate']);
 has('settings.html', ['schema_version', 'display_name', 'colors', 'contact_email', 'features', 'cp_leagues']);
 
+section('mirror: report file present');
+const reports = fs.readdirSync(path.join(process.env.HOME, 'Workspace', 'ops')).filter(f => /^cp-mirror-report-\d{4}-\d{2}-\d{2}\.md$/.test(f));
+(reports.length ? ok : fail)('apply report exists: ' + (reports[reports.length - 1] || 'none'));
+
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);
