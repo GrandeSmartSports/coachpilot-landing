@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Text alerts | CoachPilot</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/CoachPilot-AppIcon.png">
+<style>
+  :root{--paper:#FBFAF6;--ink:#1A1F1C;--muted:#5F6B64;--line:#E2E5DF;--pine:#1F5F3F;--pine-soft:#DCEBE1;}
+  body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 "Source Sans 3","Helvetica Neue",Arial,sans-serif;padding:0 20px;}
+  .wrap{max-width:560px;margin:0 auto;padding:36px 0 60px;display:flex;flex-direction:column;gap:20px;}
+  h1{font-size:30px;line-height:1.1;margin:0;}
+  p{margin:0;} .muted{color:var(--muted);font-size:15px;}
+  form{display:flex;flex-direction:column;gap:14px;border:1px solid var(--line);padding:18px;border-radius:12px;background:#fff;}
+  label{display:flex;flex-direction:column;gap:6px;font-weight:600;}
+  input[type=tel],input[type=text]{font:inherit;padding:12px;border:1px solid var(--line);border-radius:8px;}
+  .consent{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:15.5px;}
+  .consent input{margin-top:5px;width:18px;height:18px;}
+  button{font:inherit;font-weight:600;background:var(--pine);color:#fff;border:0;border-radius:8px;padding:12px 16px;cursor:pointer;}
+  .ok{background:var(--pine-soft);border-left:4px solid var(--pine);padding:12px 14px;}
+  ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;}
+</style></head><body>
+<main class="wrap">
+  <div>
+    <h1>CoachPilot text alerts</h1>
+    <p class="muted">Short, time-sensitive league notices by text: a field closed, a game moved, a rainout. Everything else comes through the Coaches Hub and email.</p>
+  </div>
+  <form id="f">
+    <label>Your name<input id="name" type="text" autocomplete="name" required></label>
+    <label>Mobile number<input id="phone" type="tel" autocomplete="tel" placeholder="(253) 555-0100" required></label>
+    <label>League and team<input id="team" type="text" placeholder="BLS, Minors A, Cougars"></label>
+    <label class="consent"><input id="consent" type="checkbox" required><span>I agree to receive text alerts from CoachPilot about my league's fields, games and schedule changes at the number above. Message frequency varies (typically 1 to 4 per month). Message and data rates may apply. Reply <b>STOP</b> to opt out at any time, <b>HELP</b> for help. Consent is not a condition of participating in the league.</span></label>
+    <button type="submit">Turn on text alerts</button>
+    <p class="muted">Alerts are sent from a CoachPilot toll-free number. We never sell or share your number. See our <a href="/privacy">privacy policy</a>.</p>
+  </form>
+  <div id="done" class="ok" hidden>You are on the list. Reply STOP to any alert to opt out.</div>
+  <section>
+    <h2 style="font-size:20px;margin:0 0 8px">What you will and will not get</h2>
+    <ul>
+      <li>Will: field closures, game moves, rainouts, same-day schedule changes for your team.</li>
+      <li>Will not: marketing, fundraising asks, chat, or anything a weekly email can carry.</li>
+      <li>Opt out any time by replying STOP. Reply HELP for help or email Daniel.Grande@ymail.com.</li>
+    </ul>
+  </section>
+</main>
+<script>
+  document.getElementById('f').addEventListener('submit', function (e) {
+    e.preventDefault();
+    try { localStorage.setItem('cp_text_optin_draft', JSON.stringify({ name: document.getElementById('name').value, phone: document.getElementById('phone').value, team: document.getElementById('team').value, at: new Date().toISOString() })); } catch (err) {}
+    document.getElementById('f').hidden = true; document.getElementById('done').hidden = false;
+  });
+</script>
+</body></html>
