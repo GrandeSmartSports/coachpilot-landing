@@ -6,6 +6,8 @@ const FORM_SWEAT = "sweatshirt_sizes_2026fall";
 const FORM_VOL = "volunteer_2026fall";
 const FORM_WALKUP = "walkup_2026fall";
 const FORM_CAGEVOTE = "cage_vote_2026sep";
+const FORM_PARTY = "party_vote_2026oct";
+const PARTY_CHOICES = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031"];
 const FORM_PANTS = "pants_done_2026fall";
 
 const VALID_JERSEY = ["GXS", "GS", "GM", "GL", "WS", "WM", "WL", "WXL", "WXXL"];
@@ -688,6 +690,57 @@ Deno.serve(async (req) => {
       });
       if (uErr) return json({ error: uErr.message }, 500);
       return json({ ok: true, funds });
+    }
+
+    // POST submit_party_vote -> end-of-season party days (multi-select) + optional note; newest submission per family counts
+    if (req.method === "POST" && action === "submit_party_vote") {
+      const body = await req.json().catch(() => null);
+      if (!body) return json({ error: "invalid body" }, 400);
+      const { player_id, choices, note } = body;
+      if (!player_id || typeof player_id !== "string") return json({ error: "player_id required" }, 400);
+      const list = Array.isArray(choices)
+        ? [...new Set(choices.filter((c: unknown) => typeof c === "string" && PARTY_CHOICES.includes(c)))]
+        : [];
+      if (list.length === 0) return json({ error: "pick at least one day" }, 400);
+      const { data: player, error: pErr } = await supabase
+        .from("cougars_players").select("id, first_name").eq("id", player_id).maybeSingle();
+      if (pErr) return json({ error: pErr.message }, 500);
+      if (!player) return json({ error: "player not found" }, 404);
+      const cleanNote = typeof note === "string" ? note.trim().slice(0, 300) : "";
+      const { error: iErr } = await supabase.from("cougars_form_responses").insert({
+        form_key: FORM_PARTY,
+        player_id,
+        payload: { choices: list, note: cleanNote || null },
+      });
+      if (iErr) return json({ error: iErr.message }, 500);
+      return json({ ok: true, first_name: player.first_name, choices: list });
+    }
+
+    // GET party_vote_report (PIN) -> latest submission per family; counts per day; notes; who has not answered
+    if (req.method === "GET" && action === "party_vote_report") {
+      if (!requirePin()) return json({ error: "unauthorized" }, 401);
+      const { data: allPlayers, error: pErr } = await getPlayers();
+      if (pErr) return json({ error: pErr.message }, 500);
+      const { data: rows, error: rErr } = await supabase
+        .from("cougars_form_responses")
+        .select("player_id, payload, submitted_at")
+        .eq("form_key", FORM_PARTY)
+        .order("submitted_at", { ascending: false });
+      if (rErr) return json({ error: rErr.message }, 500);
+      const latest = new Map<string, any>();
+      for (const r of rows ?? []) if (!latest.has(r.player_id)) latest.set(r.player_id, r);
+      const counts: Record<string, number> = Object.fromEntries(PARTY_CHOICES.map((c) => [c, 0]));
+      const answered: any[] = [];
+      const not_answered: any[] = [];
+      for (const p of allPlayers ?? []) {
+        const r = latest.get(p.id);
+        const name = `${p.first_name} ${p.last_name ?? ""}`.trim();
+        if (!r) { not_answered.push(name); continue; }
+        const ch: string[] = Array.isArray(r.payload?.choices) ? r.payload.choices : [];
+        for (const c of ch) if (c in counts) counts[c]++;
+        answered.push({ name, choices: ch, note: r.payload?.note ?? null, submitted_at: r.submitted_at });
+      }
+      return json({ counts, answered, not_answered, total: (allPlayers ?? []).length });
     }
 
     // POST submit_cage_vote -> multi-select nights; latest submission per family replaces the previous one entirely

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>End of Season Party | BLS Cougars</title>
+<link rel="icon" type="image/png" href="/cougars/assets/cougars-favicon.png" />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --black: #141416; --ink: #1f2326; --muted: #7a8087;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --shadow: 0 10px 30px rgba(20,20,22,.08);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
+  a { color: inherit; text-decoration: none; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
+  .hero-inner { max-width: 640px; margin: 0 auto; padding: 26px 22px 22px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(32px, 7vw, 46px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 4px; }
+  .hero .tag { margin-top: 8px; color: #a9acb2; font-size: 14.5px; }
+  .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
+  .shell { max-width: 640px; margin: 0 auto; padding: 22px 22px 56px; }
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px; }
+  .plan { font-size: 15px; color: #33383d; margin-bottom: 14px; }
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  select, textarea { width: 100%; font-size: 16px; padding: 13px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fdfdfd; font-family: inherit; }
+  select:focus, textarea:focus { outline: none; border-color: var(--red); }
+  textarea { min-height: 72px; resize: vertical; margin-top: 2px; }
+  .votes { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+  .daybtn { min-height: 62px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); cursor: pointer; position: relative; text-align: left; padding: 10px 52px 10px 16px; }
+  .daybtn .d { display: block; font-family: var(--disp); font-weight: 600; font-size: 19px; letter-spacing: .06em; text-transform: uppercase; }
+  .daybtn .t { display: block; font-size: 13.5px; color: var(--muted); }
+  .daybtn:active { transform: scale(.98); }
+  .daybtn.sel { background: var(--black); color: #fff; border-color: var(--black); border-bottom: 4px solid var(--red); }
+  .daybtn.sel .t { color: #c9ccd1; }
+  .daybtn.sel::after { content: "\2713"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--red); font-size: 22px; }
+  .notewrap { margin-top: 16px; }
+  .submitbtn { margin-top: 14px; width: 100%; min-height: 58px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+  .submitbtn:active { transform: scale(.98); }
+  .submitbtn[disabled] { opacity: .5; }
+  .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
+  .msg.ok { color: var(--green); }
+  .msg.bad { color: var(--red); }
+  .revote { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .back { display: inline-block; margin-top: 8px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .back:hover { color: var(--red); }
+</style>
+</head>
+<body>
+  <div class="hero"><div class="hero-inner">
+    <div class="kicker">BLS Cougars &bull; Fall 2026</div>
+    <h1>End of Season Party</h1>
+    <p class="tag">Pizza at a park, game balls, and jersey signing. Help us pick the day.</p>
+  </div></div>
+  <div class="slash"></div>
+  <div class="shell">
+    <div class="card">
+      <p class="plan">We will pick a park to meet at. Coach grabs some pizzas and we hang out, hand out the girls' game balls, and let them sign each other's jerseys. Tap every day that works for your family. Coach goes with the day that gets the most girls there.</p>
+      <label for="player">Your player</label>
+      <select id="player"><option value="">Loading the roster&hellip;</option></select>
+      <div class="votes">
+        <button class="daybtn" type="button" data-choice="tue1027" aria-pressed="false"><span class="d">Tuesday Oct 27</span><span class="t">Evening, 5:30</span></button>
+        <button class="daybtn" type="button" data-choice="wed1028" aria-pressed="false"><span class="d">Wednesday Oct 28</span><span class="t">Evening, 5:30</span></button>
+        <button class="daybtn" type="button" data-choice="thu1029" aria-pressed="false"><span class="d">Thursday Oct 29</span><span class="t">Evening, 5:30</span></button>
+        <button class="daybtn" type="button" data-choice="fri1030" aria-pressed="false"><span class="d">Friday Oct 30</span><span class="t">Evening, 5:30</span></button>
+        <button class="daybtn" type="button" data-choice="sat1031" aria-pressed="false"><span class="d">Saturday Oct 31</span><span class="t">Midday, 10:00 to 12:00 (Halloween)</span></button>
+      </div>
+      <div class="notewrap">
+        <label for="note">Anything we should know? (optional)</label>
+        <textarea id="note" maxlength="300" placeholder="Allergies, a park you love, can help with supplies..."></textarea>
+      </div>
+      <button class="submitbtn" type="button" id="submit">Submit</button>
+      <div class="msg" id="msg"></div>
+      <p class="revote">Changed your mind? Submit again, your newest answer counts.</p>
+    </div>
+    <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
+  </div>
+
+<script>
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
+  var LABELS = { tue1027: "Tue Oct 27", wed1028: "Wed Oct 28", thu1029: "Thu Oct 29", fri1030: "Fri Oct 30", sat1031: "Sat Oct 31" };
+  var ORDER = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031"];
+  var sel = document.getElementById("player");
+  var msg = document.getElementById("msg");
+  var note = document.getElementById("note");
+  var submitBtn = document.getElementById("submit");
+  var busy = false;
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  fetch(API + "?action=players").then(function (r) { return r.json(); }).then(function (d) {
+    var players = d.players || [];
+    sel.innerHTML = '<option value="">Pick her name&hellip;</option>' + players.map(function (p) {
+      var label = p.first_name + (p.last_initial ? " " + p.last_initial + "." : "");
+      return '<option value="' + esc(p.id) + '">' + esc(label) + "</option>";
+    }).join("");
+  }).catch(function () { sel.innerHTML = '<option value="">Could not load the roster. Refresh to try again.</option>'; });
+  document.querySelectorAll(".daybtn").forEach(function (btn) {
+    btn.addEventListener("click", function () { var on = btn.classList.toggle("sel"); btn.setAttribute("aria-pressed", on ? "true" : "false"); });
+  });
+  function picked() { return ORDER.filter(function (c) { var b = document.querySelector('.daybtn[data-choice="' + c + '"]'); return b && b.classList.contains("sel"); }); }
+  submitBtn.addEventListener("click", function () {
+    if (busy) return;
+    var playerId = sel.value; var choices = picked();
+    if (!playerId) { msg.className = "msg bad"; msg.textContent = "Pick her name first."; sel.focus(); return; }
+    if (choices.length === 0) { msg.className = "msg bad"; msg.textContent = "Tap at least one day, then submit."; return; }
+    busy = true; submitBtn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
+    fetch(API + "?action=submit_party_vote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_id: playerId, choices: choices, note: note.value.trim() }) })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) { var names = (d.choices || choices).map(function (c) { return LABELS[c]; }).join(", "); msg.className = "msg ok"; msg.textContent = "Got it. " + names + " for " + d.first_name + "'s family."; })
+      .catch(function () { msg.className = "msg bad"; msg.textContent = "That did not go through. Try again in a minute."; })
+      .finally(function () { busy = false; submitBtn.disabled = false; });
+  });
+  try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "party" }), keepalive: true }).catch(function () {}); } catch (e) {}
+})();
+</script>
+</body>
+</html>
