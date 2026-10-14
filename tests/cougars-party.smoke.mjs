@@ -52,6 +52,12 @@ r = await post({ player_id: 'x', choices: ['bogus'] });
 r.status === 400 ? ok('bogus choice -> 400') : fail(`bogus choice -> ${r.status}`);
 r = await post({ player_id: 'x', choices: [] });
 r.status === 400 ? ok('empty choices -> 400') : fail(`empty choices -> ${r.status}`);
+let st = await fetch(GATEWAY + '?action=party_vote_status&player_id=00000000-0000-0000-0000-000000000000');
+let stj = await st.json().catch(() => null);
+st.status === 200 && stj && stj.submitted === false ? ok('status for unknown player -> submitted:false') : fail(`status unknown player -> ${st.status}`);
+st = await fetch(GATEWAY + '?action=party_vote_status');
+st.status === 400 ? ok('status without player_id -> 400') : fail(`status without player_id -> ${st.status}`);
+html.includes('party_vote_status') && html.includes('Already answered') ? ok('page checks for an existing answer') : fail('page missing existing-answer check');
 let rep = await fetch(GATEWAY + '?action=party_vote_report');
 rep.status === 401 ? ok('report without PIN -> 401') : fail(`report without PIN -> ${rep.status}`);
 

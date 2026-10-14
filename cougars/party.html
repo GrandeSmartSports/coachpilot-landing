@@ -39,6 +39,10 @@
   .daybtn.sel .t { color: #c9ccd1; }
   .daybtn.sel::after { content: "\2713"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--red); font-size: 22px; }
   .notewrap { margin-top: 16px; }
+  .status { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--red-soft); border: 1px solid #f3c9d0; font-size: 14.5px; line-height: 1.45; }
+  .status b { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); display: block; margin-bottom: 2px; }
+  .status.none { background: #eef4ef; border-color: #cfe0d3; }
+  .status.none b { color: var(--green); }
   .submitbtn { margin-top: 14px; width: 100%; min-height: 58px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
   .submitbtn:active { transform: scale(.98); }
   .submitbtn[disabled] { opacity: .5; }
@@ -62,6 +66,7 @@
       <p class="plan">We will pick a park to meet at. I will grab some pizzas and we will hang out, hand out the girls' game balls, and let them sign each other's jerseys. Tap every day that works for your family. I will go with the day that gets the most girls there.</p>
       <label for="player">Your player</label>
       <select id="player"><option value="">Loading the roster&hellip;</option></select>
+      <div class="status" id="status" hidden></div>
       <div class="votes">
         <button class="daybtn" type="button" data-choice="tue1027" aria-pressed="false"><span class="d">Tuesday Oct 27</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="wed1028" aria-pressed="false"><span class="d">Wednesday Oct 28</span><span class="t">Evening, 5:30</span></button>
@@ -103,6 +108,31 @@
     btn.addEventListener("click", function () { var on = btn.classList.toggle("sel"); btn.setAttribute("aria-pressed", on ? "true" : "false"); });
   });
   function picked() { return ORDER.filter(function (c) { var b = document.querySelector('.daybtn[data-choice="' + c + '"]'); return b && b.classList.contains("sel"); }); }
+  function setPicks(list) {
+    document.querySelectorAll(".daybtn").forEach(function (b) { var on = list.indexOf(b.getAttribute("data-choice")) !== -1; b.classList.toggle("sel", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
+  }
+  var status = document.getElementById("status");
+  var statusSeq = 0;
+  function fmtWhen(iso) { try { return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); } catch (e) { return ""; } }
+  function showStatus(d, firstName) {
+    if (!d || !d.submitted) {
+      status.className = "status none";
+      status.innerHTML = "<b>No answer yet</b>Nothing is in for " + esc(firstName) + "'s family. Tap the days below and submit.";
+      status.hidden = false; setPicks([]); note.value = ""; submitBtn.textContent = "Submit"; return;
+    }
+    var names = (d.choices || []).map(function (c) { return LABELS[c] || c; }).join(", ") || "no days";
+    status.className = "status";
+    status.innerHTML = "<b>Already answered</b>Someone in " + esc(firstName) + "'s family submitted " + esc(fmtWhen(d.submitted_at)) + ": <strong>" + esc(names) + "</strong>." + (d.note ? " Note: “" + esc(d.note) + "”" : "") + " Those days are checked below. Change anything and tap Update, or leave it as is.";
+    status.hidden = false; setPicks(d.choices || []); note.value = d.note || ""; submitBtn.textContent = "Update";
+  }
+  sel.addEventListener("change", function () {
+    var id = sel.value; var seq = ++statusSeq; msg.textContent = ""; msg.className = "msg";
+    if (!id) { status.hidden = true; setPicks([]); note.value = ""; submitBtn.textContent = "Submit"; return; }
+    var firstName = (sel.options[sel.selectedIndex].text || "").split(" ")[0];
+    fetch(API + "?action=party_vote_status&player_id=" + encodeURIComponent(id)).then(function (r) { return r.json(); })
+      .then(function (d) { if (seq === statusSeq) showStatus(d, firstName); })
+      .catch(function () { if (seq === statusSeq) { status.hidden = true; } });
+  });
   submitBtn.addEventListener("click", function () {
     if (busy) return;
     var playerId = sel.value; var choices = picked();
@@ -111,7 +141,7 @@
     busy = true; submitBtn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
     fetch(API + "?action=submit_party_vote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_id: playerId, choices: choices, note: note.value.trim() }) })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (d) { var names = (d.choices || choices).map(function (c) { return LABELS[c]; }).join(", "); msg.className = "msg ok"; msg.textContent = "Got it. " + names + " for " + d.first_name + "'s family."; })
+      .then(function (d) { var names = (d.choices || choices).map(function (c) { return LABELS[c]; }).join(", "); msg.className = "msg ok"; msg.textContent = "Got it. " + names + " for " + d.first_name + "'s family."; showStatus({ submitted: true, choices: d.choices || choices, note: note.value.trim(), submitted_at: new Date().toISOString() }, d.first_name); })
       .catch(function () { msg.className = "msg bad"; msg.textContent = "That did not go through. Try again in a minute."; })
       .finally(function () { busy = false; submitBtn.disabled = false; });
   });

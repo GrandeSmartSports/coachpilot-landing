@@ -716,6 +716,24 @@ Deno.serve(async (req) => {
       return json({ ok: true, first_name: player.first_name, choices: list });
     }
 
+    // GET party_vote_status?player_id= -> the family's latest party answer so a second parent can see it before resubmitting
+    if (req.method === "GET" && action === "party_vote_status") {
+      const playerId = url.searchParams.get("player_id") || "";
+      if (!playerId) return json({ error: "player_id required" }, 400);
+      const { data: row, error: sErr } = await supabase
+        .from("cougars_form_responses")
+        .select("payload, submitted_at")
+        .eq("form_key", FORM_PARTY)
+        .eq("player_id", playerId)
+        .order("submitted_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (sErr) return json({ error: sErr.message }, 500);
+      if (!row) return json({ submitted: false });
+      const ch: string[] = Array.isArray(row.payload?.choices) ? row.payload.choices.filter((c: string) => PARTY_CHOICES.includes(c)) : [];
+      return json({ submitted: true, choices: ch, note: row.payload?.note ?? null, submitted_at: row.submitted_at });
+    }
+
     // GET party_vote_report (PIN) -> latest submission per family; counts per day; notes; who has not answered
     if (req.method === "GET" && action === "party_vote_report") {
       if (!requirePin()) return json({ error: "unauthorized" }, 401);
