@@ -122,7 +122,7 @@
     }
     var names = (d.choices || []).map(function (c) { return LABELS[c] || c; }).join(", ") || "no days";
     status.className = "status";
-    status.innerHTML = "<b>Already answered</b>Someone in " + esc(firstName) + "'s family submitted " + esc(fmtWhen(d.submitted_at)) + ": <strong>" + esc(names) + "</strong>." + (d.note ? " Note: “" + esc(d.note) + "”" : "") + " Those days are checked below. Change anything and tap Update, or leave it as is.";
+    status.innerHTML = "<b>Already answered</b>Someone in " + esc(firstName) + "'s family submitted " + esc(fmtWhen(d.submitted_at)) + ": <strong>" + esc(names) + "</strong>." + (d.note ? " Note: \"" + esc(d.note) + "\"" : "") + " Those days are checked below. Change anything and tap Update, or leave it as is.";
     status.hidden = false; setPicks(d.choices || []); note.value = d.note || ""; submitBtn.textContent = "Update";
   }
   sel.addEventListener("change", function () {
