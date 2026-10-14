@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const GATEWAY = 'https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway';
 const PIN = process.env.COUGARS_PIN || '';
-const DAYS = ['tue1027', 'wed1028', 'thu1029', 'fri1030', 'sat1031'];
+const DAYS = ['tue1027', 'wed1028', 'thu1029', 'fri1030', 'sat1031', 'sat1107'];
 
 let passed = 0, failed = 0;
 function ok(msg)   { console.log('  PASS ' + msg); passed++; }
@@ -29,7 +29,7 @@ section('party.html: file + copy');
 const PAGE = path.join(ROOT, 'cougars', 'party.html');
 if (!fs.existsSync(PAGE)) { fail('cougars/party.html missing'); process.exit(1); }
 const html = fs.readFileSync(PAGE, 'utf8');
-for (const s of ['End of Season Party', 'We will pick a park to meet at', 'game balls', 'sign each other', 'Saturday Oct 31', '10:00 to 12:00', 'submit_party_vote', 'action=players', 'action=page_view', 'Back to the team hub']) {
+for (const s of ['End of Season Party', 'We will pick a park to meet at', 'game balls', 'sign each other', 'Saturday Oct 31', 'Saturday Nov 7', '10:00 to 12:00', 'submit_party_vote', 'action=players', 'action=page_view', 'Back to the team hub']) {
   html.includes(s) ? ok(`contains "${s}"`) : fail(`missing "${s}"`);
 }
 for (const d of DAYS) html.includes(`data-choice="${d}"`) ? ok(`day button ${d}`) : fail(`day button ${d} missing`);
@@ -60,7 +60,7 @@ if (PIN) {
   const j = await rep.json().catch(() => null);
   rep.status === 200 && j ? ok('report with PIN -> 200') : fail(`report with PIN -> ${rep.status}`);
   if (j) {
-    DAYS.every((d) => typeof j.counts?.[d] === 'number') ? ok('counts has all five days') : fail('counts missing a day');
+    DAYS.every((d) => typeof j.counts?.[d] === 'number') ? ok('counts has all six days') : fail('counts missing a day');
     Array.isArray(j.answered) && Array.isArray(j.not_answered) ? ok('answered + not_answered arrays') : fail('answered/not_answered shape');
     j.total === (j.answered.length + j.not_answered.length) ? ok(`total ${j.total} = answered + not_answered`) : fail('total mismatch');
   }

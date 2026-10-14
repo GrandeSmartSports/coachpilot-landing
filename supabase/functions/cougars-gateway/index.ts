@@ -7,7 +7,7 @@ const FORM_VOL = "volunteer_2026fall";
 const FORM_WALKUP = "walkup_2026fall";
 const FORM_CAGEVOTE = "cage_vote_2026sep";
 const FORM_PARTY = "party_vote_2026oct";
-const PARTY_CHOICES = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031"];
+const PARTY_CHOICES = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031", "sat1107"];
 const FORM_PANTS = "pants_done_2026fall";
 
 const VALID_JERSEY = ["GXS", "GS", "GM", "GL", "WS", "WM", "WL", "WXL", "WXXL"];
