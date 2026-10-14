@@ -16,7 +16,7 @@ const VALID_SWEAT = ["YXS", "YS", "YM", "YL", "YXL", "AXS", "AS"];
 const VOL_CATEGORIES = [
   "field_setup", "teardown", "dugout_accessories", "bows", "socks", "cheer_crew", "chair_crew",
 ];
-const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff", "gameday", "fieldhelp"];
+const VALID_PAGES = ["hub", "welcome", "sizes", "sweatshirt", "volunteer", "admin", "practice", "updates", "attendance", "coach", "walkup", "snacks", "funds", "cagevote", "share", "staff", "gameday", "fieldhelp", "party"];
 const ATTENDANCE_STATUSES = ["yes", "no", "maybe"];
 const CAGE_CHOICES = ["monday", "tuesday", "wednesday"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
