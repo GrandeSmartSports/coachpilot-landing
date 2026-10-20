@@ -73,7 +73,9 @@
         <button class="daybtn" type="button" data-choice="thu1029" aria-pressed="false"><span class="d">Thursday Oct 29</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="fri1030" aria-pressed="false"><span class="d">Friday Oct 30</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="sat1031" aria-pressed="false"><span class="d">Saturday Oct 31</span><span class="t">Midday, 10:00 to 12:00 (Halloween)</span></button>
+        <button class="daybtn" type="button" data-choice="fri1106" aria-pressed="false"><span class="d">Friday Nov 6</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="sat1107" aria-pressed="false"><span class="d">Saturday Nov 7</span><span class="t">Midday, 10:00 to 12:00</span></button>
+        <button class="daybtn" type="button" data-choice="sun1108" aria-pressed="false"><span class="d">Sunday Nov 8</span><span class="t">Midday, 10:00 to 12:00</span></button>
       </div>
       <div class="notewrap">
         <label for="note">Anything we should know? (optional)</label>
@@ -89,8 +91,8 @@
 <script>
 (function () {
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
-  var LABELS = { tue1027: "Tue Oct 27", wed1028: "Wed Oct 28", thu1029: "Thu Oct 29", fri1030: "Fri Oct 30", sat1031: "Sat Oct 31", sat1107: "Sat Nov 7" };
-  var ORDER = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031", "sat1107"];
+  var LABELS = { tue1027: "Tue Oct 27", wed1028: "Wed Oct 28", thu1029: "Thu Oct 29", fri1030: "Fri Oct 30", sat1031: "Sat Oct 31", fri1106: "Fri Nov 6", sat1107: "Sat Nov 7", sun1108: "Sun Nov 8" };
+  var ORDER = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031", "fri1106", "sat1107", "sun1108"];
   var sel = document.getElementById("player");
   var msg = document.getElementById("msg");
   var note = document.getElementById("note");

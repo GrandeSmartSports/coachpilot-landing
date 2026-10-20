@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const GATEWAY = 'https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway';
 const PIN = process.env.COUGARS_PIN || '';
-const DAYS = ['tue1027', 'wed1028', 'thu1029', 'fri1030', 'sat1031', 'sat1107'];
+const DAYS = ['tue1027', 'wed1028', 'thu1029', 'fri1030', 'sat1031', 'fri1106', 'sat1107', 'sun1108'];
 
 let passed = 0, failed = 0;
 function ok(msg)   { console.log('  PASS ' + msg); passed++; }
@@ -66,7 +66,7 @@ if (PIN) {
   const j = await rep.json().catch(() => null);
   rep.status === 200 && j ? ok('report with PIN -> 200') : fail(`report with PIN -> ${rep.status}`);
   if (j) {
-    DAYS.every((d) => typeof j.counts?.[d] === 'number') ? ok('counts has all six days') : fail('counts missing a day');
+    DAYS.every((d) => typeof j.counts?.[d] === 'number') ? ok('counts has all eight days') : fail('counts missing a day');
     Array.isArray(j.answered) && Array.isArray(j.not_answered) ? ok('answered + not_answered arrays') : fail('answered/not_answered shape');
     j.total === (j.answered.length + j.not_answered.length) ? ok(`total ${j.total} = answered + not_answered`) : fail('total mismatch');
   }
