@@ -58,16 +58,17 @@
   <div class="hero"><div class="hero-inner">
     <div class="kicker">BLS Cougars &bull; Fall 2026</div>
     <h1>End of Season Party</h1>
-    <p class="tag">Pizza at a park, game balls, and jersey signing. Help us pick the day.</p>
+    <p class="tag">Sunday, November 1, 4:00 to 6:00 PM. Location and details coming.</p>
   </div></div>
   <div class="slash"></div>
   <div class="shell">
     <div class="card">
-      <p class="plan">We will pick a park to meet at. I will grab some pizzas and we will hang out, hand out the girls' game balls, and let them sign each other's jerseys. Tap every day that works for your family. I will go with the day that gets the most girls there.</p>
-      <label for="player">Your player</label>
-      <select id="player"><option value="">Loading the roster&hellip;</option></select>
+      <div class="status" id="closed"><b>The vote is closed</b>The party is set for Sunday, November 1, 4:00 to 6:00 PM. No survey day worked for every family, so Coach picked a day that was not on the list. Location and details are coming by email and GameChanger.</div>
+      <p class="plan" hidden>We will pick a park to meet at. I will grab some pizzas and we will hang out, hand out the girls' game balls, and let them sign each other's jerseys. Tap every day that works for your family. I will go with the day that gets the most girls there.</p>
+      <label for="player" hidden>Your player</label>
+      <select id="player" hidden><option value="">Loading the roster&hellip;</option></select>
       <div class="status" id="status" hidden></div>
-      <div class="votes">
+      <div class="votes" hidden>
         <button class="daybtn" type="button" data-choice="tue1027" aria-pressed="false"><span class="d">Tuesday Oct 27</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="wed1028" aria-pressed="false"><span class="d">Wednesday Oct 28</span><span class="t">Evening, 5:30</span></button>
         <button class="daybtn" type="button" data-choice="thu1029" aria-pressed="false"><span class="d">Thursday Oct 29</span><span class="t">Evening, 5:30</span></button>
@@ -77,13 +78,13 @@
         <button class="daybtn" type="button" data-choice="sat1107" aria-pressed="false"><span class="d">Saturday Nov 7</span><span class="t">Midday, 10:00 to 12:00</span></button>
         <button class="daybtn" type="button" data-choice="sun1108" aria-pressed="false"><span class="d">Sunday Nov 8</span><span class="t">Midday, 10:00 to 12:00</span></button>
       </div>
-      <div class="notewrap">
+      <div class="notewrap" hidden>
         <label for="note">Anything we should know? (optional)</label>
         <textarea id="note" maxlength="300" placeholder="Allergies, a park you love, can help with supplies..."></textarea>
       </div>
-      <button class="submitbtn" type="button" id="submit">Submit</button>
+      <button class="submitbtn" type="button" id="submit" hidden>Submit</button>
       <div class="msg" id="msg"></div>
-      <p class="revote">Changed your mind? Submit again, your newest answer counts.</p>
+      <p class="revote" hidden>Changed your mind? Submit again, your newest answer counts.</p>
     </div>
     <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
   </div>
