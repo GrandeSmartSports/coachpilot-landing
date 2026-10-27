@@ -252,7 +252,7 @@ Deno.serve(async (req) => {
       const link = `https://coachpilot.org/cougars/staff/?token=${token}`;
       const send = await resendSend({
         from: "Cougars Team Hub <noreply@coachpilot.org>",
-        reply_to: "daniel.grande@ymail.com",
+        reply_to: "danielgrande0326@gmail.com",
         to: [staff.email],
         subject: body?.reset === true ? "Reset your PIN — Cougars Staff" : "Your Cougars staff access",
         html: staffInviteEmailHtml(staff.name, link),

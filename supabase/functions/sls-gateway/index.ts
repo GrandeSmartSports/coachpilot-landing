@@ -266,7 +266,7 @@ async function sendMail(to: string, subject: string, html: string, replyTo?: str
   });
 }
 async function sophieAlertEmail(): Promise<string> {
-  return (await getSetting("sophie_alert_email")) || "daniel.grande@ymail.com";
+  return (await getSetting("sophie_alert_email")) || "danielgrande0326@gmail.com";
 }
 // Sent when a submission's email/phone matches an existing client but the
 // device itself isn't recognized (trust rule: attach the booking to the
@@ -776,7 +776,7 @@ Deno.serve(async (req: Request) => {
         ${focus_notes ? `<p style="margin:0 0 14px;">"${escHtml(focus_notes)}"</p>` : ""}
         <p style="margin:0 0 14px;">Times: ${proposed.map((t: string) => escHtml(fmtPacific(t))).join(" &middot; ")}</p>
         <p style="margin:0;">${btn(`${SITE}/sophie/coach/`, "Open Coach's Hub")}</p>
-      `), "Daniel.Grande@ymail.com");
+      `), "danielgrande0326@gmail.com");
       await notifyAdminPush({ title: "New lesson request", body: `${typeLabel} — ${athlete_name}, ${proposed.length} times proposed`, url: "/sophie/coach/", tag: "sls-new-request" });
 
       if (deviceLinkSent) await sendDeviceLinkEmail({ id: clientId, parent_name, parent_email });
@@ -1160,7 +1160,7 @@ Deno.serve(async (req: Request) => {
           await sendMail(alertTo, `Reminder: ${r.athlete_name}'s request expires soon`, emailShell(`
             <p style="margin:0 0 14px;">This request from ${escHtml(r.parent_name)} expires in under 12 hours.</p>
             <p style="margin:0;">${btn(`${SITE}/sophie/coach/`, "Open Coach's Hub")}</p>
-          `), "Daniel.Grande@ymail.com");
+          `), "danielgrande0326@gmail.com");
           await db.from("sls_requests").update({ reminder_sent_at: new Date().toISOString() }).eq("id", r.id);
           results.nudged++;
         }

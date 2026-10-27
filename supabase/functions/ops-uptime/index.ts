@@ -23,7 +23,7 @@ const CHECKS: Check[] = [
 ];
 
 const FAILS_BEFORE_DOWN = 2;
-const ALERT_TO = "daniel.grande@ymail.com";
+const ALERT_TO = "danielgrande0326@gmail.com";
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);

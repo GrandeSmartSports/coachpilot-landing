@@ -5,7 +5,7 @@
   var DEFAULTS = {
     schema_version: 1, display_name: 'CoachPilot', short_name: 'CoachPilot', logo_url: '/CoachPilot-AppIcon.png',
     colors: { primary: '#1F5F3F', accent: '#1A1F1C', on_primary: '#FFFFFF' },
-    contact_email: '', support_email: 'Daniel.Grande@ymail.com', routing: {}, practice_rules: {},
+    contact_email: '', support_email: 'danielgrande0326@gmail.com', routing: {}, practice_rules: {},
     features: { public_schedule: false, public_standings: false, team_hubs: false }
   };
   var SUPABASE_URL = 'https://geigvuysptjvvqanumld.supabase.co';

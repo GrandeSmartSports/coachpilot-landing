@@ -93,7 +93,7 @@ const SEVERITIES = ["info", "warning", "urgent"];
 const GAME_STATUSES = ["draft", "scheduled", "postponed", "cancelled", "completed"];
 const UMP_ROLES = ["plate", "base"];
 const UMP_DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-const ADMIN_ALERT_EMAIL = "Daniel.Grande@ymail.com";
+const ADMIN_ALERT_EMAIL = "danielgrande0326@gmail.com";
 const PUBLIC_TEAM_COLS = "id,name,coach_name,coach_phone,division,is_active,created_at";
 const PUBLIC_EXT_COLS = "id,league_name,team_name,division";
 
@@ -1190,7 +1190,7 @@ Deno.serve(async (req: Request) => {
       const send = await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: isEmail(email) ? email : undefined,
-        to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "daniel.grande@ymail.com"],
+        to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "danielgrande0326@gmail.com"],
         subject: `[Field Command SUPPORT] ${name}: ${message.replace(/\s+/g, " ").slice(0, 60)}`,
         html,
       }).catch(() => ({ ok: false } as { ok: boolean }));
@@ -2147,7 +2147,7 @@ Deno.serve(async (req: Request) => {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "Daniel.Grande@ymail.com", to: [to], subject, html }),
+          body: JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "danielgrande0326@gmail.com", to: [to], subject, html }),
         });
         if (res.ok) {
           sent.push(to);
@@ -2764,7 +2764,7 @@ Deno.serve(async (req: Request) => {
       if (!isEmail(to) || !subject || (!html && !text)) return json({ ok: false, error: "to, subject, and body required" }, 400);
       const send = await resendSend({
         from: String(b.from ?? "Daniel Grande <noreply@coachpilot.org>"),
-        reply_to: String(b.reply_to ?? "daniel.grande@ymail.com"),
+        reply_to: String(b.reply_to ?? "danielgrande0326@gmail.com"),
         to: [to],
         subject,
         html: html || `<pre style="font-family:Arial;white-space:pre-wrap;">${escHtml(text)}</pre>`,
