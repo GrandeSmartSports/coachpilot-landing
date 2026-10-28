@@ -1,6 +1,8 @@
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const ADMIN_PIN = "0908";
+// Set with: supabase secrets set COUGARS_ADMIN_PIN=... (never commit the PIN).
+// Unset means every admin action is refused.
+const ADMIN_PIN = Deno.env.get("COUGARS_ADMIN_PIN") ?? "";
 const FORM_JERSEY = "uniform_sizes_2026fall";
 const FORM_SWEAT = "sweatshirt_sizes_2026fall";
 const FORM_VOL = "volunteer_2026fall";
@@ -227,7 +229,7 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") ?? "";
 
-  const requirePin = () => req.headers.get("x-admin-pin") === ADMIN_PIN;
+  const requirePin = () => ADMIN_PIN !== "" && req.headers.get("x-admin-pin") === ADMIN_PIN;
 
   try {
     // ---------- STAFF PORTAL (v19) ----------
