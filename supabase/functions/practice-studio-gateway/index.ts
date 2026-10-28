@@ -3,6 +3,10 @@
 // v2: staff_plans public read (published-only) + publish_to_staff flag on save.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
+// Set with: supabase secrets set STUDIO_PIN=... (never commit the PIN).
+// Unset means every request is refused.
+const STUDIO_PIN = Deno.env.get('STUDIO_PIN') ?? '';
+
 const CORS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-studio-pin',
@@ -41,7 +45,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // Everything below is Coach-only.
-  if (req.headers.get('x-studio-pin') !== '0908') return json({ error: 'unauthorized' }, 401);
+  if (!STUDIO_PIN || req.headers.get('x-studio-pin') !== STUDIO_PIN) return json({ error: 'unauthorized' }, 401);
 
   if (req.method === 'GET') {
     const { data, error } = await db
