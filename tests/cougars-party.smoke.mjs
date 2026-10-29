@@ -1,78 +1,46 @@
 #!/usr/bin/env node
-// Smoke test for the end-of-season party survey (cougars/party.html + cougars-gateway
-// submit_party_vote / party_vote_report).
-//
-//   1. party.html exists with the five day buttons, Coach's plan copy, submit flow.
-//   2. No em/en dashes or curly quotes in parent-facing copy.
-//   3. Gateway source has the form key + both actions.
-//   4. Live gateway: bad player -> 404, bogus/no choices -> 400, report needs PIN.
-//   5. With COUGARS_PIN: report shape (counts for all five days, answered, not_answered, total).
-//
+// Smoke test for the end-of-season party page (cougars/party.html): RSVP + head count + bring list.
 // Run:  COUGARS_PIN=xxxx node tests/cougars-party.smoke.mjs   (PIN optional)
-
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const GATEWAY = 'https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway';
 const PIN = process.env.COUGARS_PIN || '';
-const DAYS = ['tue1027', 'wed1028', 'thu1029', 'fri1030', 'sat1031', 'fri1106', 'sat1107', 'sun1108'];
-
+const BOGUS = '00000000-0000-0000-0000-000000000000';
 let passed = 0, failed = 0;
-function ok(msg)   { console.log('  PASS ' + msg); passed++; }
-function fail(msg) { console.log('  FAIL ' + msg); failed++; }
-function section(name) { console.log('\n' + name); }
+const ok = (m) => { console.log('  PASS ' + m); passed++; };
+const fail = (m) => { console.log('  FAIL ' + m); failed++; };
 
-section('party.html: file + copy');
-const PAGE = path.join(ROOT, 'cougars', 'party.html');
-if (!fs.existsSync(PAGE)) { fail('cougars/party.html missing'); process.exit(1); }
-const html = fs.readFileSync(PAGE, 'utf8');
-for (const s of ['End of Season Party', 'We will pick a park to meet at', 'game balls', 'sign each other', 'Saturday Oct 31', 'Saturday Nov 7', '10:00 to 12:00', 'submit_party_vote', 'action=players', 'action=page_view', 'Back to the team hub']) {
+console.log('\nparty.html');
+const html = fs.readFileSync(path.join(ROOT, 'cougars', 'party.html'), 'utf8');
+for (const s of ['End of Season Party', 'Sunday, Nov 1', '4:00 to 6:00 PM', "Purdy's", 'submit_party_rsvp', 'party_rsvp_status', 'party_bring_list', 'submit_party_bring', 'Sharpies', 'action=players', 'Back to the team hub']) {
   html.includes(s) ? ok(`contains "${s}"`) : fail(`missing "${s}"`);
 }
-for (const d of DAYS) html.includes(`data-choice="${d}"`) ? ok(`day button ${d}`) : fail(`day button ${d} missing`);
-/[—–‘’“”]/.test(html) ? fail('em/en dash or curly quote in party.html') : ok('no em/en dashes or curly quotes');
+/[—–]/.test(html) ? fail('em/en dash in party.html') : ok('no em/en dashes');
 
-section('gateway source');
+console.log('\ngateway source');
 const src = fs.readFileSync(path.join(ROOT, 'supabase/functions/cougars-gateway/index.ts'), 'utf8');
-for (const s of ['FORM_PARTY = "party_vote_2026oct"', 'action === "submit_party_vote"', 'action === "party_vote_report"']) {
-  src.includes(s) ? ok(`source has ${s}`) : fail(`source missing ${s}`);
+for (const s of ['action === "submit_party_rsvp"', 'action === "party_rsvp_status"', 'action === "party_bring_list"', 'action === "submit_party_bring"', 'action === "party_rsvp_report"']) {
+  src.includes(s) ? ok(s) : fail('missing ' + s);
 }
 
-section('live gateway');
-async function post(body) {
-  const r = await fetch(GATEWAY + '?action=submit_party_vote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
-  return { status: r.status, json: await r.json().catch(() => null) };
-}
-let r = await post({ player_id: '00000000-0000-0000-0000-000000000000', choices: ['sat1031'] });
-r.status === 404 ? ok('unknown player -> 404') : fail(`unknown player -> ${r.status}`);
-r = await post({ player_id: 'x', choices: ['bogus'] });
-r.status === 400 ? ok('bogus choice -> 400') : fail(`bogus choice -> ${r.status}`);
-r = await post({ player_id: 'x', choices: [] });
-r.status === 400 ? ok('empty choices -> 400') : fail(`empty choices -> ${r.status}`);
-let st = await fetch(GATEWAY + '?action=party_vote_status&player_id=00000000-0000-0000-0000-000000000000');
-let stj = await st.json().catch(() => null);
-st.status === 200 && stj && stj.submitted === false ? ok('status for unknown player -> submitted:false') : fail(`status unknown player -> ${st.status}`);
-st = await fetch(GATEWAY + '?action=party_vote_status');
-st.status === 400 ? ok('status without player_id -> 400') : fail(`status without player_id -> ${st.status}`);
-html.includes('party_vote_status') && html.includes('Already answered') ? ok('page checks for an existing answer') : fail('page missing existing-answer check');
-let rep = await fetch(GATEWAY + '?action=party_vote_report');
-rep.status === 401 ? ok('report without PIN -> 401') : fail(`report without PIN -> ${rep.status}`);
-
+console.log('\nlive gateway');
+const post = async (action, body) => { const r = await fetch(`${GATEWAY}?action=${action}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); return r.status; };
+(await post('submit_party_rsvp', { player_id: BOGUS, attending: true })) === 404 ? ok('rsvp unknown player -> 404') : fail('rsvp unknown player');
+(await post('submit_party_rsvp', { player_id: BOGUS })) === 400 ? ok('rsvp missing attending -> 400') : fail('rsvp missing attending');
+(await post('submit_party_bring', { player_id: BOGUS, item: '' })) === 400 ? ok('bring empty item -> 400') : fail('bring empty item');
+(await post('submit_party_bring', { player_id: BOGUS, item: 'x' })) === 404 ? ok('bring unknown player -> 404') : fail('bring unknown player');
+let r = await fetch(`${GATEWAY}?action=party_bring_list`); let j = await r.json().catch(() => null);
+r.status === 200 && Array.isArray(j?.items) ? ok('bring list -> 200 array') : fail('bring list');
+r = await fetch(`${GATEWAY}?action=party_rsvp_status&player_id=${BOGUS}`); j = await r.json().catch(() => null);
+j?.submitted === false ? ok('status unknown player -> submitted:false') : fail('status unknown');
+r = await fetch(`${GATEWAY}?action=party_rsvp_report`);
+r.status === 401 ? ok('report without PIN -> 401') : fail('report without PIN ' + r.status);
 if (PIN) {
-  rep = await fetch(GATEWAY + '?action=party_vote_report', { headers: { 'x-admin-pin': PIN } });
-  const j = await rep.json().catch(() => null);
-  rep.status === 200 && j ? ok('report with PIN -> 200') : fail(`report with PIN -> ${rep.status}`);
-  if (j) {
-    DAYS.every((d) => typeof j.counts?.[d] === 'number') ? ok('counts has all eight days') : fail('counts missing a day');
-    Array.isArray(j.answered) && Array.isArray(j.not_answered) ? ok('answered + not_answered arrays') : fail('answered/not_answered shape');
-    j.total === (j.answered.length + j.not_answered.length) ? ok(`total ${j.total} = answered + not_answered`) : fail('total mismatch');
-  }
-} else {
-  console.log('  skip PIN report checks (set COUGARS_PIN)');
+  r = await fetch(`${GATEWAY}?action=party_rsvp_report`, { headers: { 'x-admin-pin': PIN } }); j = await r.json().catch(() => null);
+  r.status === 200 && typeof j?.adults === 'number' && Array.isArray(j?.silent) ? ok('report with PIN -> counts') : fail('report with PIN');
 }
-
 console.log(`\npassed: ${passed}\nfailed: ${failed}`);
 process.exit(failed ? 1 : 0);

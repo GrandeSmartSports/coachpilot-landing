@@ -10,143 +10,171 @@
 <style>
   :root {
     --red: #c8102e; --red-dark: #a50d26; --red-soft: #fbe9ec; --black: #141416; --ink: #1f2326; --muted: #7a8087;
-    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f;
+    --line: #e4e6e8; --bg: #f2f3f4; --white: #fff; --green: #21622f; --green-soft: #eef4ef;
     --shadow: 0 10px 30px rgba(20,20,22,.08);
     --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); }
-  a { color: inherit; text-decoration: none; }
+  a { color: inherit; }
   .hero { background: radial-gradient(120% 160% at 85% -20%, #2b2b2f 0%, var(--black) 55%); color: #fff; }
   .hero-inner { max-width: 640px; margin: 0 auto; padding: 26px 22px 22px; }
   .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--red); }
   .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(32px, 7vw, 46px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 4px; }
-  .hero .tag { margin-top: 8px; color: #a9acb2; font-size: 14.5px; }
+  .hero .when { margin-top: 10px; font-family: var(--disp); font-weight: 600; font-size: 20px; letter-spacing: .04em; text-transform: uppercase; }
+  .hero .where { color: #c9ccd1; font-size: 15px; }
   .slash { height: 6px; background: linear-gradient(90deg, var(--red) 0%, var(--red) 62%, var(--red-dark) 100%); }
   .shell { max-width: 640px; margin: 0 auto; padding: 22px 22px 56px; }
   .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px; }
-  .plan { font-size: 15px; color: #33383d; margin-bottom: 14px; }
-  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-  select, textarea { width: 100%; font-size: 16px; padding: 13px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fdfdfd; font-family: inherit; }
-  select:focus, textarea:focus { outline: none; border-color: var(--red); }
-  textarea { min-height: 72px; resize: vertical; margin-top: 2px; }
-  .votes { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
-  .daybtn { min-height: 62px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); color: var(--ink); cursor: pointer; position: relative; text-align: left; padding: 10px 52px 10px 16px; }
-  .daybtn .d { display: block; font-family: var(--disp); font-weight: 600; font-size: 19px; letter-spacing: .06em; text-transform: uppercase; }
-  .daybtn .t { display: block; font-size: 13.5px; color: var(--muted); }
-  .daybtn:active { transform: scale(.98); }
-  .daybtn.sel { background: var(--black); color: #fff; border-color: var(--black); border-bottom: 4px solid var(--red); }
-  .daybtn.sel .t { color: #c9ccd1; }
-  .daybtn.sel::after { content: "\2713"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--red); font-size: 22px; }
-  .notewrap { margin-top: 16px; }
-  .status { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--red-soft); border: 1px solid #f3c9d0; font-size: 14.5px; line-height: 1.45; }
-  .status b { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); display: block; margin-bottom: 2px; }
-  .status.none { background: #eef4ef; border-color: #cfe0d3; }
-  .status.none b { color: var(--green); }
-  .submitbtn { margin-top: 14px; width: 100%; min-height: 58px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
-  .submitbtn:active { transform: scale(.98); }
-  .submitbtn[disabled] { opacity: .5; }
-  .msg { margin-top: 12px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
-  .msg.ok { color: var(--green); }
-  .msg.bad { color: var(--red); }
-  .revote { margin-top: 6px; font-size: 13px; color: var(--muted); }
-  .back { display: inline-block; margin-top: 8px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
-  .back:hover { color: var(--red); }
+  h2 { font-family: var(--disp); font-weight: 600; font-size: 20px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 10px; }
+  .plan { font-size: 15px; color: #33383d; }
+  .plan li { margin: 0 0 6px 18px; }
+  label { display: block; font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+  select, input[type=text], input[type=number] { width: 100%; font-size: 16px; padding: 13px 12px; border: 2px solid var(--line); border-radius: 12px; background: #fdfdfd; font-family: inherit; }
+  select:focus, input:focus { outline: none; border-color: var(--red); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .yn { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .ynbtn { min-height: 54px; border: 2px solid var(--line); border-radius: 14px; background: var(--white); font-family: var(--disp); font-weight: 600; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; color: var(--ink); }
+  .ynbtn.sel { background: var(--black); color: #fff; border-color: var(--black); border-bottom: 4px solid var(--red); }
+  .btn { margin-top: 14px; width: 100%; min-height: 56px; border: 0; border-radius: 14px; background: linear-gradient(120deg, var(--red), var(--red-dark)); color: #fff; font-family: var(--disp); font-weight: 600; font-size: 18px; letter-spacing: .07em; text-transform: uppercase; cursor: pointer; }
+  .btn[disabled] { opacity: .5; }
+  .msg { margin-top: 10px; font-size: 14.5px; font-weight: 600; min-height: 20px; }
+  .msg.ok { color: var(--green); } .msg.bad { color: var(--red); }
+  .status { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--red-soft); border: 1px solid #f3c9d0; font-size: 14.5px; }
+  .status b { font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); display: block; }
+  .status.none { background: var(--green-soft); border-color: #cfe0d3; } .status.none b { color: var(--green); }
+  .list { list-style: none; margin-top: 4px; }
+  .list li { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .list li:first-child { border-top: 0; }
+  .list .who { color: var(--muted); white-space: nowrap; }
+  .empty { color: var(--muted); font-size: 14.5px; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .back { display: inline-block; margin-top: 8px; font-family: var(--disp); font-weight: 600; font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
 </style>
 </head>
 <body>
   <div class="hero"><div class="hero-inner">
     <div class="kicker">BLS Cougars &bull; Fall 2026</div>
     <h1>End of Season Party</h1>
-    <p class="tag">Sunday, November 1, 4:00 to 6:00 PM. Location and details coming.</p>
+    <div class="when">Sunday, Nov 1 &middot; 4:00 to 6:00 PM</div>
+    <div class="where" id="where">Purdy's, back party room</div>
   </div></div>
   <div class="slash"></div>
   <div class="shell">
     <div class="card">
-      <div class="status" id="closed"><b>The vote is closed</b>The party is set for Sunday, November 1, 4:00 to 6:00 PM. No survey day worked for every family, so Coach picked a day that was not on the list. Location and details are coming by email and GameChanger.</div>
-      <p class="plan" hidden>We will pick a park to meet at. I will grab some pizzas and we will hang out, hand out the girls' game balls, and let them sign each other's jerseys. Tap every day that works for your family. I will go with the day that gets the most girls there.</p>
-      <label for="player" hidden>Your player</label>
-      <select id="player" hidden><option value="">Loading the roster&hellip;</option></select>
-      <div class="status" id="status" hidden></div>
-      <div class="votes" hidden>
-        <button class="daybtn" type="button" data-choice="tue1027" aria-pressed="false"><span class="d">Tuesday Oct 27</span><span class="t">Evening, 5:30</span></button>
-        <button class="daybtn" type="button" data-choice="wed1028" aria-pressed="false"><span class="d">Wednesday Oct 28</span><span class="t">Evening, 5:30</span></button>
-        <button class="daybtn" type="button" data-choice="thu1029" aria-pressed="false"><span class="d">Thursday Oct 29</span><span class="t">Evening, 5:30</span></button>
-        <button class="daybtn" type="button" data-choice="fri1030" aria-pressed="false"><span class="d">Friday Oct 30</span><span class="t">Evening, 5:30</span></button>
-        <button class="daybtn" type="button" data-choice="sat1031" aria-pressed="false"><span class="d">Saturday Oct 31</span><span class="t">Midday, 10:00 to 12:00 (Halloween)</span></button>
-        <button class="daybtn" type="button" data-choice="fri1106" aria-pressed="false"><span class="d">Friday Nov 6</span><span class="t">Evening, 5:30</span></button>
-        <button class="daybtn" type="button" data-choice="sat1107" aria-pressed="false"><span class="d">Saturday Nov 7</span><span class="t">Midday, 10:00 to 12:00</span></button>
-        <button class="daybtn" type="button" data-choice="sun1108" aria-pressed="false"><span class="d">Sunday Nov 8</span><span class="t">Midday, 10:00 to 12:00</span></button>
-      </div>
-      <div class="notewrap" hidden>
-        <label for="note">Anything we should know? (optional)</label>
-        <textarea id="note" maxlength="300" placeholder="Allergies, a park you love, can help with supplies..."></textarea>
-      </div>
-      <button class="submitbtn" type="button" id="submit" hidden>Submit</button>
-      <div class="msg" id="msg"></div>
-      <p class="revote" hidden>Changed your mind? Submit again, your newest answer counts.</p>
+      <h2>The plan</h2>
+      <ul class="plan">
+        <li>Pizza, appetizers, and sodas for the girls.</li>
+        <li>Parents can order their own food and drinks when you arrive.</li>
+        <li>The arcade takes quarters. We'll load up so the girls can play.</li>
+        <li>Awards for every girl.</li>
+        <li>Bring Sharpies and her jersey, or anything she wants teammates to sign.</li>
+      </ul>
     </div>
+
+    <div class="card">
+      <h2>Are you coming?</h2>
+      <label for="player">Your player</label>
+      <select id="player"><option value="">Loading the roster&hellip;</option></select>
+      <div class="status" id="status" hidden></div>
+      <div class="yn">
+        <button class="ynbtn" type="button" data-att="yes" id="attYes">We'll be there</button>
+        <button class="ynbtn" type="button" data-att="no" id="attNo">Can't make it</button>
+      </div>
+      <div id="countsWrap" hidden>
+        <div class="row2">
+          <div><label for="adults">Adults</label><input type="number" id="adults" min="0" max="10" inputmode="numeric" value="1" /></div>
+          <div><label for="kids">Kids, incl. your player</label><input type="number" id="kids" min="1" max="10" inputmode="numeric" value="1" /></div>
+        </div>
+        <label for="allergies">Food allergies? (optional)</label>
+        <input type="text" id="allergies" maxlength="200" placeholder="Anything we should know for the pizza order" />
+      </div>
+      <button class="btn" type="button" id="rsvpBtn">Send RSVP</button>
+      <div class="msg" id="rsvpMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>What families are bringing</h2>
+      <p class="plan">Want to add something for the team? Goodies go on the awards table. Last season a family brought bags for the girls to carry their stuff.</p>
+      <ul class="list" id="bringList"><li class="empty">Loading&hellip;</li></ul>
+      <label for="bringItem">I'll bring</label>
+      <input type="text" id="bringItem" maxlength="120" placeholder="e.g. goodie bags, cupcakes, extra Sharpies" />
+      <p class="hint">Pick your player above first so we know who's bringing it.</p>
+      <button class="btn" type="button" id="bringBtn">Add to the list</button>
+      <div class="msg" id="bringMsg"></div>
+    </div>
+
     <a class="back" href="/cougars/?stay">&larr; Back to the team hub</a>
   </div>
 
 <script>
 (function () {
   var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/cougars-gateway";
-  var LABELS = { tue1027: "Tue Oct 27", wed1028: "Wed Oct 28", thu1029: "Thu Oct 29", fri1030: "Fri Oct 30", sat1031: "Sat Oct 31", fri1106: "Fri Nov 6", sat1107: "Sat Nov 7", sun1108: "Sun Nov 8" };
-  var ORDER = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031", "fri1106", "sat1107", "sun1108"];
-  var sel = document.getElementById("player");
-  var msg = document.getElementById("msg");
-  var note = document.getElementById("note");
-  var submitBtn = document.getElementById("submit");
-  var busy = false;
+  var $ = function (id) { return document.getElementById(id); };
+  var sel = $("player"), status = $("status"), attending = null, seq = 0;
   function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+  function firstName() { return (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "").split(" ")[0]; }
+  function setAtt(v) {
+    attending = v;
+    $("attYes").classList.toggle("sel", v === true);
+    $("attNo").classList.toggle("sel", v === false);
+    $("countsWrap").hidden = v !== true;
+  }
+  $("attYes").addEventListener("click", function () { setAtt(true); });
+  $("attNo").addEventListener("click", function () { setAtt(false); });
+
   fetch(API + "?action=players").then(function (r) { return r.json(); }).then(function (d) {
-    var players = d.players || [];
-    sel.innerHTML = '<option value="">Pick her name&hellip;</option>' + players.map(function (p) {
-      var label = p.first_name + (p.last_initial ? " " + p.last_initial + "." : "");
-      return '<option value="' + esc(p.id) + '">' + esc(label) + "</option>";
+    sel.innerHTML = '<option value="">Pick her name&hellip;</option>' + (d.players || []).map(function (p) {
+      return '<option value="' + esc(p.id) + '">' + esc(p.first_name + (p.last_initial ? " " + p.last_initial + "." : "")) + "</option>";
     }).join("");
   }).catch(function () { sel.innerHTML = '<option value="">Could not load the roster. Refresh to try again.</option>'; });
-  document.querySelectorAll(".daybtn").forEach(function (btn) {
-    btn.addEventListener("click", function () { var on = btn.classList.toggle("sel"); btn.setAttribute("aria-pressed", on ? "true" : "false"); });
-  });
-  function picked() { return ORDER.filter(function (c) { var b = document.querySelector('.daybtn[data-choice="' + c + '"]'); return b && b.classList.contains("sel"); }); }
-  function setPicks(list) {
-    document.querySelectorAll(".daybtn").forEach(function (b) { var on = list.indexOf(b.getAttribute("data-choice")) !== -1; b.classList.toggle("sel", on); b.setAttribute("aria-pressed", on ? "true" : "false"); });
-  }
-  var status = document.getElementById("status");
-  var statusSeq = 0;
-  function fmtWhen(iso) { try { return new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }); } catch (e) { return ""; } }
-  function showStatus(d, firstName) {
-    if (!d || !d.submitted) {
-      status.className = "status none";
-      status.innerHTML = "<b>No answer yet</b>Nothing is in for " + esc(firstName) + "'s family. Tap the days below and submit.";
-      status.hidden = false; setPicks([]); note.value = ""; submitBtn.textContent = "Submit"; return;
-    }
-    var names = (d.choices || []).map(function (c) { return LABELS[c] || c; }).join(", ") || "no days";
+
+  function showStatus(d) {
+    var fn = esc(firstName());
+    if (!d || !d.submitted) { status.className = "status none"; status.innerHTML = "<b>No RSVP yet</b>Nothing is in for " + fn + "'s family."; status.hidden = false; setAtt(null); $("rsvpBtn").textContent = "Send RSVP"; return; }
     status.className = "status";
-    status.innerHTML = "<b>Already answered</b>Someone in " + esc(firstName) + "'s family submitted " + esc(fmtWhen(d.submitted_at)) + ": <strong>" + esc(names) + "</strong>." + (d.note ? " Note: \"" + esc(d.note) + "\"" : "") + " Those days are checked below. Change anything and tap Update, or leave it as is.";
-    status.hidden = false; setPicks(d.choices || []); note.value = d.note || ""; submitBtn.textContent = "Update";
+    status.innerHTML = "<b>Already answered</b>" + (d.attending ? fn + "'s family is coming: " + d.adults + " adult" + (d.adults === 1 ? "" : "s") + ", " + d.kids + " kid" + (d.kids === 1 ? "" : "s") + "." : fn + "'s family can't make it.") + " Change anything below and tap Update.";
+    status.hidden = false; setAtt(!!d.attending);
+    if (d.attending) { $("adults").value = d.adults; $("kids").value = d.kids; $("allergies").value = d.allergies || ""; }
+    $("rsvpBtn").textContent = "Update RSVP";
   }
   sel.addEventListener("change", function () {
-    var id = sel.value; var seq = ++statusSeq; msg.textContent = ""; msg.className = "msg";
-    if (!id) { status.hidden = true; setPicks([]); note.value = ""; submitBtn.textContent = "Submit"; return; }
-    var firstName = (sel.options[sel.selectedIndex].text || "").split(" ")[0];
-    fetch(API + "?action=party_vote_status&player_id=" + encodeURIComponent(id)).then(function (r) { return r.json(); })
-      .then(function (d) { if (seq === statusSeq) showStatus(d, firstName); })
-      .catch(function () { if (seq === statusSeq) { status.hidden = true; } });
+    var id = sel.value, s = ++seq; $("rsvpMsg").textContent = "";
+    if (!id) { status.hidden = true; setAtt(null); return; }
+    fetch(API + "?action=party_rsvp_status&player_id=" + encodeURIComponent(id)).then(function (r) { return r.json(); })
+      .then(function (d) { if (s === seq) showStatus(d); }).catch(function () { if (s === seq) status.hidden = true; });
   });
-  submitBtn.addEventListener("click", function () {
-    if (busy) return;
-    var playerId = sel.value; var choices = picked();
-    if (!playerId) { msg.className = "msg bad"; msg.textContent = "Pick her name first."; sel.focus(); return; }
-    if (choices.length === 0) { msg.className = "msg bad"; msg.textContent = "Tap at least one day, then submit."; return; }
-    busy = true; submitBtn.disabled = true; msg.className = "msg"; msg.textContent = "Saving...";
-    fetch(API + "?action=submit_party_vote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_id: playerId, choices: choices, note: note.value.trim() }) })
+
+  $("rsvpBtn").addEventListener("click", function () {
+    var m = $("rsvpMsg");
+    if (!sel.value) { m.className = "msg bad"; m.textContent = "Pick her name first."; return; }
+    if (attending === null) { m.className = "msg bad"; m.textContent = "Tap We'll be there or Can't make it."; return; }
+    var btn = this; btn.disabled = true; m.className = "msg"; m.textContent = "Saving...";
+    fetch(API + "?action=submit_party_rsvp", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ player_id: sel.value, attending: attending, adults: $("adults").value, kids: $("kids").value, allergies: $("allergies").value }) })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-      .then(function (d) { var names = (d.choices || choices).map(function (c) { return LABELS[c]; }).join(", "); msg.className = "msg ok"; msg.textContent = "Got it. " + names + " for " + d.first_name + "'s family."; showStatus({ submitted: true, choices: d.choices || choices, note: note.value.trim(), submitted_at: new Date().toISOString() }, d.first_name); })
-      .catch(function () { msg.className = "msg bad"; msg.textContent = "That did not go through. Try again in a minute."; })
-      .finally(function () { busy = false; submitBtn.disabled = false; });
+      .then(function (d) { m.className = "msg ok"; m.textContent = d.attending ? "Got it. See you Sunday!" : "Got it. We'll miss you."; showStatus(Object.assign({ submitted: true }, d)); })
+      .catch(function () { m.className = "msg bad"; m.textContent = "That did not go through. Try again in a minute."; })
+      .finally(function () { btn.disabled = false; });
+  });
+
+  function loadBring() {
+    fetch(API + "?action=party_bring_list").then(function (r) { return r.json(); }).then(function (d) {
+      var items = d.items || [];
+      $("bringList").innerHTML = items.length ? items.map(function (i) { return '<li><span>' + esc(i.item) + '</span><span class="who">' + esc(i.family) + "</span></li>"; }).join("") : '<li class="empty">Nothing yet. Be the first.</li>';
+    }).catch(function () { $("bringList").innerHTML = '<li class="empty">Could not load the list.</li>'; });
+  }
+  loadBring();
+  $("bringBtn").addEventListener("click", function () {
+    var m = $("bringMsg"), item = $("bringItem").value.trim();
+    if (!sel.value) { m.className = "msg bad"; m.textContent = "Pick your player at the top first."; sel.focus(); return; }
+    if (!item) { m.className = "msg bad"; m.textContent = "Type what you're bringing."; return; }
+    var btn = this; btn.disabled = true;
+    fetch(API + "?action=submit_party_bring", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ player_id: sel.value, item: item }) })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function () { m.className = "msg ok"; m.textContent = "Added. Thank you!"; $("bringItem").value = ""; loadBring(); })
+      .catch(function () { m.className = "msg bad"; m.textContent = "That did not go through. Try again in a minute."; })
+      .finally(function () { btn.disabled = false; });
   });
   try { fetch(API + "?action=page_view", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ page: "party" }), keepalive: true }).catch(function () {}); } catch (e) {}
 })();

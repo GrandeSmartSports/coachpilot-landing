@@ -8,6 +8,8 @@ const FORM_WALKUP = "walkup_2026fall";
 const FORM_CAGEVOTE = "cage_vote_2026sep";
 const FORM_PARTY = "party_vote_2026oct";
 const PARTY_CHOICES = ["tue1027", "wed1028", "thu1029", "fri1030", "sat1031", "fri1106", "sat1107", "sun1108"];
+const FORM_RSVP = "party_rsvp_2026nov1";
+const FORM_BRING = "party_bring_2026nov1";
 const FORM_PANTS = "pants_done_2026fall";
 
 const VALID_JERSEY = ["GXS", "GS", "GM", "GL", "WS", "WM", "WL", "WXL", "WXXL"];
@@ -714,6 +716,84 @@ Deno.serve(async (req) => {
       });
       if (iErr) return json({ error: iErr.message }, 500);
       return json({ ok: true, first_name: player.first_name, choices: list });
+    }
+
+    // POST submit_party_rsvp -> {player_id, attending, adults, kids, allergies}; newest per family counts
+    if (req.method === "POST" && action === "submit_party_rsvp") {
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body.player_id !== "string") return json({ error: "player_id required" }, 400);
+      if (typeof body.attending !== "boolean") return json({ error: "attending required" }, 400);
+      const n = (v: unknown, max: number) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
+      const { data: player, error: pErr } = await supabase.from("cougars_players").select("id, first_name").eq("id", body.player_id).maybeSingle();
+      if (pErr) return json({ error: pErr.message }, 500);
+      if (!player) return json({ error: "player not found" }, 404);
+      const payload = {
+        attending: body.attending,
+        adults: body.attending ? n(body.adults, 10) : 0,
+        kids: body.attending ? Math.max(1, n(body.kids, 10)) : 0,
+        allergies: typeof body.allergies === "string" ? body.allergies.trim().slice(0, 200) || null : null,
+      };
+      const { error: iErr } = await supabase.from("cougars_form_responses").insert({ form_key: FORM_RSVP, player_id: body.player_id, payload });
+      if (iErr) return json({ error: iErr.message }, 500);
+      return json({ ok: true, first_name: player.first_name, ...payload });
+    }
+
+    // GET party_rsvp_status?player_id= -> family's latest RSVP
+    if (req.method === "GET" && action === "party_rsvp_status") {
+      const playerId = url.searchParams.get("player_id") || "";
+      if (!playerId) return json({ error: "player_id required" }, 400);
+      const { data: row, error: sErr } = await supabase.from("cougars_form_responses").select("payload, submitted_at")
+        .eq("form_key", FORM_RSVP).eq("player_id", playerId).order("submitted_at", { ascending: false }).limit(1).maybeSingle();
+      if (sErr) return json({ error: sErr.message }, 500);
+      if (!row) return json({ submitted: false });
+      return json({ submitted: true, ...row.payload, submitted_at: row.submitted_at });
+    }
+
+    // GET party_bring_list -> public list of what families are bringing (item + first name of family's player)
+    if (req.method === "GET" && action === "party_bring_list") {
+      const { data: rows, error: rErr } = await supabase.from("cougars_form_responses").select("id, player_id, payload, submitted_at")
+        .eq("form_key", FORM_BRING).order("submitted_at", { ascending: true });
+      if (rErr) return json({ error: rErr.message }, 500);
+      const { data: players } = await getPlayers();
+      const names = new Map((players ?? []).map((p: any) => [p.id, `${p.first_name} ${(p.last_name ?? "").charAt(0)}.`.trim()]));
+      const items = (rows ?? []).filter((r: any) => !r.payload?.removed).map((r: any) => ({ id: r.id, item: r.payload?.item, family: names.get(r.player_id) ?? "A Cougars family" }));
+      return json({ items });
+    }
+
+    // POST submit_party_bring -> {player_id, item}
+    if (req.method === "POST" && action === "submit_party_bring") {
+      const body = await req.json().catch(() => null);
+      if (!body || typeof body.player_id !== "string") return json({ error: "player_id required" }, 400);
+      const item = typeof body.item === "string" ? body.item.trim().slice(0, 120) : "";
+      if (!item) return json({ error: "item required" }, 400);
+      const { data: player, error: pErr } = await supabase.from("cougars_players").select("id").eq("id", body.player_id).maybeSingle();
+      if (pErr) return json({ error: pErr.message }, 500);
+      if (!player) return json({ error: "player not found" }, 404);
+      const { error: iErr } = await supabase.from("cougars_form_responses").insert({ form_key: FORM_BRING, player_id: body.player_id, payload: { item } });
+      if (iErr) return json({ error: iErr.message }, 500);
+      return json({ ok: true });
+    }
+
+    // GET party_rsvp_report (PIN) -> head count, allergies, who has not answered, bring list
+    if (req.method === "GET" && action === "party_rsvp_report") {
+      if (!requirePin()) return json({ error: "unauthorized" }, 401);
+      const { data: allPlayers, error: pErr } = await getPlayers();
+      if (pErr) return json({ error: pErr.message }, 500);
+      const { data: rows, error: rErr } = await supabase.from("cougars_form_responses").select("player_id, payload, submitted_at")
+        .eq("form_key", FORM_RSVP).order("submitted_at", { ascending: false });
+      if (rErr) return json({ error: rErr.message }, 500);
+      const latest = new Map<string, any>();
+      for (const r of rows ?? []) if (!latest.has(r.player_id)) latest.set(r.player_id, r);
+      let adults = 0, kids = 0; const yes: any[] = [], no: string[] = [], silent: string[] = [], allergies: any[] = [];
+      for (const p of allPlayers ?? []) {
+        const name = `${p.first_name} ${p.last_name ?? ""}`.trim(); const r = latest.get(p.id);
+        if (!r) { silent.push(name); continue; }
+        if (!r.payload.attending) { no.push(name); continue; }
+        adults += r.payload.adults; kids += r.payload.kids; yes.push({ name, adults: r.payload.adults, kids: r.payload.kids });
+        if (r.payload.allergies) allergies.push({ name, note: r.payload.allergies });
+      }
+      const { data: bring } = await supabase.from("cougars_form_responses").select("player_id, payload").eq("form_key", FORM_BRING);
+      return json({ adults, kids, yes, no, silent, allergies, bring: (bring ?? []).map((b: any) => b.payload?.item) });
     }
 
     // GET party_vote_status?player_id= -> the family's latest party answer so a second parent can see it before resubmitting
