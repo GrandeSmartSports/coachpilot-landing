@@ -86,8 +86,6 @@
           <div><label for="adults">Adults</label><input type="number" id="adults" min="0" max="10" inputmode="numeric" value="1" /></div>
           <div><label for="kids">Kids, incl. your player</label><input type="number" id="kids" min="1" max="10" inputmode="numeric" value="1" /></div>
         </div>
-        <label for="allergies">Food allergies? (optional)</label>
-        <input type="text" id="allergies" maxlength="200" placeholder="Anything we should know for the pizza order" />
       </div>
       <button class="btn" type="button" id="rsvpBtn">Send RSVP</button>
       <div class="msg" id="rsvpMsg"></div>
@@ -96,6 +94,7 @@
     <div class="card">
       <h2>What families are bringing</h2>
       <p class="plan">Want to add something for the team? Goodies go on the awards table. Last season a family brought bags for the girls to carry their stuff.</p>
+      <p class="plan">Want to pitch in or help with anything? Reach out to Gina, Jozi's mom. She graciously put this together for us.</p>
       <ul class="list" id="bringList"><li class="empty">Loading&hellip;</li></ul>
       <label for="bringItem">I'll bring</label>
       <input type="text" id="bringItem" maxlength="120" placeholder="e.g. goodie bags, cupcakes, extra Sharpies" />
@@ -135,7 +134,7 @@
     status.className = "status";
     status.innerHTML = "<b>Already answered</b>" + (d.attending ? fn + "'s family is coming: " + d.adults + " adult" + (d.adults === 1 ? "" : "s") + ", " + d.kids + " kid" + (d.kids === 1 ? "" : "s") + "." : fn + "'s family can't make it.") + " Change anything below and tap Update.";
     status.hidden = false; setAtt(!!d.attending);
-    if (d.attending) { $("adults").value = d.adults; $("kids").value = d.kids; $("allergies").value = d.allergies || ""; }
+    if (d.attending) { $("adults").value = d.adults; $("kids").value = d.kids; }
     $("rsvpBtn").textContent = "Update RSVP";
   }
   sel.addEventListener("change", function () {
@@ -151,7 +150,7 @@
     if (attending === null) { m.className = "msg bad"; m.textContent = "Tap We'll be there or Can't make it."; return; }
     var btn = this; btn.disabled = true; m.className = "msg"; m.textContent = "Saving...";
     fetch(API + "?action=submit_party_rsvp", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ player_id: sel.value, attending: attending, adults: $("adults").value, kids: $("kids").value, allergies: $("allergies").value }) })
+      body: JSON.stringify({ player_id: sel.value, attending: attending, adults: $("adults").value, kids: $("kids").value }) })
       .then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (d) { m.className = "msg ok"; m.textContent = d.attending ? "Got it. See you Sunday!" : "Got it. We'll miss you."; showStatus(Object.assign({ submitted: true }, d)); })
       .catch(function () { m.className = "msg bad"; m.textContent = "That did not go through. Try again in a minute."; })
