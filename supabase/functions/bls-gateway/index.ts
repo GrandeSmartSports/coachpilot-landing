@@ -46,7 +46,6 @@ async function emailCoach(review: string, name: string, data: any) {
   const acc = Object.entries(data.accounts || {});
   if (acc.length) lines.push("", "BLS accounts: " + acc.map(([a, u]) => `${a} ${u}`).join(", "));
   if (data.general) lines.push("", "General notes: " + data.general);
-  lines.push("", "Admin view: https://coachpilot.org/bls/website-updates/?admin");
   await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },

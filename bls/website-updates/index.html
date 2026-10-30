@@ -60,16 +60,6 @@
   .status { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--ink); min-height: 1.2em; }
   .status:empty { display: none; }
   .foot { text-align: center; color: var(--muted); font-size: 13px; padding: 8px 0 4px; }
-  body.admin .review, body.admin .bar, body.admin .name { display: none; }
-  .pin { display: none; }
-  body.admin .pin { display: grid; gap: 8px; }
-  .pin form { display: flex; gap: 8px; }
-  .pin input { font: 500 18px/1.2 system-ui, -apple-system, sans-serif; padding: 11px 12px; width: 120px; border: 1.5px solid var(--line); border-radius: 10px; }
-  .pin button { font-family: var(--disp); font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; padding: 11px 16px; border-radius: 10px; border: 0; background: var(--navy); color: #fff; }
-  .resp { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--bg); display: grid; gap: 6px; font-size: 14.5px; }
-  .resp[hidden] { display: none; }
-  .tag { font-family: var(--disp); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; color: #fff; }
-  .tag.approve { background: var(--green); } .tag.discuss { background: var(--amber); }
   @media (prefers-reduced-motion: no-preference) { .choice, .send { transition: background .12s, color .12s; } }
 </style>
 </head>
@@ -86,12 +76,6 @@
     <input id="rev-name" type="text" autocomplete="name" placeholder="First and last name" />
     <p class="how">Notes are optional. Your answers stay on this phone until you tap Send, and you can send again later.</p>
   </section>
-  <section class="card pin" id="pin-card">
-    <span class="lab">Admin view</span>
-    <form id="pin-form"><label class="lab" for="pin" hidden>PIN</label><input id="pin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off" /><button type="submit">Show responses</button></form>
-    <p class="how" id="pin-msg"></p>
-  </section>
-  <section class="card resp" id="resp-general" hidden></section>
 
   <article class="card item" data-k="1">
     <div class="top"><span class="num">1</span><h2>Home page news</h2></div>
@@ -223,45 +207,7 @@
   var REVIEW = "website-updates-2026", KEY = "bls-review-" + REVIEW;
   var ACCTS = [["instagram", "Instagram"], ["youtube", "YouTube"], ["twitter", "X (Twitter)"], ["flickr", "Flickr"]];
   var items = Array.prototype.slice.call(document.querySelectorAll(".item"));
-  var admin = /[?&]admin\b/.test(location.search);
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-
-  if (admin) {
-    document.body.classList.add("admin");
-    var boxes = {};
-    items.forEach(function (it) { var r = el("div", "resp"); r.hidden = true; it.appendChild(r); boxes[it.getAttribute("data-k")] = r; });
-    var genResp = document.getElementById("resp-general"), msg = document.getElementById("pin-msg");
-    document.getElementById("pin-form").addEventListener("submit", function (e) {
-      e.preventDefault(); msg.textContent = "Loading";
-      fetch(API + "?action=review_report", { headers: { "x-admin-pin": document.getElementById("pin").value.trim() } })
-        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (r) {
-          if (!r.ok) { msg.textContent = r.j.error || "Could not load."; return; }
-          var resp = r.j.responses || [];
-          msg.textContent = resp.length ? resp.length + " response" + (resp.length === 1 ? "" : "s") + ": " + resp.map(function (x) { return x.name; }).join(", ") : "No responses yet.";
-          function line(who) { var p = el("p"); p.appendChild(el("strong", null, who)); return p; }
-          items.forEach(function (it) {
-            var k = it.getAttribute("data-k"), box = boxes[k], any = false; box.textContent = "";
-            resp.forEach(function (x) {
-              var v = (x.data.items || {})[k] || {}, acc = k === "7" ? Object.keys(x.data.accounts || {}) : [];
-              if (!v.d && !(v.note || "").trim() && !acc.length) return;
-              any = true; var p = line(x.name);
-              if (v.d) { p.appendChild(document.createTextNode(" ")); p.appendChild(el("span", "tag " + v.d, v.d === "approve" ? "Approved" : "Discuss")); }
-              if ((v.note || "").trim()) p.appendChild(document.createTextNode(" " + v.note.trim()));
-              if (acc.length) p.appendChild(document.createTextNode(" Accounts: " + acc.map(function (a) { return a + " " + x.data.accounts[a]; }).join(", ")));
-              box.appendChild(p);
-            });
-            box.hidden = !any;
-          });
-          genResp.textContent = ""; var anyG = false;
-          resp.forEach(function (x) { var g = (x.data.general || "").trim(); if (!g) return; anyG = true; var p = line(x.name); p.appendChild(document.createTextNode(" " + g)); genResp.appendChild(p); });
-          genResp.hidden = !anyG;
-        })
-        .catch(function () { msg.textContent = "Could not load. Check your connection."; });
-    });
-    return;
-  }
-
   var data = { name: "", items: {}, accounts: {}, general: "", sentAt: null };
   try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && typeof s === "object") { for (var p in s) data[p] = s[p]; } } catch (e) {}
   data.items = data.items || {}; data.accounts = data.accounts || {};
