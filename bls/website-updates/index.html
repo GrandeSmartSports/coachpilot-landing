@@ -1,392 +1,328 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex, nofollow">
-<title>BLS Website Updates</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Website Updates | BLS Little League</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 <style>
-:root{
-  --bg:#FFFFFF; --ink:#101418; --muted:#5B6470; --faint:#8A929C; --rule:#E4E7EB;
-  --accent:#0E7A43; --accent-ink:#0B6438; --now:#9A3412;
-  --note:#2456C7; --note-bg:#F3F6FD;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#0E1114; --ink:#EEF1F4; --muted:#A3ACB7; --faint:#7C8591; --rule:#252B32;
-    --accent:#4CC38A; --accent-ink:#6FD6A2; --now:#F0A37A;
-    --note:#8FB3FF; --note-bg:#151C27;
+  :root {
+    --navy: #14263d; --navy-2: #1f3a5c; --green: #1f7a3f; --green-soft: #e7f3ea; --amber: #b4590f; --amber-soft: #fbeedd;
+    --ink: #1f2326; --muted: #6b7279; --line: #e2e5e8; --bg: #f2f3f4; --white: #fff; --red: #9a3412;
+    --shadow: 0 8px 24px rgba(20,20,22,.07);
+    --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
   }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#0E1114; --ink:#EEF1F4; --muted:#A3ACB7; --faint:#7C8591; --rule:#252B32;
-  --accent:#4CC38A; --accent-ink:#6FD6A2; --now:#F0A37A;
-  --note:#8FB3FF; --note-bg:#151C27;
-}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:400 16px/1.55 "Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;padding-inline:20px;padding-block:40px 72px}
-.wrap{max-width:880px;margin:0 auto}
-header{padding-bottom:28px;border-bottom:2px solid var(--ink)}
-.eyebrow{font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
-h1{font-weight:800;font-size:clamp(32px,7vw,48px);line-height:1.05;letter-spacing:-.02em;margin:10px 0 12px;text-wrap:balance}
-.lede{margin:0;color:var(--muted);max-width:60ch}
-ol.list{list-style:none;margin:0;padding:0}
-.item{display:grid;grid-template-columns:48px 1fr;gap:0 16px;padding-block:26px;border-bottom:1px solid var(--rule)}
-.n{font-weight:800;font-size:22px;line-height:1.2;color:var(--accent);font-variant-numeric:tabular-nums}
-h2{font-weight:700;font-size:19px;line-height:1.3;margin:0 0 12px;text-wrap:balance}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-.lab{display:block;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
-.cur .lab{color:var(--now)}
-.fix .lab{color:var(--accent-ink)}
-.pair p{margin:0;font-size:15.5px}
-.cur p{color:var(--muted)}
-.view{display:inline-block;margin-top:12px;font-size:14px;font-weight:600;color:var(--accent-ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
-.view:hover{text-decoration-thickness:2px}
-.view:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
-footer{padding-top:22px;color:var(--faint);font-size:14px}
-.why{margin:14px 0 0;font-size:15.5px;max-width:70ch}
-.why .lab{color:var(--ink)}
-.sub{margin:8px 0 0;padding-left:20px;display:grid;gap:6px;font-size:15.5px}
-.sub li::marker{color:var(--accent-ink);font-weight:700}
-.draft{margin:14px 0 0;font-size:14px;font-weight:600;color:var(--note)}
-.note{margin-top:16px}
-.note-head{display:flex;align-items:baseline;gap:10px}
-.note-head label{font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--note)}
-.note-status{font-size:12.5px;color:var(--faint)}
-.note textarea{display:block;width:100%;margin-top:6px;min-height:46px;resize:vertical;font:400 15px/1.5 "Public Sans",-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--note-bg);border:0;border-left:2px solid var(--note);border-radius:0 6px 6px 0;padding:9px 12px;overflow:hidden}
-.note textarea::placeholder{color:var(--faint)}
-.note textarea:focus{outline:2px solid var(--note);outline-offset:1px}
-.overall{padding-block:22px;border-bottom:1px solid var(--rule)}
-.overall .note{margin-top:0}
-.overall textarea{min-height:70px}
-.review{margin-top:16px}
-.review .note-head label{font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
-.choices{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.choice{font:600 14px/1 "Public Sans",-apple-system,sans-serif;padding:9px 14px;border-radius:999px;border:1px solid var(--rule);background:transparent;color:var(--ink);cursor:pointer}
-.choice:focus-visible,.preview-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.choice.approve[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.choice.discuss[aria-pressed="true"]{background:var(--now);border-color:var(--now);color:var(--bg)}
-.review textarea,.accts input{display:block;width:100%;margin-top:8px;font:400 15px/1.5 "Public Sans",-apple-system,sans-serif;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:6px;padding:9px 12px}
-.review textarea{min-height:46px;resize:vertical;overflow:hidden}
-.review textarea:focus,.accts input:focus{outline:2px solid var(--accent);outline-offset:1px}
-.accts{margin-top:12px;display:grid;gap:8px}
-.accts-head{margin:0;font-size:14px;font-weight:600}
-.acct{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:10px;font-size:14px;color:var(--muted)}
-.acct input{margin-top:0}
-.review-lede{margin:0 0 12px;color:var(--muted);font-size:15px}
-.review-status{color:var(--faint);font-size:13px}
-.preview-btn{margin-top:10px;font:600 14px/1 "Public Sans",-apple-system,sans-serif;padding:9px 14px;border-radius:999px;border:1px solid var(--note);background:transparent;color:var(--note);cursor:pointer}
-.resp{margin-top:12px;padding-left:12px;border-left:2px solid var(--accent)}
-.resp-head{margin:0 0 4px;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
-.resp-line{margin:0 0 4px;font-size:14.5px}
-.tag{font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;color:var(--bg)}
-.tag.approve{background:var(--accent)} .tag.discuss{background:var(--now)}
-@media (max-width:620px){.acct{grid-template-columns:1fr;gap:4px}}
-@media (max-width:620px){
-  body{padding-block:28px 56px}
-  .item{grid-template-columns:34px 1fr;gap:0 10px;padding-block:22px}
-  .n{font-size:19px}
-  .pair{grid-template-columns:1fr;gap:12px}
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { color-scheme: light; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.45; padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+  a { color: inherit; }
+  .hero { background: radial-gradient(120% 160% at 85% -20%, var(--navy-2) 0%, var(--navy) 55%); color: #fff; padding-top: env(safe-area-inset-top, 0px); }
+  .hero-inner { max-width: 640px; margin: 0 auto; padding: 24px 18px 20px; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: #9fd3b1; }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 6px; }
+  .hero p { margin-top: 10px; color: #c9d1dc; font-size: 15px; max-width: 46ch; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 14px 14px 0; display: flex; flex-direction: column; gap: 12px; }
+  .card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); padding: 16px; }
+  .lab { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .name input { width: 100%; margin-top: 8px; font: 500 18px/1.2 system-ui, -apple-system, sans-serif; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--ink); }
+  .name input:focus, textarea:focus, .acct input:focus { outline: 2px solid var(--green); outline-offset: 1px; border-color: var(--green); }
+  .name .how { margin-top: 10px; font-size: 14px; color: var(--muted); }
+  .item { padding: 14px 16px 16px; }
+  .top { display: flex; align-items: baseline; gap: 10px; }
+  .num { font-family: var(--disp); font-weight: 700; font-size: 22px; color: var(--green); min-width: 28px; }
+  h2 { font-family: var(--disp); font-weight: 600; font-size: 21px; line-height: 1.1; letter-spacing: .01em; }
+  .row { display: grid; grid-template-columns: 58px 1fr; gap: 10px; margin-top: 10px; font-size: 15.5px; }
+  .row .k { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; padding-top: 3px; }
+  .row.now .k { color: var(--red); } .row.now p { color: var(--muted); }
+  .row.chg .k { color: var(--green); }
+  .row.why .k { color: var(--navy-2); } .row.why p { color: var(--muted); font-size: 14.5px; }
+  .row ul { padding-left: 18px; margin-top: 4px; display: grid; gap: 3px; }
+  .view { display: inline-block; margin-top: 8px; font-size: 13.5px; font-weight: 600; color: var(--green); }
+  .review { margin-top: 12px; }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .choice { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; padding: 13px 8px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }
+  .choice.approve[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
+  .choice.discuss[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .choice:focus-visible, .send:focus-visible, .more:focus-visible { outline: 2px solid var(--navy-2); outline-offset: 2px; }
+  .more { margin-top: 10px; background: none; border: 0; font: 600 14px/1 system-ui, -apple-system, sans-serif; color: var(--navy-2); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .extra { margin-top: 8px; display: grid; gap: 8px; }
+  .extra[hidden] { display: none; }
+  textarea, .acct input { width: 100%; font: 400 15.5px/1.45 system-ui, -apple-system, sans-serif; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--white); color: var(--ink); }
+  textarea { min-height: 64px; resize: vertical; }
+  .acct { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--line); padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -6px 20px rgba(20,20,22,.06); }
+  .bar-inner { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+  .prog { font-size: 14px; color: var(--muted); }
+  .prog b { color: var(--ink); font-family: var(--disp); font-size: 18px; font-weight: 600; }
+  .send { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 13px 20px; border-radius: 10px; border: 0; background: var(--green); color: #fff; cursor: pointer; }
+  .send:disabled { opacity: .6; }
+  .status { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--ink); min-height: 1.2em; }
+  .status:empty { display: none; }
+  .foot { text-align: center; color: var(--muted); font-size: 13px; padding: 8px 0 4px; }
+  body.admin .review, body.admin .bar, body.admin .name { display: none; }
+  .pin { display: none; }
+  body.admin .pin { display: grid; gap: 8px; }
+  .pin form { display: flex; gap: 8px; }
+  .pin input { font: 500 18px/1.2 system-ui, -apple-system, sans-serif; padding: 11px 12px; width: 120px; border: 1.5px solid var(--line); border-radius: 10px; }
+  .pin button { font-family: var(--disp); font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: .04em; padding: 11px 16px; border-radius: 10px; border: 0; background: var(--navy); color: #fff; }
+  .resp { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--bg); display: grid; gap: 6px; font-size: 14.5px; }
+  .resp[hidden] { display: none; }
+  .tag { font-family: var(--disp); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; color: #fff; }
+  .tag.approve { background: var(--green); } .tag.discuss { background: var(--amber); }
+  @media (prefers-reduced-motion: no-preference) { .choice, .send { transition: background .12s, color .12s; } }
 </style>
-<style>html{color-scheme:light}body{margin:0}
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.pin-form{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.pin-form input,.name-row input{font:400 16px/1.2 "Public Sans",sans-serif;padding:10px 12px;border:1px solid var(--rule);border-radius:6px;background:transparent;color:var(--ink)}
-.pin-form input{width:120px}
-.name-row{display:grid;gap:4px;margin-bottom:14px;max-width:420px}
-.name-row .lab{color:var(--accent-ink)}
-.name-row input:focus,.send-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.progress{margin:12px 0 0;font-size:14px;color:var(--muted)}
-.send-wrap{padding-block:26px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;border-bottom:1px solid var(--rule)}
-.send-btn{font:700 16px/1 "Public Sans",sans-serif;padding:14px 22px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-.send-btn:disabled{opacity:.6;cursor:default}
-.send-status{margin:0;font-size:15px;color:var(--ink)}
-.overall-resp{margin-block:16px}</style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <div class="eyebrow">Bonney Lake Sumner Little League</div>
+<header class="hero"><div class="hero-inner">
+  <div class="kicker">Bonney Lake Sumner Little League</div>
   <h1>Website Updates</h1>
-  <p class="lede">16 informational updates to freshen up blslittleleague.org and clear out old dates. Each item was checked against the live site on Oct 29, 2026.</p>
-</header>
+  <p>16 small updates to bring the site current. Tap Approve or Discuss on each one, then Send. About five minutes.</p>
+</div></header>
 
-<ol class="list">
-  <li class="item"><div class="n">1</div><div>
-    <h2>Home page news</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The On-Deck tab lists 10 posts from the 2025 and 2026 seasons.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Remove the 10 posts and add three current ones:</p><ol class="sub"><li>Fall Ball 2026 wrap-up: 36 teams in 8 divisions, 194 games on the schedule from Sept 12 to Oct 31, including 91 against other District 10 leagues. Thank the coaches, volunteers, and Fall Ball sponsors Molen Orthodontics, Great Northwest Dental, and Northwest Cascade.</li><li>Meet the 2026-27 board, with the roster, once it is set.</li><li>Spring 2027 registration dates, once the board sets them.</li></ol><p>Going forward, post league updates to the website news and Facebook together.</p></div>
-    </div>
+<main class="wrap">
+  <section class="card name">
+    <label class="lab" for="rev-name">Your name</label>
+    <input id="rev-name" type="text" autocomplete="name" placeholder="First and last name" />
+    <p class="how">Notes are optional. Your answers stay on this phone until you tap Send, and you can send again later.</p>
+  </section>
+  <section class="card pin" id="pin-card">
+    <span class="lab">Admin view</span>
+    <form id="pin-form"><label class="lab" for="pin" hidden>PIN</label><input id="pin" type="password" inputmode="numeric" placeholder="PIN" autocomplete="off" /><button type="submit">Show responses</button></form>
+    <p class="how" id="pin-msg"></p>
+  </section>
+  <section class="card resp" id="resp-general" hidden></section>
+
+  <article class="card item" data-k="1">
+    <div class="top"><span class="num">1</span><h2>Home page news</h2></div>
+    <div class="row now"><span class="k">Now</span><p>10 posts from the 2025 and 2026 seasons.</p></div>
+    <div class="row chg"><span class="k">Change</span><div><p>Remove them. Add three new posts:</p><ul><li>Fall Ball 2026 wrap-up, with the season numbers and a thank you to coaches, volunteers, and sponsors</li><li>Meet the 2026-27 board</li><li>Spring 2027 registration dates</li></ul><p>Then post updates to the site and Facebook together.</p></div></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=716835" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">2</div><div>
-    <h2>Calendar</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>13 entries from 2021 and 2022 still show, including old tryouts and a 2021 board meeting.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Delete the 13 old entries. Add the spring 2027 dates as the board sets them: registration, evaluations, opening day, and board meetings.</p></div>
-    </div>
+  <article class="card item" data-k="2">
+    <div class="top"><span class="num">2</span><h2>Calendar</h2></div>
+    <div class="row now"><span class="k">Now</span><p>13 entries from 2021 and 2022.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Delete them. Add the Spring 2027 dates as the board sets them.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=719255" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">3</div><div>
-    <h2>Fan Store slide</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>"NEW BLS FAN STORE - NOW OPEN!!"</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>"BLS FAN STORE IS OPEN! Gear up for Spring 2027." Keep it on the home page slider.</p></div>
-    </div>
+  <article class="card item" data-k="3">
+    <div class="top"><span class="num">3</span><h2>Fan Store slide</h2></div>
+    <div class="row now"><span class="k">Now</span><p>"NEW BLS FAN STORE - NOW OPEN!!"</p></div>
+    <div class="row chg"><span class="k">Change</span><p>"BLS FAN STORE IS OPEN! Gear up for Spring 2027."</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=716835" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">4</div><div>
-    <h2>Sudden Cardiac Arrest menu</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The menu item reads "Summer Schools Sudden Cardiac." "Sudden Cardiac Arrest Information" appears twice, as the menu heading and as an item under it.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Rename the item to "Sumner School District Sudden Cardiac Arrest Form." Rename the second "Sudden Cardiac Arrest Information" to "Sudden Cardiac Arrest Information Sheet."</p></div>
-    </div>
-  </div></li>
+  <article class="card item" data-k="4">
+    <div class="top"><span class="num">4</span><h2>Sudden Cardiac Arrest menu</h2></div>
+    <div class="row now"><span class="k">Now</span><p>Reads "Summer Schools Sudden Cardiac." The "Sudden Cardiac Arrest Information" name is used twice.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>"Sumner School District Sudden Cardiac Arrest Form." Rename the second item "Sudden Cardiac Arrest Information Sheet."</p></div>
+  </article>
 
-  <li class="item"><div class="n">5</div><div>
-    <h2>Safety Plan menu link</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>"Safety Plan" under About BLS and the "Health &amp; Safety" menu open the same page.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Remove the "Safety Plan" link under About BLS.</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>Redundant. Both links open the same page.</p>
-  </div></li>
+  <article class="card item" data-k="5">
+    <div class="top"><span class="num">5</span><h2>Safety Plan menu link</h2></div>
+    <div class="row now"><span class="k">Now</span><p>"Safety Plan" and "Health &amp; Safety" open the same page.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Remove the "Safety Plan" link.</p></div>
+    <div class="row why"><span class="k">Why</span><p>Redundant.</p></div>
+  </article>
 
-  <li class="item"><div class="n">6</div><div>
-    <h2>Sponsor logo links</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The Dick's Sporting Goods logo links to an expired coupon. One sponsor's Facebook link opens Facebook in Serbian.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Replace the expired coupon link with a link to the Dick's Sporting Goods website. Remove the Serbian setting from the Facebook link.</p></div>
-    </div>
-  </div></li>
+  <article class="card item" data-k="6">
+    <div class="top"><span class="num">6</span><h2>Sponsor logo links</h2></div>
+    <div class="row now"><span class="k">Now</span><p>The Dick's logo opens an expired coupon. One sponsor's Facebook link opens in Serbian.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Link Dick's to their website. Fix the Facebook link.</p></div>
+  </article>
 
-  <li class="item"><div class="n">7</div><div>
-    <h2>Social media icons</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The YouTube, Instagram, Twitter, Facebook, and Flickr icons at the top of every page open those sites' home pages, not BLS accounts. BLS has a Facebook page at facebook.com/BLSLittleLeague.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Link the Facebook icon to facebook.com/BLSLittleLeague. Link any other BLS accounts, and remove the icons where BLS has no account.</p></div>
-    </div>
-  </div></li>
+  <article class="card item" data-k="7">
+    <div class="top"><span class="num">7</span><h2>Social media icons</h2></div>
+    <div class="row now"><span class="k">Now</span><p>The five icons open each site's home page, not BLS accounts.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Link Facebook to facebook.com/BLSLittleLeague. Link any other BLS accounts. Remove icons with no account.</p></div>
+  </article>
 
-  <li class="item"><div class="n">8</div><div>
-    <h2>Fall Ball page</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>Shows last year's dates: "Spring of 2026," baseball age as of Aug 31, 2026, softball age as of Jan 1, 2026, and the 2025 game schedule.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>"Spring of 2027." Baseball age as of Aug 31, 2027. Softball age as of Jan 1, 2027. Replace the game dates with "Fall Ball 2026 is complete."</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>Updated for the 2027 season.</p>
+  <article class="card item" data-k="8">
+    <div class="top"><span class="num">8</span><h2>Fall Ball page</h2></div>
+    <div class="row now"><span class="k">Now</span><p>Last year's text: "Spring of 2026" and 2026 age dates.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>"Spring of 2027." Baseball age as of Aug 31, 2027. Softball age as of Jan 1, 2027. Replace the game dates with "Fall Ball 2026 is complete."</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=1462645" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">9</div><div>
-    <h2>Between-season pages</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>Available Programs, Posted Schedules, Scores, and Team Directory show no content.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Add the Spring 2027 registration dates to each page once the board sets them at the Nov 1 meeting.</p></div>
-    </div>
+  <article class="card item" data-k="9">
+    <div class="top"><span class="num">9</span><h2>Between-season pages</h2></div>
+    <div class="row now"><span class="k">Now</span><p>Available Programs, Schedules, Scores, and Team Directory are empty.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Add the Spring 2027 registration dates once the board sets them Nov 1.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=716841" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">10</div><div>
-    <h2>Cleared volunteer list</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The "2026 Cleared Volunteers as of 4/18/2026" table lists volunteer names and background check status publicly.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Remove the table. Replace it with how to become a cleared volunteer: register as a volunteer, complete the JDP background check every year (Little League resets checks on Oct 1), and complete Abuse Awareness training.</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>Background check status is best kept with the board.</p>
+  <article class="card item" data-k="10">
+    <div class="top"><span class="num">10</span><h2>Cleared volunteer list</h2></div>
+    <div class="row now"><span class="k">Now</span><p>A public table of volunteer names and background check status from April.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Replace it with how to become a cleared volunteer: register, complete the JDP check every year (Little League resets checks Oct 1), and finish Abuse Awareness training.</p></div>
+    <div class="row why"><span class="k">Why</span><p>Check status is best kept with the board.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=716842" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">11</div><div>
-    <h2>Coaches Corner</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>Links to "New Rules for 2025 Season," the 2025 rules, the 2025 All-Star selection process, and the 2026 coach guide.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Link Little League's current rule changes page. Label the other documents as last season until 2027 versions are approved.</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>Little League has published newer rule changes.</p>
+  <article class="card item" data-k="11">
+    <div class="top"><span class="num">11</span><h2>Coaches Corner</h2></div>
+    <div class="row now"><span class="k">Now</span><p>"New Rules for 2025," the 2025 rules, the 2025 All-Star process, and the 2026 coach guide.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Link Little League's current rule changes. Label the rest as last season until 2027 versions exist.</p></div>
+    <div class="row why"><span class="k">Why</span><p>Little League has published newer rule changes.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=1457982" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">12</div><div>
-    <h2>Health &amp; Safety heading</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The heading reads "2025 Safety Plan." The intro says "code of contact."</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Remove the year. Change to "code of conduct."</p></div>
-    </div>
+  <article class="card item" data-k="12">
+    <div class="top"><span class="num">12</span><h2>Health &amp; Safety heading</h2></div>
+    <div class="row now"><span class="k">Now</span><p>"2025 Safety Plan" and "code of contact."</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Drop the year. "Code of conduct."</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=1270141" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">13</div><div>
-    <h2>All-Stars page</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>Shows 2026 eligibility, deadlines, and District 10 tournament dates. The Federal Way and Auburn venue links open each other's maps.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Label the 2026 content as last season. Correct the two map links.</p></div>
-    </div>
+  <article class="card item" data-k="13">
+    <div class="top"><span class="num">13</span><h2>All-Stars page</h2></div>
+    <div class="row now"><span class="k">Now</span><p>2026 eligibility, deadlines, and tournament dates. The Federal Way and Auburn map links are swapped.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Label the 2026 content as last season. Fix the two map links.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=1457983" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">14</div><div>
-    <h2>Forms</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The School Enrollment Form is from 2017. The Medical Release Form is from 2010. The concussion handouts are from 2013.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Replace them with the current Little League and CDC versions.</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>Little League and CDC have released newer versions, and the district requires current concussion forms on file.</p>
-  </div></li>
+  <article class="card item" data-k="14">
+    <div class="top"><span class="num">14</span><h2>Forms</h2></div>
+    <div class="row now"><span class="k">Now</span><p>School Enrollment Form from 2017, Medical Release from 2010, concussion handouts from 2013.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Replace with the current Little League and CDC versions.</p></div>
+    <div class="row why"><span class="k">Why</span><p>Newer versions exist, and the district requires current concussion forms.</p></div>
+  </article>
 
-  <li class="item"><div class="n">15</div><div>
-    <h2>Corporate Match page</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>The Starbucks steps describe a site that now redirects to a Benevity login. One help paragraph appears twice.</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>Update the Starbucks steps. Remove the duplicate paragraph.</p></div>
-    </div>
-    <p class="why"><span class="lab">Why</span>These steps are how employer matching donations reach the league.</p>
+  <article class="card item" data-k="15">
+    <div class="top"><span class="num">15</span><h2>Corporate Match page</h2></div>
+    <div class="row now"><span class="k">Now</span><p>The Starbucks steps point to a site that now redirects. One paragraph appears twice.</p></div>
+    <div class="row chg"><span class="k">Change</span><p>Update the Starbucks steps. Remove the duplicate.</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=1462081" target="_blank" rel="noopener">View page</a>
-  </div></li>
+  </article>
 
-  <li class="item"><div class="n">16</div><div>
-    <h2>FAQ question</h2>
-    <div class="pair">
-      <div class="cur"><span class="lab">Current</span><p>"Are the volunteer opportunities with Bonney Lake-Sumner Little League?"</p></div>
-      <div class="fix"><span class="lab">Proposed update</span><p>"Are there volunteer opportunities with Bonney Lake-Sumner Little League?"</p></div>
-    </div>
+  <article class="card item" data-k="16">
+    <div class="top"><span class="num">16</span><h2>FAQ question</h2></div>
+    <div class="row now"><span class="k">Now</span><p>"Are the volunteer opportunities with Bonney Lake-Sumner Little League?"</p></div>
+    <div class="row chg"><span class="k">Change</span><p>"Are there volunteer opportunities with Bonney Lake-Sumner Little League?"</p></div>
     <a class="view" href="https://www.blslittleleague.org/Default.aspx?tabid=776471" target="_blank" rel="noopener">View page</a>
-  </div></li>
-</ol>
+  </article>
 
-<footer>Prepared by Daniel Grande, Website.</footer>
-</div>
+  <section class="card review" id="general-card">
+    <label class="lab" for="rev-general">Anything else</label>
+    <textarea id="rev-general" placeholder="Notes on the list as a whole"></textarea>
+  </section>
+  <p class="foot">Daniel Grande, Website</p>
+</main>
+
+<div class="bar" id="bar"><div class="bar-inner">
+  <div class="prog"><b id="prog-n">0</b> of 16 marked</div>
+  <button class="send" id="send" type="button">Send</button>
+  <p class="status" id="status" aria-live="polite"></p>
+</div></div>
+
 <script>
-// Review form: no sign-in. Type your name, mark each item, click Send. A draft stays on this device. ?admin shows responses behind the league PIN.
-(() => {
-  const API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
-  const REVIEW = "website-updates-2026";
-  const KEY = "bls-review-" + REVIEW;
-  const q = new URLSearchParams(location.search);
-  const header = document.querySelector("header");
-  const items = [...document.querySelectorAll(".item")].map((li) => ({ k: li.querySelector(".n").textContent.trim(), body: li.querySelector(".n + div") }));
-  const grow = (t) => { t.style.height = "auto"; t.style.height = (t.scrollHeight + 2) + "px"; };
-  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
-  const ACCTS = [["instagram", "Instagram"], ["youtube", "YouTube"], ["twitter", "X (Twitter)"], ["flickr", "Flickr"]];
+(function () {
+  var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
+  var REVIEW = "website-updates-2026", KEY = "bls-review-" + REVIEW;
+  var ACCTS = [["instagram", "Instagram"], ["youtube", "YouTube"], ["twitter", "X (Twitter)"], ["flickr", "Flickr"]];
+  var items = Array.prototype.slice.call(document.querySelectorAll(".item"));
+  var admin = /[?&]admin\b/.test(location.search);
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
 
-  function reviewer() {
-    let data = { name: "", items: {}, accounts: {}, general: "", sentAt: null };
-    try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && typeof s === "object") data = Object.assign(data, s); } catch (e) {}
-    data.items = data.items || {}; data.accounts = data.accounts || {};
-    let dirty = false;
-    const keep = () => { dirty = true; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} progress(); };
-
-    const intro = el("div", "overall");
-    intro.append(el("p", "review-lede", "For each update, choose Approve or Needs discussion and add any notes. Enter your name and click Send when you are done. You can come back and send again."));
-    const nameRow = el("div", "name-row"); const nl = el("label", "lab", "Your name"); nl.htmlFor = "rev-name";
-    const nameIn = el("input"); nameIn.id = "rev-name"; nameIn.type = "text"; nameIn.autocomplete = "name"; nameIn.placeholder = "First and last name"; nameIn.value = data.name || "";
-    nameIn.addEventListener("input", () => { data.name = nameIn.value; keep(); });
-    nameRow.append(nl, nameIn); intro.append(nameRow);
-    const gen = el("div", "note"); const gh = el("div", "note-head"); const gl = el("label", null, "General notes"); gl.htmlFor = "rev-general"; gh.append(gl);
-    const gt = el("textarea"); gt.id = "rev-general"; gt.rows = 1; gt.placeholder = "Anything about the list as a whole"; gt.value = data.general || "";
-    gt.addEventListener("input", () => { grow(gt); data.general = gt.value; keep(); });
-    gen.append(gh, gt); intro.append(gen);
-    const prog = el("p", "progress"); intro.append(prog);
-    header.after(intro); grow(gt);
-
-    items.forEach(({ k, body }) => {
-      const it = data.items[k] = data.items[k] || { d: "", note: "" };
-      const box = el("div", "review");
-      const head = el("div", "note-head"); const lab = el("label", null, "Your review"); lab.htmlFor = "rev-" + k; head.append(lab);
-      const row = el("div", "choices"); row.setAttribute("role", "group"); row.setAttribute("aria-label", "Your review of item " + k);
-      const mk = (val, label) => {
-        const b = el("button", "choice " + val, label); b.type = "button"; b.setAttribute("aria-pressed", String(it.d === val));
-        b.addEventListener("click", () => { it.d = it.d === val ? "" : val; row.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(!!it.d && x.classList.contains(it.d)))); keep(); });
-        return b;
-      };
-      row.append(mk("approve", "Approve"), mk("discuss", "Needs discussion"));
-      const ta = el("textarea"); ta.id = "rev-" + k; ta.rows = 1; ta.placeholder = "Notes on item " + k; ta.value = it.note || "";
-      ta.addEventListener("input", () => { grow(ta); it.note = ta.value; keep(); });
-      box.append(head, row, ta);
-      if (k === "7") {
-        const ac = el("div", "accts"); ac.append(el("p", "accts-head", "BLS accounts, if they exist"));
-        ACCTS.forEach(([key, name]) => {
-          const w = el("label", "acct"); const sp = el("span", null, name);
-          const inp = el("input"); inp.type = "url"; inp.id = "acct-" + key; inp.placeholder = "Link to the BLS " + name + " page"; inp.value = data.accounts[key] || "";
-          inp.addEventListener("input", () => { data.accounts[key] = inp.value.trim(); keep(); });
-          w.append(sp, inp); ac.append(w);
-        });
-        box.append(ac);
-      }
-      body.append(box); grow(ta);
+  if (admin) {
+    document.body.classList.add("admin");
+    var boxes = {};
+    items.forEach(function (it) { var r = el("div", "resp"); r.hidden = true; it.appendChild(r); boxes[it.getAttribute("data-k")] = r; });
+    var genResp = document.getElementById("resp-general"), msg = document.getElementById("pin-msg");
+    document.getElementById("pin-form").addEventListener("submit", function (e) {
+      e.preventDefault(); msg.textContent = "Loading";
+      fetch(API + "?action=review_report", { headers: { "x-admin-pin": document.getElementById("pin").value.trim() } })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (r) {
+          if (!r.ok) { msg.textContent = r.j.error || "Could not load."; return; }
+          var resp = r.j.responses || [];
+          msg.textContent = resp.length ? resp.length + " response" + (resp.length === 1 ? "" : "s") + ": " + resp.map(function (x) { return x.name; }).join(", ") : "No responses yet.";
+          function line(who) { var p = el("p"); p.appendChild(el("strong", null, who)); return p; }
+          items.forEach(function (it) {
+            var k = it.getAttribute("data-k"), box = boxes[k], any = false; box.textContent = "";
+            resp.forEach(function (x) {
+              var v = (x.data.items || {})[k] || {}, acc = k === "7" ? Object.keys(x.data.accounts || {}) : [];
+              if (!v.d && !(v.note || "").trim() && !acc.length) return;
+              any = true; var p = line(x.name);
+              if (v.d) { p.appendChild(document.createTextNode(" ")); p.appendChild(el("span", "tag " + v.d, v.d === "approve" ? "Approved" : "Discuss")); }
+              if ((v.note || "").trim()) p.appendChild(document.createTextNode(" " + v.note.trim()));
+              if (acc.length) p.appendChild(document.createTextNode(" Accounts: " + acc.map(function (a) { return a + " " + x.data.accounts[a]; }).join(", ")));
+              box.appendChild(p);
+            });
+            box.hidden = !any;
+          });
+          genResp.textContent = ""; var anyG = false;
+          resp.forEach(function (x) { var g = (x.data.general || "").trim(); if (!g) return; anyG = true; var p = line(x.name); p.appendChild(document.createTextNode(" " + g)); genResp.appendChild(p); });
+          genResp.hidden = !anyG;
+        })
+        .catch(function () { msg.textContent = "Could not load. Check your connection."; });
     });
-
-    const sendWrap = el("div", "send-wrap");
-    const btn = el("button", "send-btn", "Send to Daniel"); btn.type = "button";
-    const status = el("p", "send-status"); status.setAttribute("aria-live", "polite");
-    sendWrap.append(btn, status);
-    document.querySelector("ol.list").after(sendWrap);
-    function progress() {
-      const n = Object.values(data.items).filter((x) => x.d).length;
-      prog.textContent = n + " of " + items.length + " items marked." + (data.sentAt && !dirty ? " Sent " + new Date(data.sentAt).toLocaleString() + "." : "");
-      btn.textContent = data.sentAt ? "Send again" : "Send to Daniel";
-    }
-    btn.addEventListener("click", async () => {
-      const name = (data.name || "").trim();
-      if (name.length < 2) { status.textContent = "Please enter your name at the top first."; nameIn.focus(); return; }
-      btn.disabled = true; status.textContent = "Sending";
-      try {
-        const r = await fetch(API + "?action=review_submit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ review: REVIEW, name, data: { items: data.items, accounts: data.accounts, general: data.general } }) });
-        const j = await r.json().catch(() => ({}));
-        if (r.ok) { data.sentAt = new Date().toISOString(); dirty = false; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} status.textContent = "Sent. Thank you, " + name + ". You can change anything and send again."; progress(); }
-        else status.textContent = j.error || "Could not send. Please try again.";
-      } catch (e) { status.textContent = "Could not send. Check your connection and try again."; }
-      btn.disabled = false;
-    });
-    progress();
+    return;
   }
 
-  function admin() {
-    const banner = el("p", "draft", "Admin view. Enter the league PIN to see responses."); header.append(banner);
-    const form = el("form", "pin-form"); const inp = el("input"); inp.type = "password"; inp.inputMode = "numeric"; inp.id = "pin"; inp.placeholder = "PIN"; inp.autocomplete = "off";
-    const lab = el("label", "sr-only", "League PIN"); lab.htmlFor = "pin"; const b = el("button", "preview-btn", "Show responses"); b.type = "submit";
-    form.append(lab, inp, b); header.append(form);
-    const boxes = {}; items.forEach(({ k, body }) => { const r = el("div", "resp"); r.hidden = true; body.append(r); boxes[k] = r; });
-    const genResp = el("div", "resp overall-resp"); genResp.hidden = true; header.after(genResp);
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault(); banner.textContent = "Loading responses";
-      let r;
-      try { r = await fetch(API + "?action=review_report", { headers: { "x-admin-pin": inp.value.trim() } }).then((x) => x.json().then((j) => ({ ok: x.ok, j }))); }
-      catch (err) { banner.textContent = "Could not load. Check your connection."; return; }
-      if (!r.ok) { banner.textContent = r.j.error || "Could not load."; return; }
-      const resp = r.j.responses || [];
-      banner.textContent = resp.length ? resp.length + " response" + (resp.length === 1 ? "" : "s") + ": " + resp.map((x) => x.name).join(", ") : "No responses yet.";
-      const line = (who) => { const p = el("p", "resp-line"); p.append(el("strong", null, who)); return p; };
-      items.forEach(({ k }) => {
-        const box = boxes[k]; box.textContent = ""; let any = false;
-        resp.forEach((x) => {
-          const v = (x.data.items || {})[k] || {}; const acc = k === "7" ? Object.entries(x.data.accounts || {}) : [];
-          if (!v.d && !(v.note || "").trim() && !acc.length) return;
-          any = true; const p = line(x.name);
-          if (v.d) p.append(" ", el("span", "tag " + v.d, v.d === "approve" ? "Approved" : "Needs discussion"));
-          if ((v.note || "").trim()) p.append(" " + v.note.trim());
-          if (acc.length) p.append(" Accounts: " + acc.map(([a, u]) => a + " " + u).join(", "));
-          box.append(p);
-        });
-        if (any) box.prepend(el("p", "resp-head", "Responses")); box.hidden = !any;
+  var data = { name: "", items: {}, accounts: {}, general: "", sentAt: null };
+  try { var s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && typeof s === "object") { for (var p in s) data[p] = s[p]; } } catch (e) {}
+  data.items = data.items || {}; data.accounts = data.accounts || {};
+  var dirty = false;
+  function keep() { dirty = true; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} progress(); }
+
+  var nameIn = document.getElementById("rev-name"); nameIn.value = data.name || "";
+  nameIn.addEventListener("input", function () { data.name = nameIn.value; keep(); });
+  var gen = document.getElementById("rev-general"); gen.value = data.general || "";
+  gen.addEventListener("input", function () { data.general = gen.value; keep(); });
+
+  items.forEach(function (card) {
+    var k = card.getAttribute("data-k");
+    var it = data.items[k] = data.items[k] || { d: "", note: "" };
+    var box = el("div", "review"), row = el("div", "choices"); row.setAttribute("role", "group"); row.setAttribute("aria-label", "Your answer on item " + k);
+    function mk(val, label) {
+      var b = el("button", "choice " + val, label); b.type = "button"; b.setAttribute("aria-pressed", String(it.d === val));
+      b.addEventListener("click", function () {
+        it.d = it.d === val ? "" : val;
+        Array.prototype.forEach.call(row.children, function (x) { x.setAttribute("aria-pressed", String(!!it.d && x.classList.contains(it.d))); });
+        keep();
       });
-      genResp.textContent = ""; let anyG = false;
-      resp.forEach((x) => { const g = (x.data.general || "").trim(); if (!g) return; anyG = true; const p = line(x.name); p.append(" " + g); genResp.append(p); });
-      if (anyG) genResp.prepend(el("p", "resp-head", "General notes")); genResp.hidden = !anyG;
+      return b;
+    }
+    row.appendChild(mk("approve", "Approve")); row.appendChild(mk("discuss", "Discuss"));
+    var more = el("button", "more", k === "7" ? "Add a note or BLS account links" : "Add a note"); more.type = "button";
+    var extra = el("div", "extra"); extra.hidden = !(it.note || (k === "7" && Object.keys(data.accounts).length));
+    var ta = el("textarea"); ta.id = "rev-" + k; ta.placeholder = "Your note on item " + k; ta.value = it.note || "";
+    ta.setAttribute("aria-label", "Note on item " + k);
+    ta.addEventListener("input", function () { it.note = ta.value; keep(); });
+    extra.appendChild(ta);
+    if (k === "7") ACCTS.forEach(function (a) {
+      var w = el("label", "acct"); w.appendChild(el("span", null, "BLS " + a[1] + " link, if one exists"));
+      var inp = el("input"); inp.type = "url"; inp.id = "acct-" + a[0]; inp.placeholder = "https://"; inp.value = data.accounts[a[0]] || "";
+      inp.addEventListener("input", function () { var v = inp.value.trim(); if (v) data.accounts[a[0]] = v; else delete data.accounts[a[0]]; keep(); });
+      w.appendChild(inp); extra.appendChild(w);
     });
-  }
+    more.setAttribute("aria-expanded", String(!extra.hidden));
+    more.addEventListener("click", function () { extra.hidden = !extra.hidden; more.setAttribute("aria-expanded", String(!extra.hidden)); if (!extra.hidden) ta.focus(); });
+    box.appendChild(row); box.appendChild(more); box.appendChild(extra); card.appendChild(box);
+  });
 
-  if (q.has("admin")) admin(); else reviewer();
+  var progN = document.getElementById("prog-n"), send = document.getElementById("send"), status = document.getElementById("status");
+  function progress() {
+    var n = 0; for (var k in data.items) if (data.items[k].d) n++;
+    progN.textContent = n; send.textContent = data.sentAt ? "Send again" : "Send";
+  }
+  send.addEventListener("click", function () {
+    var name = (data.name || "").replace(/\s+/g, " ").trim();
+    if (name.length < 2) { status.textContent = "Add your name at the top first."; nameIn.focus(); nameIn.scrollIntoView({ block: "center" }); return; }
+    send.disabled = true; status.textContent = "Sending";
+    fetch(API + "?action=review_submit", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ review: REVIEW, name: name, data: { items: data.items, accounts: data.accounts, general: data.general } }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (r) {
+        if (r.ok) { data.sentAt = new Date().toISOString(); dirty = false; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} status.textContent = "Sent. Thank you, " + name + ". Change anything and send again anytime."; progress(); }
+        else status.textContent = r.j.error || "Could not send. Try again.";
+      })
+      .catch(function () { status.textContent = "Could not send. Check your connection and try again."; })
+      .then(function () { send.disabled = false; });
+  });
+  progress();
 })();
 </script>
 </body>
