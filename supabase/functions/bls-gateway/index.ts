@@ -50,15 +50,15 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   const text: string[] = [`${name} reviewed ${meta.title}.`, summary, ""];
   const rows: string[] = [];
   const tag = (d: string) => d === "approve"
-    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#1f7a3f;color:#fff;font:700 12px/1.2 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.04em">APPROVED</span>`
+    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#1452a0;color:#fff;font:700 12px/1.2 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.04em">APPROVED</span>`
     : d === "discuss"
-    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#b4590f;color:#fff;font:700 12px/1.2 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.04em">DISCUSS</span>`
+    ? `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#cd163f;color:#fff;font:700 12px/1.2 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.04em">DISCUSS</span>`
     : `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#e2e5e8;color:#555;font:700 12px/1.2 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.04em">NOT MARKED</span>`;
   for (let i = 1; i <= meta.items; i++) {
     const it = data.items[String(i)] || { d: "", note: "" };
     const label = it.d === "approve" ? "Approved" : it.d === "discuss" ? "Discuss" : "Not marked";
     text.push(`${i}. ${meta.names[i - 1]}: ${label}${it.note ? ". " + it.note : ""}`);
-    rows.push(`<tr><td style="padding:12px 0;border-top:1px solid #e2e5e8;vertical-align:top;width:28px;font:700 16px/1.3 -apple-system,Helvetica,Arial,sans-serif;color:#1f7a3f">${i}</td>
+    rows.push(`<tr><td style="padding:12px 0;border-top:1px solid #e2e5e8;vertical-align:top;width:28px;font:700 16px/1.3 -apple-system,Helvetica,Arial,sans-serif;color:#cd163f">${i}</td>
       <td style="padding:12px 0;border-top:1px solid #e2e5e8;vertical-align:top;font:600 16px/1.3 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326">${esc(meta.names[i - 1])}
       ${it.note ? `<div style="margin-top:4px;font:400 15px/1.45 -apple-system,Helvetica,Arial,sans-serif;color:#555">${esc(it.note)}</div>` : ""}</td>
       <td style="padding:12px 0 12px 8px;border-top:1px solid #e2e5e8;vertical-align:top;text-align:right;white-space:nowrap">${tag(it.d)}</td></tr>`);
@@ -68,17 +68,21 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   if (acc.length) { text.push("", "BLS accounts: " + acc.map(([a, u]) => `${a} ${u}`).join(", ")); extra.push(`<p style="margin:18px 0 0;font:600 13px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6b7279">BLS accounts</p>` + acc.map(([a, u]) => `<p style="margin:6px 0 0;font:400 15px/1.45 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326">${esc(a)}: ${esc(u)}</p>`).join("")); }
   if (data.general) { text.push("", "General notes: " + data.general); extra.push(`<p style="margin:18px 0 0;font:600 13px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6b7279">General notes</p><p style="margin:6px 0 0;font:400 15px/1.45 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326">${esc(data.general)}</p>`); }
   text.push("", `Sent from ${meta.url}`);
-  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f2f3f4"><div style="max-width:600px;margin:0 auto;padding:16px">
-<div style="background:#14263d;border-radius:14px 14px 0 0;padding:20px 22px">
-  <div style="font:700 11px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.25em;text-transform:uppercase;color:#9fd3b1">Bonney Lake Sumner Little League</div>
-  <div style="margin-top:6px;font:800 26px/1.1 -apple-system,Helvetica,Arial,sans-serif;color:#fff">${esc(meta.title)}</div>
-  <div style="margin-top:8px;font:400 15px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#c9d1dc">Review from <strong style="color:#fff">${esc(name)}</strong></div>
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#eef2f6"><div style="max-width:600px;margin:0 auto;padding:16px">
+<div style="background:#fff;border-radius:14px 14px 0 0;border-top:5px solid #cd163f;padding:18px 22px 14px">
+  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+    <td style="vertical-align:middle;padding-right:14px"><img src="https://coachpilot.org/bls/assets/bls-logo.png" width="60" height="60" alt="BLS Little League" style="display:block;width:60px;height:60px"></td>
+    <td style="vertical-align:middle">
+      <div style="font:700 11px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#cd163f">Bonney Lake Sumner Little League</div>
+      <div style="margin-top:4px;font:800 22px/1.15 -apple-system,Helvetica,Arial,sans-serif;color:#00013a">${esc(meta.title)}</div>
+      <div style="margin-top:4px;font:400 15px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#5f6b7a">Review from <strong style="color:#1a1f26">${esc(name)}</strong></div>
+    </td></tr></table>
 </div>
-<div style="background:#fff;border-radius:0 0 14px 14px;padding:18px 22px 22px">
+<div style="background:#fff;border-radius:0 0 14px 14px;padding:6px 22px 22px;border-top:1px solid #dde3ea">
   <p style="margin:0 0 6px;font:600 16px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326">${summary}</p>
   <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse">${rows.join("")}</table>
   ${extra.join("")}
-  <p style="margin:22px 0 0;font:400 13px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#6b7279">Sent from <a href="${meta.url}" style="color:#1f7a3f">${meta.url.replace("https://", "")}</a></p>
+  <p style="margin:22px 0 0;font:400 13px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#6b7279">Sent from <a href="${meta.url}" style="color:#1452a0">${meta.url.replace("https://", "")}</a></p>
 </div></div></body></html>`;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

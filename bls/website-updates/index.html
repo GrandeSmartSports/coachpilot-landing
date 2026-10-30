@@ -8,8 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --navy: #14263d; --navy-2: #1f3a5c; --green: #1f7a3f; --green-soft: #e7f3ea; --amber: #b4590f; --amber-soft: #fbeedd;
-    --ink: #1f2326; --muted: #6b7279; --line: #e2e5e8; --bg: #f2f3f4; --white: #fff; --red: #9a3412;
+    --navy: #00013a; --navy-2: #1452a0; --green: #1452a0; --green-soft: #e6eef8; --amber: #cd163f; --amber-soft: #fbe7ec;
+    --ink: #1a1f26; --muted: #5f6b7a; --line: #dde3ea; --bg: #eef2f6; --white: #fff; --red: #cd163f;
     --shadow: 0 8px 24px rgba(20,20,22,.07);
     --disp: "Oswald", "Arial Narrow", system-ui, sans-serif;
   }
@@ -17,11 +17,12 @@
   html { color-scheme: light; }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.45; padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
   a { color: inherit; }
-  .hero { background: radial-gradient(120% 160% at 85% -20%, var(--navy-2) 0%, var(--navy) 55%); color: #fff; padding-top: env(safe-area-inset-top, 0px); }
-  .hero-inner { max-width: 640px; margin: 0 auto; padding: 24px 18px 20px; }
-  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .28em; text-transform: uppercase; color: #9fd3b1; }
-  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 6px; }
-  .hero p { margin-top: 10px; color: #c9d1dc; font-size: 15px; max-width: 46ch; }
+  .hero { background: var(--white); color: var(--ink); padding-top: env(safe-area-inset-top, 0px); border-bottom: 4px solid var(--red); }
+  .hero-inner { max-width: 640px; margin: 0 auto; padding: 20px 18px 18px; display: flex; gap: 14px; align-items: flex-start; }
+  .logo { width: 68px; height: 68px; flex: none; }
+  .kicker { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--red); }
+  .hero h1 { font-family: var(--disp); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-transform: uppercase; letter-spacing: .02em; line-height: 1; margin-top: 4px; color: var(--navy); }
+  .hero p { margin-top: 8px; color: var(--muted); font-size: 15px; max-width: 46ch; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 14px 14px 0; display: flex; flex-direction: column; gap: 12px; }
   .card { background: var(--white); border-radius: 14px; box-shadow: var(--shadow); padding: 16px; }
   .lab { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
@@ -30,8 +31,8 @@
   .name .how { margin-top: 10px; font-size: 14px; color: var(--muted); }
   .item { padding: 14px 16px 16px; }
   .top { display: flex; align-items: baseline; gap: 10px; }
-  .num { font-family: var(--disp); font-weight: 700; font-size: 22px; color: var(--green); min-width: 28px; }
-  h2 { font-family: var(--disp); font-weight: 600; font-size: 21px; line-height: 1.1; letter-spacing: .01em; }
+  .num { font-family: var(--disp); font-weight: 700; font-size: 22px; color: var(--red); min-width: 28px; }
+  h2 { font-family: var(--disp); font-weight: 600; font-size: 21px; line-height: 1.1; letter-spacing: .01em; color: var(--navy); }
   .row { display: grid; grid-template-columns: 58px 1fr; gap: 10px; margin-top: 10px; font-size: 15.5px; }
   .row .k { font-family: var(--disp); font-weight: 600; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; padding-top: 3px; }
   .row.now .k { color: var(--red); } .row.now p { color: var(--muted); }
@@ -42,8 +43,8 @@
   .review { margin-top: 12px; }
   .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .choice { font-family: var(--disp); font-weight: 600; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; padding: 13px 8px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }
-  .choice.approve[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: #fff; }
-  .choice.discuss[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #fff; }
+  .choice.approve[aria-pressed="true"] { background: var(--navy-2); border-color: var(--navy-2); color: #fff; }
+  .choice.discuss[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
   .choice:focus-visible, .send:focus-visible, .more:focus-visible { outline: 2px solid var(--navy-2); outline-offset: 2px; }
   .more { margin-top: 10px; background: none; border: 0; font: 600 14px/1 system-ui, -apple-system, sans-serif; color: var(--navy-2); cursor: pointer; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
   .extra { margin-top: 8px; display: grid; gap: 8px; }
@@ -54,8 +55,8 @@
   .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--line); padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -6px 20px rgba(20,20,22,.06); }
   .bar-inner { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
   .prog { font-size: 14px; color: var(--muted); }
-  .prog b { color: var(--ink); font-family: var(--disp); font-size: 18px; font-weight: 600; }
-  .send { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 13px 20px; border-radius: 10px; border: 0; background: var(--green); color: #fff; cursor: pointer; }
+  .prog b { color: var(--navy); font-family: var(--disp); font-size: 18px; font-weight: 600; }
+  .send { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: .05em; text-transform: uppercase; padding: 13px 20px; border-radius: 10px; border: 0; background: var(--red); color: #fff; cursor: pointer; }
   .send:disabled { opacity: .6; }
   .status { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--ink); min-height: 1.2em; }
   .status:empty { display: none; }
@@ -65,9 +66,12 @@
 </head>
 <body>
 <header class="hero"><div class="hero-inner">
-  <div class="kicker">Bonney Lake Sumner Little League</div>
-  <h1>Website Updates</h1>
-  <p>16 small updates to bring the site current. Tap Approve or Discuss on each one, then Send. About five minutes.</p>
+  <img class="logo" src="/bls/assets/bls-logo.png" alt="BLS Little League" width="68" height="68" />
+  <div>
+    <div class="kicker">Bonney Lake Sumner Little League</div>
+    <h1>Website Updates</h1>
+    <p>16 small updates to bring the site current. Tap Approve or Discuss on each one, then Send. About five minutes.</p>
+  </div>
 </div></header>
 
 <main class="wrap">
