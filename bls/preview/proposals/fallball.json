@@ -1,0 +1,80 @@
+{
+ "modules": {
+  "1554224": {
+   "file": "modules/fallball.html",
+   "title": "Fall Ball"
+  }
+ },
+ "insert_after": [
+  {
+   "mid": "1554224",
+   "new_mid": "91554227",
+   "file": "modules/fallball-ages.html",
+   "title": "Fall Ball Age Guidelines (2025)"
+  },
+  {
+   "mid": "91554227",
+   "new_mid": "91554225",
+   "file": "modules/fallball-rules.html",
+   "title": "Fall Ball Rules (2025)"
+  }
+ ],
+ "hide": [
+  "1554225",
+  "1554227"
+ ],
+ "status": "Ready, with 8 items to confirm",
+ "summary": "Fall Ball 2026 wrap-up: final scoreboard with team growth since 2024, sponsor thank-you, how Fall Ball works, the 2026 timeline and divisions, the last posted age guidelines (Baseball/Softball switch on phones) and the 2025 District 10 rule PDFs.",
+ "needs": [
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm next fall runs the same way (weekday practices starting in August, Saturday games, games against nearby leagues) and whether Juniors will be offered (it was not in Fall 2026).",
+  "VP of Baseball and VP of Softball: the age cutoffs and registration dates for Fall 2027 (spring 2028 league age), to replace the Fall 2025 age chart on this page.",
+  "VP of Baseball (Jeremy Olsen): Minors age conflict. This page keeps 'AAA (Minors player pitch) 10 to 11' from the 2025 guidelines, while the FAQ and Registration pages say Minors 9 to 11. One answer is needed for all three pages.",
+  "VP of Softball (Luke Kress): OK to show the Fall 2025 softball cutoff as 'Age on Dec 31, 2025' (the live page says 'as of January 1, 2026', the same rule)?",
+  "VP of Baseball and VP of Softball: the Fall 2027 District 10 rule PDFs when the district releases them. The 2025 PDFs stay up, labeled 2025.",
+  "Scheduler (Daniel Grande): confirm the 2026 numbers on the scoreboard and team bars (36 teams, 194 games, 91 against other D10 leagues). They come from the schedule, not social media.",
+  "President (Ramey Harguess) or Treasurer (Dan Swagman): confirm Spring 2027 registration opens Friday Nov 27 with $50 off per family, and when the discount ends. Social media has not announced it, and the Oct 25 and Nov 1 board minutes are not posted yet (Secretary Tawnie LaValley).",
+  "Sponsorship and Fundraising (Ashley Gauthier), optional: logos for the three Fall Ball 2026 sponsors (Molen Orthodontics, Great Northwest Dental, Northwest Cascade). The page thanks them by name until then."
+ ],
+ "sources": [
+  {
+   "fact": "Fall Ball 2026 sponsors: Molen Orthodontics, Great Northwest Dental, Northwest Cascade.",
+   "url": "https://www.instagram.com/p/DexpTMbjLCM/",
+   "date": "2026-10-21"
+  },
+  {
+   "fact": "Fall Ball supported 32 teams in 2025, up from 5 in 2024 (team bars).",
+   "url": "https://www.instagram.com/p/DSGi6HcDTr2/",
+   "date": "2025-12-10"
+  },
+  {
+   "fact": "Fall Ball 2026 registration opened Jul 10 and ran through Aug 9; limited fields meant some divisions could fill early and go to a waitlist.",
+   "url": "https://www.instagram.com/p/DanvXBCAQg6/",
+   "date": "2026-07-10"
+  },
+  {
+   "fact": "Fall Ball 2025 registration was open by Jul 17, 2025.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0Pdb15gpuMDyRLiVtuk6aNNZR3fjR5XnbGUcpsFqHojYoDiQaw3BxxFAEEMWGpEkJl",
+   "date": "2025-07-17"
+  },
+  {
+   "fact": "Fall Ball 2025 registration closed Aug 6, 2025.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02iRW816BX3bJyLMdWAsd3xg8rURtHtBmmAb7js4jVD5pxJyunRppbM3rNRbgvDRBrl",
+   "date": "2025-07-30"
+  },
+  {
+   "fact": "Fall Ball 2026: practices began mid-August; Saturday games Sep 12 to Oct 31; developmental season, register for the division expected in the spring; 8 divisions (Tee Ball co-ed; Baseball Coach Pitch, AA, Minors, Majors; Softball Minors B, Minors A, Majors); spring volunteers' background checks and Abuse Awareness courses stay valid.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid08PCm8UyyQvfzmjpiNvERQyE3GCUsAydAY19hRwdvrW5bLaqcvdd1DUYz2XeZ6qpAl",
+   "date": "2026-08-07"
+  },
+  {
+   "fact": "Fall Ball is a great entry point to try coaching; coaches sign up through the player's registration.",
+   "url": "https://www.instagram.com/p/Dbb0pmMgdlR/",
+   "date": "2026-07-30"
+  },
+  {
+   "fact": "Fall Ball 2026 is over; coaches return gear to the Daffodil Shed, Sat Nov 7, 10AM to 1PM.",
+   "url": "https://www.instagram.com/p/DfPyxIwCao1/",
+   "date": "2026-11-02"
+  }
+ ]
+}

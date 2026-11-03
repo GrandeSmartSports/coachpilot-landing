@@ -1,0 +1,133 @@
+/* BLS Little League: inner page style (final)
+   Navy title bars with red and white trim, white cards on a light gray page, royal blue links.
+   Every rule is scoped to body.Inner-Skin, so the home page can never change.
+   Does not touch: .skAddBanner (Little League ad), .skTopbar / .skMobTopbar (Little League bar),
+   #mobNav / .navBar (phone menu). The desktop menu only gets the size tweak in its own section below. */
+
+body.Inner-Skin{--bls-navy:#00013a;--bls-red:#cd163f;--bls-blue:#1452a0;--bls-light:#eef2f6;--bls-ink:#1d2233;--bls-line:#e1e7ef}
+
+/* ---------- Gray page behind the content cards ---------- */
+body.Inner-Skin .skInnerWrapper{background:var(--bls-light)!important;padding:28px 27px 10px!important}
+
+/* ---------- Module cards ---------- */
+body.Inner-Skin .skInnerWrapper .dfContainer{padding:0 0 22px!important}
+body.Inner-Skin .skInnerWrapper .dfArea{background:#fff!important;padding:0!important;border-radius:8px;box-shadow:0 1px 2px rgba(0,1,58,.08),0 8px 24px rgba(0,1,58,.07)}
+
+/* ---------- Title bar: navy with red and white jersey trim ---------- */
+body.Inner-Skin .skInnerWrapper .dfArea h2.head{position:relative;overflow:hidden;border-radius:8px 8px 0 0;margin:0!important;padding:18px 96px 22px 54px!important;background:linear-gradient(to top,var(--bls-red) 0 5px,#fff 5px 8px,var(--bls-navy) 8px)!important;color:#fff!important;font-family:Poppins,"Helvetica Neue",Arial,sans-serif!important;font-size:22px!important;font-weight:700!important;line-height:1.25!important;letter-spacing:.05em!important;text-transform:uppercase!important;height:auto!important}
+body.Inner-Skin .skInnerWrapper .dfArea h2.head .title{background:none!important;padding:0!important;color:#fff!important;font:inherit!important;letter-spacing:inherit!important;display:inline!important}
+body.Inner-Skin .skInnerWrapper .dfArea h2.head .icon{display:none!important}
+body.Inner-Skin .skInnerWrapper .dfArea h2.head::before{content:"";position:absolute;left:29px;top:calc(18px + .625em - 5px);width:10px;height:10px;background:var(--bls-red);transform:rotate(45deg)}
+body.Inner-Skin .skInnerWrapper .dfArea h2.head::after{content:"";position:absolute;right:0;top:0;bottom:8px;width:84px;background:repeating-linear-gradient(115deg,transparent 0 10px,var(--bls-red) 10px 16px,transparent 16px 20px,#fff 20px 23px,transparent 23px 34px);opacity:.9;-webkit-mask:linear-gradient(to right,transparent,#000 60%);mask:linear-gradient(to right,transparent,#000 60%)}
+/* First card on the page reads as the page title */
+body.Inner-Skin #dnn_ContentPane > .DnnModule:first-child .dfArea h2.head{font-size:24px!important}
+
+/* ---------- Body copy: one font, one size per page ---------- */
+body.Inner-Skin .skInnerWrapper .dfArea .content{margin:0!important;padding:28px 32px 30px!important}
+
+body.Inner-Skin .skInnerWrapper .Normal{font-family:Poppins,"Helvetica Neue",Arial,sans-serif!important;font-size:17px!important;line-height:1.65!important;color:var(--bls-ink)!important;text-align:left;max-width:880px;overflow-wrap:break-word}
+body.Inner-Skin .skInnerWrapper .Normal p:not(.blsx):not(.blsx *){padding:0!important;margin:0 0 1em!important;font-size:inherit;line-height:inherit}
+
+/* Pasted-in fonts, sizes and black text follow the page */
+body.Inner-Skin .skInnerWrapper .Normal :is(p,div,span,font,strong,b,em,i,u,a,li,td,th,blockquote,small,label):not([class*="fa"]):not([class*="icon"]):not([class*="glyph"]):not(.blsx):not(.blsx *){font-family:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal :is([style*="font-size: 9px"],[style*="font-size: 10px"],[style*="font-size: 11px"],[style*="font-size: 12px"],[style*="font-size: 13px"],[style*="font-size: 13.3333px"],[style*="font-size: 14px"],[style*="font-size: 15px"],[style*="font-size: 16px"],[style*="font-size: 17px"],[style*="font-size: 18px"],[style*="font-size: small"],[style*="font-size: medium"],[style*="font-size: 10pt"],[style*="font-size: 11pt"],[style*="font-size: 12pt"],font[size="1"],font[size="2"],font[size="3"]):not(.blsx):not(.blsx *){font-size:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal :is([style*="color: rgb(0, 0, 0)"],[style*="color:#000"],[style*="color: #000"],[style*="color: black"],font[color="#000000"],font[color="black"]):not(.blsx):not(.blsx *){color:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal [style*="letter-spacing"]:not(.blsx):not(.blsx *){letter-spacing:normal!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(strong,b):not(.blsx):not(.blsx *){color:var(--bls-navy);font-weight:600}
+
+
+
+/* Empty space at the top and bottom of a card (stray line breaks).
+   Only hides a break that sits right before or after a block, so two lines of text can never run together. */
+body.Inner-Skin .skInnerWrapper .Normal > br:first-child:has(+ :is(h1,h2,h3,h4,h5,h6,p,div,ul,ol,table,blockquote)):not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal > :is(h1,h2,h3,h4,h5,h6,p,div,ul,ol,table,blockquote) + br:last-child:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal > :last-child > a:has(> br:last-child) + br:last-child:not(.blsx):not(.blsx *){display:none}
+body.Inner-Skin .skInnerWrapper .Normal > :last-child:not(.blsx):not(.blsx *){margin-bottom:0!important}
+
+/* ---------- Headings inside content ---------- */
+body.Inner-Skin .skInnerWrapper .Normal :is(h1,h2,h3,h4,h5):not(.blsx):not(.blsx *){font-family:Poppins,"Helvetica Neue",Arial,sans-serif!important;color:var(--bls-navy)!important;font-weight:700!important;line-height:1.25!important;letter-spacing:-.005em;text-transform:none;text-align:left;background:none;padding:0!important;margin:1.5em 0 .6em!important}
+body.Inner-Skin .skInnerWrapper .Normal h1:not(.blsx):not(.blsx *){font-size:28px!important}
+body.Inner-Skin .skInnerWrapper .Normal h2:not(.blsx):not(.blsx *){font-size:24px!important}
+body.Inner-Skin .skInnerWrapper .Normal h3:not(.blsx):not(.blsx *){font-size:20px!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(h4,h5):not(.blsx):not(.blsx *){font-size:1em!important;font-weight:600!important;line-height:1.6!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(h1,h2,h3):not(.blsx):not(.blsx *)::after{content:"";display:block;width:44px;height:4px;margin-top:.45em;border-radius:2px;background:linear-gradient(to right,var(--bls-red) 0 70%,var(--bls-blue) 70%)}
+body.Inner-Skin .skInnerWrapper .Normal > :first-child:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal > br:first-child + *:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal > div:first-child > :is(h1,h2,h3,h4):first-child:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal > div:first-child > div:first-child > :is(h1,h2,h3,h4):first-child:not(.blsx):not(.blsx *){margin-top:0!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(h1,h2,h3,h4,h5) :not(a):not(.blsx):not(.blsx *){color:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(h1,h2,h3,h4,h5) *:not(.blsx):not(.blsx *){font-size:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal :is(h1,h2,h3) u:not(.blsx):not(.blsx *){text-decoration:none}
+
+
+
+/* ---------- Links: royal blue, red on hover ---------- */
+body.Inner-Skin .skInnerWrapper .Normal a:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal a:visited:not(.blsx):not(.blsx *){color:var(--bls-blue);font-weight:500;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px;text-decoration-color:rgba(20,82,160,.35);transition:color .15s,text-decoration-color .15s;overflow-wrap:anywhere}
+body.Inner-Skin .skInnerWrapper .Normal a[style*="color"]:not([style*="background"]):not(.blsx):not(.blsx *){color:var(--bls-blue)!important}
+body.Inner-Skin .skInnerWrapper .Normal a [style*="color"]:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal a font[color]:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal a *:not(.blsx):not(.blsx *){color:inherit!important}
+body.Inner-Skin .skInnerWrapper .Normal a:hover:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal a:focus-visible:not(.blsx):not(.blsx *), body.Inner-Skin .skInnerWrapper .Normal a[style*="color"]:not([style*="background"]):is(:hover,:focus-visible):not(.blsx):not(.blsx *){color:var(--bls-red)!important;text-decoration-color:var(--bls-red)}
+body.Inner-Skin .skInnerWrapper .Normal a:focus-visible:not(.blsx):not(.blsx *){outline:2px solid var(--bls-blue);outline-offset:2px;border-radius:2px}
+/* Pasted web addresses (they carry <wbr>) wrap inside the address instead of pushing their label onto its own line */
+body.Inner-Skin .skInnerWrapper .Normal a:has(> wbr):not(.blsx):not(.blsx *){word-break:break-all}
+
+/* ---------- Lists ---------- */
+body.Inner-Skin .skInnerWrapper .Normal :is(ul,ol):not(.blsx):not(.blsx *){margin:0 0 1.1em 0!important;padding:0 0 0 1.4em!important}
+body.Inner-Skin .skInnerWrapper .Normal li:not(.blsx):not(.blsx *){margin:0 0 .35em;padding-left:.2em}
+body.Inner-Skin .skInnerWrapper .Normal ul:not(.blsx):not(.blsx *){list-style:square}
+body.Inner-Skin .skInnerWrapper .Normal li:not(.blsx):not(.blsx *)::marker{color:var(--bls-red);font-weight:700}
+
+/* ---------- Tables ---------- */
+body.Inner-Skin .skInnerWrapper .Normal table:not(.blsx):not(.blsx *){max-width:100%;border:0;border-collapse:collapse;margin:0 0 1.2em}
+body.Inner-Skin .skInnerWrapper .Normal :is(td,th):not(.blsx):not(.blsx *){border:0;border-bottom:1px solid var(--bls-line);padding:10px 14px 10px 0;vertical-align:top;text-align:left;font-size:inherit;line-height:inherit;color:inherit}
+body.Inner-Skin .skInnerWrapper .Normal th:not(.blsx):not(.blsx *){color:var(--bls-navy);font-weight:600;border-bottom:2px solid var(--bls-navy)}
+/* Side-by-side lists in a table (Corporate Match employers): room between the columns */
+body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(:last-child):not(.blsx):not(.blsx *){padding-right:32px}
+
+
+
+/* ---------- Images, rules ---------- */
+body.Inner-Skin .skInnerWrapper .Normal img:not(.blsx):not(.blsx *){max-width:100%;height:auto}
+body.Inner-Skin .skInnerWrapper .Normal hr:not(.blsx):not(.blsx *){border:0;height:1px;background:#d9dee8;margin:1.6em 0}
+
+/* ---------- Registration listing module (Available Programs): line up with the card ----------
+   The module's own CSS uses ID selectors, so these need !important. */
+body.Inner-Skin .dfArea #BSBContainer.registration-listing.custom-title{padding-top:0!important;margin-bottom:0!important}
+body.Inner-Skin .dfArea #BSBContainer.registration-listing.content-part{padding-top:0!important;margin-left:0!important;margin-right:0!important;max-width:100%}
+body.Inner-Skin .dfArea .registration-listing #BSBGrid{padding:4px 0 0!important}
+body.Inner-Skin .dfArea .registration-listing .row-text{font-family:Poppins,"Helvetica Neue",Arial,sans-serif!important;font-size:15px!important;line-height:1.55!important;color:#4a5368!important}
+body.Inner-Skin .dfArea .registration-listing #BSBGrid .grid-title{color:var(--bls-navy)!important;font-family:Poppins,"Helvetica Neue",Arial,sans-serif!important;font-size:19px!important;font-weight:600!important;line-height:1.35!important}
+
+/* ---------- Desktop header ---------- */
+@media (min-width:769px){
+  body.Inner-Skin .skInnerWrapper{margin:0 -15px!important}
+  body.Inner-Skin .skHeader h1.skBanner{line-height:1.12!important;vertical-align:middle!important;text-wrap:balance}
+}
+
+/* ---------- Desktop menu: smaller text so it fits on 2 rows ----------
+   Only shows on pages that carry this block. Delete this section to keep the menu as it is today. */
+@media (min-width:769px){
+  body.Inner-Skin .skNav .dnnNav > li.root > .roottxt{font-size:16px!important;padding-left:15px!important;padding-right:15px!important}
+}
+
+/* ---------- Phone ---------- */
+@media (max-width:768px){
+  body.Inner-Skin .skHeader .skHeaderInner{display:flex!important;align-items:center;gap:14px;padding:14px 16px!important;height:auto!important}
+  body.Inner-Skin .skHeader .skLogo{width:auto!important;height:auto!important;margin:0!important;padding:0!important;flex:0 0 auto}
+  body.Inner-Skin .skHeader .skLogo img{width:64px!important;height:auto!important;border-radius:6px;display:block}
+  body.Inner-Skin .skHeader h1.skBanner{font-size:21px!important;line-height:1.15!important;text-align:left!important;margin:0!important;padding:0!important}
+  body.Inner-Skin .skHeader{border-bottom:4px solid var(--bls-red);box-shadow:inset 0 -3px 0 #fff}
+  body.Inner-Skin .skInnerWrapper{margin:0!important;padding:14px 12px 4px!important}
+  body.Inner-Skin .skInnerWrapper .dfContainer{padding-bottom:14px!important}
+  body.Inner-Skin .skInnerWrapper .dfArea h2.head{font-size:18px!important;padding:14px 60px 18px 38px!important}
+  body.Inner-Skin #dnn_ContentPane > .DnnModule:first-child .dfArea h2.head{font-size:20px!important}
+  body.Inner-Skin .skInnerWrapper .dfArea h2.head::before{left:17px;top:calc(14px + .625em - 5px);width:9px;height:9px}
+  body.Inner-Skin .skInnerWrapper .dfArea h2.head::after{width:52px}
+  body.Inner-Skin .skInnerWrapper .dfArea .content{padding:20px 16px 22px!important}
+  
+  body.Inner-Skin .skInnerWrapper .Normal{font-size:16px!important;line-height:1.6!important}
+  body.Inner-Skin .skInnerWrapper .Normal h1:not(.blsx):not(.blsx *){font-size:23px!important}
+  body.Inner-Skin .skInnerWrapper .Normal h2:not(.blsx):not(.blsx *){font-size:21px!important}
+  body.Inner-Skin .skInnerWrapper .Normal h3:not(.blsx):not(.blsx *){font-size:18px!important}
+  body.Inner-Skin .skInnerWrapper .Normal [style*="font-size: 2"]:not(.blsx):not(.blsx *){font-size:19px!important}
+  body.Inner-Skin .skInnerWrapper .Normal table:not(.blsx):not(.blsx *){width:100%!important}
+  body.Inner-Skin .skInnerWrapper .Normal td:not(.blsx):not(.blsx *){overflow-wrap:anywhere}
+  body.Inner-Skin .skInnerWrapper .Normal table:has(td > ul, td > ol):not(.blsx):not(.blsx *){table-layout:fixed}
+  body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(.blsx):not(.blsx *){padding-right:0}
+  body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(:last-child):not(.blsx):not(.blsx *){padding-right:16px}
+  body.Inner-Skin .skInnerWrapper .Normal td > :is(ul,ol):not(.blsx):not(.blsx *){padding-left:1.15em!important}
+}

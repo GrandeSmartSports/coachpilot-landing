@@ -1,0 +1,45 @@
+{
+ "modules": {
+  "1544891": {
+   "file": "modules/coaches.html"
+  }
+ },
+ "hide": [
+  "1544899",
+  "1544892"
+ ],
+ "status": "Ready, with 8 items to confirm",
+ "summary": "Coach hub in one block: run book on a clipboard, the three clearance steps (JDP email, yearly training, no certificate), schedule tiles, gear bag rules, rules and field layouts; the All-Star link opens the same 2026 PDF as the All-Stars page.",
+ "needs": [
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 BLS local rules and the 2027 District 10 softball interlock rules, once approved. The 2025 files stay up, each labeled 2025.",
+  "League Player Agent (Jason Guertin): the 2027 All-Star selection process, once approved. Until then Coaches Corner links the same 2026 PDF as the All-Stars page.",
+  "Coaching Coordinator (Rod Vincent): a 2027 New Coach Run Book. The 2026 edition still has 2026 dates in it.",
+  "Coaching Coordinator (Rod Vincent): the 2027 coach sign-up deadline and the upper and lower division coaches meeting dates (2026: Feb 22 and Mar 22 at Round Table Pizza, Bonney Lake), so the page can list them.",
+  "Coaching Coordinator (Rod Vincent): the 2027 District 10 coaching clinic date, once District 10 posts it.",
+  "Safety Officer (Daneen Galvez): the 2027 Safety Plan, when ready. The 2025 plan stays linked until then.",
+  "Fields / Equipment (Daniel Lane): the spring 2027 gear bag pickup date and place, and confirm gear returns stay at the Daffodil Shed.",
+  "Website (Daniel Grande): swap the 2026 Rulebook Changes link for the 2027 list once littleleague.org posts it."
+ ],
+ "sources": [
+  {
+   "fact": "Spring volunteers get the background check emailed automatically by JDP and must also complete Abuse Awareness Training with the same email.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02GdsSVZ612NkqkS2gwThkG8jQAqFaiKZciEdiYJPohrsmsSMEEmxDsbFHHDZNoTKXl",
+   "date": "2026-03-22"
+  },
+  {
+   "fact": "Abuse Awareness Training is required and valid for the year; no certificate needed, use the email you registered to volunteer with.",
+   "url": "https://www.instagram.com/p/DTl3_pkAXau/",
+   "date": "2026-01-16"
+  },
+  {
+   "fact": "Coaches return team gear to the Daffodil Shed at the end of the season (Fall 2026: Sat Nov 7).",
+   "url": "https://www.instagram.com/p/DfPyxIwCao1/",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "Gear return rules: gear cleaned, keys on the zipper.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02NkhDE2DmJHoTBLHZt7RjPTUwpYFiNJEsq3UvpZ3sUc2sQMnJqbbbzWPi9npEo24Al",
+   "date": "2025-10-28"
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "modules": {
+  "1561701": {
+   "file": "modules/volunteer.html",
+   "title": "Volunteer Opportunities"
+  },
+  "1561700": {
+   "title": "Volunteer Sign-Up"
+  }
+ },
+ "hide": [
+  "765767",
+  "1561699"
+ ],
+ "status": "Ready, with 8 items to confirm",
+ "summary": "Volunteer recruiting page: Fall Ball 2026 tally, four roles (coach, umpire, team and fields, board with the open Umpire in Chief seat), employer hour matching, the three cleared-volunteer steps, then the sign-up listing.",
+ "sources": [
+  {
+   "fact": "Spring volunteer roles BLS asks for: head and assistant coaches, adult and junior umpires, team volunteers, general volunteers.",
+   "url": "https://www.instagram.com/p/DR0hYhkiqA_/",
+   "date": "2025-12-03"
+  },
+  {
+   "fact": "Team volunteer examples: help on the field at a game or practice, be a dugout parent, keep score. Register and get cleared early even if not 100% sure. BLS sends volunteer info to JDP; the volunteer must answer JDP's email before the check starts. Background check questions: secretary@blslittleleague.org.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02zC2bcELFDKBrtLdKVhwmuphBHCGCoF9ZUVpPYyBL2LaeYb7dSjicjhs4E5ZDQJSCl",
+   "date": "2025-11-03"
+  },
+  {
+   "fact": "Abuse Awareness training is required every year on top of the background check. No certificate to send; use the same email you registered to volunteer with.",
+   "url": "https://www.instagram.com/p/DTl3_pkAXau/",
+   "date": "2026-01-16"
+  },
+  {
+   "fact": "Volunteers cleared in the spring keep a valid background check and Abuse Awareness training for Fall Ball.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid08PCm8UyyQvfzmjpiNvERQyE3GCUsAydAY19hRwdvrW5bLaqcvdd1DUYz2XeZ6qpAl",
+   "date": "2026-08-07"
+  },
+  {
+   "fact": "The Fields Committee is recruiting members for the upcoming season.",
+   "url": "https://www.instagram.com/p/DfIlrYak56T/",
+   "date": "2026-10-30"
+  },
+  {
+   "fact": "Committee roles take less time than board seats; the Fields Committee helps maintain and improve fields.",
+   "url": "https://www.instagram.com/p/DPffSc7gflE/",
+   "date": "2025-10-06"
+  },
+  {
+   "fact": "All board positions are voted on at the October General Membership Meeting; Umpire in Chief was an open seat.",
+   "url": "https://www.instagram.com/p/DeFQ8miE_yg/",
+   "date": "2026-10-04"
+  },
+  {
+   "fact": "The Jr. Umpire program was reinstated in 2025.",
+   "url": "https://www.instagram.com/p/DSGi6HcDTr2/",
+   "date": "2025-12-10"
+  },
+  {
+   "fact": "Employers including Microsoft, Starbucks, Boeing and MultiCare offer volunteer-hour matching; BLS has a Corporate Matching page.",
+   "url": "https://www.instagram.com/p/DZtNJ8lmI-E/",
+   "date": "2026-06-17"
+  }
+ ],
+ "needs": [
+  "Whoever manages Sports Connect programs (President Ramey Harguess or Information Officer Melissa Olsen): turn on the Spring 2027 volunteer form in the Volunteer Sign-Up listing, which says No Programs today.",
+  "Secretary (Tawnie LaValley): the Oct 25 and Nov 1 board minutes are not posted yet, and they should show whether the Volunteer Coordinator and Events Coordinator seats were filled (a named Volunteer Coordinator would become this page's contact) and whether Umpire in Chief is still open.",
+  "Secretary (Tawnie LaValley): confirm secretary@blslittleleague.org still takes background check questions (the page lists it, from a Nov 2025 post).",
+  "President (Ramey Harguess) and Information Officer (Melissa Olsen): pick one inbox for volunteer questions; this page uses info@ while FAQ #18 says president@.",
+  "President (Ramey Harguess) or Treasurer (Dan Swagman): confirm junior umpires are still paid for 2027 (the page says they can earn money, from a Feb 2025 news post; no BLS rate has been posted).",
+  "Fields Coordinator (Daniel Lane): who leads the Fields Committee, whether it has its own email (the card emails info@ for now), and the 2027 field prep day dates.",
+  "Donations (Katie Sloan): the 2027 Equipment Drop/Swap date, if the board wants it listed here.",
+  "Board: who leads the Opening Day and Tacoma Rainiers Day committees for 2027; they are left off the page until confirmed."
+ ]
+}

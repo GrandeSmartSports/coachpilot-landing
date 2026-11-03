@@ -1,0 +1,26 @@
+{
+ "status": "Ready, with 5 items to confirm",
+ "summary": "Key Dates card (Nov 7 gear return, Nov 27 registration, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.",
+ "insert_before": [
+  {
+   "mid": "767585",
+   "new_mid": "9767585",
+   "file": "modules/calendar.html",
+   "title": "Key Dates"
+  }
+ ],
+ "needs": [
+  "President (Ramey Harguess) with VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 key dates to load into the Sports Connect calendar (registration close, evaluations, draft, coaches meetings, DICK'S weekends, Opening Day, picture day, Rainiers night, All-Star start); nothing for 2027 is posted yet.",
+  "Secretary (Tawnie LaValley): the 2026-27 board meeting dates for the calendar; the Oct 25 and Nov 1 minutes, which may set them, are not posted yet.",
+  "Information Officer (Melissa Olsen): who keeps the Sports Connect calendar up to date this season? It is empty today; the Nov 7 gear return and Nov 27 registration opening should go in first.",
+  "President or Treasurer (Ramey Harguess / Dan Swagman): confirm registration opens Friday, Nov 27 with $50 off per family. Only the website news post says so; social media has not announced it yet.",
+  "Website (Daniel Grande): remove the Nov 7 gear return card after Nov 7, and swap the Nov 27 card for the next key date once registration opens."
+ ],
+ "sources": [
+  {
+   "fact": "Fall Ball equipment return: Saturday Nov 7, 2026, 10AM to 1PM, at the Daffodil Shed.",
+   "url": "https://www.instagram.com/p/DfPyxIwCao1/",
+   "date": "2026-11-02"
+  }
+ ]
+}

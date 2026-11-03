@@ -1,0 +1,33 @@
+{
+ "modules": {
+  "1323065": {
+   "file": "modules/health.html",
+   "title": "Health & Safety"
+  }
+ },
+ "status": "Ready, with 4 items to confirm",
+ "summary": "Safety hub: 911 steps from the Safety Manual, manual download, how to report an injury, the two yearly volunteer clearances, every form and handout by topic, and ballpark rules from the Safety Code.",
+ "needs": [
+  "Safety Officer (Daneen Galvez): the 2027 Safety Manual/Plan. The only posted one is the 2025 plan, which lists the 2025 safety officer and board. Then swap the link and the '2025 edition, 17 pages' label.",
+  "Safety Officer (Daneen Galvez): confirm safety@blslittleleague.org reaches her.",
+  "Safety Officer (Daneen Galvez): are the Medical Release, concussion and sudden cardiac arrest forms still current for 2027, and do coaches still email her to restock first aid kits?",
+  "Safety Officer (Daneen Galvez): the 2027 injury report process (who receives reports, and whether the 24 to 48 hour window still applies) and the field inspection checklist. Social media has nothing on these, so they have to come from her."
+ ],
+ "sources": [
+  {
+   "fact": "Little League Abuse Awareness Training is required for all volunteers in addition to the background check, valid for the year; use the email you registered with (course link).",
+   "url": "https://www.instagram.com/p/DTl3_pkAXau/",
+   "date": "2026-01-16"
+  },
+  {
+   "fact": "Background checks run through JDP, Little League's approved provider; JDP emails the volunteer, who must answer before the check begins.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02zC2bcELFDKBrtLdKVhwmuphBHCGCoF9ZUVpPYyBL2LaeYb7dSjicjhs4E5ZDQJSCl",
+   "date": "2025-11-03"
+  },
+  {
+   "fact": "Volunteers' background checks are emailed automatically by JDP; also complete Abuse Awareness Training with the same email.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02GdsSVZ612NkqkS2gwThkG8jQAqFaiKZciEdiYJPohrsmsSMEEmxDsbFHHDZNoTKXl",
+   "date": "2026-03-22"
+  }
+ ]
+}

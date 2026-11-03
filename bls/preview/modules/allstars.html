@@ -1,0 +1,396 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+/* BLS All-Stars page. One content block. Every rule is scoped to .bxa so nothing else on the site changes.
+   The first rule hides this block's own title bar; the hero is the title. */
+.DnnModule:has(.bxa) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.bxa{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
+.bxa *,.bxa *::before,.bxa *::after{box-sizing:border-box;}
+.bxa h1,.bxa h2,.bxa h3,.bxa h4,.bxa p,.bxa ol,.bxa ul,.bxa li,.bxa section,.bxa header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.bxa a{text-decoration:none !important;text-align:left !important;}
+.bxa svg{display:block;}
+.bxa h1,.bxa h2,.bxa h3,.bxa h4{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;line-height:1;text-transform:uppercase;color:#00013a !important;}
+
+/* ---------- hero ---------- */
+.bxa .bx-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
+.bxa .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
+.bxa .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.88) 34%,rgba(0,1,58,.35) 62%,rgba(0,1,58,.15) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
+.bxa .bx-hero-in{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);min-height:440px;}
+.bxa .bx-copy{align-self:center;padding:44px 20px 44px 40px;}
+.bxa .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+.bxa .bx-ribbon svg{width:30px;height:30px;flex:none;}
+.bxa .bx-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
+.bxa .bx-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
+.bxa .bx-hero h1{font-size:68px;line-height:.9;letter-spacing:.005em;color:#fff !important;}
+.bxa .bx-hero h1 em{font-style:normal;display:block;color:#fff;position:relative;width:max-content;max-width:100%;}
+.bxa .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
+.bxa .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
+.bxa .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
+.bxa .bx-tlink{display:inline-flex;align-items:center;gap:8px;margin-top:22px;color:#fff !important;font-weight:600;font-size:15px;border-bottom:2px solid rgba(255,255,255,.35);padding-bottom:3px;transition:border-color .2s;}
+.bxa .bx-tlink:hover{border-color:#cd163f;}
+.bxa .bx-tlink svg{width:16px;height:16px;}
+/* right side: the tournament trail over the field art */
+.bxa .bx-side{position:relative;display:flex;align-items:flex-end;padding:30px 28px 28px 74px;}
+.bxa .bx-side::before{content:"";position:absolute;inset:0;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
+.bxa .bx-trail{position:relative;width:100%;background:rgba(0,1,40,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:20px 22px 20px;box-shadow:0 24px 50px rgba(0,0,20,.45);}
+.bxa .bx-trail-h{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:#ff9db3;}
+.bxa .bx-trail ol{position:relative;display:grid;gap:14px;margin-top:14px !important;}
+.bxa .bx-trail ol::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;border-left:3px dashed rgba(255,255,255,.3);}
+.bxa .bx-trail li{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;align-items:center;}
+.bxa .bx-trail i{position:relative;width:32px;height:32px;display:grid;place-items:center;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:17px;color:#00013a;}
+.bxa .bx-trail i::before{content:"";position:absolute;inset:5px;background:#fff;transform:rotate(45deg);border-radius:3px;box-shadow:0 0 0 4px #000128;}
+.bxa .bx-trail i span{position:relative;}
+.bxa .bx-trail li.hm i::before{display:none;}
+.bxa .bx-trail li.hm svg{width:28px;height:30px;position:relative;}
+.bxa .bx-trail b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:24px;line-height:1;text-transform:uppercase;color:#fff;}
+.bxa .bx-trail li > div > span{display:block;margin-top:3px;font-size:15px;line-height:1.35;color:#b8c6ea;}
+.bxa .bx-trail em{font-style:normal;display:inline-block;margin-left:8px;vertical-align:3px;background:#cd163f;color:#fff;font-family:Poppins,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:4px;}
+
+/* ---------- shared section heads ---------- */
+.bxa .bx-sec{padding:44px 44px 46px;border-radius:18px;}
+.bxa .bx-white{background:#fff;border:1px solid #dde3ec;}
+.bxa .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.bxa .bx-sec h2{font-size:46px;letter-spacing:.005em;text-wrap:balance;}
+.bxa .bx-sub{margin-top:12px !important;font-size:15px;line-height:1.55;color:#4b5675;max-width:42em;}
+.bxa .bx-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
+.bxa .bx-link svg{width:16px;height:16px;transition:transform .2s;}
+.bxa .bx-link:hover svg{transform:translate(2px,-2px);}
+
+/* ---------- how it works: steps as a basepath ---------- */
+.bxa .bx-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
+.bxa .bx-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
+.bxa .bx-step{position:relative;display:flex;flex-direction:column;}
+.bxa .bx-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:22px;}
+.bxa .bx-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
+.bxa .bx-base i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;}
+.bxa .bx-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid #dde3ec;border-radius:14px;padding:24px;}
+.bxa .bx-card h3{font-size:30px;margin-bottom:10px !important;}
+.bxa .bx-card p{font-size:15px;line-height:1.55;color:#4b5675;}
+.bxa .bx-checks{display:grid;width:100%;margin-top:4px !important;}
+.bxa .bx-checks li{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.4;font-weight:500;color:#00013a;border-top:1px solid #dde3ec;padding:9px 0;}
+.bxa .bx-checks li:last-child{border-bottom:1px solid #dde3ec;}
+.bxa .bx-checks svg{width:18px;height:18px;flex:none;margin-top:1px;}
+.bxa .bx-hot .bx-base::before{background:#cd163f;}
+.bxa .bx-hot .bx-card{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
+.bxa .bx-hot .bx-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
+.bxa .bx-hot .bx-card h3{color:#fff !important;}
+.bxa .bx-hot .bx-card p{color:#dbe2f4;}
+.bxa .bx-chips{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 4px !important;}
+.bxa .bx-chips li{font-size:15px;line-height:1.3;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 12px;}
+.bxa .bx-btn{margin-top:auto;display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;line-height:1.3;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
+.bxa .bx-hot .bx-btn{margin-top:20px;width:100%;justify-content:space-between;}
+.bxa .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
+.bxa .bx-btn svg{width:16px;height:16px;flex:none;}
+.bxa .bx-when{display:flex;flex-direction:column;gap:4px;margin:0 0 12px;}
+.bxa .bx-when b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:.9;text-transform:uppercase;color:#00013a;white-space:nowrap;}
+.bxa .bx-when span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f;}
+.bxa .bx-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
+.bxa .bx-home svg{width:44px;height:48px;flex:none;}
+.bxa .bx-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;}
+.bxa .bx-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
+
+/* ---------- commitment board ---------- */
+.bxa .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 28px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
+.bxa .bx-board-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+.bxa .bx-board-top h2{font-size:30px;letter-spacing:.06em;color:#fff !important;}
+.bxa .bx-tag{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;letter-spacing:.2em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 12px 4px 14px;border-radius:6px;white-space:nowrap;}
+.bxa .bx-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.bxa .bx-cell{background:#000127;border:1px solid #1b2670;border-radius:12px;padding:20px 20px 18px;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);}
+.bxa .bx-cell svg{width:30px;height:30px;margin-bottom:14px;}
+.bxa .bx-cell b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:36px;line-height:.95;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
+.bxa .bx-cell span{display:block;margin-top:8px;font-size:15px;line-height:1.45;color:#b4c2ea;}
+.bxa .bx-board-foot{margin-top:18px !important;font-size:15px;line-height:1.55;color:#c6d1ee;}
+.bxa .bx-board-foot b{color:#fff;}
+
+/* ---------- documents ---------- */
+.bxa .bx-docs{background:#eef2f6;}
+.bxa .bx-docgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:26px !important;}
+.bxa .bx-doc{display:flex;flex-direction:column;align-items:flex-start;background:#fff;border-radius:14px;padding:20px 18px 18px;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.08);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
+.bxa a.bx-doc:hover{transform:translateY(-3px);box-shadow:0 1px 0 #dde3ec,0 20px 40px rgba(0,1,58,.14);}
+.bxa .bx-doc > svg{width:40px;height:48px;margin-bottom:16px;flex:none;}
+.bxa .bx-doc h3{font-size:24px;}
+.bxa .bx-doc p{margin-top:auto !important;padding-top:14px;font-size:15px;line-height:1.45;font-weight:600;color:#4b5675;}
+.bxa .bx-doc .bx-link{margin-top:auto;padding-top:14px;}
+
+/* ---------- last season's dates ---------- */
+.bxa .bx-sched{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:26px !important;align-items:start;}
+.bxa .bx-sport{border:1px solid #dde3ec;border-radius:14px;overflow:hidden;}
+.bxa .bx-sport h3{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:#00013a;color:#fff !important;font-size:26px;letter-spacing:.02em;}
+.bxa .bx-sport h3 svg{width:26px;height:26px;}
+.bxa .bx-fx li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;padding:14px 18px 15px;border-top:1px solid #dde3ec;}
+.bxa .bx-fx li:first-child{border-top:0;}
+.bxa .bx-day{align-self:start;background:#eef2f6;border-radius:10px;padding:8px 2px 7px;text-align:center !important;white-space:nowrap;}
+.bxa .bx-day b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#00013a;}
+.bxa .bx-day span{display:block;margin-top:3px;font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:#4b5675;text-align:center !important;}
+.bxa .bx-fx h4{font-size:22px;line-height:1.05;}
+.bxa .bx-fx h4 small{font-family:Poppins,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;color:#cd163f;margin-left:4px;}
+.bxa .bx-fx p{margin-top:2px !important;font-size:15px;line-height:1.45;color:#4b5675;}
+.bxa .bx-pin{display:flex;align-items:flex-start;gap:6px;margin-top:6px;font-size:15px;font-weight:600;line-height:1.35;color:#1452a0 !important;}
+.bxa .bx-pin svg{width:14px;height:14px;flex:none;margin-top:3px;}
+.bxa .bx-pin:hover{color:#cd163f !important;}
+.bxa .bx-col{display:grid;gap:20px;}
+.bxa .bx-more{display:grid;gap:12px;background:#eef2f6;border-radius:14px;padding:20px 20px 22px;}
+.bxa .bx-more h3{font-size:24px;}
+.bxa .bx-more p{font-size:15px;line-height:1.5;color:#4b5675;}
+.bxa .bx-more .bx-link{justify-self:start;}
+.bxa .bx-more .bx-nw{border-top:1px solid #d3dae6;padding-top:14px;margin-top:4px !important;}
+/* 2026 results: a small scoreboard tally, then a result line on the rows BLS teams won or placed */
+.bxa .bx-tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px !important;}
+.bxa .bx-tally li{display:flex;align-items:center;gap:16px;background:#00013a;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;border-radius:12px;padding:14px 20px;}
+.bxa .bx-tally b{flex:none;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:52px;line-height:.9;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
+.bxa .bx-tally span{font-size:13px;font-weight:700;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#b4c2ea;}
+.bxa .bx-fx li.bx-won-row{box-shadow:inset 4px 0 0 #cd163f;background:#fbf4f6;}
+.bxa .bx-fx .bx-result{display:grid;justify-items:start;gap:6px;margin-top:10px !important;font-size:14px;line-height:1.45;font-weight:500;color:#00013a;}
+.bxa .bx-won{display:inline-flex;align-items:center;gap:6px;background:#cd163f;color:#fff;font-size:11px;font-weight:700;line-height:1.2;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:5px;white-space:nowrap;}
+.bxa .bx-won svg{width:13px;height:13px;flex:none;}
+.bxa .bx-won.bx-2nd{background:#1452a0;}
+.bxa .bx-tally em{font-style:normal;white-space:nowrap;}
+
+/* ---------- champions link card ---------- */
+.bxa .bx-champ{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-radius:18px;overflow:hidden;background:#00013a;color:#fff !important;box-shadow:0 18px 40px rgba(0,1,58,.22);transition:transform .2s,box-shadow .2s;}
+.bxa .bx-champ:hover{transform:translateY(-3px);box-shadow:0 24px 48px rgba(0,1,58,.3);}
+.bxa .bx-champ-tx{display:flex;flex-direction:column;align-items:flex-start;padding:36px 20px 36px 40px;}
+.bxa .bx-champ .bx-eyebrow{color:#ff9db3;}
+.bxa .bx-champ h2{font-size:40px;color:#fff !important;text-wrap:balance;}
+.bxa .bx-champ p{margin-top:14px !important;font-size:15px;line-height:1.55;color:#dbe2f4;}
+.bxa .bx-champ .bx-btn{margin-top:22px;}
+.bxa .bx-champ-ph{position:relative;min-height:260px;overflow:hidden;container-type:size;}
+.bxa .bx-champ-ph::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
+.bxa .bx-champ-ph div{position:absolute;inset:0;overflow:hidden;container-type:size;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);}
+/* source is 1110x520 with black side bars; the photo is x 168 to 942, so size it to keep that part covering the frame */
+.bxa .bx-champ-ph img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max(147cqw,216cqh);height:auto;max-width:none;display:block;}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .bxa{gap:16px;}
+  .bxa .bx-hero{border-radius:14px;}
+  .bxa .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.86) 50%,rgba(0,1,58,.55) 100%);}
+  .bxa .bx-hero-in{grid-template-columns:1fr;min-height:0;}
+  .bxa .bx-copy{padding:26px 20px 8px;}
+  .bxa .bx-ribbon{margin-bottom:20px;padding-right:30px;}
+  .bxa .bx-ribbon b{font-size:18px;}
+  .bxa .bx-hero h1{font-size:58px;}
+  .bxa .bx-lede{margin-top:24px !important;font-size:16px;}
+  .bxa .bx-side{padding:22px 14px 14px;}
+  .bxa .bx-side::before{display:none;}
+  .bxa .bx-trail{padding:18px 16px;}
+  .bxa .bx-trail b{font-size:22px;}
+  .bxa .bx-sec{padding:28px 18px;border-radius:14px;}
+  .bxa .bx-sec h2{font-size:36px;}
+  .bxa .bx-path{grid-template-columns:1fr;gap:18px;padding-left:58px;margin-top:24px !important;}
+  .bxa .bx-path::before{left:22px;right:auto;top:24px;bottom:46px;border-top:0;border-left:3px dashed #c3ccdc;}
+  .bxa .bx-base{position:absolute;left:-58px;top:14px;margin:0;}
+  .bxa .bx-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
+  .bxa .bx-home span{text-align:left !important;background:none;padding:0;}
+  .bxa .bx-card{padding:20px 18px;}
+  .bxa .bx-board{padding:24px 16px 20px;border-radius:14px;}
+  .bxa .bx-board-top{flex-wrap:wrap;}
+  .bxa .bx-board-top h2{font-size:26px;}
+  .bxa .bx-cells{grid-template-columns:1fr;gap:10px;}
+  .bxa .bx-cell{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:14px;padding:16px;}
+  .bxa .bx-cell svg{grid-row:span 2;margin:2px 0 0;}
+  .bxa .bx-cell b{font-size:30px;}
+  .bxa .bx-cell span{margin-top:4px;}
+  .bxa .bx-docgrid{grid-template-columns:1fr;gap:10px;margin-top:20px !important;}
+  .bxa .bx-doc{display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:14px;align-items:center;padding:16px;}
+  .bxa .bx-doc > svg{width:34px;height:40px;margin:0;grid-row:span 3;}
+  .bxa .bx-doc h3{font-size:22px;}
+  .bxa .bx-doc p{margin-top:0 !important;padding-top:4px;}
+  .bxa .bx-doc .bx-link{padding-top:6px;}
+  .bxa .bx-sched{grid-template-columns:1fr;gap:16px;margin-top:20px !important;}
+  .bxa .bx-tally{gap:8px;margin-top:20px !important;}
+  .bxa .bx-tally li{flex-direction:column;align-items:flex-start;gap:6px;padding:12px 12px 13px;}
+  .bxa .bx-tally b{font-size:40px;}
+  .bxa .bx-tally span{font-size:11px;letter-spacing:.06em;}
+  .bxa .bx-fx li{grid-template-columns:68px minmax(0,1fr);gap:12px;padding:13px 14px 14px;}
+  .bxa .bx-day b{font-size:20px;}
+  .bxa .bx-day span{font-size:11px;letter-spacing:0;}
+  .bxa .bx-more{padding:18px 16px 20px;}
+  .bxa .bx-sport h3{padding:12px 14px;font-size:24px;}
+  .bxa .bx-champ{grid-template-columns:1fr;border-radius:14px;}
+  .bxa .bx-champ-ph{order:-1;min-height:0;aspect-ratio:3/2;border-bottom:5px solid #cd163f;}
+  .bxa .bx-champ-ph::before{display:none;}
+  .bxa .bx-champ-ph div{clip-path:none;}
+  .bxa .bx-champ-tx{padding:24px 20px 26px;}
+  .bxa .bx-champ h2{font-size:34px;}
+}
+@media (prefers-reduced-motion:reduce){.bxa *{transition:none !important;}}
+</style>
+<div class="blsx bxa">
+
+  <section class="bx-hero">
+    <svg class="bx-field" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><defs>
+  <linearGradient id="asSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00013a"/><stop offset="1" stop-color="#06104e"/></linearGradient>
+  <linearGradient id="asGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3a3d"/><stop offset="1" stop-color="#0f4a3e"/></linearGradient>
+  <linearGradient id="asDirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e3d2e"/><stop offset="1" stop-color="#8a4c33"/></linearGradient>
+  <radialGradient id="asGlowL" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".18" stop-color="#cfe0ff" stop-opacity=".45"/><stop offset="1" stop-color="#1452a0" stop-opacity="0"/></radialGradient>
+  <filter id="asGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+  </defs><rect width="1200" height="560" fill="url(#asSky)"/><path d="M-18685.5 779.6L19965.5 779.6L1551.9 160.2L-271.9 160.2Z" fill="url(#asGrass)"/><clipPath id="asIn"><path d="M640 523.2L5574.9 869.6L4797.7 749.2L4229.8 662.2L3795.6 596.4L3452 544.9L3172.7 503.6L2940.5 469.9L2744 441.7L2575.1 418L2428.1 397.7L2298.6 380.2L2183.5 364.9L2080.2 351.6L1986.8 339.8L1901.7 329.3L1823.8 319.9L1751.9 311.6L1685.3 304L1623.3 297.2L1565.2 291.1L1510.7 285.5L1459.3 280.4L1410.7 275.8L1364.4 271.6L1320.4 267.7L1278.2 264.2L1237.9 260.9L1199 258L1161.6 255.3L1125.5 252.8L1090.4 250.6L1056.4 248.6L1023.3 246.7L990.9 245L959.4 243.5L928.4 242.2L898.1 241L868.2 239.9L838.7 239L809.7 238.2L780.9 237.6L752.4 237L724.2 236.6L696 236.3L668 236.1L640 236.1L612 236.1L584 236.3L555.8 236.6L527.6 237L499.1 237.6L470.3 238.2L441.3 239L411.8 239.9L381.9 241L351.6 242.2L320.6 243.5L289.1 245L256.7 246.7L223.6 248.6L189.6 250.6L154.5 252.8L118.4 255.3L81 258L42.1 260.9L1.8 264.2L-40.4 267.7L-84.4 271.6L-130.7 275.8L-179.3 280.4L-230.7 285.5L-285.2 291.1L-343.3 297.2L-405.3 304L-471.9 311.6L-543.8 319.9L-621.7 329.3L-706.8 339.8L-800.2 351.6L-903.5 364.9L-1018.6 380.2L-1148.1 397.7L-1295.1 418L-1464 441.7L-1660.5 469.9L-1892.7 503.6L-2172 544.9L-2515.6 596.4L-2949.8 662.2L-3517.7 749.2L-4294.9 869.6Z"/></clipPath><g clip-path="url(#asIn)" fill="#ffffff" fill-opacity=".045"><path d="M-5181.9 663.6L-4987.8 663.6L-474.5 235.3L-512.9 235.3Z"/><path d="M-4793.7 663.6L-4599.7 663.6L-397.6 235.3L-436.1 235.3Z"/><path d="M-4405.6 663.6L-4211.6 663.6L-320.8 235.3L-359.2 235.3Z"/><path d="M-4017.5 663.6L-3823.4 663.6L-243.9 235.3L-282.3 235.3Z"/><path d="M-3629.4 663.6L-3435.3 663.6L-167 235.3L-205.5 235.3Z"/><path d="M-3241.2 663.6L-3047.2 663.6L-90.2 235.3L-128.6 235.3Z"/><path d="M-2853.1 663.6L-2659.1 663.6L-13.3 235.3L-51.8 235.3Z"/><path d="M-2465 663.6L-2270.9 663.6L63.5 235.3L25.1 235.3Z"/><path d="M-2076.9 663.6L-1882.8 663.6L140.4 235.3L102 235.3Z"/><path d="M-1688.7 663.6L-1494.7 663.6L217.3 235.3L178.8 235.3Z"/><path d="M-1300.6 663.6L-1106.6 663.6L294.1 235.3L255.7 235.3Z"/><path d="M-912.5 663.6L-718.4 663.6L371 235.3L332.6 235.3Z"/><path d="M-524.4 663.6L-330.3 663.6L447.8 235.3L409.4 235.3Z"/><path d="M-136.2 663.6L57.8 663.6L524.7 235.3L486.3 235.3Z"/><path d="M251.9 663.6L445.9 663.6L601.6 235.3L563.1 235.3Z"/><path d="M640 663.6L834.1 663.6L678.4 235.3L640 235.3Z"/><path d="M1028.1 663.6L1222.2 663.6L755.3 235.3L716.9 235.3Z"/><path d="M1416.2 663.6L1610.3 663.6L832.2 235.3L793.7 235.3Z"/><path d="M1804.4 663.6L1998.4 663.6L909 235.3L870.6 235.3Z"/><path d="M2192.5 663.6L2386.6 663.6L985.9 235.3L947.4 235.3Z"/><path d="M2580.6 663.6L2774.7 663.6L1062.7 235.3L1024.3 235.3Z"/><path d="M2968.7 663.6L3162.8 663.6L1139.6 235.3L1101.2 235.3Z"/><path d="M3356.9 663.6L3550.9 663.6L1216.5 235.3L1178 235.3Z"/><path d="M3745 663.6L3939.1 663.6L1293.3 235.3L1254.9 235.3Z"/><path d="M4133.1 663.6L4327.2 663.6L1370.2 235.3L1331.8 235.3Z"/><path d="M4521.2 663.6L4715.3 663.6L1447 235.3L1408.6 235.3Z"/><path d="M4909.4 663.6L5103.4 663.6L1523.9 235.3L1485.5 235.3Z"/><path d="M5297.5 663.6L5491.6 663.6L1600.8 235.3L1562.3 235.3Z"/><path d="M5685.6 663.6L5879.7 663.6L1677.6 235.3L1639.2 235.3Z"/><path d="M6073.7 663.6L6267.8 663.6L1754.5 235.3L1716.1 235.3Z"/></g><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-88098.6 1025L55.5 135.5L1224.5 135.5L89378.6 1025Z" fill="#000530"/><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-4730.3 977.6L-4101.1 874.4L-3603.5 793.3L-3199.5 727.9L-2864.7 674L-2582.4 629L-2340.9 590.7L-2131.6 557.9L-1948.4 529.4L-1786.4 504.4L-1642.1 482.4L-1512.5 462.9L-1395.4 445.4L-1288.9 429.7L-1191.6 415.5L-1102.3 402.7L-1019.8 391L-943.4 380.3L-872.4 370.5L-806.1 361.6L-744 353.3L-685.7 345.6L-630.8 338.5L-578.9 331.9L-529.8 325.8L-483.2 320.1L-438.9 314.8L-396.7 309.8L-356.3 305.2L-317.7 300.8L-280.7 296.7L-245.1 292.9L-210.9 289.3L-178 285.9L-146.2 282.7L-115.4 279.7L-85.7 276.9L-56.8 274.2L-28.9 271.7L-1.7 269.3L24.8 267.1L50.5 265L75.7 263L100.2 261.1L124.2 259.3L147.6 257.6L170.6 256.1L193.1 254.6L215.2 253.2L236.9 251.9L258.2 250.7L279.2 249.5L299.9 248.4L320.3 247.4L340.4 246.5L360.3 245.6L379.9 244.8L399.3 244.1L418.6 243.4L437.6 242.8L456.5 242.2L475.3 241.7L493.9 241.3L512.4 240.9L530.8 240.5L549.1 240.3L567.4 240L585.6 239.8L603.7 239.7L621.9 239.6L640 239.6L658.1 239.6L676.3 239.7L694.4 239.8L712.6 240L730.9 240.3L749.2 240.5L767.6 240.9L786.1 241.3L804.7 241.7L823.5 242.2L842.4 242.8L861.4 243.4L880.7 244.1L900.1 244.8L919.7 245.6L939.6 246.5L959.7 247.4L980.1 248.4L1000.8 249.5L1021.8 250.7L1043.1 251.9L1064.8 253.2L1086.9 254.6L1109.4 256.1L1132.4 257.6L1155.8 259.3L1179.8 261.1L1204.3 263L1229.5 265L1255.2 267.1L1281.7 269.3L1308.9 271.7L1336.8 274.2L1365.7 276.9L1395.4 279.7L1426.2 282.7L1458 285.9L1490.9 289.3L1525.1 292.9L1560.7 296.7L1597.7 300.8L1636.3 305.2L1676.7 309.8L1718.9 314.8L1763.2 320.1L1809.8 325.8L1858.9 331.9L1910.8 338.5L1965.7 345.6L2024 353.3L2086.1 361.6L2152.4 370.5L2223.4 380.3L2299.8 391L2382.3 402.7L2471.6 415.5L2568.9 429.7L2675.4 445.4L2792.5 462.9L2922.1 482.4L3066.4 504.4L3228.4 529.4L3411.6 557.9L3620.9 590.7L3862.4 629L4144.7 674L4479.5 727.9L4883.5 793.3L5381.1 874.4L6010.3 977.6Z" fill="#5a3527" fill-opacity=".85"/><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-5464 836.1L-4660.8 740L-4044.1 666.6L-3555.3 608.8L-3157.8 562L-2827.9 523.5L-2549.4 491.2L-2310.8 463.8L-2103.9 440.2L-1922.6 419.7L-1762.2 401.8L-1619.2 386L-1490.8 371.9L-1374.6 359.3L-1269 348L-1172.4 337.8L-1083.7 328.6L-1001.8 320.2L-925.9 312.5L-855.2 305.4L-789.3 298.9L-727.6 292.9L-669.6 287.4L-614.9 282.3L-563.3 277.5L-514.4 273.1L-468 269L-423.9 265.2L-381.8 261.6L-341.5 258.2L-303 255.1L-266.1 252.1L-230.6 249.4L-196.5 246.8L-163.6 244.3L-131.8 242L-101.1 239.8L-71.4 237.8L-42.6 235.9L-14.6 234.1L12.6 232.4L39 230.7L64.8 229.2L89.9 227.8L114.5 226.4L138.5 225.2L162 224L185 222.9L207.6 221.8L229.8 220.8L251.6 219.9L273 219L294.1 218.2L314.9 217.4L335.4 216.7L355.6 216.1L375.6 215.4L395.4 214.9L414.9 214.4L434.3 213.9L453.5 213.5L472.6 213.1L491.5 212.8L510.3 212.5L529 212.2L547.7 212L566.2 211.8L584.7 211.7L603.2 211.6L621.6 211.5L640 211.5L658.4 211.5L676.8 211.6L695.3 211.7L713.8 211.8L732.3 212L751 212.2L769.7 212.5L788.5 212.8L807.4 213.1L826.5 213.5L845.7 213.9L865.1 214.4L884.6 214.9L904.4 215.4L924.4 216.1L944.6 216.7L965.1 217.4L985.9 218.2L1007 219L1028.4 219.9L1050.2 220.8L1072.4 221.8L1095 222.9L1118 224L1141.5 225.2L1165.5 226.4L1190.1 227.8L1215.2 229.2L1241 230.7L1267.4 232.4L1294.6 234.1L1322.6 235.9L1351.4 237.8L1381.1 239.8L1411.8 242L1443.6 244.3L1476.5 246.8L1510.6 249.4L1546.1 252.1L1583 255.1L1621.5 258.2L1661.8 261.6L1703.9 265.2L1748 269L1794.4 273.1L1843.3 277.5L1894.9 282.3L1949.6 287.4L2007.6 292.9L2069.3 298.9L2135.2 305.4L2205.9 312.5L2281.8 320.2L2363.7 328.6L2452.4 337.8L2549 348L2654.6 359.3L2770.8 371.9L2899.2 386L3042.2 401.8L3202.6 419.7L3383.9 440.2L3590.8 463.8L3829.4 491.2L4107.9 523.5L4437.8 562L4835.3 608.8L5324.1 666.6L5940.8 740L6744 836.1Z" fill="#000327"/><path d="M6744 836.1L5940.8 740L5324.1 666.6L4835.3 608.8L4437.8 562L4107.9 523.5L3829.4 491.2L3590.8 463.8L3383.9 440.2L3202.6 419.7L3042.2 401.8L2899.2 386L2770.8 371.9L2654.6 359.3L2549 348L2452.4 337.8L2363.7 328.6L2281.8 320.2L2205.9 312.5L2135.2 305.4L2069.3 298.9L2007.6 292.9L1949.6 287.4L1894.9 282.3L1843.3 277.5L1794.4 273.1L1748 269L1703.9 265.2L1661.8 261.6L1621.5 258.2L1583 255.1L1546.1 252.1L1510.6 249.4L1476.5 246.8L1443.6 244.3L1411.8 242L1381.1 239.8L1351.4 237.8L1322.6 235.9L1294.6 234.1L1267.4 232.4L1241 230.7L1215.2 229.2L1190.1 227.8L1165.5 226.4L1141.5 225.2L1118 224L1095 222.9L1072.4 221.8L1050.2 220.8L1028.4 219.9L1007 219L985.9 218.2L965.1 217.4L944.6 216.7L924.4 216.1L904.4 215.4L884.6 214.9L865.1 214.4L845.7 213.9L826.5 213.5L807.4 213.1L788.5 212.8L769.7 212.5L751 212.2L732.3 212L713.8 211.8L695.3 211.7L676.8 211.6L658.4 211.5L640 211.5L621.6 211.5L603.2 211.6L584.7 211.7L566.2 211.8L547.7 212L529 212.2L510.3 212.5L491.5 212.8L472.6 213.1L453.5 213.5L434.3 213.9L414.9 214.4L395.4 214.9L375.6 215.4L355.6 216.1L335.4 216.7L314.9 217.4L294.1 218.2L273 219L251.6 219.9L229.8 220.8L207.6 221.8L185 222.9L162 224L138.5 225.2L114.5 226.4L89.9 227.8L64.8 229.2L39 230.7L12.6 232.4L-14.6 234.1L-42.6 235.9L-71.4 237.8L-101.1 239.8L-131.8 242L-163.6 244.3L-196.5 246.8L-230.6 249.4L-266.1 252.1L-303 255.1L-341.5 258.2L-381.8 261.6L-423.9 265.2L-468 269L-514.4 273.1L-563.3 277.5L-614.9 282.3L-669.6 287.4L-727.6 292.9L-789.3 298.9L-855.2 305.4L-925.9 312.5L-1001.8 320.2L-1083.7 328.6L-1172.4 337.8L-1269 348L-1374.6 359.3L-1490.8 371.9L-1619.2 386L-1762.2 401.8L-1922.6 419.7L-2103.9 440.2L-2310.8 463.8L-2549.4 491.2L-2827.9 523.5L-3157.8 562L-3555.3 608.8L-4044.1 666.6L-4660.8 740L-5464 836.1" fill="none" stroke="#cd163f" stroke-width="2.2"/><line x1="130.3" y1="232.4" x2="115.2" y2="16.6" stroke="#0a1660" stroke-width="2"/><rect x="102.2" y="7.6" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="115.2" cy="12.6" r="170" fill="url(#asGlowL)" opacity=".7"/><line x1="1149.7" y1="232.4" x2="1164.8" y2="16.6" stroke="#0a1660" stroke-width="2"/><rect x="1151.8" y="7.6" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="1164.8" cy="12.6" r="170" fill="url(#asGlowL)" opacity=".7"/><line x1="518.7" y1="221.4" x2="515.5" y2="29" stroke="#0a1660" stroke-width="2"/><rect x="502.5" y="20" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="515.5" cy="25" r="170" fill="url(#asGlowL)" opacity=".7"/><line x1="822" y1="221.4" x2="826.8" y2="29" stroke="#0a1660" stroke-width="2"/><rect x="813.8" y="20" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="826.8" cy="25" r="170" fill="url(#asGlowL)" opacity=".7"/><path d="M640 556.9L1021.5 392L1073.2 397.7L1067.7 391.8L1061.3 386.1L1054.1 380.7L1046.1 375.4L1037.4 370.4L1028.1 365.6L1018.1 361L1007.7 356.6L996.8 352.4L985.4 348.4L973.7 344.6L961.6 341L949.2 337.6L936.5 334.4L923.6 331.4L910.4 328.5L897 325.8L883.5 323.3L869.8 321L856 318.8L842.1 316.8L828 314.9L813.8 313.2L799.6 311.6L785.3 310.2L770.9 308.9L756.5 307.8L742 306.8L727.5 305.9L713 305.2L698.4 304.6L683.8 304.2L669.2 303.8L654.6 303.6L640 303.6L625.4 303.6L610.8 303.8L596.2 304.2L581.6 304.6L567 305.2L552.5 305.9L538 306.8L523.5 307.8L509.1 308.9L494.7 310.2L480.4 311.6L466.2 313.2L452 314.9L437.9 316.8L424 318.8L410.2 321L396.5 323.3L383 325.8L369.6 328.5L356.4 331.4L343.5 334.4L330.8 337.6L318.4 341L306.3 344.6L294.6 348.4L283.2 352.4L272.3 356.6L261.9 361L251.9 365.6L242.6 370.4L233.9 375.4L225.9 380.7L218.7 386.1L212.3 391.8L206.8 397.7L258.5 392Z" fill="url(#asDirt)"/><path d="M640 499.4L953.1 382.3L640 321.5L326.9 382.3Z" fill="#0f4a3e"/><g clip-path="url(#asIn)"><path d="M640 499.4L953.1 382.3L640 321.5L326.9 382.3Z" fill="#ffffff" fill-opacity=".04"/></g><path d="M783 523.2L778.1 514.5L770.2 506.4L759.6 498.9L746.6 492.4L731.8 486.7L715.3 482L697.5 478.3L678.9 475.6L659.6 474L640 473.5L620.4 474L601.1 475.6L582.5 478.3L564.7 482L548.2 486.7L533.4 492.4L520.4 498.9L509.8 506.4L501.9 514.5L497 523.2L495.5 532.3L497.6 541.6L503.6 550.9L513.5 559.8L527.3 568L544.8 575.4L565.5 581.4L588.8 586L613.9 588.8L640 589.8L666.1 588.8L691.2 586L714.5 581.4L735.2 575.4L752.7 568L766.5 559.8L776.4 550.9L782.4 541.6L784.5 532.3L783 523.2Z" fill="#7f4631"/><path d="M1052.4 382.3L1047.9 380L1042.2 377.8L1035.4 375.7L1027.8 373.8L1019.4 372.2L1010.6 370.8L1001.5 369.7L992.2 368.8L983.1 368.4L974.2 368.2L965.8 368.4L958 368.8L951.1 369.7L945 370.8L940.1 372.2L936.4 373.8L934 375.7L933 377.8L933.5 380L935.5 382.3L939 384.7L943.9 387L950.2 389.3L957.7 391.4L966.3 393.3L975.7 395L985.6 396.3L995.9 397.3L1006.2 398L1016.2 398.2L1025.6 398L1034.2 397.3L1041.7 396.3L1047.8 395L1052.5 393.3L1055.7 391.4L1057.2 389.3L1057.2 387L1055.5 384.7L1052.4 382.3Z" fill="#7a4430"/><path d="M683 315.7L682.2 314.4L680.4 313.2L677.6 312.1L673.9 311L669.5 310.1L664.4 309.4L658.8 308.7L652.8 308.3L646.5 308L640 307.9L633.5 308L627.2 308.3L621.2 308.7L615.6 309.4L610.5 310.1L606.1 311L602.4 312.1L599.6 313.2L597.8 314.4L597 315.7L597.2 317L598.5 318.2L600.9 319.4L604.3 320.6L608.6 321.6L613.8 322.5L619.7 323.2L626.1 323.7L633 324L640 324.1L647 324L653.9 323.7L660.3 323.2L666.2 322.5L671.4 321.6L675.7 320.6L679.1 319.4L681.5 318.2L682.8 317L683 315.7Z" fill="#6e3d2e"/><path d="M344.5 382.3L346.5 380L347 377.8L346 375.7L343.6 373.8L339.9 372.2L335 370.8L328.9 369.7L322 368.8L314.2 368.4L305.8 368.2L296.9 368.4L287.8 368.8L278.5 369.7L269.4 370.8L260.6 372.2L252.2 373.8L244.6 375.7L237.8 377.8L232.1 380L227.6 382.3L224.5 384.7L222.8 387L222.8 389.3L224.3 391.4L227.5 393.3L232.2 395L238.3 396.3L245.8 397.3L254.4 398L263.8 398.2L273.8 398L284.1 397.3L294.4 396.3L304.3 395L313.7 393.3L322.3 391.4L329.8 389.3L336.1 387L341 384.7L344.5 382.3Z" fill="#7a4430"/><path d="M692.7 374.8L691.6 372.8L689.3 370.9L685.8 369.1L681.3 367.4L675.9 365.9L669.7 364.7L662.8 363.7L655.5 363L647.8 362.6L640 362.4L632.2 362.6L624.5 363L617.2 363.7L610.3 364.7L604.1 365.9L598.7 367.4L594.2 369.1L590.7 370.9L588.4 372.8L587.3 374.8L587.5 376.9L589.1 378.9L591.9 380.9L596 382.8L601.3 384.4L607.7 385.9L614.9 387.1L622.9 387.9L631.3 388.5L640 388.6L648.7 388.5L657.1 387.9L665.1 387.1L672.3 385.9L678.7 384.4L684 382.8L688.1 380.9L690.9 378.9L692.5 376.9L692.7 374.8Z" fill="#7d4532"/><line x1="640" y1="523.2" x2="1288.6" y2="265" stroke="#fff" stroke-opacity="0.92" stroke-width="2.6" stroke-linecap="round"/><line x1="640" y1="523.2" x2="-8.6" y2="265" stroke="#fff" stroke-opacity="0.92" stroke-width="2.6" stroke-linecap="round"/><line x1="994" y1="382.3" x2="640" y2="315.7" stroke="#fff" stroke-opacity="0.25" stroke-width="1.2" stroke-linecap="round"/><line x1="286" y1="382.3" x2="640" y2="315.7" stroke="#fff" stroke-opacity="0.25" stroke-width="1.2" stroke-linecap="round"/><path d="M623.9 536.6L583.5 536.6L587.8 505.9L625.1 505.9Z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/><path d="M656.1 536.6L696.5 536.6L692.2 505.9L654.9 505.9Z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/><path d="M997.3 384.7L1003.2 382.3L990.7 380L984.8 382.3Z" fill="#fff"/><path d="M640 317L646.8 315.7L640 314.4L633.2 315.7Z" fill="#fff"/><path d="M282.7 384.7L295.2 382.3L289.3 380L276.8 382.3Z" fill="#fff"/><path d="M631 519.6L649 519.6L649.1 523.2L640 526.9L630.9 523.2Z" fill="#fff"/><path d="M631.9 375.2L648.1 375.2L648.1 374.2L631.9 374.2Z" fill="#fff"/><rect width="1200" height="560" filter="url(#asGrain)" opacity=".9"/></svg>
+    <div class="bx-hero-in">
+      <div class="bx-copy">
+        <div class="bx-ribbon">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M16 6.5l2.6 6.1 6.6.5-5 4.3 1.6 6.4L16 20.3l-5.8 3.5 1.6-6.4-5-4.3 6.6-.5z" fill="#cd163f"/></svg>
+          <div><span>Little League</span><b>Summer tournament</b></div>
+        </div>
+        <h1><small>Represent BLS</small><em>All-Stars.</em></h1>
+        <p class="bx-lede">The All-Star tournament is Little League's post-season. After the spring season, a select group of BLS players and coaches is chosen to compete for the District 10 championship.</p>
+        <a class="bx-tlink" href="https://www.littleleague.org/university/articles/little-league-international-tournament-what-parents-need-to-know/" target="_blank" rel="noopener">What parents need to know <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      <div class="bx-side">
+        <div class="bx-trail">
+          <p class="bx-trail-h">The tournament trail</p>
+          <ol>
+            <li><i><span>1</span></i><div><b>District 10</b><span>Double elimination. Every All-Star team starts here.</span></div></li>
+            <li><i><span>2</span></i><div><b>State <em>Ages 8 to 11 end here</em></b><span>Win your way through District to get here.</span></div></li>
+            <li><i><span>3</span></i><div><b>Region</b><span>Majors and Juniors play on.</span></div></li>
+            <li class="hm"><i><svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#000128" stroke-width="3" stroke-linejoin="round"/></svg></i><div><b>World Series</b><span>Where the Majors and Junior divisions finish.</span></div></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bx-sec bx-white">
+    <header><span class="bx-eyebrow">How it works</span><h2>From the spring season to an All-Star team</h2></header>
+    <ol class="bx-path">
+      <li class="bx-step">
+        <span class="bx-base"><i>1</i></span>
+        <div class="bx-card">
+          <h3>Qualify</h3>
+          <p>To play as an All-Star, a player must:</p>
+          <ul class="bx-checks">
+            <li><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#1452a0"/><path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Be Little League age 8 to 14</li>
+            <li><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#1452a0"/><path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Play the BLS spring season</li>
+            <li><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#1452a0"/><path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Play in at least 8 spring games</li>
+            <li><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="9" fill="#1452a0"/><path d="M5 9.3l2.6 2.5L13 6.4" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Meet BLS boundary requirements</li>
+          </ul>
+        </div>
+      </li>
+      <li class="bx-step bx-hot">
+        <span class="bx-base"><i>2</i></span>
+        <div class="bx-card">
+          <h3>Coaches vote</h3>
+          <p>Players are selected through a voting process involving BLS coaches, based on:</p>
+          <ul class="bx-chips"><li>Skill</li><li>Sportsmanship</li><li>Attitude</li><li>Team contribution</li></ul>
+          <a class="bx-btn" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf" target="_blank" rel="noopener">2026 selection process (PDF) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="bx-step">
+        <span class="bx-base"><i>3</i></span>
+        <div class="bx-card">
+          <h3>Teams announced</h3>
+          <div class="bx-when"><span>2026, softball and baseball</span><b>After May 16</b></div>
+          <p>Selected players hear first, through a special process. Little League International limits how soon teams can be announced publicly. In 2026, BLS posted the teams May 20 to 24.</p>
+        </div>
+      </li>
+      <li class="bx-home" aria-label="Then practice starts">
+        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
+        <span><b>Then: practice</b>Starts right away</span>
+      </li>
+    </ol>
+  </section>
+
+  <section class="bx-board">
+    <div class="bx-board-top"><h2>A summer commitment</h2><span class="bx-tag">Before you accept</span></div>
+    <div class="bx-cells">
+      <div class="bx-cell"><svg viewBox="0 0 30 30" aria-hidden="true"><rect x="3" y="6" width="24" height="21" rx="3" fill="none" stroke="#ff9db3" stroke-width="2.2"/><path d="M3 12h24M10 3v6M20 3v6" stroke="#ff9db3" stroke-width="2.2" stroke-linecap="round"/></svg><b>5 to 6 days</b><span>Practice days a week, at most.</span></div>
+      <div class="bx-cell"><svg viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="12" fill="none" stroke="#ff9db3" stroke-width="2.2"/><path d="M15 8v7l5 3" fill="none" stroke="#ff9db3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Weekdays too</b><span>Tournament games fall on weekends and weekdays.</span></div>
+      <div class="bx-cell"><svg viewBox="0 0 30 30" aria-hidden="true"><path d="M15 27s9-8.2 9-15a9 9 0 0 0-18 0c0 6.8 9 15 9 15z" fill="none" stroke="#ff9db3" stroke-width="2.2" stroke-linejoin="round"/><circle cx="15" cy="12" r="3.2" fill="#ff9db3"/></svg><b>Travel</b><span>Depends on how far the team advances.</span></div>
+    </div>
+    <p class="bx-board-foot">Please consider your summer availability <b>before accepting a spot</b>. It takes full dedication to the team and the schedule.</p>
+  </section>
+
+  <section class="bx-sec bx-docs">
+    <header><span class="bx-eyebrow">Paperwork</span><h2>Required documents</h2></header>
+    <div class="bx-docgrid">
+      <div class="bx-doc">
+        <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <h3>Birth certificate</h3>
+        <p>Original copy</p>
+      </div>
+      <a class="bx-doc" href="https://www.littleleague.org/downloads/school-enrollment-form/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <h3>School Enrollment Form</h3>
+        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a class="bx-doc" href="https://www.littleleague.org/downloads/medical-release-form/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <h3>Medical Release Form</h3>
+        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+      <a class="bx-doc" href="https://www.littleleague.org/downloads/tournament-player-verification/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <h3>Tournament Player Verification</h3>
+        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="bx-sec bx-white">
+    <header><span class="bx-eyebrow">Last season</span><h2>2026 District 10: dates and results</h2></header>
+    <p class="bx-sub">BLS sent 8 All-Star teams to District 10 in 2026. Double elimination tournaments, dates as posted for 2026.</p>
+    <ul class="bx-tally">
+      <li><b>8</b><span><em>All-Star</em> teams</span></li>
+      <li><b>2</b><span>District 10 titles</span></li>
+      <li><b>3rd</b><span>At State, <em>8-9-10</em> baseball</span></li>
+    </ul>
+    <div class="bx-sched">
+      <div class="bx-sport">
+        <h3>Baseball <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#fff"/><path d="M6.5 4.5c3 3 3 14 0 17M19.5 4.5c-3 3-3 14 0 17" fill="none" stroke="#cd163f" stroke-width="1.6" stroke-dasharray="2 1.6"/></svg></h3>
+        <ol class="bx-fx">
+          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 28</span></div><div><h4>Majors <small>10-11-12</small></h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a></div></li>
+          <li><div class="bx-day"><b>Jun 15</b><span>to Jun 21</span></div><div><h4>9-10-11</h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a></div></li>
+          <li class="bx-won-row"><div class="bx-day"><b>Jun 27</b><span>to Jul 4</span></div><div><h4>8-9-10</h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a>
+            <p class="bx-result"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Won the final 19-4 over South Hill, then finished 3rd at State.</span></p></div></li>
+          <li><div class="bx-day"><b>Jun 15</b><span>to Jun 20</span></div><div><h4>Intermediate <small>50/70</small></h4><p>Monday to Saturday</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Pete%E2%80%99s+Pool+Ballfield/@47.1983628,-121.9581796,759m/data=!3m1!1e3!4m6!3m5!1s0x5490ed2d166313b9:0x87785137a44d6f8b!8m2!3d47.1981172!4d-121.9605495!16s%2Fg%2F11tx0b7p1f" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Chinook LL, Pete's Pool</a></div></li>
+          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 28</span></div><div><h4>Juniors</h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Pete%E2%80%99s+Pool+Ballfield/@47.1983628,-121.9581796,759m/data=!3m1!1e3!4m6!3m5!1s0x5490ed2d166313b9:0x87785137a44d6f8b!8m2!3d47.1981172!4d-121.9605495!16s%2Fg%2F11tx0b7p1f" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Chinook LL, Pete's Pool</a>
+            <a class="bx-pin" href="https://www.google.com/maps/place/South+King+County+Baseball+Fields,+S+354th+St,+Auburn,+WA+98001/@47.2844403,-122.2732509,764m/data=!3m2!1e3!4b1!4m6!3m5!1s0x549057e2c5da1d1d:0xb7070158aa37fb4c!8m2!3d47.2846926!4d-122.2732256!16s%2Fg%2F11b8td2nj3" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>South King County Ball Fields</a></div></li>
+        </ol>
+      </div>
+      <div class="bx-col">
+      <div class="bx-sport">
+        <h3>Softball <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#eef93a"/><path d="M6.5 4.5c3 3 3 14 0 17M19.5 4.5c-3 3-3 14 0 17" fill="none" stroke="#cd163f" stroke-width="1.6" stroke-dasharray="2 1.6"/></svg></h3>
+        <ol class="bx-fx">
+          <li class="bx-won-row"><div class="bx-day"><b>Jun 15</b><span>to Jun 20</span></div><div><h4>Majors <small>10-11-12</small></h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a>
+            <p class="bx-result"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Undefeated, then played at State.</span></p></div></li>
+          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 27</span></div><div><h4>9-10-11</h4><p>Monday to Saturday</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a></div></li>
+          <li><div class="bx-day"><b>Jun 27</b><span>to Jul 3</span></div><div><h4>8-9-10</h4><p>Weekdays and weekends</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Real+Life+Church/@47.3653089,-122.1018839,1533m/data=!3m1!1e3!4m6!3m5!1s0x54905fb986d07c6d:0x62a706f49afcae09!8m2!3d47.3665!4d-122.102585!16s%2Fg%2F1hhhchnvn" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Kent LL, Real Life Church</a>
+            <p class="bx-result"><span class="bx-won bx-2nd">2nd in District 10</span></p></div></li>
+          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 27</span></div><div><h4>Juniors</h4><p>Monday to Saturday</p>
+            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a></div></li>
+        </ol>
+      </div>
+      <div class="bx-more">
+        <h3>After District</h3>
+        <p>District winners advance to State. The 2026 state dates were also subject to change.</p>
+        <a class="bx-link" href="https://www.littleleaguewa.org/state-tournaments/2026-state-tournament-dates-locations/" target="_blank" rel="noopener">2026 State dates and locations <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <p class="bx-nw">In 2026, Washington's Majors baseball and softball state champions played in the Northwest Region tournament in San Bernardino, Calif.</p>
+        <a class="bx-link" href="https://www.littleleague.org/world-series/2026/llbws/tournaments/northwest-region/" target="_blank" rel="noopener">Northwest Region baseball <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="bx-link" href="https://www.littleleague.org/world-series/2026/llsws/tournaments/northwest-region/" target="_blank" rel="noopener">Northwest Region softball <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="bx-link" href="https://www.littleleague.org/region/west-region/" target="_blank" rel="noopener">Little League West Region <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- GO-LIVE: this link points at the Champions preview page. Before pasting into Sports Connect, replace the href with the real Champions page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
+  <a class="bx-champ" href="https://go.blslittleleague.org/bls/preview/proposed/champions.html">
+    <div class="bx-champ-tx">
+      <span class="bx-eyebrow">Where All-Stars can lead</span>
+      <h2>2025 Northwest Region Champions</h2>
+      <p>Our Majors baseball All-Stars won the Northwest Region and played at the Little League Baseball World Series in Williamsport, Pa.</p>
+      <span class="bx-btn">See the road to Williamsport <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </div>
+    <div class="bx-champ-ph"><div><img src="https://www.blslittleleague.org/portals/50558/contentrotator/contentrotator638918277739067851.png" alt="The 2025 Bonney Lake Sumner Little League World Series team"></div></div>
+  </a>
+
+</div>

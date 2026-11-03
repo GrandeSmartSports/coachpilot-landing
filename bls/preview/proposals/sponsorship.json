@@ -1,0 +1,73 @@
+{
+ "modules": {
+  "1553294": {
+   "file": "modules/sponsorship.html",
+   "title": "Sponsorship Opportunities"
+  }
+ },
+ "status": "Ready, with 9 items to confirm",
+ "summary": "Partner with BLS: jersey hero, every spring, All Stars and Fall Ball level with perks, Fall Ball 2026 scoreboard, the same 17-logo sponsor wall as home slide 4, and 2026 community partners.",
+ "needs": [
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm 2027 prices for every level, since the page shows the 2026 prices (posted Jan 12, 2026) with no year label.",
+  "Sponsorship and Fundraising (Ashley Gauthier): the 2027 sales deadline (Mar 1 in 2026), so the page can say when spring sponsorships close.",
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 2027 perks carry over (Opening Day booth, called Little League Day in April on the page, banners, rotator spots, All Stars signed jersey) and the 2027 Opening Day date.",
+  "Sponsorship and Fundraising (Ashley Gauthier): an updated 2027 sponsor letter PDF to replace today's link.",
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on this wall, the same list as home slide 4, where ProTime Sports (on the site's Local Sponsors list but in no 2026 sponsor post) and DICK'S (2026 discount partner, still a partner in 2027?) are the unconfirmed ones.",
+  "Sponsorship and Fundraising (Ashley Gauthier): logos for Great Northwest Dental (Fall Ball 2026 sponsor, thanked by name only for now) and Southern Yankee Graphics (called a sponsor at Opening Day 2026 but on no sponsor list), if they belong on the wall and slide 4.",
+  "Sponsorship and Fundraising (Ashley Gauthier), optional: website links for Cal-Line Equipment and Owen Equipment, whose logos are not clickable yet.",
+  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment (embedded on this wall for now), so upload and add them once Ashley confirms the list.",
+  "Sponsorship and Fundraising (Ashley Gauthier), optional: a logo from Enrique Trujeque Agency that reads on white, since the file in the Local Sponsors strip shows as a faint gold line (this wall uses a navy tile instead)."
+ ],
+ "sources": [
+  {
+   "fact": "2026 spring prices: Sleeve $250/team; Home Run $500; Team $600/team; Division $5,000 to $10,000; All Stars $2,000 (10U/11U) or $3,000 (12U/Intermediate/Juniors/Seniors); contact pr@blslittleleague.org.",
+   "url": "https://www.instagram.com/p/DTbre31Ad1v/",
+   "date": "2026-01-12"
+  },
+  {
+   "fact": "2026 spring sponsorships were sold through Mar 1, 2026.",
+   "url": "https://www.instagram.com/p/DU37wGgAfg5/",
+   "date": "2026-02-17"
+  },
+  {
+   "fact": "Fall Ball 2026 prices: Sleeve $150/team; Team $450/team, or $350/team for 15+ teams.",
+   "url": "https://www.instagram.com/p/Dax8P9MlsEm/",
+   "date": "2026-07-14"
+  },
+  {
+   "fact": "2026 spring sponsors: Los Pinos Mexican Restaurant, Grasshopper Landscaping and Construction, Molen Orthodontics, Titan Door, Ossman Harding Dental, Round Table Pizza, Cal-Line Equipment, Owen Equipment, RLS Lending, Prospect Construction, Land O'Frost, Honey Bucket, Lowe's, Sumner/Bonney Lake Jr. Panthers Wrestling Club, Enrique Trujeque Agency.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0zUX7t4CNq6Wq7PiPrLExnso3MFTpjSqCcrs97b73kToQp89v5KsnG1h726j33DLvl",
+   "date": "2026-04-14"
+  },
+  {
+   "fact": "Fall Ball 2026 sponsors: Molen Orthodontics, Great Northwest Dental, Northwest Cascade.",
+   "url": "https://www.instagram.com/p/DexpTMbjLCM/",
+   "date": "2026-10-21"
+  },
+  {
+   "fact": "DICK'S Sporting Goods is the league's partner for member discount weekends (20% off in store).",
+   "url": "https://www.instagram.com/p/DbUQbRpARpb/",
+   "date": "2026-07-27"
+  },
+  {
+   "fact": "Molen Orthodontics and Southern Yankee Graphics were named as two of our sponsors at Opening Day 2026.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0SEqrGP8m97ztdxJhMEunTdc3BheQTwhNWKneFokJGucRdXobubCcfSMMyiMZeFC6l",
+   "date": "2026-04-25"
+  },
+  {
+   "fact": "Federal Way National Little League donated infield dirt; Mowatt Trucking and CJ Hoffman moved it; Lions Community Park is housing it.",
+   "url": "https://www.instagram.com/p/De0jwDcgUK_/",
+   "date": "2026-10-22"
+  },
+  {
+   "fact": "Seattle Mariners grounds crew helped with infield dirt; Sunbelt Rentals donated the dump trailer.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0H3MNhatotyxG6HPg5nKu6p7UHczoSUuRKA1NrhXZfYEaGzs9PbAomYaKZTVTDbpjl",
+   "date": "2026-04-15"
+  },
+  {
+   "fact": "East Pierce Firefighters Local 3520's 2nd Annual Charity Golf Tournament (Aug 2026) benefited youth sports including BLS.",
+   "url": "https://www.instagram.com/p/DevEjoJn05X/",
+   "date": "2026-10-20"
+  }
+ ]
+}

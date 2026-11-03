@@ -1,0 +1,38 @@
+{
+ "insert_before": [
+  {
+   "mid": "765766",
+   "file": "modules/registration.html",
+   "title": "Registration Info"
+  }
+ ],
+ "status": "Ready, with 8 items to confirm",
+ "summary": "Registration hero with the Nov 27 opening, three steps for new families, division chart with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.",
+ "needs": [
+  "President or Treasurer (Ramey Harguess / Dan Swagman): confirm registration opens Friday, Nov 27 with $50 off per family, and when the discount ends, so the hero can show the end date once registration is open. Only the website news post says so; social media has not announced it yet.",
+  "President or Treasurer (Ramey Harguess / Dan Swagman): 2027 fees by division, if this page should show them (fees have never been posted on social media).",
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): 2027 registration deadlines (in 2026 upper divisions closed Feb 1, lower divisions went to a waitlist Mar 1, Challenger closed Mar 1, and Juniors and 50/70 ran to Mar 10).",
+  "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the Softball tab of the division chart.",
+  "VP of Baseball (Jeremy Olsen): is spring Minors league age 9 to 11 (this chart and the FAQ) or AAA 10 to 11 (Fall Ball page)?",
+  "VP of Baseball (Jeremy Olsen): will 50/70 and Juniors run in 2027, and is Juniors 13 to 14 (this chart) or 13 to 15 (a Mar 2026 post)?",
+  "League Player Agent (Jason Guertin) with the VPs: spring 2027 evaluation dates and places, and Opening Day 2027 (2026 was Apr 25 at Allan Yorke Field 5), to add once set.",
+  "VP of Challenger (seat filled Nov 1, name in the Nov 1 minutes, not posted yet, from Secretary Tawnie LaValley): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them."
+ ],
+ "sources": [
+  {
+   "fact": "Challenger Division is adaptive baseball for players with physical and intellectual challenges, ages 4 to 18 (up to 22 if still in school); questions to vpchallenger@blslittleleague.org.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02rHnMMqTumwkFCobsUTSwCgxyG3CPXUiPZQce6yFn84mdBJJ9EnZ95eoEuMBsdmvLl",
+   "date": "2026-02-23"
+  },
+  {
+   "fact": "Fall Ball 2026 had 8 divisions: Tee Ball (co-ed); Baseball Coach Pitch, AA, Minors, Majors; Softball Minors B, Minors A, Majors.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid08PCm8UyyQvfzmjpiNvERQyE3GCUsAydAY19hRwdvrW5bLaqcvdd1DUYz2XeZ6qpAl",
+   "date": "2026-08-07"
+  },
+  {
+   "fact": "Fall Ball 2026 games ran Sep 12 through Oct 31.",
+   "url": "https://www.instagram.com/p/DanvXBCAQg6/",
+   "date": "2026-07-10"
+  }
+ ]
+}

@@ -1,0 +1,78 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+.blsx{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;}
+.blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
+.blsx h3,.blsx p,.blsx ol,.blsx li{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx a{text-decoration:none !important;}
+.blsx svg{display:block;}
+
+/* ---------- key dates ---------- */
+.blsx .ku-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+.blsx .ku-item{display:flex;flex-direction:column;background:#f5f7fb;border:1px solid #dde3ec;border-radius:14px;overflow:hidden;}
+.blsx .ku-date{display:flex;align-items:baseline;gap:10px;background:#00013a;color:#fff;padding:14px 18px 12px;border-bottom:5px solid #cd163f;}
+.blsx .ku-date i,.blsx .ku-date b{font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:44px;line-height:.9;text-transform:uppercase;color:#fff;white-space:nowrap;}
+.blsx .ku-date span{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:#b8c6ea;}
+.blsx .ku-hot .ku-date{background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
+.blsx .ku-soon .ku-date{background:#eef2f6;border-bottom-color:#c3ccdc;}
+.blsx .ku-soon .ku-date i,.blsx .ku-soon .ku-date b{color:#00013a;}
+.blsx .ku-soon .ku-date span{color:#4b5675;}
+.blsx .ku-body{flex:1;display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px 18px;}
+.blsx .ku-body h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:24px;line-height:1.05;text-transform:uppercase;color:#00013a !important;margin-bottom:8px !important;}
+.blsx .ku-body p{font-size:15px;line-height:1.55;color:#4b5675;}
+.blsx .ku-link{margin-top:auto;padding-top:14px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
+.blsx .ku-link svg{width:16px;height:16px;transition:transform .2s;}
+.blsx .ku-link:hover svg{transform:translateX(3px);}
+.blsx .ku-tip{margin-top:16px !important;display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.45;color:#4b5675;}
+.blsx .ku-tip svg{flex:none;width:20px;height:20px;}
+.blsx .ku-tip b{color:#00013a;font-weight:600;}
+
+/* ---------- tablet and phone: one date per row ---------- */
+@media (max-width:991px){
+  .blsx .ku-list{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .blsx .ku-item{flex-direction:row;}
+  .blsx .ku-date{flex:none;width:96px;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px 6px;border-bottom:0;border-right:5px solid #cd163f;text-align:center !important;}
+  .blsx .ku-date i{font-size:15px;font-weight:700;letter-spacing:.12em;color:#ffb8c6;line-height:1.1;}
+  .blsx .ku-soon .ku-date i{color:#cd163f;}
+  .blsx .ku-soon .ku-date{border-right-color:#c3ccdc;}
+  .blsx .ku-date b{font-size:46px;}
+  .blsx .ku-date span{font-size:15px;}
+  .blsx .ku-body{padding:14px 16px 16px;}
+  .blsx .ku-body h3{font-size:21px;}
+  .blsx .ku-link{padding-top:10px;}
+}
+@media (max-width:420px){
+  .blsx .ku-date{width:80px;}
+  .blsx .ku-date b{font-size:40px;}
+  .blsx .ku-date i{font-size:13px;letter-spacing:.08em;}
+  .blsx .ku-date span{font-size:13px;letter-spacing:.08em;}
+  .blsx .ku-body p{font-size:14px;}
+}
+@media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
+</style>
+<div class="blsx">
+  <ol class="ku-list">
+    <li class="ku-item">
+      <div class="ku-date"><i>Nov</i><b>7</b><span>Sat</span></div>
+      <div class="ku-body">
+        <h3>Fall Ball gear return</h3>
+        <p>10AM to 1PM at the Daffodil Shed. Bring back Fall Ball equipment so it can be packed up for the winter.</p>
+      </div>
+    </li>
+    <li class="ku-item ku-hot">
+      <div class="ku-date"><i>Nov</i><b>27</b><span>Fri</span></div>
+      <div class="ku-body">
+        <h3>Spring 2027 registration opens</h3>
+        <p>$50 off per family at opening.</p>
+        <a class="ku-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+    </li>
+    <li class="ku-item ku-soon">
+      <div class="ku-date"><i>Spring</i><b>2027</b></div>
+      <div class="ku-body">
+        <h3>Season dates</h3>
+        <p>Posted the day registration opens, on the BLS home page and Facebook page.</p>
+      </div>
+    </li>
+  </ol>
+  <p class="ku-tip"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3.5" width="16" height="14" rx="2.5" fill="none" stroke="#1452a0" stroke-width="1.8"/><path d="M2 8h16M6.5 1.8v3.4M13.5 1.8v3.4" stroke="#1452a0" stroke-width="1.8" stroke-linecap="round"/><path d="M7 12.5l2 2 4-4" fill="none" stroke="#cd163f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Tap <b>Sync Calendar</b> under the calendar to follow BLS events in your own calendar app.</span></p>
+</div>

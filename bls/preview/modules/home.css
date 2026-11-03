@@ -1,0 +1,131 @@
+/* BLS Little League: home page style (proposed)
+   The home page body has no Inner-Skin class, so site.css never reaches it. Every rule here starts with
+   body:not(.Inner-Skin), and the content rules also name the home module (#dnn_ctr765764_ModuleContent),
+   so inner pages can never change. Goal: the home page matches the inner pages (compact phone header,
+   gray page behind white cards, navy title bars with red and white trim) and the rotator gets cleaner controls.
+   Does not touch: .skAddBanner (Little League ad), the ad slot in the right column (.skBanner), the Little League
+   bar (.skTopbar / .skMobTopbar), the phone menu (#mobNav / .navBar), Local Sponsors, the footer.
+   The desktop menu only gets the same size tweak site.css gives the inner pages (its own section below). */
+
+body:not(.Inner-Skin){--bls-navy:#00013a;--bls-red:#cd163f;--bls-blue:#1452a0;--bls-light:#eef2f6;--bls-line:#e1e7ef;--bls-muted:#4b5675}
+
+/* ---------- Gray page behind the cards (same as inner pages) ---------- */
+body:not(.Inner-Skin) .skContentArea:has(#dnn_ctr765764_ModuleContent .skSlider){background:var(--bls-light);padding:28px 27px 6px!important}
+
+/* ---------- Rotator: rounded card, round arrow buttons, pill dots ---------- */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #slider1110520{padding:0!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #slider1110520 .skList img{display:block;width:100%!important;height:auto!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .caroufredsel_wrapper{border-radius:10px;box-shadow:0 1px 2px rgba(0,1,58,.08),0 10px 28px rgba(0,1,58,.12)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skPrevBtn,.skNextBtn){top:50%!important;width:48px!important;height:48px!important;margin:-24px 0 0!important;padding:0!important;border-radius:50%;background:rgba(255,255,255,.94)!important;box-shadow:0 6px 18px rgba(0,0,30,.35);z-index:5;transition:transform .15s}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPrevBtn{left:16px!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNextBtn{left:auto!important;right:16px!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skPrevBtn,.skNextBtn):hover{transform:scale(1.08)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skPrevBtn,.skNextBtn)::before{content:""!important;position:absolute!important;left:50%!important;top:50%!important;width:12px!important;height:12px!important;border:solid var(--bls-navy)!important;border-width:0 0 3px 3px!important;transform:translate(-30%,-50%) rotate(45deg)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNextBtn::before{border-width:3px 3px 0 0!important;transform:translate(-70%,-50%) rotate(45deg)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager{bottom:18px!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager a{width:10px!important;height:10px!important;margin:0 4px!important;border:0!important;border-radius:5px;background:rgba(255,255,255,.55)!important;box-shadow:0 1px 4px rgba(0,0,20,.45);vertical-align:middle;transition:width .25s,background .25s}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager a.selected{width:28px!important;background:#fff!important}
+/* slides carry their own words, so a slide with no caption gets no dark caption shade */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skCaption:has(.skTitle:empty){background:none!important}
+
+/* ---------- Cards: Local News (left) and Little League International (right) ---------- */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRowWrapper{margin-top:22px!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skContentWrapper{margin-bottom:0!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skTabsWrapper{background:transparent!important;vertical-align:top}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skTabsWrapper > .skTabs,
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs{background:#fff!important;border-radius:8px;overflow:hidden;box-shadow:0 1px 2px rgba(0,1,58,.08),0 8px 24px rgba(0,1,58,.07)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skNavTabsCnts,.skNews,.skNewsTitle,.skSocialFeed,#tab2){background:transparent!important}
+
+/* Title bar: navy with red and white jersey trim, same as inner pages */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle){position:relative;overflow:hidden;margin:0!important;padding:18px 96px 22px 54px!important;background:linear-gradient(to top,var(--bls-red) 0 5px,#fff 5px 8px,var(--bls-navy) 8px)!important;color:#fff!important;font:700 22px/1.25 Poppins,"Helvetica Neue",Arial,sans-serif!important;letter-spacing:.05em!important;text-transform:uppercase!important;text-align:left!important;height:auto!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNewsTitle .skTitle span{color:inherit!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle)::before{content:"";position:absolute;left:29px;top:calc(18px + .625em - 5px);width:10px;height:10px;background:var(--bls-red);transform:rotate(45deg)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle)::after{content:"";position:absolute;right:0;top:0;bottom:8px;width:84px;background:repeating-linear-gradient(115deg,transparent 0 10px,var(--bls-red) 10px 16px,transparent 16px 20px,#fff 20px 23px,transparent 23px 34px);opacity:.9;-webkit-mask:linear-gradient(to right,transparent,#000 60%);mask:linear-gradient(to right,transparent,#000 60%)}
+
+/* On-Deck / Social switch: the segmented style from the Registration page */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNavWrapper{height:auto!important;padding:22px 30px 0}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNavTabs{display:inline-flex!important;width:auto!important;padding:4px;border-radius:999px;background:var(--bls-light)!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNavTabs .skItem{display:block!important;width:auto!important;flex:none}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNavTabs .skLink{white-space:nowrap;padding:10px 22px!important;border-radius:999px;background:transparent!important;color:var(--bls-muted)!important;font:600 15px/1 Poppins,"Helvetica Neue",Arial,sans-serif!important;text-transform:none!important;height:auto!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNavTabs .skLink.active{background:var(--bls-navy)!important;color:#fff!important}
+
+/* News list: thumbnail beside the story, one font, clear hierarchy */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1{margin:0!important;padding:6px 30px 28px}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skInner{margin:0!important;padding:0!important;max-height:none!important;overflow:visible!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skList > li{display:grid!important;grid-template-columns:200px minmax(0,1fr);gap:0 24px;align-items:start;padding:22px 0!important;border-bottom:1px solid var(--bls-line)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skClear{display:none}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skNewsImage{float:none!important;width:auto!important;margin:0!important;height:auto!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skNewsImage img{display:block;width:100%!important;height:auto!important;aspect-ratio:5/3;object-fit:cover;border-radius:10px;box-shadow:0 6px 16px rgba(0,1,58,.14)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDetail{padding:0!important;margin:0!important;min-width:0}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDate{display:block;height:auto!important;margin:2px 0 8px!important;font:700 13px/1.2 Poppins,"Helvetica Neue",Arial,sans-serif!important;letter-spacing:.12em;text-transform:uppercase!important;color:var(--bls-red)!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDetail .skTitle{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;height:auto!important;max-height:none!important;font:700 19px/1.3 Poppins,"Helvetica Neue",Arial,sans-serif!important;text-transform:none!important;color:var(--bls-navy)!important;text-decoration:none!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDetail .skTitle:hover{color:var(--bls-red)!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skSummary{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;height:auto!important;max-height:none!important;margin-top:6px!important;font:400 15px/1.55 Poppins,"Helvetica Neue",Arial,sans-serif!important;color:var(--bls-muted)!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skReadMore{display:inline-block;margin-top:10px;font:600 15px/1.2 Poppins,"Helvetica Neue",Arial,sans-serif!important;color:var(--bls-red)!important;text-transform:lowercase!important;text-decoration:none!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skReadMore::first-letter{text-transform:uppercase}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skReadMore::after{content:"";display:inline-block;width:7px;height:7px;margin:0 0 2px 9px;border:solid currentColor;border-width:2px 2px 0 0;transform:rotate(45deg);transition:transform .2s}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skReadMore:hover::after{transform:translateX(3px) rotate(45deg)}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skViewAllBtn{display:inline-flex!important;align-items:center;width:auto!important;height:auto!important;margin:22px 0 0!important;padding:14px 24px!important;border-radius:10px;background:var(--bls-navy)!important;color:#fff!important;font:700 15px/1 Poppins,"Helvetica Neue",Arial,sans-serif!important;text-transform:none!important;text-decoration:none!important;transition:transform .15s,box-shadow .15s}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skViewAllBtn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,1,58,.25)}
+
+/* Facebook bars: a light label under the title bar instead of a second red bar */
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocialTab,.sksocialTab .skItem){background:var(--bls-light)!important}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocialTab .skLink){color:var(--bls-navy)!important;font:600 15px/1.2 Poppins,"Helvetica Neue",Arial,sans-serif!important;text-transform:none!important;letter-spacing:.02em}
+body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocialTab .skLink) :is(svg,path){fill:var(--bls-blue)!important}
+
+/* ---------- Desktop header (same as inner pages) ---------- */
+@media (min-width:769px){
+  body:not(.Inner-Skin) .skContentArea:has(#dnn_ctr765764_ModuleContent .skSlider){margin:0 -15px!important}
+  body:not(.Inner-Skin) .skHeader h1.skBanner{line-height:1.12!important;vertical-align:middle!important;text-wrap:balance}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skTabsWrapper{padding-right:22px!important}
+}
+
+/* ---------- Desktop menu: smaller text so it fits on 2 rows (same as site.css on inner pages) ----------
+   Delete this section to keep the menu as it is today. */
+@media (min-width:769px){
+  body:not(.Inner-Skin) .skNav .dnnNav > li.root > .roottxt{font-size:16px!important;padding-left:15px!important;padding-right:15px!important}
+}
+
+/* ---------- Phone ---------- */
+@media (max-width:768px){
+  body:not(.Inner-Skin) .skHeader .skHeaderInner{display:flex!important;align-items:center;gap:14px;padding:14px 16px!important;height:auto!important}
+  body:not(.Inner-Skin) .skHeader .skLogo{width:auto!important;height:auto!important;margin:0!important;padding:0!important;flex:0 0 auto}
+  body:not(.Inner-Skin) .skHeader .skLogo img{width:64px!important;height:auto!important;border-radius:6px;display:block}
+  body:not(.Inner-Skin) .skHeader h1.skBanner{font-size:21px!important;line-height:1.15!important;text-align:left!important;margin:0!important;padding:0!important}
+  body:not(.Inner-Skin) .skHeader{border-bottom:4px solid var(--bls-red);box-shadow:inset 0 -3px 0 #fff}
+
+  body:not(.Inner-Skin) .skContentArea:has(#dnn_ctr765764_ModuleContent .skSlider){padding:14px 12px 2px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .caroufredsel_wrapper{border-radius:8px}
+  /* phone: arrows sit in the bottom corners, on the same line as the dots, so they never cover slide words */
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skPrevBtn,.skNextBtn){top:auto!important;bottom:5px;width:24px!important;height:24px!important;margin:0!important;box-shadow:0 2px 8px rgba(0,0,30,.4)}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPrevBtn{left:6px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNextBtn{right:6px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skPrevBtn,.skNextBtn)::before{width:7px!important;height:7px!important;border-width:0 0 2px 2px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNextBtn::before{border-width:2px 2px 0 0!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager{bottom:13px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager a{width:8px!important;height:8px!important;margin:0 3px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skPager a.selected{width:20px!important}
+
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRowWrapper{margin-top:14px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skTabsWrapper > .skTabs{margin-bottom:14px}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs{padding:0!important;margin-bottom:14px}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle){font-size:20px!important;padding:14px 60px 18px 38px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle)::before{left:17px;top:calc(14px + .625em - 5px);width:9px;height:9px}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skTabHeading,.skNewsTitle .skTitle)::after{width:52px}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skNews{margin:0!important;padding:0!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skMobTabLink{display:block;margin:0!important;padding:18px 16px 0!important;background:transparent!important;color:var(--bls-red)!important;font:700 13px/1.2 Poppins,"Helvetica Neue",Arial,sans-serif!important;letter-spacing:.14em;text-align:left!important;text-transform:uppercase!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1{padding:0 16px 22px}
+  /* phone story: thumbnail beside date + headline, summary and link full width below */
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skList > li{grid-template-columns:112px minmax(0,1fr);grid-template-rows:auto auto auto auto;gap:0 14px;padding:16px 0!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skLinkNews{grid-column:1;grid-row:1 / span 2}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDetail{display:contents}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skNewsImage img{border-radius:8px;box-shadow:0 4px 10px rgba(0,1,58,.14)}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDate{grid-column:2;grid-row:1;align-self:end;font-size:12px!important;margin:0 0 5px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skDetail .skTitle{grid-column:2;grid-row:2;align-self:start;font-size:16px!important;line-height:1.3!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skSummary{grid-column:1 / -1;grid-row:3;margin-top:10px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skReadMore{grid-column:1 / -1;grid-row:4;justify-self:start;margin-top:6px}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab1 .skViewAllBtn{display:flex!important;justify-content:center;margin-top:18px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skSocialCollapsWrapper .skMobTabLink{padding-top:4px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2{width:auto!important;margin:0!important;padding:10px 16px 18px!important}
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2 > li{width:auto!important;list-style:none}
+}

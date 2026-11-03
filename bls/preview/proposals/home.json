@@ -1,0 +1,74 @@
+{
+ "rotator": [
+  {
+   "img": "img/slides/s1-registration.png",
+   "caption": "",
+   "alt": "Spring 2027 registration opens Friday, November 27. $50 off per family.",
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716835&mid=765764&newskeyid=HN1&newsid=574104&ctl=newsdetail"
+  },
+  {
+   "img": "img/slides/s2-start-here.png",
+   "caption": "",
+   "alt": "New to BLS? Start here: check league age, register, questions? read the FAQ.",
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716841"
+  },
+  {
+   "img": "img/slides/s3-volunteer.png",
+   "caption": "",
+   "alt": "Volunteer with BLS: managers, coaches, umpires.",
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716842"
+  },
+  {
+   "img": "img/slides/s4-sponsors.png",
+   "caption": "",
+   "alt": "Thank you to our sponsors: Cal-Line Equipment, DICK'S Sporting Goods, Enrique Trujeque Agency, Grasshopper Landscaping, Northwest Cascade (Honey Bucket), Land O'Frost, Los Pinos, Lowe's, Molen Orthodontics, Ossman Harding Dental, Owen Equipment, Panther Wrestling Club, Prospect Construction, ProTime Sports, Round Table Pizza, RS Lending and Titan Door. Become a sponsor.",
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=1462080"
+  }
+ ],
+ "extra_css": "modules/home.css",
+ "status": "Ready, with 9 items to confirm",
+ "summary": "Four new rotator slides: Spring 2027 registration, new families, volunteers, and a 17-logo sponsor thank-you that matches the Sponsorship page. <a href=\"proposed/home-tonight.html\">What ships tonight</a> shows them on today's home look.",
+ "needs": [
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on slide 4, the same list as the Sponsorship page wall (the 15 spring 2026 sponsors plus DICK'S and ProTime Sports, the two not on either 2026 sponsor list), and send a Great Northwest Dental logo (Fall Ball 2026 sponsor) so it can join both.",
+  "Sponsorship and Fundraising (Ashley Gauthier): does any current sponsor package promise its own rotator slide, since Division sponsors get rotator placement and today's DICK'S slide retires into slide 4?",
+  "President (Ramey Harguess): OK to retire today's Fan Store slide, since the store stays in the menu and has been open all year since March 2026?",
+  "President (Ramey Harguess) or Treasurer (Dan Swagman): when does the $50 per family discount end, since the site's Nov 2 news post gives Nov 27 and $50 off but no end date, and the replacement for slide 1 needs it?",
+  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide, on one checklist with every other page that says registration opens Nov 27.",
+  "Website (Daniel Grande): the home CSS look (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) needs a way onto the home page, which has no HTML block to carry it, so the 4 slides ship without it for now.",
+  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment, so add them once Ashley confirms the list.",
+  "Information Officer (Melissa Olsen), optional: home news posts for the Fall Ball gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) and a thank-you to Federal Way National Little League for the infield dirt, both already on social media.",
+  "President (Ramey Harguess), optional: a spring 2027 'Dates to Remember' list for a home news post (last year's went up Nov 21, 2025)."
+ ],
+ "sources": [
+  {
+   "fact": "2026 spring sponsors: Los Pinos Mexican Restaurant, Grasshopper Landscaping and Construction, Molen Orthodontics, Titan Door, Ossman Harding Dental, Round Table Pizza, Cal-Line Equipment, Owen Equipment, RLS Lending, Prospect Construction, Land O'Frost, Honey Bucket, Lowe's, Sumner/Bonney Lake Jr. Panthers Wrestling Club, Enrique Trujeque Agency.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0zUX7t4CNq6Wq7PiPrLExnso3MFTpjSqCcrs97b73kToQp89v5KsnG1h726j33DLvl",
+   "date": "2026-04-14"
+  },
+  {
+   "fact": "Fall Ball 2026 sponsors: Molen Orthodontics, Great Northwest Dental, Northwest Cascade.",
+   "url": "https://www.instagram.com/p/DexpTMbjLCM/",
+   "date": "2026-10-21"
+  },
+  {
+   "fact": "DICK'S Sporting Goods is the league's partner for member discount weekends (20% off in store).",
+   "url": "https://www.instagram.com/p/DbUQbRpARpb/",
+   "date": "2026-07-27"
+  },
+  {
+   "fact": "Fall Ball 2026 has ended; return gear to the Daffodil Shed Saturday Nov 7, 10AM to 1PM.",
+   "url": "https://www.instagram.com/p/DfPyxIwCao1/",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "Federal Way National Little League donated infield dirt; Mowatt Trucking and CJ Hoffman moved it; Lions Community Park is storing it.",
+   "url": "https://www.instagram.com/p/De0jwDcgUK_/",
+   "date": "2026-10-22"
+  },
+  {
+   "fact": "The BLS Fan Gear store has been open all year since March 2026.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid032v4AXVS8Zjo54a26XYyac7s4BuKjrLsF1qmyPCuURoXdmGRqWxfumhuZpXVpmJHcl",
+   "date": "2026-03-26"
+  }
+ ]
+}

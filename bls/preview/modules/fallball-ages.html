@@ -1,0 +1,108 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+.DnnModule:has(.blsx) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.blsx{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin:0 0 6px;}
+.blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
+.blsx h2,.blsx h3,.blsx p,.blsx header{margin:0 !important;padding:0;border:0;background:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx a{text-decoration:none !important;}
+.blsx svg{display:block;}
+.blsx .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsx .bx-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;}
+.blsx .bx-head h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#00013a !important;letter-spacing:.005em;}
+.blsx .fa-lede{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:36em;}
+.blsx .fa-legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:#4b5675;}
+.blsx .fa-legend span{display:inline-flex;align-items:center;gap:7px;}
+.blsx .fa-legend i{width:22px;height:10px;border-radius:3px;background:#1452a0;}
+.blsx .fa-legend i.fa-kp{background:#cd163f;}
+
+.blsx .fa-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+.blsx .fa-two > input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+.blsx .fa-seg{display:none;}
+.blsx .fa-card{background:#f5f7fb;border:1px solid #dde3ec;border-radius:14px;padding:22px 22px 18px;}
+.blsx .fa-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;}
+.blsx .fa-top h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:32px;line-height:1;text-transform:uppercase;color:#00013a !important;}
+.blsx .fa-cut{display:inline-flex;flex-direction:column;align-items:flex-end;background:#00013a;color:#fff;border-radius:10px;padding:7px 12px 8px;box-shadow:inset 0 -3px 0 #cd163f;}
+.blsx .fa-cut small{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b8c6ea;line-height:1.2;}
+.blsx .fa-cut b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;}
+.blsx .fa-ex{margin-top:14px !important;font-size:15px;line-height:1.55;color:#4b5675;}
+.blsx .fa-ex b{color:#00013a;font-weight:600;white-space:nowrap;}
+
+.blsx .fa-gantt{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));margin-top:16px;padding-top:6px;border-top:1px solid #dde3ec;
+  background-image:repeating-linear-gradient(90deg,#e3e8f0 0 1px,transparent 1px calc(100% / 11));}
+.blsx .fa-tick{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:15px;color:#8a93ab;text-align:center !important;padding:2px 0 0;}
+.blsx .fa-dn{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;font-weight:600;font-size:15px;line-height:1.2;color:#00013a;padding:12px 0 5px;}
+.blsx .fa-dn small{font-weight:500;font-size:13px;color:#6b7593;}
+.blsx .fa-bar{height:32px;border-radius:7px;background:#1452a0;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:16px;margin:0 2px;}
+.blsx .fa-bar.fa-kp{background:#cd163f;}
+.blsx .fa-bar.fa-off{opacity:.4;}
+.blsx .fa-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;font-size:15px;color:#6b7593;}
+.blsx .bx-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
+.blsx .bx-link svg{width:16px;height:16px;transition:transform .2s;}
+.blsx .bx-link:hover svg{transform:translateX(3px);}
+
+@media (max-width:760px){
+  .blsx{gap:16px;}
+  .blsx .bx-head h2{font-size:36px;}
+  .blsx .fa-two{grid-template-columns:minmax(0,1fr);gap:12px;}
+  /* phone: one sport at a time */
+  .blsx .fa-seg{display:flex;background:#eef2f6;border-radius:999px;padding:4px;}
+  .blsx .fa-seg label{flex:1;text-align:center !important;cursor:pointer;padding:10px 12px;border-radius:999px;font-family:Poppins,Arial,sans-serif !important;font-weight:600;font-size:15px;color:#4b5675;margin:0;}
+  .blsx .fa-seg label[for="fa-t-bb"],.blsx #fa-t-sb:checked ~ .fa-seg label[for="fa-t-sb"]{background:#00013a;color:#fff;}
+  .blsx #fa-t-sb:checked ~ .fa-seg label[for="fa-t-bb"]{background:transparent;color:#4b5675;}
+  .blsx .fa-sb,.blsx #fa-t-sb:checked ~ .fa-bb{display:none;}
+  .blsx #fa-t-sb:checked ~ .fa-sb{display:block;}
+  .blsx .fa-two > input:focus-visible ~ .fa-seg{outline:2px solid #1452a0;outline-offset:2px;}
+  .blsx .fa-card{padding:18px 14px 14px;}
+  .blsx .fa-top h3{font-size:30px;}
+  .blsx .fa-cut{align-items:flex-start;}
+}
+@media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
+</style>
+<div class="blsx">
+
+  <header class="bx-head">
+    <div>
+      <span class="bx-eyebrow">Last posted</span>
+      <h2>2025 Fall Ball age guidelines</h2>
+      <p class="fa-lede">Used for Fall 2025, which played at spring 2026 league age. League age, not school grade, sets the division.</p>
+    </div>
+    <div class="fa-legend"><span><i></i>Tee or coach pitch</span><span><i class="fa-kp"></i>Player pitch</span></div>
+  </header>
+
+  <div class="fa-two">
+    <input type="radio" name="fa-tab" id="fa-t-bb" checked>
+    <input type="radio" name="fa-tab" id="fa-t-sb">
+    <div class="fa-seg"><label for="fa-t-bb">Baseball</label><label for="fa-t-sb">Softball</label></div>
+    <section class="fa-card fa-bb" aria-label="Baseball age guidelines, Fall 2025 (spring 2026 league age)">
+      <div class="fa-top"><h3>Baseball</h3><span class="fa-cut"><small>Fall 2025</small><b>Age on Aug 31, 2026</b></span></div>
+      <p class="fa-ex">Example: 8 years old and turning 9 on or before Aug 31, 2026? <b>Played Fall 2025 as a 9-year-old.</b></p>
+      <div class="fa-gantt">
+        <div class="fa-tick">4</div><div class="fa-tick">5</div><div class="fa-tick">6</div><div class="fa-tick">7</div><div class="fa-tick">8</div><div class="fa-tick">9</div><div class="fa-tick">10</div><div class="fa-tick">11</div><div class="fa-tick">12</div><div class="fa-tick">13</div><div class="fa-tick">14</div>
+        <div class="fa-dn">Co-Ed T-Ball</div><div class="fa-bar" style="grid-column:1 / 4">4–6</div>
+        <div class="fa-dn">Single A<small>Coach pitch</small></div><div class="fa-bar" style="grid-column:3 / 5">6–7</div>
+        <div class="fa-dn">AA<small>Player pitch intro</small></div><div class="fa-bar fa-kp" style="grid-column:5 / 7">8–9</div>
+        <div class="fa-dn">AAA<small>Minors player pitch</small></div><div class="fa-bar fa-kp" style="grid-column:7 / 9">10–11</div>
+        <div class="fa-dn">Majors</div><div class="fa-bar fa-kp" style="grid-column:8 / 10">11–12</div>
+        <div class="fa-dn">Juniors<small>Not offered in Fall 2026</small></div><div class="fa-bar fa-kp fa-off" style="grid-column:10 / 12">13–14</div>
+      </div>
+    </section>
+    <section class="fa-card fa-sb" aria-label="Softball age guidelines, Fall 2025 (spring 2026 league age)">
+      <div class="fa-top"><h3>Softball</h3><span class="fa-cut"><small>Fall 2025</small><b>Age on Dec 31, 2025</b></span></div>
+      <p class="fa-ex">Example: 8 years old and turning 9 before Jan 1, 2026? <b>Played Fall 2025 as a 9-year-old.</b></p>
+      <div class="fa-gantt">
+        <div class="fa-tick">4</div><div class="fa-tick">5</div><div class="fa-tick">6</div><div class="fa-tick">7</div><div class="fa-tick">8</div><div class="fa-tick">9</div><div class="fa-tick">10</div><div class="fa-tick">11</div><div class="fa-tick">12</div><div class="fa-tick">13</div><div class="fa-tick">14</div>
+        <div class="fa-dn">Co-Ed T-Ball</div><div class="fa-bar" style="grid-column:1 / 4">4–6</div>
+        <div class="fa-dn">Minors B<small>Coach pitch</small></div><div class="fa-bar" style="grid-column:3 / 6">6–8</div>
+        <div class="fa-dn">Minors A<small>Player pitch</small></div><div class="fa-bar fa-kp" style="grid-column:5 / 9">8–11</div>
+        <div class="fa-dn">Majors</div><div class="fa-bar fa-kp" style="grid-column:8 / 10">11–12</div>
+        <div class="fa-dn">Juniors<small>Not offered in Fall 2026</small></div><div class="fa-bar fa-kp fa-off" style="grid-column:10 / 12">13–14</div>
+      </div>
+    </section>
+  </div>
+
+  <div class="fa-foot">
+    <span>Planning for next season? Little League's calculator gives your player's league age.</span>
+    <a class="bx-link" href="https://www.littleleague.org/play-little-league/determine-league-age/" target="_blank" rel="noopener">League age calculator <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  </div>
+
+</div>

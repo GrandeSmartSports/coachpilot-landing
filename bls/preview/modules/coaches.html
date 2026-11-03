@@ -1,0 +1,374 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+/* hide this module's own container title bar; the hero is the title */
+.DnnModule:has(.blsc) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.blsc{--line:#dde3ec;font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
+.blsc *,.blsc *::before,.blsc *::after{box-sizing:border-box;}
+.blsc h1,.blsc h2,.blsc h3,.blsc p,.blsc ol,.blsc ul,.blsc li,.blsc section,.blsc header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsc a{text-decoration:none !important;text-align:left !important;}
+.blsc svg{display:block;}
+.blsc .cc-d,.blsc h1,.blsc h2,.blsc h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;line-height:1;text-transform:uppercase;}
+
+/* ---------- hero ---------- */
+.blsc .cc-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.82fr);min-height:440px;}
+.blsc .cc-art{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
+.blsc .cc-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,1,58,.97) 0%,rgba(0,1,58,.88) 38%,rgba(0,1,58,.25) 70%,rgba(0,1,58,.1) 100%);}
+.blsc .cc-copy{align-self:center;padding:44px 16px 44px 40px;}
+.blsc .cc-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+.blsc .cc-ribbon svg{width:30px;height:30px;flex:none;}
+.blsc .cc-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
+.blsc .cc-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
+.blsc .cc-hero h1{font-size:68px;line-height:.9;letter-spacing:.005em;color:#fff !important;}
+.blsc .cc-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
+.blsc .cc-hero h1 em{font-style:normal;display:block;position:relative;width:max-content;max-width:100%;}
+.blsc .cc-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
+.blsc .cc-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:28em;}
+.blsc .cc-ask{margin-top:18px !important;font-size:15px;color:#b8c6ea;}
+.blsc .cc-ask a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);overflow-wrap:anywhere;}
+
+/* clipboard with the coach guide */
+.blsc .cc-board{align-self:center;justify-self:center;width:100%;max-width:340px;padding:44px 34px 44px 6px;}
+.blsc .cc-clip{position:relative;display:block;background:#1452a0;border-radius:18px;padding:16px 14px 14px;transform:rotate(2.2deg);box-shadow:0 26px 50px rgba(0,0,20,.5),inset 0 0 0 2px rgba(255,255,255,.12);transition:transform .2s;}
+.blsc .cc-clip:hover{transform:rotate(.6deg) translateY(-3px);}
+.blsc .cc-clip::before{content:"";position:absolute;left:50%;top:-14px;width:118px;height:34px;transform:translateX(-50%);border-radius:10px 10px 8px 8px;background:linear-gradient(180deg,#f3f5f9 0%,#b9c1cf 55%,#8d97a8 100%);box-shadow:0 4px 8px rgba(0,0,0,.35),inset 0 -3px 0 rgba(0,0,0,.12);z-index:2;}
+.blsc .cc-clip::after{content:"";position:absolute;left:50%;top:-6px;width:30px;height:12px;transform:translateX(-50%);border-radius:6px;background:#00013a;z-index:3;}
+.blsc .cc-paper{position:relative;background:#fff;border-radius:6px;padding:34px 20px 20px 34px;color:#00013a;
+  background-image:linear-gradient(90deg,transparent 22px,rgba(205,22,63,.45) 22px 24px,transparent 24px),repeating-linear-gradient(180deg,transparent 0 31px,#e3e9f3 31px 32px);}
+.blsc .cc-k{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:8px;}
+.blsc .cc-paper h2{font-size:44px;line-height:.92;color:#00013a !important;}
+.blsc .cc-paper p{margin-top:12px !important;font-size:15px;line-height:1.5;color:#4b5675;}
+.blsc .cc-paper .cc-btn{margin-top:18px;}
+
+/* ---------- buttons and links ---------- */
+.blsc .cc-btn{display:inline-flex;align-items:center;gap:10px;background:#00013a;color:#fff !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
+.blsc .cc-btn svg{width:16px;height:16px;flex:none;}
+.blsc .cc-clip:hover .cc-btn,.blsc .cc-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,1,58,.25);}
+.blsc .cc-link{margin-top:auto;padding-top:16px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
+.blsc .cc-link svg,.blsc .cc-go{width:16px;height:16px;flex:none;transition:transform .2s;}
+.blsc a:hover .cc-link svg,.blsc .cc-link:hover svg,.blsc a:hover .cc-go{transform:translateX(3px);}
+
+/* ---------- sections ---------- */
+.blsc .cc-sec{padding:44px 44px 46px;border-radius:18px;}
+.blsc .cc-white{background:#fff;border:1px solid var(--line);}
+.blsc .cc-gray{background:#eef2f6;}
+.blsc .cc-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsc .cc-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
+.blsc .cc-intro{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:36em;}
+
+/* ---------- clearance steps (basepath) ---------- */
+.blsc .cc-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
+.blsc .cc-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
+.blsc .cc-step{position:relative;display:flex;flex-direction:column;}
+.blsc .cc-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:22px;}
+.blsc .cc-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
+.blsc .cc-base i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;}
+.blsc .cc-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:24px;}
+.blsc .cc-card h3{font-size:30px;color:#00013a !important;margin-bottom:10px !important;}
+.blsc .cc-card p{font-size:15px;line-height:1.55;color:#4b5675;}
+.blsc .cc-cut{margin-top:16px;width:100%;}
+.blsc .cc-cut span{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:#4b5675;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;}
+.blsc .cc-cut b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#00013a;}
+.blsc .cc-hot .cc-base::before{background:#cd163f;}
+.blsc .cc-hot .cc-card{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
+.blsc .cc-hot .cc-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
+.blsc .cc-hot .cc-card h3{color:#fff !important;}
+.blsc .cc-hot .cc-card p{color:#dbe2f4;}
+.blsc .cc-hot .cc-btn{margin-top:auto;background:#fff;color:#00013a !important;}
+.blsc .cc-hot .cc-card p + .cc-btn{margin-top:20px;}
+.blsc .cc-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
+.blsc .cc-home svg{width:44px;height:48px;flex:none;}
+.blsc .cc-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;}
+.blsc .cc-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
+.blsc .cc-plan{margin-top:22px;display:flex;align-items:center;gap:16px;background:#eef2f6;border-radius:14px;padding:16px 20px;color:#00013a !important;transition:background .2s;}
+.blsc .cc-plan:hover{background:#e3e9f2;}
+.blsc .cc-plan > svg:first-child{width:40px;height:40px;flex:none;}
+.blsc .cc-plan span{flex:1;font-size:15px;line-height:1.4;color:#4b5675;}
+.blsc .cc-plan b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.1;text-transform:uppercase;color:#00013a;}
+.blsc .cc-plan .cc-go{color:#cd163f;}
+.blsc .cc-gear,.blsc .cc-gear:hover{background:#fff;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);}
+.blsc .cc-gear{align-items:flex-start;}
+.blsc .cc-gear > svg:first-child{margin-top:2px;}
+
+/* ---------- schedules and standings tiles ---------- */
+.blsc .cc-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:28px !important;}
+.blsc .cc-tile{display:flex;flex-direction:column;align-items:flex-start;background:#fff;border-radius:14px;padding:20px 18px 18px;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
+.blsc .cc-tile:hover{transform:translateY(-3px);box-shadow:0 1px 0 var(--line),0 20px 40px rgba(0,1,58,.14);}
+.blsc .cc-ic{width:46px;height:46px;border-radius:12px;background:#1452a0;display:grid;place-items:center;margin-bottom:16px;}
+.blsc .cc-ic svg{width:24px;height:24px;}
+.blsc .cc-tile b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:25px;line-height:1;text-transform:uppercase;}
+.blsc .cc-tile .cc-sub{margin-top:6px;font-size:15px;line-height:1.4;color:#4b5675;}
+.blsc .cc-tile .cc-go{margin-top:auto;padding-top:12px;width:28px;height:28px;color:#cd163f;}
+.blsc .cc-tile.cc-main{background:#00013a;}
+.blsc .cc-tile.cc-main .cc-ic{background:#cd163f;}
+.blsc .cc-tile.cc-main b{color:#fff;}
+.blsc .cc-tile.cc-main .cc-sub{color:#b8c6ea;}
+.blsc .cc-tile.cc-main .cc-go{color:#fff;}
+
+/* ---------- rules ---------- */
+.blsc .cc-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px !important;}
+.blsc .cc-panel{background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:22px 22px 10px;}
+.blsc .cc-panel header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-bottom:12px;border-bottom:3px solid #00013a;}
+.blsc .cc-panel h3{font-size:26px;color:#00013a !important;}
+.blsc .cc-panel header small{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;}
+.blsc .cc-doc{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);color:#00013a !important;}
+.blsc .cc-doc:last-child{border-bottom:0;}
+.blsc .cc-tag{flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;color:#fff;background:#1452a0;}
+.blsc .cc-tag.cc-pdf{background:#cd163f;}
+.blsc .cc-tag.cc-app{background:#00013a;}
+.blsc .cc-doc > span:not(.cc-tag){flex:1;min-width:0;font-size:15px;line-height:1.35;color:#4b5675;}
+.blsc .cc-doc strong{display:block;font-size:16px;font-weight:600;line-height:1.3;color:#00013a;margin-bottom:2px;}
+.blsc .cc-doc .cc-go{color:#cd163f;}
+.blsc .cc-doc:hover strong{color:#1452a0;}
+
+/* ---------- field layouts ---------- */
+.blsc .cc-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:28px !important;}
+.blsc .cc-fc{display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
+.blsc .cc-fc:hover{transform:translateY(-3px);box-shadow:0 1px 0 var(--line),0 20px 40px rgba(0,1,58,.14);}
+.blsc .cc-fa{position:relative;aspect-ratio:4/3;overflow:hidden;}
+.blsc .cc-fa svg{position:absolute;inset:0;width:100%;height:100%;}
+.blsc .cc-fa h3{position:absolute;left:16px;bottom:12px;font-size:30px;color:#fff !important;text-shadow:0 2px 14px rgba(0,0,30,.5);}
+.blsc .cc-fa i{position:absolute;right:12px;top:12px;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.12em;text-transform:uppercase;background:#fff;color:#00013a;border-radius:6px;padding:2px 8px;}
+.blsc .cc-fb{flex:1;display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px 18px;}
+.blsc .cc-fb p{font-size:15px;line-height:1.45;color:#4b5675;}
+.blsc .cc-fb .cc-link{padding-top:12px;font-size:15px;}
+
+/* ---------- tablet and phone: base path runs down the left, so the home plate never sits on base 3 ---------- */
+@media (max-width:991px){
+  .blsc .cc-path{grid-template-columns:1fr;gap:18px;padding-left:58px;}
+  .blsc .cc-path::before{left:22px;right:auto;top:24px;bottom:46px;border-top:0;border-left:3px dashed #c3ccdc;}
+  .blsc .cc-base{position:absolute;left:-58px;top:14px;margin:0;}
+  .blsc .cc-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
+  .blsc .cc-home span{text-align:left !important;background:none;padding:0;}
+}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsc{gap:16px;}
+  .blsc .cc-hero{grid-template-columns:1fr;min-height:0;border-radius:14px;}
+  .blsc .cc-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.85) 50%,rgba(0,1,58,.45) 100%);}
+  .blsc .cc-art{height:auto;top:auto;bottom:0;aspect-ratio:3/4;}
+  .blsc .cc-copy{padding:26px 20px 6px;}
+  .blsc .cc-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsc .cc-ribbon b{font-size:18px;}
+  .blsc .cc-hero h1{font-size:58px;}
+  .blsc .cc-hero h1 small{font-size:.5em;}
+  .blsc .cc-lede{margin-top:24px !important;font-size:16px;}
+  .blsc .cc-board{max-width:none;padding:34px 22px 30px;}
+  .blsc .cc-clip{transform:rotate(1.4deg);}
+  .blsc .cc-paper h2{font-size:40px;}
+  .blsc .cc-sec{padding:28px 18px;border-radius:14px;}
+  .blsc .cc-sec h2{font-size:36px;}
+  .blsc .cc-path{margin-top:24px !important;}
+  .blsc .cc-card{padding:20px;}
+  .blsc .cc-card h3{font-size:28px;}
+  .blsc .cc-plan{padding:14px 16px;gap:12px;}
+  .blsc .cc-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px !important;}
+  .blsc .cc-tile{padding:16px 14px 14px;}
+  .blsc .cc-tile.cc-main{grid-column:1 / -1;flex-direction:row;flex-wrap:wrap;align-items:center;column-gap:14px;}
+  .blsc .cc-tile.cc-main .cc-ic{margin:0;}
+  .blsc .cc-tile.cc-main b{flex:1;}
+  .blsc .cc-tile.cc-main .cc-sub{order:3;flex-basis:100%;margin-top:10px;}
+  .blsc .cc-tile.cc-main .cc-go{margin:0;padding:0;}
+  .blsc .cc-tile b{font-size:23px;}
+  .blsc .cc-cols{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
+  .blsc .cc-panel{padding:18px 16px 6px;}
+  .blsc .cc-fields{grid-template-columns:1fr;gap:12px;margin-top:22px !important;}
+  .blsc .cc-fc{flex-direction:row;min-height:118px;}
+  .blsc .cc-fa{flex:none;width:124px;aspect-ratio:auto;}
+  .blsc .cc-fa h3{font-size:22px;left:10px;bottom:8px;}
+  .blsc .cc-fa i{left:10px;right:auto;top:10px;font-size:12px;}
+  .blsc .cc-fb{padding:14px 16px;}
+}
+@media (prefers-reduced-motion:reduce){.blsc *{transition:none !important;}}
+</style>
+<div class="blsx blsc">
+
+  <section class="cc-hero">
+    <svg class="cc-art" viewBox="0 0 1200 560" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="ccSky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00013a"/><stop offset="1" stop-color="#0a2a78"/></linearGradient>
+        <marker id="ccArrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#cd163f"/></marker>
+        <marker id="ccArrowW" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ffffff" fill-opacity=".45"/></marker>
+      </defs>
+      <rect width="1200" height="560" fill="url(#ccSky)"/>
+      <g fill="none" stroke="#fff" stroke-linecap="round">
+        <path d="M560 470A520 520 0 0 1 1260 170" stroke-opacity=".07" stroke-width="3" stroke-dasharray="2 14"/>
+        <path d="M900 520L1130 290L900 60L670 290Z" stroke-opacity=".16" stroke-width="4"/>
+        <path d="M900 520L460 80M900 520L1340 80" stroke-opacity=".08" stroke-width="3"/>
+        <circle cx="900" cy="300" r="26" stroke-opacity=".16" stroke-width="3"/>
+        <circle cx="760" cy="170" r="16" stroke-opacity=".3" stroke-width="4"/>
+        <circle cx="1050" cy="150" r="16" stroke-opacity=".3" stroke-width="4"/>
+        <circle cx="1010" cy="420" r="16" stroke-opacity=".3" stroke-width="4"/>
+        <path d="M770 360l22 22m0-22l-22 22M1090 330l22 22m0-22l-22 22M620 230l22 22m0-22l-22 22" stroke-opacity=".3" stroke-width="4"/>
+        <path d="M900 500C980 470 1090 380 1118 302" stroke="#cd163f" stroke-opacity=".85" stroke-width="5" stroke-dasharray="14 10" marker-end="url(#ccArrow)"/>
+        <path d="M760 190C760 240 790 300 860 320" stroke-opacity=".35" stroke-width="4" stroke-dasharray="10 9" marker-end="url(#ccArrowW)"/>
+        <path d="M1050 170C1000 200 960 230 930 270" stroke-opacity=".35" stroke-width="4" stroke-dasharray="10 9" marker-end="url(#ccArrowW)"/>
+      </g>
+      <g fill="#fff" fill-opacity=".22"><path d="M900 506l12 12-12 12-12-12z"/><path d="M1130 278l12 12-12 12-12-12z"/><path d="M900 48l12 12-12 12-12-12z"/><path d="M670 278l12 12-12 12-12-12z"/></g>
+    </svg>
+    <div class="cc-copy">
+      <div class="cc-ribbon">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M11 9h10v4.5a5 5 0 0 1-10 0z" fill="#cd163f"/><path d="M11 10.5H8.5v1.6a3.4 3.4 0 0 0 3.2 3.4M21 10.5h2.5v1.6a3.4 3.4 0 0 1-3.2 3.4" fill="none" stroke="#cd163f" stroke-width="1.6"/><path d="M14.6 18h2.8v3.2h-2.8zM12 22h8v2.2h-8z" fill="#cd163f"/></svg>
+        <div><span>BLS</span><b>Coaches Corner</b></div>
+      </div>
+      <h1><small>Welcome, BLS coaches</small>Everything <em>you need.</em></h1>
+      <p class="cc-lede">Schedules, rules, safety training, field layouts and the BLS coach guide for Bonney Lake Sumner Little League, all in one place.</p>
+      <p class="cc-ask">Coaching questions? Email <a href="mailto:coaching@blslittleleague.org">coaching@blslittleleague.org</a></p>
+    </div>
+    <div class="cc-board">
+      <a class="cc-clip" href="/portals/50558/docs/coaches%20handbook/bls%20new%20coach%20run%20book%202026.docx">
+        <div class="cc-paper">
+          <span class="cc-k">Coach guide</span>
+          <h2>New Coach Run Book</h2>
+          <p>The BLS how-to guide for coaching in the league. 2026 edition, Word document.</p>
+          <span class="cc-btn">Open the guide <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9M4 7l4 4 4-4M3 14h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="cc-sec cc-white">
+    <header><span class="cc-eyebrow">Safety and training</span><h2>Before you take the&nbsp;field</h2></header>
+    <p class="cc-intro">Every BLS manager, coach and volunteer completes these three steps.</p>
+    <ol class="cc-path">
+      <li class="cc-step">
+        <span class="cc-base"><i>1</i></span>
+        <div class="cc-card">
+          <h3>Register as a volunteer</h3>
+          <p>In your BLS account, when you register your player or on its own.</p>
+          <a class="cc-link" href="/Default.aspx?tabid=716842">Volunteer page <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="cc-step">
+        <span class="cc-base"><i>2</i></span>
+        <div class="cc-card">
+          <h3>Background check</h3>
+          <p>After you sign up, JDP emails you the background check. Complete it every year.</p>
+          <div class="cc-cut"><span><b>Resets yearly</b>October 1</span></div>
+        </div>
+      </li>
+      <li class="cc-step cc-hot">
+        <span class="cc-base"><i>3</i></span>
+        <div class="cc-card">
+          <h3>Abuse Awareness Training</h3>
+          <p>Through Little League, every year. Sign in with the email you volunteered with. No certificate to send.</p>
+          <a class="cc-btn" href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" target="_blank" rel="noopener">Start the training <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="cc-home" aria-label="Then you are cleared to coach for spring 2027">
+        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
+        <span><b>Then: cleared</b>Ready for spring 2027</span>
+      </li>
+    </ol>
+    <a class="cc-plan" href="/Default.aspx?tabid=776469">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 5v10c0 9.5-6 16-14 19C12 34 6 27.5 6 18V8z" fill="#00013a"/><path d="M13.5 20l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span><b>2025 Safety Plan</b>The league safety plan for BLS teams and fields.</span>
+      <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
+  </section>
+
+  <section class="cc-sec cc-gray">
+    <header><span class="cc-eyebrow">Schedules and standings</span><h2>Your season at a&nbsp;glance</h2></header>
+    <div class="cc-tiles">
+      <a class="cc-tile cc-main" href="/Default.aspx?tabid=719255">
+        <span class="cc-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/></svg></span>
+        <b>League Calendar</b>
+        <span class="cc-sub">League events and dates, all divisions.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="cc-tile" href="/Default.aspx?tabid=719150">
+        <span class="cc-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 2.5h6v3H9z"/><path d="M8.5 10.5l1.2 1.2 2.3-2.4M8.5 15.5l1.2 1.2 2.3-2.4M14 10.5h2M14 15.5h2"/></svg></span>
+        <b>Team Schedules</b>
+        <span class="cc-sub">Games by team.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="cc-tile" href="/Default.aspx?tabid=719152">
+        <span class="cc-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M6.5 20v-6h3v6M10.5 20V8h3v12M14.5 20v-9h3v9"/><path d="M12 3.5l.9 1.8 2 .3-1.4 1.4.3 2L12 8.1 10.2 9l.3-2-1.4-1.4 2-.3z" fill="#fff" stroke="none"/></svg></span>
+        <b>Standings</b>
+        <span class="cc-sub">Where every team stands.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="cc-tile" href="/Default.aspx?tabid=719151">
+        <span class="cc-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M12 5v14"/><path d="M6 10.5a1.5 1.5 0 0 1 3 0c0 1.5-3 2.5-3 4h3M15 9h3l-1.8 2.2a1.6 1.6 0 1 1-1.4 2.6"/></svg></span>
+        <b>Game Scores</b>
+        <span class="cc-sub">Final scores, game by game.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="cc-tile" href="/Default.aspx?tabid=719149">
+        <span class="cc-ic"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 0 5 2.2 5 5.3"/></svg></span>
+        <b>Team Directory</b>
+        <span class="cc-sub">Every BLS team.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="cc-plan cc-gear">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="13" width="32" height="21" rx="5" fill="#00013a"/><path d="M14 13v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3" fill="none" stroke="#00013a" stroke-width="3"/><path d="M4 21h32" stroke="#cd163f" stroke-width="3"/><rect x="17" y="18" width="6" height="6" rx="1.5" fill="#fff"/></svg>
+      <span><b>Team gear bags</b>Each team gets a gear bag for the season. When it ends, return it to the Daffodil Shed with the gear cleaned and the keys on the zipper. Pickup and return days are announced each season.</span>
+    </div>
+  </section>
+
+  <section class="cc-sec cc-white">
+    <header><span class="cc-eyebrow">Rules</span><h2>Know the&nbsp;rules</h2></header>
+    <div class="cc-cols">
+      <div class="cc-panel">
+        <header><h3>BLS and District 10</h3><small>Latest posted</small></header>
+        <a class="cc-doc" href="/portals/50558/docs/local%20rules/2025%20blsll%20regular%20season%20local%20rules.pdf">
+          <span class="cc-tag cc-pdf">PDF</span>
+          <span><strong>Baseball League Rules</strong>2025 · BLS regular season local rules</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="cc-doc" href="/portals/50558/docs/local%20rules/2025%20d10%20softball%20interlock%20rules.pdf">
+          <span class="cc-tag cc-pdf">PDF</span>
+          <span><strong>Softball Rules</strong>2025 · District 10 interlock rules</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="cc-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf">
+          <span class="cc-tag cc-pdf">PDF</span>
+          <span><strong>All-Star Selection Process</strong>2026 · How BLS picks All-Star teams</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+      <div class="cc-panel">
+        <header><h3>Little League</h3><small>Official rules</small></header>
+        <a class="cc-doc" href="https://www.littleleague.org/playing-rules/rules-regulations-policies/" target="_blank" rel="noopener">
+          <span class="cc-tag">WEB</span>
+          <span><strong>Little League Rules</strong>Rules, regulations and policies</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="cc-doc" href="https://www.littleleague.org/playing-rules/little-league-rulebook-app/" target="_blank" rel="noopener">
+          <span class="cc-tag cc-app">APP</span>
+          <span><strong>Rulebook App</strong>The official rulebook on your phone</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="cc-doc" href="https://www.littleleague.org/downloads/2026-rulebook-significant-changes/" target="_blank" rel="noopener">
+          <span class="cc-tag">WEB</span>
+          <span><strong>2026 Rulebook Changes</strong>Little League's list of significant changes</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="cc-sec cc-gray">
+    <header><span class="cc-eyebrow">Field dimensions</span><h2>Field layouts by&nbsp;division</h2></header>
+    <div class="cc-fields">
+      <a class="cc-fc" href="https://www.littleleague.org/downloads/ll-baseball-field-layout/" target="_blank" rel="noopener">
+        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1452a0"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFb)"/><g><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".55" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L78 84A59 59 0 0 1 162 84Z" fill="#8a4c33" fill-opacity=".85"/><path d="M120 122L144 98L120 74L96 98Z" fill="#0f4a3e" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="4.5" fill="#8a4c33"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><h3>Baseball</h3></div>
+        <div class="cc-fb"><p>Majors, AA, Minors (player and coach pitch) and Tee Ball</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      </a>
+      <a class="cc-fc" href="https://www.littleleague.org/downloads/jr-sl-baseball-field-layout/" target="_blank" rel="noopener">
+        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFj" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a2a78"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFj)"/><g transform="translate(120 126) scale(1.14) translate(-120 -126)"><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".55" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L78 84A59 59 0 0 1 162 84Z" fill="#8a4c33" fill-opacity=".85"/><path d="M120 122L144 98L120 74L96 98Z" fill="#0f4a3e" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="4.5" fill="#8a4c33"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><i>Juniors</i><h3>Baseball</h3></div>
+        <div class="cc-fb"><p>Junior Division</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      </a>
+      <a class="cc-fc" href="https://www.littleleague.org/downloads/ll-softball-field-layout/" target="_blank" rel="noopener">
+        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cd163f"/><stop offset="1" stop-color="#7d0a24"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFs)"/><g><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".5" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L74 80A65 65 0 0 1 166 80Z" fill="#8a4c33"/><path d="M120 122L144 98L120 74L96 98Z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="8" fill="none" stroke="#fff" stroke-width="1.6"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><h3>Softball</h3></div>
+        <div class="cc-fb"><p>Majors, Minors A and Coach Pitch</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      </a>
+      <a class="cc-fc" href="https://www.littleleague.org/downloads/field-layout-junior-senior-softball/" target="_blank" rel="noopener">
+        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a3102f"/><stop offset="1" stop-color="#4a0616"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFt)"/><g transform="translate(120 126) scale(1.14) translate(-120 -126)"><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".5" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L74 80A65 65 0 0 1 166 80Z" fill="#8a4c33"/><path d="M120 122L144 98L120 74L96 98Z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="8" fill="none" stroke="#fff" stroke-width="1.6"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><i>Juniors</i><h3>Softball</h3></div>
+        <div class="cc-fb"><p>Junior Division</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      </a>
+    </div>
+  </section>
+
+</div>

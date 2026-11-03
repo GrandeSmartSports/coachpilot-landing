@@ -1,0 +1,282 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+/* hide this module's own container title bar; the hero is the title */
+.DnnModule:has(.blsx) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.blsx{--line:#dde3ec;font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
+.blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
+.blsx h1,.blsx h2,.blsx h3,.blsx p,.blsx figure,.blsx ol,.blsx li,.blsx section,.blsx header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx a{text-decoration:none !important;}
+.blsx svg{display:block;}
+
+/* ---------- hero ---------- */
+.blsx .bx-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
+.blsx .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
+.blsx .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.86) 28%,rgba(0,1,58,.3) 56%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
+.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:stretch;min-height:430px;}
+.blsx .bx-copy{align-self:center;padding:44px 24px 44px 40px;}
+.blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+.blsx .bx-ribbon svg{width:30px;height:30px;flex:none;}
+.blsx .bx-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
+.blsx .bx-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
+.blsx .bx-hero h1{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:68px;line-height:.9;letter-spacing:.005em;text-transform:uppercase;color:#fff !important;}
+.blsx .bx-hero h1 em{font-style:normal;display:block;color:#fff;position:relative;width:max-content;max-width:100%;}
+.blsx .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
+.blsx .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
+.blsx .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
+.blsx .bx-photo{position:relative;min-height:100%;}
+.blsx .bx-photo::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
+.blsx .bx-frame{position:absolute;inset:0;overflow:hidden;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
+/* fall ball tally poster */
+.blsx .bx-tally{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:28px 30px 28px 84px;}
+.blsx .bx-tally::after{content:"";position:absolute;right:-90px;bottom:-90px;width:300px;height:300px;border-radius:50%;border:2px dashed rgba(255,255,255,.14);}
+.blsx .bx-tally .k{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;margin-bottom:10px;}
+.blsx .bx-tally li{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid rgba(255,255,255,.16);padding:2px 0 6px;}
+.blsx .bx-tally li:last-child{border-bottom:0;}
+.blsx .bx-tally b{min-width:1.45em;text-align:right;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:84px;line-height:.9;color:#fff;}
+.blsx .bx-tally li:nth-child(2) b{color:transparent;-webkit-text-stroke:2px #fff;}
+.blsx .bx-tally li span{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;letter-spacing:.04em;text-transform:uppercase;color:#b8c6ea;}
+.blsx .bx-tally .f{margin-top:14px !important;font-size:15px;line-height:1.45;color:#dbe2f4;}
+.blsx .bx-tally .f b{display:inline;min-width:0;font-family:Poppins,Arial,sans-serif;font-size:15px;font-weight:700;line-height:1.45;}
+
+/* ---------- shared section heads ---------- */
+.blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
+.blsx .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsx .bx-sec h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
+.blsx .bx-sub{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:40em;}
+.blsx .bx-link{margin-top:auto;padding-top:18px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;text-align:left !important;}
+.blsx .bx-link svg{width:16px;height:16px;transition:transform .2s;}
+.blsx .bx-link:hover svg{transform:translateX(3px);}
+
+/* ---------- roles ---------- */
+.blsx .bx-roles{background:#eef2f6;}
+.blsx .bx-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px !important;}
+.blsx .bx-pc{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.08);display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;}
+.blsx .bx-pc:hover{transform:translateY(-3px);box-shadow:0 1px 0 #dde3ec,0 20px 40px rgba(0,1,58,.14);}
+.blsx .bx-art{position:relative;aspect-ratio:5/2;overflow:hidden;}
+.blsx .bx-art svg{position:absolute;inset:0;width:100%;height:100%;}
+.blsx .bx-art h3{position:absolute;left:22px;bottom:14px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:36px;line-height:1;text-transform:uppercase;color:#fff !important;text-shadow:0 2px 14px rgba(0,0,30,.45);}
+.blsx .bx-pc-body{padding:18px 22px 22px;display:flex;flex-direction:column;align-items:flex-start;flex:1;}
+.blsx .bx-meta{font-size:12px !important;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f !important;margin-bottom:8px !important;}
+.blsx .bx-pc-body p{font-size:15px;line-height:1.55;color:#4b5675;}
+.blsx .bx-pc-body p + p{margin-top:8px !important;}
+.blsx .bx-seat{width:100%;display:flex;align-items:center;gap:14px;background:#00013a;border-radius:12px;padding:14px 16px;margin:2px 0 12px !important;position:relative;overflow:hidden;}
+.blsx .bx-seat::after{content:"";position:absolute;right:-40px;top:-40px;width:120px;height:120px;border-radius:50%;border:2px dashed rgba(255,255,255,.14);}
+.blsx .bx-seat span{flex:none;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.16em;text-transform:uppercase;background:#cd163f;color:#fff;padding:3px 9px;border-radius:6px;}
+.blsx .bx-seat b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#fff;}
+.blsx .bx-wide{grid-column:1/-1;flex-direction:row;}
+.blsx .bx-wide .bx-art{flex:0 0 46%;aspect-ratio:auto;min-height:210px;}
+.blsx .bx-wide .bx-pc-body{justify-content:center;padding:26px 28px;}
+.blsx .bx-wide .bx-link{margin-top:0;}
+.blsx .bx-match{display:flex;align-items:center;gap:18px;margin-top:20px !important;background:#fff;border-radius:14px;padding:16px 22px;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.06);}
+.blsx .bx-x2{flex:none;width:52px;height:52px;border-radius:12px;background:#cd163f;color:#fff;display:grid;place-items:center;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:26px;line-height:1;}
+.blsx .bx-match p{flex:1;font-size:15px;line-height:1.5;color:#4b5675;}
+.blsx .bx-match p b{color:#00013a;font-weight:700;}
+.blsx .bx-match .bx-link{margin-top:0;padding-top:0;flex:none;}
+
+/* ---------- steps as a basepath ---------- */
+.blsx .bx-steps{background:#fff;border:1px solid var(--line);}
+.blsx .bx-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
+.blsx .bx-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
+.blsx .bx-step{position:relative;display:flex;flex-direction:column;}
+.blsx .bx-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:22px;}
+.blsx .bx-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
+.blsx .bx-base i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;}
+.blsx .bx-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:24px;}
+.blsx .bx-card h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:30px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:10px !important;}
+.blsx .bx-card p{font-size:15px;line-height:1.55;color:#4b5675;}
+.blsx .bx-hot .bx-base::before{background:#cd163f;}
+.blsx .bx-hot .bx-card{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
+.blsx .bx-hot .bx-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
+.blsx .bx-hot .bx-card h3{color:#fff !important;}
+.blsx .bx-hot .bx-card p{color:#dbe2f4;}
+.blsx .bx-date{display:grid;gap:4px;margin:2px 0 12px;}
+.blsx .bx-date b{white-space:nowrap;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:54px;line-height:.9;text-transform:uppercase;color:#fff;}
+.blsx .bx-date span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;line-height:1.3;color:#ffb8c6;}
+.blsx .bx-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;margin-top:20px;transition:transform .15s,box-shadow .15s;position:relative;z-index:1;}
+.blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
+.blsx .bx-btn svg{width:16px;height:16px;}
+.blsx .bx-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
+.blsx .bx-home svg{width:44px;height:48px;flex:none;}
+.blsx .bx-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;}
+.blsx .bx-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
+.blsx .bx-ask{margin-top:26px !important;display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;border-top:1px solid var(--line);padding-top:20px;font-size:16px;color:#4b5675;}
+.blsx .bx-ask b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:#00013a;}
+.blsx .bx-ask a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsx{gap:16px;}
+  .blsx .bx-hero{border-radius:14px;}
+  .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.82) 48%,rgba(0,1,58,.55) 100%);}
+  .blsx .bx-hero-in{grid-template-columns:minmax(0,1fr);min-height:0;}
+  .blsx .bx-copy{padding:24px 20px 30px;}
+  .blsx .bx-photo{order:-1;min-height:0;}
+  .blsx .bx-photo::before{display:none;}
+  .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-bottom:5px solid #cd163f;}
+  .blsx .bx-tally{position:relative;inset:auto;padding:20px 16px 18px;}
+  .blsx .bx-tally .k{align-self:center;font-size:11px;margin-bottom:8px;}
+  .blsx .bx-tally ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
+  .blsx .bx-tally li{flex-direction:column;align-items:center;gap:4px;border-bottom:0;border-right:1px solid rgba(255,255,255,.16);padding:0 4px;}
+  .blsx .bx-tally li:last-child{border-right:0;}
+  .blsx .bx-tally b{min-width:0;text-align:center;font-size:56px;}
+  .blsx .bx-tally li:nth-child(2) b{-webkit-text-stroke:1.5px #fff;}
+  .blsx .bx-tally li span{font-size:17px;}
+  .blsx .bx-tally .f{margin-top:12px !important;text-align:center !important;}
+  .blsx .bx-match{flex-wrap:wrap;align-items:flex-start;gap:10px 14px;padding:16px 18px;margin-top:16px !important;}
+  .blsx .bx-x2{width:44px;height:44px;font-size:22px;}
+  .blsx .bx-match p{flex:1 1 200px;}
+  .blsx .bx-match .bx-link{flex-basis:100%;}
+  .blsx .bx-wide{flex-direction:column;}
+  .blsx .bx-wide .bx-art{flex:none;aspect-ratio:5/2;min-height:0;}
+  .blsx .bx-wide .bx-pc-body{padding:16px 18px 20px;}
+  .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsx .bx-ribbon b{font-size:18px;}
+  .blsx .bx-hero h1{font-size:60px;}
+  .blsx .bx-hero h1 small{font-size:.52em;}
+  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
+  .blsx .bx-sec{padding:28px 18px;border-radius:14px;}
+  .blsx .bx-sec h2{font-size:36px;}
+  .blsx .bx-cards{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
+  .blsx .bx-art h3{font-size:28px;left:18px;bottom:12px;}
+  .blsx .bx-pc-body{padding:16px 18px 20px;}
+  .blsx .bx-path{grid-template-columns:1fr;gap:18px;padding-left:58px;margin-top:24px !important;}
+  .blsx .bx-path::before{left:22px;right:auto;top:24px;bottom:46px;border-top:0;border-left:3px dashed #c3ccdc;}
+  .blsx .bx-base{position:absolute;left:-58px;top:14px;margin:0;}
+  .blsx .bx-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
+  .blsx .bx-home span{text-align:left !important;background:none;padding:0;}
+  .blsx .bx-date b{font-size:46px;}
+  .blsx .bx-seat{gap:10px;padding:12px 14px;}
+  .blsx .bx-seat b{font-size:22px;}
+}
+@media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
+</style>
+<div class="blsx">
+
+  <section class="bx-hero">
+    <svg class="bx-field" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><defs>
+      <linearGradient id="bvSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00013a"/><stop offset="1" stop-color="#06104e"/></linearGradient>
+      <linearGradient id="bvGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3a3d"/><stop offset="1" stop-color="#0f4a3e"/></linearGradient>
+      <linearGradient id="bvDirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e3d2e"/><stop offset="1" stop-color="#8a4c33"/></linearGradient>
+      <radialGradient id="bvGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset=".2" stop-color="#cfe0ff" stop-opacity=".35"/><stop offset="1" stop-color="#1452a0" stop-opacity="0"/></radialGradient>
+      <clipPath id="bvOut"><path d="M-60 560V300Q600 120 1260 300V560Z"/></clipPath></defs>
+      <rect width="1200" height="560" fill="url(#bvSky)"/>
+      <circle cx="140" cy="70" r="150" fill="url(#bvGlow)"/><circle cx="1080" cy="60" r="170" fill="url(#bvGlow)"/>
+      <path d="M-60 560V300Q600 120 1260 300V560Z" fill="url(#bvGrass)"/>
+      <g clip-path="url(#bvOut)" fill="#fff" fill-opacity=".045"><path d="M600 700L-200 160H40Z"/><path d="M600 700L280 160H520Z"/><path d="M600 700L760 160H1000Z"/><path d="M600 700L1240 160H1480Z"/></g>
+      <path d="M150 560Q600 300 1050 560Z" fill="url(#bvDirt)" fill-opacity=".8"/>
+      <path d="M390 560L600 445L810 560Z" fill="url(#bvGrass)"/>
+      <path d="M600 600L-60 250M600 600L1260 250" stroke="#fff" stroke-opacity=".3" stroke-width="3"/>
+    </svg>
+    <div class="bx-hero-in">
+      <div class="bx-copy">
+        <div class="bx-ribbon">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M16 6.5l2.6 6.1 6.6.5-5 4.3 1.6 6.4L16 20.3l-5.8 3.5 1.6-6.4-5-4.3 6.6-.5z" fill="#cd163f"/></svg>
+          <div><span>Spring 2027</span><b>Volunteers</b></div>
+        </div>
+        <h1><small>Volunteer with BLS</small><em>Get in<br>the game.</em></h1>
+        <p class="bx-lede">BLS is a volunteer league serving Bonney Lake, Sumner and Orting. Pick a role, get cleared, and help kids play baseball and softball this spring.</p>
+      </div>
+      <figure class="bx-photo"><div class="bx-frame"><div class="bx-tally">
+        <span class="k">Fall Ball 2026</span>
+        <ol><li><b>36</b><span>Teams</span></li><li><b>8</b><span>Divisions</span></li><li><b>194</b><span>Games</span></li></ol>
+        <p class="f"><b>Sep 12 to Oct 31.</b> Made possible by BLS volunteers.</p>
+      </div></div></figure>
+    </div>
+  </section>
+
+  <section class="bx-sec bx-roles">
+    <header><span class="bx-eyebrow">Ways to help</span><h2>Where you fit</h2></header>
+    <div class="bx-cards">
+      <article class="bx-pc">
+        <div class="bx-art"><svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bvCoBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1452a0"/><stop offset="1" stop-color="#00013a"/></linearGradient><linearGradient id="bvFade" x1="0" y1="1" x2=".7" y2=".2"><stop offset="0" stop-color="#00013a" stop-opacity=".6"/><stop offset=".55" stop-color="#00013a" stop-opacity="0"/></linearGradient></defs>
+          <rect width="400" height="160" fill="url(#bvCoBg)"/><path d="M-20 150L150-20M30 170L200 0" stroke="#fff" stroke-opacity=".14" stroke-width="10"/>
+          <g transform="translate(392 6) scale(.6) translate(-392 -6) rotate(8 320 80)"><rect x="262" y="22" width="118" height="150" rx="10" fill="#eef2f6"/><rect x="296" y="12" width="50" height="22" rx="6" fill="#8a93ab"/><path d="M321 140L281 100L321 60L361 100Z" fill="none" stroke="#00013a" stroke-width="3"/><circle cx="321" cy="60" r="7" fill="none" stroke="#1452a0" stroke-width="3"/><circle cx="281" cy="100" r="7" fill="none" stroke="#1452a0" stroke-width="3"/><path d="M355 94l12 12M367 94l-12 12M315 134l12 12M327 134l-12 12" stroke="#cd163f" stroke-width="3.5" stroke-linecap="round"/><path d="M290 132q20-40 52-52" fill="none" stroke="#00013a" stroke-width="2.5" stroke-dasharray="5 5"/></g>
+          <rect width="400" height="160" fill="url(#bvFade)"/></svg><h3>Manager or coach</h3></div>
+        <div class="bx-pc-body">
+          <p class="bx-meta">Usually 2 to 3 events a week</p>
+          <p>The board appoints managers and coaches every year. In Tee Ball, Coach Pitch and AA, a manager's own child is placed on their team, and the manager may request one assistant coach.</p>
+          <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=1457982">Coaches Corner <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </article>
+      <article class="bx-pc">
+        <div class="bx-art"><svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bvUmBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#26346f"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs>
+          <rect width="400" height="160" fill="url(#bvUmBg)"/><path d="M-20 150L150-20M30 170L200 0" stroke="#fff" stroke-opacity=".12" stroke-width="10"/>
+          <rect x="282" y="18" width="78" height="88" rx="4" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="8 6"/><circle cx="338" cy="44" r="11" fill="#fff"/><path d="M331 38q7 6 0 13M345 37q-7 7 0 13" fill="none" stroke="#cd163f" stroke-width="1.6"/>
+          <path d="M268 126h104l-10 16-42 16-42-16z" fill="#fff"/><path d="M268 126h104l-10 16-42 16-42-16z" fill="none" stroke="#c3ccdc" stroke-width="2"/>
+          <rect width="400" height="160" fill="url(#bvFade)"/></svg><h3>Umpire</h3></div>
+        <div class="bx-pc-body">
+          <p class="bx-meta">Junior and adult umpires</p>
+          <p>Call BLS baseball and softball games. BLS brought back its Junior Umpire Program in 2025, and junior umpires can earn money or volunteer hours for graduation.</p>
+          <a class="bx-link" href="https://cgisports.com/ump/5745/" target="_blank" rel="noopener">Umpire game sign-up <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </article>
+      <article class="bx-pc">
+        <div class="bx-art"><svg viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bvTmBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f4a3e"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs>
+          <rect width="400" height="160" fill="url(#bvTmBg)"/><path d="M-20 150L150-20M30 170L200 0" stroke="#fff" stroke-opacity=".12" stroke-width="10"/>
+          <g transform="translate(392 8) scale(.82) translate(-392 -8)">
+          <path d="M322 134L268 80L322 26L376 80Z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2.5" stroke-dasharray="8 6"/>
+          <g fill="#fff"><rect x="315" y="19" width="14" height="14" transform="rotate(45 322 26)"/><rect x="261" y="73" width="14" height="14" transform="rotate(45 268 80)"/><rect x="369" y="73" width="14" height="14" transform="rotate(45 376 80)"/><path d="M314 128h16v8l-8 7-8-7z"/></g>
+          <path d="M366 16L298 118" stroke="#e7ecff" stroke-width="5" stroke-linecap="round"/><path d="M277.7 105.8L314.3 130.2" stroke="#cd163f" stroke-width="6" stroke-linecap="round"/><path d="M277.7 105.8l-5.5 8.3M286.8 111.9l-5.5 8.3M296 118l-5.5 8.3M305.2 124.1l-5.5 8.3M314.3 130.2l-5.5 8.3" stroke="#cd163f" stroke-width="3.5" stroke-linecap="round"/></g>
+          <rect width="400" height="160" fill="url(#bvFade)"/></svg><h3>Team and fields</h3></div>
+        <div class="bx-pc-body">
+          <p class="bx-meta">Smaller time commitment</p>
+          <p>Be a dugout parent or keep score for your player's team. Or join the Fields Committee, which is forming now to keep BLS fields in shape for the 2027 season.</p>
+          <a class="bx-link" href="mailto:info@blslittleleague.org?subject=Fields%20Committee">Join the Fields Committee <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </article>
+      <article class="bx-pc">
+        <div class="bx-art"><svg viewBox="0 0 400 160" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bvBdBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cd163f"/><stop offset="1" stop-color="#7d0a24"/></linearGradient></defs>
+          <rect width="400" height="160" fill="url(#bvBdBg)"/><path d="M-20 150L150-20M30 170L200 0" stroke="#fff" stroke-opacity=".14" stroke-width="10"/>
+          <circle cx="322" cy="78" r="66" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="2" stroke-dasharray="6 6"/><circle cx="322" cy="78" r="46" fill="#fff"/><path d="M322 50l8.2 18.5 20.1 1.7-15.3 13.2 4.7 19.6L322 92.4 304.3 103l4.7-19.6-15.3-13.2 20.1-1.7z" fill="#00013a"/>
+          <rect width="400" height="160" fill="url(#bvFade)"/></svg><h3>Board member</h3></div>
+        <div class="bx-pc-body">
+          <div class="bx-seat"><span>Open seat</span><b>Umpire in Chief</b></div>
+          <p>The board runs the league: player placement, fields, scheduling, safety, sponsors and more. Every seat is voted on each October.</p>
+          <a class="bx-link" href="mailto:info@blslittleleague.org?subject=Umpire%20in%20Chief">Ask about the open seat <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </article>
+    </div>
+    <div class="bx-match">
+      <span class="bx-x2" aria-hidden="true">x2</span>
+      <p><b>Make your hours count twice.</b> Your employer may donate to BLS for every hour you volunteer. Boeing, Microsoft, Starbucks and MultiCare all match volunteer hours.</p>
+      <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=1462081">Corporate matching <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </section>
+
+  <section class="bx-sec bx-steps">
+    <header><span class="bx-eyebrow">Three steps</span><h2>Become a cleared volunteer</h2><p class="bx-sub">Every BLS manager, coach, and volunteer completes these three steps. Cleared for spring? You stay cleared for Fall Ball.</p></header>
+    <ol class="bx-path">
+      <li class="bx-step">
+        <span class="bx-base"><i>1</i></span>
+        <div class="bx-card">
+          <h3>Register</h3>
+          <p>Register as a volunteer in your BLS account, when you register your player or on its own. Not sure yet? Register and get cleared early anyway.</p>
+          <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716842#1561700">Sign up below <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="bx-step bx-hot">
+        <span class="bx-base"><i>2</i></span>
+        <div class="bx-card">
+          <h3>Background check</h3>
+          <div class="bx-date"><b>Oct 1</b><span>Little League resets checks</span></div>
+          <p>BLS sends your info to JDP, Little League's check provider. Answer JDP's email so your check can start.</p>
+          <a class="bx-btn" href="https://www.littleleague.org/player-safety/child-protection-program/" target="_blank" rel="noopener">About the check <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="bx-step">
+        <span class="bx-base"><i>3</i></span>
+        <div class="bx-card">
+          <h3>Training</h3>
+          <p>Finish Little League Abuse Awareness training every year. No certificate to send: use the same email as your BLS account.</p>
+          <a class="bx-link" href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" target="_blank" rel="noopener">Take the course <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="bx-home" aria-label="Then you are cleared for spring 2027">
+        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
+        <span><b>Then: cleared</b>Ready for spring 2027</span>
+      </li>
+    </ol>
+    <p class="bx-ask"><b>Questions?</b> <span>Email <a href="mailto:info@blslittleleague.org">info@blslittleleague.org</a></span> <span>Background checks: <a href="mailto:secretary@blslittleleague.org">secretary@blslittleleague.org</a></span></p>
+  </section>
+
+</div>

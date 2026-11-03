@@ -1,0 +1,59 @@
+{
+ "modules": {
+  "1550479": {
+   "file": "modules/allstars.html",
+   "title": "All-Stars"
+  }
+ },
+ "status": "Ready, with 5 items to confirm",
+ "summary": "All-Stars hero with the tournament trail, three-step selection, summer commitment, required documents, 2026 District 10 dates with BLS results (two titles, 3rd at State), and a link card to the new Champions page.",
+ "needs": [
+  "League Player Agent (Jason Guertin): the 2027 All-Star rules (8-game minimum, boundary rule) and the 2027 selection process PDF. Until then this page and Coaches Corner both link the 2026 PDF.",
+  "League Player Agent (Jason Guertin), VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 team announcement date. The page shows 2026 (after May 16, posted May 20 to 24).",
+  "League Player Agent (Jason Guertin): the 2027 District 10 tournament dates and hosts, once District 10 releases them. Until then the page shows 2026 dates and results as last season.",
+  "Uniforms (Dena Berkey): the 2027 All-Stars gear store dates and pickup plan, once set.",
+  "Website (Daniel Grande): create the Champions page in Sports Connect and put its real link in the 2025 Champions card (marked GO-LIVE in the module)."
+ ],
+ "sources": [
+  {
+   "fact": "2026 All-Star teams were posted May 20 to 24, 2026 (first post May 20).",
+   "url": "https://www.instagram.com/p/DYkQNUPgayT/",
+   "date": "2026-05-20"
+  },
+  {
+   "fact": "2026 All-Star teams were posted May 20 to 24, 2026 (last posts May 24, softball 10U and 12U).",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0BeaGM9LH3ZwyURoHfDQmuWgCuQbsV358jufQhwVH1B5zFMG4BJiib2FHJVejFxsal",
+   "date": "2026-05-24"
+  },
+  {
+   "fact": "BLS had 8 teams in the 2026 All-Star tournaments.",
+   "url": "https://www.instagram.com/p/DZWI5GGCOaR/",
+   "date": "2026-06-08"
+  },
+  {
+   "fact": "2026 Majors (10-11-12) softball All-Stars won District 10, undefeated, and went to State.",
+   "url": "https://www.instagram.com/p/DZ0rJozlhAO/",
+   "date": "2026-06-20"
+  },
+  {
+   "fact": "2026 Majors softball All-Stars played at the State tournament (opened with a 16-1 win, Jul 5).",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02Q77A5Y7wsEzEWAWn2x9VJyhpkQ9d4R6MU6rMoevBXgLsXUhFJ9a7Lac3x2HRBxakl",
+   "date": "2026-07-05"
+  },
+  {
+   "fact": "2026 8-9-10 baseball All-Stars won District 10, 19-4 over South Hill in the final.",
+   "url": "https://www.instagram.com/p/DaWyY06jbC9/",
+   "date": "2026-07-03"
+  },
+  {
+   "fact": "2026 10U (8-9-10) baseball All-Stars finished 3rd at the Washington State tournament.",
+   "url": "https://www.instagram.com/p/DbPXD7XFub3/",
+   "date": "2026-07-25"
+  },
+  {
+   "fact": "2026 8-9-10 softball All-Stars finished 2nd in District 10.",
+   "url": "https://www.instagram.com/p/DaUVqCJFuUp/",
+   "date": "2026-07-02"
+  }
+ ]
+}

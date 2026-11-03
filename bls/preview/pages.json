@@ -1,0 +1,17 @@
+{
+ "home":        {"title":"Home","tabid":"716835"},
+ "registration":{"title":"Registration Info","tabid":"716841"},
+ "volunteer":   {"title":"Volunteer Opportunities","tabid":"716842"},
+ "corpmatch":   {"title":"Corporate Match","tabid":"1462081"},
+ "sponsorship": {"title":"Sponsorship Opportunities","tabid":"1462080"},
+ "allstars":    {"title":"Allstars","tabid":"1457983"},
+ "fallball":    {"title":"Fall Ball","tabid":"1462645"},
+ "coaches":     {"title":"Coaches Corner","tabid":"1457982"},
+ "faq":         {"title":"FAQ","tabid":"776471"},
+ "health":      {"title":"Health & Safety","tabid":"1270141"},
+ "board":       {"title":"Board Members","tabid":"776470","hidden":true},
+ "calendar":    {"title":"Calendar","tabid":"719255"},
+ "champions":   {"title":"Champions","new":true,"template":"faq"},
+ "fields":      {"title":"Fields","new":true,"template":"faq"},
+ "umpires":     {"title":"Umpires","new":true,"template":"faq"}
+}
