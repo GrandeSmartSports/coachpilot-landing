@@ -39,14 +39,9 @@ def read(p):
 
 
 def needs(slug, prop=None):
-    """Items Coach must gather for this page: proposal "needs" + social/page-needs.json "stillNeed"."""
+    """Blockers for go-live only (proposal "required"). Everything else lives in "later" and is not shown."""
     prop = prop if prop is not None else proposal(slug)
-    out = list(prop.get('needs') or [])
-    pn = os.path.join(HERE, 'needs.json')
-    if os.path.exists(pn):
-        extra = json.load(open(pn)).get(slug, [])
-        out += [x for x in extra if x not in out]
-    return out
+    return list(prop.get('required') or [])
 
 
 def proposal(slug):
@@ -181,10 +176,10 @@ def build(slug, variant):
 def needs_panel(slug):
     items = needs(slug)
     if not items:
-        return '<div style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">Nothing missing for this page</div>'
+        return '<div style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">Ready to launch</div>'
     lis = ''.join(f'<li style="margin:4px 0">{x}</li>' for x in items)
     return (f'<details style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;">'
-            f'<summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">What we still need ({len(items)})</summary>'
+            f'<summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Required to launch ({len(items)})</summary>'
             f'<ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;">{lis}</ul></details>')
 
 
@@ -200,8 +195,7 @@ def index():
         cards.append(f'''<article class="card">
   <a class="thumb" href="proposed/{slug}.html">{f'<img src="{thumb}" alt="{cfg["title"]} proposed, phone" loading="lazy">' if has else '<span>No preview yet</span>'}</a>
   <div class="meta"><span class="tag">{tag}</span><h2>{cfg["title"]}</h2><p>{prop.get("summary", "")}</p>
-  <p class="st {'ok' if ok else 'todo'}">{status}</p>
-  {('<details class="needs"><summary>What we still need (' + str(len(needs(slug, prop))) + ')</summary><ul>' + ''.join('<li>' + x + '</li>' for x in needs(slug, prop)) + '</ul></details>') if needs(slug, prop) else '<p class="st ok">Nothing missing</p>'}
+  {('<div class="needs"><p class="st todo">Required to launch</p><ul>' + ''.join('<li>' + x + '</li>' for x in needs(slug, prop)) + '</ul></div>') if needs(slug, prop) else '<p class="st ok">Ready to launch</p>'}
   <div class="btns"><a href="today/{slug}.html">Today</a><a class="pri" href="proposed/{slug}.html">Proposed</a></div></div>
 </article>''')
     html = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">

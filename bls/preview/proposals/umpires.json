@@ -6,7 +6,7 @@
   }
  },
  "page_title": "Umpires",
- "status": "Ready, with 7 items to confirm",
+ "status": "Ready to launch",
  "summary": "New Umpires page: hero, one big button to the game sign-up site, why umpire (Junior Umpire Program, pay, graduation hours, spring clinics), adult umpires and the open Umpire in Chief seat.",
  "sources": [
   {
@@ -50,7 +50,7 @@
    "date": "2025-02-22"
   }
  ],
- "needs": [
+ "later": [
   "President (Ramey Harguess) or Treasurer (Dan Swagman): confirm junior umpires are still paid for 2027 (the Earn money card comes from a Feb 2025 news post; no BLS rate has been posted).",
   "President (Ramey Harguess): the minimum umpire age, which a Feb 2026 post put at 12 and up and an Aug 2025 post at 13 and up with a parent, is left off the page until confirmed.",
   "Secretary (Tawnie LaValley): the Oct 25 and Nov 1 board minutes are not posted yet, and they should show whether Umpire in Chief was filled and, if not, who answers new umpires and runs umpire scheduling for now (the page sends them to info@).",
@@ -58,5 +58,6 @@
   "Umpire in Chief or President (Ramey Harguess): the 2027 District 10 clinic date and whether BLS will run its own clinic again, so the dates can go on the page.",
   "Umpire in Chief or President (Ramey Harguess): confirm the umpire game sign-up site (cgisports.com/ump/5745) is still the one for 2027.",
   "President (Ramey Harguess): OK to add this new page to the menu, where it could take the place of the Umpire Game Sign Up link since the page carries that button."
- ]
+ ],
+ "required": []
 }

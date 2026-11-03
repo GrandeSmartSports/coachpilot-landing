@@ -5,19 +5,8 @@
    "title": "Sponsorship Opportunities"
   }
  },
- "status": "Ready, with 9 items to confirm",
+ "status": "Ready after 1 item",
  "summary": "Partner with BLS: jersey hero, every spring, All Stars and Fall Ball level with perks, Fall Ball 2026 scoreboard, the same 17-logo sponsor wall as home slide 4, and 2026 community partners.",
- "needs": [
-  "Sponsorship and Fundraising (Ashley Gauthier): confirm 2027 prices for every level, since the page shows the 2026 prices (posted Jan 12, 2026) with no year label.",
-  "Sponsorship and Fundraising (Ashley Gauthier): the 2027 sales deadline (Mar 1 in 2026), so the page can say when spring sponsorships close.",
-  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 2027 perks carry over (Opening Day booth, called Little League Day in April on the page, banners, rotator spots, All Stars signed jersey) and the 2027 Opening Day date.",
-  "Sponsorship and Fundraising (Ashley Gauthier): an updated 2027 sponsor letter PDF to replace today's link.",
-  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on this wall, the same list as home slide 4, where ProTime Sports (on the site's Local Sponsors list but in no 2026 sponsor post) and DICK'S (2026 discount partner, still a partner in 2027?) are the unconfirmed ones.",
-  "Sponsorship and Fundraising (Ashley Gauthier): logos for Great Northwest Dental (Fall Ball 2026 sponsor, thanked by name only for now) and Southern Yankee Graphics (called a sponsor at Opening Day 2026 but on no sponsor list), if they belong on the wall and slide 4.",
-  "Sponsorship and Fundraising (Ashley Gauthier), optional: website links for Cal-Line Equipment and Owen Equipment, whose logos are not clickable yet.",
-  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment (embedded on this wall for now), so upload and add them once Ashley confirms the list.",
-  "Sponsorship and Fundraising (Ashley Gauthier), optional: a logo from Enrique Trujeque Agency that reads on white, since the file in the Local Sponsors strip shows as a faint gold line (this wall uses a navy tile instead)."
- ],
  "sources": [
   {
    "fact": "2026 spring prices: Sleeve $250/team; Home Run $500; Team $600/team; Division $5,000 to $10,000; All Stars $2,000 (10U/11U) or $3,000 (12U/Intermediate/Juniors/Seniors); contact pr@blslittleleague.org.",
@@ -69,5 +58,19 @@
    "url": "https://www.instagram.com/p/DevEjoJn05X/",
    "date": "2026-10-20"
   }
+ ],
+ "later": [
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm 2027 prices for every level, since the page shows the 2026 prices (posted Jan 12, 2026) with no year label.",
+  "Sponsorship and Fundraising (Ashley Gauthier): the 2027 sales deadline (Mar 1 in 2026), so the page can say when spring sponsorships close.",
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 2027 perks carry over (Opening Day booth, called Little League Day in April on the page, banners, rotator spots, All Stars signed jersey) and the 2027 Opening Day date.",
+  "Sponsorship and Fundraising (Ashley Gauthier): an updated 2027 sponsor letter PDF to replace today's link.",
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on this wall, the same list as home slide 4, where ProTime Sports (on the site's Local Sponsors list but in no 2026 sponsor post) and DICK'S (2026 discount partner, still a partner in 2027?) are the unconfirmed ones.",
+  "Sponsorship and Fundraising (Ashley Gauthier): logos for Great Northwest Dental (Fall Ball 2026 sponsor, thanked by name only for now) and Southern Yankee Graphics (called a sponsor at Opening Day 2026 but on no sponsor list), if they belong on the wall and slide 4.",
+  "Sponsorship and Fundraising (Ashley Gauthier), optional: website links for Cal-Line Equipment and Owen Equipment, whose logos are not clickable yet.",
+  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment (embedded on this wall for now), so upload and add them once Ashley confirms the list.",
+  "Sponsorship and Fundraising (Ashley Gauthier), optional: a logo from Enrique Trujeque Agency that reads on white, since the file in the Local Sponsors strip shows as a faint gold line (this wall uses a navy tile instead)."
+ ],
+ "required": [
+  "Ashley: 2027 sponsor prices (the page shows 2026 prices)"
  ]
 }

@@ -6,17 +6,8 @@
   }
  },
  "page_title": "Champions",
- "status": "Ready, with 7 items to confirm",
+ "status": "Ready after 1 item",
  "summary": "New page: 2025 Northwest Region champions hero, region scoreboard, road to Williamsport with the District and State title dates, all six August scores, a 2025 and 2026 honor roll, then Spring 2027 registration.",
- "needs": [
-  "Board: keep the new honor roll (2025 and 2026 titles) or show only the 2025 World Series story, and list Champions in the menu or link it only from the All-Stars page. The Oct 25 and Nov 1 board minutes are not posted yet (Secretary Tawnie LaValley), so check them first.",
-  "VP of Softball (Luke Kress): how the 2026 Majors softball All-Stars finished at State. Social posts stop after the Jul 8 game, so the page says they played at State.",
-  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm the honor roll is complete, including any 2026 division champions social media did not post (only Majors and Minors baseball and Juniors softball were posted).",
-  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm the 2024 titles shown on banners in a 2025 flyer (9-11 softball State champions, 9-11 baseball District 10 champions) before they are added.",
-  "Fields / Equipment (Daniel Lane): the full list of championship banners BLS owns, to check the honor roll and add older years if the board wants them.",
-  "Social Media (Dena Berkey): team photos for the honor roll teams, with parents OK, if the board wants photos. None were saved from social media.",
-  "President (Ramey Harguess) or Treasurer (Dan Swagman): confirm Spring 2027 registration opens Friday Nov 27 with $50 off per family, and when the discount ends. Social media has not announced it yet."
- ],
  "sources": [
   {
    "fact": "2025 Majors baseball All-Stars won the District 10 title on a 7th-inning walk-off home run.",
@@ -98,5 +89,17 @@
    "url": "https://www.instagram.com/p/DY85QVCFb_y/",
    "date": "2026-05-29"
   }
+ ],
+ "later": [
+  "Board: keep the new honor roll (2025 and 2026 titles) or show only the 2025 World Series story, and list Champions in the menu or link it only from the All-Stars page. The Oct 25 and Nov 1 board minutes are not posted yet (Secretary Tawnie LaValley), so check them first.",
+  "VP of Softball (Luke Kress): how the 2026 Majors softball All-Stars finished at State. Social posts stop after the Jul 8 game, so the page says they played at State.",
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm the honor roll is complete, including any 2026 division champions social media did not post (only Majors and Minors baseball and Juniors softball were posted).",
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm the 2024 titles shown on banners in a 2025 flyer (9-11 softball State champions, 9-11 baseball District 10 champions) before they are added.",
+  "Fields / Equipment (Daniel Lane): the full list of championship banners BLS owns, to check the honor roll and add older years if the board wants them.",
+  "Social Media (Dena Berkey): team photos for the honor roll teams, with parents OK, if the board wants photos. None were saved from social media.",
+  "President (Ramey Harguess) or Treasurer (Dan Swagman): confirm Spring 2027 registration opens Friday Nov 27 with $50 off per family, and when the discount ends. Social media has not announced it yet."
+ ],
+ "required": [
+  "Your call: OK to use the 2025 team photo (it is on the home slides today)"
  ]
 }

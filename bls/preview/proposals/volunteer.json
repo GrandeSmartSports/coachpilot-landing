@@ -12,7 +12,7 @@
   "765767",
   "1561699"
  ],
- "status": "Ready, with 8 items to confirm",
+ "status": "Ready after 2 items",
  "summary": "Volunteer recruiting page: Fall Ball 2026 tally, four roles (coach, umpire, team and fields, board with the open Umpire in Chief seat), employer hour matching, the three cleared-volunteer steps, then the sign-up listing.",
  "sources": [
   {
@@ -61,7 +61,7 @@
    "date": "2026-06-17"
   }
  ],
- "needs": [
+ "later": [
   "Whoever manages Sports Connect programs (President Ramey Harguess or Information Officer Melissa Olsen): turn on the Spring 2027 volunteer form in the Volunteer Sign-Up listing, which says No Programs today.",
   "Secretary (Tawnie LaValley): the Oct 25 and Nov 1 board minutes are not posted yet, and they should show whether the Volunteer Coordinator and Events Coordinator seats were filled (a named Volunteer Coordinator would become this page's contact) and whether Umpire in Chief is still open.",
   "Secretary (Tawnie LaValley): confirm secretary@blslittleleague.org still takes background check questions (the page lists it, from a Nov 2025 post).",
@@ -70,5 +70,9 @@
   "Fields Coordinator (Daniel Lane): who leads the Fields Committee, whether it has its own email (the card emails info@ for now), and the 2027 field prep day dates.",
   "Donations (Katie Sloan): the 2027 Equipment Drop/Swap date, if the board wants it listed here.",
   "Board: who leads the Opening Day and Tacoma Rainiers Day committees for 2027; they are left off the page until confirmed."
+ ],
+ "required": [
+  "Ramey or Melissa: turn on the Spring 2027 volunteer form (the sign-up list is empty today)",
+  "Website (Daniel): a way to tell volunteers they are cleared, by January (replaces the old cleared list)"
  ]
 }

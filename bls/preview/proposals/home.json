@@ -26,19 +26,8 @@
   }
  ],
  "extra_css": "modules/home.css",
- "status": "Ready, with 9 items to confirm",
+ "status": "Ready to launch",
  "summary": "Four new rotator slides: Spring 2027 registration, new families, volunteers, and a 17-logo sponsor thank-you that matches the Sponsorship page. <a href=\"proposed/home-tonight.html\">What ships tonight</a> shows them on today's home look.",
- "needs": [
-  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on slide 4, the same list as the Sponsorship page wall (the 15 spring 2026 sponsors plus DICK'S and ProTime Sports, the two not on either 2026 sponsor list), and send a Great Northwest Dental logo (Fall Ball 2026 sponsor) so it can join both.",
-  "Sponsorship and Fundraising (Ashley Gauthier): does any current sponsor package promise its own rotator slide, since Division sponsors get rotator placement and today's DICK'S slide retires into slide 4?",
-  "President (Ramey Harguess): OK to retire today's Fan Store slide, since the store stays in the menu and has been open all year since March 2026?",
-  "President (Ramey Harguess) or Treasurer (Dan Swagman): when does the $50 per family discount end, since the site's Nov 2 news post gives Nov 27 and $50 off but no end date, and the replacement for slide 1 needs it?",
-  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide, on one checklist with every other page that says registration opens Nov 27.",
-  "Website (Daniel Grande): the home CSS look (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) needs a way onto the home page, which has no HTML block to carry it, so the 4 slides ship without it for now.",
-  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment, so add them once Ashley confirms the list.",
-  "Information Officer (Melissa Olsen), optional: home news posts for the Fall Ball gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) and a thank-you to Federal Way National Little League for the infield dirt, both already on social media.",
-  "President (Ramey Harguess), optional: a spring 2027 'Dates to Remember' list for a home news post (last year's went up Nov 21, 2025)."
- ],
  "sources": [
   {
    "fact": "2026 spring sponsors: Los Pinos Mexican Restaurant, Grasshopper Landscaping and Construction, Molen Orthodontics, Titan Door, Ossman Harding Dental, Round Table Pizza, Cal-Line Equipment, Owen Equipment, RLS Lending, Prospect Construction, Land O'Frost, Honey Bucket, Lowe's, Sumner/Bonney Lake Jr. Panthers Wrestling Club, Enrique Trujeque Agency.",
@@ -70,5 +59,17 @@
    "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid032v4AXVS8Zjo54a26XYyac7s4BuKjrLsF1qmyPCuURoXdmGRqWxfumhuZpXVpmJHcl",
    "date": "2026-03-26"
   }
- ]
+ ],
+ "later": [
+  "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on slide 4, the same list as the Sponsorship page wall (the 15 spring 2026 sponsors plus DICK'S and ProTime Sports, the two not on either 2026 sponsor list), and send a Great Northwest Dental logo (Fall Ball 2026 sponsor) so it can join both.",
+  "Sponsorship and Fundraising (Ashley Gauthier): does any current sponsor package promise its own rotator slide, since Division sponsors get rotator placement and today's DICK'S slide retires into slide 4?",
+  "President (Ramey Harguess): OK to retire today's Fan Store slide, since the store stays in the menu and has been open all year since March 2026?",
+  "President (Ramey Harguess) or Treasurer (Dan Swagman): when does the $50 per family discount end, since the site's Nov 2 news post gives Nov 27 and $50 off but no end date, and the replacement for slide 1 needs it?",
+  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide, on one checklist with every other page that says registration opens Nov 27.",
+  "Website (Daniel Grande): the home CSS look (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) needs a way onto the home page, which has no HTML block to carry it, so the 4 slides ship without it for now.",
+  "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment, so add them once Ashley confirms the list.",
+  "Information Officer (Melissa Olsen), optional: home news posts for the Fall Ball gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) and a thank-you to Federal Way National Little League for the infield dirt, both already on social media.",
+  "President (Ramey Harguess), optional: a spring 2027 'Dates to Remember' list for a home news post (last year's went up Nov 21, 2025)."
+ ],
+ "required": []
 }

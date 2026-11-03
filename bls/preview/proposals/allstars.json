@@ -5,15 +5,8 @@
    "title": "All-Stars"
   }
  },
- "status": "Ready, with 5 items to confirm",
+ "status": "Ready after 1 item",
  "summary": "All-Stars hero with the tournament trail, three-step selection, summer commitment, required documents, 2026 District 10 dates with BLS results (two titles, 3rd at State), and a link card to the new Champions page.",
- "needs": [
-  "League Player Agent (Jason Guertin): the 2027 All-Star rules (8-game minimum, boundary rule) and the 2027 selection process PDF. Until then this page and Coaches Corner both link the 2026 PDF.",
-  "League Player Agent (Jason Guertin), VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 team announcement date. The page shows 2026 (after May 16, posted May 20 to 24).",
-  "League Player Agent (Jason Guertin): the 2027 District 10 tournament dates and hosts, once District 10 releases them. Until then the page shows 2026 dates and results as last season.",
-  "Uniforms (Dena Berkey): the 2027 All-Stars gear store dates and pickup plan, once set.",
-  "Website (Daniel Grande): create the Champions page in Sports Connect and put its real link in the 2025 Champions card (marked GO-LIVE in the module)."
- ],
  "sources": [
   {
    "fact": "2026 All-Star teams were posted May 20 to 24, 2026 (first post May 20).",
@@ -55,5 +48,15 @@
    "url": "https://www.instagram.com/p/DaUVqCJFuUp/",
    "date": "2026-07-02"
   }
+ ],
+ "later": [
+  "League Player Agent (Jason Guertin): the 2027 All-Star rules (8-game minimum, boundary rule) and the 2027 selection process PDF. Until then this page and Coaches Corner both link the 2026 PDF.",
+  "League Player Agent (Jason Guertin), VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 team announcement date. The page shows 2026 (after May 16, posted May 20 to 24).",
+  "League Player Agent (Jason Guertin): the 2027 District 10 tournament dates and hosts, once District 10 releases them. Until then the page shows 2026 dates and results as last season.",
+  "Uniforms (Dena Berkey): the 2027 All-Stars gear store dates and pickup plan, once set.",
+  "Website (Daniel Grande): create the Champions page in Sports Connect and put its real link in the 2025 Champions card (marked GO-LIVE in the module)."
+ ],
+ "required": [
+  "Website (Daniel): Champions page goes live first (the 2025 card links to it)"
  ]
 }
