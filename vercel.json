@@ -1,6 +1,50 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "https://www.blslittleleague.org/",
+      "permanent": false
+    },
+    {
+      "source": "/website-updates",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "/website-updates/",
+      "permanent": false
+    },
+    {
+      "source": "/south-hill",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "/south-hill/",
+      "permanent": false
+    },
+    {
+      "source": "/:path((?!fields|bls/|bls-south-hill/|website-updates/|south-hill/|favicon\\.ico$|robots\\.txt$).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "https://www.blslittleleague.org/",
+      "permanent": false
+    },
+    {
       "source": "/fields",
       "destination": "/fields/",
       "permanent": false
@@ -22,6 +66,26 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/website-updates/",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "/bls/website-updates/index.html"
+    },
+    {
+      "source": "/south-hill/",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "/bls-south-hill/index.html"
+    },
     {
       "source": "/fields/ics/:path*",
       "destination": "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-ics/:path*"
