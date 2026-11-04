@@ -24,7 +24,7 @@ Inputs
       }
 The module HTML files are exactly what gets pasted into the Sports Connect content blocks.
 """
-import json, os, re, sys, copy
+import json, os, re, sys, copy, hashlib
 from bs4 import BeautifulSoup
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -36,6 +36,21 @@ TAB2SLUG = {c['tabid']: s for s, c in CFG.items() if c.get('tabid')}
 
 def read(p):
     return open(os.path.join(HERE, p), encoding='utf-8', errors='ignore').read()
+
+
+# Build board (board/board.js + board/board.css): feedback, approvals and page states on every page.
+BOARD_V = hashlib.md5((read('board/board.js') + read('board/board.css')).encode()).hexdigest()[:10]
+
+
+def board_head():
+    return f'<link rel="stylesheet" href="{BASE}/board/board.css?v={BOARD_V}">'
+
+
+def board_scripts(page=None, variant=None, index=False):
+    cfg = {'base': BASE, 'page': page, 'variant': variant, 'index': index,
+           'pages': {s: {'t': c['title'], 'req': needs(s)} for s, c in CFG.items()}}
+    data = json.dumps(cfg, ensure_ascii=False).replace('<', '\\u003c')
+    return f'<script>window.BLSB={data};</script><script src="{BASE}/board/board.js?v={BOARD_V}" defer></script>'
 
 
 def needs(slug, prop=None):
@@ -161,14 +176,17 @@ def build(slug, variant):
         if prop.get('extra_css'):
             css += '\n' + read(prop['extra_css'])
         head.append(BeautifulSoup(f'<style id="bls-site-style">{css}</style>', 'html.parser'))
+    head.append(BeautifulSoup(board_head(), 'html.parser'))
 
     on, off = 'background:#cd163f;color:#fff;', 'background:#fff;color:#00013a;'
     def seg(v, label):
         return f'<a href="{BASE}/{v}/{slug}.html" style="{on if v == variant else off}flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">{label}</a>'
     bar = (f'<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);">'
-           f'<div style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;">{seg("today", "Today")}{seg("proposed", "Proposed")}</div>'
-           f'<div style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · {cfg["title"]} · <a href="{BASE}/" style="color:#fff;">All pages</a></div>'
-           + needs_panel(slug) + '</div><div style="height:96px"></div>')
+           f'<div id="blsbBar" class="blsb"></div>'
+           f'<div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;">{seg("today", "Today")}{seg("proposed", "Proposed")}</div>'
+           f'<div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · {cfg["title"]} · <a href="{BASE}/" style="color:#fff;">All pages</a></div>'
+           + needs_panel(slug) + '</div><div id="blsPreviewSpacer" style="height:96px"></div>'
+           + board_scripts(page=slug, variant=variant))
     soup.body.append(BeautifulSoup(bar, 'html.parser'))
     out = os.path.join(HERE, variant, slug + '.html')
     open(out, 'w').write(str(soup))
@@ -176,12 +194,14 @@ def build(slug, variant):
 
 
 def needs_panel(slug):
+    """Facts only (the board's page state says whether a page is ready). board.js hides this once the board loads,
+    and the Feedback sheet lists the same facts."""
     items = needs(slug)
     if not items:
-        return '<div style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">Ready to launch</div>'
+        return '<div id="blsNeeds" style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">All facts in</div>'
     lis = ''.join(f'<li style="margin:4px 0">{x}</li>' for x in items)
-    return (f'<details style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;">'
-            f'<summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Required to launch ({len(items)})</summary>'
+    return (f'<details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;">'
+            f'<summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed ({len(items)})</summary>'
             f'<ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;">{lis}</ul></details>')
 
 
@@ -207,10 +227,12 @@ def index():
             else:
                 pic = '<span class="none">No picture yet</span>'
             shots.append(f'<a class="shot {v}" href="{v}/{slug}.html"><span class="lbl">{label}</span><span class="pic">{pic}</span></a>')
-        status = ('<div class="st todo"><b>Required to launch</b><ul>' + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>') if items \
-            else '<div class="st ok"><b>Ready to launch</b></div>'
-        return f'''<article class="card">
+        # facts only; the live page state (chip above) is the one word on readiness
+        status = (f'<div class="st todo"><b>Facts needed ({len(items)})</b><ul>' + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>') if items \
+            else '<div class="st ok"><b>All facts in</b></div>'
+        return f'''<article class="card" id="p-{slug}">
   <div class="top"><span class="tag {tcls}">{tag}</span><h2>{cfg["title"]}</h2><p>{prop.get("summary", "")}</p></div>
+  <div class="blsb" data-board="{slug}" hidden></div>
   <div class="pair">{''.join(shots)}</div>
   {status}
   <div class="btns"><a href="today/{slug}.html">Open Today</a><a class="pri" href="proposed/{slug}.html">Open Proposed</a></div>
@@ -242,12 +264,14 @@ h2.sec{{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(-
 .st{{margin:0 16px 12px;padding:10px 12px;border-radius:10px;font-size:14.5px}}.st.ok{{background:#e8f6ee;color:#127a3a}}.st.todo{{background:#fff4e5;color:#7a3e00}}
 .st ul{{margin:6px 0 0;padding-left:18px;color:#0a0f2e}}.st li{{margin:3px 0}}
 .btns{{display:flex;gap:8px;margin-top:auto;padding:0 16px 16px}}.btns a{{flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}}.btns a.pri{{background:var(--red);color:#fff;border-color:var(--red)}}
-</style></head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1></div></div></header>
+.card{{scroll-margin-top:12px}}
+</style>{board_head()}</head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1></div></div><div id="blsbWho"></div></header>
 <main><div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
-<div class="counts"><span>{len(CFG)} pages</span><span class="g">{ready} ready to launch</span><span class="a">{len(CFG) - ready} need items first</span><span>{len(new)} new pages</span></div></div>
+<div class="counts"><span>{len(CFG)} pages</span><span class="g">{ready} have all facts</span><span class="a">{len(CFG) - ready} need facts</span><span>{len(new)} new pages</span></div></div>
+<div id="blsbIndex"></div>
 <h2 class="sec">Pages that change ({len(old)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in old)}</div>
 <h2 class="sec">New pages ({len(new)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in new)}</div>
-</main></body></html>'''
+</main>{board_scripts(index=True)}</body></html>'''
     open(os.path.join(HERE, 'index.html'), 'w').write(html)
 
 if __name__ == '__main__':
