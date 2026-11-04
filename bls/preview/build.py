@@ -94,7 +94,9 @@ def build(slug, variant):
         mod = soup.select_one('div.DnnModule-DNN_HTML')
         if variant == 'today':
             normal = mod.select_one('.Normal'); normal.clear()
-            normal.append(BeautifulSoup('<p style="padding:24px 0;font-size:16px">This page does not exist yet. Switch to Proposed to see it.</p>', 'html.parser'))
+            # a new page can show what it replaces today (e.g. a Word file) via "today_file"
+            today_html = read(cfg['today_file']) if cfg.get('today_file') else '<p style="padding:24px 0;font-size:16px">This page does not exist yet. Switch to Proposed to see it.</p>'
+            normal.append(BeautifulSoup(today_html, 'html.parser'))
             head = mod.select_one('h2.head'); head.clear(); head.append(cfg['title'])
         if soup.title:
             soup.title.string = f"Bonney Lake Sumner Little League > {prop.get('page_title') or cfg['title']}"

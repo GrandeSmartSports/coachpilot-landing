@@ -13,5 +13,7 @@
  "calendar":    {"title":"Calendar","tabid":"719255"},
  "champions":   {"title":"Champions","new":true,"template":"faq"},
  "fields":      {"title":"Fields","new":true,"template":"faq"},
- "umpires":     {"title":"Umpires","new":true,"template":"faq"}
+ "umpires":     {"title":"Umpires","new":true,"template":"faq"},
+ "runbook":     {"title":"Coach Run Book","new":true,"template":"faq","today_file":"modules/runbook-today.html"},
+ "schedules":   {"title":"Schedules & Scores","new":true,"template":"faq","today_file":"modules/schedules-today.html"}
 }

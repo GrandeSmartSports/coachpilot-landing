@@ -1,0 +1,215 @@
+{
+ "modules": {
+  "823340": {
+   "file": "modules/runbook.html",
+   "title": "Coach Run Book"
+  }
+ },
+ "page_title": "Coach Run Book",
+ "status": "Ready after 5 items",
+ "summary": "New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.",
+ "sources": [
+  {
+   "fact": "The 2026 run book is a 6-page Word file linked from Coaches Corner; it has typos (Legue, childs, 22rd), two sections numbered 10, a duplicated clearance section, 2026 dates, one coach's real welcome email and a screenshot from a family's account.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-website/runbook/today-2026.txt",
+   "date": "2026-03-22"
+  },
+  {
+   "fact": "Volunteers are cleared every year before any duties: application with photo ID, JDP background check, Abuse Awareness Training. New volunteers give at least three references. Every volunteer is told they are a mandatory reporter under the SafeSport law.",
+   "url": "https://www.littleleague.org/downloads/ll-child-protection-program/",
+   "date": "2025-11-13"
+  },
+  {
+   "fact": "Background checks reset every October 1, and Abuse Awareness Training must be done on or after October 1 to count for the coming season.",
+   "url": "https://www.littleleague.org/help-center/little-league-abuse-awareness-training-faqs/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Pending JDP checks are canceled after 14 days and can be resent; JDP email can land in junk mail; most checks finish in about one business day.",
+   "url": "https://www.littleleague.org/player-safety/child-protection-program/jdp-faq/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "JDP requires a Social Security number.",
+   "url": "https://www.littleleague.org/help-center/j-d-palatine-jdp-faqs/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Abuse Awareness Training is free and takes about 45 minutes.",
+   "url": "https://www.littleleague.org/university/articles/abuse-awareness-training-course/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "BLS volunteer steps: submit the application on the website or during registration, BLS reviews and sends it to JDP, then JDP emails the volunteer. Pick BLS as your associated league for Abuse Awareness Training. Background check questions go to secretary@.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02zC2bcELFDKBrtLdKVhwmuphBHCGCoF9ZUVpPYyBL2LaeYb7dSjicjhs4E5ZDQJSCl",
+   "date": "2025-11-03"
+  },
+  {
+   "fact": "A board member checks the uploaded ID and presses Send Background Check; then JDP emails the volunteer.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/2026-10-29-alexis-sportsconnect-notes.md",
+   "date": "2026-10-29"
+  },
+  {
+   "fact": "Screening information should not be publicly distributed; BLS replaced its public cleared-volunteer table on Nov 2, 2026.",
+   "url": "https://www.littleleague.org/help-center/child-protection-program-faqs/",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "Assistant coaches are not appointed before the draft; managers recommend them after the draft, the president nominates and the board approves.",
+   "url": "https://www.littleleague.org/help-center/do-little-league-rules-allow-for-assistant-coaches-to-be-appointed-prior-to-the-current-seasons-draft/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Draft divisions are Minors, Majors, 50/70 and Juniors; AA, Coach Pitch and Tee Ball teams are formed by school, then age, with the manager's child on the team and one requested assistant; evaluation attendance rules; families hear a day or two after the mid-February draft or in mid-March.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=776471",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "2026 Majors and Minors baseball evaluations: Feb 7 and Feb 9.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0Faw3nvV2GRu5VoeUcZ6d5UYdKnJmx8Z2Aazrdnn2uPv5vv9sCerjUFU9CHGAz5n7l",
+   "date": "2026-01-23"
+  },
+  {
+   "fact": "2026 softball evaluations: Feb 7 and Feb 10.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid026JXT6YjwyRE8KDmjxXQ3RRrfSMkAwHEHZRrfc98UoTGH3MLVZKsbKQW1DJsMpzXvl",
+   "date": "2026-01-30"
+  },
+  {
+   "fact": "2026 Juniors and 50/70 baseball evaluations began Thursday, March 12.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid031k8KrfdQxegSq7dcX4AY8zRa261aSkwmCrh72rpqcdxLSxJkpeamDA7URSY8t19il",
+   "date": "2026-03-11"
+  },
+  {
+   "fact": "2026 Upper Division (Majors and Minors) coaches meeting: Sun Feb 22, 6 to 8 PM, Round Table Pizza, Bonney Lake.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02BYZoPYHQiRv6ZBHt7t4WsgsTe9GaBYDTZPHUa4aKEX9bndRMvALU8dN19QSdenNEl",
+   "date": "2026-02-18"
+  },
+  {
+   "fact": "2026 Juniors, 50/70 and lower division coaches meeting: March 22, 6 to 8 PM, Round Table Pizza, Bonney Lake, with the General Membership Meeting.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid08pKdB6a8wLK4GfqqD485rAnstzSYu8bPpwJrZufiEDFdLjb4BNkJw975GKQoukbxl",
+   "date": "2026-03-15"
+  },
+  {
+   "fact": "Spring 2027 registration opens Friday, Nov 27, 2026, with an opening discount of $50 per family. No end date for the discount and no other 2027 season dates are set.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/2026-11-01-board-meeting-notes.md",
+   "date": "2026-11-01"
+  },
+  {
+   "fact": "GameChanger is free for coaches and staff, including premium features; families use team messaging, scheduling and RSVP free.",
+   "url": "https://gc.com/app-features/team-management",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "The Little League Rulebook app is free on iOS and Android and covers baseball, softball and Challenger.",
+   "url": "https://www.littleleague.org/playing-rules/little-league-rulebook-app/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Baseball pitch counts and rest days by league age; softball uses innings limits.",
+   "url": "https://www.littleleague.org/playing-rules/pitch-count/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Diamond Leader is free and required once for tournament (All-Star) managers and coaches.",
+   "url": "https://www.littleleague.org/university/articles/diamond-leader-training/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "A player suspected of a concussion is removed and returns only with written clearance from a licensed health care provider trained in concussion care.",
+   "url": "https://app.leg.wa.gov/RCW/default.aspx?cite=28A.600.190",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "BLSLL Safety Manual: emergency steps, injury reports within 24 to 48 hours, first aid kits at every game and practice, Safety Code read to players and signed, field hazard check before every event, molded cleats only, never leave an unattended child, only approved coaches run practices.",
+   "url": "https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Home team preps the field (drag, chalk, fence); away team puts equipment away and secures the field (BLS baseball handbook, last updated 1/17/22, posted as the local rules).",
+   "url": "https://www.blslittleleague.org/portals/50558/docs/local%20rules/2025%20blsll%20regular%20season%20local%20rules.pdf",
+   "date": "2022-01-17"
+  },
+  {
+   "fact": "Spring gear return list: cleaned gear bags, balls and coach binders.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02jRvwEkc3ZeQGBic24Yn6DVX3NaAowHM5fQU44kNWYGwSBU8KM5NRe3jx9nRa9fnLl",
+   "date": "2025-06-27"
+  },
+  {
+   "fact": "Gear returns: gear cleaned and keys on the zipper.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02NkhDE2DmJHoTBLHZt7RjPTUwpYFiNJEsq3UvpZ3sUc2sQMnJqbbbzWPi9npEo24Al",
+   "date": "2025-10-28"
+  },
+  {
+   "fact": "In 2026, families booked their team's Opening Day photo slot through a link their coach used.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid05q1J6hSuTMyfHZnVF9HpFKhdpL7BNDXFCrPvLPBFZd5XUb5fPtzQXhomqWLrdZrxl",
+   "date": "2026-04-24"
+  },
+  {
+   "fact": "Uniform order process changed so parents enter personal sizing; socks and belts were added.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-10-25-annual-meeting-minutes.txt",
+   "date": "2026-10-25"
+  },
+  {
+   "fact": "2026-27 role emails: pa@, coaching@, secretary@, safety@, scheduler@, equipment@, fields@, uniforms@, info@; the Fields Committee is forming for 2027.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=776470",
+   "date": "2026-10-25"
+  },
+  {
+   "fact": "Mandatory reporting: report child abuse, including sexual abuse involving a minor, to the proper authorities within 24 hours.",
+   "url": "https://www.littleleague.org/player-safety/child-protection-program/",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "The Volunteer page shows 'No Programs are Currently Displayed'; the spring 2027 Head Coach, Assistant Coach and Team Volunteer roles are not attached yet.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=716842",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "The live Posted Schedules page lists no 2026 or 2027 programs; a new Schedules & Scores page is planned for the BLS site.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=719150",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "The Medical Release Form is carried by the team manager with the team roster.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=1270141",
+   "date": "2026-11-02"
+  }
+ ],
+ "later": [
+  "Website (Daniel Grande), at go-live: point the Coaches Corner run book clipboard to this page and retire the 2026 Word file link.",
+  "Website (Daniel Grande), at go-live: the Fields link in Gear and fields points at the Fields preview page; swap in the live Fields page URL (see the GO-LIVE comment in the file) and change 'Field addresses: coming soon on the BLS Fields page' to say the addresses are there.",
+  "Website (Daniel Grande): as each 2027 date is set, replace its Date coming soon badge with the date (evaluations, draft, coaches meetings, gear pickup, Opening Day and Picture Day, gear return), and do the same for the gear pickup pill in Gear and fields.",
+  "Coaching Coordinator (Rod Vincent): name the owner of this page (Coaching Coordinator, League Player Agent or both) and review the welcome email template.",
+  "League Player Agent (Jason Guertin): confirm the draft order rule (last place picks first where teams keep returning players, random order elsewhere). It is left off the page until confirmed.",
+  "League Player Agent (Jason Guertin): confirm head coaches in draft divisions attend evaluations, and whether softball Minors B teams follow the same school-first rule as Tee Ball, Coach Pitch and AA; also the Minors B assistant coach rule and roster timing (both show Confirming for 2027 on the page).",
+  "League Player Agent (Jason Guertin): the 2027 division player agents and whether the old aliases (cppa@, tbpa@ and others) still work, so the Who to ask card can list them.",
+  "Coaching Coordinator (Rod Vincent): the 2027 coaches meeting format and dates (2026 had two: Feb 22 and Mar 22 at Round Table Pizza, Bonney Lake), and whether to call it required (the 2025 Safety Manual calls it a mandatory managers meeting, at least one per team).",
+  "Uniforms (Dena Berkey): whether sbuniforms@ still reaches the uniforms lead (the page uses uniforms@ for both sports); which pieces the league supplies and which families buy; whether families pay for custom softball uniforms.",
+  "Uniforms (Dena Berkey) and VP of Softball (Luke Kress): who names Minors B teams (the page lets the coach pick or the players choose); baseball team names MLB only or minor league too (the page says professional teams).",
+  "Safety Officer (Daneen Galvez): the 2027 first aid training rule (the 2025 manual says both one coach per team and every coach) and how to complete it; the page shows it as coming soon from the Safety Officer until set.",
+  "Safety Officer (Daneen Galvez): the 2027 Safety Plan to replace the 2025 manual link, and confirm the Safety Code read-and-sign step with the player agent check.",
+  "Scheduler (Daniel Grande): decide whether the league field scheduler (go.blslittleleague.org/fields) runs spring 2027 practices and the spring practice guideline; if yes, add a Practice fields card under Rules, GameChanger and schedules.",
+  "Scheduler (Daniel Grande): once spring 2027 game schedules have a home (Schedules & Scores if that page ships), name and link it in the League schedules box. Until then the page says only that a Schedules & Scores page is planned, and the welcome email names no schedules page.",
+  "Scheduler (Daniel Grande): whether managers still send pitch counts with the final score to scheduler@ (rule 11 of the 1/17/22 baseball handbook); add it to Pitching rules if so.",
+  "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 local rules; the page sends coaches to Coaches Corner, which links the 2025 files.",
+  "Website (Daniel Grande): once the spring 2027 coach and volunteer roles show on the Volunteer page, remove the Coach sign-up opening soon pill and the 'No Programs are Currently Displayed' line from Get cleared step 1.",
+  "President (Ramey Harguess): whether to mention the board member interview the Child Protection Program requires (sec. 1A) in the clearance steps.",
+  "President (Ramey Harguess): the old 2025 cleared volunteer PDF (tabid 776468) still opens by direct link; removing it is a board call.",
+  "Fields and Equipment (Daniel Lane): the spring 2027 gear pickup and return date and place, and whether the Daffodil Shed stays available once the turf project starts.",
+  "Coaching Coordinator (Rod Vincent): the 2027 District 10 rules and safety clinic dates, once District 10 posts them.",
+  "Board: whether to add a line asking coaches to keep roster contact information private. No posted policy says so, so it is not on the page.",
+  "Board or Scheduler: choose the spring 2027 GameChanger team setup, then replace the Steps coming soon pill in Rules, GameChanger and schedules.",
+  "President (Ramey Harguess): how cleared volunteers are told they are cleared (the page says only that the league reviews and clears them; Sports Connect sends no notice when someone is marked Passed), and the Abuse Awareness certificate rule (the page says save it; Coaches Corner says no certificate to send).",
+  "Safety Officer (Daneen Galvez): who fills out the Medical Release Form and when coaches collect it. The page says only to keep each form with the roster.",
+  "Board: the end date of the $50 opening discount, once set, for the Registration opens row.",
+  "Website (Daniel Grande): coaches.html and volunteer.html still say 'Then: cleared / Ready for spring 2027'; match the run book's 'Then: league review' wording.",
+  "Website (Daniel Grande): the run book, Volunteer and Board pages send Fields Committee sign-ups to info@; the Fields page uses fields@. Pick one address for all four."
+ ],
+ "required": [
+  "Board: approve this page to replace the 2026 Word run book",
+  "Board: set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates",
+  "Secretary or Information Officer: turn on the spring 2027 coach and volunteer roles",
+  "Website: put the Fields page live on blslittleleague.org first",
+  "Uniforms (Dena Berkey): confirm 2027 sizing steps by division"
+ ]
+}

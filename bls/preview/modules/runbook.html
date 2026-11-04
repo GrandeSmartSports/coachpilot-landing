@@ -1,0 +1,698 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+/* BLS Coach Run Book (Spring 2027). One Sports Connect content block. Scoped to .blsr. No scripts, no outside fonts or files. */
+/* hide this module's own container title bar; the hero is the title */
+.DnnModule:has(.blsr) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.blsr{--line:#dde3ec;--disp:'Barlow Condensed','Roboto Condensed','Arial Narrow','sans-serif-condensed','Helvetica Neue',Arial,sans-serif;
+  font-family:Poppins,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.55;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin:0 0 6px;}
+.blsr *,.blsr *::before,.blsr *::after{box-sizing:border-box;}
+.blsr h1,.blsr h2,.blsr h3,.blsr p,.blsr ol,.blsr ul,.blsr li,.blsr section,.blsr header,.blsr details,.blsr summary,.blsr aside{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsr a{text-decoration:none !important;text-align:left !important;}
+.blsr em,.blsr i{font-style:normal;}
+.blsr svg{display:block;}
+.blsr h1,.blsr h2,.blsr h3,.blsr .rb-d{font-family:var(--disp) !important;font-weight:800;font-stretch:condensed;line-height:1;text-transform:uppercase;}
+.blsr .rb-t p a,.blsr .rb-t li a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;transition:color .15s,border-color .15s;}
+.blsr .rb-t p a:hover,.blsr .rb-t li a:hover{color:#cd163f !important;border-color:#cd163f;}
+
+/* ---------- hero ---------- */
+.blsr .rb-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.98fr);min-height:470px;}
+.blsr .rb-art{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
+.blsr .rb-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,1,58,.97) 0%,rgba(0,1,58,.86) 40%,rgba(0,1,58,.3) 72%,rgba(0,1,58,.12) 100%);}
+.blsr .rb-copy{align-self:center;padding:44px 18px 44px 40px;}
+.blsr .rb-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+.blsr .rb-ribbon svg{width:30px;height:30px;flex:none;}
+.blsr .rb-ribbon span{display:block;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.92;line-height:1.3;}
+.blsr .rb-ribbon b{display:block;font-family:var(--disp);font-stretch:condensed;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
+.blsr .rb-hero h1{font-size:68px;line-height:.92;letter-spacing:.005em;color:#fff !important;}
+.blsr .rb-hero h1 small{display:block;font-size:.5em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:8px;}
+.blsr .rb-hero h1 em{display:block;position:relative;width:max-content;max-width:100%;}
+.blsr .rb-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
+.blsr .rb-lede{margin-top:30px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:29em;}
+.blsr .rb-lede + .rb-lede{margin-top:12px !important;}
+.blsr .rb-ask{margin-top:18px !important;font-size:15px;color:#b8c6ea;}
+.blsr .rb-ask a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);overflow-wrap:anywhere;}
+
+/* lineup card on a clipboard: the first five steps */
+.blsr .rb-board{align-self:center;justify-self:center;width:100%;max-width:400px;padding:44px 30px 40px 4px;}
+.blsr .rb-clip{position:relative;background:#1452a0;border-radius:18px;padding:16px 14px 14px;transform:rotate(1.6deg);box-shadow:0 26px 50px rgba(0,0,20,.5),inset 0 0 0 2px rgba(255,255,255,.12);}
+.blsr .rb-clip::before{content:"";position:absolute;left:50%;top:-14px;width:118px;height:34px;transform:translateX(-50%);border-radius:10px 10px 8px 8px;background:linear-gradient(180deg,#f3f5f9 0%,#b9c1cf 55%,#8d97a8 100%);box-shadow:0 4px 8px rgba(0,0,0,.35),inset 0 -3px 0 rgba(0,0,0,.12);z-index:2;}
+.blsr .rb-clip::after{content:"";position:absolute;left:50%;top:-6px;width:30px;height:12px;transform:translateX(-50%);border-radius:6px;background:#00013a;z-index:3;}
+.blsr .rb-paper{position:relative;background:#fff;border-radius:6px;padding:32px 20px 14px 36px;color:#00013a;background-image:linear-gradient(90deg,transparent 22px,rgba(205,22,63,.45) 22px 24px,transparent 24px);}
+.blsr .rb-k{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsr .rb-paper h2{font-size:38px;line-height:.95;color:#00013a !important;}
+.blsr .rb-lineup{margin-top:12px !important;}
+.blsr .rb-lineup li{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px;align-items:start;padding:11px 0;border-top:1px dashed #cfd7e4;}
+.blsr .rb-lineup li:first-child{border-top:0;}
+.blsr .rb-lineup i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#00013a;color:#fff;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:17px;line-height:1;}
+.blsr .rb-lineup li:first-child i{background:#cd163f;}
+.blsr .rb-lineup b{display:block;font-size:16px;font-weight:700;line-height:1.3;color:#00013a;margin-bottom:2px;}
+.blsr .rb-lineup span{display:block;font-size:15px;line-height:1.45;color:#4b5675;}
+.blsr .rb-pa{margin-top:2px !important;padding:12px 0 6px;border-top:2px solid #00013a;font-size:15px;line-height:1.45;color:#4b5675;}
+.blsr .rb-pa b{display:block;font-size:16px;font-weight:700;line-height:1.3;color:#00013a;margin-bottom:2px;}
+.blsr .rb-pa a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
+
+/* ---------- sections ---------- */
+.blsr .rb-sec{padding:44px 44px 46px;border-radius:18px;}
+.blsr .rb-white{background:#fff;border:1px solid var(--line);}
+.blsr .rb-gray{background:#eef2f6;}
+.blsr .rb-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsr .rb-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
+.blsr .rb-intro{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:40em;}
+
+/* ---------- season at a glance: one short row per milestone ---------- */
+.blsr .rb-tl{margin-top:24px !important;background:#fff;border-radius:14px;padding:4px 22px;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);}
+.blsr .rb-ev{display:grid;grid-template-columns:156px minmax(0,15em) minmax(0,1fr);column-gap:20px;align-items:center;padding:13px 0;border-top:1px solid var(--line);}
+.blsr .rb-ev:first-child{border-top:0;}
+.blsr .rb-date{justify-self:start;display:inline-flex;align-items:baseline;gap:6px;border-radius:999px;padding:5px 12px;white-space:nowrap;text-align:center !important;}
+.blsr .rb-date b{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:21px;line-height:1;text-transform:uppercase;}
+.blsr .rb-date small{font-size:12px;font-weight:700;letter-spacing:.08em;line-height:1.2;text-transform:uppercase;}
+.blsr .rb-set{background:#00013a;color:#fff;}
+.blsr .rb-set small{color:#ffb8c6;}
+.blsr .rb-tba{background:#f5f7fb;border:1.5px dashed #b3bed2;color:#4b5675;padding:6px 11px;}
+.blsr .rb-ev h3{font-size:22px;line-height:1.05;color:#00013a !important;text-wrap:balance;}
+.blsr .rb-ev p{font-size:15px;line-height:1.45;color:#4b5675;}
+
+/* ---------- get cleared: base path ---------- */
+.blsr .rb-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
+.blsr .rb-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
+.blsr .rb-step{position:relative;display:flex;flex-direction:column;}
+.blsr .rb-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:20px;}
+.blsr .rb-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
+.blsr .rb-base i{position:relative;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:22px;color:#fff;}
+.blsr .rb-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:22px;}
+.blsr .rb-card h3{font-size:28px;color:#00013a !important;margin-bottom:10px !important;text-wrap:balance;}
+.blsr .rb-card p{font-size:16px;line-height:1.55;color:#4b5675;}
+.blsr .rb-card > .rb-pill{margin-bottom:12px;}
+.blsr .rb-card .rb-wait{margin-top:10px !important;font-size:15px;line-height:1.5;}
+.blsr .rb-nw{white-space:nowrap;}
+.blsr .rb-ticks{margin-top:12px !important;display:grid;gap:8px;width:100%;}
+.blsr .rb-ticks li{position:relative;padding-left:22px;font-size:15px;line-height:1.45;color:#4b5675;}
+.blsr .rb-ticks li::before{content:"";position:absolute;left:2px;top:.42em;width:10px;height:6px;border-left:2.5px solid #cd163f;border-bottom:2.5px solid #cd163f;transform:rotate(-45deg);}
+.blsr .rb-cut{margin-top:16px;width:100%;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 10px;font-size:15px;color:#4b5675;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;}
+.blsr .rb-cut b{font-family:var(--disp);font-stretch:condensed;font-weight:700;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:#00013a;}
+.blsr .rb-link{margin-top:auto;padding-top:16px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
+.blsr .rb-link svg,.blsr .rb-go{width:16px;height:16px;flex:none;transition:transform .2s;}
+.blsr .rb-link:hover svg,.blsr a:hover .rb-go{transform:translateX(3px);}
+.blsr .rb-btn{display:inline-flex;align-items:center;gap:10px;background:#00013a;color:#fff !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
+.blsr .rb-btn svg{width:16px;height:16px;flex:none;}
+.blsr .rb-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,1,58,.25);}
+.blsr .rb-card .rb-btn{margin-top:auto;}
+.blsr .rb-card p + .rb-btn{margin-top:18px;}
+.blsr .rb-hot .rb-base::before{background:#cd163f;}
+.blsr .rb-hot .rb-card{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
+.blsr .rb-hot .rb-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);pointer-events:none;}
+.blsr .rb-hot .rb-card h3{color:#fff !important;}
+.blsr .rb-hot .rb-card p,.blsr .rb-hot .rb-ticks li{color:#dbe2f4;}
+.blsr .rb-hot .rb-ticks li::before{border-color:#ffb8c6;}
+.blsr .rb-hot .rb-t li a,.blsr .rb-hot .rb-t p a{color:#fff !important;border-color:rgba(255,255,255,.45);}
+.blsr .rb-stat{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0 0 12px;}
+.blsr .rb-stat b{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:50px;line-height:.9;text-transform:uppercase;color:#fff;white-space:nowrap;}
+.blsr .rb-stat span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;line-height:1.3;color:#ffb8c6;}
+.blsr .rb-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
+.blsr .rb-home svg{width:44px;height:48px;flex:none;}
+.blsr .rb-home span{font-size:13px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;max-width:10.5em;}
+.blsr .rb-home b{display:block;white-space:nowrap;font-family:var(--disp);font-stretch:condensed;font-size:15px;letter-spacing:.02em;text-transform:uppercase;color:#00013a;}
+.blsr .rb-note{margin-top:24px !important;display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:16px;align-items:start;background:#eef2f6;border-radius:14px;padding:18px 20px;}
+.blsr .rb-note > svg{width:44px;height:44px;}
+.blsr .rb-note b{display:block;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:23px;line-height:1.05;text-transform:uppercase;color:#00013a;margin-bottom:6px;}
+.blsr .rb-note p{font-size:16px;line-height:1.55;color:#4b5675;}
+
+/* ---------- playbook chapters (tap to open) ---------- */
+.blsr .rb-chs{display:grid;gap:12px;margin-top:26px !important;}
+.blsr .rb-ch{background:#fff;border-radius:14px;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.07);overflow:hidden;}
+.blsr .rb-ch > summary{display:grid;grid-template-columns:44px minmax(0,1fr) 34px;align-items:center;column-gap:16px;padding:18px 20px;cursor:pointer;list-style:none;transition:background .15s;}
+.blsr .rb-ch > summary::-webkit-details-marker{display:none;}
+.blsr .rb-ch > summary::marker{content:"";}
+.blsr .rb-ch > summary:hover{background:#f7f9fc;}
+.blsr .rb-ch > summary:focus-visible{outline:3px solid #1452a0;outline-offset:-3px;border-radius:14px;}
+.blsr .rb-num{position:relative;width:44px;height:44px;display:grid;place-items:center;}
+.blsr .rb-num::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;}
+.blsr .rb-num i{position:relative;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:19px;color:#fff;}
+.blsr .rb-ch[open] .rb-num::before{background:#cd163f;}
+.blsr .rb-ch summary b{display:block;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:27px;line-height:1;text-transform:uppercase;color:#00013a;}
+.blsr .rb-ch summary small{display:block;margin-top:5px;font-size:15px;line-height:1.4;color:#4b5675;}
+.blsr .rb-pill{display:inline-block;vertical-align:middle;font-family:Poppins,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;line-height:1.2;text-transform:uppercase;color:#4b5675;background:#fff;border:1.5px dashed #b3bed2;border-radius:999px;padding:3px 9px;text-wrap:balance;}
+.blsr .rb-ch summary .rb-pill{margin:0 0 6px;}
+.blsr .rb-tog{position:relative;width:34px;height:34px;border-radius:50%;background:#eef2f6;}
+.blsr .rb-tog::before,.blsr .rb-tog::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2.5px;margin:-1.25px 0 0 -7px;border-radius:2px;background:#00013a;transition:transform .2s;}
+.blsr .rb-tog::after{transform:rotate(90deg);}
+.blsr .rb-ch[open] .rb-tog{background:#00013a;}
+.blsr .rb-ch[open] .rb-tog::before{background:#fff;}
+.blsr .rb-ch[open] .rb-tog::after{transform:rotate(0);background:#fff;}
+.blsr .rb-body{display:grid;gap:22px;padding:6px 24px 28px 80px;}
+.blsr .rb-body h3{font-size:23px;color:#00013a !important;margin-bottom:8px !important;}
+.blsr .rb-body p{font-size:16px;line-height:1.6;color:#4b5675;}
+.blsr .rb-body p + p{margin-top:8px !important;}
+.blsr .rb-list li{position:relative;padding-left:22px;font-size:16px;line-height:1.55;color:#4b5675;}
+.blsr .rb-list li + li{margin-top:8px !important;}
+.blsr .rb-list li::before{content:"";position:absolute;left:3px;top:.6em;width:8px;height:8px;background:#cd163f;transform:rotate(45deg);border-radius:1px;}
+.blsr .rb-list b,.blsr .rb-body p b{color:#00013a;font-weight:600;}
+.blsr .rb-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.blsr .rb-box{background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+.blsr .rb-box .rb-k{margin-bottom:4px;}
+.blsr .rb-box.rb-dark{background:#00013a;border-color:#00013a;}
+.blsr .rb-box.rb-dark h3{color:#fff !important;}
+.blsr .rb-box.rb-dark p,.blsr .rb-box.rb-dark .rb-list li{color:#dbe2f4;}
+.blsr .rb-box.rb-dark .rb-k{color:#ffb8c6;}
+.blsr .rb-box.rb-dark .rb-list b{color:#fff;}
+.blsr .rb-t .rb-dark p a,.blsr .rb-t .rb-dark li a{color:#fff !important;border-color:rgba(255,255,255,.45);}
+.blsr .rb-steps{counter-reset:rbs;display:grid;gap:10px;margin-top:12px !important;}
+.blsr .rb-steps li{counter-increment:rbs;display:grid;grid-template-columns:28px minmax(0,1fr);column-gap:12px;align-items:start;font-size:16px;line-height:1.5;color:#dbe2f4;}
+.blsr .rb-steps li::before{content:counter(rbs);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#cd163f;color:#fff;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:16px;line-height:1;}
+.blsr .rb-steps .rb-pill{margin-left:4px;background:transparent;color:#ffb8c6;border-color:rgba(255,184,198,.6);}
+.blsr .rb-docs{display:grid;}
+.blsr .rb-doc{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line);color:#00013a !important;}
+.blsr .rb-doc:first-child{padding-top:4px;}
+.blsr .rb-doc:last-child{border-bottom:0;padding-bottom:0;}
+.blsr .rb-tag{flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:14px;letter-spacing:.06em;color:#fff;background:#1452a0;}
+.blsr .rb-tag.rb-pdf{background:#cd163f;}
+.blsr .rb-tag.rb-app{background:#00013a;}
+.blsr .rb-doc > span:not(.rb-tag){flex:1;min-width:0;font-size:15px;line-height:1.4;color:#4b5675;}
+.blsr .rb-doc strong{display:block;font-size:16px;font-weight:600;line-height:1.3;color:#00013a;margin-bottom:2px;}
+.blsr .rb-doc .rb-go{color:#cd163f;}
+.blsr .rb-doc:hover strong{color:#1452a0;}
+.blsr .rb-kind{background:#fff;border-left:5px solid #cd163f;border-radius:0 12px 12px 0;padding:14px 18px;box-shadow:0 1px 0 var(--line);}
+.blsr .rb-kind p{color:#00013a;}
+.blsr .rb-kind + .rb-docs{margin-top:6px;}
+.blsr .rb-body p.rb-kind{color:#00013a;}
+
+/* welcome email: select and copy */
+.blsr .rb-copyk{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-bottom:8px;}
+.blsr .rb-copyk span{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#4b5675;}
+.blsr .rb-copybox{-webkit-user-select:all;user-select:all;cursor:text;background:#fbfcfe;border:2px dashed #b3bed2;border-radius:14px;padding:18px 20px;font-size:16px;line-height:1.6;color:#1d2233;overflow-wrap:anywhere;}
+.blsr .rb-copybox p{color:#1d2233;}
+.blsr .rb-copybox p + p{margin-top:14px !important;}
+.blsr .rb-subj{padding:12px 18px;}
+
+/* ---------- safety ---------- */
+.blsr .rb-911{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:center;margin-top:26px !important;background:#cd163f;color:#fff;border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;}
+.blsr .rb-911::after{content:"";position:absolute;right:-50px;bottom:-70px;width:200px;height:200px;border-radius:50%;border:2px dashed rgba(255,255,255,.2);pointer-events:none;}
+.blsr .rb-911 .rb-big{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:84px;line-height:.85;color:#fff;}
+.blsr .rb-911 .rb-big small{display:block;font-family:Poppins,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffe2e8;margin-top:8px;}
+.blsr .rb-911 h3{font-size:28px;color:#fff !important;margin-bottom:8px !important;}
+.blsr .rb-911 li{position:relative;padding-left:20px;font-size:16px;line-height:1.5;color:#fff;}
+.blsr .rb-911 li + li{margin-top:5px !important;}
+.blsr .rb-911 li::before{content:"";position:absolute;left:2px;top:.6em;width:8px;height:8px;background:#fff;transform:rotate(45deg);border-radius:1px;}
+.blsr .rb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px !important;}
+.blsr .rb-sc{background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;align-items:flex-start;}
+.blsr .rb-sc h3{font-size:24px;color:#00013a !important;margin-bottom:10px !important;}
+.blsr .rb-sc .rb-link{padding-top:14px;}
+.blsr .rb-sc p{font-size:16px;line-height:1.55;color:#4b5675;}
+.blsr .rb-report{margin-top:16px !important;display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:16px;align-items:start;background:#00013a;border-radius:14px;padding:18px 20px;}
+.blsr .rb-report > svg{width:44px;height:44px;}
+.blsr .rb-report p{font-size:16px;line-height:1.55;color:#dbe2f4;}
+.blsr .rb-report b{color:#fff;font-weight:700;}
+.blsr .rb-report a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);}
+.blsr .rb-more{margin-top:16px !important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;}
+.blsr .rb-more .rb-doc:first-child{padding-top:13px;}
+.blsr .rb-more .rb-doc:last-child{padding-bottom:13px;border-bottom:1px solid var(--line);}
+
+/* ---------- who to ask ---------- */
+.blsr .rb-cta{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:40px 44px 36px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
+.blsr .rb-cta .rb-eyebrow{color:#ffb8c6;}
+.blsr .rb-cta h2{font-size:46px;color:#fff !important;}
+.blsr .rb-cta .rb-intro{color:#c6d1ee;}
+.blsr .rb-who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px !important;}
+.blsr .rb-wc{display:flex;flex-direction:column;align-items:flex-start;background:#000127;border:1px solid #1b2670;border-radius:14px;padding:18px 18px 16px;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);}
+.blsr .rb-wc span{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;line-height:1.3;color:#ffb8c6;}
+.blsr .rb-wc b{display:block;margin:6px 0 10px;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:23px;line-height:1.05;text-transform:uppercase;color:#fff;}
+.blsr .rb-wc a{margin-top:auto;font-size:15px;font-weight:600;line-height:1.35;color:#fff !important;border-bottom:1px solid rgba(255,255,255,.4);overflow-wrap:anywhere;transition:color .15s,border-color .15s;}
+.blsr .rb-wc a:hover{color:#ffb8c6 !important;border-color:#ffb8c6;}
+.blsr .rb-wc.rb-first{background:#cd163f;border-color:#cd163f;box-shadow:none;}
+.blsr .rb-wc.rb-first span{color:#ffe2e8;}
+.blsr .rb-wc.rb-first small{display:block;font-size:14px;line-height:1.45;color:#ffe2e8;margin-bottom:8px;}
+.blsr .rb-foot{margin-top:22px !important;display:flex;flex-wrap:wrap;align-items:center;gap:10px 22px;border-top:1px solid rgba(255,255,255,.14);padding-top:18px;font-size:15px;color:#c6d1ee;}
+.blsr .rb-foot b{color:#fff;font-weight:700;}
+.blsr .rb-foot a{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:#fff !important;}
+.blsr .rb-foot a svg{width:16px;height:16px;transition:transform .2s;}
+.blsr .rb-foot a:hover svg{transform:translateX(3px);}
+
+/* ---------- tablet: clearance steps run down a base path ---------- */
+@media (max-width:991px){
+  .blsr .rb-path{grid-template-columns:minmax(0,1fr);gap:16px;}
+  .blsr .rb-path::before{left:23px;right:auto;top:24px;bottom:56px;border-top:0;border-left:3px dashed #c3ccdc;}
+  .blsr .rb-base{margin-bottom:12px;}
+  .blsr .rb-home{position:relative;top:auto;right:auto;flex-direction:row;gap:12px;padding-left:2px;}
+  .blsr .rb-home span{text-align:left !important;background:none;padding:0;max-width:none;}
+  .blsr .rb-home b{font-size:17px;letter-spacing:.06em;}
+  .blsr .rb-who{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsr{gap:16px;}
+  .blsr .rb-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:14px;}
+  .blsr .rb-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.86) 50%,rgba(0,1,58,.55) 100%);}
+  .blsr .rb-copy{padding:26px 20px 8px;}
+  .blsr .rb-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsr .rb-ribbon b{font-size:19px;}
+  .blsr .rb-hero h1{font-size:clamp(44px,14vw,60px);}
+  .blsr .rb-lede{margin-top:26px !important;font-size:16px;}
+  .blsr .rb-board{max-width:none;padding:30px 12px 18px;}
+  .blsr .rb-clip{transform:none;padding:12px 10px 10px;}
+  .blsr .rb-paper{padding:28px 16px 10px;background-image:none;}
+  .blsr .rb-paper h2{font-size:34px;}
+  .blsr .rb-sec{padding:28px 16px;border-radius:14px;}
+  .blsr .rb-sec h2,.blsr .rb-cta h2{font-size:36px;}
+  .blsr .rb-tl{margin-top:20px !important;padding:2px 14px;}
+  .blsr .rb-ev{grid-template-columns:minmax(0,1fr);row-gap:3px;padding:12px 0;}
+  .blsr .rb-date{padding:3px 11px;margin-bottom:3px;}
+  .blsr .rb-date b{font-size:17px;}
+  .blsr .rb-tba{padding:4px 10px;}
+  .blsr .rb-ev h3{font-size:21px;}
+  .blsr .rb-path{margin-top:24px !important;}
+  .blsr .rb-card{padding:20px 18px;}
+  .blsr .rb-card h3{font-size:26px;}
+  .blsr .rb-stat b{font-size:44px;}
+  .blsr .rb-note{grid-template-columns:minmax(0,1fr);row-gap:10px;padding:18px 16px;}
+  .blsr .rb-note > svg{width:38px;height:38px;}
+  .blsr .rb-chs{margin-top:22px !important;gap:10px;}
+  .blsr .rb-ch > summary{grid-template-columns:38px minmax(0,1fr) 30px;column-gap:12px;padding:16px 14px;}
+  .blsr .rb-num{width:38px;height:38px;}
+  .blsr .rb-num::before{inset:6px;}
+  .blsr .rb-num i{font-size:17px;}
+  .blsr .rb-ch summary b{font-size:24px;}
+  .blsr .rb-tog{width:30px;height:30px;}
+  .blsr .rb-body{padding:2px 14px 22px;gap:20px;}
+  .blsr .rb-pair{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .blsr .rb-box{padding:16px;}
+  .blsr .rb-copybox{padding:16px 14px;}
+  .blsr .rb-subj{padding:12px 14px;}
+  .blsr .rb-911{grid-template-columns:minmax(0,1fr);row-gap:12px;padding:20px 18px;}
+  .blsr .rb-911::after{display:none;}
+  .blsr .rb-911 .rb-big{font-size:72px;}
+  .blsr .rb-grid{grid-template-columns:minmax(0,1fr);gap:12px;}
+  .blsr .rb-sc{padding:18px 16px;}
+  .blsr .rb-report{grid-template-columns:minmax(0,1fr);row-gap:10px;padding:18px 16px;}
+  .blsr .rb-report > svg{width:38px;height:38px;}
+  .blsr .rb-more{grid-template-columns:minmax(0,1fr);}
+  .blsr .rb-more .rb-doc:first-child{padding-top:13px;}
+  .blsr .rb-more .rb-doc{padding-bottom:13px;border-bottom:1px solid var(--line);}
+  .blsr .rb-cta{padding:28px 16px;border-radius:14px;}
+  .blsr .rb-who{grid-template-columns:minmax(0,1fr);gap:10px;margin-top:20px !important;}
+  .blsr .rb-wc{padding:14px 16px;}
+  .blsr .rb-wc b{font-size:21px;margin:4px 0 8px;}
+  .blsr .rb-foot{flex-direction:column;align-items:flex-start;gap:12px;}
+}
+@media (prefers-reduced-motion:reduce){.blsr *{transition:none !important;}}
+</style>
+<div class="blsx blsr">
+
+  <section class="rb-hero">
+    <svg class="rb-art" viewBox="0 0 1200 560" preserveAspectRatio="xMaxYMid slice" aria-hidden="true" focusable="false">
+      <defs><linearGradient id="rbSky" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00013a"/><stop offset="1" stop-color="#0a2a78"/></linearGradient></defs>
+      <rect width="1200" height="560" fill="url(#rbSky)"/>
+      <g fill="none" stroke="#fff" stroke-linecap="round">
+        <path d="M560 480A540 540 0 0 1 1270 160" stroke-opacity=".07" stroke-width="3" stroke-dasharray="2 14"/>
+        <path d="M900 530L1140 290L900 50L660 290Z" stroke-opacity=".14" stroke-width="4"/>
+        <path d="M900 530L440 70M900 530L1360 70" stroke-opacity=".07" stroke-width="3"/>
+        <circle cx="900" cy="300" r="28" stroke-opacity=".14" stroke-width="3"/>
+        <path d="M914 512C1010 470 1100 390 1128 306" stroke="#cd163f" stroke-opacity=".75" stroke-width="5" stroke-dasharray="14 10"/>
+      </g>
+      <g fill="#fff" fill-opacity=".22"><path d="M900 516l12 12-12 12-12-12z"/><path d="M1140 278l12 12-12 12-12-12z"/><path d="M900 38l12 12-12 12-12-12z"/><path d="M660 278l12 12-12 12-12-12z"/></g>
+    </svg>
+    <div class="rb-copy">
+      <div class="rb-ribbon">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><rect x="10" y="9" width="12" height="15" rx="2" fill="none" stroke="#cd163f" stroke-width="1.8"/><rect x="13" y="7.2" width="6" height="3.8" rx="1" fill="#cd163f"/><path d="M13 15h6M13 18.5h6" stroke="#cd163f" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <div><span>Spring 2027</span><b>Coaches Corner</b></div>
+      </div>
+      <h1><small>Welcome, BLS coaches</small>Coach <em>Run Book.</em></h1>
+      <p class="rb-lede">Thank you for volunteering to coach. Coaching takes real time and effort, and we appreciate it. None of this happens without you.</p>
+      <p class="rb-lede">This guide walks you through a BLS season, from getting cleared to returning your gear. Coached with BLS before? Use it as a quick refresher.</p>
+      <p class="rb-ask">Ideas or tips for this guide? Email <a href="mailto:coaching@blslittleleague.org">coaching@<wbr>blslittleleague.org</a></p>
+    </div>
+    <div class="rb-board">
+      <div class="rb-clip">
+        <div class="rb-paper">
+          <span class="rb-k">Lineup card</span>
+          <h2>Your first five</h2>
+          <ol class="rb-lineup">
+            <li><i>1</i><div><b>Get cleared</b><span>Volunteer sign-up, background check and Abuse Awareness Training. Every year, before you work with players.</span></div></li>
+            <li><i>2</i><div><b>Go to the coaches meeting</b><span>Your player agent sends the date, time and place.</span></div></li>
+            <li><i>3</i><div><b>Welcome your families</b><span>When your roster arrives, check it, then send a welcome email. The template is in The playbook, chapter 3.</span></div></li>
+            <li><i>4</i><div><b>Pick up your gear</b><span>The league holds an equipment pickup right before practices start.</span></div></li>
+            <li><i>5</i><div><b>Learn your division's rules</b><span>BLS and District 10 rules, plus the free Little League Rulebook app. Links are in The playbook, chapter 2.</span></div></li>
+          </ol>
+          <p class="rb-pa"><b>Your player agent</b>Each division has a player agent who sends coaches their roster and meeting details. Not sure who yours is? Email the League Player Agent at <a href="mailto:pa@blslittleleague.org">pa@<wbr>blslittleleague.org</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-sec rb-gray">
+    <header><span class="rb-eyebrow">Season at a glance</span><h2>Your spring 2027 season</h2><p class="rb-intro">Dates are added here as the league sets them. Until then, this is the usual order of a BLS spring.</p></header>
+    <ol class="rb-tl">
+      <li class="rb-ev">
+        <span class="rb-date rb-set"><b>Oct 1</b><small>2026</small></span>
+        <h3>Clearances reset</h3><p>Background checks and training done on or after this date count for spring 2027.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-set"><b>Nov 27</b><small>Fri, 2026</small></span>
+        <h3>Registration opens</h3><p>Opening discount: $50 off per family.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Player evaluations</h3><p>Draft divisions only. Majors and Minors are usually in February.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Draft and teams</h3><p>Majors and Minors usually draft in <span class="rb-nw">mid-February</span>, after evaluations. Juniors and 50/70 can be later.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Coaches meetings</h3><p>By sport and division, with league leaders and player agents.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Equipment pickup</h3><p>Right before practices start.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Opening Day and Picture Day</h3><p>Your player agent or the league shares how to book team photos.</p>
+      </li>
+      <li class="rb-ev">
+        <span class="rb-date rb-tba"><small>Date coming soon</small></span>
+        <h3>Gear return</h3><p>End of the season.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="rb-sec rb-white">
+    <header><span class="rb-eyebrow">Before your first practice</span><h2>Get cleared</h2><p class="rb-intro">Every head coach, assistant coach and team volunteer gets cleared every year, before working with players. Little League resets clearances every October 1, so a clearance from before Oct 1, 2026 does not count for spring 2027.</p></header>
+    <ol class="rb-path">
+      <li class="rb-step">
+        <span class="rb-base"><i>1</i></span>
+        <div class="rb-card rb-t">
+          <em class="rb-pill">Coach <span class="rb-nw">sign-up</span> opening soon</em>
+          <h3>Volunteer <span class="rb-nw">sign-up</span></h3>
+          <p>Log in at blslittleleague.org, open your account (profile icon, top right) and choose Volunteer. Sign up for your coaching role, fill out the volunteer application and upload a photo ID. You can also sign up when you register your player.</p>
+          <p class="rb-wait">If the Volunteer page says "No Programs are Currently Displayed," coach sign-up is not open yet. Check back soon.</p>
+          <div class="rb-cut"><b>New to BLS?</b>Have three references ready</div>
+          <a class="rb-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716842">Volunteer page <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="rb-step rb-hot">
+        <span class="rb-base"><i>2</i></span>
+        <div class="rb-card rb-t">
+          <h3>Background check</h3>
+          <div class="rb-stat"><b>14 days</b><span>to answer the background check email</span></div>
+          <p>The league checks your ID and sends your request to JDP, Little League's background check provider. JDP then emails you. Open it, confirm your details and submit.</p>
+          <ul class="rb-ticks">
+            <li>Check your junk folder for the JDP email.</li>
+            <li>JDP asks for your Social Security number.</li>
+            <li>Link expired? Email <a href="mailto:secretary@blslittleleague.org">secretary@<wbr>blslittleleague.org</a> to have it resent.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="rb-step">
+        <span class="rb-base"><i>3</i></span>
+        <div class="rb-card">
+          <h3>Abuse Awareness Training</h3>
+          <p>Little League's free online course, about 45 minutes. Take it on or after Oct 1, 2026, with the same email as your BLS account, and pick Bonney Lake Sumner Little League as your associated league. Little League emails you a certificate. Save it.</p>
+          <a class="rb-btn" href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" target="_blank" rel="noopener">Start the training <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+      </li>
+      <li class="rb-home" aria-label="Then the league reviews your results and clears you">
+        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
+        <span><b>Then: league review</b>The league reviews and clears you.</span>
+      </li>
+    </ol>
+    <aside class="rb-note rb-t">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3l15 5.5v11C37 30 30.5 37.5 22 41 13.5 37.5 7 30 7 19.5v-11z" fill="#00013a"/><circle cx="18" cy="18" r="3.4" fill="#fff"/><circle cx="27" cy="19.5" r="2.8" fill="#fff"/><path d="M12 30c.6-4.2 3-6.6 6-6.6s5.4 2.4 6 6.6M22.5 30c.5-3.4 2.4-5.4 4.5-5.4s4 2 4.5 5.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <div>
+        <b>Every helper, every year</b>
+        <p>Only cleared adults coach, run drills or sit in the dugout, including at the first practice. The league does not post a list of cleared volunteers. To check on a helper, or on your own status, email <a href="mailto:secretary@blslittleleague.org">secretary@<wbr>blslittleleague.org</a>.</p>
+      </div>
+    </aside>
+  </section>
+
+  <section class="rb-sec rb-gray">
+    <header><span class="rb-eyebrow">The playbook</span><h2>Coaching at BLS</h2><p class="rb-intro">Tap a topic to open it.</p></header>
+    <div class="rb-chs">
+
+      <details class="rb-ch">
+        <summary><span class="rb-num"><i>1</i></span><span><b>How teams are formed</b><small>Draft or league-built teams, evaluations, assistants and your roster</small></span><span class="rb-tog" aria-hidden="true"></span></summary>
+        <div class="rb-body rb-t">
+          <div class="rb-pair">
+            <div class="rb-box">
+              <span class="rb-k">Draft divisions</span>
+              <h3>Coaches draft</h3>
+              <p><b>Baseball:</b> Minors, Majors, 50/70 and Juniors.<br><b>Softball:</b> Minors A, Majors and Juniors.</p>
+              <p>Coaches draft these teams after player evaluations.</p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">League-built teams</span>
+              <h3>The league builds</h3>
+              <p><b>Baseball Tee Ball, Coach Pitch and AA:</b> teams are built by school first, then by age, so teams are even. Your own child is placed on your team.</p>
+              <p><b>Softball Minors B (coach pitch):</b> teams are also set by the league.</p>
+            </div>
+          </div>
+          <div>
+            <h3>Player evaluations</h3>
+            <ul class="rb-list">
+              <li><b>Baseball:</b> players <a href="https://www.littleleague.org/play-little-league/determine-league-age/" target="_blank" rel="noopener">League Age</a> 10 and up attend. League Age 9 players with at least one season of player-pitch may attend.</li>
+              <li><b>Softball:</b> all Majors and Minors A players attend.</li>
+              <li>Players drafted to Majors last season go back to Majors and do not attend.</li>
+              <li>Head coaches in draft divisions attend evaluations.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Head coaches and the draft</h3>
+            <p>Before evaluations, the board sets how many teams each division will have, based on how many players registered. The league president appoints, and the board approves, a head coach for each team. Head coach spots are filled fresh each season, so returning coaches are not automatic. Little League calls the head coach the manager.</p>
+            <p>Drafts follow the Little League rulebook. Questions about the draft or the draft order: email the League Player Agent at <a href="mailto:pa@blslittleleague.org">pa@<wbr>blslittleleague.org</a>.</p>
+          </div>
+          <div>
+            <h3>Assistant coaches</h3>
+            <ul class="rb-list">
+              <li><b>Baseball Tee Ball, Coach Pitch and AA:</b> you may request one assistant coach, whose child is also placed on your team. Only the head coach can make this request.</li>
+              <li><b>Softball Minors B:</b> <em class="rb-pill">Confirming for 2027</em></li>
+              <li><b>Draft divisions:</b> there are no pre-set assistants. Assistants come from the families of the players you draft. After the draft, you recommend them and the board approves them.</li>
+              <li>Every assistant gets cleared with the same three steps as you.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Your roster</h3>
+            <p>When teams are set, your division's player agent emails you your roster with family contact information. Check it right away, and email your player agent if anything is wrong or missing.</p>
+            <p>Families in draft divisions hear a day or two after the draft. Baseball Tee Ball, Coach Pitch and AA families usually hear in mid-March. Softball Minors B: <em class="rb-pill">Confirming for 2027</em></p>
+          </div>
+        </div>
+      </details>
+
+      <details class="rb-ch">
+        <summary><span class="rb-num"><i>2</i></span><span><b>Rules, GameChanger and schedules</b><small>Rulebooks, your team app, league schedules and training</small></span><span class="rb-tog" aria-hidden="true"></span></summary>
+        <div class="rb-body rb-t">
+          <div>
+            <h3>Rules for your division</h3>
+            <p class="rb-kind">Tee Ball and coach pitch divisions (baseball and softball) have their own rules. Following them as written keeps games fair, safe and fun for every player.</p>
+            <div class="rb-docs">
+              <a class="rb-doc" href="https://www.blslittleleague.org/Default.aspx?tabid=1457982">
+                <span class="rb-tag">BLS</span>
+                <span><strong>BLS and District 10 rules</strong>Baseball local rules and District 10 softball rules, on Coaches Corner</span>
+                <svg class="rb-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              <a class="rb-doc" href="https://www.littleleague.org/playing-rules/little-league-rulebook-app/" target="_blank" rel="noopener">
+                <span class="rb-tag rb-app">APP</span>
+                <span><strong>Little League Rulebook app</strong>Free for iPhone and Android, with the official rules for every division</span>
+                <svg class="rb-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+              <a class="rb-doc" href="https://www.littleleague.org/playing-rules/pitch-count/" target="_blank" rel="noopener">
+                <span class="rb-tag">WEB</span>
+                <span><strong>Pitching rules</strong>Baseball pitch counts and rest days, softball innings limits</span>
+                <svg class="rb-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="rb-box rb-dark">
+            <span class="rb-k">Your team app</span>
+            <h3>GameChanger</h3>
+            <p>Team messages, the practice and game schedule, game RSVPs and the team roster, all in one app. It is free for coaches and staff, and families can use it free for schedules, chat and RSVPs.</p>
+            <ol class="rb-steps">
+              <li><span>Download GameChanger from the App Store or Google Play.</span></li>
+              <li><span>Sign in, or create an account, with the same email as your BLS account.</span></li>
+              <li><span>Connect your team to the league. <em class="rb-pill">Steps coming soon</em></span></li>
+            </ol>
+          </div>
+          <div class="rb-pair">
+            <div class="rb-box">
+              <span class="rb-k">Schedules</span>
+              <h3>League schedules</h3>
+              <p>League game schedules post on the BLS website before Opening Day. A new Schedules &amp; Scores page is planned. Schedule questions: <a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr>blslittleleague.org</a>.</p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">Training</span>
+              <h3>Keep learning</h3>
+              <p><a href="https://www.littleleague.org/university/articles/diamond-leader-training/" target="_blank" rel="noopener">Diamond Leader</a>: Little League's free online course. Optional for most coaches, and required once for All-Star managers and coaches.</p>
+              <p>District 10 rules and safety clinics: dates coming soon.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="rb-ch">
+        <summary><span class="rb-num"><i>3</i></span><span><b>Welcome email for families</b><small>Copy it, fill in the [brackets] and send it</small></span><span class="rb-tog" aria-hidden="true"></span></summary>
+        <div class="rb-body">
+          <p class="rb-kind">Families see you as the face of BLS, so a friendly first email goes a long way. Send it once your roster arrives. Copy the text in each box and paste it into your email as plain text. Then fill in each part in [brackets], or delete the parts that do not apply. Be sure to add how families can reach you.</p>
+          <div>
+            <div class="rb-copyk"><span>Subject line</span></div>
+            <div class="rb-copybox rb-subj"><p>Welcome to [team name], BLS [baseball or softball] [division], [season]</p></div>
+          </div>
+          <div>
+            <div class="rb-copyk"><span>Email</span></div>
+            <div class="rb-copybox">
+              <p>Hello BLS families,</p>
+              <p>Welcome to the team! My name is [your name], and I will be your child's coach this season for [division]. [A sentence or two about you, such as years coaching in BLS or your own kids in the league.] I am looking forward to a great season with all of you.</p>
+              <p>Team app: I will set up our team in GameChanger, a free team app, and send you an invite. I will add every player and the parent who registered them. Other family members can be added too. Just ask. We will use the app for team messages, RSVPs for each game and the team roster. I will keep GameChanger up to date with every practice and game.</p>
+              <p>Practices: [day] and [day], [start time] to [end time], at [field name and which diamond]. Our first practice is [day, date] at [time]. At our first practice, I will go over my plan for the season and the rules for our division, and answer your questions.</p>
+              <p>Games: [days and times]. Most of our games are at [field].</p>
+              <p>Spring break: BLS families go to different schools with different spring breaks. If you miss an early practice, no problem. Just let me know.</p>
+              <p>What to bring: For practice, dress for the weather. Early in the season, molded cleats (no metal spikes), sweats and a hoodie work well. Please send your child with water, and a snack if needed.</p>
+              <p>Uniforms: [If uniforms are in:] Now for the players' favorite part: uniforms! Our colors are [colors]. [What each player gets and what to wear with it.] [If not yet:] Uniforms are not in yet. I will let you know in GameChanger as soon as they are.</p>
+              <p>[Optional: anything special for your division, such as a uniform order link or a team-naming activity.]</p>
+              <p>I am excited to get started and watch the kids learn and have fun.</p>
+              <p>Best regards,<br>[your name]<br>[phone or email]</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="rb-ch">
+        <summary><span class="rb-num"><i>4</i></span><span><em class="rb-pill">Confirming for 2027</em><b>Uniforms</b><small>What each division wears and how to hand uniforms out</small></span><span class="rb-tog" aria-hidden="true"></span></summary>
+        <div class="rb-body rb-t">
+          <p>Uniform steps can change from year to year. Questions about your division: <a href="mailto:uniforms@blslittleleague.org">uniforms@<wbr>blslittleleague.org</a> (baseball and softball).</p>
+          <div class="rb-pair">
+            <div class="rb-box">
+              <span class="rb-k">Baseball</span>
+              <h3>Pro team uniforms</h3>
+              <p>Baseball teams wear uniforms based on professional baseball teams.</p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">Softball Majors and Minors A</span>
+              <h3>Custom fitted</h3>
+              <p>Players are sized at evaluations, and each player gets a custom-fitted uniform. You get a link to share with families so they can place their order. The board picks team names before evaluations, based on college softball programs.</p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">Softball Minors B (coach pitch)</span>
+              <h3>Two colors, BLS logo</h3>
+              <p>Uniforms come in two-color patterns with the BLS logo. Once uniforms and rosters arrive, you pick a team name or let your players choose one together.</p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">Coach tip</span>
+              <h3>Handing them out</h3>
+              <p>If your uniforms are numbered by size, #1 is the smallest. Hand them out by size at practice. If a player is absent, hold their uniform until you can check the fit. Players can trade numbers afterward, as long as the sizes still fit.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="rb-ch">
+        <summary><span class="rb-num"><i>5</i></span><span><b>Gear and fields</b><small>Gear bag pickup and return, field care and field contacts</small></span><span class="rb-tog" aria-hidden="true"></span></summary>
+        <div class="rb-body rb-t">
+          <div class="rb-pair">
+            <div class="rb-box">
+              <span class="rb-k">Start of season</span>
+              <h3>Gear pickup</h3>
+              <p>Each team gets a gear bag, balls, a coach binder and a first aid kit for the season. The league holds an equipment pickup right before practices start.</p>
+              <p><em class="rb-pill">Date and place coming soon</em></p>
+            </div>
+            <div class="rb-box">
+              <span class="rb-k">End of season</span>
+              <h3>Gear return</h3>
+              <p>Return your gear bag, balls, coach binder and first aid kit. Clean the gear first, and clip any keys that came with the bag to its zipper. Return days are announced each season.</p>
+            </div>
+          </div>
+          <div>
+            <h3>Field care</h3>
+            <ul class="rb-list">
+              <li>Baseball game days (BLS local rules): the home team preps the field before the game (drag, chalk and fence). The away team puts equipment away and secures the field after.</li>
+              <li>Field problem or question? Email the Fields Coordinator at <a href="mailto:fields@blslittleleague.org">fields@<wbr>blslittleleague.org</a>.</li>
+              <li>Field addresses: coming soon on the <!-- GO-LIVE: this link points at the Fields preview page. Before pasting into Sports Connect, replace the href with the real Fields page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). --><a href="https://go.blslittleleague.org/bls/preview/proposed/fields.html">BLS Fields page</a>.</li>
+              <li>Want to help more? The Fields Committee is forming for 2027. Ask at <a href="mailto:info@blslittleleague.org?subject=Fields%20Committee">info@<wbr>blslittleleague.org</a>.</li>
+            </ul>
+          </div>
+          <p>Gear questions: <a href="mailto:equipment@blslittleleague.org">equipment@<wbr>blslittleleague.org</a></p>
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <section class="rb-sec rb-white">
+    <header class="rb-t"><span class="rb-eyebrow">Safety</span><h2>Keep every player safe</h2><p class="rb-intro">A quick reference. The full details are in the <a href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf" target="_blank" rel="noopener">BLSLL Safety Manual</a> and on the <a href="https://www.blslittleleague.org/Default.aspx?tabid=1270141">Health and Safety page</a>.</p></header>
+    <div class="rb-911">
+      <p class="rb-big">911<small>Call first</small></p>
+      <div>
+        <h3>In an emergency</h3>
+        <ul>
+          <li>Give the field name and location, your phone number and what happened.</li>
+          <li>Stay on the line until the dispatcher hangs up.</li>
+          <li>Keep caring for the injured person until help arrives.</li>
+          <li>Send someone to the street to meet the ambulance.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rb-grid">
+      <div class="rb-sc rb-t">
+        <h3>After an injury</h3>
+        <p>Any injury that needs first aid or medical care: report it to the Safety Officer at <a href="mailto:safety@blslittleleague.org">safety@<wbr>blslittleleague.org</a> within 24 to 48 hours, using the injury tracking form in the Safety Manual.</p>
+      </div>
+      <div class="rb-sc rb-t">
+        <h3>Head injuries</h3>
+        <p>Suspect a head injury? Take the player out of the game or practice right away. They return only with written clearance from a licensed health care provider trained in concussion care.</p>
+        <a class="rb-link" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_coach.pdf" target="_blank" rel="noopener">Concussion Coach Handout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      </div>
+      <div class="rb-sc rb-t">
+        <h3>Start of the season</h3>
+        <ul class="rb-list">
+          <li>You get a first aid kit at the start of the season. Bring it to every practice and game, and email <a href="mailto:safety@blslittleleague.org">safety@<wbr>blslittleleague.org</a> to restock it.</li>
+          <li>Keep each player's <a href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" target="_blank" rel="noopener">Medical Release Form</a> with your roster.</li>
+          <li>Read the BLS Safety Code (in the Safety Manual) to your players early in the season. Your first practice is a good time. You, your coaches and your players sign it, and your player agent checks that it is done.</li>
+          <li>First aid training: the 2027 requirement and how to complete it are coming soon from the Safety Officer (<a href="mailto:safety@blslittleleague.org">safety@<wbr>blslittleleague.org</a>). <em class="rb-pill">Coming soon</em></li>
+        </ul>
+      </div>
+      <div class="rb-sc">
+        <h3>Every practice and game</h3>
+        <ul class="rb-list">
+          <li>Walk the field first. Report any hazard to the Safety Officer, the Fields Coordinator and your player agent, even if you fix it. If the field is not safe, do not practice or play on it.</li>
+          <li>Never leave a player alone. Stay until every player has been picked up.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rb-report">
+      <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3l15 5.5v11C37 30 30.5 37.5 22 41 13.5 37.5 7 30 7 19.5v-11z" fill="#cd163f"/><path d="M15.5 22l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <p><b>Report suspected abuse.</b> As a Little League volunteer, you are a mandatory reporter under federal law. If you suspect a child is being abused, report it to the proper authorities within 24 hours. The <a href="https://www.littleleague.org/player-safety/child-protection-program/" target="_blank" rel="noopener">Little League Child Protection Program</a> explains how.</p>
+    </div>
+    <div class="rb-more">
+      <a class="rb-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf" target="_blank" rel="noopener">
+        <span class="rb-tag rb-pdf">PDF</span>
+        <span><strong>BLSLL Safety Manual</strong>2025 edition: Safety Code, first aid, injury form</span>
+        <svg class="rb-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a class="rb-doc" href="https://www.blslittleleague.org/Default.aspx?tabid=1270141">
+        <span class="rb-tag">BLS</span>
+        <span><strong>Health and Safety page</strong>Forms, concussion and cardiac arrest handouts</span>
+        <svg class="rb-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section class="rb-cta">
+    <header><span class="rb-eyebrow">Who to ask</span><h2>We are here to help</h2><p class="rb-intro">Email the role that fits your question.</p></header>
+    <div class="rb-who">
+      <div class="rb-wc rb-first"><span>Your team</span><b>Rosters, meetings and the draft</b><small>Not sure who your division's player agent is? Start here.</small><a href="mailto:pa@blslittleleague.org">pa@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Coaching Coordinator</span><b>Coaching and this guide</b><a href="mailto:coaching@blslittleleague.org">coaching@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Secretary</span><b>Background checks</b><a href="mailto:secretary@blslittleleague.org">secretary@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Safety Officer</span><b>Safety and injuries</b><a href="mailto:safety@blslittleleague.org">safety@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Practice and Game Scheduler</span><b>Schedules</b><a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Equipment</span><b>Gear bags</b><a href="mailto:equipment@blslittleleague.org">equipment@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Fields Coordinator</span><b>Fields</b><a href="mailto:fields@blslittleleague.org">fields@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Uniforms</span><b>Baseball and softball uniforms</b><a href="mailto:uniforms@blslittleleague.org">uniforms@<wbr>blslittleleague.org</a></div>
+      <div class="rb-wc"><span>Information Officer</span><b>Anything else</b><a href="mailto:info@blslittleleague.org">info@<wbr>blslittleleague.org</a></div>
+    </div>
+    <div class="rb-foot">
+      <span><b>Updated for Spring 2027.</b> Thank you for coaching.</span>
+      <a href="https://www.blslittleleague.org/Default.aspx?tabid=1457982">Coaches Corner <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a href="https://www.blslittleleague.org/Default.aspx?tabid=1270141">Health and Safety <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </section>
+
+</div>

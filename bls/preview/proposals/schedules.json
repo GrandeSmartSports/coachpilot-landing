@@ -1,0 +1,119 @@
+{
+ "modules": {
+  "823340": {
+   "file": "modules/schedules.html",
+   "title": "Schedules & Scores"
+  }
+ },
+ "page_title": "Schedules & Scores",
+ "status": "Ready after 4 items",
+ "summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings (direction pending a board decision): one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.",
+ "sources": [
+  {
+   "fact": "Team Central today, logged out: Posted Schedules lists 3 spring 2026 interlock schedules with BLS team names, times and fields blank; View Scores and View Standings say 'No data for selected period'; Team Directory says 'No Team Found!'.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=719150",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "None of the 601 spring 2026 games in Sports Connect has a score, and fall 2026 games were never loaded into Sports Connect.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=719255",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Results from games scored in GameChanger do not appear on Sports Connect.",
+   "url": "https://help.gc.com/hc/en-us/articles/360006893592",
+   "date": "2026-10-04"
+  },
+  {
+   "fact": "A GameChanger league (Organization) page has Standings, Schedule, Leaders and Teams tabs and a Share with Fans link. GameChanger tells leagues to add a Schedule or Live Scores button to their website that links to it.",
+   "url": "https://gc.com/post/leagues-tournaments-fan-experience-for-baseball-and-softball",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Live and final scores of league games show on a GameChanger league's Schedule tab. The post's displayed date is a repost date, so no launch date is claimed.",
+   "url": "https://gc.com/post/live-results-available-on-league-schedule",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "A GameChanger Organization holds 2 to 100 teams and GameChanger suggests one per division. Standings show wins, losses and ties from head-to-head games scored inside the Organization.",
+   "url": "https://help.gc.com/hc/en-us/articles/4412495255309",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "To follow a team in the app: tap the search icon at the top left of the Home tab, type the team's name (Sport, Season, State and City filters narrow it), select the team, tap Follow Team, then choose Parent or guardian, Family member or friend, Player, or Team follower, and pick the player from the roster. Until a request is approved, the account has team follower access.",
+   "url": "https://help.gc.com/hc/en-us/articles/360019957491",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "A membership request goes to team staff when it is the player's first contact; otherwise an existing parent or guardian of that player approves it. Other parents on the team do not.",
+   "url": "https://help.gc.com/hc/en-us/articles/4408499662989",
+   "date": "2026-11-01"
+  },
+  {
+   "fact": "Team followers see the game schedule and record, the roster and the Animated GameStream. Team messaging and the practice schedule are for Parent or Guardian accounts. Team staff can invite followers by email.",
+   "url": "https://help.gc.com/hc/en-us/articles/4402859033229",
+   "date": "2026-10-24"
+  },
+  {
+   "fact": "Calendar sync: select the team on the Home tab, tap the gear icon at the top right, choose Schedule Sync, then Sync Schedule to Your Calendar, then Apple or Google. Parent accounts sync all team events including practices; followers sync games only. Google on an iPhone needs extra steps in a web browser. Google can take up to 24 hours to show changes.",
+   "url": "https://help.gc.com/hc/en-us/articles/115005457626",
+   "date": "2026-09-27"
+  },
+  {
+   "fact": "Free for fans: a free account, the Animated GameStream, final scores, live game alerts, and live baseball and softball streams on a limited basis. Box scores need a subscription (Plus is $39.99 a year) and season stats need Premium.",
+   "url": "https://help.gc.com/hc/en-us/articles/28521445314957",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "GameChanger's scorekeeping app has no coach-pitch mode, only workarounds.",
+   "url": "https://help.gc.com/hc/en-us/articles/360030864912",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Untested: whether someone with no GameChanger account can open a league's Share with Fans page. Searching for leagues on the web requires a GameChanger login.",
+   "url": "https://help.gc.com/hc/en-us/articles/30141128707469",
+   "date": "2026-11-03"
+  },
+  {
+   "fact": "Spring division names and typical league ages: baseball Tee Ball, Coach Pitch, AA, Minors, Majors, 50/70, Juniors; softball Co-Ed T-Ball, Minors B, Minors A, Majors, Juniors.",
+   "url": "modules/registration.html",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "2026-27 role emails include scheduler@blslittleleague.org.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=776470",
+   "date": "2026-10-25"
+  },
+  {
+   "fact": "Recommendation: GameChanger leagues for scores and standings, Team Central pages as signposts; proposed menu, decisions and caveats.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-website/team-central-research-2026-11-03.json",
+   "date": "2026-11-03"
+  }
+ ],
+ "later": [
+  "Website (Daniel Grande), at go-live: for each division button, put that league's Share with Fans link in href, then delete the ss-soon class, the aria-disabled attribute and the 'Link coming before Opening Day' line (see the GO-LIVE comments in the file).",
+  "Website (Daniel Grande): if the signed-out test shows league pages need a login, add one line under the division buttons saying families need a free GameChanger account, or plan the optional scoreboard page.",
+  "Website (Daniel Grande): once this page has a URL, point the Coaches Corner Team Schedules, Game Scores and Standings tiles and the Coach Run Book's League schedules link (all on Team Central today) at it.",
+  "Board: hide the Team Central tab and add this page to the menu (six of the nine other District 10 leagues hide Team Central), or keep the tab with its pages turned into links. Whether Sports Connect allows link pages under Team Central is unconfirmed.",
+  "Board: which divisions keep standings. GameChanger has no coach-pitch scoring mode, and Little League guidance for Tee Ball and Coach Pitch was not researched. The page already says standings show 'where the division keeps them'.",
+  "Board: whether interlock games count in BLS standings. If yes, other leagues' teams join the BLS division league or are added as stand-in teams.",
+  "Board: whether Challenger gets a button. Registration lists it as its own program, outside the baseball and softball division lists this page uses.",
+  "Board: a 'home team scores' rule, so each game needs one scorer. Coaches can name a parent as scorekeeper without using a staff spot.",
+  "Board: which account owns the GameChanger leagues and stand-in teams. A league-owned admin account, not a personal one; fall 2026 stand-in teams sit in a personal account.",
+  "Scheduler (Daniel Grande): unpost the 3 stale spring 2026 schedules under Posted Schedules (BLS names, times and fields show blank). Unposting can be undone.",
+  "Scheduler (Daniel Grande): when the spring 2027 programs are built in Sports Connect, keep them active with end dates a couple of weeks past the season, and post rosters so coaches can import them into GameChanger. Check team page visibility first so rosters are not public.",
+  "Scheduler (Daniel Grande): before Opening Day, bulk-import each division's games into its GameChanger league. Do not also post game schedules in Sports Connect; doing both creates duplicate games.",
+  "Scheduler (Daniel Grande): make interlock stand-in teams by hand in the app under the league account. GameChanger's terms ban automated access.",
+  "Scheduler (Daniel Grande): ask GameChanger whether its newer web setup with divisions is open to baseball and softball, which could change one league per division.",
+  "Scheduler (Daniel Grande): retest an outside iframe in the BLS page editor (Kent's and Westwood's Sports Connect pages show iframes working; the Nov 1 BLS test found them stripped).",
+  "Optional, later: GameChanger's scoreboard widget (scores only, no standings widget) on a go.blslittleleague.org page, since Sports Connect strips its code. Hosting it there is untested.",
+  "Before launch: recheck the GameChanger and Little League partnership. It is published through 2026 and no 2027 renewal was found; GameChanger says it stays free for coaches.",
+  "When PlayMetrics opens to BLS: compare its standings (tiebreaks, point adjustments, interlock) with GameChanger's before moving anything."
+ ],
+ "required": [
+  "Board: choose where scores and standings live",
+  "Board: approve this page in place of Posted Schedules, Scores and Standings",
+  "Scheduler: create one GameChanger league per division",
+  "Scheduler: test a league link in a browser never signed in to GameChanger"
+ ]
+}
