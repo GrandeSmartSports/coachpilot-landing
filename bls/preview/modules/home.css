@@ -129,3 +129,9 @@ body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocial
   body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2{width:auto!important;margin:0!important;padding:10px 16px 18px!important}
   body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2 > li{width:auto!important;list-style:none}
 }
+
+/* Facebook boxes: page header and Follow button only. Their timelines do not load on most phones, which left about 1,000px of blank space under the news.
+   Sports Connect asked (support case, 11/3/2026) to set these plugins to header only; this is the preview of that result. */
+[id$="ctlFaceBookPlugInManager_fb_module"] iframe.facebook-plugin,[id$="ctlFaceBookPlugInManager2_fb_module"] iframe.facebook-plugin{height:80px!important}
+[id$="ctlFaceBookPlugInManager3_fb_module"] iframe.facebook-plugin{height:135px!important}
+.fb-module-wrapper,.fb-module-wrapper .fb-active-feed{height:auto!important;min-height:0!important}
