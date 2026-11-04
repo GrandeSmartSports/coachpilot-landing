@@ -1,8 +1,7 @@
 // bls-gateway: BLS Little League board tools. Website review form: no sign-in, reviewer types a name and clicks Send.
-// Table: bls_review_responses (CoachPilot project, bls_ prefix). Admin report behind the league PIN.
+// Table: bls_review_responses (CoachPilot project, bls_ prefix). Admin report behind the BLS board admin code (stored in the database).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const ADMIN_PIN = "2575";
 const REVIEWS: Record<string, { title: string; items: number; url: string; names: string[] }> = {
   "website-updates-2026": {
     title: "BLS Website Updates", items: 16, url: "https://coachpilot.org/bls/website-updates",
@@ -22,6 +21,11 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+// The admin code lives in the database (bls_board_settings.admin_pin, shared with the BLS build board), never in this public repo.
+async function adminCode(): Promise<string> {
+  const { data } = await db.from("bls_board_settings").select("value").eq("key", "admin_pin").maybeSingle();
+  return String(data?.value ?? "");
+}
 const clip = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : "");
 
 function clean(raw: any, count: number) {
@@ -110,7 +114,8 @@ Deno.serve(async (req) => {
     }
     if (action === "review_report") {
       const pin = req.headers.get("x-admin-pin") || "";
-      if (pin !== ADMIN_PIN) return json({ error: "Wrong PIN" }, 401);
+      const code = await adminCode();
+      if (!code || pin !== code) return json({ error: "Wrong PIN" }, 401);
       const review = url.searchParams.get("review") || "website-updates-2026";
       const { data: rows } = await db.from("bls_review_responses").select("reviewer_name, data, updated_at").eq("review", review).order("updated_at", { ascending: false });
       return json({ review, responses: (rows || []).map((r) => ({ name: r.reviewer_name, data: r.data, updated_at: r.updated_at })) });

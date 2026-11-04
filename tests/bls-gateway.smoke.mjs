@@ -1,5 +1,8 @@
 // Smoke test for bls-gateway (no sign-in review form). Sends one real test review, which emails Coach.
 const API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
+// The admin code is not in this repo: pass it as BLS_ADMIN_CODE (it is bls_board_settings.admin_pin).
+const CODE = process.env.BLS_ADMIN_CODE;
+if (!CODE) { console.error("Set BLS_ADMIN_CODE to run this test."); process.exit(2); }
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) { pass++; console.log("ok  ", m); } else { fail++; console.log("FAIL", m); } };
 const post = (q, b) => fetch(API + "?" + q, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(b) }).then(async (r) => ({ s: r.status, j: await r.json() }));
@@ -15,7 +18,7 @@ r = await post("action=review_submit", { review: R, name: "  TEST   smoke ", dat
 ok(r.s === 200 && r.j.ok, "valid review is accepted");
 r = await get("action=review_report", { "x-admin-pin": "0000" });
 ok(r.s === 401, "report with wrong PIN is rejected");
-r = await get("action=review_report", { "x-admin-pin": "2575" });
+r = await get("action=review_report", { "x-admin-pin": CODE });
 const mine = (r.j.responses || []).find((x) => x.name === "TEST smoke");
 ok(r.s === 200 && mine, "report lists the test review under the cleaned name");
 const d = mine?.data || {};
@@ -24,7 +27,7 @@ ok(!d.items?.["2"] && !d.items?.["99"], "invalid decision and unknown item dropp
 ok(d.accounts?.instagram === "https://instagram.com/x" && !d.accounts?.myspace, "accounts trimmed, unknown platform dropped");
 ok(d.general === "overall ok" && d.junk === undefined, "general kept, extra fields dropped");
 r = await post("action=review_submit", { review: R, name: "test SMOKE", data: { items: { "1": { d: "discuss", note: "second thoughts" } } } });
-r = await get("action=review_report", { "x-admin-pin": "2575" });
+r = await get("action=review_report", { "x-admin-pin": CODE });
 const all = (r.j.responses || []).filter((x) => x.name.toLowerCase() === "test smoke");
 ok(all.length === 1 && all[0].data.items["1"].d === "discuss", "resend by the same name replaces, not duplicates");
 console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);
