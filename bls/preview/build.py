@@ -247,7 +247,7 @@ def index():
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);font:400 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0a0f2e;padding:0 16px 48px}}
 header{{margin:0 -16px 18px;background:var(--navy);color:#fff;padding:20px 16px;border-bottom:5px solid var(--red)}}
 .hin{{max-width:1180px;margin:0 auto;display:flex;gap:14px;align-items:center}}
-header img{{width:52px;height:52px;background:#fff;border-radius:10px;padding:4px;flex:none}}header p{{margin:0;font:700 12px/1 Arial;letter-spacing:.1em;color:#c9d3f2;text-transform:uppercase}}header h1{{margin:6px 0 0;font-size:24px;line-height:1.15}}
+header img{{width:52px;height:52px;background:#fff;border-radius:10px;padding:4px;flex:none}}header p{{margin:0;font:700 12px/1 Arial;letter-spacing:.1em;color:#c9d3f2;text-transform:uppercase}}header h1{{margin:6px 0 0;font-size:24px;line-height:1.15}}header p.hs{{margin:6px 0 0;font:400 15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;letter-spacing:0;text-transform:none;color:#dfe5f7}}
 main{{max-width:1180px;margin:0 auto}}
 .intro{{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 18px}}.intro p{{margin:0 0 10px;color:var(--muted)}}
 .counts{{display:flex;flex-wrap:wrap;gap:8px;margin:0}}.counts span{{background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}}.counts .g{{color:#127a3a}}.counts .a{{color:#a35200}}
@@ -265,10 +265,10 @@ h2.sec{{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(-
 .st ul{{margin:6px 0 0;padding-left:18px;color:#0a0f2e}}.st li{{margin:3px 0}}
 .btns{{display:flex;gap:8px;margin-top:auto;padding:0 16px 16px}}.btns a{{flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}}.btns a.pri{{background:var(--red);color:#fff;border-color:var(--red)}}
 .card{{scroll-margin-top:12px}}
-</style>{board_head()}</head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1></div></div><div id="blsbWho"></div></header>
-<main><div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
+</style>{board_head()}</head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1><p class="hs">Preview of the new BLS website. Nothing here changes the live site.</p></div></div><div id="blsbWho"></div></header>
+<main><div id="blsbIndex"></div>
+<div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
 <div class="counts"><span>{len(CFG)} pages</span><span class="g">{ready} have all facts</span><span class="a">{len(CFG) - ready} need facts</span><span>{len(new)} new pages</span></div></div>
-<div id="blsbIndex"></div>
 <h2 class="sec">Pages that change ({len(old)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in old)}</div>
 <h2 class="sec">New pages ({len(new)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in new)}</div>
 </main>{board_scripts(index=True)}</body></html>'''

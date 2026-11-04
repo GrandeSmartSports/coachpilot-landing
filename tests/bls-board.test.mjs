@@ -73,6 +73,7 @@ async function cleanup() {
   await rest(`/bls_board_items?author_name=ilike.zztest*`, { method: "DELETE" });
   await rest(`/bls_board_events?slug=eq.${SLUG}`, { method: "DELETE" });
   await rest(`/bls_board_events?actor=ilike.zztest*`, { method: "DELETE" });
+  await rest(`/bls_board_events?kind=eq.page_update&detail=ilike.zztest*`, { method: "DELETE" });
   await rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "DELETE" });
   await rest(`/bls_board_people?name=ilike.zztest*`, { method: "DELETE" });
   await rest(`/bls_board_phases?name=ilike.zztest*`, { method: "DELETE" });
@@ -80,7 +81,7 @@ async function cleanup() {
 async function leftovers() {
   const q = [
     `/bls_board_items?select=id&or=(slug.eq.${SLUG},author_name.ilike.zztest*)`,
-    `/bls_board_events?select=id&or=(slug.eq.${SLUG},actor.ilike.zztest*)`,
+    `/bls_board_events?select=id&or=(slug.eq.${SLUG},actor.ilike.zztest*,detail.ilike.zztest*)`,
     `/bls_board_pages?select=slug&slug=eq.${SLUG}`,
     `/bls_board_people?select=id&name=ilike.zztest*`,
     `/bls_board_phases?select=id&name=ilike.zztest*`,
@@ -97,6 +98,9 @@ const setHold = (ms) => rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATC
 // true when the database refuses the write (a check constraint)
 const refused = async (body) => { try { await rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATCH", body }); return false; } catch (_e) { return true; } };
 async function adminState() { return (await api("state", { pin: PIN, query: "&test=1" })).j; }
+// Daniel's "All activity" list (every event kind). Public state carries only page_update and live events.
+async function activity() { return (await adminState()).activity || []; }
+const PUBLIC_KINDS = ["page_update", "live"];
 async function publicState(test = true) { return (await api("state", { query: test ? "&test=1" : "" })); }
 async function zz() { return (await adminState()).pages.find((p) => p.slug === SLUG); }
 const post = (body, pin) => api("post", { body: { slug: SLUG, ...body }, pin });
@@ -130,6 +134,16 @@ try {
     ok(t.j.pages.some((x) => x.slug === SLUG), "test page visible with test=1");
     ok(r.j.pages.every((x) => ["building", "waiting", "review", "hold", "scheduled", "live"].includes(x.state)), "no page is in the old Ready to deploy state", r.j.pages.map((x) => x.state));
     ok(r.j.pages.every((x) => x.state !== "review" || typeof x.remaining_ms === "number"), "every Board review page has a running clock");
+    // reviewers and asks (addendum 11/4)
+    const roster = new Set(r.j.people.map((x) => x.name));
+    ok(r.j.pages.every((x) => Array.isArray(x.reviewers) && Array.isArray(x.asks)), "every page carries reviewers and asks lists");
+    ok(r.j.pages.every((x) => x.reviewers.every((n) => roster.has(n))), "every reviewer is a roster name", r.j.pages.map((x) => x.reviewers));
+    ok(r.j.pages.every((x) => x.asks.every((a) => typeof a.text === "string" && a.text.length >= 3 && Array.isArray(a.people) && a.people.every((n) => roster.has(n)))), "every ask has text and roster names", r.j.pages.map((x) => x.asks));
+    // public What's new is only page updates and pages going live
+    ok(r.j.events.every((e) => PUBLIC_KINDS.includes(e.kind)), "public events are only page_update and live", [...new Set(r.j.events.map((e) => e.kind))]);
+    ok(!("activity" in r.j), "public state has no activity list");
+    ok(Array.isArray(a.j.activity), "admin state has the activity list");
+    ok(a.j.events.every((e) => PUBLIC_KINDS.includes(e.kind)), "admin events list is the same public feed");
   }
 
   // ---------- database clock checks ----------
@@ -144,7 +158,7 @@ try {
 
   // ---------- auth ----------
   {
-    const actions = ["admin_page", "admin_resolve", "admin_reply", "admin_hide", "admin_phase", "admin_people", "admin_person"];
+    const actions = ["admin_page", "admin_resolve", "admin_reply", "admin_hide", "admin_phase", "admin_people", "admin_person", "admin_update"];
     for (const a of actions) {
       const r = await api(a, { body: { slug: SLUG } });
       ok(r.s === 401, `${a} is 401 without PIN`);
@@ -263,6 +277,75 @@ try {
     ok(del.s === 200 && del.j.deleted === true && !del.j.people.some((p) => p.id === personId), "admin_person delete removes the person");
   }
 
+  // ---------- reviewers, asks and page updates (addendum 11/4) ----------
+  {
+    const A = await api("admin_person", { body: { name: "ZZTEST Reviewer", role: "ZZTEST Role" }, pin: PIN });
+    const B = await api("admin_person", { body: { name: "ZZTEST Helper Two", role: "ZZTEST Role" }, pin: PIN });
+    const off = await api("admin_person", { body: { name: "ZZTEST Inactive", role: "ZZTEST Role", active: false }, pin: PIN });
+    ok(A.s === 200 && B.s === 200 && off.s === 200, "test roster people added");
+
+    // reviewers
+    let r = await adminPage({ reviewers: ["zztest reviewer", "ZZTEST Helper Two", "ZZTEST  REVIEWER"] });
+    ok(r.s === 200 && JSON.stringify(r.j.page.reviewers) === JSON.stringify(["ZZTEST Reviewer", "ZZTEST Helper Two"]), "reviewers are stored as roster names, duplicates dropped", r.j);
+    ok(r.j.page.state === "building", "saving reviewers leaves the page state alone", r.j.page && r.j.page.state);
+    ok((await adminPage({ reviewers: ["ZZTEST Nobody"] })).s === 400, "a reviewer not on the roster is 400");
+    ok((await adminPage({ reviewers: ["ZZTEST Inactive"] })).s === 400, "an inactive person cannot be a reviewer");
+    ok((await adminPage({ reviewers: "ZZTEST Reviewer" })).s === 400, "reviewers must be a list");
+    ok((await adminPage({ reviewers: [42] })).s === 400, "reviewers must be names");
+    ok((await adminPage({ reviewers: Array.from({ length: 31 }, () => "ZZTEST Reviewer") })).s === 400, "more than 30 reviewers is 400");
+    let p = (await publicState(true)).j.pages.find((x) => x.slug === SLUG);
+    ok(p && p.reviewers.includes("ZZTEST Reviewer"), "reviewers show in public state");
+
+    // asks
+    const asks = [{ text: "ZZTEST Spring dates", people: ["ZZTEST Reviewer", "zztest helper two"] }, { text: "ZZTEST Anyone can answer" }];
+    r = await adminPage({ asks });
+    ok(r.s === 200 && r.j.page.asks.length === 2 && JSON.stringify(r.j.page.asks[0].people) === JSON.stringify(["ZZTEST Reviewer", "ZZTEST Helper Two"]) && Array.isArray(r.j.page.asks[1].people) && r.j.page.asks[1].people.length === 0, "asks saved with roster names (people optional)", r.j);
+    ok((await adminPage({ asks: [{ text: "hi", people: [] }] })).s === 400, "an ask under 3 characters is 400");
+    ok((await adminPage({ asks: [{ text: "x".repeat(201), people: [] }] })).s === 400, "an ask over 200 characters is 400");
+    ok((await adminPage({ asks: [{ text: "ZZTEST ask", people: ["ZZTEST Nobody"] }] })).s === 400, "an ask naming someone not on the roster is 400");
+    ok((await adminPage({ asks: [{ text: "ZZTEST same" }, { text: "zztest SAME" }] })).s === 400, "two asks with the same text is 400");
+    ok((await adminPage({ asks: Array.from({ length: 11 }, (_, i) => ({ text: "ZZTEST ask " + i })) })).s === 400, "more than 10 asks is 400");
+    ok((await adminPage({ asks: { text: "ZZTEST" } })).s === 400, "asks must be a list");
+    ok((await adminPage({ asks: ["ZZTEST"] })).s === 400, "each ask must be an object");
+    ok((await adminPage({ asks: Array.from({ length: 10 }, (_, i) => ({ text: "ZZTEST ask " + i })) })).s === 200, "10 asks is accepted");
+    r = await adminPage({ asks });
+    p = (await publicState(true)).j.pages.find((x) => x.slug === SLUG);
+    ok(p && p.asks.length === 2 && p.asks[0].text === "ZZTEST Spring dates", "asks show in public state");
+    ok((await api("admin_page", { body: { slug: SLUG, reviewers: [] } })).s === 401, "reviewers need the admin PIN");
+
+    // a rename in People carries over to reviewers and asks
+    const rn = await api("admin_person", { body: { id: A.j.person.id, name: "ZZTEST Reviewer Renamed" }, pin: PIN });
+    p = await zz();
+    ok(rn.s === 200 && p.reviewers.includes("ZZTEST Reviewer Renamed") && !p.reviewers.includes("ZZTEST Reviewer") && p.asks[0].people.includes("ZZTEST Reviewer Renamed"), "renaming a person updates page reviewers and asks", p.reviewers);
+    r = await adminPage({ reviewers: [], asks: [] });
+    ok(r.s === 200 && r.j.page.reviewers.length === 0 && r.j.page.asks.length === 0, "reviewers and asks can be cleared");
+
+    // page updates
+    ok((await api("admin_update", { body: { slug: SLUG, text: "ZZTEST update" } })).s === 401, "admin_update needs the admin PIN");
+    ok((await api("admin_update", { body: { slug: SLUG, text: "hi" }, pin: PIN })).s === 400, "an update under 3 characters is 400");
+    ok((await api("admin_update", { body: { slug: SLUG, text: "x".repeat(281) }, pin: PIN })).s === 400, "an update over 280 characters is 400");
+    ok((await api("admin_update", { body: { slug: "no-such-page", text: "ZZTEST nowhere" }, pin: PIN })).s === 404, "an update on an unknown page is 404");
+    const u1 = await api("admin_update", { body: { slug: SLUG, text: "  ZZTEST page:   new hero photo  " }, pin: PIN });
+    ok(u1.s === 200 && u1.j.event.kind === "page_update" && u1.j.event.slug === SLUG && u1.j.event.detail === "ZZTEST page: new hero photo" && u1.j.event.actor === "Daniel (Website)", "admin_update posts a page_update event", u1.j);
+    const u2 = await api("admin_update", { body: { slug: null, text: "ZZTEST board-wide update" }, pin: PIN });
+    ok(u2.s === 200 && u2.j.event.slug === null, "admin_update with no page posts a board-wide update", u2.j);
+    let pub = await publicState(true);
+    ok(pub.j.events.some((e) => e.id === u1.j.event.id && e.kind === "page_update") && pub.j.events.some((e) => e.id === u2.j.event.id), "page updates are in the public feed (test=1)");
+    const e1 = pub.j.events.find((e) => e.id === u1.j.event.id), e2 = pub.j.events.find((e) => e.id === u2.j.event.id);
+    ok(e1 && e1.text === "ZZTEST page: new hero photo" && e1.detail === "ZZTEST page: ZZTEST page: new hero photo.", "a page update's detail names the page, text keeps Daniel's words", e1);
+    ok(e2 && e2.text === "ZZTEST board-wide update" && e2.detail === "ZZTEST board-wide update.", "a board-wide update's detail is the sentence alone", e2);
+    ok(pub.j.events.filter((e) => e.kind === "page_update" && e.slug).every((e) => /^[^:]+: /.test(e.detail) && /[.!?]$/.test(e.detail)), "every page update names its page in plain words");
+    pub = await publicState(false);
+    ok(!pub.j.events.some((e) => e.id === u1.j.event.id || e.id === u2.j.event.id), "ZZTEST updates stay out of the real public feed");
+    const internal = (await activity()).find((e) => !PUBLIC_KINDS.includes(e.kind));
+    if (internal) ok((await api("admin_update", { body: { id: internal.id, delete: true }, pin: PIN })).s === 404, "admin_update delete only removes page updates");
+    ok((await api("admin_update", { body: { id: 0, delete: true }, pin: PIN })).s === 404, "deleting an unknown update is 404");
+    const d1 = await api("admin_update", { body: { id: u2.j.event.id, delete: true }, pin: PIN });
+    ok(d1.s === 200 && d1.j.deleted === true && !(await publicState(true)).j.events.some((e) => e.id === u2.j.event.id), "admin_update delete removes an update");
+
+    for (const x of [A, B, off]) await api("admin_person", { body: { id: x.j.person.id, delete: true }, pin: PIN });
+  }
+
   // ---------- approvals ----------
   {
     let a = await api("approve", { body: { slug: SLUG, name: "ZZTEST Ann" } });
@@ -316,7 +399,8 @@ try {
     ok(h.s === 200 && h.j.item.hidden === true, "admin_hide hides an item");
     pub = await publicState(true);
     ok(!pub.j.items.some((i) => i.id === c.j.item.id) && !pub.j.items.some((i) => i.id === rep.j.item.id), "hidden item and its replies leave public state");
-    ok(!pub.j.events.some((e) => e.detail.includes("ZZTEST Hide")), "hidden item's event leaves the feed");
+    ok(!pub.j.events.some((e) => e.detail.includes("ZZTEST Hide")), "hidden item's event is not in the public feed");
+    ok(!(await activity()).some((e) => e.detail.includes("ZZTEST Hide")), "hidden item's event leaves Daniel's activity list too");
     ok((await api("admin_hide", { body: { id: "00000000-0000-0000-0000-000000000000" }, pin: PIN })).s === 404, "hide unknown id is 404");
     ok((await resolve(c.j.item.id, "bogus")).s === 400, "resolve with a bad status is 400");
     ok((await resolve("00000000-0000-0000-0000-000000000000", "resolved")).s === 404, "resolve unknown id is 404");
@@ -349,7 +433,8 @@ try {
     let r = await adminPage({ state: "review" });
     ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H), "Board review starts a 48 hour countdown", r.j);
     let st = await publicState(true);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "countdown_started" && /Board review/.test(e.detail)), "countdown_started event written");
+    ok((await activity()).some((e) => e.slug === SLUG && e.kind === "countdown_started" && /Board review/.test(e.detail)), "countdown_started event written (admin activity)");
+    ok(!st.j.events.some((e) => e.kind === "countdown_started"), "countdown_started is not in the public feed");
 
     await api("approve", { body: { slug: SLUG, name: "ZZTEST Bob" } });
     let p = await zz();
@@ -363,8 +448,7 @@ try {
     r = await post({ kind: "suggestion", body: "ZZTEST tweak 2", name: "ZZTEST Sam" });
     p = await zz();
     ok(p.state === "review" && near(p.remaining_ms, 34 * H), "suggestion adds 24 hours back (10h to 34h)", p);
-    st = await publicState(true);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "time_added"), "time_added event written");
+    ok((await activity()).some((e) => e.slug === SLUG && e.kind === "time_added"), "time_added event written (admin activity)");
 
     const c1 = await post({ kind: "concern", body: "ZZTEST problem 1", name: "ZZTEST Cal" });
     p = await zz();
@@ -460,6 +544,9 @@ try {
     ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H) && starts.length === 1, "state review plus timer start writes one countdown event", starts.length);
     r = await adminPage({ state: "live", live_url: "https://www.blslittleleague.org/" });
     ok(r.s === 200 && r.j.page.state === "live" && r.j.page.remaining_ms === null && /^\d{4}-\d{2}-\d{2}$/.test(r.j.page.live_since) && r.j.page.live_url === "https://www.blslittleleague.org/", "Live sets live_since to today and keeps the live link");
+    st = await publicState(true);
+    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "live"), "a page going live is in the public feed");
+    ok(!(await publicState(false)).j.events.some((e) => e.slug === SLUG), "the test page's live event stays out of the public feed without test=1");
 
     // Expiry into a phase
     const ph = await api("admin_phase", { body: { name: "ZZTEST Phase", target_date: "2026-11-15", note: "ZZTEST", sort: 99 }, pin: PIN });
@@ -474,7 +561,8 @@ try {
     st = await publicState(true);
     p = st.j.pages.find((x) => x.slug === SLUG);
     ok(p.state === "scheduled" && p.remaining_ms === null, "a finished Board review becomes Scheduled for deployment on the next state read", p);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("ZZTEST Phase") && e.detail.includes("scheduled for deployment")), "scheduled event names the phase");
+    ok((await activity()).some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("ZZTEST Phase") && e.detail.includes("scheduled for deployment")), "scheduled event names the phase (admin activity)");
+    ok(!st.j.events.some((e) => e.kind === "scheduled"), "scheduled events are not in the public feed");
     await adminPage({ timer: "start" });
     await setDeadline(-1000);
     const t = await api("tick", { body: { no_digest: true }, cron: CRON });
@@ -493,8 +581,9 @@ try {
     await adminPage({ timer: "start" });
     await setDeadline(-1000);
     st = await publicState(true);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("next update")), "no phase means scheduled for the next update");
-    ok(!st.j.events.some((e) => /goes live in/i.test(e.detail)), "events are past tense with no live time");
+    const act = await activity();
+    ok(act.some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("next update")), "no phase means scheduled for the next update");
+    ok(!act.some((e) => /goes live in/i.test(e.detail)), "events are past tense with no live time");
   }
 
   // ---------- counts ----------
@@ -503,6 +592,7 @@ try {
     ok(p.counts.suggestion >= 3 && p.counts.concern >= 3 && p.counts.help >= 1 && p.counts.approve === 2, "counts by kind", p.counts);
     const pub = await publicState(true);
     ok(pub.j.events.length <= 20 && pub.j.items.length <= 500, "feed capped at 20 events, items at 500");
+    ok((await activity()).length <= 40, "admin activity capped at 40");
   }
 } catch (e) {
   fail++;

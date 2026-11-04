@@ -10,6 +10,9 @@
 // Page states (Coach 11/4): Building, Waiting on info, Board review (the 48 hour countdown), On hold (a concern paused the
 // clock), Scheduled for deployment (the clock ran out), Live. The running clock lives in ready_deadline (Board review only);
 // a frozen clock lives in hold_remaining_ms (On hold only).
+// Addendum 11/4: each page has reviewers (roster names) and asks ([{text, people}]). Public "What's new" is only
+// page_update events (Daniel's plain-words notes, admin_update) and live events; every other event kind is admin only
+// and comes back to Daniel as `activity`.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const H = 3600 * 1000;
@@ -40,7 +43,16 @@ const PIN_IP_MAX = 10;
 const PIN_ALL_MAX = 30;
 const EMAIL_HOUR_MAX = 20;
 const ITEM_COLS = "id, slug, kind, body, author_name, author_role, is_admin, parent_id, variant, pin_x, pin_y, pin_w, req_item, status, resolution_note, hidden, created_at, resolved_at, emailed_at";
-const PAGE_COLS = "slug, title, state, phase_id, ready_deadline, hold_remaining_ms, due_date, live_since, live_url, note, sort, updated_at";
+const PAGE_COLS = "slug, title, state, phase_id, ready_deadline, hold_remaining_ms, due_date, live_since, live_url, note, sort, updated_at, reviewers, asks";
+const EVENT_COLS = "id, slug, kind, detail, actor, item_id, created_at";
+// The only event kinds everyone sees. All others (state changes, countdowns, feedback activity) are admin only.
+const PUBLIC_EVENTS = ["page_update", "live"];
+const MAX_REVIEWERS = 30;
+const MAX_ASKS = 10;
+const UPDATE_MIN = 3;
+const UPDATE_MAX = 280;
+const ASK_MIN = 3;
+const ASK_MAX = 200;
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -59,7 +71,10 @@ type Page = {
   slug: string; title: string; state: string; phase_id: string | null; ready_deadline: string | null;
   hold_remaining_ms: number | null; due_date: string | null; live_since: string | null; live_url: string | null;
   note: string | null; sort: number; updated_at: string;
+  reviewers: string[]; asks: Ask[];
 };
+type Ask = { text: string; people: string[] };
+type Ev = { id: number; slug: string | null; kind: string; detail: string; actor: string; item_id: string | null; created_at: string };
 type Item = {
   id: string; slug: string | null; kind: string; body: string; author_name: string; author_role: string | null;
   is_admin: boolean; parent_id: string | null; variant: string | null; pin_x: number | null; pin_y: number | null;
@@ -454,6 +469,8 @@ function publicPage(p: Page, all: Item[] = [], now = Date.now()) {
   return {
     slug: p.slug, title: p.title, state: p.state, phase_id: p.phase_id, remaining_ms: remainingOf(p, now),
     due_date: p.due_date, live_since: p.live_since, live_url: p.live_url, note: p.note, sort: p.sort, updated_at: p.updated_at,
+    reviewers: Array.isArray(p.reviewers) ? p.reviewers : [],
+    asks: Array.isArray(p.asks) ? p.asks.map((a) => ({ text: a.text, people: Array.isArray(a.people) ? a.people : [] })) : [],
     counts: {
       approve: n("approve"), comment: n("comment"), suggestion: n("suggestion"), concern: n("concern"), help: n("help"),
       open: open("concern") + open("suggestion"), open_concern: open("concern"), open_suggestion: open("suggestion"),
@@ -471,14 +488,18 @@ async function pageWithCounts(slug: string): Promise<ReturnType<typeof publicPag
 
 async function buildState(admin: boolean, includeTest: boolean) {
   await expire();
-  const [pagesR, phasesR, peopleR, itemsR, eventsR] = await Promise.all([
+  const evQuery = () => db.from("bls_board_events").select(EVENT_COLS).order("created_at", { ascending: false }).order("id", { ascending: false });
+  const [pagesR, phasesR, peopleR, itemsR, eventsR, activityR] = await Promise.all([
     db.from("bls_board_pages").select(PAGE_COLS).order("sort").order("slug"),
     db.from("bls_board_phases").select("id, name, target_date, note, sort").order("sort").order("name"),
     db.from("bls_board_people").select("name, role, sort").eq("active", true).order("sort").order("name"),
     db.from("bls_board_items").select(ITEM_COLS).eq("hidden", false).order("created_at", { ascending: false }).limit(1000),
-    db.from("bls_board_events").select("id, slug, kind, detail, actor, item_id, created_at").order("created_at", { ascending: false }).order("id", { ascending: false }).limit(80),
+    // What's new: page updates and pages going live, for everyone
+    evQuery().in("kind", PUBLIC_EVENTS).limit(60),
+    // Daniel's "All activity": every event kind
+    admin ? evQuery().limit(150) : Promise.resolve({ data: [], error: null }),
   ]);
-  for (const r of [pagesR, phasesR, peopleR, itemsR, eventsR]) if (r.error) throw r.error;
+  for (const r of [pagesR, phasesR, peopleR, itemsR, eventsR, activityR]) if (r.error) throw r.error;
   const now = Date.now();
   const testOk = (slug: string | null, name: string | null) => includeTest || (!isTestSlug(slug) && !isTestName(name));
   let items = (itemsR.data || []) as Item[];
@@ -487,14 +508,28 @@ async function buildState(admin: boolean, includeTest: boolean) {
   items = items.filter((i) => !i.parent_id || visibleIds.has(i.parent_id));
   const pages = ((pagesR.data || []) as Page[]).filter((p) => includeTest || !isTestSlug(p.slug)).map((p) => publicPage(p, items, now));
   const listed = items.filter((i) => admin || i.kind !== "private").slice(0, 500).map(publicItem);
-  let events = (eventsR.data || []) as { id: number; slug: string | null; kind: string; detail: string; actor: string; item_id: string | null; created_at: string }[];
-  const evItemIds = [...new Set(events.map((e) => e.item_id).filter(Boolean))] as string[];
+  // A ZZTEST page update (test runs post them board-wide) only shows with test=1.
+  const evOk = (e: Ev) => testOk(e.slug, e.actor) && (includeTest || e.kind !== "page_update" || !isTestName(e.detail));
+  const events = ((eventsR.data || []) as Ev[]).filter((e) => PUBLIC_EVENTS.includes(e.kind) && evOk(e)).slice(0, 20);
+  let activity = (activityR.data || []) as Ev[];
+  const evItemIds = [...new Set(activity.map((e) => e.item_id).filter(Boolean))] as string[];
   if (evItemIds.length) {
     const { data: hid } = await db.from("bls_board_items").select("id").in("id", evItemIds).eq("hidden", true);
     const hidden = new Set((hid || []).map((h: { id: string }) => h.id));
-    events = events.filter((e) => !e.item_id || !hidden.has(e.item_id));
+    activity = activity.filter((e) => !e.item_id || !hidden.has(e.item_id));
   }
-  events = events.filter((e) => testOk(e.slug, e.actor)).slice(0, 20);
+  activity = activity.filter(evOk).slice(0, 40);
+  // A page update's detail names the page ("Champions: 2025 team photo approved for the page."), so a board page that
+  // prints detail alone still says which page changed. text is Daniel's words as he posted them.
+  const titles = new Map(((pagesR.data || []) as Page[]).map((p) => [p.slug, p.title]));
+  const evOut = (e: Ev) => {
+    const base = { id: e.id, slug: e.slug, kind: e.kind, detail: e.detail, actor: e.actor, created_at: e.created_at };
+    if (e.kind !== "page_update") return base;
+    const text = String(e.detail || "").trim();
+    const line = /[.!?]$/.test(text) ? text : text + ".";
+    const title = e.slug ? titles.get(e.slug) : null;
+    return { ...base, text, detail: title ? `${title}: ${line}` : line.charAt(0).toUpperCase() + line.slice(1) };
+  };
   return {
     ok: true,
     now: new Date(now).toISOString(),
@@ -503,7 +538,8 @@ async function buildState(admin: boolean, includeTest: boolean) {
     pages,
     phases: ((phasesR.data || []) as { name: string }[]).filter((p) => includeTest || !isTestName(p.name)),
     items: listed,
-    events: events.map((e) => ({ id: e.id, slug: e.slug, kind: e.kind, detail: e.detail, actor: e.actor, created_at: e.created_at })),
+    events: events.map(evOut),
+    ...(admin ? { activity: activity.map(evOut) } : {}),
   };
 }
 
@@ -655,11 +691,57 @@ function optDate(v: unknown, label: string): string | null {
   return s;
 }
 
+// Active roster, keyed by the lowercased name, so reviewers and ask names are stored exactly as the roster spells them.
+async function rosterNames(): Promise<Map<string, string>> {
+  const { data, error } = await db.from("bls_board_people").select("name").eq("active", true);
+  if (error) throw error;
+  return new Map((data || []).map((p: { name: string }) => [nameKey(p.name), p.name]));
+}
+function rosterList(v: unknown, roster: Map<string, string>, what: string): string[] {
+  if (v == null) return [];
+  if (!Array.isArray(v)) bad(`${what} must be a list of names.`);
+  const list = v as unknown[];
+  if (list.length > MAX_REVIEWERS) bad(`${what}: up to ${MAX_REVIEWERS} names.`);
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const n of list) {
+    if (typeof n !== "string") bad(`${what} must be a list of names.`);
+    const typed = cleanLabel(n);
+    const canon = roster.get(nameKey(typed));
+    if (!canon) bad(`${cpSlice(typed, 80) || "That name"} is not on the board list.`);
+    const k = nameKey(canon!);
+    if (!seen.has(k)) { seen.add(k); out.push(canon!); }
+  }
+  return out;
+}
+function readAsks(v: unknown, roster: Map<string, string>): Ask[] {
+  if (v == null) return [];
+  if (!Array.isArray(v)) bad("Asks must be a list.");
+  const list = v as unknown[];
+  if (list.length > MAX_ASKS) bad(`Up to ${MAX_ASKS} asks per page.`);
+  const seen = new Set<string>();
+  return list.map((a) => {
+    if (!a || typeof a !== "object" || Array.isArray(a)) bad("Each ask needs its text and the people to ask.");
+    const r = a as Record<string, unknown>;
+    const text = oneLine(multiLine(r.text));
+    if (cpLen(text) < ASK_MIN || cpLen(text) > ASK_MAX) bad(`Each ask must be ${ASK_MIN} to ${ASK_MAX} characters.`);
+    if (linkCount(text) > MAX_LINKS) bad("Too many links. Please keep it to 5 or fewer.");
+    if (seen.has(text.toLowerCase())) bad("Two asks have the same text.");
+    seen.add(text.toLowerCase());
+    return { text, people: rosterList(r.people, roster, "People for an ask") };
+  });
+}
+
 async function adminPage(b: Record<string, unknown>) {
   const slug = String(b.slug || "");
   let p = await getPage(slug);
   if (!p) throw new HttpError(404, "That page is not on the board.");
   const extra: Partial<Page> = {};
+  if ("reviewers" in b || "asks" in b) {
+    const roster = await rosterNames();
+    if ("reviewers" in b) extra.reviewers = rosterList(b.reviewers, roster, "Reviewers");
+    if ("asks" in b) extra.asks = readAsks(b.asks, roster);
+  }
   if ("phase_id" in b) {
     const id = b.phase_id == null || b.phase_id === "" ? null : String(b.phase_id);
     if (id) {
@@ -768,6 +850,30 @@ async function adminReply(b: Record<string, unknown>) {
   return { ok: true, item: publicItem(data as Item) };
 }
 
+// A page update: one short line in plain words about a real change to a page (or board-wide when slug is null).
+// It is the public "What's new". {id, delete: true} removes one.
+async function adminUpdate(b: Record<string, unknown>) {
+  if (b.delete === true) {
+    const id = Number(b.id);
+    if (!Number.isSafeInteger(id) || id <= 0) throw new HttpError(404, "Could not find that update.");
+    const { data, error } = await db.from("bls_board_events").delete().eq("id", id).eq("kind", "page_update").select("id");
+    if (error) throw error;
+    if (!data?.length) throw new HttpError(404, "Could not find that update.");
+    return { ok: true, deleted: true };
+  }
+  const slug = b.slug == null || b.slug === "" ? null : String(b.slug);
+  const page = slug ? await getPage(slug) : null;
+  if (slug && !page) throw new HttpError(404, "That page is not on the board.");
+  const text = oneLine(multiLine(b.text));
+  if (cpLen(text) < UPDATE_MIN || cpLen(text) > UPDATE_MAX) bad(`An update must be ${UPDATE_MIN} to ${UPDATE_MAX} characters.`);
+  if (linkCount(text) > MAX_LINKS) bad("Too many links. Please keep it to 5 or fewer.");
+  const { data, error } = await db.from("bls_board_events")
+    .insert({ slug, kind: "page_update", detail: text, actor: ADMIN_NAME }).select(EVENT_COLS).single();
+  if (error) throw error;
+  const e = data as Ev;
+  return { ok: true, event: { id: e.id, slug: e.slug, kind: e.kind, detail: e.detail, actor: e.actor, created_at: e.created_at } };
+}
+
 async function adminHide(b: Record<string, unknown>) {
   const item = await getItem(String(b.id || ""));
   if (!item) throw new HttpError(404, "Could not find that item.");
@@ -851,6 +957,11 @@ async function adminPerson(b: Record<string, unknown>) {
     patch.sort = ((last?.[0]?.sort as number) ?? 0) + 1;
   }
   if ("active" in b) patch.active = b.active !== false;
+  let oldName = "";
+  if (id && typeof patch.name === "string") {
+    const { data: was } = await db.from("bls_board_people").select("name").eq("id", id).maybeSingle();
+    oldName = was?.name || "";
+  }
   const q = id
     ? db.from("bls_board_people").update(patch).eq("id", id).select("id, name, role, sort, active, created_at")
     : db.from("bls_board_people").insert(patch).select("id, name, role, sort, active, created_at");
@@ -860,7 +971,22 @@ async function adminPerson(b: Record<string, unknown>) {
     throw error;
   }
   if (!data?.length) throw new HttpError(404, "Could not find that person.");
+  if (oldName && oldName !== data[0].name) await renameOnPages(oldName, data[0].name as string);
   return { ok: true, person: data[0], people: await listPeople() };
+}
+
+// A rename in the People panel carries over to every page's reviewers and asks.
+async function renameOnPages(oldName: string, newName: string) {
+  const { data, error } = await db.from("bls_board_pages").select("slug, reviewers, asks");
+  if (error) throw error;
+  const k = nameKey(oldName);
+  const swap = (list: string[]) => (list || []).map((n) => (nameKey(n) === k ? newName : n));
+  for (const p of (data || []) as { slug: string; reviewers: string[]; asks: Ask[] }[]) {
+    const reviewers = swap(p.reviewers);
+    const asks = (p.asks || []).map((a) => ({ ...a, people: swap(a.people) }));
+    if (JSON.stringify(reviewers) === JSON.stringify(p.reviewers || []) && JSON.stringify(asks) === JSON.stringify(p.asks || [])) continue;
+    await db.from("bls_board_pages").update({ reviewers, asks }).eq("slug", p.slug);
+  }
 }
 
 // ---------- tick + digest ----------
@@ -965,6 +1091,7 @@ Deno.serve(async (req) => {
       case "admin_resolve": await requireAdmin(req); postOnly(); await expire(); return json(await adminResolve(b));
       case "admin_reply": await requireAdmin(req); postOnly(); return json(await adminReply(b));
       case "admin_hide": await requireAdmin(req); postOnly(); return json(await adminHide(b));
+      case "admin_update": await requireAdmin(req); postOnly(); return json(await adminUpdate(b));
       case "admin_phase": await requireAdmin(req); postOnly(); return json(await adminPhase(b));
       case "admin_person": await requireAdmin(req); postOnly(); return json(await adminPerson(b));
     }

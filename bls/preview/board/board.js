@@ -32,7 +32,7 @@
   };
   var ORDER = ['building', 'waiting', 'review', 'hold', 'scheduled', 'live'];
   // short words for the preview bar, phase chips and phase summaries
-  var SHORT = { building: 'Building', waiting: 'Waiting', review: 'Review', hold: 'On hold', scheduled: 'Scheduled', live: 'Live' };
+  var SHORT = { building: 'Building', waiting: 'Waiting', review: 'Board review', hold: 'On hold', scheduled: 'Scheduled', live: 'Live' };
   var SUMW = { building: 'building', waiting: 'waiting on info', review: 'in board review', hold: 'on hold', scheduled: 'scheduled for deployment', live: 'live' };
   var PUBLIC_EMAIL = 'Everyone on the board can read it. Daniel also gets an email.';
   var KINDS = {
@@ -212,6 +212,63 @@
     var me = lc(S.name);
     return !!me && approversOf(p).some(function (n) { return lc(n) === me; });
   }
+  // Reviewers (board members who should look a page over) and asks (questions for named people). Daniel sets both.
+  function reviewersOf(p) { return p && Array.isArray(p.reviewers) ? p.reviewers : []; }
+  function asksOf(p) { return p && Array.isArray(p.asks) ? p.asks.filter(function (a) { return a && a.text; }) : []; }
+  function peopleOf(a) { return a && Array.isArray(a.people) ? a.people : []; }
+  function isMe(n) { return !!S.name && lc(n) === lc(S.name); }
+  // a board member who picked a name (Daniel in admin mode has the Inbox instead)
+  function member() { return !S.admin && !!S.name; }
+  function iReview(p) { return member() && reviewersOf(p).some(isMe); }
+  function myAsks(p) { return member() ? asksOf(p).filter(function (a) { return peopleOf(a).some(isMe); }) : []; }
+  function iAnswered(p, a) {
+    return topItems(p.slug).some(function (i) { return i.kind === 'help' && !i.is_admin && i.req_item === a.text && isMe(i.author_name); });
+  }
+  // a help item from one of the people an ask names is their answer, not an offer to help
+  function askFor(i) {
+    var p = i && i.slug != null ? pageOf(i.slug) : null;
+    if (!p || !i.req_item || i.kind !== 'help') return null;
+    for (var k = 0, a = asksOf(p); k < a.length; k++) if (a[k].text === i.req_item) return a[k];
+    return null;
+  }
+  function isAnswer(i) {
+    var a = askFor(i);
+    return !!a && !i.is_admin && peopleOf(a).some(function (n) { return lc(n) === lc(i.author_name); });
+  }
+  // who answered an ask (people it names) and who else offered to help with it
+  function askReplies(p, a) {
+    var asked = peopleOf(a).map(lc), out = { answered: [], offered: [] }, seen = {};
+    topItems(p.slug).slice().reverse().forEach(function (i) {
+      if (i.kind !== 'help' || i.req_item !== a.text) return;
+      var n = i.is_admin ? ADMIN_NAME : i.author_name;
+      if (!n || seen[lc(n)]) return;
+      seen[lc(n)] = 1;
+      if (!i.is_admin && asked.indexOf(lc(n)) >= 0) out.answered.push(n);
+      else if (i.status === 'open') out.offered.push(n);
+    });
+    return out;
+  }
+  function askDid(p, a, cls) {
+    var r = askReplies(p, a), bits = [];
+    if (r.answered.length) bits.push(andList(r.answered) + ' answered.');
+    if (r.offered.length) bits.push(andList(r.offered) + ' offered to help.');
+    return bits.length ? h('div', { class: cls, text: bits.join(' ') }) : null;
+  }
+  function firstName(n) { return String(n || '').trim().split(/\s+/)[0] || ''; }
+  function andList(names) {
+    names = (names || []).filter(Boolean);
+    if (names.length < 3) return names.join(' and ');
+    return names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+  }
+  function sr(t) { return h('span', { class: 'blsb-sr', text: t }); }
+  function roster() { return (S.d && S.d.people) || []; }
+  function inRosterOrder(names) {
+    var order = roster().map(function (r) { return lc(r.name); });
+    return names.slice().sort(function (a, b) {
+      var x = order.indexOf(lc(a)), y = order.indexOf(lc(b));
+      return (x < 0 ? 999 : x) - (y < 0 ? 999 : y);
+    });
+  }
   // One counting rule everywhere (bar badge, sheet heading, card): top-level items except approvals.
   function discussionCount(slug) {
     return topItems(slug).filter(function (i) { return i.kind !== 'approve'; }).length;
@@ -339,17 +396,15 @@
   // ---------- shared pieces ----------
   // short: the compact preview bar. Its chip says "Scheduled" and leaves the clock out (the bar puts the time on the
   // line under the chip), so the chip fits next to Feedback on a phone.
+  // Full chips read as page status: "Board review: 1 day 22 hours left", "On hold: paused".
   function chip(p, extra, short) {
     var st = stKey(p);
-    var c = h('span', { class: 'blsb-chip blsb-s-' + st + (extra ? ' ' + extra : '') }, [
-      h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }),
-      h('span', { class: 'blsb-chip-t', text: short && st === 'scheduled' ? SHORT.scheduled : STATES[st].label })
-    ]);
-    if (hasClock(p) && !short) {
-      c.appendChild(h('span', { class: 'blsb-chip-sep', 'aria-hidden': 'true', text: '·' }));
-      c.appendChild(h('span', { class: 'blsb-chip-cd', 'data-cd': p.slug, 'data-fmt': st === 'hold' ? 'shortleft' : 'short' }));
-    }
-    return c;
+    var t;
+    if (!short && st === 'review' && hasClock(p)) t = h('span', { class: 'blsb-chip-t' }, ['Board review: ', h('span', { class: 'blsb-chip-cd', 'data-cd': p.slug, 'data-fmt': 'longleft' })]);
+    else if (!short && st === 'hold' && hasClock(p)) t = h('span', { class: 'blsb-chip-t', text: 'On hold: paused' });
+    else t = h('span', { class: 'blsb-chip-t', text: short && st === 'scheduled' ? SHORT.scheduled : STATES[st].label });
+    var long = !short && hasClock(p) && st === 'review';
+    return h('span', { class: 'blsb-chip blsb-s-' + st + (long ? ' blsb-chip-clock' : '') + (extra ? ' ' + extra : '') }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), t]);
   }
   function cdSpan(p, fmt) { return h('span', { class: 'blsb-cd', 'data-cd': p.slug, 'data-fmt': fmt || 'long' }); }
 
@@ -357,8 +412,9 @@
     var st = stKey(p), s = h('span', { class: 'blsb-mean-t' });
     var rem = remaining(p);
     if (st === 'review') {
+      // the chip next to this line already shows the time left
       if (rem == null) add(s, STATES.review.mean);
-      else add(s, ['Board review: ', cdSpan(p, 'long'), ' left to approve, suggest a change, or raise a concern. Then it is scheduled for deployment.']);
+      else add(s, 'Approve, suggest a change, or raise a concern before the time runs out.');
     } else if (st === 'hold') {
       if (rem != null) add(s, ['A concern paused the Board review clock with ', cdSpan(p, 'long'), ' left. Daniel is looking at it.']);
       else add(s, 'Paused while Daniel looks at this page.');
@@ -387,7 +443,7 @@
       var rem = remaining(p);
       if (rem == null) { el.textContent = ''; return; }
       var f = el.getAttribute('data-fmt');
-      var t = f === 'long' ? fmtLong(rem) : fmtShort(rem) + (f === 'shortleft' ? ' left' : '');
+      var t = f === 'long' ? fmtLong(rem) : f === 'longleft' ? fmtLong(rem) + ' left' : fmtShort(rem) + (f === 'shortleft' ? ' left' : '');
       if (el.textContent !== t) el.textContent = t;
     });
     if (!S.expiring && pages().some(function (p) { return running(p) && remaining(p) <= 0; })) {
@@ -626,7 +682,8 @@
 
   // ---------- composer ----------
   function Composer(o) {
-    var c = { slug: o.slug == null ? null : o.slug, kind: o.kinds[0], reply: null, req: null, spot: null };
+    // ans: answering one of the person's own asks (an answer, not an offer to help)
+    var c = { slug: o.slug == null ? null : o.slug, kind: o.kinds[0], reply: null, req: null, ans: false, spot: null };
     var btns = {};
     var kindsEl = null;
     if (o.kinds.length > 1) {
@@ -656,9 +713,9 @@
     function say(t, bad) { msg.textContent = t || ''; msg.classList.toggle('blsb-err', !!bad); }
     c.say = say;
     c.focus = function () { try { ta.focus({ preventScroll: false }); } catch (e) { ta.focus(); } };
-    c.setKind = function (k) { if (o.kinds.indexOf(k) >= 0) c.kind = k; if (k !== 'help') c.req = null; c.refresh(); };
+    c.setKind = function (k) { if (o.kinds.indexOf(k) >= 0) c.kind = k; if (k !== 'help') { c.req = null; c.ans = false; } c.refresh(); };
     c.setReply = function (item) { c.reply = item ? { id: item.id, name: item.author_name, kind: item.kind } : null; c.refresh(); if (item) c.focus(); };
-    c.setReq = function (text) { c.req = text || null; if (text) c.kind = 'help'; c.refresh(); };
+    c.setReq = function (text, answer) { c.req = text || null; c.ans = !!(text && answer); if (text) c.kind = 'help'; c.refresh(); };
     c.setSpot = function (spot) { c.spot = spot; c.refresh(); };
     c.refresh = function () {
       var p = c.slug != null ? pageOf(c.slug) : null;
@@ -666,23 +723,27 @@
       // Daniel only posts plain comments (his posts show as Daniel (Website)); the other kinds are for the board.
       var adminPlain = S.admin && o.kinds.indexOf('comment') >= 0;
       if (adminPlain && c.kind !== 'comment') { c.kind = 'comment'; c.req = null; }
+      if (c.kind !== 'help' || !c.req) c.ans = false;
+      var answering = c.ans && !c.reply;
       Object.keys(btns).forEach(function (k) { btns[k].setAttribute('aria-pressed', k === c.kind ? 'true' : 'false'); });
-      if (kindsEl) kindsEl.hidden = !!c.reply || adminPlain;
+      if (kindsEl) kindsEl.hidden = !!c.reply || adminPlain || answering;
       var kh = KINDS[c.kind] || KINDS.comment;
       var t = kh.hint;
-      if (clock && c.kind === 'suggestion') t = 'A change idea. Adds 24 hours back to Board review (never more than 48 hours left). ' + PUBLIC_EMAIL;
-      if (clock && c.kind === 'concern') t = 'Something wrong or blocking. Puts the page On hold and stops the Board review clock. ' + PUBLIC_EMAIL;
+      if (clock && c.kind === 'suggestion') t = 'A change idea. Gives the board more time to look. ' + PUBLIC_EMAIL;
+      if (clock && c.kind === 'concern') t = 'Something wrong. The page waits until Daniel answers. ' + PUBLIC_EMAIL;
+      if (answering) t = 'Everyone on the board can read your answer. Daniel gets an email.';
       if (adminPlain && !c.reply) t = 'Your comment shows as ' + ADMIN_NAME + '. Everyone on the board can read it.';
       if (c.reply) t = S.admin ? 'Your reply shows as ' + ADMIN_NAME + '.' : 'Your reply shows under ' + (c.reply.name || 'this item') + '.';
       hint.textContent = o.hint || t;
-      ta.placeholder = c.reply ? 'Your reply' : (o.placeholder || kh.ph);
+      ta.placeholder = c.reply ? 'Your reply' : answering ? 'Your answer' : (o.placeholder || kh.ph);
+      if (!send.disabled) send.textContent = answering ? 'Send answer' : (o.sendText || 'Send');
       clear(ctx);
       if (c.reply) {
         ctx.appendChild(h('div', { class: 'blsb-ctx-row' }, [h('span', { text: 'Replying to ' }), h('b', { text: c.reply.name || 'this item' }),
           h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Cancel reply', onclick: function () { c.setReply(null); } })]));
       }
       if (c.req && !c.reply) {
-        ctx.appendChild(h('div', { class: 'blsb-ctx-row' }, [h('span', { text: 'About: ' }), h('span', { class: 'blsb-ctx-q', text: c.req }),
+        ctx.appendChild(h('div', { class: 'blsb-ctx-row' }, [h('span', { text: answering ? 'Your answer to: ' : 'About: ' }), h('span', { class: 'blsb-ctx-q', text: c.req }),
           h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Remove', onclick: function () { c.setReq(null); } })]));
       }
       if (c.spot && !c.reply) {
@@ -696,11 +757,12 @@
     };
     c.send = function () {
       var body = ta.value.replace(/\s+$/, '').replace(/^\s+/, '');
-      if (!body && !(c.kind === 'help' && c.req && !c.reply)) { say('Type a message first.', true); ta.focus(); return; }
+      if (!body && !(c.kind === 'help' && c.req && !c.reply && !c.ans)) { say(c.ans && !c.reply ? 'Type your answer first.' : 'Type a message first.', true); ta.focus(); return; }
       if (body.length > MAX_BODY) { say('Please keep it under ' + MAX_BODY + ' characters.', true); return; }
       if ((body.match(/https?:\/\/|www\./gi) || []).length > 5) { say('Please keep it to 5 links or fewer.', true); return; }
       if (!S.admin && !S.name) { openWho(function () { c.send(); }, 'comment'); return; }
       var kind = c.reply ? 'reply' : c.kind;
+      var wasAns = c.ans && !c.reply;
       var req;
       if (c.reply && S.admin) {
         req = api('admin_reply', { parent_id: c.reply.id, body: body });
@@ -715,9 +777,10 @@
       say('');
       req.then(function (r) {
         ta.value = '';
-        c.reply = null; c.spot = null; c.req = null; c.kind = o.kinds[0];
+        c.reply = null; c.spot = null; c.req = null; c.ans = false; c.kind = o.kinds[0];
+        send.disabled = false;
         c.refresh();
-        var done = kind === 'private' ? 'Sent. Only Daniel can see it.' : (kind === 'concern' || kind === 'suggestion' || kind === 'help') ? 'Sent. Daniel gets an email. Thank you.' : 'Sent. Thank you.';
+        var done = kind === 'private' ? 'Sent. Only Daniel can see it.' : wasAns ? 'Answer sent. Daniel gets an email. Thank you.' : (kind === 'concern' || kind === 'suggestion' || kind === 'help') ? 'Sent. Daniel gets an email. Thank you.' : 'Sent. Thank you.';
         say(done);
         toast(done);
         if (r && r.item && S.d && S.d.items && kind !== 'private') S.d.items.unshift(r.item);
@@ -726,7 +789,7 @@
         return load();
       }, function (e) {
         say(errText(e), true);
-      }).then(function () { send.disabled = false; send.textContent = o.sendText || 'Send'; });
+      }).then(function () { send.disabled = false; send.textContent = c.ans && !c.reply ? 'Send answer' : (o.sendText || 'Send'); });
     };
     c.refresh();
     return c;
@@ -826,7 +889,8 @@
   }
   function itemEl(i, comp, opts) {
     var el = h('div', { class: 'blsb-item blsb-i-' + i.kind + (i.status && i.status !== 'open' ? ' blsb-closed' : ''), id: 'blsb-i-' + i.id });
-    var head = h('div', { class: 'blsb-item-h' }, [badge(i.kind)]);
+    var ans = isAnswer(i);
+    var head = h('div', { class: 'blsb-item-h' }, [ans ? h('span', { class: 'blsb-badge blsb-b-help', text: 'Answer' }) : badge(i.kind)]);
     var sl = spotLink(i);
     if (sl) {
       if (sl.tagName === 'BUTTON') sl.addEventListener('click', function () { showPin(i.id); });
@@ -836,7 +900,7 @@
     if (i.status && i.status !== 'open' && STATUS[i.status]) head.appendChild(h('span', { class: 'blsb-st blsb-st-' + i.status, text: STATUS[i.status] }));
     el.appendChild(head);
     el.appendChild(byline(i));
-    if (i.req_item) el.appendChild(h('div', { class: 'blsb-item-req' }, [h('span', { text: 'About: ' }), h('span', { text: i.req_item })]));
+    if (i.req_item) el.appendChild(h('div', { class: 'blsb-item-req' }, [h('span', { text: ans ? 'Answer to: ' : 'About: ' }), h('span', { text: i.req_item })]));
     if (i.body) el.appendChild(h('div', { class: 'blsb-body', text: i.body }));
     if (i.status && i.status !== 'open' && (STATUS[i.status] || i.resolution_note)) {
       el.appendChild(h('div', { class: 'blsb-res' }, [h('b', { text: 'Daniel: ' }), h('span', { text: (STATUS[i.status] || 'Resolved') + '.' + (i.resolution_note ? ' ' + i.resolution_note : '') })]));
@@ -881,6 +945,36 @@
   }
 
   // ---------- approvals ----------
+  // Toggles the picked person's approval on a page. Resolves to true (approved) or false (removed).
+  function approveCall(p, note) {
+    var mine = iApproved(p);
+    var body = { slug: p.slug, name: S.name, role: S.role || null };
+    if (!mine && note) body.note = note;
+    return api('approve', body).then(function (r) {
+      var on = r && r.approved != null ? !!r.approved : !mine;
+      var me = lc(S.name);
+      var list = approversOf(p).filter(function (n) { return lc(n) !== me; });
+      if (on) list.push(S.name);
+      p.approvers = list;
+      if (p.counts) p.counts.approve = list.length;
+      toast(on ? 'Approved. Thank you.' : 'Your approval is removed.');
+      renderAll();
+      load();
+      return on;
+    }, function (e) { toast(errText(e)); throw e; });
+  }
+  // A small Approve / Approved toggle for lists ("Please look these over").
+  function approveToggle(p) {
+    var mine = iApproved(p);
+    var b = h('button', { type: 'button', class: 'blsb-act blsb-aptg' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' },
+      [mine ? 'Approved' : 'Approve', sr(' ' + (p.title || titleOf(p.slug)))]);
+    b.addEventListener('click', function () {
+      if (!S.name) { openWho(function () { b.click(); }, 'approval'); return; }
+      b.disabled = true;
+      approveCall(p).catch(function () {}).then(function () { b.disabled = false; });
+    });
+    return b;
+  }
   function approveBlock(p) {
     var box = h('div', { class: 'blsb-appr' });
     var names = approversOf(p);
@@ -889,28 +983,15 @@
       var noteId = uid();
       var note = h('input', { id: noteId, class: 'blsb-in', type: 'text', maxlength: '500', placeholder: 'Optional note with your approval' });
       var noteWrap = h('div', { class: 'blsb-appr-note', hidden: !S.open['note:' + p.slug] || mine }, [h('label', { class: 'blsb-sr', for: noteId, text: 'Note with your approval' }), note]);
-      var clock = hasClock(p);
       var btn = h('button', { type: 'button', class: 'blsb-approve' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' }, [
         h('span', { class: 'blsb-approve-t', text: mine ? 'You approved this page' : 'Approve this page' }),
-        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : clock ? 'One tap. The Board review clock does not change.' : 'One tap. Tells Daniel this page looks good to you.' })
+        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : 'One tap. Tells Daniel this page looks good to you.' })
       ]);
       btn.addEventListener('click', function () {
         if (!S.name) { openWho(function () { btn.click(); }, 'approval'); return; }
         btn.disabled = true;
-        var body = { slug: p.slug, name: S.name, role: S.role || null };
-        if (!mine && note.value.trim()) body.note = note.value.trim();
-        api('approve', body).then(function (r) {
-          var on = r && r.approved != null ? !!r.approved : !mine;
-          var me = lc(S.name);
-          var list = approversOf(p).filter(function (n) { return lc(n) !== me; });
-          if (on) list.push(S.name);
-          p.approvers = list;
-          if (p.counts) p.counts.approve = list.length;
-          S.open['note:' + p.slug] = false;
-          toast(on ? 'Approved. Thank you.' : 'Your approval is removed.');
-          renderAll();
-          return load();
-        }, function (e) { toast(errText(e)); }).then(function () { btn.disabled = false; });
+        S.open['note:' + p.slug] = false;
+        approveCall(p, note.value.trim()).catch(function () {}).then(function () { btn.disabled = false; });
       });
       var noteBtn = mine ? null : h('button', { type: 'button', class: 'blsb-linkbtn', text: noteWrap.hidden ? 'Add a note' : 'No note', onclick: function () {
         S.open['note:' + p.slug] = noteWrap.hidden; noteWrap.hidden = !noteWrap.hidden; this.textContent = noteWrap.hidden ? 'Add a note' : 'No note';
@@ -947,7 +1028,7 @@
     if (to === 'live') return 'Mark this page Live' + (p.live_since ? '' : ' as of today') + '?';
     return 'Change this page to ' + STATES[to].label + '?' + (clock ? ' This clears the Board review clock.' : '');
   }
-  function adminControls(p) {
+  function adminControls(p, key) {
     var box = h('div', { class: 'blsb-adm' });
     var sid = uid(), pid = uid(), did = uid();
     var sel = trackDirty(h('select', { id: sid, class: 'blsb-sel' }, ORDER.map(function (k) { return h('option', { value: k, selected: k === p.state, text: STATES[k].label }); })), p.state);
@@ -1009,10 +1090,132 @@
       h('div', { class: 'blsb-field' }, [h('label', { class: 'blsb-label', for: luId, text: 'Live link' }), url])
     ]));
     add(box, h('div', { class: 'blsb-adm-timer' }, [save]));
+    add(box, [reviewersEditor(p, key), asksEditor(p, key), updateBox(p.slug, false)]);
     return box;
   }
+  // Roster names as toggle pills. Names saved on the page but no longer on the roster still show, so Daniel can drop them.
+  function pillPicker(selected, onChange, label) {
+    var sel = selected.slice();
+    var names = roster().map(function (r) { return r.name; });
+    sel.forEach(function (n) { if (!names.some(function (m) { return lc(m) === lc(n); })) names.push(n); });
+    var wrap = h('div', { class: 'blsb-pills', role: 'group', 'aria-label': label });
+    names.forEach(function (n) {
+      var on = sel.some(function (m) { return lc(m) === lc(n); });
+      var b = h('button', { type: 'button', class: 'blsb-pill', 'aria-pressed': on ? 'true' : 'false', text: n });
+      b.addEventListener('click', function () {
+        var at = -1;
+        sel.forEach(function (m, k) { if (lc(m) === lc(n)) at = k; });
+        if (at >= 0) sel.splice(at, 1); else sel.push(n);
+        b.setAttribute('aria-pressed', at >= 0 ? 'false' : 'true');
+        onChange(sel.slice());
+      });
+      wrap.appendChild(b);
+    });
+    if (!names.length) wrap.appendChild(h('p', { class: 'blsb-muted blsb-small', text: 'The board list is empty. Add people in the People tab.' }));
+    return wrap;
+  }
+  function sameList(a, b) { return JSON.stringify(a.map(lc).sort()) === JSON.stringify(b.map(lc).sort()); }
+  function subEditor(key, title) {
+    var det = h('details', { class: 'blsb-subed', open: !!S.open[key] }, [h('summary', { text: title })]);
+    det.addEventListener('toggle', function () { S.open[key] = det.open; });
+    return det;
+  }
+  function reviewersEditor(p, key) {
+    var saved = reviewersOf(p);
+    var det = subEditor('rev:' + key, 'Reviewers (' + saved.length + ')');
+    var draft = saved.slice();
+    var save = h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'Save reviewers', hidden: true });
+    var picker = pillPicker(saved, function (list) {
+      draft = list;
+      var changed = !sameList(draft, saved);
+      det.classList.toggle('blsb-dirty', changed); // keeps the next refresh from wiping the picks
+      save.hidden = !changed;
+    }, 'Reviewers for ' + p.title);
+    save.addEventListener('click', function () {
+      save.disabled = true;
+      det.classList.remove('blsb-dirty');
+      adminPage(p, { reviewers: inRosterOrder(draft) }, 'Reviewers saved.').catch(function () { det.classList.add('blsb-dirty'); save.disabled = false; });
+    });
+    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Board members who should look this page over. It shows in their For you list.' }), picker,
+      h('div', { class: 'blsb-adm-timer' }, [save])]);
+    return det;
+  }
+  function asksEditor(p, key) {
+    var saved = asksOf(p).map(function (a) { return { text: a.text, people: peopleOf(a).slice() }; });
+    var draft = saved.map(function (a) { return { text: a.text, people: a.people.slice() }; });
+    var det = subEditor('asks:' + key, 'Asks (' + saved.length + ')');
+    var list = h('div', { class: 'blsb-asked' });
+    var save = h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'Save asks', hidden: true });
+    var addB = h('button', { type: 'button', class: 'blsb-mini', text: 'Add an ask' });
+    function norm(arr) { return JSON.stringify(arr.map(function (a) { return [String(a.text || '').trim().replace(/\s+/g, ' '), a.people.map(lc).sort()]; })); }
+    function changed() {
+      var c = norm(draft) !== norm(saved);
+      det.classList.toggle('blsb-dirty', c);
+      save.hidden = !c;
+    }
+    function draw() {
+      clear(list);
+      if (!draft.length) list.appendChild(h('p', { class: 'blsb-muted blsb-small', text: 'No asks on this page.' }));
+      draft.forEach(function (a, i) {
+        var tid = uid();
+        var inp = h('input', { id: tid, class: 'blsb-in', type: 'text', maxlength: '200', value: a.text, placeholder: 'What do you need to know?' });
+        inp.addEventListener('input', function () { a.text = inp.value; changed(); });
+        list.appendChild(h('div', { class: 'blsb-ask-ed' }, [
+          h('label', { class: 'blsb-label', for: tid, text: 'Ask ' + (i + 1) }), inp,
+          h('div', { class: 'blsb-label', text: 'Who to ask' }),
+          pillPicker(a.people, function (ppl) { a.people = ppl; changed(); }, 'Who to ask, ask ' + (i + 1)),
+          h('div', { class: 'blsb-adm-timer' }, [h('button', { type: 'button', class: 'blsb-mini blsb-mini-warn', text: 'Remove this ask', onclick: function () { draft.splice(i, 1); draw(); changed(); } })])
+        ]));
+      });
+      addB.hidden = draft.length >= 10;
+    }
+    addB.addEventListener('click', function () {
+      draft.push({ text: '', people: [] });
+      draw(); changed();
+      var ins = $$('input', list);
+      if (ins.length) ins[ins.length - 1].focus();
+    });
+    save.addEventListener('click', function () {
+      var out = draft.map(function (a) { return { text: String(a.text || '').trim().replace(/\s+/g, ' '), people: inRosterOrder(a.people) }; });
+      if (out.some(function (a) { return a.text.length < 3 || a.text.length > 200; })) { toast('Each ask needs 3 to 200 characters.'); return; }
+      save.disabled = true;
+      det.classList.remove('blsb-dirty');
+      adminPage(p, { asks: out }, 'Asks saved.').catch(function () { det.classList.add('blsb-dirty'); save.disabled = false; });
+    });
+    draw();
+    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Short questions for named board members. They show in that person\'s For you list and under Needs information.' }),
+      list, h('div', { class: 'blsb-adm-timer' }, [addB, save])]);
+    return det;
+  }
+  // "Post an update": one short line about a real change, shown to everyone in What's new.
+  // slug null with pick: the index box, with a page picker (Board-wide by default).
+  function updateBox(slug, pick) {
+    var id = uid(), sid = uid();
+    var sel = pick ? trackDirty(h('select', { id: sid, class: 'blsb-sel' }, [h('option', { value: '', text: 'Board-wide (not one page)' })].concat(pages().map(function (p) { return h('option', { value: p.slug, text: p.title }); }))), '') : null;
+    var inp = trackDirty(h('input', { id: id, class: 'blsb-in', type: 'text', maxlength: '280', placeholder: 'For example: Facebook box removed' }), '');
+    var msg = h('p', { class: 'blsb-msg', role: 'status', 'aria-live': 'polite' });
+    var go = h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'Post update' });
+    inp.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); go.click(); } });
+    go.addEventListener('click', function () {
+      var t = inp.value.trim().replace(/\s+/g, ' ');
+      msg.classList.remove('blsb-err');
+      if (t.length < 3 || t.length > 280) { msg.textContent = 'Write 3 to 280 characters.'; msg.classList.add('blsb-err'); inp.focus(); return; }
+      go.disabled = true; go.textContent = 'Posting...';
+      inp.classList.remove('blsb-dirty'); if (sel) sel.classList.remove('blsb-dirty');
+      adminCall('admin_update', { slug: pick ? (sel.value || null) : slug, text: t }, 'Update posted. Everyone sees it in What\'s new.').then(function () {
+        inp.value = ''; msg.textContent = '';
+      }, function () { inp.classList.add('blsb-dirty'); }).then(function () { go.disabled = false; go.textContent = 'Post update'; });
+    });
+    return h('div', { class: 'blsb-upd' }, [
+      h('div', { class: 'blsb-upd-h', text: 'Post an update' }),
+      h('p', { class: 'blsb-muted blsb-small', text: 'Everyone sees it in What\'s new. Say what changed, in a few words.' }),
+      sel ? h('label', { class: 'blsb-label', for: sid, text: 'Page' }) : null, sel,
+      h('label', { class: 'blsb-label', for: id, text: slug ? 'What changed on ' + titleOf(slug) : 'What changed' }), inp,
+      h('div', { class: 'blsb-adm-timer' }, [go]), msg
+    ]);
+  }
   function manageBlock(p, key) {
-    var d = h('details', { class: 'blsb-manage', open: !!S.open['manage:' + key] }, [h('summary', { text: 'Manage page (admin)' }), adminControls(p)]);
+    var d = h('details', { class: 'blsb-manage', open: !!S.open['manage:' + key] }, [h('summary', { text: 'Manage page (admin)' }), adminControls(p, key)]);
     d.addEventListener('toggle', function () { S.open['manage:' + key] = d.open; });
     return d;
   }
@@ -1024,10 +1227,47 @@
     add(box, h('div', { class: 'blsb-stat-top' }, [chip(p, 'blsb-chip-lg'), pl ? h('span', { class: 'blsb-phase-l', text: pl }) : null]));
     add(box, h('p', { class: 'blsb-mean' }, [meaningEl(p)]));
     if (p.note) add(box, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
+    var rv = reviewersOf(p);
+    if (rv.length) add(box, h('p', { class: 'blsb-revs' }, [h('b', { text: 'Looking this over: ' }), andList(rv)]));
     if (S.admin) add(box, manageBlock(p, where + ':' + p.slug));
     return box;
   }
-  // Facts the page still needs (proposal "required"). Shown whenever there are any; "I can help" only while Waiting on info.
+  // Top of the sheet for a picked person: "This page is one of yours" and the asks for them on this page.
+  function mineBlock(p, comp) {
+    var rev = iReview(p), asks = myAsks(p);
+    if (!rev && !asks.length) return null;
+    var box = h('div', { class: 'blsb-mine' });
+    if (rev) add(box, h('p', { class: 'blsb-mine-t', text: 'This page is one of yours. We want to make sure you\'re good with it.' }));
+    if (asks.length) {
+      add(box, h('div', { class: 'blsb-mine-h', text: 'Your input is needed' }));
+      asks.forEach(function (a) {
+        var done = iAnswered(p, a);
+        add(box, h('div', { class: 'blsb-mine-i' }, [
+          h('div', { class: 'blsb-mine-q', text: clean(a.text) }),
+          done ? h('div', { class: 'blsb-mine-done', text: 'You answered. Thank you.' }) : null,
+          h('button', { type: 'button', class: 'blsb-act blsb-act-go', onclick: function () { comp.setReply(null); comp.setReq(a.text, true); comp.focus(); } }, ['Answer', sr(': ' + a.text)])
+        ]));
+      });
+    }
+    return box;
+  }
+  // The page's asks for everyone (the picked person's own asks are already at the top of the sheet).
+  function asksBlock(p, comp) {
+    var mine = myAsks(p);
+    var list = asksOf(p).filter(function (a) { return mine.indexOf(a) < 0; });
+    if (!list.length) return null;
+    var box = h('div', { class: 'blsb-req blsb-asks' }, [h('div', { class: 'blsb-req-h', text: 'Questions for the board (' + list.length + ')' })]);
+    list.forEach(function (a) {
+      var ppl = peopleOf(a);
+      box.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t', text: clean(a.text) }),
+        h('span', { class: 'blsb-ask-who', text: ppl.length ? 'Who can help: ' + andList(ppl) : 'Anyone on the board can help.' }),
+        askDid(p, a, 'blsb-req-who'),
+        S.admin ? null : h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', onclick: function () { comp.setReq(a.text); comp.focus(); } }, ['I can help with this', sr(': ' + a.text)])]));
+    });
+    return box;
+  }
+  // Facts the page still needs (proposal "required"), as information. Board members answer through the page's asks, so
+  // a page with asks shows this list to Daniel only (each ask already covers its fact).
   function helpersFor(slug, r) {
     var seen = {}, out = [];
     topItems(slug).forEach(function (i) {
@@ -1040,15 +1280,15 @@
   }
   function reqBlock(p, comp) {
     var req = (META[p.slug] && META[p.slug].req) || [];
-    if (!req.length) return null;
+    if (!req.length || (!S.admin && asksOf(p).length)) return null;
     var waiting = p.state === 'waiting';
     var box = h('div', { class: 'blsb-req' }, [h('div', { class: 'blsb-req-h', text: (waiting ? 'Needed before this page can be finished' : 'Facts this page still needs') + ' (' + req.length + ')' })]);
     req.forEach(function (r) {
       var who = helpersFor(p.slug, r);
       box.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t', text: r }),
-        who.length ? h('span', { class: 'blsb-req-who', text: (who.length > 2 ? who.slice(0, -1).join(', ') + ' and ' + who[who.length - 1] : who.join(' and ')) + ' can help' }) : null,
-        waiting && !S.admin ? h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'I can help with this', onclick: function () { comp.setReq(r); comp.focus(); } }) : null]));
+        who.length ? h('span', { class: 'blsb-req-who', text: andList(who) + ' can help' }) : null]));
     });
+    if (!S.admin) add(box, h('p', { class: 'blsb-muted blsb-small', text: 'Daniel is working on these. Nothing is needed from you right now.' }));
     return box;
   }
 
@@ -1080,7 +1320,9 @@
       SH.threadH = h('div', { class: 'blsb-sec-h' });
       SH.thread = h('div', { class: 'blsb-thread' });
       SH.offBox = h('div', { class: 'blsb-sh-off' });
-      add(SH.dlg.body, [SH.offBox, SH.statusBox, SH.linksBox, SH.whoBox, SH.apprBox, SH.reqBox, SH.pinsBox, SH.compBox, SH.threadH, SH.thread]);
+      SH.mineBox = h('div', { class: 'blsb-sh-sec' });
+      SH.asksBox = h('div', { class: 'blsb-sh-sec' });
+      add(SH.dlg.body, [SH.offBox, SH.mineBox, SH.statusBox, SH.linksBox, SH.whoBox, SH.apprBox, SH.asksBox, SH.reqBox, SH.pinsBox, SH.compBox, SH.threadH, SH.thread]);
     }
     SH.slug = slug == null ? null : slug;
     var comp = compFor(SH.slug);
@@ -1092,8 +1334,10 @@
     SH.dlg.show();
     tick();
     if (o.reply) comp.setReply(o.reply);
+    // "Answer" on the person's own ask (an answer) or "I can help" on someone else's (an offer), with the ask filled in
+    if (o.ask) { comp.setReply(null); comp.setReq(o.ask, !!o.answer); }
     if (o.focus) setTimeout(function () { focusItem(o.focus, SH.dlg.body); }, 320);
-    else if (o.compose) setTimeout(function () { comp.focus(); }, 320);
+    else if (o.compose || o.ask) setTimeout(function () { comp.focus(); }, 320);
   }
   function renderSheet() {
     if (!SH.open) return;
@@ -1118,6 +1362,14 @@
     }
     SH.linksBox.hidden = !SH.linksBox.firstChild;
     if (!guarded(SH.apprBox)) { clear(SH.apprBox); if (p) SH.apprBox.appendChild(approveBlock(p)); SH.apprBox.hidden = !SH.apprBox.firstChild; }
+    clear(SH.mineBox);
+    var mb = p ? mineBlock(p, comp) : null;
+    if (mb) SH.mineBox.appendChild(mb);
+    SH.mineBox.hidden = !mb;
+    clear(SH.asksBox);
+    var ab = p ? asksBlock(p, comp) : null;
+    if (ab) SH.asksBox.appendChild(ab);
+    SH.asksBox.hidden = !ab;
     clear(SH.reqBox);
     var rb = p ? reqBlock(p, comp) : null;
     if (rb) SH.reqBox.appendChild(rb);
@@ -1182,13 +1434,24 @@
       if (S.off) bits.push('offline');
       // a Board review or paused clock leads the line under the chip ("1d 22h left · No approvals yet")
       var clk = p && hasClock(p);
-      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? STATES[stKey(p)].label + (clk ? ', ' + fmtLong(remaining(p)) + ' left' : '') : 'unknown') + '. ' + bits.join(', ') + '. Open feedback.' }, [
+      // the picked person's own page: "Needs your input" (an ask for them) or "One of yours" (a reviewer) leads the line
+      var mineAsks = p ? myAsks(p) : [];
+      var open = mineAsks.filter(function (a) { return !iAnswered(p, a); }).length;
+      var tag = mineAsks.length ? 'Needs your input' : p && iReview(p) ? 'One of yours' : '';
+      var lead = [];
+      if (tag) lead.push(h('span', { class: 'blsb-bar-mine', text: tag }));
+      if (clk) lead.push(h('span', { class: 'blsb-bar-cd', 'data-cd': p.slug, 'data-fmt': 'shortleft' }));
+      var line = [];
+      lead.forEach(function (x) { line.push(x, ' · '); });
+      line.push(bits.join(' · '));
+      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? STATES[stKey(p)].label + (clk ? ', ' + fmtLong(remaining(p)) + ' left' : '') : 'unknown') + '. ' + (tag ? tag + '. ' : '') + bits.join(', ') + '. Open feedback.' }, [
         p ? chip(p, null, true) : h('span', { class: 'blsb-chip blsb-s-building', text: 'Not on the board yet' }),
-        h('span', { class: 'blsb-bar-counts' }, clk ? [h('span', { class: 'blsb-bar-cd', 'data-cd': p.slug, 'data-fmt': 'shortleft' }), ' · ' + bits.join(' · ')] : bits.join(' · '))
+        h('span', { class: 'blsb-bar-counts' }, line)
       ]);
       stat.addEventListener('click', function () { openSheet(PAGE); });
       var n = discussionCount(PAGE);
-      var fb = h('button', { type: 'button', class: 'blsb-bar-fb', 'aria-label': 'Feedback' + (n ? ', ' + plural(n, 'item') : '') }, [h('span', { text: 'Feedback' }), n ? h('span', { class: 'blsb-bar-n', text: String(n) }) : null]);
+      var fb = h('button', { type: 'button', class: 'blsb-bar-fb', 'aria-label': 'Feedback' + (n ? ', ' + plural(n, 'item') : '') + (open ? ', ' + plural(open, 'question') + ' for you' : '') }, [
+        open ? h('span', { class: 'blsb-bar-dot', 'aria-hidden': 'true' }) : null, h('span', { text: 'Feedback' }), n ? h('span', { class: 'blsb-bar-n', text: String(n) }) : null]);
       fb.addEventListener('click', function () { openSheet(PAGE); });
       add(BAR, [stat, allPagesLink(), fb]);
     }
@@ -1296,11 +1559,18 @@
     mount.classList.add('blsb');
     IX = { mount: mount };
     IX.off = h('div', { class: 'blsb-ix-off' });
+    IX.fy = h('section', { class: 'blsb-panel blsb-fy', hidden: true, 'aria-labelledby': 'blsbFyH' });
     IX.admin = h('section', { class: 'blsb-panel blsb-adminp', hidden: true, 'aria-label': 'Admin' });
+    // always visible: what is in Board review now and what still needs facts
+    IX.rev = h('section', { class: 'blsb-panel blsb-nowp', 'aria-labelledby': 'blsbRevH' });
+    IX.need = h('section', { class: 'blsb-panel blsb-nowp blsb-needp', 'aria-labelledby': 'blsbNeedH' });
+    IX.now = h('div', { class: 'blsb-now', hidden: true }, [IX.rev, IX.need]);
     IX.phases = h('section', { class: 'blsb-phases', 'aria-labelledby': 'blsbPhH' });
     IX.how = howBox();
+    IX.newsTools = h('div', { class: 'blsb-news-tools', hidden: true });
     IX.newsList = h('div', { class: 'blsb-news' });
-    IX.news = h('section', { class: 'blsb-panel blsb-newsp', 'aria-labelledby': 'blsbNewH' }, [h('div', { class: 'blsb-panel-h', id: 'blsbNewH', text: 'What\'s new' }), IX.newsList]);
+    IX.news = h('section', { class: 'blsb-panel blsb-newsp', 'aria-labelledby': 'blsbNewH' }, [h('div', { class: 'blsb-panel-h', id: 'blsbNewH', text: 'What\'s new' }),
+      h('p', { class: 'blsb-sub', text: 'Changes to the website pages.' }), IX.newsTools, IX.newsList]);
     IX.discComp = Composer({ slug: null, kinds: ['comment', 'suggestion', 'concern'], label: 'Your comment for the board' });
     IX.discThread = h('div', { class: 'blsb-thread' });
     IX.disc = h('section', { class: 'blsb-panel blsb-discp blsb-only-desk', 'aria-labelledby': 'blsbDiscH' }, [
@@ -1319,7 +1589,7 @@
       h('p', { class: 'blsb-muted blsb-small', text: 'Board discussion: anything not about one page. Message Daniel: only Daniel sees it.' })
     ]);
     IX.cols = h('div', { class: 'blsb-icols' }, [IX.how, IX.quick, IX.news, IX.disc, IX.msg]);
-    add(mount, [IX.off, IX.admin, IX.phases, IX.cols]);
+    add(mount, [IX.off, IX.fy, IX.admin, IX.now, IX.phases, IX.cols]);
     var hw = document.getElementById('blsbWho');
     if (hw) { hw.classList.add('blsb'); hw.setAttribute('data-blsb-who', 'header'); }
   }
@@ -1371,6 +1641,7 @@
     else if (S.off) IX.off.appendChild(offlineNote(false));
     var have = !!S.d;
     IX.phases.hidden = !have;
+    IX.now.hidden = !have;
     IX.news.hidden = !have;
     IX.disc.hidden = !have;
     IX.msg.hidden = !have || S.admin; // Daniel does not message himself
@@ -1379,19 +1650,169 @@
     if (have) {
       var dn = discussionCount(null);
       IX.discBtn.textContent = dn ? 'Board discussion (' + dn + ')' : 'Board discussion';
+      renderReviewNow();
+      renderNeeds();
       renderPhases();
       renderNews();
       renderThread(IX.discThread, null, { composer: IX.discComp, limit: 4, key: 'ix', empty: 'No board discussion yet.', onReply: function () { IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
       IX.discComp.refresh();
     }
+    renderForYou();
     renderAdmin();
     $$('[data-board]').forEach(renderCard);
   }
+
+  // ---------- "For you": what needs the picked person ----------
+  function fyRow(main, acts) {
+    return h('li', { class: 'blsb-fy-row' }, [h('div', { class: 'blsb-fy-main' }, main), h('div', { class: 'blsb-fy-acts' }, acts)]);
+  }
+  function renderForYou() {
+    var box = clear(IX.fy);
+    box.hidden = !S.d || S.admin;
+    if (box.hidden) return;
+    if (!S.name) {
+      box.classList.add('blsb-fy-none');
+      add(box, [h('div', { class: 'blsb-panel-h', id: 'blsbFyH', text: 'For you' }),
+        h('p', { class: 'blsb-sub', text: 'Pick your name to see the pages and questions that need you.' }),
+        h('button', { type: 'button', class: 'blsb-btn blsb-pri blsb-fy-pick', text: 'Pick your name', onclick: function () { openWho(null); } })]);
+      return;
+    }
+    box.classList.remove('blsb-fy-none');
+    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbFyH', text: 'For you, ' + firstName(S.name) }));
+    var asks = [];
+    pages().forEach(function (p) { myAsks(p).forEach(function (a) { asks.push({ p: p, a: a }); }); });
+    var mine = pages().filter(iReview);
+    // Approve only where there is something to approve: Board review or On hold. A Waiting on info page is listed
+    // with Open and a plain "nothing to approve yet"; the person's other pages sit in one compact line.
+    var look = mine.filter(function (p) { return p.state === 'review' || p.state === 'hold'; });
+    var wait = mine.filter(function (p) { return p.state === 'waiting'; });
+    var rest = mine.filter(function (p) { return look.indexOf(p) < 0 && wait.indexOf(p) < 0; });
+    var openAsks = asks.filter(function (x) { return !iAnswered(x.p, x.a); }).length;
+    if (!openAsks && !look.length) add(box, h('p', { class: 'blsb-fy-empty', text: asks.length ? 'You answered everything we asked. Thank you.' : 'Nothing needs you right now. Thank you.' }));
+    if (asks.length) {
+      var al = h('ul', { class: 'blsb-fy-list' });
+      asks.forEach(function (x) {
+        var done = iAnswered(x.p, x.a);
+        al.appendChild(fyRow([h('div', { class: 'blsb-fy-t', text: clean(x.a.text) }),
+          h('div', { class: 'blsb-fy-s' }, [h('span', { text: x.p.title }), done ? h('span', { class: 'blsb-fy-done', text: ' · You answered. Thank you.' }) : null])],
+          [h('button', { type: 'button', class: 'blsb-act' + (done ? '' : ' blsb-act-go'), onclick: function () { openSheet(x.p.slug, { ask: x.a.text, answer: true }); } }, [done ? 'Add more' : 'Answer', sr(': ' + x.a.text)])]));
+      });
+      add(box, [h('div', { class: 'blsb-sec-h', text: 'Your input is needed' }), al]);
+    }
+    var openLink = function (p) { return h('a', { class: 'blsb-act', href: BASE + '/proposed/' + p.slug + '.html' }, ['Open', sr(' ' + p.title)]); };
+    if (look.length) {
+      var ll = h('ul', { class: 'blsb-fy-list' });
+      look.forEach(function (p) {
+        ll.appendChild(fyRow([h('a', { class: 'blsb-fy-t blsb-fy-a', href: '#p-' + p.slug, text: p.title }), h('div', { class: 'blsb-fy-s' }, [chip(p)])],
+          [approveToggle(p), openLink(p)]));
+      });
+      add(box, [h('div', { class: 'blsb-sec-h', text: 'Please look these over' }),
+        h('p', { class: 'blsb-fy-why', text: 'We want to make sure you\'re good with these.' }), ll]);
+    }
+    if (wait.length) {
+      var wl = h('ul', { class: 'blsb-fy-list' });
+      wait.forEach(function (p) {
+        wl.appendChild(fyRow([h('a', { class: 'blsb-fy-t blsb-fy-a', href: '#p-' + p.slug, text: p.title }),
+          h('div', { class: 'blsb-fy-s' }, [chip(p), p.due_date ? h('span', { class: 'blsb-fy-due', text: 'Due ' + fmtDay(p.due_date) }) : null])], [openLink(p)]));
+      });
+      add(box, [h('div', { class: 'blsb-sec-h', text: 'Your pages waiting on facts' }),
+        h('p', { class: 'blsb-fy-why', text: 'Still waiting on facts. Nothing to approve yet.' }), wl]);
+    }
+    if (rest.length) {
+      var rl = h('div', { class: 'blsb-fy-rest' }, [h('span', { class: 'blsb-fy-rest-h', text: (look.length || wait.length ? 'Your other pages' : 'Your pages') + ':' })]);
+      rest.forEach(function (p) {
+        var st = stKey(p);
+        rl.appendChild(h('a', { class: 'blsb-fy-pg', href: '#p-' + p.slug }, [h('span', { class: 'blsb-fy-pg-t', text: p.title }), h('span', { class: 'blsb-fy-pg-s blsb-s-' + st, text: SHORT[st] })]));
+      });
+      add(box, rl);
+    }
+  }
+
+  // ---------- "In board review now" and "Needs information" ----------
+  // running clocks first (least time left first), then paused clocks, then pages held with no clock
+  function byTimeLeft(a, b) {
+    var ra = running(a) ? 0 : hasClock(a) ? 1 : 2, rb = running(b) ? 0 : hasClock(b) ? 1 : 2;
+    if (ra !== rb) return ra - rb;
+    return (remaining(a) || 0) - (remaining(b) || 0);
+  }
+  function renderReviewNow() {
+    var box = clear(IX.rev);
+    var list = pages().filter(function (p) { return p.state === 'review' || p.state === 'hold'; }).sort(byTimeLeft);
+    // nothing in review: a one-line panel above Needs information, which then gets the full width
+    IX.now.classList.toggle('blsb-now-quiet', !list.length);
+    box.classList.toggle('blsb-nowp-quiet', !list.length);
+    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbRevH', text: 'In board review now' }));
+    if (!list.length) { add(box, h('p', { class: 'blsb-empty', text: 'No pages right now. When one starts, it shows here with its time left.' })); return; }
+    add(box, h('p', { class: 'blsb-sub', text: 'Approve, suggest a change, or raise a concern before the time runs out.' }));
+    var ul = h('ul', { class: 'blsb-now-list' });
+    list.forEach(function (p) {
+      var c = countsOf(p), bits = [approvalText(c.approve || 0)], ot = openText(p);
+      if (ot) bits.push(ot);
+      ul.appendChild(h('li', { class: 'blsb-now-row' }, [
+        h('div', { class: 'blsb-now-main' }, [h('a', { class: 'blsb-now-t', href: '#p-' + p.slug, text: p.title }), chip(p), h('div', { class: 'blsb-now-s', text: bits.join(' · ') })]),
+        h('button', { type: 'button', class: 'blsb-act', onclick: function () { openSheet(p.slug); } }, ['Feedback', sr(' on ' + p.title)])
+      ]));
+    });
+    add(box, ul);
+  }
+  function renderNeeds() {
+    var box = clear(IX.need);
+    var waiting = pages().filter(function (p) { return p.state === 'waiting'; });
+    var list = waiting.filter(function (p) { return asksOf(p).length; });
+    // pages with no asks are waiting on Daniel's own items (asks are only for the board)
+    var onDaniel = waiting.filter(function (p) { return !asksOf(p).length; });
+    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbNeedH', text: 'Needs information' }));
+    if (!waiting.length) { add(box, h('p', { class: 'blsb-empty', text: 'No pages are waiting on information right now.' })); return; }
+    if (list.length) add(box, h('p', { class: 'blsb-sub', text: 'These pages are waiting on facts. If you know the answer, tap I can help.' + (DESK.matches ? '' : ' Tap a page to see its questions.') }));
+    function manageBtn(p) {
+      // Daniel: straight to the page's asks editor
+      return S.admin ? h('button', { type: 'button', class: 'blsb-mini blsb-need-m', onclick: function () { S.open['manage:sheet:' + p.slug] = true; S.open['asks:sheet:' + p.slug] = true; openSheet(p.slug); } }, ['Manage', sr(' ' + p.title)]) : null;
+    }
+    list.forEach(function (p) {
+      var asks = asksOf(p);
+      var mineN = asks.filter(function (a) { return member() && peopleOf(a).some(isMe); }).length;
+      var ul = h('ul', { class: 'blsb-need-list' });
+      asks.forEach(function (a) {
+        var ppl = peopleOf(a), forMe = member() && ppl.some(isMe);
+        ul.appendChild(h('li', { class: 'blsb-need-i' + (forMe ? ' blsb-need-me' : '') }, [
+          h('div', { class: 'blsb-need-t', text: clean(a.text) }),
+          h('div', { class: 'blsb-need-who' }, ppl.length ? [h('span', { class: 'blsb-need-k', text: 'Who can help: ' }), andList(ppl)] : 'Anyone on the board can help.'),
+          askDid(p, a, 'blsb-need-did'),
+          S.admin ? null : h('button', { type: 'button', class: 'blsb-act' + (forMe ? ' blsb-act-go' : ''), onclick: function () { openSheet(p.slug, forMe ? { ask: a.text, answer: true } : { ask: a.text }); } }, [forMe ? 'Answer' : 'I can help', sr(': ' + a.text)])
+        ]));
+      });
+      // one row per page; open on a computer, folded on a phone (tap to see the questions)
+      var key = 'need:' + p.slug;
+      var det = h('details', { class: 'blsb-need', open: S.open[key] != null ? S.open[key] : DESK.matches }, [
+        h('summary', { class: 'blsb-need-h' }, [h('span', { class: 'blsb-need-pt', text: p.title }),
+          h('span', { class: 'blsb-need-n', text: plural(asks.length, 'question') + (mineN ? ', ' + mineN + ' for you' : '') }),
+          p.due_date ? h('span', { class: 'blsb-need-due', text: 'Due ' + fmtDay(p.due_date) }) : null]),
+        h('div', { class: 'blsb-need-body' }, [ul, h('p', { class: 'blsb-need-go' }, [h('a', { class: 'blsb-link', href: '#p-' + p.slug, text: 'See the page' }), manageBtn(p)])])
+      ]);
+      det.addEventListener('toggle', function () { S.open[key] = det.open; });
+      box.appendChild(det);
+    });
+    if (onDaniel.length) {
+      var dl = h('ul', { class: 'blsb-need-dan' });
+      onDaniel.forEach(function (p) {
+        // "Website (Daniel): Champions page goes live first" reads "Waiting on Daniel: Champions page goes live first."
+        var req = ((META[p.slug] && META[p.slug].req) || []).map(function (r) { return clean(r).replace(/^[^:]{1,40}:\s*/, '').replace(/[.\s]+$/, ''); });
+        dl.appendChild(h('li', {}, [h('a', { class: 'blsb-now-t', href: '#p-' + p.slug, text: p.title }), ' ',
+          h('span', { class: 'blsb-need-none', text: req.length ? 'Waiting on Daniel: ' + req.join('; ') + '.' : 'Waiting on Daniel.' }), manageBtn(p)]));
+      });
+      box.appendChild(dl);
+    }
+  }
   function renderPhases() {
     var box = clear(IX.phases);
+    // a phase with no pages is hidden, and the whole section waits until at least one page is in a phase
+    // (Daniel sets up phases in the admin Phases tab)
+    var groups = phases().map(function (ph) { return { ph: ph, pages: pages().filter(function (p) { return p.phase_id === ph.id; }) }; })
+      .filter(function (g) { return g.pages.length; });
+    box.hidden = !groups.length;
+    if (!groups.length) return;
     add(box, h('div', { class: 'blsb-phases-h' }, [h('span', { class: 'blsb-panel-h', id: 'blsbPhH', text: 'When pages go live' }), h('span', { class: 'blsb-sub', text: 'Daniel updates the live site in phases. Tap a page to jump to it.' })]));
     var list = h('div', { class: 'blsb-phase-list' });
-    var groups = phases().map(function (ph) { return { ph: ph, pages: pages().filter(function (p) { return p.phase_id === ph.id; }) }; });
     var none = pages().filter(function (p) { return !p.phase_id || !phaseOf(p.phase_id); });
     if (none.length) groups.push({ ph: null, pages: none });
     groups.forEach(function (g) {
@@ -1403,8 +1824,8 @@
         // the state is spelled out on each chip, not shown by color alone
         chips.appendChild(h('a', { class: 'blsb-pchip blsb-s-' + st, href: '#p-' + p.slug, title: STATES[st].label }, [
           h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), h('span', { text: p.title || titleOf(p.slug) }),
-          h('span', { class: 'blsb-pchip-st', text: ' · ' + SHORT[st] }),
-          hasClock(p) ? h('span', { class: 'blsb-pchip-cd', 'data-cd': p.slug, 'data-fmt': 'short' }) : null
+          h('span', { class: 'blsb-pchip-st', text: ' · ' + SHORT[st] + (running(p) ? ':' : '') }),
+          running(p) ? h('span', { class: 'blsb-pchip-cd', 'data-cd': p.slug, 'data-fmt': 'shortleft' }) : st === 'hold' && hasClock(p) ? h('span', { class: 'blsb-pchip-cd', text: 'paused' }) : null
         ]));
       });
       // one line per phase ("2 in board review, 1 on hold, 14 building"); the chips fold away on phones
@@ -1440,23 +1861,55 @@
     if (EVV[k]) return [who ? h('b', { text: who }) : 'Someone', ' ' + EVV[k] + ' ', h('b', { text: page }), '.'];
     return [h('b', { text: page }), ': ' + k.replace(/_/g, ' ') + '.'];
   }
-  function renderNews() {
-    var box = IX.newsList;
+  // What's new (everyone): page updates Daniel posts and pages going live, as plain sentences.
+  function isPublicEv(e) { return !!e && (e.kind === 'page_update' || e.kind === 'live'); }
+  function newsLine(e) {
+    var page = e.slug != null ? titleOf(e.slug) : '';
+    if (e.kind === 'live') return page ? [h('b', { text: page }), ' went live on blslittleleague.org.'] : [clean(e.detail || '')];
+    // text is Daniel's words; detail already starts with the page name (for older copies of this script)
+    var t = clean(e.text != null ? e.text : e.detail || '').trim();
+    if (e.text == null && page && t.indexOf(page + ': ') === 0) t = t.slice(page.length + 2);
+    if (!/[.!?]$/.test(t)) t += '.';
+    return page ? [h('b', { text: page }), ': ' + t] : [t];
+  }
+  function renderNewsTools() {
+    var box = IX.newsTools;
+    if (!S.admin) { clear(box); box.hidden = true; return; }
+    box.hidden = false;
+    if (guarded(box)) return;
     clear(box);
-    var ev = ((S.d && S.d.events) || []).slice().sort(byNew).slice(0, 20);
-    if (!ev.length) { box.appendChild(h('p', { class: 'blsb-empty', text: 'Nothing yet. Approvals, feedback and page changes show up here.' })); return; }
-    var all = !!S.open.news;
+    var all = !!S.open.allAct;
+    add(box, [updateBox(null, true),
+      h('div', { class: 'blsb-news-sw' }, [h('button', { type: 'button', class: 'blsb-mini' + (all ? ' blsb-mini-go' : ''), 'aria-pressed': all ? 'true' : 'false', text: 'All activity',
+        onclick: function () { S.open.allAct = !S.open.allAct; renderNews(); } }),
+        h('span', { class: 'blsb-muted blsb-small', text: all ? 'Showing every change. Only you see this list.' : 'Board members see page updates and pages going live.' })])]);
+  }
+  function renderNews() {
+    renderNewsTools();
+    var box = clear(IX.newsList);
+    var all = S.admin && !!S.open.allAct;
+    var ev = (all ? (S.d && S.d.activity) || [] : ((S.d && S.d.events) || []).filter(isPublicEv)).slice().sort(byNew);
+    if (!ev.length) { box.appendChild(h('p', { class: 'blsb-empty', text: all ? 'No activity yet.' : 'No updates yet. Changes to the website pages show up here.' })); return; }
+    var key = all ? 'newsAll' : 'news';
+    var open = !!S.open[key];
     var few = DESK.matches ? 6 : 3; // phones show 3 so the page cards stay close
     var list = h('ul', { class: 'blsb-news-l' });
-    (all ? ev : ev.slice(0, few)).forEach(function (e) {
-      var inner = [h('div', { class: 'blsb-news-t' }, evLine(e)), h('div', { class: 'blsb-news-s' }, [
+    (open ? ev : ev.slice(0, few)).forEach(function (e) {
+      var onPage = e.slug && pageOf(e.slug);
+      var inner = [h('div', { class: 'blsb-news-t' }, all ? evLine(e) : newsLine(e)), h('div', { class: 'blsb-news-s' }, [
         h('span', { class: 'blsb-time', title: fullTime(e.created_at), text: ago(e.created_at) }),
-        e.slug && pageOf(e.slug) ? h('span', { class: 'blsb-news-go', text: 'See page' }) : null])];
+        onPage ? h('span', { class: 'blsb-news-go', text: 'See page' }) : null])];
       // the whole item is the tap target when it points at a page card
-      list.appendChild(h('li', { class: 'blsb-news-i' }, e.slug && pageOf(e.slug) ? h('a', { class: 'blsb-news-a', href: '#p-' + e.slug }, inner) : h('div', { class: 'blsb-news-b' }, inner)));
+      var li = h('li', { class: 'blsb-news-i' }, onPage ? h('a', { class: 'blsb-news-a', href: '#p-' + e.slug }, inner) : h('div', { class: 'blsb-news-b' }, inner));
+      if (S.admin && e.kind === 'page_update') {
+        li.appendChild(h('div', { class: 'blsb-news-x' }, [twoTap('Remove update', 'Tap again to remove', function (b) {
+          b.disabled = true; adminCall('admin_update', { id: e.id, delete: true }, 'Update removed.').catch(function () { b.disabled = false; });
+        }, 'blsb-mini-warn')]));
+      }
+      list.appendChild(li);
     });
     box.appendChild(list);
-    if (ev.length > few) box.appendChild(h('button', { type: 'button', class: 'blsb-more', 'aria-expanded': all ? 'true' : 'false', text: all ? 'Show fewer' : 'Show all ' + ev.length, onclick: function () { S.open.news = !all; renderNews(); } }));
+    if (ev.length > few) box.appendChild(h('button', { type: 'button', class: 'blsb-more', 'aria-expanded': open ? 'true' : 'false', text: open ? 'Show fewer' : 'Show all ' + ev.length, onclick: function () { S.open[key] = !open; renderNews(); } }));
   }
   function renderCard(mount) {
     var slug = mount.getAttribute('data-board');
@@ -1468,7 +1921,8 @@
     mount.hidden = false;
     var c = countsOf(p), names = approversOf(p);
     var pl = phaseLabel(p);
-    add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), pl ? h('span', { class: 'blsb-phase-l', text: pl }) : null]));
+    var tag = myAsks(p).length ? 'Needs your input' : iReview(p) ? 'One of yours' : '';
+    add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), tag ? h('span', { class: 'blsb-mine-pill', text: tag }) : null, pl ? h('span', { class: 'blsb-phase-l', text: pl }) : null]));
     add(mount, h('p', { class: 'blsb-cb-mean' }, [meaningEl(p)]));
     if (p.note) add(mount, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
     var namesId = 'blsbN-' + slug;

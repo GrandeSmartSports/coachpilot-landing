@@ -33,6 +33,9 @@ html.blsb-lock{overflow:hidden!important}
 .blsb .blsb-chip-sep{opacity:.75}
 .blsb .blsb-chip-cd{font-variant-numeric:tabular-nums}
 .blsb .blsb-chip-lg{font-size:15px;min-height:34px;padding:6px 14px}
+/* "Board review: 23 hours 59 minutes left" wraps on a narrow phone instead of being cut off */
+.blsb .blsb-chip.blsb-chip-clock{white-space:normal;border-radius:16px;line-height:1.25}
+.blsb .blsb-chip.blsb-chip-clock .blsb-chip-t{overflow:visible}
 .blsb .blsb-s-building{background:#5d6785;color:#fff}
 .blsb .blsb-s-waiting{background:#ffcf5c;color:#4a2c00}
 /* Board review (blue) carries the live 48 hour countdown; Scheduled for deployment is navy */
@@ -272,6 +275,8 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 /* the Board review time sits first on the line under the chip, so a phone never cuts the state name */
 #blsbBar .blsb-bar-cd{color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
 #blsbBar .blsb-bar-fb{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 15px/1 var(--b-font)}
+#blsbBar .blsb-bar-mine{color:#ffd166;font-weight:800}
+#blsbBar .blsb-bar-dot{width:10px;height:10px;border-radius:50%;background:#f2b01e;box-shadow:0 0 0 2px var(--b-navy);flex:none;margin-right:-2px}
 #blsbBar .blsb-bar-n{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--b-red);color:#fff;font:800 12.5px/1 var(--b-font)}
 .blsb .blsb-bar-btn{flex:none;min-height:40px;padding:8px 16px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 14px/1 var(--b-font)}
 
@@ -303,7 +308,7 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 #blsbRoot .blsb-toast.blsb-on{transform:translate(-50%,0)}
 
 /* ---------- index page ---------- */
-#blsbIndex.blsb{display:flex;flex-direction:column;gap:16px;margin:0 0 6px}
+#blsbIndex.blsb{display:flex;flex-direction:column;gap:16px;margin:0 0 18px}
 #blsbIndex .blsb-ix-off:empty{display:none}
 .blsb .blsb-panel{background:#fff;border:1px solid var(--b-line);border-radius:14px;padding:14px 16px;min-width:0}
 .blsb .blsb-panel>.blsb-sub{margin-top:4px}
@@ -414,6 +419,121 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   .blsb .blsb-pane .blsb-prow-acts{flex:0 0 auto;margin-top:0}
 }
 
+/* ---------- action buttons in lists (44px tall) ---------- */
+.blsb .blsb-act,.blsb a.blsb-act:link,.blsb a.blsb-act:visited{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 16px;border-radius:999px;
+  border:1.5px solid var(--b-navy);background:#fff;color:var(--b-navy);font:700 15px/1.1 var(--b-font);white-space:nowrap;text-decoration:none}
+.blsb .blsb-act.blsb-act-go{background:var(--b-navy);color:#fff}
+.blsb .blsb-act.blsb-aptg{border-color:var(--b-green);color:var(--b-green)}
+.blsb .blsb-act.blsb-aptg.blsb-on{background:var(--b-green);color:#fff}
+.blsb .blsb-act.blsb-aptg.blsb-on::before{content:"";width:11px;height:6px;margin:-3px 9px 0 0;border:solid currentColor;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg)}
+
+/* ---------- "For you" (index top) ---------- */
+.blsb .blsb-fy{border:2px solid var(--b-red);box-shadow:0 4px 16px rgba(0,1,58,.08)}
+.blsb .blsb-fy .blsb-panel-h{font-size:21px}
+.blsb .blsb-fy.blsb-fy-none{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;border:1.5px dashed #b9c3d6;box-shadow:none}
+.blsb .blsb-fy.blsb-fy-none .blsb-panel-h{flex:1 1 100%}
+.blsb .blsb-fy.blsb-fy-none .blsb-sub{flex:1 1 220px;margin:0}
+.blsb .blsb-fy .blsb-sec-h{margin:16px 0 2px}
+.blsb .blsb-fy-why{font-size:15px;line-height:1.4;color:var(--b-muted);margin:2px 0 2px}
+.blsb .blsb-fy-empty{margin-top:8px;font:600 16px/1.45 var(--b-font);color:var(--b-green)}
+.blsb .blsb-fy-list{display:flex;flex-direction:column}
+.blsb .blsb-fy-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 0;border-top:1px solid var(--b-line)}
+.blsb .blsb-fy-row:first-child{border-top:0}
+.blsb .blsb-fy-main{flex:1 1 220px;min-width:0}
+.blsb .blsb-fy-t{display:block;font:700 16px/1.35 var(--b-font);color:var(--b-navy)}
+.blsb a.blsb-fy-a,.blsb a.blsb-fy-a:link,.blsb a.blsb-fy-a:visited{color:var(--b-navy);text-decoration:underline;text-decoration-color:#b9c3d6;text-underline-offset:3px}
+.blsb .blsb-fy-s{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:5px;font-size:14px;line-height:1.35;color:var(--b-muted)}
+.blsb .blsb-fy-done{color:var(--b-green);font-weight:700}
+.blsb .blsb-fy-due{font-weight:700;color:#7a3e00}
+.blsb .blsb-fy-acts{display:flex;flex-wrap:wrap;gap:8px}
+/* the person's other pages, one compact line: "Your other pages: Health & Safety [Building]" */
+.blsb .blsb-fy-rest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--b-line)}
+.blsb .blsb-fy-rest-h{font:700 14.5px/1.3 var(--b-font);color:var(--b-muted);margin-right:2px}
+.blsb a.blsb-fy-pg,.blsb a.blsb-fy-pg:link,.blsb a.blsb-fy-pg:visited{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 7px 4px 13px;border-radius:999px;
+  border:1px solid var(--b-line);background:#fff;color:var(--b-navy);font:700 14.5px/1.2 var(--b-font);text-decoration:none}
+.blsb .blsb-fy-pg-s{display:inline-flex;align-items:center;min-height:26px;padding:2px 9px;border-radius:999px;font:700 12.5px/1.1 var(--b-font)}
+
+/* ---------- "In board review now" and "Needs information" ---------- */
+.blsb .blsb-now{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+@media (min-width:900px){
+  .blsb .blsb-now{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  /* nothing in review: that panel is one line and Needs information takes the full width */
+  .blsb .blsb-now.blsb-now-quiet{grid-template-columns:minmax(0,1fr)}
+  .blsb .blsb-now-quiet .blsb-need-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+}
+.blsb .blsb-nowp.blsb-nowp-quiet{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;padding-block:12px}
+.blsb .blsb-nowp-quiet .blsb-empty{margin:0;padding:0;font-size:15px}
+.blsb .blsb-nowp{border-top:4px solid var(--b-blue)}
+.blsb .blsb-nowp.blsb-needp{border-top-color:var(--b-amber)}
+.blsb .blsb-now-list{display:flex;flex-direction:column;margin-top:6px}
+.blsb .blsb-now-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 0;border-top:1px solid var(--b-line)}
+.blsb .blsb-now-row:first-child{border-top:0}
+.blsb .blsb-now-main{flex:1 1 260px;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.blsb a.blsb-now-t,.blsb a.blsb-now-t:link,.blsb a.blsb-now-t:visited{font:800 16.5px/1.25 var(--b-font);color:var(--b-navy);text-decoration:underline;text-decoration-color:#b9c3d6;text-underline-offset:3px}
+.blsb .blsb-now-s{font-size:14px;line-height:1.35;color:var(--b-muted)}
+.blsb .blsb-need{border-top:1px solid var(--b-line);margin-top:4px}
+.blsb .blsb-sub+.blsb-need{border-top:0;margin-top:2px}
+/* each page is one tap row (folded on a phone, open on a computer) */
+.blsb .blsb-need-h{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;min-height:48px;padding:8px 30px 8px 0;cursor:pointer;list-style:none;position:relative}
+.blsb .blsb-need-h::-webkit-details-marker{display:none}
+.blsb .blsb-need-h::after{content:"+";position:absolute;right:2px;top:50%;transform:translateY(-50%);font:400 24px/1 var(--b-font);color:var(--b-muted)}
+.blsb .blsb-need[open]>.blsb-need-h::after{content:"\2212"}
+.blsb .blsb-need-pt{font:800 16.5px/1.25 var(--b-font);color:var(--b-navy)}
+.blsb .blsb-need-n{font:600 14px/1.3 var(--b-font);color:#5c3a00}
+.blsb .blsb-need-body{padding:0 0 10px}
+.blsb .blsb-need-body .blsb-need-list{margin-top:0}
+.blsb .blsb-need-go{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:8px;font-size:14.5px}
+.blsb .blsb-need-i.blsb-need-me{box-shadow:inset 0 0 0 2px var(--b-red)}
+.blsb .blsb-need-dan{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding-top:10px;border-top:1px solid var(--b-line)}
+.blsb .blsb-need-dan li{font-size:14.5px;line-height:1.45}
+.blsb .blsb-need-dan .blsb-need-none{margin:0}
+.blsb .blsb-need-dan .blsb-need-m{margin-left:8px}
+.blsb .blsb-need-due{font:700 13.5px/1.2 var(--b-font);color:#7a3e00;background:var(--b-amber-bg);padding:3px 8px;border-radius:6px}
+.blsb .blsb-need-h .blsb-need-m{margin-left:auto}
+.blsb .blsb-need-list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.blsb .blsb-need-i{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:10px 12px;border-radius:12px;background:var(--b-amber-bg)}
+.blsb .blsb-need-t{font:600 15.5px/1.4 var(--b-font);color:var(--b-ink)}
+.blsb .blsb-need-who{font-size:14px;line-height:1.4;color:#5c3a00}
+.blsb .blsb-need-k{font-weight:700}
+.blsb .blsb-need-did{font:700 14px/1.35 var(--b-font);color:#55308a}
+.blsb .blsb-need-i .blsb-act{margin-top:3px}
+.blsb .blsb-need-none{margin-top:6px;font-size:14.5px;line-height:1.45;color:var(--b-muted)}
+
+/* ---------- reviewers and asks in the sheet and on cards ---------- */
+.blsb .blsb-revs{margin-top:8px;font-size:14.5px;line-height:1.4;color:var(--b-muted)}
+.blsb .blsb-revs b{color:var(--b-navy)}
+.blsb .blsb-mine{border:2px solid var(--b-red);border-radius:12px;padding:10px 12px;background:#fff7f9}
+.blsb .blsb-mine-t{font:700 15.5px/1.4 var(--b-font);color:var(--b-navy)}
+.blsb .blsb-mine-h{font:800 13px/1.2 var(--b-font);letter-spacing:.08em;text-transform:uppercase;color:var(--b-red);margin:12px 0 2px}
+.blsb .blsb-mine>.blsb-mine-h:first-child{margin-top:2px}
+.blsb .blsb-mine-i{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:8px 0;border-top:1px solid #f6d3dc}
+.blsb .blsb-mine-h+.blsb-mine-i{border-top:0}
+.blsb .blsb-mine-q{font-size:15.5px;line-height:1.4}
+.blsb .blsb-mine-done{font:700 14px/1.3 var(--b-font);color:var(--b-green)}
+.blsb .blsb-ask-who{font:600 14px/1.35 var(--b-font);color:#5c3a00}
+.blsb .blsb-mine-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#fff0f3;color:var(--b-red);
+  font:800 13px/1.1 var(--b-font);border:1px solid #f6c5d1;white-space:nowrap}
+
+/* ---------- admin: reviewers, asks, page updates ---------- */
+.blsb .blsb-subed{margin-top:12px;border-top:1px solid var(--b-line)}
+.blsb .blsb-subed>summary{display:flex;align-items:center;min-height:44px;font:800 14px/1.2 var(--b-font);color:var(--b-navy);cursor:pointer;list-style:none}
+.blsb .blsb-subed>summary::-webkit-details-marker{display:none}
+.blsb .blsb-subed>summary::after{content:"+";margin-left:auto;font-size:20px;color:var(--b-muted)}
+.blsb .blsb-subed[open]>summary::after{content:"\2212"}
+.blsb .blsb-pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.blsb .blsb-pill{min-height:40px;padding:8px 12px;border-radius:999px;border:1.5px solid var(--b-line);background:#fff;color:var(--b-navy);font:600 14px/1.1 var(--b-font)}
+.blsb .blsb-pill[aria-pressed="true"]{background:var(--b-navy);border-color:var(--b-navy);color:#fff}
+.blsb .blsb-pill[aria-pressed="true"]::before{content:"\2713";margin-right:6px}
+.blsb .blsb-asked{display:flex;flex-direction:column}
+.blsb .blsb-ask-ed{padding:6px 0 10px;border-top:1px dashed var(--b-line)}
+.blsb .blsb-ask-ed:first-child{border-top:0}
+.blsb .blsb-upd{margin-top:12px;padding-top:10px;border-top:1px solid var(--b-line)}
+.blsb .blsb-upd-h{font:800 14px/1.2 var(--b-font);color:var(--b-navy);margin-bottom:4px}
+.blsb .blsb-news-tools{margin:10px 0 4px;padding:10px 12px 12px;border-radius:12px;background:#fafbfd;border:1.5px dashed #b9c3d6}
+.blsb .blsb-news-tools .blsb-upd{margin-top:0;padding-top:0;border-top:0}
+.blsb .blsb-news-sw{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:12px;padding-top:10px;border-top:1px solid var(--b-line)}
+.blsb .blsb-news-x{padding:0 0 8px}
+
 /* hover only where a real pointer hovers, so a tap on a phone never leaves a button looking pressed */
 @media (hover:hover){
   .blsb .blsb-btn.blsb-pri:hover{background:var(--b-red-d);border-color:var(--b-red-d)}
@@ -428,4 +548,7 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   .blsb .blsb-fb:hover{background:#1a1c5c}
   .blsb a.blsb-pchip:hover{filter:brightness(1.12)}
   .blsb a.blsb-news-a:hover{background:var(--b-bg)}
+  .blsb .blsb-act:not(.blsb-act-go):not(.blsb-on):hover{background:var(--b-bg)}
+  .blsb .blsb-act.blsb-act-go:hover{background:#1a1c5c}
+  .blsb .blsb-pill:hover{border-color:var(--b-navy)}
 }
