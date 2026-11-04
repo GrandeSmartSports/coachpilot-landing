@@ -70,13 +70,10 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   text.push("", `Sent from ${meta.url}`);
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#eef2f6"><div style="max-width:600px;margin:0 auto;padding:16px">
 <div style="background:#fff;border-radius:14px 14px 0 0;border-top:5px solid #cd163f;padding:18px 22px 14px">
-  <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-    <td style="vertical-align:middle;padding-right:14px"><img src="https://coachpilot.org/bls/assets/bls-logo.png" width="60" height="60" alt="BLS Little League" style="display:block;width:60px;height:60px"></td>
-    <td style="vertical-align:middle">
-      <div style="font:700 11px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#cd163f">Bonney Lake Sumner Little League</div>
-      <div style="margin-top:4px;font:800 22px/1.15 -apple-system,Helvetica,Arial,sans-serif;color:#00013a">${esc(meta.title)}</div>
-      <div style="margin-top:4px;font:400 15px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#5f6b7a">Review from <strong style="color:#1a1f26">${esc(name)}</strong></div>
-    </td></tr></table>
+  <img src="https://coachpilot.org/bls/assets/bls-logo.png" width="72" height="72" border="0" alt="BLS Little League" style="display:block;width:72px;height:72px;margin:0 0 10px">
+  <div style="font:700 11px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#cd163f">Bonney Lake Sumner Little League</div>
+  <div style="margin-top:4px;font:800 22px/1.15 -apple-system,Helvetica,Arial,sans-serif;color:#00013a">${esc(meta.title)}</div>
+  <div style="margin-top:4px;font:400 15px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#5f6b7a">Review from <strong style="color:#1a1f26">${esc(name)}</strong></div>
 </div>
 <div style="background:#fff;border-radius:0 0 14px 14px;padding:6px 22px 22px;border-top:1px solid #dde3ea">
   <p style="margin:0 0 6px;font:600 16px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326">${summary}</p>
