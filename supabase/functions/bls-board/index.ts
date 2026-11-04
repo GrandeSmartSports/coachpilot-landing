@@ -7,15 +7,18 @@
 // Deploy: supabase functions deploy bls-board --project-ref geigvuysptjvvqanumld --no-verify-jwt
 // Tables: bls_board_pages, bls_board_phases, bls_board_people, bls_board_items, bls_board_events,
 // bls_board_settings (RLS on, no policies: this function is the only reader and writer).
+// Page states (Coach 11/4): Building, Waiting on info, Board review (the 48 hour countdown), On hold (a concern paused the
+// clock), Scheduled for deployment (the clock ran out), Live. The running clock lives in ready_deadline (Board review only);
+// a frozen clock lives in hold_remaining_ms (On hold only).
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const H = 3600 * 1000;
 const H24 = 24 * H;
 const H48 = 48 * H;
-const STATES = ["building", "waiting", "review", "ready", "hold", "scheduled", "live"] as const;
+const STATES = ["building", "waiting", "review", "hold", "scheduled", "live"] as const;
 const STATE_LABEL: Record<string, string> = {
-  building: "Building", waiting: "Waiting on info", review: "Board review", ready: "Ready to deploy",
-  hold: "On hold", scheduled: "Scheduled", live: "Live",
+  building: "Building", waiting: "Waiting on info", review: "Board review",
+  hold: "On hold", scheduled: "Scheduled for deployment", live: "Live",
 };
 const KINDS = ["comment", "suggestion", "concern", "approve", "help", "private"];
 const STATUSES = ["open", "resolved", "accepted", "declined"];
@@ -220,7 +223,7 @@ async function updatePage(slug: string, patch: Partial<Page>): Promise<Page> {
 }
 
 function remainingOf(p: Page, now = Date.now()): number | null {
-  if (p.state === "ready" && p.ready_deadline) return Math.max(0, Date.parse(p.ready_deadline) - now);
+  if (p.state === "review" && p.ready_deadline) return Math.max(0, Date.parse(p.ready_deadline) - now);
   if (p.state === "hold") return p.hold_remaining_ms == null ? null : Number(p.hold_remaining_ms);
   return null;
 }
@@ -282,7 +285,7 @@ async function emailForItem(item: Item, page: Page | null, effect: string): Prom
   if (item.variant) lines.push({ label: "Version", text: item.variant === "today" ? "Today" : "Proposed" });
   if (item.pin_x != null) lines.push({ label: "Spot", text: "Pinned on the page" });
   if (item.body) lines.push({ label: "Message", text: item.body });
-  if (effect) lines.push({ label: "Countdown", text: effect });
+  if (effect) lines.push({ label: "Board review clock", text: effect });
   return await sendEmail(subject, subject, lines, adminLink(item.slug, item));
 }
 
@@ -296,38 +299,42 @@ async function openCount(slug: string, kinds: string[], exceptId: string | null 
   return count ?? 0;
 }
 
-// ---------- countdown engine ----------
-// Turns expired Ready countdowns into Scheduled. Conditional update, so concurrent ticks never double-write.
+// ---------- countdown engine (Board review is the 48 hour countdown) ----------
+// Turns finished Board review countdowns into Scheduled for deployment. Conditional update, so concurrent ticks never
+// double-write.
 async function expire(): Promise<string[]> {
   const nowIso = isoNow();
   const { data, error } = await db.from("bls_board_pages")
     .update({ state: "scheduled", ready_deadline: null, hold_remaining_ms: null, updated_at: nowIso })
-    .eq("state", "ready").lte("ready_deadline", nowIso).select(PAGE_COLS);
+    .eq("state", "review").not("ready_deadline", "is", null).lte("ready_deadline", nowIso).select(PAGE_COLS);
   if (error) throw error;
   const out: string[] = [];
   for (const p of (data || []) as Page[]) {
     out.push(p.slug);
     const ph = await phaseName(p.phase_id);
     const where = ph ? `in ${ph}` : "for the next update";
-    await event(p.slug, "scheduled", `Countdown finished. ${p.title} was scheduled ${where}.`, "System");
+    await event(p.slug, "scheduled", `Board review finished. ${p.title} was scheduled for deployment ${where}.`, "System");
     if (!isTestSlug(p.slug)) {
       const open = await openCount(p.slug, ["concern", "suggestion"]);
       const still = open ? ` ${open} ${open === 1 ? "concern or suggestion is" : "concerns or suggestions are"} still open.` : "";
-      await sendEmail(`Countdown finished on ${p.title}`, `${p.title} is scheduled ${where}`,
-        [{ text: `The countdown on ${p.title} reached zero. It is now Scheduled ${where}.${still}` }],
+      await sendEmail(`Board review finished on ${p.title}`, `${p.title} is scheduled for deployment ${where}`,
+        [{ text: `The 48 hour Board review on ${p.title} reached zero. It is now Scheduled for deployment ${where}.${still}` }],
         adminLink(p.slug));
     }
   }
   return out;
 }
 
-// Applies the suggestion and concern rules to a Ready page. Returns a plain-English effect line.
+// Applies the suggestion and concern rules to a page in Board review. Returns a plain-English effect line.
 async function applyFeedbackRules(slug: string, kind: string, actor: string): Promise<{ page: Page | null; effect: string }> {
   for (let attempt = 0; attempt < 3; attempt++) {
     const p = await getPage(slug);
     if (!p) return { page: null, effect: "" };
-    if (p.state === "hold") return { page: p, effect: kind === "concern" ? `Already On hold with ${fmtDur(remainingOf(p) ?? 0)} left.` : "" };
-    if (p.state !== "ready" || !p.ready_deadline) return { page: p, effect: "" };
+    if (p.state === "hold") {
+      const held = remainingOf(p);
+      return { page: p, effect: kind === "concern" ? (held != null ? `Already On hold with ${fmtDur(held)} left.` : "Already On hold.") : "" };
+    }
+    if (p.state !== "review" || !p.ready_deadline) return { page: p, effect: "" };
     const now = Date.now();
     const rem = Math.max(0, Date.parse(p.ready_deadline) - now);
     if (kind === "suggestion") {
@@ -335,18 +342,18 @@ async function applyFeedbackRules(slug: string, kind: string, actor: string): Pr
       const added = next - rem;
       const { data } = await db.from("bls_board_pages")
         .update({ ready_deadline: new Date(now + next).toISOString(), updated_at: isoNow() })
-        .eq("slug", slug).eq("state", "ready").eq("ready_deadline", p.ready_deadline).select(PAGE_COLS);
+        .eq("slug", slug).eq("state", "review").eq("ready_deadline", p.ready_deadline).select(PAGE_COLS);
       if (!data?.length) continue;
-      if (added > 60000) await event(slug, "time_added", `A suggestion added ${fmtDur(added)} back to the ${p.title} countdown.`, actor);
-      return { page: data[0] as Page, effect: added > 60000 ? `${fmtDur(added)} added back. ${fmtDur(next)} left on the countdown.` : `No time added (the countdown is at its 48 hour cap).` };
+      if (added > 60000) await event(slug, "time_added", `A suggestion added ${fmtDur(added)} back to the ${p.title} Board review.`, actor);
+      return { page: data[0] as Page, effect: added > 60000 ? `${fmtDur(added)} added back. ${fmtDur(next)} left in Board review.` : `No time added (Board review is at its 48 hour cap).` };
     }
     if (kind === "concern") {
       const { data } = await db.from("bls_board_pages")
         .update({ state: "hold", ready_deadline: null, hold_remaining_ms: rem, updated_at: isoNow() })
-        .eq("slug", slug).eq("state", "ready").eq("ready_deadline", p.ready_deadline).select(PAGE_COLS);
+        .eq("slug", slug).eq("state", "review").eq("ready_deadline", p.ready_deadline).select(PAGE_COLS);
       if (!data?.length) continue;
-      await event(slug, "hold", `${p.title} went On hold for a concern with ${fmtDur(rem)} left.`, actor);
-      return { page: data[0] as Page, effect: `The page is now On hold with ${fmtDur(rem)} left.` };
+      await event(slug, "hold", `${p.title} went On hold for a concern with ${fmtDur(rem)} left in Board review.`, actor);
+      return { page: data[0] as Page, effect: `The page is now On hold with ${fmtDur(rem)} left in Board review.` };
     }
     return { page: p, effect: "" };
   }
@@ -354,75 +361,76 @@ async function applyFeedbackRules(slug: string, kind: string, actor: string): Pr
 }
 
 // Moves a page to a new state and keeps the clock columns consistent. Writes the matching event.
+// Board review always gets a fresh 48 hour clock, except when it resumes an On hold page that has a frozen clock.
 async function setState(p: Page, to: string, actor: string, extra: Partial<Page> = {}, why = ""): Promise<Page> {
   const now = Date.now();
   const patch: Partial<Page> = { ...extra, state: to, ready_deadline: null, hold_remaining_ms: null };
   let kind = "state_changed";
   let detail = `${p.title} moved from ${STATE_LABEL[p.state]} to ${STATE_LABEL[to]}.${why ? " " + why : ""}`;
-  if (to === "ready") {
-    let rem = H48;
-    if (p.state === "ready" && p.ready_deadline) rem = Math.max(0, Date.parse(p.ready_deadline) - now);
-    else if (p.state === "hold" && p.hold_remaining_ms != null) rem = Number(p.hold_remaining_ms);
+  if (to === "review") {
+    const resume = p.state === "hold" && p.hold_remaining_ms != null;
+    const rem = resume ? Number(p.hold_remaining_ms) : H48;
     patch.ready_deadline = new Date(now + rem).toISOString();
-    kind = p.state === "hold" ? "resumed" : "countdown_started";
-    detail = p.state === "hold"
-      ? `${p.title} countdown resumed with ${fmtDur(rem)} left.`
-      : `Daniel marked ${p.title} Ready to deploy. ${rem === H48 ? "The 48 hour countdown started." : `The countdown started with ${fmtDur(rem)} left.`}`;
+    kind = resume ? "resumed" : "countdown_started";
+    detail = resume
+      ? `${p.title} Board review resumed with ${fmtDur(rem)} left.`
+      : `Daniel started Board review on ${p.title}. The 48 hour countdown started.`;
   } else if (to === "hold") {
     const rem = remainingOf(p, now);
-    patch.hold_remaining_ms = p.state === "ready" ? rem : (p.state === "hold" ? p.hold_remaining_ms : null);
+    patch.hold_remaining_ms = p.state === "review" ? rem : (p.state === "hold" ? p.hold_remaining_ms : null);
     kind = "hold";
-    detail = `${p.title} went On hold${patch.hold_remaining_ms != null ? ` with ${fmtDur(Number(patch.hold_remaining_ms))} left` : ""}.`;
+    detail = `${p.title} went On hold${patch.hold_remaining_ms != null ? ` with ${fmtDur(Number(patch.hold_remaining_ms))} left in Board review` : ""}.`;
   } else if (to === "scheduled") {
     const ph = await phaseName(extra.phase_id !== undefined ? extra.phase_id as string | null : p.phase_id);
     kind = "scheduled";
-    detail = `${p.title} was scheduled ${ph ? `in ${ph}` : "for the next update"}.`;
+    detail = `${p.title} was scheduled for deployment ${ph ? `in ${ph}` : "for the next update"}.`;
   } else if (to === "live") {
     patch.live_since = extra.live_since || pacific().date;
     kind = "live";
     detail = `${p.title} went live on blslittleleague.org.`;
   }
   const out = await updatePage(p.slug, patch);
-  if (p.state !== to || to === "ready") await event(p.slug, kind, detail, actor);
+  if (p.state !== to || to === "review") await event(p.slug, kind, detail, actor);
   return out;
 }
 
 async function applyTimer(p: Page, timer: string): Promise<Page> {
   const now = Date.now();
+  const frozen = p.state === "hold" && p.hold_remaining_ms != null;
   switch (timer) {
     case "start": {
-      const out = await updatePage(p.slug, { state: "ready", ready_deadline: new Date(now + H48).toISOString(), hold_remaining_ms: null });
-      await event(p.slug, "countdown_started", `Daniel marked ${p.title} Ready to deploy. The 48 hour countdown started.`, ADMIN_NAME);
+      const out = await updatePage(p.slug, { state: "review", ready_deadline: new Date(now + H48).toISOString(), hold_remaining_ms: null });
+      await event(p.slug, "countdown_started", `Daniel started Board review on ${p.title}. The 48 hour countdown started.`, ADMIN_NAME);
       return out;
     }
     case "pause": {
-      if (p.state !== "ready") throw new HttpError(409, "The countdown is not running.");
+      if (p.state !== "review" || !p.ready_deadline) throw new HttpError(409, "The Board review clock is not running.");
       const rem = remainingOf(p, now) ?? 0;
       const out = await updatePage(p.slug, { state: "hold", ready_deadline: null, hold_remaining_ms: rem });
-      await event(p.slug, "hold", `Daniel paused the ${p.title} countdown with ${fmtDur(rem)} left.`, ADMIN_NAME);
+      await event(p.slug, "hold", `Daniel paused the ${p.title} Board review with ${fmtDur(rem)} left.`, ADMIN_NAME);
       return out;
     }
     case "resume": {
-      if (p.state !== "hold") throw new HttpError(409, "The countdown is not paused.");
-      return await setState(p, "ready", ADMIN_NAME);
+      if (!frozen) throw new HttpError(409, "There is no paused Board review clock.");
+      return await setState(p, "review", ADMIN_NAME);
     }
     case "add24": {
-      if (p.state === "ready" && p.ready_deadline) {
+      if (p.state === "review" && p.ready_deadline) {
         const out = await updatePage(p.slug, { ready_deadline: new Date(Math.max(now, Date.parse(p.ready_deadline)) + H24).toISOString() });
-        await event(p.slug, "time_added", `Daniel added 24 hours to the ${p.title} countdown.`, ADMIN_NAME);
+        await event(p.slug, "time_added", `Daniel added 24 hours to the ${p.title} Board review.`, ADMIN_NAME);
         return out;
       }
-      if (p.state === "hold") {
-        const out = await updatePage(p.slug, { hold_remaining_ms: Number(p.hold_remaining_ms ?? 0) + H24 });
-        await event(p.slug, "time_added", `Daniel added 24 hours to the ${p.title} countdown.`, ADMIN_NAME);
+      if (frozen) {
+        const out = await updatePage(p.slug, { hold_remaining_ms: Number(p.hold_remaining_ms) + H24 });
+        await event(p.slug, "time_added", `Daniel added 24 hours to the ${p.title} Board review.`, ADMIN_NAME);
         return out;
       }
-      throw new HttpError(409, "There is no countdown on this page.");
+      throw new HttpError(409, "There is no Board review clock on this page.");
     }
     case "clear": {
-      if (p.state !== "ready" && p.state !== "hold") return p;
-      const out = await updatePage(p.slug, { state: "review", ready_deadline: null, hold_remaining_ms: null });
-      await event(p.slug, "cleared", `Daniel cleared the ${p.title} countdown. It went back to Board review.`, ADMIN_NAME);
+      if (p.state !== "review" && p.state !== "hold") return p;
+      const out = await updatePage(p.slug, { state: "building", ready_deadline: null, hold_remaining_ms: null });
+      await event(p.slug, "cleared", `Daniel cleared the ${p.title} Board review clock. It went back to Building.`, ADMIN_NAME);
       return out;
     }
     case "schedule_now":
@@ -678,11 +686,11 @@ async function adminPage(b: Record<string, unknown>) {
   const state = b.state == null || b.state === "" ? "" : String(b.state);
   if (state && !(STATES as readonly string[]).includes(state)) bad("Unknown page state.");
 
-  // A timer that already lands on the requested state (e.g. {state:'ready', timer:'start'}) does the move itself,
-  // so the page gets one event, not two.
-  const timerTarget: Record<string, string> = { start: "ready", resume: "ready", pause: "hold", schedule_now: "scheduled", clear: "review" };
+  // A timer that already lands on the requested state (e.g. {state:'review', timer:'start'}) does the move itself,
+  // so the page gets one event, not two. Setting state review on a page already in Board review restarts its 48 hours.
+  const timerTarget: Record<string, string> = { start: "review", resume: "review", pause: "hold", schedule_now: "scheduled", clear: "building" };
   const timerDoesIt = !!timer && timerTarget[timer] === state;
-  if (state && state !== p.state && !timerDoesIt) p = await setState(p, state, ADMIN_NAME, extra);
+  if (state && (state !== p.state || state === "review") && !timerDoesIt) p = await setState(p, state, ADMIN_NAME, extra);
   else if (Object.keys(extra).length) p = await updatePage(p.slug, extra);
   if (timer) p = await applyTimer(p, timer);
   return { ok: true, page: await pageWithCounts(p.slug) };
@@ -705,37 +713,38 @@ async function adminResolve(b: Record<string, unknown>) {
   if (affects && page) {
     const kindWord = item.kind === "concern" ? "a concern" : "a suggestion";
     await event(page.slug, "resolved", `Daniel answered ${kindWord} on ${page.title}: ${STATUS_LABEL[status]}.`, ADMIN_NAME, item.id);
-    // Keep as is resumes only a countdown that a concern paused (a frozen clock exists). A page Daniel put On hold
-    // from Review or Building with the state picker has no clock and stays where it is.
+    // Keep as is resumes only a Board review clock that was paused (a frozen clock exists). A page Daniel put On hold
+    // from Building or Waiting with the state picker has no clock and stays where it is.
     if (status === "declined" && page.state === "hold" && page.hold_remaining_ms != null) {
       page = await resumeIfClear(page, item.id);
-    } else if (status === "accepted" && ["ready", "hold", "scheduled"].includes(page.state)) {
-      // Will change pulls a page that is heading to the live site back to Building. Review and Waiting stay put.
+    } else if (status === "accepted" && ["review", "hold", "scheduled"].includes(page.state)) {
+      // Will change pulls a page that is in Board review or heading to the live site back to Building and clears the
+      // clock. Building and Waiting stay put.
       page = await setState(page, "building", ADMIN_NAME, {}, "Daniel is making a change.");
     }
   }
   return { ok: true, item: publicItem(upd as Item), page: page ? await pageWithCounts(page.slug) : null };
 }
 
-// Resumes an On hold countdown with at least 24 hours when no other concern is open. Conditional writes, so a
-// concern that lands while this runs keeps (or puts) the page On hold.
+// Resumes an On hold page's Board review with at least 24 hours when no other concern is open. Conditional writes, so
+// a concern that lands while this runs keeps (or puts) the page On hold.
 async function resumeIfClear(page: Page, exceptId: string): Promise<Page> {
   if (await openCount(page.slug, ["concern"], exceptId)) return page;
   const held = Number(page.hold_remaining_ms);
   const rem = Math.max(held, H24);
   const deadline = new Date(Date.now() + rem).toISOString();
   const { data, error } = await db.from("bls_board_pages")
-    .update({ state: "ready", ready_deadline: deadline, hold_remaining_ms: null, updated_at: isoNow() })
+    .update({ state: "review", ready_deadline: deadline, hold_remaining_ms: null, updated_at: isoNow() })
     .eq("slug", page.slug).eq("state", "hold").eq("hold_remaining_ms", held).select(PAGE_COLS);
   if (error) throw error;
   if (!data?.length) return (await getPage(page.slug)) || page;
   if (await openCount(page.slug, ["concern"], exceptId)) {
     const { data: back } = await db.from("bls_board_pages")
       .update({ state: "hold", ready_deadline: null, hold_remaining_ms: held, updated_at: isoNow() })
-      .eq("slug", page.slug).eq("state", "ready").eq("ready_deadline", deadline).select(PAGE_COLS);
+      .eq("slug", page.slug).eq("state", "review").eq("ready_deadline", deadline).select(PAGE_COLS);
     return (back?.[0] as Page) || (await getPage(page.slug)) || page;
   }
-  await event(page.slug, "resumed", `${page.title} countdown resumed with ${fmtDur(rem)} left.`, ADMIN_NAME);
+  await event(page.slug, "resumed", `${page.title} Board review resumed with ${fmtDur(rem)} left.`, ADMIN_NAME);
   return data[0] as Page;
 }
 

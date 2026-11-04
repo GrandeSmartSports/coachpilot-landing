@@ -35,8 +35,8 @@ html.blsb-lock{overflow:hidden!important}
 .blsb .blsb-chip-lg{font-size:15px;min-height:34px;padding:6px 14px}
 .blsb .blsb-s-building{background:#5d6785;color:#fff}
 .blsb .blsb-s-waiting{background:#ffcf5c;color:#4a2c00}
+/* Board review (blue) carries the live 48 hour countdown; Scheduled for deployment is navy */
 .blsb .blsb-s-review{background:#1452a0;color:#fff}
-.blsb .blsb-s-ready{background:#127a3a;color:#fff}
 .blsb .blsb-s-hold{background:#cd163f;color:#fff}
 .blsb .blsb-s-scheduled{background:#00013a;color:#fff;box-shadow:inset 0 0 0 2px #8e9bd6}
 .blsb .blsb-s-live{background:#0b4d26;color:#fff}
@@ -269,6 +269,8 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 #blsbBar .blsb-bar-stat{flex:1 1 auto;min-width:0;min-height:44px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;padding:2px 4px;border-radius:10px;text-align:left;color:#fff}
 #blsbBar .blsb-chip{min-height:24px;padding:3px 10px;font-size:13px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
 #blsbBar .blsb-bar-counts{display:block;max-width:100%;font:600 12.5px/1.2 var(--b-font);color:#c9d3f2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:2px}
+/* the Board review time sits first on the line under the chip, so a phone never cuts the state name */
+#blsbBar .blsb-bar-cd{color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
 #blsbBar .blsb-bar-fb{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 15px/1 var(--b-font)}
 #blsbBar .blsb-bar-n{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--b-red);color:#fff;font:800 12.5px/1 var(--b-font)}
 .blsb .blsb-bar-btn{flex:none;min-height:40px;padding:8px 16px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 14px/1 var(--b-font)}
@@ -325,7 +327,9 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-how-body{display:grid;grid-template-columns:minmax(0,1fr);gap:4px 28px}
 @media (min-width:900px){.blsb .blsb-how-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .blsb .blsb-how-states{display:flex;flex-direction:column;gap:8px}
-.blsb .blsb-how-st{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:10px;font-size:15px;line-height:1.35}
+/* phones: chip above its meaning (Scheduled for deployment is a long chip); wider screens: two columns */
+.blsb .blsb-how-st{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:4px 10px;font-size:15px;line-height:1.35}
+@media (min-width:600px){.blsb .blsb-how-st{grid-template-columns:218px minmax(0,1fr);gap:10px}}
 .blsb .blsb-how-st .blsb-chip{justify-self:start}
 .blsb .blsb-rules{display:flex;flex-direction:column;gap:7px}
 .blsb .blsb-rules li{position:relative;padding-left:18px;font-size:15px;line-height:1.45}

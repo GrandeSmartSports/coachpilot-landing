@@ -21,19 +21,19 @@
   var DESK = window.matchMedia ? window.matchMedia('(min-width: 900px)') : { matches: false };
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+  // Board review is the 48 hour countdown. When it runs out the page is Scheduled for deployment, then Live.
   var STATES = {
     building: { label: 'Building', mean: 'Daniel is still working on this page.' },
     waiting: { label: 'Waiting on info', mean: 'Needs facts before it can be finished.' },
-    review: { label: 'Board review', mean: 'Look it over. Approve, suggest a change, or raise a concern.' },
-    ready: { label: 'Ready to deploy', mean: 'Final check done. Scheduled for the next update in 48 hours unless a concern is raised.' },
-    hold: { label: 'On hold', mean: 'Countdown paused while Daniel looks at a concern.' },
-    scheduled: { label: 'Scheduled', mean: 'In the next update to the live site.' },
+    review: { label: 'Board review', mean: 'The 48 hour countdown. Approve, suggest a change, or raise a concern.' },
+    hold: { label: 'On hold', mean: 'A concern paused the Board review clock while Daniel looks at it.' },
+    scheduled: { label: 'Scheduled for deployment', mean: 'Board review is done. In the next update to the live site.' },
     live: { label: 'Live', mean: 'Live on blslittleleague.org.' }
   };
-  var ORDER = ['building', 'waiting', 'review', 'ready', 'hold', 'scheduled', 'live'];
-  // short words for phase chips and phase summaries
-  var SHORT = { building: 'Building', waiting: 'Waiting', review: 'Review', ready: 'Ready', hold: 'On hold', scheduled: 'Scheduled', live: 'Live' };
-  var SUMW = { building: 'building', waiting: 'waiting on info', review: 'in board review', ready: 'ready', hold: 'on hold', scheduled: 'scheduled', live: 'live' };
+  var ORDER = ['building', 'waiting', 'review', 'hold', 'scheduled', 'live'];
+  // short words for the preview bar, phase chips and phase summaries
+  var SHORT = { building: 'Building', waiting: 'Waiting', review: 'Review', hold: 'On hold', scheduled: 'Scheduled', live: 'Live' };
+  var SUMW = { building: 'building', waiting: 'waiting on info', review: 'in board review', hold: 'on hold', scheduled: 'scheduled for deployment', live: 'live' };
   var PUBLIC_EMAIL = 'Everyone on the board can read it. Daniel also gets an email.';
   var KINDS = {
     comment: { label: 'Comment', badge: 'Comment', hint: 'Everyone on the board can read it.', ph: 'Your comment' },
@@ -179,8 +179,10 @@
     var p = pageOf(slug);
     return (p && p.title) || (META[slug] && META[slug].t) || slug;
   }
-  function stKey(p) { return p && STATES[p.state] ? p.state : 'review'; }
-  function running(p) { return !!p && p.state === 'ready' && p.remaining_ms != null; }
+  function stKey(p) { return p && STATES[p.state] ? p.state : 'building'; }
+  function running(p) { return !!p && p.state === 'review' && p.remaining_ms != null; }
+  // a clock exists while in Board review, and frozen while On hold (a page Daniel held by hand has none)
+  function hasClock(p) { return !!p && (p.state === 'review' || p.state === 'hold') && p.remaining_ms != null; }
   function remaining(p) {
     if (!p || p.remaining_ms == null) return null;
     return Math.max(0, Number(p.remaining_ms) - (running(p) ? Date.now() - S.at : 0));
@@ -335,13 +337,15 @@
   }
 
   // ---------- shared pieces ----------
-  function chip(p, extra) {
+  // short: the compact preview bar. Its chip says "Scheduled" and leaves the clock out (the bar puts the time on the
+  // line under the chip), so the chip fits next to Feedback on a phone.
+  function chip(p, extra, short) {
     var st = stKey(p);
     var c = h('span', { class: 'blsb-chip blsb-s-' + st + (extra ? ' ' + extra : '') }, [
       h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }),
-      h('span', { class: 'blsb-chip-t', text: STATES[st].label })
+      h('span', { class: 'blsb-chip-t', text: short && st === 'scheduled' ? SHORT.scheduled : STATES[st].label })
     ]);
-    if ((st === 'ready' || st === 'hold') && p.remaining_ms != null) {
+    if (hasClock(p) && !short) {
       c.appendChild(h('span', { class: 'blsb-chip-sep', 'aria-hidden': 'true', text: '·' }));
       c.appendChild(h('span', { class: 'blsb-chip-cd', 'data-cd': p.slug, 'data-fmt': st === 'hold' ? 'shortleft' : 'short' }));
     }
@@ -352,25 +356,21 @@
   function meaningEl(p) {
     var st = stKey(p), s = h('span', { class: 'blsb-mean-t' });
     var rem = remaining(p);
-    if (st === 'ready') {
-      if (rem == null) add(s, STATES.ready.mean);
-      else add(s, ['Final check done. Scheduled for the next update in ', cdSpan(p, 'long'), ' unless a concern is raised.']);
+    if (st === 'review') {
+      if (rem == null) add(s, STATES.review.mean);
+      else add(s, ['Board review: ', cdSpan(p, 'long'), ' left to approve, suggest a change, or raise a concern. Then it is scheduled for deployment.']);
     } else if (st === 'hold') {
-      add(s, STATES.hold.mean);
-      if (rem != null) add(s, [' Paused with ', cdSpan(p, 'long'), ' left.']);
+      if (rem != null) add(s, ['A concern paused the Board review clock with ', cdSpan(p, 'long'), ' left. Daniel is looking at it.']);
+      else add(s, 'Paused while Daniel looks at this page.');
     } else if (st === 'scheduled') {
       var ph = phaseOf(p.phase_id);
-      add(s, ph ? 'In the next update to the live site: ' + ph.name + (ph.target_date ? ', target ' + fmtDay(ph.target_date) : '') + '.' : STATES.scheduled.mean);
+      add(s, ph ? 'Board review is done. Goes out in ' + ph.name + (ph.target_date ? ', target ' + fmtDay(ph.target_date) : '') + '.' : STATES.scheduled.mean);
     } else if (st === 'live') {
       add(s, 'Live on blslittleleague.org' + (p.live_since ? ' since ' + fmtDay(p.live_since) : '') + '.');
       var u = safeUrl(p.live_url);
       if (u) add(s, [' ', h('a', { class: 'blsb-link', href: u, target: '_blank', rel: 'noopener', text: 'See it live' })]);
-    } else if (st === 'waiting') {
-      add(s, STATES.waiting.mean + (p.due_date ? ' Due ' + fmtDay(p.due_date) + '.' : ''));
-    } else if (st === 'review') {
-      add(s, STATES.review.mean + (p.due_date ? ' Review by ' + fmtDay(p.due_date) + '.' : ''));
     } else {
-      add(s, STATES[st].mean);
+      add(s, STATES[st].mean + (p.due_date ? ' Due ' + fmtDay(p.due_date) + '.' : ''));
     }
     return s;
   }
@@ -662,7 +662,7 @@
     c.setSpot = function (spot) { c.spot = spot; c.refresh(); };
     c.refresh = function () {
       var p = c.slug != null ? pageOf(c.slug) : null;
-      var ready = p && (p.state === 'ready');
+      var clock = running(p);
       // Daniel only posts plain comments (his posts show as Daniel (Website)); the other kinds are for the board.
       var adminPlain = S.admin && o.kinds.indexOf('comment') >= 0;
       if (adminPlain && c.kind !== 'comment') { c.kind = 'comment'; c.req = null; }
@@ -670,8 +670,8 @@
       if (kindsEl) kindsEl.hidden = !!c.reply || adminPlain;
       var kh = KINDS[c.kind] || KINDS.comment;
       var t = kh.hint;
-      if (ready && c.kind === 'suggestion') t = 'A change idea. Adds 24 hours back to the countdown. ' + PUBLIC_EMAIL;
-      if (ready && c.kind === 'concern') t = 'Something wrong or blocking. Puts the countdown on hold. ' + PUBLIC_EMAIL;
+      if (clock && c.kind === 'suggestion') t = 'A change idea. Adds 24 hours back to Board review (never more than 48 hours left). ' + PUBLIC_EMAIL;
+      if (clock && c.kind === 'concern') t = 'Something wrong or blocking. Puts the page On hold and stops the Board review clock. ' + PUBLIC_EMAIL;
       if (adminPlain && !c.reply) t = 'Your comment shows as ' + ADMIN_NAME + '. Everyone on the board can read it.';
       if (c.reply) t = S.admin ? 'Your reply shows as ' + ADMIN_NAME + '.' : 'Your reply shows under ' + (c.reply.name || 'this item') + '.';
       hint.textContent = o.hint || t;
@@ -788,17 +788,19 @@
         if (i.status === 'open') {
           var why = '';
           if (i.kind === 'concern' || i.kind === 'suggestion') {
-            // Will change sends a page that is heading to the live site (Ready, On hold, Scheduled) back to Building,
-            // so it takes a second tap there. On Review or Waiting pages it only marks the item.
+            // Will change sends a page that is in Board review or heading to the live site (Board review, On hold,
+            // Scheduled for deployment) back to Building, so it takes a second tap there. On Building or Waiting pages it
+            // only marks the item.
             var pg = i.slug != null ? pageOf(i.slug) : null;
             var st = pg ? pg.state : '';
-            var moves = st === 'ready' || st === 'hold' || st === 'scheduled';
+            var moves = st === 'review' || st === 'hold' || st === 'scheduled';
             acts.appendChild(moves
               ? twoTap('Will change', 'Tap again: page goes back to Building', function (b) { res('accepted', 'Marked Will change. The page is back in Building.')(b); }, 'blsb-mini-go')
               : h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'Will change', onclick: function () { res('accepted', 'Marked Will change.')(this); } }));
             acts.appendChild(h('button', { type: 'button', class: 'blsb-mini', text: 'Keep as is', onclick: function () { res('declined', 'Marked Keep as is.')(this); } }));
-            why = st === 'hold' ? 'Keep as is: the countdown resumes with at least 24 hours once no concern is open. Will change: the page goes back to Building.'
-              : st === 'ready' ? 'Keep as is: the countdown keeps running. Will change: the page goes back to Building.'
+            why = st === 'hold' && hasClock(pg) ? 'Keep as is: Board review resumes with at least 24 hours once no concern is open. Will change: the page goes back to Building.'
+              : st === 'hold' ? 'Will change: the page goes back to Building.'
+              : st === 'review' ? 'Keep as is: the Board review clock keeps running. Will change: the page goes back to Building and the clock is cleared.'
               : st === 'scheduled' ? 'Will change: the page goes back to Building and comes off the schedule.' : '';
           }
           acts.appendChild(h('button', { type: 'button', class: 'blsb-mini', text: i.kind === 'comment' ? 'Resolve' : 'Done', onclick: function () { res('resolved', 'Marked done.')(this); } }));
@@ -887,10 +889,10 @@
       var noteId = uid();
       var note = h('input', { id: noteId, class: 'blsb-in', type: 'text', maxlength: '500', placeholder: 'Optional note with your approval' });
       var noteWrap = h('div', { class: 'blsb-appr-note', hidden: !S.open['note:' + p.slug] || mine }, [h('label', { class: 'blsb-sr', for: noteId, text: 'Note with your approval' }), note]);
-      var clock = p.state === 'ready' || p.state === 'hold';
+      var clock = hasClock(p);
       var btn = h('button', { type: 'button', class: 'blsb-approve' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' }, [
         h('span', { class: 'blsb-approve-t', text: mine ? 'You approved this page' : 'Approve this page' }),
-        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : clock ? 'One tap. The countdown is not changed.' : 'One tap. Tells Daniel this page looks good to you.' })
+        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : clock ? 'One tap. The Board review clock does not change.' : 'One tap. Tells Daniel this page looks good to you.' })
       ]);
       btn.addEventListener('click', function () {
         if (!S.name) { openWho(function () { btn.click(); }, 'approval'); return; }
@@ -927,23 +929,23 @@
   }
   function setStateTo(p, st) {
     if (st === p.state) return;
-    if (st === 'ready') return adminPage(p, p.state === 'hold' ? { timer: 'resume' } : { state: 'ready', timer: 'start' }, 'Countdown running.');
-    if (st === 'hold') return adminPage(p, p.state === 'ready' ? { timer: 'pause' } : { state: 'hold' }, 'On hold.');
-    if (st === 'scheduled' && (p.state === 'ready' || p.state === 'hold')) return adminPage(p, { timer: 'schedule_now' }, 'Scheduled.');
+    if (st === 'review') return adminPage(p, p.state === 'hold' && hasClock(p) ? { timer: 'resume' } : { state: 'review', timer: 'start' }, p.state === 'hold' && hasClock(p) ? 'Board review resumed.' : 'Board review started. The 48 hour countdown is running.');
+    if (st === 'hold') return adminPage(p, running(p) ? { timer: 'pause' } : { state: 'hold' }, 'On hold.');
+    if (st === 'scheduled' && hasClock(p)) return adminPage(p, { timer: 'schedule_now' }, 'Scheduled for deployment.');
     var b = { state: st };
     if (st === 'live' && !p.live_since) b.live_since = todayIso();
     return adminPage(p, b, 'State set to ' + STATES[st].label + '.');
   }
   // What a state change will do, asked before it happens (the whole board sees the result).
   function stateQuestion(p, to) {
-    var clock = p.state === 'ready' || p.state === 'hold';
+    var clock = hasClock(p);
     var rem = remaining(p);
-    if (to === 'ready') return p.state === 'hold' && rem != null ? 'Resume the countdown with ' + fmtLong(rem) + ' left?'
-      : 'Start the 48 hour countdown? When it ends the page is scheduled for the next update, unless a concern is raised.';
-    if (to === 'hold') return p.state === 'ready' && rem != null ? 'Pause the countdown with ' + fmtLong(rem) + ' left?' : 'Put this page On hold?';
-    if (to === 'scheduled') return 'Schedule this page for the next update to the live site?' + (clock ? ' This ends the countdown now.' : '');
+    if (to === 'review') return p.state === 'hold' && clock ? 'Resume Board review with ' + fmtLong(rem) + ' left?'
+      : 'Start Board review? This starts the 48 hour countdown. When it ends the page is scheduled for deployment, unless a concern is raised.';
+    if (to === 'hold') return running(p) ? 'Pause Board review with ' + fmtLong(rem) + ' left?' : 'Put this page On hold?';
+    if (to === 'scheduled') return 'Schedule this page for deployment in the next update to the live site?' + (clock ? ' This ends Board review now.' : '');
     if (to === 'live') return 'Mark this page Live' + (p.live_since ? '' : ' as of today') + '?';
-    return 'Change this page to ' + STATES[to].label + '?' + (clock ? ' This clears the countdown.' : '');
+    return 'Change this page to ' + STATES[to].label + '?' + (clock ? ' This clears the Board review clock.' : '');
   }
   function adminControls(p) {
     var box = h('div', { class: 'blsb-adm' });
@@ -975,16 +977,19 @@
     add(box, h('div', { class: 'blsb-adm-grid' }, [
       h('div', { class: 'blsb-field' }, [h('label', { class: 'blsb-label', for: sid, text: 'State' }), sel]),
       h('div', { class: 'blsb-field' }, [h('label', { class: 'blsb-label', for: pid, text: 'Phase' }), psel]),
-      h('div', { class: 'blsb-field' }, [h('label', { class: 'blsb-label', for: did, text: p.state === 'waiting' ? 'Due date' : 'Review by or due date' }), due])
+      h('div', { class: 'blsb-field' }, [h('label', { class: 'blsb-label', for: did, text: 'Due date' }), due])
     ]));
     add(box, conf);
-    // countdown buttons
+    // Board review clock buttons
     var t = h('div', { class: 'blsb-adm-timer' });
     function tb(label, timer, msg, cls) { return h('button', { type: 'button', class: 'blsb-mini ' + (cls || ''), text: label, onclick: function () { this.disabled = true; var b = this; adminPage(p, { timer: timer }, msg).catch(function () { b.disabled = false; }); } }); }
-    if (p.state === 'ready') add(t, [tb('Pause', 'pause', 'Countdown paused.'), tb('Add 24 hours', 'add24', 'Added 24 hours.'), twoTap('Clear countdown', 'Tap again to clear', function () { adminPage(p, { timer: 'clear' }, 'Countdown cleared.'); }), twoTap('Schedule now', 'Tap again to schedule', function () { adminPage(p, { timer: 'schedule_now' }, 'Scheduled.'); }, 'blsb-mini-go')]);
-    else if (p.state === 'hold') add(t, [tb('Resume', 'resume', 'Countdown resumed.', 'blsb-mini-go'), tb('Add 24 hours', 'add24', 'Added 24 hours.'), twoTap('Clear countdown', 'Tap again to clear', function () { adminPage(p, { timer: 'clear' }, 'Countdown cleared.'); }), twoTap('Schedule now', 'Tap again to schedule', function () { adminPage(p, { timer: 'schedule_now' }, 'Scheduled.'); })]);
+    var clearB = function () { return twoTap('Clear countdown', 'Tap again: back to Building', function () { adminPage(p, { timer: 'clear' }, 'Clock cleared. The page is back in Building.'); }); };
+    var schedB = function (cls) { return twoTap('Schedule now', 'Tap again to schedule', function () { adminPage(p, { timer: 'schedule_now' }, 'Scheduled for deployment.'); }, cls); };
+    var startB = function () { return twoTap('Start Board review', 'Tap again to start 48 hours', function () { adminPage(p, { state: 'review', timer: 'start' }, 'Board review started. The 48 hour countdown is running.'); }, 'blsb-mini-go'); };
+    if (running(p)) add(t, [tb('Pause', 'pause', 'Board review paused.'), tb('Add 24 hours', 'add24', 'Added 24 hours.'), clearB(), schedB('blsb-mini-go')]);
+    else if (p.state === 'hold' && hasClock(p)) add(t, [tb('Resume', 'resume', 'Board review resumed.', 'blsb-mini-go'), tb('Add 24 hours', 'add24', 'Added 24 hours.'), clearB(), schedB()]);
     else if (p.state === 'scheduled') add(t, [h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: 'Mark live today', onclick: function () { adminPage(p, { state: 'live', live_since: p.live_since || todayIso() }, 'Marked live.'); } })]);
-    else if (p.state !== 'live') add(t, [twoTap('Start 48 hour countdown', 'Tap again to start', function () { adminPage(p, { state: 'ready', timer: 'start' }, 'Countdown started.'); }, 'blsb-mini-go')]);
+    else if (p.state !== 'live') add(t, [startB()]);
     if (t.firstChild) add(box, t);
     // details saved with one button
     var lsId = uid(), luId = uid(), nId = uid();
@@ -1175,9 +1180,11 @@
       var ot = p ? openText(p) : '';
       if (ot) bits.push(ot);
       if (S.off) bits.push('offline');
-      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? STATES[stKey(p)].label : 'unknown') + '. ' + bits.join(', ') + '. Open feedback.' }, [
-        p ? chip(p) : h('span', { class: 'blsb-chip blsb-s-building', text: 'Not on the board yet' }),
-        h('span', { class: 'blsb-bar-counts', text: bits.join(' · ') })
+      // a Board review or paused clock leads the line under the chip ("1d 22h left · No approvals yet")
+      var clk = p && hasClock(p);
+      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? STATES[stKey(p)].label + (clk ? ', ' + fmtLong(remaining(p)) + ' left' : '') : 'unknown') + '. ' + bits.join(', ') + '. Open feedback.' }, [
+        p ? chip(p, null, true) : h('span', { class: 'blsb-chip blsb-s-building', text: 'Not on the board yet' }),
+        h('span', { class: 'blsb-bar-counts' }, clk ? [h('span', { class: 'blsb-bar-cd', 'data-cd': p.slug, 'data-fmt': 'shortleft' }), ' · ' + bits.join(' · ')] : bits.join(' · '))
       ]);
       stat.addEventListener('click', function () { openSheet(PAGE); });
       var n = discussionCount(PAGE);
@@ -1339,20 +1346,20 @@
     var states = h('div', { class: 'blsb-how-states' });
     ORDER.forEach(function (k) {
       states.appendChild(h('div', { class: 'blsb-how-st' }, [h('span', { class: 'blsb-chip blsb-s-' + k }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), h('span', { class: 'blsb-chip-t', text: STATES[k].label })]),
-        h('span', { class: 'blsb-how-m', text: k === 'ready' ? 'Final check done. A 48 hour countdown runs, then the page is scheduled for the next update.' : k === 'scheduled' ? 'In the next update to the live site, in its phase.' : k === 'live' ? 'Live on blslittleleague.org.' : STATES[k].mean })]));
+        h('span', { class: 'blsb-how-m', text: k === 'scheduled' ? 'The 48 hours ran out. Goes out in the next update to the live site, in its phase.' : STATES[k].mean })]));
     });
     var rules = [
-      'Daniel does a final check, then marks a page Ready to deploy. A 48 hour countdown starts.',
+      'When a page is ready for the board, Daniel starts Board review. A 48 hour countdown starts.',
       'Approve: the clock keeps running.',
       'Suggestion: adds 24 hours back, never more than 48 hours left. Daniel gets an email.',
       'Concern: the page goes On hold and the clock stops. Daniel gets an email.',
-      'Daniel answers. Keep as is: the countdown resumes with at least 24 hours. Will change: the page goes back to Building.',
-      'At zero the page is scheduled for the next update to the live site. Daniel updates the live site in phases.'
+      'Daniel answers. Keep as is: Board review resumes with at least 24 hours. Will change: the page goes back to Building.',
+      'At zero the page is Scheduled for deployment in the next update to the live site. Daniel updates the live site in phases, then the page is Live.'
     ];
-    add(d, [h('summary', {}, [h('span', { class: 'blsb-panel-h', text: 'How this works' }), h('span', { class: 'blsb-how-sum', text: 'Page states and the 48 hour countdown' })]),
+    add(d, [h('summary', {}, [h('span', { class: 'blsb-panel-h', text: 'How this works' }), h('span', { class: 'blsb-how-sum', text: 'Page states and the 48 hour Board review' })]),
       h('div', { class: 'blsb-how-body' }, [
         h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'Page states' }), states]),
-        h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'The countdown' }), h('ul', { class: 'blsb-rules' }, rules.map(function (r) { return h('li', { text: r }); })),
+        h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'The Board review countdown' }), h('ul', { class: 'blsb-rules' }, rules.map(function (r) { return h('li', { text: r }); })),
           h('p', { class: 'blsb-muted blsb-small', text: 'Everyone uses this same link. Pick your name once and this device remembers it. Private messages go only to Daniel.' })])
       ])]);
     return d;
@@ -1397,10 +1404,10 @@
         chips.appendChild(h('a', { class: 'blsb-pchip blsb-s-' + st, href: '#p-' + p.slug, title: STATES[st].label }, [
           h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), h('span', { text: p.title || titleOf(p.slug) }),
           h('span', { class: 'blsb-pchip-st', text: ' · ' + SHORT[st] }),
-          (st === 'ready' || st === 'hold') && p.remaining_ms != null ? h('span', { class: 'blsb-pchip-cd', 'data-cd': p.slug, 'data-fmt': 'short' }) : null
+          hasClock(p) ? h('span', { class: 'blsb-pchip-cd', 'data-cd': p.slug, 'data-fmt': 'short' }) : null
         ]));
       });
-      // one line per phase ("2 ready, 1 on hold, 14 in board review"); the chips fold away on phones
+      // one line per phase ("2 in board review, 1 on hold, 14 building"); the chips fold away on phones
       var sum = ORDER.filter(function (k) { return by[k]; }).map(function (k) { return by[k] + ' ' + SUMW[k]; }).join(', ');
       var key = 'ph:' + (g.ph ? g.ph.id : '_none');
       var openNow = S.open[key] != null ? S.open[key] : DESK.matches;

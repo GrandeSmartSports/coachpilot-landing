@@ -91,8 +91,11 @@ async function leftovers() {
 }
 
 // Clock helpers: simulate time passing by moving the stored deadline / frozen remainder directly.
-const setDeadline = (msFromNow) => rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATCH", body: { state: "ready", hold_remaining_ms: null, ready_deadline: new Date(Date.now() + msFromNow).toISOString() } });
+// Board review (state review) is the 48 hour countdown; On hold keeps the frozen remainder.
+const setDeadline = (msFromNow) => rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATCH", body: { state: "review", hold_remaining_ms: null, ready_deadline: new Date(Date.now() + msFromNow).toISOString() } });
 const setHold = (ms) => rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATCH", body: { state: "hold", ready_deadline: null, hold_remaining_ms: ms } });
+// true when the database refuses the write (a check constraint)
+const refused = async (body) => { try { await rest(`/bls_board_pages?slug=eq.${SLUG}`, { method: "PATCH", body }); return false; } catch (_e) { return true; } };
 async function adminState() { return (await api("state", { pin: PIN, query: "&test=1" })).j; }
 async function publicState(test = true) { return (await api("state", { query: test ? "&test=1" : "" })); }
 async function zz() { return (await adminState()).pages.find((p) => p.slug === SLUG); }
@@ -102,7 +105,7 @@ const resolve = (id, status, note) => api("admin_resolve", { body: { id, status,
 
 try {
   await cleanup();
-  await rest("/bls_board_pages", { method: "POST", body: { slug: SLUG, title: "ZZTEST page", state: "review", sort: 999 } });
+  await rest("/bls_board_pages", { method: "POST", body: { slug: SLUG, title: "ZZTEST page", state: "building", sort: 999 } });
 
   // ---------- public state ----------
   {
@@ -125,6 +128,18 @@ try {
     ok(w.s === 401 && !w.text.includes('"items"'), "state with a wrong PIN is 401 (no quiet guessing)");
     const t = await publicState(true);
     ok(t.j.pages.some((x) => x.slug === SLUG), "test page visible with test=1");
+    ok(r.j.pages.every((x) => ["building", "waiting", "review", "hold", "scheduled", "live"].includes(x.state)), "no page is in the old Ready to deploy state", r.j.pages.map((x) => x.state));
+    ok(r.j.pages.every((x) => x.state !== "review" || typeof x.remaining_ms === "number"), "every Board review page has a running clock");
+  }
+
+  // ---------- database clock checks ----------
+  {
+    ok(await refused({ state: "ready" }), "the database refuses the old ready state");
+    ok(await refused({ state: "review", ready_deadline: null }), "the database refuses Board review with no clock");
+    ok(await refused({ state: "building", ready_deadline: new Date(Date.now() + H).toISOString() }), "the database refuses a running clock outside Board review");
+    ok(await refused({ state: "review", ready_deadline: new Date(Date.now() + H).toISOString(), hold_remaining_ms: 5 }), "the database refuses a frozen clock outside On hold");
+    const pg = await rest(`/bls_board_pages?select=state,ready_deadline&slug=eq.${SLUG}`);
+    ok(pg[0].state === "building" && pg[0].ready_deadline === null, "refused writes left the test page in Building", pg);
   }
 
   // ---------- auth ----------
@@ -328,25 +343,26 @@ try {
     ok(cl.s === 200 && cl.j.page.due_date === null && cl.j.page.note === null, "admin_page clears due date and note");
   }
 
-  // ---------- countdown rules ----------
+  // ---------- Board review countdown rules ----------
   {
-    let r = await adminPage({ timer: "start" });
-    ok(r.s === 200 && r.j.page.state === "ready" && near(r.j.page.remaining_ms, 48 * H), "Ready to deploy starts a 48 hour countdown", r.j);
+    // the page is in Waiting on info from the admin_page block above
+    let r = await adminPage({ state: "review" });
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H), "Board review starts a 48 hour countdown", r.j);
     let st = await publicState(true);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "countdown_started"), "countdown_started event written");
+    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "countdown_started" && /Board review/.test(e.detail)), "countdown_started event written");
 
     await api("approve", { body: { slug: SLUG, name: "ZZTEST Bob" } });
     let p = await zz();
-    ok(p.state === "ready" && near(p.remaining_ms, 48 * H), "approve leaves the clock alone");
+    ok(p.state === "review" && near(p.remaining_ms, 48 * H), "approve leaves the clock alone");
 
     r = await post({ kind: "suggestion", body: "ZZTEST tweak", name: "ZZTEST Sam" });
     p = await zz();
-    ok(r.s === 200 && r.j.emailed === false && p.state === "ready" && p.remaining_ms <= 48 * H && near(p.remaining_ms, 48 * H), "suggestion never pushes past 48 hours left");
+    ok(r.s === 200 && r.j.emailed === false && p.state === "review" && p.remaining_ms <= 48 * H && near(p.remaining_ms, 48 * H), "suggestion never pushes past 48 hours left");
 
     await setDeadline(10 * H);
     r = await post({ kind: "suggestion", body: "ZZTEST tweak 2", name: "ZZTEST Sam" });
     p = await zz();
-    ok(p.state === "ready" && near(p.remaining_ms, 34 * H), "suggestion adds 24 hours back (10h to 34h)", p);
+    ok(p.state === "review" && near(p.remaining_ms, 34 * H), "suggestion adds 24 hours back (10h to 34h)", p);
     st = await publicState(true);
     ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "time_added"), "time_added event written");
 
@@ -368,13 +384,13 @@ try {
     await setHold(1 * H);
     r = await resolve(c2.j.item.id, "declined");
     p = await zz();
-    ok(p.state === "ready" && p.remaining_ms >= 24 * H - TOL && near(p.remaining_ms, 24 * H), "Keep as is resumes Ready with at least 24 hours left (1h to 24h)", p);
+    ok(p.state === "review" && p.remaining_ms >= 24 * H - TOL && near(p.remaining_ms, 24 * H), "Keep as is resumes Board review with at least 24 hours left (1h to 24h)", p);
 
     await setHold(30 * H);
     const c3 = await post({ kind: "concern", body: "ZZTEST problem 3", name: "ZZTEST Eve" });
     await resolve(c3.j.item.id, "declined");
     p = await zz();
-    ok(p.state === "ready" && near(p.remaining_ms, 30 * H), "Keep as is keeps more than 24 hours when more was left (30h)", p);
+    ok(p.state === "review" && near(p.remaining_ms, 30 * H), "Keep as is keeps more than 24 hours when more was left (30h)", p);
 
     // a reply sent as a concern or suggestion is a plain comment: the clock does not move
     const thread = await post({ kind: "comment", body: "ZZTEST thread", name: "ZZTEST Gus" });
@@ -382,57 +398,66 @@ try {
     const rc = await post({ kind: "concern", body: "ZZTEST reply concern", name: "ZZTEST Gus", parent_id: thread.j.item.id });
     const rs2 = await post({ kind: "suggestion", body: "ZZTEST reply suggestion", name: "ZZTEST Gus", parent_id: thread.j.item.id });
     p = await zz();
-    ok(rc.j.item.kind === "comment" && rs2.j.item.kind === "comment" && p.state === "ready" && near(p.remaining_ms, before.remaining_ms, 5000), "replies never put a page On hold or add time", p);
+    ok(rc.j.item.kind === "comment" && rs2.j.item.kind === "comment" && p.state === "review" && near(p.remaining_ms, before.remaining_ms, 5000), "replies never put a page On hold or add time", p);
     ok(p.counts.comment === before.counts.comment, "replies are not counted as new comments", [before.counts, p.counts]);
 
     const s3 = await post({ kind: "suggestion", body: "ZZTEST change it", name: "ZZTEST Fay" });
     r = await resolve(s3.j.item.id, "accepted", "Will do");
     p = await zz();
-    ok(r.s === 200 && r.j.item.status === "accepted" && p.state === "building" && p.remaining_ms === null, "Will change sends the page back to Building and clears the clock", p);
+    ok(r.s === 200 && r.j.item.status === "accepted" && p.state === "building" && p.remaining_ms === null, "Will change during Board review sends the page back to Building and clears the clock", p);
 
-    // Will change on a Board review page only marks the item
-    await adminPage({ state: "review" });
-    const s4 = await post({ kind: "suggestion", body: "ZZTEST review tweak", name: "ZZTEST Fay" });
+    // Will change on a Waiting on info page only marks the item
+    await adminPage({ state: "waiting" });
+    const s4 = await post({ kind: "suggestion", body: "ZZTEST waiting tweak", name: "ZZTEST Fay" });
+    p = await zz();
+    ok(p.state === "waiting" && p.remaining_ms === null, "a suggestion outside Board review starts no clock", p);
     await resolve(s4.j.item.id, "accepted");
     p = await zz();
-    ok(p.state === "review", "Will change on a Board review page leaves it in Board review", p.state);
+    ok(p.state === "waiting", "Will change on a Waiting on info page leaves it in Waiting on info", p.state);
 
     // Keep as is on a page Daniel put On hold with the picker (no clock) leaves it On hold
     r = await adminPage({ state: "hold" });
-    ok(r.s === 200 && r.j.page.state === "hold" && r.j.page.remaining_ms === null, "picker hold from Board review has no clock");
+    ok(r.s === 200 && r.j.page.state === "hold" && r.j.page.remaining_ms === null, "picker hold from Waiting on info has no clock");
     const c5 = await post({ kind: "concern", body: "ZZTEST picker hold", name: "ZZTEST Hal" });
     await resolve(c5.j.item.id, "declined");
     p = await zz();
     ok(p.state === "hold" && p.remaining_ms === null, "Keep as is does not start a countdown on a picker hold", p);
+    ok((await adminPage({ timer: "resume" })).s === 409, "resume on a hold with no clock is 409");
+    ok((await adminPage({ timer: "add24" })).s === 409, "add24 on a hold with no clock is 409");
     ok((await adminPage({ due_date: "2026-02-31" })).s === 400, "a date that does not exist is 400");
+    r = await adminPage({ state: "review" });
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H), "Board review from a hold with no clock starts a fresh 48 hours", r.j.page);
 
     // Daniel's timer controls
-    r = await adminPage({ timer: "start" });
     r = await adminPage({ timer: "pause" });
     ok(r.s === 200 && r.j.page.state === "hold" && near(r.j.page.remaining_ms, 48 * H), "pause freezes the clock");
     const paused = r.j.page.remaining_ms;
     await sleep(1500);
     r = await adminPage({ timer: "resume" });
-    ok(r.s === 200 && r.j.page.state === "ready" && near(r.j.page.remaining_ms, paused, 5000), "resume picks up where it stopped");
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, paused, 5000), "resume picks up where it stopped");
     r = await adminPage({ timer: "add24" });
     ok(r.s === 200 && near(r.j.page.remaining_ms, 72 * H), "add24 adds 24 hours");
     r = await adminPage({ timer: "pause" });
     r = await adminPage({ timer: "add24" });
     ok(r.s === 200 && r.j.page.state === "hold" && near(r.j.page.remaining_ms, 96 * H), "add24 also works while paused");
+    r = await adminPage({ state: "review" });
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 96 * H), "setting state Board review on a paused clock resumes it", r.j.page);
+    r = await adminPage({ state: "review" });
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H), "setting state Board review again restarts a fresh 48 hours", r.j.page);
     r = await adminPage({ timer: "clear" });
-    ok(r.s === 200 && r.j.page.state === "review" && r.j.page.remaining_ms === null, "clear stops the clock and returns to Board review");
+    ok(r.s === 200 && r.j.page.state === "building" && r.j.page.remaining_ms === null, "clear stops the clock and sends the page to Building");
     ok((await adminPage({ timer: "pause" })).s === 409, "pause with no countdown is 409");
     ok((await adminPage({ timer: "resume" })).s === 409, "resume with no paused countdown is 409");
     r = await adminPage({ timer: "start" });
     r = await adminPage({ timer: "schedule_now" });
-    ok(r.s === 200 && r.j.page.state === "scheduled" && r.j.page.remaining_ms === null, "Schedule now moves straight to Scheduled");
-    r = await adminPage({ state: "ready" });
-    ok(r.s === 200 && r.j.page.state === "ready" && near(r.j.page.remaining_ms, 48 * H), "setting state Ready starts the countdown");
+    ok(r.s === 200 && r.j.page.state === "scheduled" && r.j.page.remaining_ms === null, "Schedule now moves straight to Scheduled for deployment");
+    r = await adminPage({ state: "review" });
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H), "setting state Board review starts the countdown");
     await adminPage({ timer: "clear" });
     await rest(`/bls_board_events?slug=eq.${SLUG}&kind=eq.countdown_started`, { method: "DELETE" });
-    r = await adminPage({ state: "ready", timer: "start" });
+    r = await adminPage({ state: "review", timer: "start" });
     const starts = await rest(`/bls_board_events?select=id&slug=eq.${SLUG}&kind=eq.countdown_started`);
-    ok(r.s === 200 && r.j.page.state === "ready" && near(r.j.page.remaining_ms, 48 * H) && starts.length === 1, "state ready plus timer start writes one countdown event", starts.length);
+    ok(r.s === 200 && r.j.page.state === "review" && near(r.j.page.remaining_ms, 48 * H) && starts.length === 1, "state review plus timer start writes one countdown event", starts.length);
     r = await adminPage({ state: "live", live_url: "https://www.blslittleleague.org/" });
     ok(r.s === 200 && r.j.page.state === "live" && r.j.page.remaining_ms === null && /^\d{4}-\d{2}-\d{2}$/.test(r.j.page.live_since) && r.j.page.live_url === "https://www.blslittleleague.org/", "Live sets live_since to today and keeps the live link");
 
@@ -444,18 +469,24 @@ try {
     ok(up.s === 200 && up.j.phase.target_date === "2026-11-16" && up.j.phase.name === "ZZTEST Phase", "admin_phase updates a phase");
     ok((await api("admin_phase", { body: { name: "" }, pin: PIN })).s === 400, "phase without a name is 400");
     r = await adminPage({ phase_id: phaseId, timer: "start" });
-    ok(r.s === 200 && r.j.page.phase_id === phaseId && r.j.page.state === "ready", "page put in the phase with a running countdown");
+    ok(r.s === 200 && r.j.page.phase_id === phaseId && r.j.page.state === "review", "page put in the phase with a running Board review");
     await setDeadline(-1000);
     st = await publicState(true);
     p = st.j.pages.find((x) => x.slug === SLUG);
-    ok(p.state === "scheduled" && p.remaining_ms === null, "expired countdown becomes Scheduled on the next state read", p);
-    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("ZZTEST Phase")), "scheduled event names the phase");
+    ok(p.state === "scheduled" && p.remaining_ms === null, "a finished Board review becomes Scheduled for deployment on the next state read", p);
+    ok(st.j.events.some((e) => e.slug === SLUG && e.kind === "scheduled" && e.detail.includes("ZZTEST Phase") && e.detail.includes("scheduled for deployment")), "scheduled event names the phase");
     await adminPage({ timer: "start" });
     await setDeadline(-1000);
     const t = await api("tick", { body: { no_digest: true }, cron: CRON });
     ok(t.s === 200 && t.j.expired.includes(SLUG), "cron tick expires countdowns too", t.j);
     p = await zz();
-    ok(p.state === "scheduled", "page Scheduled after tick");
+    ok(p.state === "scheduled", "page Scheduled for deployment after tick");
+    // a paused clock never runs out
+    await adminPage({ timer: "start" });
+    await setHold(500);
+    await sleep(1500);
+    p = await zz();
+    ok(p.state === "hold" && p.remaining_ms === 500, "an On hold page is never scheduled by the clock", p);
     const d = await api("admin_phase", { body: { id: phaseId, delete: true }, pin: PIN });
     p = await zz();
     ok(d.s === 200 && d.j.deleted === true && p.phase_id === null, "deleting a phase leaves its pages with no phase");
