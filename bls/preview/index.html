@@ -1,101 +1,114 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>BLS Website Preview</title><style>
-:root{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--bg:#eef2f6;--line:#d9dfea;--muted:#59617a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font:400 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0a0f2e;padding:0 16px 40px}
-header{margin:0 -16px 16px;background:var(--navy);color:#fff;padding:18px 16px;border-bottom:5px solid var(--red);display:flex;gap:12px;align-items:center}
-header img{width:44px;height:44px;background:#fff;border-radius:8px;padding:3px}header p{margin:0;font:700 12px/1 Arial;letter-spacing:.08em;color:#c9d3f2;text-transform:uppercase}header h1{margin:4px 0 0;font-size:22px}
-main{max-width:1100px;margin:0 auto}.lead{color:var(--muted);margin:0 0 16px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-.thumb{display:block;aspect-ratio:390/520;overflow:hidden;background:#dfe5ee;border-bottom:1px solid var(--line)}.thumb img{width:100%;display:block}.thumb span{display:grid;place-items:center;height:100%;color:var(--muted)}
-.meta{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}.meta h2{margin:0;font-size:18px;color:var(--navy)}.meta p{margin:0;font-size:14px;color:var(--muted)}
-.tag{font:700 11px/1 Arial;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}.st{font-weight:600}.st.ok{color:#127a3a}.st.todo{color:#a35200}
-.needs summary{cursor:pointer;font-weight:700;color:#a35200}.needs ul{margin:6px 0 0;padding-left:18px;font-size:14px;color:#0a0f2e}.needs li{margin:3px 0}
-.btns{display:flex;gap:8px;margin-top:auto;padding-top:6px}.btns a{flex:1;text-align:center;padding:10px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}.btns a.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
-</style></head><body><header><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Preview: every page, today vs proposed</h1></div></header>
-<main><p class="lead">Tap a page. The switch at the bottom flips between Today and Proposed. Nothing here changes the live site.</p><div class="grid"><article class="card">
-  <a class="thumb" href="proposed/home.html"><img src="img/home-proposed-phone.jpg" alt="Home proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Home</h2><p>Four new rotator slides: Spring 2027 registration, new families, volunteers, and a 17-logo sponsor thank-you that matches the Sponsorship page. <a href="proposed/home-tonight.html">What ships tonight</a> shows them on today's home look.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/home.html">Today</a><a class="pri" href="proposed/home.html">Proposed</a></div></div>
+:root{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--bg:#eef2f6;--line:#d9dfea;--muted:#4b5675}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:400 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0a0f2e;padding:0 16px 48px}
+header{margin:0 -16px 18px;background:var(--navy);color:#fff;padding:20px 16px;border-bottom:5px solid var(--red)}
+.hin{max-width:1180px;margin:0 auto;display:flex;gap:14px;align-items:center}
+header img{width:52px;height:52px;background:#fff;border-radius:10px;padding:4px;flex:none}header p{margin:0;font:700 12px/1 Arial;letter-spacing:.1em;color:#c9d3f2;text-transform:uppercase}header h1{margin:6px 0 0;font-size:24px;line-height:1.15}
+main{max-width:1180px;margin:0 auto}
+.intro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 18px}.intro p{margin:0 0 10px;color:var(--muted)}
+.counts{display:flex;flex-wrap:wrap;gap:8px;margin:0}.counts span{background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}.counts .g{color:#127a3a}.counts .a{color:#a35200}
+h2.sec{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin:26px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,1,58,.06)}
+.top{padding:16px 16px 10px}.top h2{margin:8px 0 6px;font-size:26px;line-height:1.1;color:var(--navy)}.top p{margin:0;font-size:14.5px;color:var(--muted)}
+.tag{display:inline-block;font:800 12px/1 Arial;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px}
+.tag.new{background:var(--red);color:#fff}.tag.old{background:var(--navy);color:#fff}.tag.hid{background:#5d6785;color:#fff}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 16px 12px}
+.shot{display:block;text-decoration:none;color:inherit}.lbl{display:block;font:800 13px/1 Arial;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px;color:#5d6785}.shot.proposed .lbl{color:var(--red)}
+.pic{display:block;aspect-ratio:390/620;overflow:hidden;border-radius:10px;border:2px solid var(--line);background:#dfe5ee}.shot.proposed .pic{border-color:var(--red)}
+.pic img{width:100%;display:block}.none{display:grid;place-items:center;height:100%;padding:10px;text-align:center;font-size:14px;color:var(--muted)}
+.st{margin:0 16px 12px;padding:10px 12px;border-radius:10px;font-size:14.5px}.st.ok{background:#e8f6ee;color:#127a3a}.st.todo{background:#fff4e5;color:#7a3e00}
+.st ul{margin:6px 0 0;padding-left:18px;color:#0a0f2e}.st li{margin:3px 0}
+.btns{display:flex;gap:8px;margin-top:auto;padding:0 16px 16px}.btns a{flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}.btns a.pri{background:var(--red);color:#fff;border-color:var(--red)}
+</style></head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1></div></div></header>
+<main><div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
+<div class="counts"><span>17 pages</span><span class="g">11 ready to launch</span><span class="a">6 need items first</span><span>5 new pages</span></div></div>
+<h2 class="sec">Pages that change (12)</h2><div class="grid"><article class="card">
+  <div class="top"><span class="tag old">Existing page</span><h2>Home</h2><p>Four new rotator slides: Spring 2027 registration, new families, volunteers, and a 17-logo sponsor thank-you that matches the Sponsorship page.</p></div>
+  <div class="pair"><a class="shot today" href="today/home.html"><span class="lbl">Today</span><span class="pic"><img src="img/home-today-phone-thumb.jpg" alt="Home, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/home.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/home-proposed-phone-thumb.jpg" alt="Home, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/home.html">Open Today</a><a class="pri" href="proposed/home.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/registration.html"><img src="img/registration-proposed-phone.jpg" alt="Registration Info proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Registration Info</h2><p>Registration hero with the Nov 27 opening, three steps for new families, division chart with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/registration.html">Today</a><a class="pri" href="proposed/registration.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Registration Info</h2><p>Registration hero with the Nov 27 opening, three steps for new families, division chart with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.</p></div>
+  <div class="pair"><a class="shot today" href="today/registration.html"><span class="lbl">Today</span><span class="pic"><img src="img/registration-today-phone-thumb.jpg" alt="Registration Info, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/registration.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/registration-proposed-phone-thumb.jpg" alt="Registration Info, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/registration.html">Open Today</a><a class="pri" href="proposed/registration.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/volunteer.html"><img src="img/volunteer-proposed-phone.jpg" alt="Volunteer Opportunities proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Volunteer Opportunities</h2><p>Volunteer recruiting page: Fall Ball 2026 tally, four roles (coach, umpire, team and fields, board with the open Umpire in Chief seat), employer hour matching, the three cleared-volunteer steps, then the sign-up listing.</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Ramey or Melissa: turn on the Spring 2027 volunteer form (the sign-up list is empty today)</li><li>Website (Daniel): a way to tell volunteers they are cleared, by January (replaces the old cleared list)</li></ul></div>
-  <div class="btns"><a href="today/volunteer.html">Today</a><a class="pri" href="proposed/volunteer.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Volunteer Opportunities</h2><p>Volunteer recruiting page: Fall Ball 2026 tally, four roles (coach, umpire, team and fields, board with the open Umpire in Chief seat), employer hour matching, the three cleared-volunteer steps, then the sign-up listing.</p></div>
+  <div class="pair"><a class="shot today" href="today/volunteer.html"><span class="lbl">Today</span><span class="pic"><img src="img/volunteer-today-phone-thumb.jpg" alt="Volunteer Opportunities, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/volunteer.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/volunteer-proposed-phone-thumb.jpg" alt="Volunteer Opportunities, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Ramey or Melissa: turn on the Spring 2027 volunteer form (the sign-up list is empty today)</li><li>Ramey: approve the cleared-volunteer plan and name who sends the weekly cleared email</li></ul></div>
+  <div class="btns"><a href="today/volunteer.html">Open Today</a><a class="pri" href="proposed/volunteer.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/corpmatch.html"><img src="img/corpmatch-proposed-phone.jpg" alt="Corporate Match proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Corporate Match</h2><p>Double your donation: how BLS is listed in giving portals, step-by-step guides for Boeing, Microsoft and Starbucks, 43 matching employers (MultiCare added), one help box.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/corpmatch.html">Today</a><a class="pri" href="proposed/corpmatch.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Corporate Match</h2><p>Double your donation: how BLS is listed in giving portals, step-by-step guides for Boeing, Microsoft and Starbucks, 43 matching employers (MultiCare added), one help box.</p></div>
+  <div class="pair"><a class="shot today" href="today/corpmatch.html"><span class="lbl">Today</span><span class="pic"><img src="img/corpmatch-today-phone-thumb.jpg" alt="Corporate Match, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/corpmatch.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/corpmatch-proposed-phone-thumb.jpg" alt="Corporate Match, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/corpmatch.html">Open Today</a><a class="pri" href="proposed/corpmatch.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/sponsorship.html"><img src="img/sponsorship-proposed-phone.jpg" alt="Sponsorship Opportunities proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Sponsorship Opportunities</h2><p>Partner with BLS: jersey hero, every spring, All Stars and Fall Ball level with perks, Fall Ball 2026 scoreboard, the same 17-logo sponsor wall as home slide 4, and 2026 community partners.</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Ashley: 2027 sponsor prices (the page shows 2026 prices)</li></ul></div>
-  <div class="btns"><a href="today/sponsorship.html">Today</a><a class="pri" href="proposed/sponsorship.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Sponsorship Opportunities</h2><p>Partner with BLS: jersey hero, every spring, All Stars and Fall Ball level with perks, Fall Ball 2026 scoreboard, the same 17-logo sponsor wall as home slide 4, and 2026 community partners.</p></div>
+  <div class="pair"><a class="shot today" href="today/sponsorship.html"><span class="lbl">Today</span><span class="pic"><img src="img/sponsorship-today-phone-thumb.jpg" alt="Sponsorship Opportunities, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/sponsorship.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/sponsorship-proposed-phone-thumb.jpg" alt="Sponsorship Opportunities, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Ashley: 2027 sponsor prices (the page shows 2026 prices)</li></ul></div>
+  <div class="btns"><a href="today/sponsorship.html">Open Today</a><a class="pri" href="proposed/sponsorship.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/allstars.html"><img src="img/allstars-proposed-phone.jpg" alt="Allstars proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Allstars</h2><p>All-Stars hero with the tournament trail, three-step selection, summer commitment, required documents, 2026 District 10 dates with BLS results (two titles, 3rd at State), and a link card to the new Champions page.</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Website (Daniel): Champions page goes live first (the 2025 card links to it)</li></ul></div>
-  <div class="btns"><a href="today/allstars.html">Today</a><a class="pri" href="proposed/allstars.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Allstars</h2><p>All-Stars hero with the tournament trail, three-step selection, summer commitment, required documents, 2026 District 10 dates with BLS results (two titles, 3rd at State), and a link card to the new Champions page.</p></div>
+  <div class="pair"><a class="shot today" href="today/allstars.html"><span class="lbl">Today</span><span class="pic"><img src="img/allstars-today-phone-thumb.jpg" alt="Allstars, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/allstars.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/allstars-proposed-phone-thumb.jpg" alt="Allstars, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Website (Daniel): Champions page goes live first (the 2025 card links to it)</li></ul></div>
+  <div class="btns"><a href="today/allstars.html">Open Today</a><a class="pri" href="proposed/allstars.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/fallball.html"><img src="img/fallball-proposed-phone.jpg" alt="Fall Ball proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Fall Ball</h2><p>Fall Ball 2026 wrap-up: final scoreboard with team growth since 2024, sponsor thank-you, how Fall Ball works, the 2026 timeline and divisions, the last posted age guidelines (Baseball/Softball switch on phones) and the 2025 District 10 rule PDFs.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/fallball.html">Today</a><a class="pri" href="proposed/fallball.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Fall Ball</h2><p>Fall Ball 2026 wrap-up: final scoreboard with team growth since 2024, sponsor thank-you, how Fall Ball works, the 2026 timeline and divisions, the last posted age guidelines (Baseball/Softball switch on phones) and the 2025 District 10 rule PDFs.</p></div>
+  <div class="pair"><a class="shot today" href="today/fallball.html"><span class="lbl">Today</span><span class="pic"><img src="img/fallball-today-phone-thumb.jpg" alt="Fall Ball, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/fallball.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/fallball-proposed-phone-thumb.jpg" alt="Fall Ball, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/fallball.html">Open Today</a><a class="pri" href="proposed/fallball.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/coaches.html"><img src="img/coaches-proposed-phone.jpg" alt="Coaches Corner proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Coaches Corner</h2><p>Coach hub in one block: run book on a clipboard, the three clearance steps (JDP email, yearly training, no certificate), schedule tiles, gear bag rules, rules and field layouts; the All-Star link opens the same 2026 PDF as the All-Stars page.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/coaches.html">Today</a><a class="pri" href="proposed/coaches.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Coaches Corner</h2><p>Coach hub in one block: run book on a clipboard, the three clearance steps (JDP email, yearly training, no certificate), schedule tiles, gear bag rules, rules and field layouts; the All-Star link opens the same 2026 PDF as the All-Stars page.</p></div>
+  <div class="pair"><a class="shot today" href="today/coaches.html"><span class="lbl">Today</span><span class="pic"><img src="img/coaches-today-phone-thumb.jpg" alt="Coaches Corner, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/coaches.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/coaches-proposed-phone-thumb.jpg" alt="Coaches Corner, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/coaches.html">Open Today</a><a class="pri" href="proposed/coaches.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/faq.html"><img src="img/faq-proposed-phone.jpg" alt="FAQ proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>FAQ</h2><p>Help desk: the 3 most-asked answers up top, topic buttons that filter the list, all 19 questions tap to open (now with the 2027 scholarship note and Challenger ages), then an email card for anything else.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/faq.html">Today</a><a class="pri" href="proposed/faq.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>FAQ</h2><p>Help desk: the 3 most-asked answers up top, topic buttons that filter the list, all 19 questions tap to open (now with the 2027 scholarship note and Challenger ages), then an email card for anything else.</p></div>
+  <div class="pair"><a class="shot today" href="today/faq.html"><span class="lbl">Today</span><span class="pic"><img src="img/faq-today-phone-thumb.jpg" alt="FAQ, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/faq.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/faq-proposed-phone-thumb.jpg" alt="FAQ, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/faq.html">Open Today</a><a class="pri" href="proposed/faq.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/health.html"><img src="img/health-proposed-phone.jpg" alt="Health & Safety proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Health & Safety</h2><p>Safety hub: 911 steps from the Safety Manual, manual download, how to report an injury, the two yearly volunteer clearances, every form and handout by topic, and ballpark rules from the Safety Code.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/health.html">Today</a><a class="pri" href="proposed/health.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Health & Safety</h2><p>Safety hub: 911 steps from the Safety Manual, manual download, how to report an injury, the two yearly volunteer clearances, every form and handout by topic, and ballpark rules from the Safety Code.</p></div>
+  <div class="pair"><a class="shot today" href="today/health.html"><span class="lbl">Today</span><span class="pic"><img src="img/health-today-phone-thumb.jpg" alt="Health & Safety, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/health.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/health-proposed-phone-thumb.jpg" alt="Health & Safety, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/health.html">Open Today</a><a class="pri" href="proposed/health.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/board.html"><img src="img/board-proposed-phone.jpg" alt="Board Members proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Hidden today</span><h2>Board Members</h2><p>2026-27 board from the Oct 25 Annual Meeting: five officers (President as the lead card), every other seat grouped by what parents ask about with role emails, and a Get involved block (open Umpire in Chief seat, Fields Committee, meetings, the October vote).</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Tawnie: Nov 1 minutes with the new VP of Challenger and AA Softball Player Agent names, and which seats are still open</li><li>Ramey: OK to show the board list (the page is hidden today)</li></ul></div>
-  <div class="btns"><a href="today/board.html">Today</a><a class="pri" href="proposed/board.html">Proposed</a></div></div>
+  <div class="top"><span class="tag hid">Hidden today</span><h2>Board Members</h2><p>2026-27 board from the Oct 25 Annual Meeting: five officers (President as the lead card), every other seat grouped by what parents ask about with role emails, and a Get involved block (open Umpire in Chief seat, Fields Committee, meetings, the October vote).</p></div>
+  <div class="pair"><a class="shot today" href="today/board.html"><span class="lbl">Today</span><span class="pic"><img src="img/board-today-phone-thumb.jpg" alt="Board Members, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/board.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/board-proposed-phone-thumb.jpg" alt="Board Members, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Tawnie: Nov 1 minutes with the new VP of Challenger and AA Softball Player Agent names, and which seats are still open</li><li>Ramey: OK to show the board list (the page is hidden today)</li></ul></div>
+  <div class="btns"><a href="today/board.html">Open Today</a><a class="pri" href="proposed/board.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/calendar.html"><img src="img/calendar-proposed-phone.jpg" alt="Calendar proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">Existing page</span><h2>Calendar</h2><p>Key Dates card (Nov 7 gear return, Nov 27 registration, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/calendar.html">Today</a><a class="pri" href="proposed/calendar.html">Proposed</a></div></div>
+  <div class="top"><span class="tag old">Existing page</span><h2>Calendar</h2><p>Key Dates card (Nov 7 gear return, Nov 27 registration, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.</p></div>
+  <div class="pair"><a class="shot today" href="today/calendar.html"><span class="lbl">Today</span><span class="pic"><img src="img/calendar-today-phone-thumb.jpg" alt="Calendar, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/calendar.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/calendar-proposed-phone-thumb.jpg" alt="Calendar, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/calendar.html">Open Today</a><a class="pri" href="proposed/calendar.html">Open Proposed</a></div>
+</article></div>
+<h2 class="sec">New pages (5)</h2><div class="grid"><article class="card">
+  <div class="top"><span class="tag new">New page</span><h2>Champions</h2><p>New page: 2025 Northwest Region champions hero, region scoreboard, road to Williamsport with the District and State title dates, all six August scores, a 2025 and 2026 honor roll, then Spring 2027 registration.</p></div>
+  <div class="pair"><a class="shot today" href="today/champions.html"><span class="lbl">Today</span><span class="pic"><span class="none">Nothing here today.<br>This page is new.</span></span></a><a class="shot proposed" href="proposed/champions.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/champions-proposed-phone-thumb.jpg" alt="Champions, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/champions.html">Open Today</a><a class="pri" href="proposed/champions.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/champions.html"><img src="img/champions-proposed-phone.jpg" alt="Champions proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">New page</span><h2>Champions</h2><p>New page: 2025 Northwest Region champions hero, region scoreboard, road to Williamsport with the District and State title dates, all six August scores, a 2025 and 2026 honor roll, then Spring 2027 registration.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/champions.html">Today</a><a class="pri" href="proposed/champions.html">Proposed</a></div></div>
+  <div class="top"><span class="tag new">New page</span><h2>Fields</h2><p>New page: 11 field sites by town with one-tap directions, a live map of Allan Yorke Park (fields AY1 to AY5 and the parking note), site tips from BLS posts, a Fields Committee call and a thank-you to the groups that donated infield dirt.</p></div>
+  <div class="pair"><a class="shot today" href="today/fields.html"><span class="lbl">Today</span><span class="pic"><span class="none">Nothing here today.<br>This page is new.</span></span></a><a class="shot proposed" href="proposed/fields.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/fields-proposed-phone-thumb.jpg" alt="Fields, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/fields.html">Open Today</a><a class="pri" href="proposed/fields.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/fields.html"><img src="img/fields-proposed-phone.jpg" alt="Fields proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">New page</span><h2>Fields</h2><p>New page: 11 field sites by town with one-tap directions, a live map of Allan Yorke Park (fields AY1 to AY5 and the parking note), site tips from BLS posts, a Fields Committee call and a thank-you to the groups that donated infield dirt.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/fields.html">Today</a><a class="pri" href="proposed/fields.html">Proposed</a></div></div>
+  <div class="top"><span class="tag new">New page</span><h2>Umpires</h2><p>New Umpires page: hero, one big button to the game sign-up site, why umpire (Junior Umpire Program, pay, graduation hours, spring clinics), adult umpires and the open Umpire in Chief seat.</p></div>
+  <div class="pair"><a class="shot today" href="today/umpires.html"><span class="lbl">Today</span><span class="pic"><span class="none">Nothing here today.<br>This page is new.</span></span></a><a class="shot proposed" href="proposed/umpires.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/umpires-proposed-phone-thumb.jpg" alt="Umpires, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st ok"><b>Ready to launch</b></div>
+  <div class="btns"><a href="today/umpires.html">Open Today</a><a class="pri" href="proposed/umpires.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/umpires.html"><img src="img/umpires-proposed-phone.jpg" alt="Umpires proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">New page</span><h2>Umpires</h2><p>New Umpires page: hero, one big button to the game sign-up site, why umpire (Junior Umpire Program, pay, graduation hours, spring clinics), adult umpires and the open Umpire in Chief seat.</p>
-  <p class="st ok">Ready to launch</p>
-  <div class="btns"><a href="today/umpires.html">Today</a><a class="pri" href="proposed/umpires.html">Proposed</a></div></div>
+  <div class="top"><span class="tag new">New page</span><h2>Coach Run Book</h2><p>New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.</p></div>
+  <div class="pair"><a class="shot today" href="today/runbook.html"><span class="lbl">Today</span><span class="pic"><img src="img/runbook-today-phone-thumb.jpg" alt="Coach Run Book, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/runbook.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/runbook-proposed-phone-thumb.jpg" alt="Coach Run Book, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Board: approve this page to replace the 2026 Word run book</li><li>Board: set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates</li><li>Secretary or Information Officer: turn on the spring 2027 coach and volunteer roles</li><li>Website: put the Fields page live on blslittleleague.org first</li><li>Uniforms (Dena Berkey): confirm 2027 sizing steps by division</li></ul></div>
+  <div class="btns"><a href="today/runbook.html">Open Today</a><a class="pri" href="proposed/runbook.html">Open Proposed</a></div>
 </article><article class="card">
-  <a class="thumb" href="proposed/runbook.html"><img src="img/runbook-proposed-phone.jpg" alt="Coach Run Book proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">New page</span><h2>Coach Run Book</h2><p>New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Board: approve this page to replace the 2026 Word run book</li><li>Board: set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates</li><li>Secretary or Information Officer: turn on the spring 2027 coach and volunteer roles</li><li>Website: put the Fields page live on blslittleleague.org first</li><li>Uniforms (Dena Berkey): confirm 2027 sizing steps by division</li></ul></div>
-  <div class="btns"><a href="today/runbook.html">Today</a><a class="pri" href="proposed/runbook.html">Proposed</a></div></div>
-</article><article class="card">
-  <a class="thumb" href="proposed/schedules.html"><img src="img/schedules-proposed-phone.jpg" alt="Schedules & Scores proposed, phone" loading="lazy"></a>
-  <div class="meta"><span class="tag">New page</span><h2>Schedules & Scores</h2><p>New phone-first page that replaces Posted Schedules, View Scores and View Standings (direction pending a board decision): one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.</p>
-  <div class="needs"><p class="st todo">Required to launch</p><ul><li>Board: choose where scores and standings live</li><li>Board: approve this page in place of Posted Schedules, Scores and Standings</li><li>Scheduler: create one GameChanger league per division</li><li>Scheduler: test a league link in a browser never signed in to GameChanger</li></ul></div>
-  <div class="btns"><a href="today/schedules.html">Today</a><a class="pri" href="proposed/schedules.html">Proposed</a></div></div>
-</article></div></main></body></html>
+  <div class="top"><span class="tag new">New page</span><h2>Schedules & Scores</h2><p>New phone-first page that replaces Posted Schedules, View Scores and View Standings (direction pending a board decision): one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.</p></div>
+  <div class="pair"><a class="shot today" href="today/schedules.html"><span class="lbl">Today</span><span class="pic"><img src="img/schedules-today-phone-thumb.jpg" alt="Schedules & Scores, today, on a phone" loading="lazy"></span></a><a class="shot proposed" href="proposed/schedules.html"><span class="lbl">Proposed</span><span class="pic"><img src="img/schedules-proposed-phone-thumb.jpg" alt="Schedules & Scores, proposed, on a phone" loading="lazy"></span></a></div>
+  <div class="st todo"><b>Required to launch</b><ul><li>Board: choose where scores and standings live</li><li>Board: approve this page in place of Posted Schedules, Scores and Standings</li><li>Scheduler: create one GameChanger league per division</li><li>Scheduler: test a league link in a browser never signed in to GameChanger</li></ul></div>
+  <div class="btns"><a href="today/schedules.html">Open Today</a><a class="pri" href="proposed/schedules.html">Open Proposed</a></div>
+</article></div>
+</main></body></html>

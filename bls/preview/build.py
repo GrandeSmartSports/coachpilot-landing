@@ -186,38 +186,69 @@ def needs_panel(slug):
 
 
 def index():
-    cards = []
-    for slug, cfg in CFG.items():
+    def thumb(slug, variant):
+        for f in (f'img/{slug}-{variant}-phone-thumb.jpg', f'img/{slug}-{variant}-phone.jpg'):
+            if os.path.exists(os.path.join(HERE, f)):
+                return f
+        return None
+
+    def card(slug, cfg):
         prop = proposal(slug)
-        status = prop.get('status', 'Not started')
-        ok = status.lower().startswith('ready')
-        thumb = f'img/{slug}-proposed-phone.jpg'
-        has = os.path.exists(os.path.join(HERE, thumb))
-        tag = 'New page' if cfg.get('new') else ('Hidden today' if cfg.get('hidden') else 'Existing page')
-        cards.append(f'''<article class="card">
-  <a class="thumb" href="proposed/{slug}.html">{f'<img src="{thumb}" alt="{cfg["title"]} proposed, phone" loading="lazy">' if has else '<span>No preview yet</span>'}</a>
-  <div class="meta"><span class="tag">{tag}</span><h2>{cfg["title"]}</h2><p>{prop.get("summary", "")}</p>
-  {('<div class="needs"><p class="st todo">Required to launch</p><ul>' + ''.join('<li>' + x + '</li>' for x in needs(slug, prop)) + '</ul></div>') if needs(slug, prop) else '<p class="st ok">Ready to launch</p>'}
-  <div class="btns"><a href="today/{slug}.html">Today</a><a class="pri" href="proposed/{slug}.html">Proposed</a></div></div>
-</article>''')
+        items = needs(slug, prop)
+        new = bool(cfg.get('new'))
+        tag, tcls = ('New page', 'new') if new else (('Hidden today', 'hid') if cfg.get('hidden') else ('Existing page', 'old'))
+        shots = []
+        for v, label in (('today', 'Today'), ('proposed', 'Proposed')):
+            t = thumb(slug, v)
+            if v == 'today' and new and not cfg.get('today_file'):
+                pic = '<span class="none">Nothing here today.<br>This page is new.</span>'
+            elif t:
+                pic = f'<img src="{t}" alt="{cfg["title"]}, {label.lower()}, on a phone" loading="lazy">'
+            else:
+                pic = '<span class="none">No picture yet</span>'
+            shots.append(f'<a class="shot {v}" href="{v}/{slug}.html"><span class="lbl">{label}</span><span class="pic">{pic}</span></a>')
+        status = ('<div class="st todo"><b>Required to launch</b><ul>' + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>') if items \
+            else '<div class="st ok"><b>Ready to launch</b></div>'
+        return f'''<article class="card">
+  <div class="top"><span class="tag {tcls}">{tag}</span><h2>{cfg["title"]}</h2><p>{prop.get("summary", "")}</p></div>
+  <div class="pair">{''.join(shots)}</div>
+  {status}
+  <div class="btns"><a href="today/{slug}.html">Open Today</a><a class="pri" href="proposed/{slug}.html">Open Proposed</a></div>
+</article>'''
+
+    old = [(s_, c) for s_, c in CFG.items() if not c.get('new')]
+    new = [(s_, c) for s_, c in CFG.items() if c.get('new')]
+    ready = sum(1 for s_ in CFG if not needs(s_, proposal(s_)))
     html = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow">
 <title>BLS Website Preview</title><style>
-:root{{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--bg:#eef2f6;--line:#d9dfea;--muted:#59617a}}
-*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);font:400 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0a0f2e;padding:0 16px 40px}}
-header{{margin:0 -16px 16px;background:var(--navy);color:#fff;padding:18px 16px;border-bottom:5px solid var(--red);display:flex;gap:12px;align-items:center}}
-header img{{width:44px;height:44px;background:#fff;border-radius:8px;padding:3px}}header p{{margin:0;font:700 12px/1 Arial;letter-spacing:.08em;color:#c9d3f2;text-transform:uppercase}}header h1{{margin:4px 0 0;font-size:22px}}
-main{{max-width:1100px;margin:0 auto}}.lead{{color:var(--muted);margin:0 0 16px}}
-.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}}
-.card{{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}}
-.thumb{{display:block;aspect-ratio:390/520;overflow:hidden;background:#dfe5ee;border-bottom:1px solid var(--line)}}.thumb img{{width:100%;display:block}}.thumb span{{display:grid;place-items:center;height:100%;color:var(--muted)}}
-.meta{{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}}.meta h2{{margin:0;font-size:18px;color:var(--navy)}}.meta p{{margin:0;font-size:14px;color:var(--muted)}}
-.tag{{font:700 11px/1 Arial;letter-spacing:.08em;text-transform:uppercase;color:var(--red)}}.st{{font-weight:600}}.st.ok{{color:#127a3a}}.st.todo{{color:#a35200}}
-.needs summary{{cursor:pointer;font-weight:700;color:#a35200}}.needs ul{{margin:6px 0 0;padding-left:18px;font-size:14px;color:#0a0f2e}}.needs li{{margin:3px 0}}
-.btns{{display:flex;gap:8px;margin-top:auto;padding-top:6px}}.btns a{{flex:1;text-align:center;padding:10px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}}.btns a.pri{{background:var(--navy);color:#fff;border-color:var(--navy)}}
-</style></head><body><header><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Preview: every page, today vs proposed</h1></div></header>
-<main><p class="lead">Tap a page. The switch at the bottom flips between Today and Proposed. Nothing here changes the live site.</p><div class="grid">{''.join(cards)}</div></main></body></html>'''
+:root{{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--bg:#eef2f6;--line:#d9dfea;--muted:#4b5675}}
+*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);font:400 16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#0a0f2e;padding:0 16px 48px}}
+header{{margin:0 -16px 18px;background:var(--navy);color:#fff;padding:20px 16px;border-bottom:5px solid var(--red)}}
+.hin{{max-width:1180px;margin:0 auto;display:flex;gap:14px;align-items:center}}
+header img{{width:52px;height:52px;background:#fff;border-radius:10px;padding:4px;flex:none}}header p{{margin:0;font:700 12px/1 Arial;letter-spacing:.1em;color:#c9d3f2;text-transform:uppercase}}header h1{{margin:6px 0 0;font-size:24px;line-height:1.15}}
+main{{max-width:1180px;margin:0 auto}}
+.intro{{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 18px}}.intro p{{margin:0 0 10px;color:var(--muted)}}
+.counts{{display:flex;flex-wrap:wrap;gap:8px;margin:0}}.counts span{{background:var(--bg);border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px}}.counts .g{{color:#127a3a}}.counts .a{{color:#a35200}}
+h2.sec{{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin:26px 0 10px}}
+.grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px}}
+.card{{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 2px 8px rgba(0,1,58,.06)}}
+.top{{padding:16px 16px 10px}}.top h2{{margin:8px 0 6px;font-size:26px;line-height:1.1;color:var(--navy)}}.top p{{margin:0;font-size:14.5px;color:var(--muted)}}
+.tag{{display:inline-block;font:800 12px/1 Arial;letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px}}
+.tag.new{{background:var(--red);color:#fff}}.tag.old{{background:var(--navy);color:#fff}}.tag.hid{{background:#5d6785;color:#fff}}
+.pair{{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:4px 16px 12px}}
+.shot{{display:block;text-decoration:none;color:inherit}}.lbl{{display:block;font:800 13px/1 Arial;letter-spacing:.06em;text-transform:uppercase;margin:0 0 6px;color:#5d6785}}.shot.proposed .lbl{{color:var(--red)}}
+.pic{{display:block;aspect-ratio:390/620;overflow:hidden;border-radius:10px;border:2px solid var(--line);background:#dfe5ee}}.shot.proposed .pic{{border-color:var(--red)}}
+.pic img{{width:100%;display:block}}.none{{display:grid;place-items:center;height:100%;padding:10px;text-align:center;font-size:14px;color:var(--muted)}}
+.st{{margin:0 16px 12px;padding:10px 12px;border-radius:10px;font-size:14.5px}}.st.ok{{background:#e8f6ee;color:#127a3a}}.st.todo{{background:#fff4e5;color:#7a3e00}}
+.st ul{{margin:6px 0 0;padding-left:18px;color:#0a0f2e}}.st li{{margin:3px 0}}
+.btns{{display:flex;gap:8px;margin-top:auto;padding:0 16px 16px}}.btns a{{flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}}.btns a.pri{{background:var(--red);color:#fff;border-color:var(--red)}}
+</style></head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1></div></div></header>
+<main><div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
+<div class="counts"><span>{len(CFG)} pages</span><span class="g">{ready} ready to launch</span><span class="a">{len(CFG) - ready} need items first</span><span>{len(new)} new pages</span></div></div>
+<h2 class="sec">Pages that change ({len(old)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in old)}</div>
+<h2 class="sec">New pages ({len(new)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in new)}</div>
+</main></body></html>'''
     open(os.path.join(HERE, 'index.html'), 'w').write(html)
-
 
 if __name__ == '__main__':
     slugs = sys.argv[1:] or list(CFG)

@@ -8,7 +8,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 (async () => {
   const br = await chromium.launch({ channel: 'chrome', headless: true });
-  for (const [dev, vp, mob] of [['phone', { width: 390, height: 844 }, true], ['desk', { width: 1440, height: 900 }, false]]) {
+  // DEVICES=phone node shots.js  -> phone only (index thumbnails)
+  const only = process.env.DEVICES ? process.env.DEVICES.split(',') : null;
+  for (const [dev, vp, mob] of [['phone', { width: 390, height: 844 }, true], ['desk', { width: 1440, height: 900 }, false]].filter(d => !only || only.includes(d[0]))) {
     const ctx = await br.newContext({ viewport: vp, isMobile: mob, hasTouch: mob, userAgent: mob ? IPHONE : undefined, deviceScaleFactor: 1 });
     await ctx.route(/cookielaw\.org|onetrust/, r => r.abort());
     // files the preview links on its own host (home rotator slides) render from this folder, deployed or not
@@ -27,6 +29,11 @@ const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebK
       await p.screenshot({ path: base + '.jpg', type: 'jpeg', quality: 80 });
       const h = await p.evaluate(() => document.body.scrollHeight);
       await p.screenshot({ path: base + '-full.jpg', type: 'jpeg', quality: 75, fullPage: true, clip: { x: 0, y: 0, width: vp.width, height: Math.min(h, dev === 'phone' ? 14000 : 9000) } });
+      // index thumbnail: the page's own content (skips the site header every page shares)
+      if (dev === 'phone') {
+        const top = await p.evaluate(() => { const c = document.querySelector('#dnn_ContentPane'); return c ? Math.max(0, Math.round(c.getBoundingClientRect().top + window.scrollY) - 6) : 0; });
+        await p.screenshot({ path: base + '-thumb.jpg', type: 'jpeg', quality: 78, fullPage: true, clip: { x: 0, y: top, width: vp.width, height: Math.min(780, h - top) } });
+      }
       const side = await p.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
       console.log(`${slug} ${v} ${dev} h=${h}${side ? ' SIDEWAYS-SCROLL' : ''}`);
     }
