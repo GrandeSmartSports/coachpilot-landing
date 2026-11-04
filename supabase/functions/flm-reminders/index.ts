@@ -59,7 +59,7 @@ function emailHtml(league: string, heading: string, lines: string[]): string {
   <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
     <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(heading)}</h1>
     ${body}
-    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Your games are always at <a href="https://coachpilot.org/fields/umpire.html" style="color:#2d6a4f;">coachpilot.org/fields/umpire.html</a>.</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Your games are always at <a href="https://go.blslittleleague.org/fields/umpire.html" style="color:#2d6a4f;">go.blslittleleague.org/fields/umpire.html</a>.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(league)} Field Command. Reply to this email to reach the league.</p>
 </div>

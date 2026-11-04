@@ -139,7 +139,7 @@ function announcementEmailHtml(leagueName: string, a: { title: string; body: str
     <div style="display:inline-block;background:${sevColor};color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;border-radius:12px;padding:3px 12px;margin-bottom:12px;">${sevLabel}</div>
     <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(a.title)}</h1>
     <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${bodyHtml}</p>
-    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See the full field schedule any time at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See the full field schedule any time at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command. Reply to this email to reach the league.</p>
 </div>
@@ -197,7 +197,7 @@ function umpEmailHtml(leagueName: string, heading: string, lines: string[]): str
   <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
     <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(heading)}</h1>
     ${body}
-    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Your games are always at <a href="https://coachpilot.org/fields/umpire.html" style="color:#2d6a4f;">coachpilot.org/fields/umpire.html</a>.</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Your games are always at <a href="https://go.blslittleleague.org/fields/umpire.html" style="color:#2d6a4f;">go.blslittleleague.org/fields/umpire.html</a>.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command. Reply to this email to reach the league.</p>
 </div>
@@ -464,7 +464,7 @@ function isPin(s: unknown): boolean {
   return typeof s === "string" && /^\d{4}$/.test(s);
 }
 function inviteUrlFor(token: string): string {
-  return `https://coachpilot.org/fields/coach-invite.html?token=${encodeURIComponent(token)}`;
+  return `https://go.blslittleleague.org/fields/coach-invite.html?token=${encodeURIComponent(token)}`;
 }
 // deno-lint-ignore no-explicit-any
 async function coachAuth(b: Record<string, unknown>): Promise<any | null> {
@@ -525,7 +525,7 @@ function coachRequestEmailHtml(leagueName: string, r: { category: string; subjec
     <h1 style="margin:0 0 4px;font-size:20px;color:#1c2420;">${escHtml(r.subject)}</h1>
     <p style="margin:0 0 14px;font-size:13px;color:#6d7a72;">from ${escHtml(r.submitted_by_coach_name)} &middot; <a href="mailto:${escHtml(coachEmail)}" style="color:#2d6a4f;">${escHtml(coachEmail)}</a></p>
     <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${body}</p>
-    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Manage requests in the Coaches inbox at <a href="https://coachpilot.org/fields/admin.html" style="color:#2d6a4f;">coachpilot.org/fields/admin.html</a>.</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">Manage requests in the Coaches inbox at <a href="https://go.blslittleleague.org/fields/admin.html" style="color:#2d6a4f;">go.blslittleleague.org/fields/admin.html</a>.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
 </div>
@@ -566,7 +566,7 @@ function coachRequestResolvedEmailHtml(leagueName: string, r: { subject: string;
     <div style="display:inline-block;background:#2d6a4f;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;border-radius:12px;padding:3px 12px;margin-bottom:12px;">REQUEST ${escHtml(r.status.toUpperCase())}</div>
     <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(r.subject)}</h1>
     <p style="margin:0;font-size:15px;line-height:1.55;color:#3c463f;">${body}</p>
-    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See all your requests at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p>
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See all your requests at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p>
   </div>
   <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command Coaches Hub.</p>
 </div>
@@ -885,11 +885,11 @@ Deno.serve(async (req: Request) => {
       }
       const { data: tok } = await db.from("flm_action_tokens").select("id,slot_id,purpose,expires_at,used_at").eq("token", token).maybeSingle();
       if (!tok) {
-        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#b3432b;margin:0 0 12px;">Link not found</h2><p>This release link is not valid or has already expired. If you still need to remove that slot, sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status: 404, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#b3432b;margin:0 0 12px;">Link not found</h2><p>This release link is not valid or has already expired. If you still need to remove that slot, sign in at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p></div></body></html>`, { status: 404, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
       }
       // Expired
       if (new Date(tok.expires_at).getTime() < Date.now()) {
-        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#a8571d;margin:0 0 12px;">Link expired</h2><p>This release link expired on ${new Date(tok.expires_at).toLocaleDateString()}. The slot is still on the schedule. Sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a> to manage it.</p></div></body></html>`, { status: 410, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+        return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#fff;border-radius:12px;padding:24px;border:1px solid #dcd8ca;"><h2 style="color:#a8571d;margin:0 0 12px;">Link expired</h2><p>This release link expired on ${new Date(tok.expires_at).toLocaleDateString()}. The slot is still on the schedule. Sign in at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a> to manage it.</p></div></body></html>`, { status: 410, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
       }
       // Already used — show friendly confirmation (idempotent)
       if (tok.used_at) {
@@ -906,7 +906,7 @@ Deno.serve(async (req: Request) => {
       await db.from("flm_slots").delete().eq("id", tok.slot_id);
       await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
       await log("slot_release_token", `${slotRow.label} released ${slotRow.day_key} on ${fieldRow?.name ?? slotRow.field_id} via email link`, slotRow.label);
-      return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Done</h2><p style="font-size:15px;color:#3c463f;line-height:1.55;">The extra ${escHtml(slotRow.day_key === "wed" ? "Wednesday" : slotRow.day_key)} slot on ${escHtml(fieldRow?.name ?? slotRow.field_id)} has been released. The field is open again on that day.</p><p style="margin-top:18px;font-size:13px;color:#6d7a72;">See the full field schedule at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      return new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:#2d6a4f;margin:0 0 12px;">Done</h2><p style="font-size:15px;color:#3c463f;line-height:1.55;">The extra ${escHtml(slotRow.day_key === "wed" ? "Wednesday" : slotRow.day_key)} slot on ${escHtml(fieldRow?.name ?? slotRow.field_id)} has been released. The field is open again on that day.</p><p style="margin-top:18px;font-size:13px;color:#6d7a72;">See the full field schedule at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p></div></body></html>`, { status: 200, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
     }
 
     // ---------- v18: one-tap "move my practice to this field for one date" ----------
@@ -917,12 +917,12 @@ Deno.serve(async (req: Request) => {
     // one email with several options can only produce one outcome.
     if (action === "slot_move_token" && req.method === "GET") {
       const shell = (title: string, color: string, inner: string, status: number) =>
-        new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:${color};margin:0 0 12px;">${title}</h2>${inner}<p style="margin-top:18px;font-size:13px;color:#6d7a72;">Full schedule at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a>.</p></div></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+        new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:${color};margin:0 0 12px;">${title}</h2>${inner}<p style="margin-top:18px;font-size:13px;color:#6d7a72;">Full schedule at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p></div></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
       const token = url.searchParams.get("token") ?? "";
       if (!token) return shell("Missing link", "#b3432b", `<p>This link is missing its token. Use a button from the original email.</p>`, 400);
       const { data: tok } = await db.from("flm_action_tokens").select("id,slot_id,purpose,expires_at,used_at,move_date,to_field_id").eq("token", token).maybeSingle();
       if (!tok || tok.purpose !== "move_date" || !tok.move_date || !tok.to_field_id) {
-        return shell("Link not found", "#b3432b", `<p>This link is not valid or has expired. Sign in at <a href="https://coachpilot.org/fields/" style="color:#2d6a4f;">coachpilot.org/fields</a> to manage your schedule.</p>`, 404);
+        return shell("Link not found", "#b3432b", `<p>This link is not valid or has expired. Sign in at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a> to manage your schedule.</p>`, 404);
       }
       if (new Date(tok.expires_at).getTime() < Date.now()) {
         return shell("Link expired", "#a8571d", `<p>This link expired on ${new Date(tok.expires_at).toLocaleDateString()}. Sign in at the portal to move the practice instead.</p>`, 410);
@@ -1325,7 +1325,7 @@ Deno.serve(async (req: Request) => {
       const situation = auto
         ? `claimed open field time that puts their schedule over the league guideline. Per league policy the claim went through and the coach was not prompted — this is an automatic review item.`
         : `confirmed a practice schedule that is outside the league guideline and says it was approved.`;
-      const html = `<div style="font-family:sans-serif"><h2>Schedule ${auto ? "review" : "approval"} needed</h2><p><b>${escHtml(coach.name)}</b> (${escHtml(teamName)}${teamRow?.division ? ", " + escHtml(teamRow.division) : ""}) ${situation}</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(summary)}</blockquote><p>Approve or deny it in the admin console (Coaches Hub &rarr; Requests inbox):<br><a href="https://coachpilot.org/fields/admin.html#hub">coachpilot.org/fields/admin.html</a></p></div>`;
+      const html = `<div style="font-family:sans-serif"><h2>Schedule ${auto ? "review" : "approval"} needed</h2><p><b>${escHtml(coach.name)}</b> (${escHtml(teamName)}${teamRow?.division ? ", " + escHtml(teamRow.division) : ""}) ${situation}</p><blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;white-space:pre-wrap;">${escHtml(summary)}</blockquote><p>Approve or deny it in the admin console (Coaches Hub &rarr; Requests inbox):<br><a href="https://go.blslittleleague.org/fields/admin.html#hub">go.blslittleleague.org/fields/admin.html</a></p></div>`;
       await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
@@ -1670,7 +1670,7 @@ Deno.serve(async (req: Request) => {
       if (error || !created) return json({ ok: false, error: error?.message ?? "insert failed" }, 500);
       const league = await leagueName();
       const slotDesc = `${slot.day_key} at ${field?.name ?? "the field"}`;
-      const html = `<div style="font-family:sans-serif"><h2>Practice join request</h2><p><b>${coach.name}</b> would like to join your practice on <b>${slotDesc}</b>.</p>${note ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(note)}</blockquote>` : ""}<p>Sign in to the Coaches Hub to approve or deny: <a href="https://coachpilot.org/fields/">coachpilot.org/fields</a></p></div>`;
+      const html = `<div style="font-family:sans-serif"><h2>Practice join request</h2><p><b>${coach.name}</b> would like to join your practice on <b>${slotDesc}</b>.</p>${note ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(note)}</blockquote>` : ""}<p>Sign in to the Coaches Hub to approve or deny: <a href="https://go.blslittleleague.org/fields/">go.blslittleleague.org/fields</a></p></div>`;
       await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: coach.email,
@@ -1719,7 +1719,7 @@ Deno.serve(async (req: Request) => {
       if (requester) {
         const league = await leagueName();
         const verdict = decision === "approved" ? "APPROVED" : "DENIED";
-        const html = `<div style="font-family:sans-serif"><h2>Join request ${verdict.toLowerCase()}</h2><p>Coach ${coach.name} ${verdict === "APPROVED" ? "approved your request to join their practice." : "denied your join request."}</p>${responseNote ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(responseNote)}</blockquote>` : ""}<p><a href="https://coachpilot.org/fields/">Open the Coaches Hub</a></p></div>`;
+        const html = `<div style="font-family:sans-serif"><h2>Join request ${verdict.toLowerCase()}</h2><p>Coach ${coach.name} ${verdict === "APPROVED" ? "approved your request to join their practice." : "denied your join request."}</p>${responseNote ? `<blockquote style="border-left:3px solid #c96f2f;padding:8px 12px;background:#f7f5ee;">${escHtml(responseNote)}</blockquote>` : ""}<p><a href="https://go.blslittleleague.org/fields/">Open the Coaches Hub</a></p></div>`;
         await resendSend({
           from: "Field Command <noreply@coachpilot.org>",
           reply_to: coach.email || undefined,
@@ -1925,7 +1925,7 @@ Deno.serve(async (req: Request) => {
       const { data: subs } = await db.from("flm_push_subscriptions").select("id,endpoint,p256dh,auth,coach_id").eq("active", true);
       let sent = 0, failed = 0;
       for (const s of (subs ?? [])) {
-        const r = await sendWebPush(s, { title, body, url: "https://coachpilot.org/fields/", tag: "flm-announcement" }).catch(() => ({ ok: false }));
+        const r = await sendWebPush(s, { title, body, url: "/fields/", tag: "flm-announcement" }).catch(() => ({ ok: false }));
         if (r && (r as { ok?: boolean }).ok) sent++; else failed++;
       }
       await log("announce", `Push sent: "${title}" to ${sent} device(s)${failed ? `, ${failed} failed` : ""}`, "admin");
@@ -2133,6 +2133,16 @@ Deno.serve(async (req: Request) => {
       const recipients = testTo ? [testTo] : coachEmails;
       if (recipients.length === 0) return json({ ok: false, error: "No coach emails on file yet. Add emails to teams first." }, 400);
       if (recipients.length > 100) return json({ ok: false, error: "recipient list too large" }, 400);
+      // Optional send time (ISO 8601): Resend holds each email until then (its limit is 30 days out).
+      let scheduledAt = "";
+      if (b.scheduled_at !== undefined && b.scheduled_at !== null && b.scheduled_at !== "") {
+        const raw = String(b.scheduled_at).trim();
+        const t = /(Z|[+-]\d\d:\d\d)$/.test(raw) ? Date.parse(raw) : NaN;
+        if (!Number.isFinite(t) || t < Date.now() + 60_000 || t > Date.now() + 29 * 86_400_000) {
+          return json({ ok: false, error: "scheduled_at must be an ISO time with a time zone (Z or -08:00), between 1 minute and 29 days from now" }, 400);
+        }
+        scheduledAt = new Date(t).toISOString();
+      }
 
       const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
       if (!RESEND_API_KEY) return json({ ok: false, error: "email is not configured" }, 500);
@@ -2144,11 +2154,15 @@ Deno.serve(async (req: Request) => {
       const ids: string[] = [];
       const failed: Array<{ to: string; error: string }> = [];
       for (const to of recipients) {
-        const res = await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "danielgrande0326@gmail.com", to: [to], subject, html }),
-        });
+        // A repeated call within 24h for the same announcement, coach and send time is a no-op at Resend.
+        const headers: Record<string, string> = { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" };
+        if (!testTo) headers["Idempotency-Key"] = `flm-ann:${b.id}:${to}:${scheduledAt || "now"}`.slice(0, 256);
+        const payload = JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "danielgrande0326@gmail.com", to: [to], subject, html, ...(scheduledAt ? { scheduled_at: scheduledAt } : {}) });
+        let res = await fetch("https://api.resend.com/emails", { method: "POST", headers, body: payload });
+        if (res.status === 429) {
+          await new Promise((r) => setTimeout(r, 1500));
+          res = await fetch("https://api.resend.com/emails", { method: "POST", headers, body: payload });
+        }
         if (res.ok) {
           sent.push(to);
           try { ids.push((await res.json()).id ?? ""); } catch (_e) { ids.push(""); }
@@ -2157,11 +2171,33 @@ Deno.serve(async (req: Request) => {
         }
         if (recipients.length > 1) await new Promise((r) => setTimeout(r, 550));
       }
-      if (sent.length > 0) {
-        await db.from("flm_announcements").update({ emailed_at: new Date().toISOString() }).eq("id", b.id);
+      // A test send never marks the announcement as emailed to coaches.
+      if (sent.length > 0 && !testTo) {
+        await db.from("flm_announcements").update({ emailed_at: scheduledAt || new Date().toISOString() }).eq("id", b.id);
       }
-      await log("announce_email", testTo ? `Test email of "${a.title}" sent to ${testTo}` : `Announcement "${a.title}" emailed to ${sent.length} coaches${failed.length ? `, ${failed.length} failed` : ""}`, "admin");
-      return json({ ok: true, sent_count: sent.length, failed, resend_ids: ids, test: !!testTo });
+      const when = scheduledAt ? ` (scheduled for ${scheduledAt})` : "";
+      await log("announce_email", testTo ? `Test email of "${a.title}" sent to ${testTo}${when}` : `Announcement "${a.title}" emailed to ${sent.length} coaches${when}${failed.length ? `, ${failed.length} failed` : ""}${scheduledAt ? ` [resend_ids ${ids.join(",")}]` : ""}`, "admin");
+      return json({ ok: true, sent_count: sent.length, failed, resend_ids: ids, test: !!testTo, scheduled_at: scheduledAt || null });
+    }
+
+    // Stops scheduled announcement emails that have not gone out yet (ids from admin_announcement_email).
+    if (action === "admin_cancel_scheduled_emails") {
+      const ids = Array.isArray(b.resend_ids) ? b.resend_ids.map((x: unknown) => String(x)).filter((x: string) => /^[0-9a-f-]{36}$/i.test(x)) : [];
+      if (ids.length === 0) return json({ ok: false, error: "resend_ids required" }, 400);
+      const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY") ?? "";
+      if (!RESEND_API_KEY) return json({ ok: false, error: "email is not configured" }, 500);
+      let canceled = 0;
+      const failed: Array<{ id: string; error: string }> = [];
+      for (const id of ids) {
+        const res = await fetch(`https://api.resend.com/emails/${id}/cancel`, { method: "POST", headers: { "Authorization": `Bearer ${RESEND_API_KEY}` } });
+        if (res.ok) canceled++; else failed.push({ id, error: `${res.status} ${(await res.text()).slice(0, 120)}` });
+        if (ids.length > 1) await new Promise((r) => setTimeout(r, 550));
+      }
+      if (b.id && canceled > 0 && failed.length === 0) {
+        await db.from("flm_announcements").update({ emailed_at: null }).eq("id", b.id);
+      }
+      await log("announce_email", `Canceled ${canceled} scheduled announcement email(s)${failed.length ? `, ${failed.length} failed` : ""}`, "admin");
+      return json({ ok: true, canceled, failed });
     }
 
     if (action === "admin_upsert_field") {
