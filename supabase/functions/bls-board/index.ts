@@ -274,6 +274,72 @@ async function sendEmail(subject: string, heading: string, lines: { label?: stri
     return false;
   }
 }
+// ---------- replies to a board member (Coach 11/5: "I need a way to respond... let them know I saw it and it's fixed") ----------
+// Goes out as website@blslittleleague.org through the league's own Gmail API project when the BLS_GMAIL_* secrets are
+// set (same setup as bls-gateway), else from the Resend sender. Only when the member left an email in the picker.
+const GM = { id: Deno.env.get("BLS_GMAIL_CLIENT_ID") || "", secret: Deno.env.get("BLS_GMAIL_CLIENT_SECRET") || "", refresh: Deno.env.get("BLS_GMAIL_REFRESH_TOKEN") || "", user: Deno.env.get("BLS_GMAIL_USER") || "website@blslittleleague.org" };
+let gmTok: { token: string; exp: number } | null = null;
+async function gmailToken(): Promise<string | null> {
+  if (!(GM.id && GM.secret && GM.refresh)) return null;
+  if (gmTok && gmTok.exp > Date.now() + 60_000) return gmTok.token;
+  const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: GM.id, client_secret: GM.secret, refresh_token: GM.refresh, grant_type: "refresh_token" }) }).catch(() => null);
+  if (!res || !res.ok) return null;
+  const j = await res.json().catch(() => ({}));
+  if (!j.access_token) return null;
+  gmTok = { token: j.access_token, exp: Date.now() + (Number(j.expires_in) || 3600) * 1000 };
+  return gmTok.token;
+}
+const b64 = (s: string) => btoa(unescape(encodeURIComponent(s)));
+async function sendTo(to: string, subject: string, text: string, html: string): Promise<boolean> {
+  const tok = await gmailToken();
+  if (tok) {
+    const bnd = "b" + crypto.randomUUID().replace(/-/g, "");
+    const mime = [`From: BLS Little League <${GM.user}>`, `To: ${to}`, `Reply-To: ${GM.user}`, `Subject: =?UTF-8?B?${b64(subject)}?=`, "MIME-Version: 1.0",
+      `Content-Type: multipart/alternative; boundary="${bnd}"`, "", `--${bnd}`, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64(text),
+      `--${bnd}`, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64(html), `--${bnd}--`, ""].join("\r\n");
+    const raw = b64(mime).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw }) }).catch(() => null);
+    if (res && res.ok) return true;
+  }
+  const key = Deno.env.get("RESEND_API_KEY") || "";
+  if (!key) return false;
+  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: "BLS Little League <noreply@coachpilot.org>", reply_to: GM.user, to: [to], subject, text, html }) }).catch(() => null);
+  return !!(res && res.ok);
+}
+async function memberEmail(name: string | null): Promise<string | null> {
+  if (!name) return null;
+  const { data } = await db.from("bls_board_people").select("name, email").eq("active", true);
+  const p = (data || []).find((x: { name: string; email: string | null }) => sameName(x.name, name) && x.email);
+  return p ? String(p.email) : null;
+}
+// Daniel answered a member's note: one short email with their note, his words, and the page.
+async function notifyAuthor(item: Item, answer: string): Promise<boolean> {
+  if (isDaniel(item)) return false;
+  const to = await memberEmail(item.author_name);
+  if (!to) return false;
+  const page = item.slug ? await getPage(item.slug) : null;
+  const where = page ? page.title : "the BLS website";
+  const first = String(item.author_name || "").split(" ")[0];
+  const link = page ? `${SITE}${item.variant === "today" ? "today" : "proposed"}/${page.slug}.html` : SITE;
+  const subject = `Daniel saw your note on ${where}`;
+  const text = `${first},\n\nYour note on ${where}: "${item.body || ""}"\n\nDaniel: ${answer}\n\n${link}\n\nBLS Little League website`;
+  const F = "-apple-system,Helvetica,Arial,sans-serif";
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#eef2f6"><div style="max-width:560px;margin:0 auto;padding:16px">
+<div style="background:#fff;border-radius:14px;border-top:5px solid #cd163f;padding:22px 22px 24px">
+  <img src="${LOGO}" width="56" height="56" border="0" alt="BLS Little League" style="display:block;width:56px;height:56px;margin:0 0 10px">
+  <div style="font:700 11px/1.3 ${F};letter-spacing:.2em;text-transform:uppercase;color:#cd163f">BLS website</div>
+  <div style="margin-top:6px;font:800 22px/1.2 ${F};color:#00013a">${esc(subject)}</div>
+  <p style="margin:14px 0 0;font:400 13px/1.4 ${F};letter-spacing:.08em;text-transform:uppercase;color:#6b7279">Your note</p>
+  <p style="margin:4px 0 0;font:400 16px/1.5 ${F};color:#1f2326;white-space:pre-wrap">${esc(item.body || "")}</p>
+  <p style="margin:14px 0 0;font:400 13px/1.4 ${F};letter-spacing:.08em;text-transform:uppercase;color:#6b7279">Daniel</p>
+  <p style="margin:4px 0 0;font:400 16px/1.5 ${F};color:#1f2326;white-space:pre-wrap">${esc(answer)}</p>
+  <p style="margin:20px 0 0"><a href="${esc(link)}" style="display:inline-block;padding:12px 18px;border-radius:999px;background:#cd163f;color:#fff;text-decoration:none;font:700 15px/1.2 ${F}">Open ${esc(where)}</a></p>
+</div></div></body></html>`;
+  return await sendTo(to, subject, text, html);
+}
+
 // Links straight to the item: the page version it was left on (Proposed by default), or the index for board-wide items.
 const adminLink = (slug: string | null, item: { id: string; variant: string | null } | null = null) => {
   const hash = item ? `#blsb=${item.id}` : "";
@@ -304,6 +370,7 @@ async function emailForItem(item: Item, page: Page | null, effect: string): Prom
   if (item.pin_x != null) lines.push({ label: "Spot", text: "Pinned on the page" });
   if (item.body) lines.push({ label: "Message", text: item.body });
   if (effect) lines.push({ label: "Board review clock", text: effect });
+  lines.push({ text: "Open the board to reply or mark it Fixed. If they left an email, your answer goes to them from website@blslittleleague.org." });
   return await sendEmail(subject, subject, lines, adminLink(item.slug, item));
 }
 
@@ -460,19 +527,24 @@ async function applyTimer(p: Page, timer: string): Promise<Page> {
 // ---------- public shapes ----------
 const isDaniel = (i: Item) => !!i.is_admin || String(i.author_name || "").trim().toLowerCase() === "daniel grande";
 // resolution_note is Daniel's own text with no to_board switch, so members get the status word only (Coach 11/4).
-const publicItem = (i: Item, admin = false) => ({
+const publicItem = (i: Item, admin = false, me = "") => ({
   id: i.id, slug: i.slug, kind: i.kind, body: i.body, author_name: i.author_name, author_role: i.author_role,
   is_admin: i.is_admin, parent_id: i.parent_id, variant: i.variant, pin_x: i.pin_x, pin_y: i.pin_y, pin_w: i.pin_w,
-  req_item: i.req_item, status: i.status, resolution_note: admin ? i.resolution_note : null, created_at: i.created_at, resolved_at: i.resolved_at,
+  req_item: i.req_item, status: i.status, resolution_note: admin || sameName(i.author_name, me) ? i.resolution_note : null, created_at: i.created_at, resolved_at: i.resolved_at,
   to_board: !!i.to_board,
 });
 // What a reader may see (one rule for state, counts and approvers). Members: approvals only until Daniel opens comments
 // (Coach 11/4), and never one of Daniel's own posts unless he marked it for the board. Approvals are exempt from the
 // Daniel rule so his own Approve toggle keeps working when he picks his name as a member (approvers are public by
 // contract; the note on his approval is blanked in buildState).
-function visibleTo(items: Item[], admin: boolean, commentsPublic: boolean): Item[] {
+// A member always sees their own notes, and Daniel's replies on them, so his answer reaches them (Coach 11/5:
+// "no way of circling back"). The viewer's name comes from the picker (?me=), the same trust level as posting.
+const sameName = (a: string | null | undefined, b: string | null | undefined) => !!a && !!b && String(a).trim().toLowerCase() === String(b).trim().toLowerCase();
+function visibleTo(items: Item[], admin: boolean, commentsPublic: boolean, me = ""): Item[] {
   if (admin) return items;
-  return items.filter((i) => i.kind === "approve" || (commentsPublic && !(isDaniel(i) && !i.to_board)));
+  const mineIds = new Set(items.filter((i) => sameName(i.author_name, me) && !i.parent_id).map((i) => i.id));
+  return items.filter((i) => i.kind === "approve" || (commentsPublic && !(isDaniel(i) && !i.to_board))
+    || (me && (sameName(i.author_name, me) || (i.parent_id && mineIds.has(i.parent_id)))));
 }
 
 // Counts are top-level items only (replies are part of their thread), never private or hidden ones.
@@ -502,13 +574,13 @@ async function pageWithCounts(slug: string, admin: boolean): Promise<ReturnType<
   return publicPage(p, visibleTo((data || []) as Item[], admin, commentsPublic));
 }
 
-async function buildState(admin: boolean, includeTest: boolean) {
+async function buildState(admin: boolean, includeTest: boolean, me = "") {
   await expire();
   const evQuery = () => db.from("bls_board_events").select(EVENT_COLS).order("created_at", { ascending: false }).order("id", { ascending: false });
   const [pagesR, phasesR, peopleR, itemsR, eventsR, activityR] = await Promise.all([
     db.from("bls_board_pages").select(PAGE_COLS).order("sort").order("slug"),
     db.from("bls_board_phases").select("id, name, target_date, note, sort").order("sort").order("name"),
-    db.from("bls_board_people").select("name, role, sort").eq("active", true).order("sort").order("name"),
+    db.from("bls_board_people").select("name, role, sort, email").eq("active", true).order("sort").order("name"),
     db.from("bls_board_items").select(ITEM_COLS).eq("hidden", false).order("created_at", { ascending: false }).limit(1000),
     // What's new: page updates and pages going live, for everyone
     evQuery().in("kind", PUBLIC_EVENTS).limit(60),
@@ -526,10 +598,10 @@ async function buildState(admin: boolean, includeTest: boolean) {
   // (Coach 11/4), and Daniel's own notes stay off the board unless marked: see visibleTo. Daniel's own state reads the
   // setting fresh, so the Inbox switch never snaps back to a cached value right after he flips it.
   const commentsPublic = (await settings(admin)).comments_public === "true";
-  items = visibleTo(items, admin, commentsPublic);
+  items = visibleTo(items, admin, commentsPublic, me);
   const pages = ((pagesR.data || []) as Page[]).filter((p) => includeTest || !isTestSlug(p.slug)).map((p) => publicPage(p, items, now));
-  const listed = items.filter((i) => admin || i.kind !== "private").slice(0, 500).map((i) => {
-    const o = publicItem(i, admin);
+  const listed = items.filter((i) => admin || i.kind !== "private" || sameName(i.author_name, me) || (i.parent_id && items.some((p) => p.id === i.parent_id && sameName(p.author_name, me)))).slice(0, 500).map((i) => {
+    const o = publicItem(i, admin, me);
     // An approval's note is text too: members read it only once comments are open, and never Daniel's unless marked.
     if (!admin && i.kind === "approve" && (!commentsPublic || (isDaniel(i) && !i.to_board))) o.body = "";
     return o;
@@ -561,7 +633,7 @@ async function buildState(admin: boolean, includeTest: boolean) {
     now: new Date(now).toISOString(),
     viewer: { admin, name: admin ? ADMIN_NAME : null },
     comments_public: commentsPublic,
-    people: ((peopleR.data || []) as { name: string; role: string }[]).filter((p) => includeTest || !isTestName(p.name)).map((p) => ({ name: p.name, role: p.role })),
+    people: ((peopleR.data || []) as { name: string; role: string; email?: string | null }[]).filter((p) => includeTest || !isTestName(p.name)).map((p) => ({ name: p.name, role: p.role, has_email: !!p.email })),
     pages,
     phases: ((phasesR.data || []) as { name: string }[]).filter((p) => includeTest || !isTestName(p.name)),
     items: listed,
@@ -819,6 +891,8 @@ async function adminResolve(b: Record<string, unknown>) {
     status, resolution_note: note || null, resolved_at: status === "open" ? null : isoNow(),
   }).eq("id", item.id).select(ITEM_COLS).single();
   if (error) throw error;
+  // the member hears back when Daniel closes their note (status word plus his note), not on a reopen
+  const emailed = status !== "open" && item.status !== status ? await notifyAuthor(item, `${status === "resolved" ? "Fixed" : STATUS_LABEL[status]}.${note ? " " + note : ""}`) : false;
 
   let page: Page | null = item.slug ? await getPage(item.slug) : null;
   const affects = !!page && !item.parent_id && (item.kind === "concern" || item.kind === "suggestion") && item.status !== status;
@@ -877,7 +951,8 @@ async function adminReply(b: Record<string, unknown>) {
     const page = parent.slug ? await getPage(parent.slug) : null;
     await event(parent.slug, "replied", `Daniel replied on ${pageLabel(page)}.`, ADMIN_NAME, (data as Item).id);
   }
-  return { ok: true, item: publicItem(data as Item, true) };
+  const emailed = await notifyAuthor(parent, body);
+  return { ok: true, item: publicItem(data as Item, true), emailed };
 }
 
 // A page update: one short line in plain words about a real change to a page (or board-wide when slug is null).
@@ -1111,7 +1186,20 @@ Deno.serve(async (req) => {
     switch (action) {
       case "state": {
         const admin = await adminFrom(req);
-        return json(await buildState(admin, url.searchParams.get("test") === "1"));
+        return json(await buildState(admin, url.searchParams.get("test") === "1", String(url.searchParams.get("me") || "").slice(0, 80)));
+      }
+      case "set_email": { // a member leaves (or clears) an email so Daniel's answers can reach them; optional, never required
+        postOnly();
+        const name = String(b.name || "").replace(/\s+/g, " ").trim();
+        const email = String(b.email || "").trim().toLowerCase();
+        if (!name) bad("Pick your name first.");
+        if (email && !(email.length <= 254 && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email))) bad("That email does not look right.");
+        const { data: who } = await db.from("bls_board_people").select("id, name").eq("active", true);
+        const person = (who || []).find((p: { name: string }) => sameName(p.name, name)) as { id: string } | undefined;
+        if (!person) throw new HttpError(400, "That name is not on the board list.");
+        const { error } = await db.from("bls_board_people").update({ email: email || null }).eq("id", person.id);
+        if (error) throw error;
+        return json({ ok: true, has_email: !!email });
       }
       case "post": postOnly(); await expire(); return json(await postItem(req, b));
       case "approve": postOnly(); await expire(); return json(await toggleApproval(req, b, "toggle"));
@@ -1120,6 +1208,13 @@ Deno.serve(async (req) => {
       case "admin_page": await requireAdmin(req); postOnly(); await expire(); return json(await adminPage(b));
       case "admin_resolve": await requireAdmin(req); postOnly(); await expire(); return json(await adminResolve(b));
       case "admin_reply": await requireAdmin(req); postOnly(); return json(await adminReply(b));
+      case "admin_resend_email": { // send Daniel the instant email for one item again (he answers from its link)
+        await requireAdmin(req); postOnly();
+        const it = await getItem(String(b.id || ""));
+        if (!it) throw new HttpError(404, "Could not find that item.");
+        const pg = it.slug ? await getPage(it.slug) : null;
+        return json({ ok: await emailForItem(it, pg, "") });
+      }
       case "admin_hide": await requireAdmin(req); postOnly(); return json(await adminHide(b));
       case "admin_to_board": {
         await requireAdmin(req); postOnly();

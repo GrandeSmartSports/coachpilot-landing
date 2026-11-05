@@ -47,7 +47,7 @@
   var SUMW = { building: 'building', waiting: 'waiting on info', review: 'in board review', hold: 'on hold', scheduled: 'scheduled for deployment', live: 'live' };
   // badges on thread items and spot pins (members post plain comments; the other kinds are older items and asks)
   var KINDS = { comment: { badge: 'Comment' }, suggestion: { badge: 'Suggestion' }, concern: { badge: 'Concern' }, help: { badge: 'Can help' }, private: { badge: 'Private' }, approve: { badge: 'Approved' } };
-  var STATUS = { resolved: 'Resolved', accepted: 'Will change', declined: 'Keep as is' };
+  var STATUS = { resolved: 'Fixed', accepted: 'Will change', declined: 'Keep as is' };
   var TO_BOARD_LABEL = 'Show this to the board';
 
   // ---------- small helpers ----------
@@ -233,6 +233,8 @@
   // these only pick the words. Daniel-only is the safe default while the board loads or is offline.
   function commentsPublic() { return !!(S.d && S.d.comments_public === true); }
   function hiddenMode() { return !S.admin && !commentsPublic(); }
+  function isMine(i) { return !!S.name && String(i.author_name || '').trim().toLowerCase() === S.name.trim().toLowerCase(); }
+  function myPerson() { var n = S.name ? S.name.trim().toLowerCase() : ''; return ((S.d && S.d.people) || []).filter(function (p) { return String(p.name || '').trim().toLowerCase() === n; })[0] || null; }
   // Daniel on the name picker (member mode): the server keeps his notes off the board unless he marks one for it
   function isDanielName() { return !S.admin && lc(S.name) === 'daniel grande'; }
   function itemIsDaniel(i) { return !!i && (!!i.is_admin || lc(i.author_name) === 'daniel grande'); }
@@ -368,6 +370,8 @@
     // a load already in flight with a different PIN (Daniel just unlocked or left admin) is stale: load again after it
     if (loading) return loadingPin === S.pin ? loading : loading.then(function () { return load(); });
     var q = TEST ? 'state&test=1' : 'state';
+    // a member's own notes (and Daniel's answers on them) come back for the picked name
+    if (!S.admin && S.name) q += '&me=' + encodeURIComponent(S.name);
     var sent = S.pin;
     loadingPin = sent;
     function got(d) {
@@ -619,6 +623,7 @@
     WHO.dlg.close();
     toast('Thanks, ' + S.name.split(' ')[0] + '.');
     renderAll();
+    load().then(renderAll, function () {}); // pull this person's own notes and Daniel's answers
     if (then) setTimeout(then, 30);
   }
   function renderWhoList() {
@@ -742,10 +747,25 @@
     var tbIn = h('input', { id: tbId, class: 'blsb-check', type: 'checkbox' });
     var tbWrap = h('label', { class: 'blsb-checkl blsb-toboard', for: tbId, hidden: true }, [tbIn, h('span', { text: TO_BOARD_LABEL })]);
     // members, after a send: this note stands in for the box
+    // optional: an email so Daniel's answer can reach them (asked once; the roster remembers it)
+    var emIn = h('input', { class: 'blsb-in blsb-email', type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'you@example.com', 'aria-label': 'Email for a reply' });
+    var emMsg = h('span', { class: 'blsb-muted blsb-small' });
+    var emSave = h('button', { type: 'button', class: 'blsb-mini', text: 'Save' });
+    var emRow = h('div', { class: 'blsb-email-row' }, [h('span', { class: 'blsb-small', text: 'Want an email when it is handled? Optional.' }), h('div', { class: 'blsb-comp-row' }, [emIn, emSave]), emMsg]);
+    emSave.addEventListener('click', function () {
+      var v = emIn.value.trim(); if (!v) { emIn.focus(); return; }
+      emSave.disabled = true;
+      api('set_email', { name: S.name, email: v }).then(function () {
+        var p = myPerson(); if (p) p.has_email = true;
+        emRow.replaceChildren(h('span', { class: 'blsb-small', text: 'Got it. Replies go to ' + v + '.' }));
+      }, function (e) { emSave.disabled = false; emMsg.textContent = errText(e); });
+    });
     var thanks = h('div', { class: 'blsb-thanks', role: 'status', hidden: true }, [
       h('p', { text: 'Thanks for the feedback. Keep an eye out for updates.' }), h('p', { class: 'blsb-thanks-sig', text: 'Daniel' }),
+      emRow,
       h('p', { class: 'blsb-thanks-more' }, [h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Send another', onclick: function () { c.thanks = false; c.refresh(); c.focus(); } })])
     ]);
+    c.emRow = emRow;
     c.el = h('div', { class: 'blsb-comp' }, [lab, hint, ctx, ta, tbWrap, row, thanks, msg]);
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); c.send(); } });
     ta.addEventListener('input', function () { if (msg.classList.contains('blsb-err')) say(''); });
@@ -795,6 +815,7 @@
       if (spotBtn) spotBtn.hidden = !S.admin || !!c.reply || !!c.spot;
       lab.hidden = done; ta.hidden = done; row.hidden = done;
       thanks.hidden = !done;
+      if (c.emRow) { var mp = myPerson(); c.emRow.hidden = !!(mp && mp.has_email); }
     };
     c.send = function () {
       var body = ta.value.replace(/\s+$/, '').replace(/^\s+/, '');
@@ -995,9 +1016,10 @@
     opts = opts || {};
     if (guarded(box)) return;
     clear(box);
-    // comments Daniel-only: a board member sees no list at all (the sheet hides the heading too)
-    if (hiddenMode() && S.d) return;
+    // comments Daniel-only: a board member sees only their own notes (with Daniel's answers), never the rest
+    if (hiddenMode() && S.d && !opts.mine) return;
     var list = topItems(slug).filter(function (i) { return i.kind !== 'approve' || String(i.body || '').trim(); });
+    if (opts.mine) list = list.filter(function (i) { return isMine(i); });
     if (opts.filter) list = list.filter(opts.filter);
     if (!list.length) { box.appendChild(h('p', { class: 'blsb-empty', text: opts.empty || 'No feedback yet.' })); return; }
     var key = 'thread:' + (slug == null ? '_' : slug) + ':' + (opts.key || '');
@@ -1496,11 +1518,13 @@
     // the thread: Daniel's Discussion with its count; for members nothing at all while comments are Daniel-only,
     // then Notes from the board once they are open
     var n = discussionCount(slug);
-    SH.threadH.textContent = S.admin ? (n ? 'Discussion (' + n + ')' : 'Discussion') : 'Notes from the board';
     var quiet = hiddenMode();
-    SH.threadH.hidden = quiet;
-    SH.thread.hidden = quiet;
-    if (quiet) clear(SH.thread);
+    var mineN = quiet ? topItems(slug).filter(function (i) { return isMine(i) && i.kind !== 'approve'; }).length : 0;
+    SH.threadH.textContent = S.admin ? (n ? 'Discussion (' + n + ')' : 'Discussion') : quiet ? 'Your notes' : 'Notes from the board';
+    SH.threadH.hidden = quiet && !mineN;
+    SH.thread.hidden = quiet && !mineN;
+    if (quiet && !mineN) clear(SH.thread);
+    else if (quiet) renderThread(SH.thread, slug, { composer: comp, mine: true, empty: '' });
     else renderThread(SH.thread, slug, { composer: comp, empty: S.off ? 'Comments are offline right now.' : 'No feedback yet. Be the first.', onReply: function () { SH.compBox.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
     tick();
   }
@@ -1724,8 +1748,10 @@
     if (IX.stripMount) { IX.stripMount.classList.add('blsb'); IX.stripMount.appendChild(IX.strip); } else add(mount, IX.strip);
     // the More area goes after the page grid (its own mount from build.py); an older index keeps it in the top mount
     IX.moreMount = document.getElementById('blsbMore');
+    IX.myNotesH = h('div', { class: 'blsb-sec-h', text: 'Your notes', hidden: true });
+    IX.myNotes = h('div', { class: 'blsb-thread', hidden: true });
     IX.general = h('section', { class: 'blsb-panel blsb-general', 'aria-labelledby': 'blsbGenH' }, [
-      h('div', { class: 'blsb-panel-h', id: 'blsbGenH', text: 'Share thoughts, concerns and feedback' })
+      h('div', { class: 'blsb-panel-h', id: 'blsbGenH', text: 'Share thoughts, concerns and feedback' }), IX.myNotesH, IX.myNotes
     ]);
     if (IX.moreMount) { IX.moreMount.classList.add('blsb'); IX.moreMount.appendChild(IX.moreD); IX.moreMount.appendChild(IX.general); } else add(mount, [IX.moreD, IX.general]);
     var hw = document.getElementById('blsbWho');
@@ -1798,7 +1824,13 @@
     IX.moreD.hidden = !S.admin;
     IX.general.hidden = S.admin || !have;
     if (S.admin) { if (IX.discComp.el.parentNode !== IX.disc) IX.disc.insertBefore(IX.discComp.el, IX.discThread); }
-    else if (IX.discComp.el.parentNode !== IX.general) IX.general.appendChild(IX.discComp.el);
+    else if (IX.discComp.el.parentNode !== IX.general) IX.general.insertBefore(IX.discComp.el, IX.myNotesH);
+    // a member's own board-wide notes with Daniel's answers, under the box
+    if (have && !S.admin) {
+      var myN = topItems(null).filter(function (i) { return isMine(i) && i.kind !== 'approve'; }).length;
+      IX.myNotesH.hidden = !myN; IX.myNotes.hidden = !myN;
+      if (myN) renderThread(IX.myNotes, null, { composer: IX.discComp, mine: true, key: 'ixmine', empty: '' }); else clear(IX.myNotes);
+    } else { IX.myNotesH.hidden = true; IX.myNotes.hidden = true; }
     // Daniel: Board discussion button on a phone only (the panel is there on a computer). Members: Send feedback everywhere.
     IX.quick.classList.toggle('blsb-only-phone', S.admin);
     IX.cols.classList.toggle('blsb-icols-m', !S.admin);
