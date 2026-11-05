@@ -610,3 +610,7 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-req-soft .blsb-req-h{color:var(--b-navy)}
 .blsb .blsb-req-soft .blsb-req-i{border-top-color:var(--b-line)}
 .blsb .blsb-req-soft .blsb-small{margin-top:8px;display:block}
+
+.blsb .blsb-gather{margin:6px 0 0;font-size:14px;line-height:1.4;color:var(--b-muted)}
+.blsb .blsb-gather b{color:var(--b-navy);font-weight:700}
+.blsb .blsb-wc-main .blsb-gather{margin:2px 0 6px}

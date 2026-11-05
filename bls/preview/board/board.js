@@ -1314,6 +1314,15 @@
     t = t.replace(/\s*\([^)]*\)\s*$/, '');
     return t.charAt(0).toUpperCase() + t.slice(1);
   }
+  // One short line under the status so a board member sees what is missing without clicking (Coach 11/4).
+  function gatherLine(p) {
+    var st = stKey(p);
+    if (st !== 'building' && st !== 'waiting') return null;
+    var req = (META[p.slug] && META[p.slug].req) || [];
+    if (!req.length) return h('p', { class: 'blsb-gather' }, [h('b', { text: 'All facts in. ' }), 'Daniel is finishing the page.']);
+    var shown = req.slice(0, 3).map(softFact), more = req.length - shown.length;
+    return h('p', { class: 'blsb-gather' }, [h('b', { text: 'Still gathering: ' }), shown.join('; ') + (more > 0 ? '; and ' + more + ' more' : '') + '.']);
+  }
   function reqBlock(p, comp) {
     var req = (META[p.slug] && META[p.slug].req) || [];
     if (!req.length) return null;
@@ -1802,6 +1811,7 @@
       h('div', { class: 'blsb-wc-main' }, [
         h('div', { class: 'blsb-wc-t', text: p.title || titleOf(p.slug) }),
         plainState(p),
+        gatherLine(p),
         h('div', { class: 'blsb-wc-acts' }, [h('a', { class: 'blsb-act blsb-act-go blsb-act-sm', href: href }, ['Open', sr(' ' + (p.title || titleOf(p.slug)))]),
           p.state === 'review' ? approveToggle(p, true) : null])
       ])
@@ -2070,6 +2080,7 @@
       var fbm = h('button', { type: 'button', class: 'blsb-fb blsb-fb-sm' }, ['Feedback', sr(' on ' + (p.title || titleOf(slug)))]);
       fbm.addEventListener('click', function () { openSheet(slug); });
       add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), iReview(p) || myAsks(p).length ? h('span', { class: 'blsb-mine-pill', text: 'Near your role' }) : null, fbm]));
+      var gl = gatherLine(p); if (gl) add(mount, gl);
       if (p.note) add(mount, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
       return;
     }
