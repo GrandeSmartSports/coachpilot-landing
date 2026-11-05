@@ -605,3 +605,8 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   .blsb .blsb-act.blsb-act-go:hover,.blsb a.blsb-act.blsb-act-go:hover{background:#1a1c5c}
   .blsb .blsb-pill:hover{border-color:var(--b-navy)}
 }
+
+.blsb .blsb-req-soft{background:var(--b-bg);border:1px solid var(--b-line)}
+.blsb .blsb-req-soft .blsb-req-h{color:var(--b-navy)}
+.blsb .blsb-req-soft .blsb-req-i{border-top-color:var(--b-line)}
+.blsb .blsb-req-soft .blsb-small{margin-top:8px;display:block}

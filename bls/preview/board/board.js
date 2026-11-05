@@ -1307,9 +1307,23 @@
     });
     return out.reverse();
   }
+  // Board members asked "gathering what?" (Coach 11/4): a short read-only note, no names, nothing to do.
+  function softFact(r) {
+    var t = String(r || '').trim(), i = t.indexOf(': ');
+    if (i > 0 && i < 70 && t.slice(0, i).indexOf('. ') < 0) t = t.slice(i + 2);
+    t = t.replace(/\s*\([^)]*\)\s*$/, '');
+    return t.charAt(0).toUpperCase() + t.slice(1);
+  }
   function reqBlock(p, comp) {
     var req = (META[p.slug] && META[p.slug].req) || [];
-    if (!req.length || !S.admin) return null;
+    if (!req.length) return null;
+    if (!S.admin) {
+      if (p.state !== 'waiting' && p.state !== 'building') return null;
+      var soft = h('div', { class: 'blsb-req blsb-req-soft' }, [h('div', { class: 'blsb-req-h', text: 'What Daniel is still gathering' })]);
+      req.forEach(function (r) { soft.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t', text: softFact(r) })])); });
+      soft.appendChild(h('p', { class: 'blsb-muted blsb-small', text: 'Nothing for you to do here. If you happen to know one of these, a comment helps.' }));
+      return soft;
+    }
     var waiting = p.state === 'waiting';
     var box = h('div', { class: 'blsb-req' }, [h('div', { class: 'blsb-req-h', text: (waiting ? 'Needed before this page can be finished' : 'Facts this page still needs') + ' (' + req.length + ')' })]);
     req.forEach(function (r) {
@@ -1383,7 +1397,7 @@
     SH.mode = mode;
     var order = S.admin
       ? [SH.offBox, SH.mineBox, SH.statusBox, SH.linksBox, SH.whoBox, SH.apprBox, SH.asksBox, SH.reqBox, SH.pinsBox, SH.compBox, SH.threadH, SH.thread]
-      : [SH.offBox, SH.mineBox, SH.apprBox, SH.compBox, SH.whoBox, SH.statusBox, SH.linksBox, SH.pinsBox, SH.threadH, SH.thread, SH.asksBox, SH.reqBox];
+      : [SH.offBox, SH.mineBox, SH.apprBox, SH.compBox, SH.whoBox, SH.statusBox, SH.reqBox, SH.linksBox, SH.pinsBox, SH.threadH, SH.thread, SH.asksBox];
     order.forEach(function (el) { SH.dlg.body.appendChild(el); });
   }
   function renderSheet() {
