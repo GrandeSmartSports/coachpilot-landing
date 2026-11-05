@@ -13,11 +13,10 @@ FEATURE = ('Allan Yorke Park', '7203 W Tapps Hwy E', 'Bonney Lake', 'WA 98391',
 # Extra lines per site, from BLS social posts (sources listed in proposals/fields.json):
 #   aka = another name parents will see; notes = short practical facts.
 EXTRA = {
-    'Allan Yorke Park': {'notes': ['Parking by AY5 is limited. Overflow parking is by AY1 to AY3.',
-                                   'Home of the BLS shed and snack shack.']},
+    'Allan Yorke Park': {'notes': ['Parking by AY5 is limited. Overflow parking is by AY1 to AY3.',]},
     'Mountain View Middle School': {'notes': [""]},
     'Orting Lions Park': {'aka': 'Also called Orting Lions Field',
-                          'notes': ['Concessions on game Saturdays, cash or card.']},
+                          'notes': []},
 }
 
 SECTIONS = [
