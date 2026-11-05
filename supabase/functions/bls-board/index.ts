@@ -26,7 +26,7 @@ const STATE_LABEL: Record<string, string> = {
 const KINDS = ["comment", "suggestion", "concern", "approve", "help", "private"];
 const STATUSES = ["open", "resolved", "accepted", "declined"];
 const STATUS_LABEL: Record<string, string> = { open: "Reopened", resolved: "Resolved", accepted: "Will change", declined: "Keep as is" };
-const EMAIL_KINDS = ["concern", "suggestion", "private", "help"];
+const EMAIL_KINDS = ["comment", "concern", "suggestion", "private", "help"]; // Coach 11/5: every piece of board feedback emails him right away (approvals too, see toggleApproval)
 const ADMIN_NAME = "Daniel (Website)";
 const ADMIN_ROLE = "Website";
 const NOTIFY_TO = "danielgrande0326@gmail.com";
@@ -292,7 +292,9 @@ async function emailForItem(item: Item, page: Page | null, effect: string): Prom
   const where = pageLabel(page);
   const who = item.author_role ? `${item.author_name}, ${item.author_role}` : item.author_name;
   let subject = "";
-  if (item.kind === "concern") subject = `Concern on ${where} from ${item.author_name}`;
+  if (item.kind === "comment") subject = `Feedback on ${where} from ${item.author_name}`;
+  else if (item.kind === "approve") subject = `${item.author_name} approved ${where}`;
+  else if (item.kind === "concern") subject = `Concern on ${where} from ${item.author_name}`;
   else if (item.kind === "suggestion") subject = `Suggestion on ${where} from ${item.author_name}`;
   else if (item.kind === "help") subject = `Help offer on ${where} from ${item.author_name}`;
   else subject = page ? `Private message about ${where} from ${item.author_name}` : `Private message from ${item.author_name}`;
@@ -615,6 +617,9 @@ async function toggleApproval(req: Request, b: Record<string, unknown>, mode: "t
     throw insErr;
   }
   await event(slug, "approved", `${name} approved ${page.title}.`, name, (ins as Item).id);
+  if (!admin && !isTestSlug(slug) && await emailBudgetLeft()) {
+    if (await emailForItem(ins as Item, page, "")) await db.from("bls_board_items").update({ emailed_at: isoNow() }).eq("id", (ins as Item).id);
+  }
   return { ok: true, approved: true, item: publicItem(ins as Item, admin), page: await pageWithCounts(slug, admin) };
 }
 

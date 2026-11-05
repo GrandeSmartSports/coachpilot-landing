@@ -1,8 +1,9 @@
 // Live test of the BLS registration-day reminder flow on bls-gateway (CoachPilot project).
-// Uses Resend's sink address, so no human inbox gets mail. Needs BLS_ADMIN_CODE. Cleans up its row at the end.
+// Sends go out as website@blslittleleague.org (Gmail API), so the test mails itself a plus address on that inbox.
+// Needs BLS_ADMIN_CODE. Cleans up its row at the end.
 const GW = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
 const PIN = process.env.BLS_ADMIN_CODE || "";
-const EMAIL = "delivered@resend.dev";
+const EMAIL = "website+gatewaytest@blslittleleague.org";
 let pass = 0, fail = 0;
 const ok = (c, m, extra) => { if (c) { pass++; console.log("ok  ", m); } else { fail++; console.log("FAIL", m, extra !== undefined ? JSON.stringify(extra).slice(0, 300) : ""); } };
 const post = (action, body, headers = {}) => fetch(`${GW}?action=${action}`, { method: "POST", redirect: "manual", headers: { "Content-Type": "application/json", ...headers }, body: JSON.stringify(body) });

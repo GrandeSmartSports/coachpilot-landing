@@ -128,7 +128,42 @@ function blsEmail(title: string, lead: string, ctaText: string, ctaUrl: string, 
   <p style="margin:22px 0 0;font:400 13px/1.5 ${F};color:#6b7279">${foot}</p>
 </div></div></body></html>`;
 }
+// Preferred path (Coach 11/5: league email must outlive any one person): Gmail API as website@blslittleleague.org,
+// via a refresh token from the league's own Google Cloud project (bls-website-email). Falls back to Resend if unset.
+const GM = { id: Deno.env.get("BLS_GMAIL_CLIENT_ID") || "", secret: Deno.env.get("BLS_GMAIL_CLIENT_SECRET") || "", refresh: Deno.env.get("BLS_GMAIL_REFRESH_TOKEN") || "", user: Deno.env.get("BLS_GMAIL_USER") || "website@blslittleleague.org" };
+let gmTok: { token: string; exp: number } | null = null;
+async function gmailToken(): Promise<string | null> {
+  if (gmTok && gmTok.exp > Date.now() + 60_000) return gmTok.token;
+  const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: GM.id, client_secret: GM.secret, refresh_token: GM.refresh, grant_type: "refresh_token" }) }).catch(() => null);
+  if (!res || !res.ok) return null;
+  const j = await res.json().catch(() => ({}));
+  if (!j.access_token) return null;
+  gmTok = { token: j.access_token, exp: Date.now() + (Number(j.expires_in) || 3600) * 1000 };
+  return gmTok.token;
+}
+const b64url = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const encWord = (s: string) => /^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${btoa(unescape(encodeURIComponent(s)))}?=`;
+async function gmailSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
+  const tok = await gmailToken();
+  if (!tok) return { ok: false };
+  const to = (msg.to as string[]).join(", ");
+  const bnd = "b" + crypto.randomUUID().replace(/-/g, "");
+  const extra = Object.entries((msg.headers as Record<string, string>) || {}).map(([k, v]) => `${k}: ${v}`);
+  const mime = [
+    `From: BLS Little League <${GM.user}>`, `To: ${to}`, `Reply-To: ${BLS_REPLY_TO}`, `Subject: ${encWord(String(msg.subject || ""))}`, "MIME-Version: 1.0", ...extra,
+    `Content-Type: multipart/alternative; boundary="${bnd}"`, "",
+    `--${bnd}`, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", btoa(unescape(encodeURIComponent(String(msg.text || "")))),
+    `--${bnd}`, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", btoa(unescape(encodeURIComponent(String(msg.html || "")))),
+    `--${bnd}--`, "",
+  ].join("\r\n");
+  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw: b64url(mime) }) }).catch(() => null);
+  if (!res || !res.ok) return { ok: false };
+  const j = await res.json().catch(() => ({}));
+  return { ok: true, id: j?.id };
+}
 async function resendSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
+  if (GM.id && GM.secret && GM.refresh) { const g = await gmailSend(msg); if (g.ok) return g; }
   const key = Deno.env.get("RESEND_API_KEY") || "";
   if (!key) return { ok: false };
   const res = await fetch("https://api.resend.com/emails", {
