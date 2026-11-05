@@ -1820,9 +1820,12 @@
     }
     box.classList.remove('blsb-wc-none');
     var mine = S.d ? myPages() : [];
+    // nobody lands on an empty card: people on no reviewer list (new members, guests) get a few pages to start with
+    var starter = false;
+    if (S.d && !mine.length) { mine = starterPages(); starter = true; }
     var lead = 'Here\'s the new BLS website in progress. No rush and nothing is required.';
     add(box, [h('div', { class: 'blsb-wc-h', id: 'blsbWcH', role: 'heading', 'aria-level': '2', text: 'Hi ' + firstName(S.name) + '.' }),
-      h('p', { class: 'blsb-wc-p', text: !S.d ? lead : lead + (mine.length ? ' If you have a minute, these pages are closest to your role:' : ' If you have a minute, have a look at any page below.') })]);
+      h('p', { class: 'blsb-wc-p', text: !S.d ? lead : lead + (starter ? ' If you have a minute, here are a few to start with. Every page is open to you below.' : ' If you have a minute, these pages are closest to your role:') })]);
     if (!mine.length) return;
     var all = !!S.open.wcAll;
     add(box, h('ul', { class: 'blsb-wc-list' }, (all ? mine : mine.slice(0, 3)).map(wcCard)));
@@ -1830,6 +1833,11 @@
       add(box, h('button', { type: 'button', class: 'blsb-linkbtn blsb-wc-all', 'aria-expanded': all ? 'true' : 'false', text: all ? 'Show fewer' : 'See ' + (mine.length - 3) + ' more near your role',
         onclick: function () { S.open.wcAll = !all; renderWelcome(); tick(); } }));
     }
+  }
+  function starterPages() {
+    var out = pages().filter(function (p) { return p.state === 'review' || p.state === 'hold'; }).sort(byTimeLeft);
+    ['home', 'registration', 'volunteer'].forEach(function (slug) { var p = pageOf(slug); if (p && out.indexOf(p) < 0) out.push(p); });
+    return out.slice(0, 3);
   }
   // "In board review now" for board members: a slim strip at the top of the grid, only while a page is in review or on hold
   function renderStrip() {
