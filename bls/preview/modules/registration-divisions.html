@@ -31,12 +31,14 @@
 .blsy #by-f-sb:checked ~ .by-tabbar label[for="by-f-bb"]{background:transparent;color:#4b5675;}
 .blsy #by-f-sb:checked ~ .by-tabbar label[for="by-f-sb"]{background:#00013a;color:#fff;}
 .blsy .by-ladder > input:focus-visible ~ .by-tabbar .by-seg{outline:2px solid #1452a0;outline-offset:2px;}
-.blsy .by-fees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
-.blsy .by-fees li{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:1px solid #dde3ec;border-radius:12px;padding:14px 16px 13px;}
-.blsy .by-fees span{font-weight:600;font-size:15px;line-height:1.2;color:#00013a;}
-.blsy .by-fees b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:1;color:#00013a;}
+/* plain one-line-per-division list at body size (11/5: no league checked shows fees louder than a list; Register stays the loud element) */
+.blsy .by-fees{display:flex;flex-direction:column;background:#fff;border:1px solid #dde3ec;border-radius:12px;overflow:hidden;}
+.blsy .by-fees li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;border-top:1px solid #e8edf4;}
+.blsy .by-fees li:first-child{border-top:0;}
+.blsy .by-fees span{font-weight:600;font-size:15px;line-height:1.3;color:#00013a;}
+.blsy .by-fees b{font-weight:600;font-size:15px;line-height:1.3;color:#00013a;font-variant-numeric:tabular-nums;}
 .blsy .by-fees.by-fee-sb{display:none;}
-.blsy #by-f-sb:checked ~ .by-fee-sb{display:grid;}
+.blsy #by-f-sb:checked ~ .by-fee-sb{display:flex;}
 .blsy #by-f-sb:checked ~ .by-fee-bb{display:none;}
 
 /* ---------- phone ---------- */
@@ -47,9 +49,7 @@
   .blsy .by-tile b{font-size:26px;}
   .blsy .by-ladder{padding:18px 14px 16px;}
   .blsy .by-tabbar{flex-direction:column;align-items:flex-start;gap:10px;}
-  .blsy .by-fees{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-  .blsy .by-fees li{padding:12px 14px 11px;}
-  .blsy .by-fees b{font-size:34px;}
+  .blsy .by-fees li{padding:10px 14px;}
 }
 @media (prefers-reduced-motion:reduce){.blsy *{transition:none !important;}}
 </style>
