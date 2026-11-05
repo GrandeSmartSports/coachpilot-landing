@@ -21,7 +21,7 @@ EXTRA = {
 
 SECTIONS = [
     ('6 school sites', 'Bonney Lake', [
-        ('Bonney Lake Elementary', '18715 80th St', 'Bonney Lake', 'WA 98391', ['North', 'South', 'East']),
+        ('Bonney Lake Elementary', '18715 80th St', 'Bonney Lake', 'WA 98391', ['North', 'South']),
         ('Lakeridge Middle School', '5909 Myers Rd E', 'Bonney Lake', 'WA 98391', ["60' diamond", "90' diamond"]),
         ('Liberty Ridge Elementary', '12202 209th Ave Ct E', 'Bonney Lake', 'WA 98391', ['North', 'South']),
         ('Mountain View Middle School', '10921 199th Ave Ct E', 'Bonney Lake', 'WA 98391', ["60' diamond", "90' diamond"]),
