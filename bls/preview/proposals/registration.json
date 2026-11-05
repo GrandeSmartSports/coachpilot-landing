@@ -34,10 +34,14 @@
    "fact": "2027 registration prices (board motions passed Nov 1): Tee Ball $90, Coach Pitch $150, AA $275, Minors and Majors $295, 50/70 and Juniors $300; all softball divisions $10 less than baseball.",
    "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
    "date": "2026-11-01"
+  },
+  {
+   "fact": "Coach 11/4: Tee Ball stays $90 for everyone (co-ed); softball is $10 less than baseball (Minors B $140, Minors A $285). Prices must not go public before the board announces them to families.",
+   "url": "conversation 2026-11-04",
+   "date": "2026-11-04"
   }
  ],
  "later": [
-  "President or Treasurer (Ramey Harguess / Dan Swatman): the Co-Ed T-Ball fee for softball families. The Nov 1 minutes set Tee Ball at $90 and every softball division at $10 less than baseball, but do not say which applies to Co-Ed T-Ball, so the Softball fee tab leaves T-Ball off for now.",
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): 2027 registration deadlines (in 2026 upper divisions closed Feb 1, lower divisions went to a waitlist Mar 1, Challenger closed Mar 1, and Juniors and 50/70 ran to Mar 10).",
   "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the Softball tab of the division chart, and which fee each takes. The fee tab uses the board's names (Coach Pitch $140, Minors $285, Majors $285, Juniors $290) while the chart shows Minors B and Minors A; if softball AA runs in spring (the Nov 1 board added a Softball AA/Coach Pitch Player Agent), it needs a tile too.",
   "VP of Baseball (Jeremy Olsen): is spring Minors league age 9 to 11 (this chart and the FAQ) or AAA 10 to 11 (Fall Ball page)?",
@@ -45,5 +49,7 @@
   "League Player Agent (Jason Guertin) with the VPs: spring 2027 evaluation dates and places, and Opening Day 2027 (2026 was Apr 25 at Allan Yorke Field 5), to add once set.",
   "VP of Challenger (Mandie Pitingoro, voted in Nov 1): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them."
  ],
- "required": []
+ "required": [
+  "Announce 2027 prices to families first (news post and Facebook, with the why), then publish this fee table"
+ ]
 }
