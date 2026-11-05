@@ -7,7 +7,8 @@
   }
  ],
  "status": "Ready to launch",
- "summary": "Registration hero with the Nov 27 opening, three steps for new families, division chart with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.",
+ "summary": "Registration hero with the Nov 27 opening and the discount windows (Black Friday $50 off, Early Bird $25 off, full price from Jan 1), three steps for new families, division chart and 2027 fees, each with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.",
+ "blurb": "How to sign up for spring, with discount dates, steps for new families, and baseball and softball divisions and fees.",
  "sources": [
   {
    "fact": "Challenger Division is adaptive baseball for players with physical and intellectual challenges, ages 4 to 18 (up to 22 if still in school); questions to vpchallenger@blslittleleague.org.",
@@ -23,17 +24,26 @@
    "fact": "Fall Ball 2026 games ran Sep 12 through Oct 31.",
    "url": "https://www.instagram.com/p/DanvXBCAQg6/",
    "date": "2026-07-10"
+  },
+  {
+   "fact": "Spring 2027 registration windows (board motion passed Nov 1): Black Friday sale Nov 27 to 29, $50 off per family; Early Bird Nov 30 to Dec 31, $25 off per family; full price from Jan 1, 2027. Minutes are up for board approval Dec 6.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
+  },
+  {
+   "fact": "2027 registration prices (board motions passed Nov 1): Tee Ball $90, Coach Pitch $150, AA $275, Minors and Majors $295, 50/70 and Juniors $300; all softball divisions $10 less than baseball.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
-  "President or Treasurer (Ramey Harguess / Dan Swatman): confirm registration opens Friday, Nov 27 with $50 off per family, and when the discount ends, so the hero can show the end date once registration is open. Only the website news post says so; social media has not announced it yet.",
-  "President or Treasurer (Ramey Harguess / Dan Swatman): 2027 fees by division, if this page should show them (fees have never been posted on social media).",
+  "President or Treasurer (Ramey Harguess / Dan Swatman): the Co-Ed T-Ball fee for softball families. The Nov 1 minutes set Tee Ball at $90 and every softball division at $10 less than baseball, but do not say which applies to Co-Ed T-Ball, so the Softball fee tab leaves T-Ball off for now.",
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): 2027 registration deadlines (in 2026 upper divisions closed Feb 1, lower divisions went to a waitlist Mar 1, Challenger closed Mar 1, and Juniors and 50/70 ran to Mar 10).",
-  "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the Softball tab of the division chart.",
+  "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the Softball tab of the division chart, and which fee each takes. The fee tab uses the board's names (Coach Pitch $140, Minors $285, Majors $285, Juniors $290) while the chart shows Minors B and Minors A; if softball AA runs in spring (the Nov 1 board added a Softball AA/Coach Pitch Player Agent), it needs a tile too.",
   "VP of Baseball (Jeremy Olsen): is spring Minors league age 9 to 11 (this chart and the FAQ) or AAA 10 to 11 (Fall Ball page)?",
   "VP of Baseball (Jeremy Olsen): will 50/70 and Juniors run in 2027, and is Juniors 13 to 14 (this chart) or 13 to 15 (a Mar 2026 post)?",
   "League Player Agent (Jason Guertin) with the VPs: spring 2027 evaluation dates and places, and Opening Day 2027 (2026 was Apr 25 at Allan Yorke Field 5), to add once set.",
-  "VP of Challenger (seat filled Nov 1, name in the Nov 1 minutes, not posted yet, from Secretary Tawnie LaValley): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them."
+  "VP of Challenger (Mandie Pitingoro, voted in Nov 1): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them."
  ],
  "required": []
 }

@@ -8,6 +8,7 @@
  "page_title": "Umpires",
  "status": "Ready to launch",
  "summary": "New Umpires page: hero, one big button to the game sign-up site, why umpire (Junior Umpire Program, pay, graduation hours, spring clinics), adult umpires and the open Umpire in Chief seat.",
+ "blurb": "A new page about umpiring, including the Junior Umpire Program.",
  "sources": [
   {
    "fact": "The Jr. Umpire program was reinstated in 2025.",
@@ -48,12 +49,16 @@
    "fact": "Youth umpires were trained by Little League World Series umpires at the 2025 District 10 clinics (BLS website news post 'Youth Umpires needed', not social media).",
    "url": "https://www.blslittleleague.org/Default.aspx?tabid=716835&mid=765764&newskeyid=HN1&newsid=523982&ctl=newsdetail",
    "date": "2025-02-22"
+  },
+  {
+   "fact": "Nov 1 minutes: Umpire in Chief was not addressed; the seat is still open.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
   "President (Ramey Harguess) or Treasurer (Dan Swatman): confirm junior umpires are still paid for 2027 (the Earn money card comes from a Feb 2025 news post; no BLS rate has been posted).",
   "President (Ramey Harguess): the minimum umpire age, which a Feb 2026 post put at 12 and up and an Aug 2025 post at 13 and up with a parent, is left off the page until confirmed.",
-  "Secretary (Tawnie LaValley): the Oct 25 and Nov 1 board minutes are not posted yet, and they should show whether Umpire in Chief was filled and, if not, who answers new umpires and runs umpire scheduling for now (the page sends them to info@).",
   "Information Officer (Melissa Olsen): is the Google umpire interest form (forms.gle/Hs9jw65iJxmrcqHJ8) still used for 2027, or should new umpires keep going to info@?",
   "Umpire in Chief or President (Ramey Harguess): the 2027 District 10 clinic date and whether BLS will run its own clinic again, so the dates can go on the page.",
   "Umpire in Chief or President (Ramey Harguess): confirm the umpire game sign-up site (cgisports.com/ump/5745) is still the one for 2027.",

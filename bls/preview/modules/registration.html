@@ -35,7 +35,15 @@
 .blsx .bx-ticket .k{font:800 14px/1 Poppins,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
 .blsx .bx-ticket .d{font:900 clamp(64px,9vw,118px)/.9 Poppins,Arial,sans-serif;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;}
 .blsx .bx-ticket .w{font:700 20px/1.2 Poppins,Arial,sans-serif;color:#e7ecff;}
-.blsx .bx-ticket .p{margin-top:14px;background:#cd163f;border:3px solid #fff;border-radius:999px;padding:9px 20px;font:800 18px/1 Poppins,Arial,sans-serif;color:#fff;}
+/* discount windows under the opening date */
+.blsx .bx-win{margin-top:14px !important;width:100%;max-width:330px;display:grid;}
+.blsx .bx-win li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:8px 2px;border-top:1px solid rgba(255,255,255,.2);}
+.blsx .bx-win li:last-child{border-bottom:1px solid rgba(255,255,255,.2);}
+.blsx .bx-win b{grid-column:1;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;color:#fff;}
+.blsx .bx-win span{grid-column:1;font-size:13px;font-weight:500;line-height:1.3;color:#b8c6ea;}
+.blsx .bx-win em{grid-column:2;grid-row:1 / span 2;font-style:normal;white-space:nowrap;background:#cd163f;border:2px solid #fff;border-radius:999px;padding:6px 12px;font:800 15px/1 Poppins,Arial,sans-serif;color:#fff;}
+.blsx .bx-win li + li em{background:transparent;}
+.blsx .bx-ticket .f{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffb8c6;}
 @media (max-width:768px){.blsx .bx-ticket{padding:22px;}.blsx .bx-ticket .d{font-size:64px;}}
 
 /* ---------- shared section heads ---------- */
@@ -123,6 +131,18 @@
 .blsx .bx-gantt.bx-panel-sb{display:none;}
 .blsx .bx-note{margin-top:16px !important;font-size:13px;color:#7a84a0;}
 
+/* ---------- 2027 fees (same tab card as the chart) ---------- */
+.blsx .bx-seg label[for="bx-f-bb"]{background:#00013a;color:#fff;}
+.blsx #bx-f-sb:checked ~ .bx-tabbar label[for="bx-f-bb"]{background:transparent;color:#4b5675;}
+.blsx #bx-f-sb:checked ~ .bx-tabbar label[for="bx-f-sb"]{background:#00013a;color:#fff;}
+.blsx .bx-fees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.blsx .bx-fees li{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:14px 16px 13px;}
+.blsx .bx-fees span{font-weight:600;font-size:15px;line-height:1.2;color:#00013a;}
+.blsx .bx-fees b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:1;color:#00013a;}
+.blsx .bx-fees.bx-fee-sb{display:none;}
+.blsx #bx-f-sb:checked ~ .bx-fee-sb{display:grid;}
+.blsx #bx-f-sb:checked ~ .bx-fee-bb{display:none;}
+
 /* ---------- fall ball scoreboard ---------- */
 .blsx .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 28px;
   background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
@@ -154,7 +174,8 @@
   .blsx .bx-copy{padding:24px 20px 28px;}
   .blsx .bx-photo{order:-1;min-height:0;}
   .blsx .bx-photo::before{display:none;}
-  .blsx .bx-frame{position:relative;inset:auto;aspect-ratio:3/2;clip-path:none;border-bottom:5px solid #cd163f;}
+  .blsx .bx-frame{position:relative;inset:auto;container-type:normal;clip-path:none;border-bottom:5px solid #cd163f;}
+  .blsx .bx-ticket{position:relative;inset:auto;}
   .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
   .blsx .bx-ribbon span{font-size:11px;}
@@ -178,6 +199,9 @@
   .blsx .bx-dn small{display:inline;font-size:12px;}
   .blsx .bx-bar{height:32px;font-size:15px;margin:0 2px;border-radius:6px;}
   .blsx .bx-legend{font-size:13px;}
+  .blsx .bx-fees{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .blsx .bx-fees li{padding:12px 14px 11px;}
+  .blsx .bx-fees b{font-size:34px;}
   .blsx .bx-board{padding:22px 14px 20px;border-radius:14px;}
   .blsx .bx-board-top h2{font-size:24px;}
   .blsx .bx-cells{gap:8px;}
@@ -206,7 +230,7 @@
         <h1><small>New to BLS?</small><em>Start here.</em></h1>
         <p class="bx-lede">Little League baseball and softball for Bonney Lake, Sumner and Orting. Three steps get your player on the field this spring.</p>
       </div>
-      <figure class="bx-photo"><div class="bx-frame"><div class="bx-ticket"><span class="k">Registration opens</span><span class="d">NOV 27</span><span class="w">Friday</span><span class="p">$50 off per family</span></div></div></figure>
+      <figure class="bx-photo"><div class="bx-frame"><div class="bx-ticket"><span class="k">Registration opens</span><span class="d">NOV 27</span><span class="w">Friday</span><ol class="bx-win"><li><b>Nov 27 to 29</b><span>Black Friday sale</span><em>$50 off</em></li><li><b>Nov 30 to Dec 31</b><span>Early Bird</span><em>$25 off</em></li><li><b>From Jan 1, 2027</b><span>Full price</span></li></ol><span class="f">Discounts are per family</span></div></div></figure>
     </div>
   </section>
 
@@ -308,6 +332,31 @@
         <div class="bx-dn">Juniors</div><div class="bx-bar bx-kp" style="grid-column:11 / 13">13–14</div>
       </div>
       <p class="bx-note">Typical league ages from BLS guidelines. Where two divisions overlap, evaluations help decide placement.</p>
+    </div>
+
+    <div class="bx-ladder">
+      <input type="radio" name="bx-fee" id="bx-f-bb" checked>
+      <input type="radio" name="bx-fee" id="bx-f-sb">
+      <div class="bx-tabbar">
+        <h3>2027 registration fees</h3>
+        <div class="bx-seg"><label for="bx-f-bb">Baseball</label><label for="bx-f-sb">Softball</label></div>
+      </div>
+      <ol class="bx-fees bx-fee-bb">
+        <li><span>Tee Ball</span><b>$90</b></li>
+        <li><span>Coach Pitch</span><b>$150</b></li>
+        <li><span>AA</span><b>$275</b></li>
+        <li><span>Minors</span><b>$295</b></li>
+        <li><span>Majors</span><b>$295</b></li>
+        <li><span>50/70</span><b>$300</b></li>
+        <li><span>Juniors</span><b>$300</b></li>
+      </ol>
+      <ol class="bx-fees bx-fee-sb">
+        <li><span>Coach Pitch</span><b>$140</b></li>
+        <li><span>Minors</span><b>$285</b></li>
+        <li><span>Majors</span><b>$285</b></li>
+        <li><span>Juniors</span><b>$290</b></li>
+      </ol>
+      <p class="bx-note">Every softball division is $10 less than the matching baseball division. Discounts are per family: $50 off Nov 27 to 29, $25 off Nov 30 to Dec 31, full price from Jan 1, 2027.</p>
     </div>
   </section>
 

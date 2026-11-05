@@ -8,6 +8,7 @@
  "page_title": "Coach Run Book",
  "status": "Ready after 5 items",
  "summary": "New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.",
+ "blurb": "A phone-friendly coach run book to replace the Word document.",
  "sources": [
   {
    "fact": "The 2026 run book is a 6-page Word file linked from Coaches Corner; it has typos (Legue, childs, 22rd), two sections numbered 10, a duplicated clearance section, 2026 dates, one coach's real welcome email and a screenshot from a family's account.",
@@ -173,6 +174,11 @@
    "fact": "The Medical Release Form is carried by the team manager with the team roster.",
    "url": "https://www.blslittleleague.org/Default.aspx?tabid=1270141",
    "date": "2026-11-02"
+  },
+  {
+   "fact": "Nov 1 board meeting (draft minutes, for approval Dec 6): teams must play 12 games and the league tries to schedule 13 for each division. Spring 2027 registration windows (motion passed): Black Friday sale Nov 27 to 29, $50 off per family; Early Bird Nov 30 to Dec 31, $25 off per family; full price from Jan 1, 2027. Zach Thibodeau is the Softball AA and Coach Pitch Player Agent. The Fields Committee was created to help clean up, clear weeds, set pegs and prepare fields and job boxes, and recruits volunteers. BLS loses storage at the Daffodil shed in late spring when the turf project starts.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
@@ -182,7 +188,7 @@
   "Coaching Coordinator (Rod Vincent): name the owner of this page (Coaching Coordinator, League Player Agent or both) and review the welcome email template.",
   "League Player Agent (Jason Guertin): confirm the draft order rule (last place picks first where teams keep returning players, random order elsewhere). It is left off the page until confirmed.",
   "League Player Agent (Jason Guertin): confirm head coaches in draft divisions attend evaluations, and whether softball Minors B teams follow the same school-first rule as Tee Ball, Coach Pitch and AA; also the Minors B assistant coach rule and roster timing (both show Confirming for 2027 on the page).",
-  "League Player Agent (Jason Guertin): the 2027 division player agents and whether the old aliases (cppa@, tbpa@ and others) still work, so the Who to ask card can list them.",
+  "League Player Agent (Jason Guertin): the 2027 division player agents and whether the old aliases (cppa@, tbpa@ and others) still work, so the Who to ask card can list them. One is set: the Nov 1 board named Zach Thibodeau Softball AA and Coach Pitch Player Agent.",
   "Coaching Coordinator (Rod Vincent): the 2027 coaches meeting format and dates (2026 had two: Feb 22 and Mar 22 at Round Table Pizza, Bonney Lake), and whether to call it required (the 2025 Safety Manual calls it a mandatory managers meeting, at least one per team).",
   "Uniforms (Dena Berkey): whether sbuniforms@ still reaches the uniforms lead (the page uses uniforms@ for both sports); which pieces the league supplies and which families buy; whether families pay for custom softball uniforms.",
   "Uniforms (Dena Berkey) and VP of Softball (Luke Kress): who names Minors B teams (the page lets the coach pick or the players choose); baseball team names MLB only or minor league too (the page says professional teams).",
@@ -195,13 +201,12 @@
   "Website (Daniel Grande): once the spring 2027 coach and volunteer roles show on the Volunteer page, remove the Coach sign-up opening soon pill and the 'No Programs are Currently Displayed' line from Get cleared step 1.",
   "President (Ramey Harguess): whether to mention the board member interview the Child Protection Program requires (sec. 1A) in the clearance steps.",
   "President (Ramey Harguess): the old 2025 cleared volunteer PDF (tabid 776468) still opens by direct link; removing it is a board call.",
-  "Fields and Equipment (Daniel Lane): the spring 2027 gear pickup and return date and place, and whether the Daffodil Shed stays available once the turf project starts.",
+  "Fields and Equipment (Daniel Lane): the spring 2027 gear pickup and return date and place. The Nov 1 minutes say BLS loses storage at the Daffodil shed in late spring, when the turf project starts.",
   "Coaching Coordinator (Rod Vincent): the 2027 District 10 rules and safety clinic dates, once District 10 posts them.",
   "Board: whether to add a line asking coaches to keep roster contact information private. No posted policy says so, so it is not on the page.",
   "Board or Scheduler: choose the spring 2027 GameChanger team setup, then replace the Steps coming soon pill in Rules, GameChanger and schedules.",
   "President (Ramey Harguess): how cleared volunteers are told they are cleared (the page says only that the league reviews and clears them; Sports Connect sends no notice when someone is marked Passed), and the Abuse Awareness certificate rule (the page says save it; Coaches Corner says no certificate to send).",
   "Safety Officer (Daneen Galvez): who fills out the Medical Release Form and when coaches collect it. The page says only to keep each form with the roster.",
-  "Board: the end date of the $50 opening discount, once set, for the Registration opens row.",
   "Website (Daniel Grande): coaches.html and volunteer.html still say 'Then: cleared / Ready for spring 2027'; match the run book's 'Then: league review' wording.",
   "Website (Daniel Grande): the run book, Volunteer and Board pages send Fields Committee sign-ups to info@; the Fields page uses fields@. Pick one address for all four."
  ],

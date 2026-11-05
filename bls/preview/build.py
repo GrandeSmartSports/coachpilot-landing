@@ -20,7 +20,8 @@ Inputs
         "rotator":  ["img/slides/a.png", ...],   (home page only; replaces slides in order, drops the rest;
                                                   an entry may be {"img", "link", "caption", "alt"})
         "status":   "Ready" | "Needs facts: ...",
-        "summary":  "one line shown on the index"
+        "summary":  "one line shown on the index (Daniel's admin view)",
+        "blurb":    "one plain sentence for board members (the index shows it instead of summary)"
       }
 The module HTML files are exactly what gets pasted into the Sports Connect content blocks.
 """
@@ -228,10 +229,13 @@ def index():
                 pic = '<span class="none">No picture yet</span>'
             shots.append(f'<a class="shot {v}" href="{v}/{slug}.html"><span class="lbl">{label}</span><span class="pic">{pic}</span></a>')
         # facts only; the live page state (chip above) is the one word on readiness
+        # board members read the one-sentence blurb; Daniel (html.blsb-admin) reads the full summary
+        desc = (f'<p class="blurb">{prop["blurb"]}</p><p class="sum">{prop.get("summary", "")}</p>' if prop.get('blurb')
+                else f'<p>{prop.get("summary", "")}</p>')
         status = (f'<div class="st todo"><b>Facts needed ({len(items)})</b><ul>' + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>') if items \
             else '<div class="st ok"><b>All facts in</b></div>'
         return f'''<article class="card" id="p-{slug}">
-  <div class="top"><span class="tag {tcls}">{tag}</span><h2>{cfg["title"]}</h2><p>{prop.get("summary", "")}</p></div>
+  <div class="top"><span class="tag {tcls}">{tag}</span><h2>{cfg["title"]}</h2>{desc}</div>
   <div class="blsb" data-board="{slug}" hidden></div>
   <div class="pair">{''.join(shots)}</div>
   {status}
@@ -265,12 +269,16 @@ h2.sec{{font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(-
 .st ul{{margin:6px 0 0;padding-left:18px;color:#0a0f2e}}.st li{{margin:3px 0}}
 .btns{{display:flex;gap:8px;margin-top:auto;padding:0 16px 16px}}.btns a{{flex:1;text-align:center;padding:11px;border-radius:999px;border:1px solid var(--line);color:var(--navy);font-weight:700;text-decoration:none}}.btns a.pri{{background:var(--red);color:#fff;border-color:var(--red)}}
 .card{{scroll-margin-top:12px}}
+html:not(.blsb-admin) .st,html:not(.blsb-admin) .counts .g,html:not(.blsb-admin) .counts .a{{display:none}}
+html:not(.blsb-admin) .top p.sum,html.blsb-admin .top p.blurb{{display:none}}
 </style>{board_head()}</head><body><header><div class="hin"><img src="/bls/assets/bls-logo.png" alt=""><div><p>BLS Website</p><h1>Website update: today vs proposed</h1><p class="hs">Preview of the new BLS website. Nothing here changes the live site.</p></div></div><div id="blsbWho"></div></header>
 <main><div id="blsbIndex"></div>
-<div class="intro"><p>Each card shows a page as it looks today next to the proposed version, as seen on a phone. Tap either picture to open the full page. The switch at the bottom of every page flips between Today and Proposed. Nothing here changes the live site.</p>
+<div class="intro"><p>Each card shows a page as it looks today and as proposed, on a phone. Tap a picture to open it. The switch at the bottom of every page flips between the two.</p>
 <div class="counts"><span>{len(CFG)} pages</span><span class="g">{ready} have all facts</span><span class="a">{len(CFG) - ready} need facts</span><span>{len(new)} new pages</span></div></div>
+<div id="blsbStrip" hidden></div>
 <h2 class="sec">Pages that change ({len(old)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in old)}</div>
 <h2 class="sec">New pages ({len(new)})</h2><div class="grid">{''.join(card(s_, c) for s_, c in new)}</div>
+<div id="blsbMore"></div>
 </main>{board_scripts(index=True)}</body></html>'''
     open(os.path.join(HERE, 'index.html'), 'w').write(html)
 

@@ -44,18 +44,13 @@ update bls_board_pages p set reviewers = v.names
   ) as v(slug, names)
  where p.slug = v.slug and p.reviewers = '{}'::text[];
 
--- Asks. Only fills pages that have none yet.
+-- Asks. Only fills pages that have none yet. Seed updated 11/4 (Coach feedback): only the three optional, gentle asks;
+-- board decisions and anything that cannot happen before launch are not asks (20261104170000_bls_board_calm_asks).
 update bls_board_pages p set asks = v.asks
   from (values
-    ('volunteer', '[{"text": "Turn on the Spring 2027 volunteer sign-up", "people": ["Ramey Harguess", "Melissa Olsen"]},
-                    {"text": "Approve the cleared-volunteer plan and name who sends the weekly cleared email", "people": ["Ramey Harguess"]}]'::jsonb),
-    ('sponsorship', '[{"text": "2027 sponsor prices", "people": ["Ashley Gauthier"]}]'::jsonb),
-    ('board', '[{"text": "Names for the seats filled Nov 1 (from the Nov 1 minutes)", "people": ["Tawnie LaValley"]},
-                {"text": "OK to show the board list on the site", "people": ["Ramey Harguess"]}]'::jsonb),
-    ('runbook', '[{"text": "2027 evaluation, draft, meeting, gear pickup and Opening Day dates", "people": ["Ramey Harguess", "Jeremy Olsen", "Luke Kress"]},
-                  {"text": "Turn on spring 2027 coach and volunteer sign-up", "people": ["Tawnie LaValley", "Melissa Olsen"]},
-                  {"text": "Confirm 2027 uniform sizing by division", "people": ["Dena Berkey"]}]'::jsonb),
-    ('schedules', '[{"text": "Where scores and standings live for spring 2027", "people": ["Ramey Harguess", "Jeremy Olsen", "Luke Kress"]}]'::jsonb)
+    ('sponsorship', '[{"text": "Know the 2027 sponsor prices?", "people": ["Ashley Gauthier"]}]'::jsonb),
+    ('board', '[{"text": "OK to show the board list on the site?", "people": ["Ramey Harguess"]}]'::jsonb),
+    ('runbook', '[{"text": "Know the 2027 uniform sizing by division?", "people": ["Dena Berkey"]}]'::jsonb)
   ) as v(slug, asks)
  where p.slug = v.slug and p.asks = '[]'::jsonb;
 

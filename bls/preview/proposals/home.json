@@ -40,6 +40,7 @@
  "extra_css": "modules/home.css",
  "status": "Ready to launch",
  "summary": "Six slides as big announcements, registration first: Spring 2027 registration, gear return (through Nov 7), Join the Fields Committee, new families, volunteers, and a 17-logo sponsor thank-you. The first three are live on the site now.",
+ "blurb": "The home page slideshow, with Spring 2027 registration up first.",
  "sources": [
   {
    "fact": "2026 spring sponsors: Los Pinos Mexican Restaurant, Grasshopper Landscaping and Construction, Molen Orthodontics, Titan Door, Ossman Harding Dental, Round Table Pizza, Cal-Line Equipment, Owen Equipment, RLS Lending, Prospect Construction, Land O'Frost, Honey Bucket, Lowe's, Sumner/Bonney Lake Jr. Panthers Wrestling Club, Enrique Trujeque Agency.",
@@ -70,14 +71,18 @@
    "fact": "The BLS Fan Gear store has been open all year since March 2026.",
    "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid032v4AXVS8Zjo54a26XYyac7s4BuKjrLsF1qmyPCuURoXdmGRqWxfumhuZpXVpmJHcl",
    "date": "2026-03-26"
+  },
+  {
+   "fact": "Board motion passed Nov 1: the $50 per family Black Friday sale runs Nov 27 to 29; Early Bird Nov 30 to Dec 31 is $25 off per family; full price Jan 1, 2027.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
   "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on slide 4, the same list as the Sponsorship page wall (the 15 spring 2026 sponsors plus DICK'S and ProTime Sports, the two not on either 2026 sponsor list), and send a Great Northwest Dental logo (Fall Ball 2026 sponsor) so it can join both.",
   "Sponsorship and Fundraising (Ashley Gauthier): does any current sponsor package promise its own rotator slide, since Division sponsors get rotator placement and today's DICK'S slide retires into slide 4?",
   "President (Ramey Harguess): OK to retire today's Fan Store slide, since the store stays in the menu and has been open all year since March 2026?",
-  "President (Ramey Harguess) or Treasurer (Dan Swatman): when does the $50 per family discount end, since the site's Nov 2 news post gives Nov 27 and $50 off but no end date, and the replacement for slide 1 needs it?",
-  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide, on one checklist with every other page that says registration opens Nov 27.",
+  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide (Nov 1 board motion: $50 off per family through Sun Nov 29, then Early Bird $25 off per family Nov 30 to Dec 31, full price Jan 1, 2027), on one checklist with every other page that says registration opens Nov 27.",
   "Website (Daniel Grande): the home CSS look (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) needs a way onto the home page, which has no HTML block to carry it, so the 4 slides ship without it for now.",
   "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment, so add them once Ashley confirms the list.",
   "Information Officer (Melissa Olsen), optional: home news posts for the Fall Ball gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) and a thank-you to Federal Way National Little League for the infield dirt, both already on social media.",

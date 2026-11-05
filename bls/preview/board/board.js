@@ -22,14 +22,19 @@
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   // Board review is the 48 hour countdown. When it runs out the page is Scheduled for deployment, then Live.
+  // The meanings are member-facing plain words (no clock rules; Daniel's admin text keeps those).
   var STATES = {
     building: { label: 'Building', mean: 'Daniel is still working on this page.' },
-    waiting: { label: 'Waiting on info', mean: 'Needs facts before it can be finished.' },
-    review: { label: 'Board review', mean: 'The 48 hour countdown. Approve, suggest a change, or raise a concern.' },
-    hold: { label: 'On hold', mean: 'A concern paused the Board review clock while Daniel looks at it.' },
+    waiting: { label: 'Waiting on info', mean: 'Daniel is gathering a few details for this page.' },
+    review: { label: 'Board review', mean: 'The board takes a look. Approve, comment, or suggest a change.' },
+    hold: { label: 'On hold', mean: 'Paused while Daniel looks at a concern.' },
     scheduled: { label: 'Scheduled for deployment', mean: 'Board review is done. In the next update to the live site.' },
     live: { label: 'Live', mean: 'Live on blslittleleague.org.' }
   };
+  // the welcome cards say each page's state as a short phrase
+  var PLAIN = { building: 'Still being built', waiting: 'Gathering a few details', review: 'In board review', hold: 'On hold for now', scheduled: 'Going live soon', live: 'Live now' };
+  // board members see these two states in plainer words on chips and in How this works (Daniel keeps the working labels)
+  var MEMBER_LABEL = { waiting: 'Gathering details', scheduled: 'Going live soon' };
   var ORDER = ['building', 'waiting', 'review', 'hold', 'scheduled', 'live'];
   // short words for the preview bar, phase chips and phase summaries
   var SHORT = { building: 'Building', waiting: 'Waiting', review: 'Board review', hold: 'On hold', scheduled: 'Scheduled', live: 'Live' };
@@ -180,6 +185,10 @@
     return (p && p.title) || (META[slug] && META[slug].t) || slug;
   }
   function stKey(p) { return p && STATES[p.state] ? p.state : 'building'; }
+  function stLabel(st) { return !S.admin && MEMBER_LABEL[st] ? MEMBER_LABEL[st] : STATES[st].label; }
+  // the color a state shows in: for board members Waiting on info is the same calm grey as Building, never amber
+  // (amber read as "waiting on you"). Daniel keeps the amber.
+  function stCls(st) { return !S.admin && st === 'waiting' ? 'building' : st; }
   function running(p) { return !!p && p.state === 'review' && p.remaining_ms != null; }
   // a clock exists while in Board review, and frozen while On hold (a page Daniel held by hand has none)
   function hasClock(p) { return !!p && (p.state === 'review' || p.state === 'hold') && p.remaining_ms != null; }
@@ -221,9 +230,10 @@
   function member() { return !S.admin && !!S.name; }
   function iReview(p) { return member() && reviewersOf(p).some(isMe); }
   function myAsks(p) { return member() ? asksOf(p).filter(function (a) { return peopleOf(a).some(isMe); }) : []; }
-  function iAnswered(p, a) {
-    return topItems(p.slug).some(function (i) { return i.kind === 'help' && !i.is_admin && i.req_item === a.text && isMe(i.author_name); });
-  }
+  // An ask that names people shows only to those people; an ask with no names is open to anyone on the board.
+  // Daniel sees every ask.
+  function askVisible(a) { if (S.admin) return true; var ppl = peopleOf(a); return !ppl.length || (member() && ppl.some(isMe)); }
+  function shownAsks(p) { return asksOf(p).filter(askVisible); }
   // a help item from one of the people an ask names is their answer, not an offer to help
   function askFor(i) {
     var p = i && i.slug != null ? pageOf(i.slug) : null;
@@ -385,6 +395,8 @@
   }
 
   function renderAll() {
+    // admin-only parts of the static page (facts lists on the index cards) show with this class
+    if (document.documentElement) document.documentElement.classList.toggle('blsb-admin', !!S.admin);
     if (PAGE) { renderBar(); renderPins(); }
     if (IS_INDEX) renderIndex();
     renderWho();
@@ -402,9 +414,9 @@
     var t;
     if (!short && st === 'review' && hasClock(p)) t = h('span', { class: 'blsb-chip-t' }, ['Board review: ', h('span', { class: 'blsb-chip-cd', 'data-cd': p.slug, 'data-fmt': 'longleft' })]);
     else if (!short && st === 'hold' && hasClock(p)) t = h('span', { class: 'blsb-chip-t', text: 'On hold: paused' });
-    else t = h('span', { class: 'blsb-chip-t', text: short && st === 'scheduled' ? SHORT.scheduled : STATES[st].label });
+    else t = h('span', { class: 'blsb-chip-t', text: short && st === 'scheduled' && S.admin ? SHORT.scheduled : stLabel(st) });
     var long = !short && hasClock(p) && st === 'review';
-    return h('span', { class: 'blsb-chip blsb-s-' + st + (long ? ' blsb-chip-clock' : '') + (extra ? ' ' + extra : '') }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), t]);
+    return h('span', { class: 'blsb-chip blsb-s-' + stCls(st) + (long ? ' blsb-chip-clock' : '') + (extra ? ' ' + extra : '') }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), t]);
   }
   function cdSpan(p, fmt) { return h('span', { class: 'blsb-cd', 'data-cd': p.slug, 'data-fmt': fmt || 'long' }); }
 
@@ -416,8 +428,8 @@
       if (rem == null) add(s, STATES.review.mean);
       else add(s, 'Approve, suggest a change, or raise a concern before the time runs out.');
     } else if (st === 'hold') {
-      if (rem != null) add(s, ['A concern paused the Board review clock with ', cdSpan(p, 'long'), ' left. Daniel is looking at it.']);
-      else add(s, 'Paused while Daniel looks at this page.');
+      if (rem != null && S.admin) add(s, ['A concern paused the Board review clock with ', cdSpan(p, 'long'), ' left. Daniel is looking at it.']);
+      else add(s, rem != null ? STATES.hold.mean : 'Paused while Daniel looks at this page.');
     } else if (st === 'scheduled') {
       var ph = phaseOf(p.phase_id);
       add(s, ph ? 'Board review is done. Goes out in ' + ph.name + (ph.target_date ? ', target ' + fmtDay(ph.target_date) : '') + '.' : STATES.scheduled.mean);
@@ -481,7 +493,12 @@
     return box;
   }
   function renderWho() {
-    $$('[data-blsb-who]').forEach(function (slot) { clear(slot); slot.appendChild(whoLine(slot.getAttribute('data-blsb-who'))); });
+    $$('[data-blsb-who]').forEach(function (slot) {
+      clear(slot);
+      // the index welcome card carries "Who are you?" until a name is picked, so the header stays quiet
+      if (IS_INDEX && slot.getAttribute('data-blsb-who') === 'header' && !S.admin && !S.name) return;
+      slot.appendChild(whoLine(slot.getAttribute('data-blsb-who')));
+    });
   }
   function leaveAdmin() {
     S.pin = ''; SS.set('blsb_pin', ''); S.admin = false;
@@ -695,6 +712,13 @@
         kindsEl.appendChild(b);
       });
     }
+    // o.kindVisible(kind, current): which kind buttons a board member sees. Private then folds into a small
+    // "Only to Daniel" link (it shows as a pressed button once picked).
+    var privEl = null;
+    if (kindsEl && o.kindVisible && o.kinds.indexOf('private') >= 0) {
+      privEl = h('p', { class: 'blsb-muted blsb-small blsb-priv' }, [h('span', { text: 'Private? ' }),
+        h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Only to Daniel', onclick: function () { c.setKind('private'); ta.focus(); } })]);
+    }
     var hint = h('p', { class: 'blsb-hint' });
     var ctx = h('div', { class: 'blsb-ctx' });
     var taId = uid();
@@ -706,7 +730,7 @@
     send.addEventListener('click', function () { c.send(); });
     var msg = h('p', { class: 'blsb-msg', role: 'status', 'aria-live': 'polite' });
     var row = h('div', { class: 'blsb-comp-row' }, [spotBtn, send]);
-    c.el = h('div', { class: 'blsb-comp' }, [kindsEl, lab, hint, ctx, ta, row, o.note ? h('p', { class: 'blsb-muted blsb-small', text: o.note }) : null, msg]);
+    c.el = h('div', { class: 'blsb-comp' }, [kindsEl, lab, hint, ctx, ta, row, privEl, o.note ? h('p', { class: 'blsb-muted blsb-small', text: o.note }) : null, msg]);
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); c.send(); } });
     ta.addEventListener('input', function () { if (msg.classList.contains('blsb-err')) say(''); });
 
@@ -718,8 +742,6 @@
     c.setReq = function (text, answer) { c.req = text || null; c.ans = !!(text && answer); if (text) c.kind = 'help'; c.refresh(); };
     c.setSpot = function (spot) { c.spot = spot; c.refresh(); };
     c.refresh = function () {
-      var p = c.slug != null ? pageOf(c.slug) : null;
-      var clock = running(p);
       // Daniel only posts plain comments (his posts show as Daniel (Website)); the other kinds are for the board.
       var adminPlain = S.admin && o.kinds.indexOf('comment') >= 0;
       if (adminPlain && c.kind !== 'comment') { c.kind = 'comment'; c.req = null; }
@@ -727,10 +749,10 @@
       var answering = c.ans && !c.reply;
       Object.keys(btns).forEach(function (k) { btns[k].setAttribute('aria-pressed', k === c.kind ? 'true' : 'false'); });
       if (kindsEl) kindsEl.hidden = !!c.reply || adminPlain || answering;
+      if (o.kindVisible) Object.keys(btns).forEach(function (k) { btns[k].hidden = !o.kindVisible(k, c.kind); });
+      if (privEl) privEl.hidden = !!c.reply || adminPlain || answering || c.kind === 'private';
       var kh = KINDS[c.kind] || KINDS.comment;
       var t = kh.hint;
-      if (clock && c.kind === 'suggestion') t = 'A change idea. Gives the board more time to look. ' + PUBLIC_EMAIL;
-      if (clock && c.kind === 'concern') t = 'Something wrong. The page waits until Daniel answers. ' + PUBLIC_EMAIL;
       if (answering) t = 'Everyone on the board can read your answer. Daniel gets an email.';
       if (adminPlain && !c.reply) t = 'Your comment shows as ' + ADMIN_NAME + '. Everyone on the board can read it.';
       if (c.reply) t = S.admin ? 'Your reply shows as ' + ADMIN_NAME + '.' : 'Your reply shows under ' + (c.reply.name || 'this item') + '.';
@@ -963,10 +985,10 @@
       return on;
     }, function (e) { toast(errText(e)); throw e; });
   }
-  // A small Approve / Approved toggle for lists ("Please look these over").
-  function approveToggle(p) {
+  // A small Approve / Approved toggle for lists (the welcome cards).
+  function approveToggle(p, small) {
     var mine = iApproved(p);
-    var b = h('button', { type: 'button', class: 'blsb-act blsb-aptg' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' },
+    var b = h('button', { type: 'button', class: 'blsb-act blsb-aptg' + (small ? ' blsb-act-sm' : '') + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' },
       [mine ? 'Approved' : 'Approve', sr(' ' + (p.title || titleOf(p.slug)))]);
     b.addEventListener('click', function () {
       if (!S.name) { openWho(function () { b.click(); }, 'approval'); return; }
@@ -985,7 +1007,7 @@
       var noteWrap = h('div', { class: 'blsb-appr-note', hidden: !S.open['note:' + p.slug] || mine }, [h('label', { class: 'blsb-sr', for: noteId, text: 'Note with your approval' }), note]);
       var btn = h('button', { type: 'button', class: 'blsb-approve' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' }, [
         h('span', { class: 'blsb-approve-t', text: mine ? 'You approved this page' : 'Approve this page' }),
-        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : 'One tap. Tells Daniel this page looks good to you.' })
+        h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : 'Optional. One tap tells Daniel it looks good to you.' })
       ]);
       btn.addEventListener('click', function () {
         if (!S.name) { openWho(function () { btn.click(); }, 'approval'); return; }
@@ -999,7 +1021,8 @@
       } });
       add(box, [btn, noteBtn ? h('div', { class: 'blsb-appr-row' }, [noteBtn]) : null, noteWrap]);
     }
-    add(box, h('p', { class: 'blsb-appr-names' }, names.length ? [h('b', { text: 'Approved by ' }), names.join(', ')] : 'No approvals yet.'));
+    // members only see who approved; "No approvals yet" is Daniel's
+    if (names.length || S.admin) add(box, h('p', { class: 'blsb-appr-names' }, names.length ? [h('b', { text: 'Approved by ' }), names.join(', ')] : 'No approvals yet.'));
     return box;
   }
 
@@ -1136,7 +1159,7 @@
       det.classList.remove('blsb-dirty');
       adminPage(p, { reviewers: inRosterOrder(draft) }, 'Reviewers saved.').catch(function () { det.classList.add('blsb-dirty'); save.disabled = false; });
     });
-    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Board members who should look this page over. It shows in their For you list.' }), picker,
+    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Board members this page is closest to. It can show in their welcome card at the top of the board (up to 3 pages: Board review first, then pages with all facts in, then the rest).' }), picker,
       h('div', { class: 'blsb-adm-timer' }, [save])]);
     return det;
   }
@@ -1183,7 +1206,7 @@
       adminPage(p, { asks: out }, 'Asks saved.').catch(function () { det.classList.add('blsb-dirty'); save.disabled = false; });
     });
     draw();
-    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Short questions for named board members. They show in that person\'s For you list and under Needs information.' }),
+    add(det, [h('p', { class: 'blsb-muted blsb-small', text: 'Short optional questions, worded gently (for example "Know how uniform sizing works by division?"). An ask with names shows only to those people; with no names, anyone on the board sees it. They show under More, Open questions, and folded at the bottom of the page\'s feedback. Never a board decision or anything that cannot happen before launch.' }),
       list, h('div', { class: 'blsb-adm-timer' }, [addB, save])]);
     return det;
   }
@@ -1228,33 +1251,39 @@
     add(box, h('p', { class: 'blsb-mean' }, [meaningEl(p)]));
     if (p.note) add(box, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
     var rv = reviewersOf(p);
-    if (rv.length) add(box, h('p', { class: 'blsb-revs' }, [h('b', { text: 'Looking this over: ' }), andList(rv)]));
+    if (rv.length && S.admin) add(box, h('p', { class: 'blsb-revs' }, [h('b', { text: 'Reviewers: ' }), andList(rv)]));
     if (S.admin) add(box, manageBlock(p, where + ':' + p.slug));
     return box;
   }
-  // Top of the sheet for a picked person: "This page is one of yours" and the asks for them on this page.
-  function mineBlock(p, comp) {
-    var rev = iReview(p), asks = myAsks(p);
-    if (!rev && !asks.length) return null;
-    var box = h('div', { class: 'blsb-mine' });
-    if (rev) add(box, h('p', { class: 'blsb-mine-t', text: 'This page is one of yours. We want to make sure you\'re good with it.' }));
-    if (asks.length) {
-      add(box, h('div', { class: 'blsb-mine-h', text: 'Your input is needed' }));
-      asks.forEach(function (a) {
-        var done = iAnswered(p, a);
-        add(box, h('div', { class: 'blsb-mine-i' }, [
-          h('div', { class: 'blsb-mine-q', text: clean(a.text) }),
-          done ? h('div', { class: 'blsb-mine-done', text: 'You answered. Thank you.' }) : null,
-          h('button', { type: 'button', class: 'blsb-act blsb-act-go', onclick: function () { comp.setReply(null); comp.setReq(a.text, true); comp.focus(); } }, ['Answer', sr(': ' + a.text)])
-        ]));
-      });
-    }
-    return box;
+  // Top of the sheet for a reviewer: one soft line, never a to-do.
+  function mineBlock(p) {
+    if (!iReview(p)) return null;
+    return h('p', { class: 'blsb-soft', text: 'This page is close to your role. Take a look when you have a minute.' });
   }
-  // The page's asks for everyone (the picked person's own asks are already at the top of the sheet).
+  // "Open questions" for board members: the page's optional asks, folded at the bottom of the sheet.
+  function askHelp(p, a, comp) {
+    var forMe = member() && peopleOf(a).some(isMe);
+    return h('button', { type: 'button', class: 'blsb-act blsb-act-sm', onclick: function () {
+      if (comp) { comp.setReply(null); comp.setReq(a.text, forMe); comp.focus(); } else openSheet(p.slug, { ask: a.text, answer: forMe });
+    } }, ['I can help', sr(': ' + a.text)]);
+  }
+  function askFold(p, comp) {
+    var list = shownAsks(p);
+    if (!list.length) return null;
+    var key = 'askq:' + p.slug;
+    var det = h('details', { class: 'blsb-askq', open: !!S.open[key] }, [h('summary', { text: 'Know something that could help? (optional)' })]);
+    det.addEventListener('toggle', function () { S.open[key] = det.open; });
+    var ul = h('ul', { class: 'blsb-askq-l' });
+    list.forEach(function (a) {
+      ul.appendChild(h('li', { class: 'blsb-askq-i' }, [h('span', { class: 'blsb-askq-t', text: clean(a.text) }), askDid(p, a, 'blsb-askq-did'), askHelp(p, a, comp)]));
+    });
+    add(det, h('div', { class: 'blsb-askq-b' }, [h('p', { class: 'blsb-muted blsb-small', text: 'Only if you happen to know. Nothing here is required.' }), ul]));
+    return det;
+  }
+  // Daniel's view of the page's asks (who can help, who answered)
   function asksBlock(p, comp) {
-    var mine = myAsks(p);
-    var list = asksOf(p).filter(function (a) { return mine.indexOf(a) < 0; });
+    if (!S.admin) return askFold(p, comp);
+    var list = asksOf(p);
     if (!list.length) return null;
     var box = h('div', { class: 'blsb-req blsb-asks' }, [h('div', { class: 'blsb-req-h', text: 'Questions for the board (' + list.length + ')' })]);
     list.forEach(function (a) {
@@ -1266,8 +1295,8 @@
     });
     return box;
   }
-  // Facts the page still needs (proposal "required"), as information. Board members answer through the page's asks, so
-  // a page with asks shows this list to Daniel only (each ask already covers its fact).
+  // Facts the page still needs (proposal "required"). Daniel's list only: board members see at most the page's optional
+  // asks, folded at the bottom of the sheet (Coach 11/4: no facts lists in front of the board).
   function helpersFor(slug, r) {
     var seen = {}, out = [];
     topItems(slug).forEach(function (i) {
@@ -1280,7 +1309,7 @@
   }
   function reqBlock(p, comp) {
     var req = (META[p.slug] && META[p.slug].req) || [];
-    if (!req.length || (!S.admin && asksOf(p).length)) return null;
+    if (!req.length || !S.admin) return null;
     var waiting = p.state === 'waiting';
     var box = h('div', { class: 'blsb-req' }, [h('div', { class: 'blsb-req-h', text: (waiting ? 'Needed before this page can be finished' : 'Facts this page still needs') + ' (' + req.length + ')' })]);
     req.forEach(function (r) {
@@ -1288,7 +1317,6 @@
       box.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t', text: r }),
         who.length ? h('span', { class: 'blsb-req-who', text: andList(who) + ' can help' }) : null]));
     });
-    if (!S.admin) add(box, h('p', { class: 'blsb-muted blsb-small', text: 'Daniel is working on these. Nothing is needed from you right now.' }));
     return box;
   }
 
@@ -1300,6 +1328,14 @@
       SH.comp[key] = Composer({
         slug: slug,
         kinds: slug == null ? ['comment', 'suggestion', 'concern'] : ['comment', 'suggestion', 'concern', 'help', 'private'],
+        // board members see Comment, Suggestion and Concern; I can help only when the page has a question for them,
+        // and Private as the small "Only to Daniel" link
+        kindVisible: slug == null ? null : function (k, cur) {
+          if (k === cur || S.admin) return true;
+          if (k === 'private') return false;
+          if (k === 'help') { var p = pageOf(slug); return !!p && shownAsks(p).length > 0; }
+          return true;
+        },
         spot: !!(PAGE && slug === PAGE && VARIANT),
         label: 'Your feedback'
       });
@@ -1322,8 +1358,8 @@
       SH.offBox = h('div', { class: 'blsb-sh-off' });
       SH.mineBox = h('div', { class: 'blsb-sh-sec' });
       SH.asksBox = h('div', { class: 'blsb-sh-sec' });
-      add(SH.dlg.body, [SH.offBox, SH.mineBox, SH.statusBox, SH.linksBox, SH.whoBox, SH.apprBox, SH.asksBox, SH.reqBox, SH.pinsBox, SH.compBox, SH.threadH, SH.thread]);
     }
+    orderSheet();
     SH.slug = slug == null ? null : slug;
     var comp = compFor(SH.slug);
     clear(SH.compBox).appendChild(comp.el);
@@ -1339,8 +1375,20 @@
     if (o.focus) setTimeout(function () { focusItem(o.focus, SH.dlg.body); }, 320);
     else if (o.compose || o.ask) setTimeout(function () { comp.focus(); }, 320);
   }
+  // Board members: Approve and Comment first, then the page's status, links and discussion, with the optional asks folded
+  // at the bottom. Daniel keeps the original order (status and Manage first, the facts list, the composer last).
+  function orderSheet() {
+    var mode = S.admin ? 'admin' : 'member';
+    if (!SH.dlg || SH.mode === mode) return;
+    SH.mode = mode;
+    var order = S.admin
+      ? [SH.offBox, SH.mineBox, SH.statusBox, SH.linksBox, SH.whoBox, SH.apprBox, SH.asksBox, SH.reqBox, SH.pinsBox, SH.compBox, SH.threadH, SH.thread]
+      : [SH.offBox, SH.mineBox, SH.apprBox, SH.compBox, SH.whoBox, SH.statusBox, SH.linksBox, SH.pinsBox, SH.threadH, SH.thread, SH.asksBox, SH.reqBox];
+    order.forEach(function (el) { SH.dlg.body.appendChild(el); });
+  }
   function renderSheet() {
     if (!SH.open) return;
+    orderSheet();
     var slug = SH.slug, p = slug != null ? pageOf(slug) : null, comp = compFor(slug);
     SH.dlg.title.textContent = titleOf(slug);
     SH.dlg.kicker.textContent = slug == null ? 'BLS Website Build' : 'Feedback on this page';
@@ -1363,7 +1411,7 @@
     SH.linksBox.hidden = !SH.linksBox.firstChild;
     if (!guarded(SH.apprBox)) { clear(SH.apprBox); if (p) SH.apprBox.appendChild(approveBlock(p)); SH.apprBox.hidden = !SH.apprBox.firstChild; }
     clear(SH.mineBox);
-    var mb = p ? mineBlock(p, comp) : null;
+    var mb = p ? mineBlock(p) : null;
     if (mb) SH.mineBox.appendChild(mb);
     SH.mineBox.hidden = !mb;
     clear(SH.asksBox);
@@ -1428,30 +1476,28 @@
       var c = p ? countsOf(p) : { approve: 0, open: 0 };
       var bits = [];
       if (S.admin) bits.push('Admin');
-      bits.push(approvalText(c.approve || 0));
+      // members see approvals once there are some; "No approvals yet" is Daniel's
+      if (S.admin || c.approve) bits.push(approvalText(c.approve || 0));
       var ot = p ? openText(p) : '';
       if (ot) bits.push(ot);
       if (S.off) bits.push('offline');
-      // a Board review or paused clock leads the line under the chip ("1d 22h left · No approvals yet")
+      // a Board review or paused clock leads the line under the chip ("1d 22h left · 2 approvals")
       var clk = p && hasClock(p);
-      // the picked person's own page: "Needs your input" (an ask for them) or "One of yours" (a reviewer) leads the line
-      var mineAsks = p ? myAsks(p) : [];
-      var open = mineAsks.filter(function (a) { return !iAnswered(p, a); }).length;
-      var tag = mineAsks.length ? 'Needs your input' : p && iReview(p) ? 'One of yours' : '';
+      // the picked person's own page (a reviewer, or an optional ask for them): a calm "Near your role", never a to-do
+      var tag = p && (iReview(p) || myAsks(p).length) ? 'Near your role' : '';
       var lead = [];
       if (tag) lead.push(h('span', { class: 'blsb-bar-mine', text: tag }));
       if (clk) lead.push(h('span', { class: 'blsb-bar-cd', 'data-cd': p.slug, 'data-fmt': 'shortleft' }));
       var line = [];
-      lead.forEach(function (x) { line.push(x, ' · '); });
-      line.push(bits.join(' · '));
-      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? STATES[stKey(p)].label + (clk ? ', ' + fmtLong(remaining(p)) + ' left' : '') : 'unknown') + '. ' + (tag ? tag + '. ' : '') + bits.join(', ') + '. Open feedback.' }, [
+      lead.concat(bits).forEach(function (x, k) { if (k) line.push(' · '); line.push(x); });
+      var stat = h('button', { type: 'button', class: 'blsb-bar-stat', 'aria-label': 'Page status: ' + (p ? stLabel(stKey(p)) + (clk ? ', ' + fmtLong(remaining(p)) + ' left' : '') : 'unknown') + '. ' + (tag ? tag + '. ' : '') + (bits.length ? bits.join(', ') + '. ' : '') + 'Open feedback.' }, [
         p ? chip(p, null, true) : h('span', { class: 'blsb-chip blsb-s-building', text: 'Not on the board yet' }),
-        h('span', { class: 'blsb-bar-counts' }, line)
+        line.length ? h('span', { class: 'blsb-bar-counts' }, line) : null
       ]);
       stat.addEventListener('click', function () { openSheet(PAGE); });
       var n = discussionCount(PAGE);
-      var fb = h('button', { type: 'button', class: 'blsb-bar-fb', 'aria-label': 'Feedback' + (n ? ', ' + plural(n, 'item') : '') + (open ? ', ' + plural(open, 'question') + ' for you' : '') }, [
-        open ? h('span', { class: 'blsb-bar-dot', 'aria-hidden': 'true' }) : null, h('span', { text: 'Feedback' }), n ? h('span', { class: 'blsb-bar-n', text: String(n) }) : null]);
+      var fb = h('button', { type: 'button', class: 'blsb-bar-fb', 'aria-label': 'Feedback' + (n ? ', ' + plural(n, 'item') : '') }, [
+        h('span', { text: 'Feedback' }), n ? h('span', { class: 'blsb-bar-n', text: String(n) }) : null]);
       fb.addEventListener('click', function () { openSheet(PAGE); });
       add(BAR, [stat, allPagesLink(), fb]);
     }
@@ -1559,14 +1605,20 @@
     mount.classList.add('blsb');
     IX = { mount: mount };
     IX.off = h('div', { class: 'blsb-ix-off' });
-    IX.fy = h('section', { class: 'blsb-panel blsb-fy', hidden: true, 'aria-labelledby': 'blsbFyH' });
+    // Coach 11/4: calm, short and inviting. A welcome card first, the page grid is the main content, and everything else
+    // folds into one "More" area at the bottom (closed by default).
+    IX.wc = h('section', { class: 'blsb-panel blsb-wc', 'aria-labelledby': 'blsbWcH' });
     IX.admin = h('section', { class: 'blsb-panel blsb-adminp', hidden: true, 'aria-label': 'Admin' });
-    // always visible: what is in Board review now and what still needs facts
+    // Daniel only: Board review and Needs information panels, and the phases
     IX.rev = h('section', { class: 'blsb-panel blsb-nowp', 'aria-labelledby': 'blsbRevH' });
     IX.need = h('section', { class: 'blsb-panel blsb-nowp blsb-needp', 'aria-labelledby': 'blsbNeedH' });
     IX.now = h('div', { class: 'blsb-now', hidden: true }, [IX.rev, IX.need]);
-    IX.phases = h('section', { class: 'blsb-phases', 'aria-labelledby': 'blsbPhH' });
-    IX.how = howBox();
+    IX.phases = h('section', { class: 'blsb-phases', 'aria-labelledby': 'blsbPhH', hidden: true });
+    // board members: a slim "In board review now" strip at the top of the grid, only while a page is in review or on hold
+    IX.stripMount = document.getElementById('blsbStrip');
+    IX.strip = h('section', { class: 'blsb-strip', hidden: true, 'aria-labelledby': 'blsbStripH' });
+    IX.how = h('section', { class: 'blsb-panel blsb-how', 'aria-labelledby': 'blsbHowH' });
+    IX.q = h('section', { class: 'blsb-panel blsb-qp', hidden: true, 'aria-labelledby': 'blsbQH' });
     IX.newsTools = h('div', { class: 'blsb-news-tools', hidden: true });
     IX.newsList = h('div', { class: 'blsb-news' });
     IX.news = h('section', { class: 'blsb-panel blsb-newsp', 'aria-labelledby': 'blsbNewH' }, [h('div', { class: 'blsb-panel-h', id: 'blsbNewH', text: 'What\'s new' }),
@@ -1588,8 +1640,15 @@
       h('div', { class: 'blsb-quick-row' }, [IX.discBtn, IX.msgBtn]),
       h('p', { class: 'blsb-muted blsb-small', text: 'Board discussion: anything not about one page. Message Daniel: only Daniel sees it.' })
     ]);
-    IX.cols = h('div', { class: 'blsb-icols' }, [IX.how, IX.quick, IX.news, IX.disc, IX.msg]);
-    add(mount, [IX.off, IX.fy, IX.admin, IX.now, IX.phases, IX.cols]);
+    IX.cols = h('div', { class: 'blsb-icols' }, [IX.news, IX.quick, IX.disc, IX.msg, IX.how, IX.q]);
+    IX.moreSum = h('span', { class: 'blsb-more-sum' });
+    IX.moreD = h('details', { class: 'blsb-more-area' }, [h('summary', {}, [h('span', { class: 'blsb-panel-h', text: 'More' }), IX.moreSum]), IX.cols]);
+    IX.moreD.addEventListener('toggle', function () { S.open.more = IX.moreD.open; });
+    add(mount, [IX.off, IX.wc, IX.admin, IX.now, IX.phases]);
+    if (IX.stripMount) { IX.stripMount.classList.add('blsb'); IX.stripMount.appendChild(IX.strip); } else add(mount, IX.strip);
+    // the More area goes after the page grid (its own mount from build.py); an older index keeps it in the top mount
+    IX.moreMount = document.getElementById('blsbMore');
+    if (IX.moreMount) { IX.moreMount.classList.add('blsb'); IX.moreMount.appendChild(IX.moreD); } else add(mount, IX.moreD);
     var hw = document.getElementById('blsbWho');
     if (hw) { hw.classList.add('blsb'); hw.setAttribute('data-blsb-who', 'header'); }
   }
@@ -1609,15 +1668,35 @@
     MSG.dlg.show();
     setTimeout(function () { MSG.comp.focus(); }, 320);
   }
-  function howBox() {
-    var openPref = LS.get('blsb_how');
-    var d = h('details', { class: 'blsb-panel blsb-how', open: openPref ? openPref === 'open' : DESK.matches });
-    d.addEventListener('toggle', function () { LS.set('blsb_how', d.open ? 'open' : 'closed'); });
+  // How this works. Board members get the short version (no clock rules); Daniel keeps the full countdown rules.
+  function renderHow() {
+    var mode = S.admin ? 'admin' : 'member';
+    if (IX.howMode === mode) return;
+    IX.howMode = mode;
+    var box = clear(IX.how);
     var states = h('div', { class: 'blsb-how-states' });
+    var ADMIN_MEAN = {
+      review: 'The 48 hour countdown. Approve, suggest a change, or raise a concern.',
+      hold: 'A concern paused the Board review clock while Daniel looks at it.',
+      scheduled: 'The 48 hours ran out. Goes out in the next update to the live site, in its phase.'
+    };
     ORDER.forEach(function (k) {
-      states.appendChild(h('div', { class: 'blsb-how-st' }, [h('span', { class: 'blsb-chip blsb-s-' + k }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), h('span', { class: 'blsb-chip-t', text: STATES[k].label })]),
-        h('span', { class: 'blsb-how-m', text: k === 'scheduled' ? 'The 48 hours ran out. Goes out in the next update to the live site, in its phase.' : STATES[k].mean })]));
+      states.appendChild(h('div', { class: 'blsb-how-st' }, [h('span', { class: 'blsb-chip blsb-s-' + stCls(k) }, [h('span', { class: 'blsb-dot', 'aria-hidden': 'true' }), h('span', { class: 'blsb-chip-t', text: stLabel(k) })]),
+        h('span', { class: 'blsb-how-m', text: (S.admin && ADMIN_MEAN[k]) || STATES[k].mean })]));
     });
+    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbHowH', text: 'How this works' }));
+    if (!S.admin) {
+      var tips = [
+        'Each card shows a page as it looks today and as proposed. Nothing here changes the live site.',
+        'On any page, tap Feedback to comment, suggest a change, or approve it if it looks good to you.',
+        'When a page is close to done, it goes into Board review for a couple of days so everyone gets a look.',
+        'Nothing is required. Any input is welcome.'
+      ];
+      add(box, [h('ul', { class: 'blsb-rules' }, tips.map(function (r) { return h('li', { text: r }); })),
+        h('details', { class: 'blsb-how-more' }, [h('summary', { text: 'What the page states mean' }), states]),
+        h('p', { class: 'blsb-muted blsb-small', text: 'Pick your name once and this device remembers it. Message Daniel goes only to Daniel.' })]);
+      return;
+    }
     var rules = [
       'When a page is ready for the board, Daniel starts Board review. A 48 hour countdown starts.',
       'Approve: the clock keeps running.',
@@ -1626,13 +1705,11 @@
       'Daniel answers. Keep as is: Board review resumes with at least 24 hours. Will change: the page goes back to Building.',
       'At zero the page is Scheduled for deployment in the next update to the live site. Daniel updates the live site in phases, then the page is Live.'
     ];
-    add(d, [h('summary', {}, [h('span', { class: 'blsb-panel-h', text: 'How this works' }), h('span', { class: 'blsb-how-sum', text: 'Page states and the 48 hour Board review' })]),
-      h('div', { class: 'blsb-how-body' }, [
-        h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'Page states' }), states]),
-        h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'The Board review countdown' }), h('ul', { class: 'blsb-rules' }, rules.map(function (r) { return h('li', { text: r }); })),
-          h('p', { class: 'blsb-muted blsb-small', text: 'Everyone uses this same link. Pick your name once and this device remembers it. Private messages go only to Daniel.' })])
-      ])]);
-    return d;
+    add(box, h('div', { class: 'blsb-how-body' }, [
+      h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'Page states' }), states]),
+      h('div', {}, [h('div', { class: 'blsb-sec-h', text: 'The Board review countdown' }), h('ul', { class: 'blsb-rules' }, rules.map(function (r) { return h('li', { text: r }); })),
+        h('p', { class: 'blsb-muted blsb-small', text: 'Everyone uses this same link. Pick your name once and this device remembers it. Private messages go only to Daniel.' })])
+    ]));
   }
   function renderIndex() {
     if (!IX) return;
@@ -1640,95 +1717,136 @@
     if (S.first && !S.d) IX.off.appendChild(h('p', { class: 'blsb-loading', text: 'Loading the board...' }));
     else if (S.off) IX.off.appendChild(offlineNote(false));
     var have = !!S.d;
-    IX.phases.hidden = !have;
-    IX.now.hidden = !have;
+    IX.now.hidden = !have || !S.admin;
     IX.news.hidden = !have;
     IX.disc.hidden = !have;
     IX.msg.hidden = !have || S.admin; // Daniel does not message himself
     IX.quick.hidden = !have;
     IX.msgBtn.hidden = S.admin;
+    // More is closed for board members and open for Daniel, until someone taps it
+    if (have && S.open.more == null && IX.moreD.open !== S.admin) IX.moreD.open = S.admin;
     if (have) {
       var dn = discussionCount(null);
       IX.discBtn.textContent = dn ? 'Board discussion (' + dn + ')' : 'Board discussion';
-      renderReviewNow();
-      renderNeeds();
-      renderPhases();
+      if (S.admin) { renderReviewNow(); renderNeeds(); renderPhases(); } else IX.phases.hidden = true;
       renderNews();
       renderThread(IX.discThread, null, { composer: IX.discComp, limit: 4, key: 'ix', empty: 'No board discussion yet.', onReply: function () { IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
       IX.discComp.refresh();
-    }
-    renderForYou();
+    } else IX.phases.hidden = true;
+    renderWelcome();
+    renderStrip();
+    renderQuestions();
+    renderHow();
+    renderMoreSum();
     renderAdmin();
     $$('[data-board]').forEach(renderCard);
   }
-
-  // ---------- "For you": what needs the picked person ----------
-  function fyRow(main, acts) {
-    return h('li', { class: 'blsb-fy-row' }, [h('div', { class: 'blsb-fy-main' }, main), h('div', { class: 'blsb-fy-acts' }, acts)]);
+  function openMore() { if (IX && IX.moreD && !IX.moreD.open) { IX.moreD.open = true; S.open.more = true; } }
+  function renderMoreSum() {
+    var bits = ['What\'s new', 'board discussion'];
+    if (!S.admin) bits.push('message Daniel');
+    if (!IX.q.hidden) bits.push('open questions');
+    bits.push('how this works');
+    IX.moreSum.textContent = bits.slice(0, -1).join(', ') + ' and ' + bits[bits.length - 1];
   }
-  function renderForYou() {
-    var box = clear(IX.fy);
-    box.hidden = !S.d || S.admin;
-    if (box.hidden) return;
+
+  // ---------- welcome card (index top): calm, short, nothing required ----------
+  // The person's pages (a reviewer, or an optional ask for them): Board review and On hold first (least time left), then
+  // pages close to done (no facts left on the page's list), then pages that still need facts, and pages gathering
+  // details last (they are furthest from done, and they read as homework). Inside each group, the pages where they are
+  // listed earliest among the reviewers come first, then page order.
+  function factsLeft(p) { return ((META[p.slug] && META[p.slug].req) || []).length; }
+  function myPages() {
+    if (!member()) return [];
+    var order = pages();
+    function rank(p) { var st = stKey(p); return st === 'review' || st === 'hold' ? 0 : st === 'waiting' ? 3 : factsLeft(p) ? 2 : 1; }
+    function pos(p) { var at = -1; reviewersOf(p).forEach(function (n, k) { if (at < 0 && isMe(n)) at = k; }); return at < 0 ? 999 : at; }
+    return order.filter(function (p) { return iReview(p) || myAsks(p).length; }).sort(function (a, b) {
+      var ra = rank(a), rb = rank(b);
+      if (ra !== rb) return ra - rb;
+      var t = ra === 0 ? byTimeLeft(a, b) : 0;
+      return t || pos(a) - pos(b) || order.indexOf(a) - order.indexOf(b);
+    });
+  }
+  // the Proposed phone thumbnail already on the index card
+  function thumbOf(slug) {
+    var img = document.querySelector('#p-' + slug + ' .shot.proposed img');
+    return img ? img.getAttribute('src') : null;
+  }
+  // a page's state as a short phrase; Board review shows only its time left ("Board review: 1 day 22 hours left")
+  function plainState(p) {
+    var st = stKey(p);
+    var t = st === 'review' && hasClock(p) ? ['Board review: ', h('span', { 'data-cd': p.slug, 'data-fmt': 'longleft' })] : PLAIN[st];
+    return h('div', { class: 'blsb-wc-st' }, [h('span', { class: 'blsb-wc-dot blsb-s-' + stCls(st), 'aria-hidden': 'true' }), h('span', {}, t)]);
+  }
+  // Open on every card; the small Approve only while the page is in Board review (the Feedback sheet always has it)
+  function wcCard(p) {
+    var href = BASE + '/proposed/' + p.slug + '.html';
+    var src = thumbOf(p.slug);
+    return h('li', { class: 'blsb-wc-card' }, [
+      h('a', { class: 'blsb-wc-th', href: href, tabindex: '-1', 'aria-hidden': 'true' }, src ? h('img', { src: src, alt: '' }) : null),
+      h('div', { class: 'blsb-wc-main' }, [
+        h('div', { class: 'blsb-wc-t', text: p.title || titleOf(p.slug) }),
+        plainState(p),
+        h('div', { class: 'blsb-wc-acts' }, [h('a', { class: 'blsb-act blsb-act-go blsb-act-sm', href: href }, ['Open', sr(' ' + (p.title || titleOf(p.slug)))]),
+          p.state === 'review' ? approveToggle(p, true) : null])
+      ])
+    ]);
+  }
+  function renderWelcome() {
+    var box = IX.wc;
+    box.hidden = S.admin;
+    clear(box);
+    if (S.admin) return;
     if (!S.name) {
-      box.classList.add('blsb-fy-none');
-      add(box, [h('div', { class: 'blsb-panel-h', id: 'blsbFyH', text: 'For you' }),
-        h('p', { class: 'blsb-sub', text: 'Pick your name to see the pages and questions that need you.' }),
-        h('button', { type: 'button', class: 'blsb-btn blsb-pri blsb-fy-pick', text: 'Pick your name', onclick: function () { openWho(null); } })]);
+      box.classList.add('blsb-wc-none');
+      add(box, [h('p', { class: 'blsb-wc-p', id: 'blsbWcH' }, [h('b', { text: 'Welcome. ' }), 'Here\'s the new BLS website in progress. Pick your name to see the pages closest to your role.']),
+        h('button', { type: 'button', class: 'blsb-btn blsb-pri blsb-wc-pick', text: 'Who are you?', onclick: function () { openWho(null); } })]);
       return;
     }
-    box.classList.remove('blsb-fy-none');
-    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbFyH', text: 'For you, ' + firstName(S.name) }));
-    var asks = [];
-    pages().forEach(function (p) { myAsks(p).forEach(function (a) { asks.push({ p: p, a: a }); }); });
-    var mine = pages().filter(iReview);
-    // Approve only where there is something to approve: Board review or On hold. A Waiting on info page is listed
-    // with Open and a plain "nothing to approve yet"; the person's other pages sit in one compact line.
-    var look = mine.filter(function (p) { return p.state === 'review' || p.state === 'hold'; });
-    var wait = mine.filter(function (p) { return p.state === 'waiting'; });
-    var rest = mine.filter(function (p) { return look.indexOf(p) < 0 && wait.indexOf(p) < 0; });
-    var openAsks = asks.filter(function (x) { return !iAnswered(x.p, x.a); }).length;
-    if (!openAsks && !look.length) add(box, h('p', { class: 'blsb-fy-empty', text: asks.length ? 'You answered everything we asked. Thank you.' : 'Nothing needs you right now. Thank you.' }));
-    if (asks.length) {
-      var al = h('ul', { class: 'blsb-fy-list' });
-      asks.forEach(function (x) {
-        var done = iAnswered(x.p, x.a);
-        al.appendChild(fyRow([h('div', { class: 'blsb-fy-t', text: clean(x.a.text) }),
-          h('div', { class: 'blsb-fy-s' }, [h('span', { text: x.p.title }), done ? h('span', { class: 'blsb-fy-done', text: ' · You answered. Thank you.' }) : null])],
-          [h('button', { type: 'button', class: 'blsb-act' + (done ? '' : ' blsb-act-go'), onclick: function () { openSheet(x.p.slug, { ask: x.a.text, answer: true }); } }, [done ? 'Add more' : 'Answer', sr(': ' + x.a.text)])]));
-      });
-      add(box, [h('div', { class: 'blsb-sec-h', text: 'Your input is needed' }), al]);
-    }
-    var openLink = function (p) { return h('a', { class: 'blsb-act', href: BASE + '/proposed/' + p.slug + '.html' }, ['Open', sr(' ' + p.title)]); };
-    if (look.length) {
-      var ll = h('ul', { class: 'blsb-fy-list' });
-      look.forEach(function (p) {
-        ll.appendChild(fyRow([h('a', { class: 'blsb-fy-t blsb-fy-a', href: '#p-' + p.slug, text: p.title }), h('div', { class: 'blsb-fy-s' }, [chip(p)])],
-          [approveToggle(p), openLink(p)]));
-      });
-      add(box, [h('div', { class: 'blsb-sec-h', text: 'Please look these over' }),
-        h('p', { class: 'blsb-fy-why', text: 'We want to make sure you\'re good with these.' }), ll]);
-    }
-    if (wait.length) {
-      var wl = h('ul', { class: 'blsb-fy-list' });
-      wait.forEach(function (p) {
-        wl.appendChild(fyRow([h('a', { class: 'blsb-fy-t blsb-fy-a', href: '#p-' + p.slug, text: p.title }),
-          h('div', { class: 'blsb-fy-s' }, [chip(p), p.due_date ? h('span', { class: 'blsb-fy-due', text: 'Due ' + fmtDay(p.due_date) }) : null])], [openLink(p)]));
-      });
-      add(box, [h('div', { class: 'blsb-sec-h', text: 'Your pages waiting on facts' }),
-        h('p', { class: 'blsb-fy-why', text: 'Still waiting on facts. Nothing to approve yet.' }), wl]);
-    }
-    if (rest.length) {
-      var rl = h('div', { class: 'blsb-fy-rest' }, [h('span', { class: 'blsb-fy-rest-h', text: (look.length || wait.length ? 'Your other pages' : 'Your pages') + ':' })]);
-      rest.forEach(function (p) {
-        var st = stKey(p);
-        rl.appendChild(h('a', { class: 'blsb-fy-pg', href: '#p-' + p.slug }, [h('span', { class: 'blsb-fy-pg-t', text: p.title }), h('span', { class: 'blsb-fy-pg-s blsb-s-' + st, text: SHORT[st] })]));
-      });
-      add(box, rl);
+    box.classList.remove('blsb-wc-none');
+    var mine = S.d ? myPages() : [];
+    var lead = 'Here\'s the new BLS website in progress. No rush and nothing is required.';
+    add(box, [h('div', { class: 'blsb-wc-h', id: 'blsbWcH', role: 'heading', 'aria-level': '2', text: 'Hi ' + firstName(S.name) + '.' }),
+      h('p', { class: 'blsb-wc-p', text: !S.d ? lead : lead + (mine.length ? ' If you have a minute, these pages are closest to your role:' : ' If you have a minute, have a look at any page below.') })]);
+    if (!mine.length) return;
+    var all = !!S.open.wcAll;
+    add(box, h('ul', { class: 'blsb-wc-list' }, (all ? mine : mine.slice(0, 3)).map(wcCard)));
+    if (mine.length > 3) {
+      add(box, h('button', { type: 'button', class: 'blsb-linkbtn blsb-wc-all', 'aria-expanded': all ? 'true' : 'false', text: all ? 'Show fewer' : 'See ' + (mine.length - 3) + ' more near your role',
+        onclick: function () { S.open.wcAll = !all; renderWelcome(); tick(); } }));
     }
   }
+  // "In board review now" for board members: a slim strip at the top of the grid, only while a page is in review or on hold
+  function renderStrip() {
+    var box = clear(IX.strip);
+    var list = S.d && !S.admin ? pages().filter(function (p) { return p.state === 'review' || p.state === 'hold'; }).sort(byTimeLeft) : [];
+    box.hidden = !list.length;
+    if (IX.stripMount) IX.stripMount.hidden = !list.length;
+    if (!list.length) return;
+    add(box, [h('span', { class: 'blsb-strip-h', id: 'blsbStripH', text: 'In board review now' }),
+      h('ul', { class: 'blsb-strip-l' }, list.map(function (p) {
+        var t = p.state === 'review' && hasClock(p) ? h('span', { class: 'blsb-strip-t', 'data-cd': p.slug, 'data-fmt': 'longleft' })
+          : h('span', { class: 'blsb-strip-t', text: p.state === 'hold' ? 'On hold for now' : 'In board review' });
+        return h('li', { class: 'blsb-strip-i' }, [h('a', { class: 'blsb-strip-a', href: '#p-' + p.slug, text: p.title || titleOf(p.slug) }), t]);
+      }))]);
+  }
+  // "Open questions (optional)" in the More area: the remaining asks as gentle prompts
+  function renderQuestions() {
+    var box = clear(IX.q);
+    var rows = [];
+    if (S.d && !S.admin) pages().forEach(function (p) { shownAsks(p).forEach(function (a) { rows.push({ p: p, a: a }); }); });
+    box.hidden = !rows.length;
+    if (!rows.length) return;
+    add(box, [h('div', { class: 'blsb-panel-h', id: 'blsbQH', text: 'Open questions (optional)' }),
+      h('p', { class: 'blsb-sub', text: 'If you happen to know, tap I can help. Nothing here is required.' }),
+      h('ul', { class: 'blsb-q-l' }, rows.map(function (x) {
+        return h('li', { class: 'blsb-q-i' }, [h('div', { class: 'blsb-q-t', text: clean(x.a.text) }), h('div', { class: 'blsb-q-s', text: x.p.title || titleOf(x.p.slug) }),
+          askDid(x.p, x.a, 'blsb-q-did'), askHelp(x.p, x.a, null)]);
+      }))]);
+  }
 
-  // ---------- "In board review now" and "Needs information" ----------
+  // ---------- Daniel: "In board review now" and "Needs information" ----------
   // running clocks first (least time left first), then paused clocks, then pages held with no clock
   function byTimeLeft(a, b) {
     var ra = running(a) ? 0 : hasClock(a) ? 1 : 2, rb = running(b) ? 0 : hasClock(b) ? 1 : 2;
@@ -1759,11 +1877,11 @@
     var box = clear(IX.need);
     var waiting = pages().filter(function (p) { return p.state === 'waiting'; });
     var list = waiting.filter(function (p) { return asksOf(p).length; });
-    // pages with no asks are waiting on Daniel's own items (asks are only for the board)
+    // pages with no asks: one line each with what the page still needs (from its facts list)
     var onDaniel = waiting.filter(function (p) { return !asksOf(p).length; });
     add(box, h('div', { class: 'blsb-panel-h', id: 'blsbNeedH', text: 'Needs information' }));
     if (!waiting.length) { add(box, h('p', { class: 'blsb-empty', text: 'No pages are waiting on information right now.' })); return; }
-    if (list.length) add(box, h('p', { class: 'blsb-sub', text: 'These pages are waiting on facts. If you know the answer, tap I can help.' + (DESK.matches ? '' : ' Tap a page to see its questions.') }));
+    add(box, h('p', { class: 'blsb-sub', text: 'Questions out to the board, and what each page still needs.' + (list.length && !DESK.matches ? ' Tap a page to see its questions.' : '') }));
     function manageBtn(p) {
       // Daniel: straight to the page's asks editor
       return S.admin ? h('button', { type: 'button', class: 'blsb-mini blsb-need-m', onclick: function () { S.open['manage:sheet:' + p.slug] = true; S.open['asks:sheet:' + p.slug] = true; openSheet(p.slug); } }, ['Manage', sr(' ' + p.title)]) : null;
@@ -1795,10 +1913,16 @@
     if (onDaniel.length) {
       var dl = h('ul', { class: 'blsb-need-dan' });
       onDaniel.forEach(function (p) {
-        // "Website (Daniel): Champions page goes live first" reads "Waiting on Daniel: Champions page goes live first."
-        var req = ((META[p.slug] && META[p.slug].req) || []).map(function (r) { return clean(r).replace(/^[^:]{1,40}:\s*/, '').replace(/[.\s]+$/, ''); });
+        // Daniel's own items lose their "Website (Daniel):" prefix, board items read "Board decision: ...", and anything
+        // else keeps its owner ("Scheduler: ..."), so a board decision never reads as Daniel's to-do
+        var req = ((META[p.slug] && META[p.slug].req) || []).map(function (r) {
+          var t = clean(r).replace(/[.\s]+$/, '');
+          if (/^website(\s*\(daniel\))?\s*:\s*/i.test(t)) return t.replace(/^website(\s*\(daniel\))?\s*:\s*/i, '');
+          if (/^board\s*:\s*/i.test(t)) return t.replace(/^board\s*:\s*/i, 'Board decision: ');
+          return t;
+        });
         dl.appendChild(h('li', {}, [h('a', { class: 'blsb-now-t', href: '#p-' + p.slug, text: p.title }), ' ',
-          h('span', { class: 'blsb-need-none', text: req.length ? 'Waiting on Daniel: ' + req.join('; ') + '.' : 'Waiting on Daniel.' }), manageBtn(p)]));
+          h('span', { class: 'blsb-need-none', text: req.length ? 'Still needed: ' + req.join('; ') + '.' : 'No facts listed for this page.' }), manageBtn(p)]));
       });
       box.appendChild(dl);
     }
@@ -1919,10 +2043,17 @@
     var p = pageOf(slug);
     if (!S.d || !p) { mount.hidden = true; return; }
     mount.hidden = false;
+    if (!S.admin) {
+      // board members: the state chip in plain words and a Feedback button; no counts, no facts (Coach 11/4)
+      var fbm = h('button', { type: 'button', class: 'blsb-fb blsb-fb-sm' }, ['Feedback', sr(' on ' + (p.title || titleOf(slug)))]);
+      fbm.addEventListener('click', function () { openSheet(slug); });
+      add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), iReview(p) || myAsks(p).length ? h('span', { class: 'blsb-mine-pill', text: 'Near your role' }) : null, fbm]));
+      if (p.note) add(mount, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
+      return;
+    }
     var c = countsOf(p), names = approversOf(p);
     var pl = phaseLabel(p);
-    var tag = myAsks(p).length ? 'Needs your input' : iReview(p) ? 'One of yours' : '';
-    add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), tag ? h('span', { class: 'blsb-mine-pill', text: tag }) : null, pl ? h('span', { class: 'blsb-phase-l', text: pl }) : null]));
+    add(mount, h('div', { class: 'blsb-cb-row' }, [chip(p), pl ? h('span', { class: 'blsb-phase-l', text: pl }) : null]));
     add(mount, h('p', { class: 'blsb-cb-mean' }, [meaningEl(p)]));
     if (p.note) add(mount, h('p', { class: 'blsb-note' }, [h('b', { text: 'Note from Daniel: ' }), h('span', { text: p.note })]));
     var namesId = 'blsbN-' + slug;
@@ -1997,7 +2128,7 @@
       var inPanel = i.slug == null && DESK.matches;
       var comp = inPanel ? IX.discComp : compFor(i.slug);
       box.appendChild(itemEl(i, i.kind === 'private' ? null : comp, { showPage: true, onReply: function () {
-        if (inPanel) { IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); IX.discComp.focus(); }
+        if (inPanel) { openMore(); IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); IX.discComp.focus(); }
         else openSheet(i.slug, { compose: true });
       } }));
     });
@@ -2155,7 +2286,7 @@
         IX.tab = 'inbox'; SS.set('blsb_tab', 'inbox'); renderAdmin(); paintTabs(true);
         setTimeout(function () { focusItem(target.id, IX.panes.inbox); }, 120);
       } else if (DESK.matches) {
-        S.open['thread:_:ix'] = true; renderIndex();
+        S.open['thread:_:ix'] = true; openMore(); renderIndex();
         setTimeout(function () { focusItem(target.id, IX.discThread); }, 120);
       } else openSheet(null, { focus: target.id });
     }

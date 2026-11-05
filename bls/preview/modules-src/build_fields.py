@@ -119,7 +119,7 @@ HELP = f'''
     <div class="fd-help-main">
       <span class="bx-eyebrow">Keep the fields game-ready</span>
       <h2>Help with our fields</h2>
-      <p>BLS is forming a Fields Committee for the 2027 season to help prep and care for the fields. Want to help? Email the Fields Coordinator.</p>
+      <p>The BLS board created a Fields Committee on Nov 1, 2026, and it is recruiting volunteers to help clean up, clear weeds, set pegs, and get fields and job boxes ready for play. Want to help? Email the Fields Coordinator.</p>
       <a class="bx-btn" href="mailto:fields@blslittleleague.org">fields@blslittleleague.org {ARROW}</a>
     </div>
     <div class="fd-thanks">
@@ -131,6 +131,7 @@ HELP = f'''
 
 FOOT = f'''
   <section class="fd-foot">
+    <p><b>New for spring 2027.</b> Daffodil West and the Donald Eismann Elementary turf fields. Donald Eismann hosts two games at a time on Mondays, Wednesdays, Fridays, Saturdays and Sundays, for Majors and AA or below because of field size. Directions coming soon.</p>
     <p><b>Wrong address or a field missing?</b> Email <a href="mailto:fields@blslittleleague.org">fields@blslittleleague.org</a></p>
     <p><b>Save this page.</b> Add it to your phone's home screen so every field is one tap away on game day.</p>
   </section>

@@ -257,7 +257,8 @@ html.blsb-lock{overflow:hidden!important}
 html.blsb-bar,html.blsb-bar body,html.blsb-bar #Form{height:auto!important;min-height:100%}
 html.blsb-bar #blsPreviewBar{padding-top:6px!important}
 html.blsb-bar #blsPreviewInfo{display:none!important}
-html.blsb-live #blsNeeds{display:none!important}
+/* the static facts list is never shown once board.css loads (Daniel sees facts in the page's feedback sheet) */
+#blsNeeds{display:none!important}
 html.blsb-bar #blsSwitch{margin-bottom:0!important}
 @media (min-width:700px){
   html.blsb-bar #blsPreviewBar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 16px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))!important}
@@ -275,7 +276,8 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 /* the Board review time sits first on the line under the chip, so a phone never cuts the state name */
 #blsbBar .blsb-bar-cd{color:#fff;font-weight:700;font-variant-numeric:tabular-nums}
 #blsbBar .blsb-bar-fb{flex:none;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 18px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 15px/1 var(--b-font)}
-#blsbBar .blsb-bar-mine{color:#ffd166;font-weight:800}
+/* "Near your role" on the bar: soft, never the amber of a to-do */
+#blsbBar .blsb-bar-mine{color:#dfe5f7;font-weight:700}
 #blsbBar .blsb-bar-dot{width:10px;height:10px;border-radius:50%;background:#f2b01e;box-shadow:0 0 0 2px var(--b-navy);flex:none;margin-right:-2px}
 #blsbBar .blsb-bar-n{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--b-red);color:#fff;font:800 12.5px/1 var(--b-font)}
 .blsb .blsb-bar-btn{flex:none;min-height:40px;padding:8px 16px;border-radius:999px;background:#fff;color:var(--b-navy);font:800 14px/1 var(--b-font)}
@@ -315,20 +317,29 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-who-slot{margin:10px 0 12px;padding:9px 12px;border-radius:10px;background:var(--b-bg)}
 .blsb .blsb-discp .blsb-comp{margin-bottom:6px}
 .blsb .blsb-msgp .blsb-comp{margin-top:8px}
-.blsb .blsb-icols{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+/* the More area (after the page grid): What's new, Board discussion, Message Daniel, How this works, Open questions */
+.blsb .blsb-icols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start;margin-top:12px}
 @media (min-width:900px){
-  .blsb .blsb-icols{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-areas:"how how" "disc news" "disc msg"}
-  .blsb .blsb-icols>.blsb-how{grid-area:how}
+  .blsb .blsb-icols{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-areas:"news disc" "msg disc" "q disc" "how how"}
   .blsb .blsb-icols>.blsb-newsp{grid-area:news}
   .blsb .blsb-icols>.blsb-discp{grid-area:disc}
   .blsb .blsb-icols>.blsb-msgp{grid-area:msg}
+  .blsb .blsb-icols>.blsb-qp{grid-area:q}
+  .blsb .blsb-icols>.blsb-how{grid-area:how}
 }
+#blsbMore.blsb{max-width:1180px;margin:28px auto 0}
+.blsb .blsb-more-area>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;min-height:56px;padding:14px 48px 14px 16px;border-radius:14px;
+  background:#fff;border:1px solid var(--b-line);cursor:pointer;list-style:none;position:relative}
+.blsb .blsb-more-area>summary::-webkit-details-marker{display:none}
+.blsb .blsb-more-area>summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font:400 28px/1 var(--b-font);color:var(--b-muted)}
+.blsb .blsb-more-area[open]>summary::after{content:"\2212"}
+.blsb .blsb-more-sum{font-size:15px;line-height:1.4;color:var(--b-muted)}
 /* how this works */
-.blsb .blsb-how>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;min-height:44px;cursor:pointer;list-style:none;padding-right:28px;position:relative}
-.blsb .blsb-how>summary::-webkit-details-marker{display:none}
-.blsb .blsb-how>summary::after{content:"+";position:absolute;right:0;top:6px;font:400 26px/1 var(--b-font);color:var(--b-muted)}
-.blsb .blsb-how[open]>summary::after{content:"\2212"}
-.blsb .blsb-how-sum{font-size:15px;color:var(--b-muted)}
+.blsb .blsb-how>.blsb-panel-h{margin-bottom:8px}
+.blsb .blsb-how-more{margin-top:12px;border-top:1px solid var(--b-line)}
+.blsb .blsb-how-more>summary{display:flex;align-items:center;min-height:44px;font:700 15px/1.2 var(--b-font);color:var(--b-blue);cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px}
+.blsb .blsb-how-more[open]>summary{margin-bottom:6px}
 .blsb .blsb-how-body{display:grid;grid-template-columns:minmax(0,1fr);gap:4px 28px}
 @media (min-width:900px){.blsb .blsb-how-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .blsb .blsb-how-states{display:flex;flex-direction:column;gap:8px}
@@ -398,6 +409,8 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-cnt.blsb-cnt-ok{background:var(--b-green-bg);color:var(--b-green)}
 .blsb .blsb-cnt.blsb-cnt-warn{background:#fde7ec;color:#a8102f}
 .blsb .blsb-fb{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:9px 18px;border-radius:999px;background:var(--b-navy);color:#fff;font:800 15px/1 var(--b-font)}
+/* board members' cards: a quieter outline Feedback button next to the chip */
+.blsb .blsb-fb.blsb-fb-sm{min-height:40px;padding:7px 15px;background:#fff;color:var(--b-navy);border:1.5px solid var(--b-navy);font-size:14.5px}
 .blsb .blsb-cb-names{margin-top:8px;font-size:14px;line-height:1.4;color:var(--b-muted)}
 .blsb .blsb-cb-names b{color:var(--b-green)}
 /* admin panel */
@@ -427,31 +440,65 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-act.blsb-aptg.blsb-on{background:var(--b-green);color:#fff}
 .blsb .blsb-act.blsb-aptg.blsb-on::before{content:"";width:11px;height:6px;margin:-3px 9px 0 0;border:solid currentColor;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg)}
 
-/* ---------- "For you" (index top) ---------- */
-.blsb .blsb-fy{border:2px solid var(--b-red);box-shadow:0 4px 16px rgba(0,1,58,.08)}
-.blsb .blsb-fy .blsb-panel-h{font-size:21px}
-.blsb .blsb-fy.blsb-fy-none{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;border:1.5px dashed #b9c3d6;box-shadow:none}
-.blsb .blsb-fy.blsb-fy-none .blsb-panel-h{flex:1 1 100%}
-.blsb .blsb-fy.blsb-fy-none .blsb-sub{flex:1 1 220px;margin:0}
-.blsb .blsb-fy .blsb-sec-h{margin:16px 0 2px}
-.blsb .blsb-fy-why{font-size:15px;line-height:1.4;color:var(--b-muted);margin:2px 0 2px}
-.blsb .blsb-fy-empty{margin-top:8px;font:600 16px/1.45 var(--b-font);color:var(--b-green)}
-.blsb .blsb-fy-list{display:flex;flex-direction:column}
-.blsb .blsb-fy-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 0;border-top:1px solid var(--b-line)}
-.blsb .blsb-fy-row:first-child{border-top:0}
-.blsb .blsb-fy-main{flex:1 1 220px;min-width:0}
-.blsb .blsb-fy-t{display:block;font:700 16px/1.35 var(--b-font);color:var(--b-navy)}
-.blsb a.blsb-fy-a,.blsb a.blsb-fy-a:link,.blsb a.blsb-fy-a:visited{color:var(--b-navy);text-decoration:underline;text-decoration-color:#b9c3d6;text-underline-offset:3px}
-.blsb .blsb-fy-s{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:5px;font-size:14px;line-height:1.35;color:var(--b-muted)}
-.blsb .blsb-fy-done{color:var(--b-green);font-weight:700}
-.blsb .blsb-fy-due{font-weight:700;color:#7a3e00}
-.blsb .blsb-fy-acts{display:flex;flex-wrap:wrap;gap:8px}
-/* the person's other pages, one compact line: "Your other pages: Health & Safety [Building]" */
-.blsb .blsb-fy-rest{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--b-line)}
-.blsb .blsb-fy-rest-h{font:700 14.5px/1.3 var(--b-font);color:var(--b-muted);margin-right:2px}
-.blsb a.blsb-fy-pg,.blsb a.blsb-fy-pg:link,.blsb a.blsb-fy-pg:visited{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:4px 7px 4px 13px;border-radius:999px;
-  border:1px solid var(--b-line);background:#fff;color:var(--b-navy);font:700 14.5px/1.2 var(--b-font);text-decoration:none}
-.blsb .blsb-fy-pg-s{display:inline-flex;align-items:center;min-height:26px;padding:2px 9px;border-radius:999px;font:700 12.5px/1.1 var(--b-font)}
+.blsb .blsb-act.blsb-act-sm,.blsb a.blsb-act.blsb-act-sm:link,.blsb a.blsb-act.blsb-act-sm:visited{min-height:40px;padding:7px 15px;font-size:14.5px}
+.blsb a.blsb-act.blsb-act-go:link,.blsb a.blsb-act.blsb-act-go:visited{background:var(--b-navy);color:#fff}
+
+/* ---------- welcome card (index top) ---------- */
+.blsb .blsb-wc{border-top:4px solid var(--b-red);padding:16px 16px 14px}
+.blsb .blsb-wc.blsb-wc-none{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.blsb .blsb-wc.blsb-wc-none .blsb-wc-p{flex:1 1 260px;margin:0}
+.blsb .blsb-wc-pick{flex:none}
+.blsb .blsb-wc-h{font:800 22px/1.2 var(--b-font);color:var(--b-navy)}
+.blsb .blsb-wc-p{margin-top:6px;font-size:16px;line-height:1.5;color:var(--b-ink)}
+.blsb .blsb-wc-p b{color:var(--b-navy)}
+.blsb .blsb-wc-list{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:12px}
+@media (min-width:700px){.blsb .blsb-wc-list{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
+.blsb .blsb-wc-card{display:flex;gap:12px;padding:10px;border:1px solid var(--b-line);border-radius:14px;background:#fff;min-width:0}
+.blsb a.blsb-wc-th{flex:none;display:block;width:60px;aspect-ratio:390/620;align-self:flex-start;border-radius:8px;overflow:hidden;border:1.5px solid var(--b-red);background:var(--b-bg)}
+.blsb .blsb-wc-th img{display:block;width:100%;max-width:100%;height:auto}
+.blsb .blsb-wc-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.blsb .blsb-wc-t{font:800 17px/1.25 var(--b-font);color:var(--b-navy);overflow-wrap:anywhere}
+.blsb .blsb-wc-st{display:flex;align-items:center;gap:7px;font-size:14.5px;line-height:1.3;color:var(--b-muted)}
+.blsb .blsb-wc-dot{width:9px;height:9px;border-radius:50%;flex:none}
+.blsb .blsb-wc-acts{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin-top:auto;padding-top:6px}
+.blsb a.blsb-act.blsb-act-go.blsb-act-sm:link,.blsb a.blsb-act.blsb-act-go.blsb-act-sm:visited{padding-left:22px;padding-right:22px}
+/* Approve on a welcome card is small and optional: a soft pill, with a 44px tap area */
+.blsb .blsb-wc-acts .blsb-act.blsb-aptg{position:relative;min-height:34px;padding:5px 12px;border-width:1px;border-color:#b9dcc7;background:var(--b-green-bg);font-size:13.5px;font-weight:700}
+.blsb .blsb-wc-acts .blsb-act.blsb-aptg::after{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:44px;margin-top:-22px}
+.blsb .blsb-wc-acts .blsb-act.blsb-aptg.blsb-on{background:var(--b-green);border-color:var(--b-green);color:#fff}
+.blsb .blsb-wc-all{margin-top:12px;font-size:15px}
+
+/* ---------- "In board review now" strip (board members, top of the grid, only while a page is in review) ---------- */
+#blsbStrip.blsb{max-width:1180px;margin:0 auto 4px}
+.blsb .blsb-strip{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px;border-radius:12px;background:#e8f0fb;border-left:5px solid var(--b-blue)}
+.blsb .blsb-strip-h{font:800 12.5px/1.2 var(--b-font);letter-spacing:.08em;text-transform:uppercase;color:#0f4386}
+.blsb .blsb-strip-l{display:flex;flex-wrap:wrap;gap:4px 16px}
+.blsb .blsb-strip-i{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;min-height:32px;font-size:15px;line-height:1.3}
+.blsb a.blsb-strip-a,.blsb a.blsb-strip-a:link,.blsb a.blsb-strip-a:visited{font-weight:800;color:var(--b-navy);text-decoration:underline;text-decoration-color:#9fb4d8;text-underline-offset:3px}
+.blsb .blsb-strip-t{color:#0f4386;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ---------- Open questions (optional), in More ---------- */
+.blsb .blsb-q-l{display:flex;flex-direction:column;margin-top:8px}
+.blsb .blsb-q-i{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px 0;border-top:1px solid var(--b-line)}
+.blsb .blsb-q-i:first-child{border-top:0}
+.blsb .blsb-q-t{font:600 15.5px/1.4 var(--b-font);color:var(--b-ink)}
+.blsb .blsb-q-s{font-size:14px;line-height:1.35;color:var(--b-muted)}
+.blsb .blsb-q-did{font:600 14px/1.35 var(--b-font);color:var(--b-green)}
+.blsb .blsb-q-i .blsb-act{margin-top:5px}
+
+/* ---------- feedback sheet: soft reviewer line and the folded optional asks ---------- */
+.blsb .blsb-soft{font-size:15.5px;line-height:1.45;color:var(--b-navy);padding:9px 12px;border-radius:10px;background:var(--b-bg)}
+.blsb .blsb-askq{border-top:1px solid var(--b-line)}
+.blsb .blsb-askq>summary{display:flex;align-items:center;min-height:48px;padding-right:28px;font:700 15px/1.3 var(--b-font);color:var(--b-navy);cursor:pointer;list-style:none;position:relative}
+.blsb .blsb-askq>summary::-webkit-details-marker{display:none}
+.blsb .blsb-askq>summary::after{content:"+";position:absolute;right:2px;top:50%;transform:translateY(-50%);font:400 22px/1 var(--b-font);color:var(--b-muted)}
+.blsb .blsb-askq[open]>summary::after{content:"\2212"}
+.blsb .blsb-askq-b{padding:0 0 8px}
+.blsb .blsb-askq-l{display:flex;flex-direction:column;margin-top:4px}
+.blsb .blsb-askq-i{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:9px 0;border-top:1px solid var(--b-line)}
+.blsb .blsb-askq-i:first-child{border-top:0}
+.blsb .blsb-askq-t{font-size:15.5px;line-height:1.4}
+.blsb .blsb-askq-did{font:600 14px/1.35 var(--b-font);color:var(--b-green)}
 
 /* ---------- "In board review now" and "Needs information" ---------- */
 .blsb .blsb-now{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
@@ -511,8 +558,12 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-mine-q{font-size:15.5px;line-height:1.4}
 .blsb .blsb-mine-done{font:700 14px/1.3 var(--b-font);color:var(--b-green)}
 .blsb .blsb-ask-who{font:600 14px/1.35 var(--b-font);color:#5c3a00}
-.blsb .blsb-mine-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#fff0f3;color:var(--b-red);
-  font:800 13px/1.1 var(--b-font);border:1px solid #f6c5d1;white-space:nowrap}
+/* "Near your role" on a grid card: a soft grey note, not an assignment */
+.blsb .blsb-mine-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#eef2f6;color:#4b5675;
+  font:700 13px/1.1 var(--b-font);border:1px solid #d9dfea;white-space:nowrap}
+/* "Private? Only to Daniel" under the feedback box (board members) */
+.blsb .blsb-priv{margin-top:10px}
+.blsb .blsb-priv .blsb-linkbtn{padding:10px 0}
 
 /* ---------- admin: reviewers, asks, page updates ---------- */
 .blsb .blsb-subed{margin-top:12px;border-top:1px solid var(--b-line)}
@@ -546,9 +597,11 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   #blsbBar .blsb-bar-fb:hover{background:#e9edf7}
   #blsbRoot .blsb-pin:hover{opacity:1;transform:scale(1.25)}
   .blsb .blsb-fb:hover{background:#1a1c5c}
+  .blsb .blsb-fb.blsb-fb-sm:hover{background:var(--b-bg)}
+  .blsb .blsb-more-area>summary:hover{border-color:#b9c3d6}
   .blsb a.blsb-pchip:hover{filter:brightness(1.12)}
   .blsb a.blsb-news-a:hover{background:var(--b-bg)}
   .blsb .blsb-act:not(.blsb-act-go):not(.blsb-on):hover{background:var(--b-bg)}
-  .blsb .blsb-act.blsb-act-go:hover{background:#1a1c5c}
+  .blsb .blsb-act.blsb-act-go:hover,.blsb a.blsb-act.blsb-act-go:hover{background:#1a1c5c}
   .blsb .blsb-pill:hover{border-color:var(--b-navy)}
 }

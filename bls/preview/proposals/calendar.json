@@ -1,6 +1,7 @@
 {
  "status": "Ready to launch",
- "summary": "Key Dates card (Nov 7 gear return, Nov 27 registration, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.",
+ "summary": "Key Dates card (Nov 7 gear return, Nov 27 to 29 Black Friday registration, Nov 30 to Dec 31 Early Bird, Dec 6 board meeting, Jan 1 full price, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.",
+ "blurb": "Key dates up top, with the league calendar below.",
  "insert_before": [
   {
    "mid": "767585",
@@ -14,14 +15,23 @@
    "fact": "Fall Ball equipment return: Saturday Nov 7, 2026, 10AM to 1PM, at the Daffodil Shed.",
    "url": "https://www.instagram.com/p/DfPyxIwCao1/",
    "date": "2026-11-02"
+  },
+  {
+   "fact": "Board motion passed Nov 1: Spring 2027 registration opens with a Black Friday sale Nov 27 to 29, $50 off per family; Early Bird Nov 30 to Dec 31, $25 off per family; full price Jan 1, 2027.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
+  },
+  {
+   "fact": "Next board meeting: Sunday Dec 6, 6 to 8 PM, Round Table Pizza, Bonney Lake.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
   "President (Ramey Harguess) with VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 key dates to load into the Sports Connect calendar (registration close, evaluations, draft, coaches meetings, DICK'S weekends, Opening Day, picture day, Rainiers night, All-Star start); nothing for 2027 is posted yet.",
-  "Secretary (Tawnie LaValley): the 2026-27 board meeting dates for the calendar; the Oct 25 and Nov 1 minutes, which may set them, are not posted yet.",
-  "Information Officer (Melissa Olsen): who keeps the Sports Connect calendar up to date this season? It is empty today; the Nov 7 gear return and Nov 27 registration opening should go in first.",
-  "President or Treasurer (Ramey Harguess / Dan Swatman): confirm registration opens Friday, Nov 27 with $50 off per family. Only the website news post says so; social media has not announced it yet.",
-  "Website (Daniel Grande): remove the Nov 7 gear return card after Nov 7, and swap the Nov 27 card for the next key date once registration opens."
+  "Secretary (Tawnie LaValley): the rest of the 2026-27 board meeting dates for the calendar; the Nov 1 minutes set only the next one (Sunday Dec 6, 6 to 8 PM, Round Table Pizza, Bonney Lake), now on the Key Dates card.",
+  "Information Officer (Melissa Olsen): who keeps the Sports Connect calendar up to date this season? It is empty today; the Nov 7 gear return, Nov 27 registration opening, Nov 30 Early Bird start, Dec 6 board meeting and Jan 1 full price date should go in first.",
+  "Website (Daniel Grande): take each Key Dates card down after its date passes (gear return after Nov 7, Black Friday after Nov 29, board meeting after Dec 6, Early Bird after Dec 31), and add the next key dates as they are set."
  ],
  "required": []
 }

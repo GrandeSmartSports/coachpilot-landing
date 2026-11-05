@@ -7,7 +7,8 @@
  },
  "page_title": "Schedules & Scores",
  "status": "Ready after 4 items",
- "summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings (direction pending a board decision): one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.",
+ "summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings: one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.",
+ "blurb": "A proposed new page that makes your team's spring schedule easy to find.",
  "sources": [
   {
    "fact": "Team Central today, logged out: Posted Schedules lists 3 spring 2026 interlock schedules with BLS team names, times and fields blank; View Scores and View Standings say 'No data for selected period'; Team Directory says 'No Team Found!'.",

@@ -139,6 +139,15 @@ try {
     ok(r.j.pages.every((x) => Array.isArray(x.reviewers) && Array.isArray(x.asks)), "every page carries reviewers and asks lists");
     ok(r.j.pages.every((x) => x.reviewers.every((n) => roster.has(n))), "every reviewer is a roster name", r.j.pages.map((x) => x.reviewers));
     ok(r.j.pages.every((x) => x.asks.every((a) => typeof a.text === "string" && a.text.length >= 3 && Array.isArray(a.people) && a.people.every((n) => roster.has(n)))), "every ask has text and roster names", r.j.pages.map((x) => x.asks));
+    // calm asks (Coach 11/4, migrations 20261104170000 and 20261104190000): only two optional, gently worded asks; no board
+    // decisions (spring dates, 2027 sponsor prices), nothing that cannot happen before the site launches, no "2027"
+    const liveAsks = r.j.pages.flatMap((x) => x.asks.map((a) => ({ slug: x.slug, text: a.text, people: a.people })));
+    ok(liveAsks.length === 2, "exactly 2 asks on the board", liveAsks);
+    const wantAsks = [["board", "OK to show the board list on the site?", "Ramey Harguess"], ["runbook", "Know how uniform sizing works by division?", "Dena Berkey"]];
+    ok(wantAsks.every(([s, t, n]) => liveAsks.some((a) => a.slug === s && a.text === t && a.people.length === 1 && a.people[0] === n)), "the 2 asks are board list OK (Ramey) and uniform sizing (Dena)", liveAsks);
+    ok(!liveAsks.some((a) => /opening day|evaluation|draft|gear pickup|sign-up|standings|cleared-volunteer|seats filled|sponsor price|2027/i.test(a.text)), "no ask is a board decision, a spring date, sponsor prices or next season", liveAsks.map((a) => a.text));
+    ok(liveAsks.every((a) => /\?$/.test(a.text)), "every ask reads as a gentle question", liveAsks.map((a) => a.text));
+    ok(["volunteer", "schedules", "sponsorship"].every((s) => (r.j.pages.find((x) => x.slug === s) || { asks: [1] }).asks.length === 0), "volunteer, schedules and sponsorship carry no asks");
     // public What's new is only page updates and pages going live
     ok(r.j.events.every((e) => PUBLIC_KINDS.includes(e.kind)), "public events are only page_update and live", [...new Set(r.j.events.map((e) => e.kind))]);
     ok(!("activity" in r.j), "public state has no activity list");

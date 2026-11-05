@@ -7,7 +7,8 @@
  },
  "page_title": "Fields",
  "status": "Ready to launch",
- "summary": "New page: 11 field sites by town with one-tap directions, a live map of Allan Yorke Park (fields AY1 to AY5 and the parking note), site tips from BLS posts, a Fields Committee call and a thank-you to the groups that donated infield dirt.",
+ "summary": "New page: 11 field sites by town with one-tap directions, a live map of Allan Yorke Park (fields AY1 to AY5 and the parking note), site tips from BLS posts, a note on the two sites new for spring 2027, a Fields Committee volunteer call and a thank-you to the groups that donated infield dirt.",
+ "blurb": "A new page with every field site, one-tap directions and parking tips.",
  "sources": [
   {
    "fact": "Allan Yorke Park fields are AY1 to AY5; parking at AY5 is limited, overflow at AY1 to AY3.",
@@ -58,18 +59,23 @@
    "fact": "Seattle Mariners grounds crew donated infield dirt; Sunbelt Rentals donated the trailer.",
    "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid0H3MNhatotyxG6HPg5nKu6p7UHczoSUuRKA1NrhXZfYEaGzs9PbAomYaKZTVTDbpjl",
    "date": "2026-04-15"
+  },
+  {
+   "fact": "Nov 1 board meeting (draft minutes, for approval Dec 6): Fields Committee created to help clean up, clear weeds, set pegs and prepare fields and job boxes; it organizes and recruits volunteers. Daffodil West gained for spring; in late spring the turf project starts and BLS loses storage at the Daffodil shed. Donald Eismann turf fields available Mon, Wed, Fri, Sat and Sun only, two games at a time, Majors and AA or below due to size.",
+   "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
+   "date": "2026-11-01"
   }
  ],
  "later": [
   "Fields Coordinator (Daniel Lane) and Scheduler (Daniel Grande): confirm the 11 sites and field names for spring 2027.",
-  "Fields Coordinator (Daniel Lane): six sites are held back until confirmed: Crestwood Elementary, Emerald Hills Elementary, Donald Eismann Elementary (turf), Daffodil Sports Complex, Bill Heath Sports Complex and Calistoga Park (Orting). Bill Heath hosted the Fall Ball coaches meeting in 2025 and 2026, so is it a game field, and what is its address?",
-  "Fields Coordinator (Daniel Lane): where is the Daffodil Shed (Fall Ball gear return, All-Star gear pickup)? Is it at the Daffodil Sports Complex, and should the page list it?",
+  "Fields Coordinator (Daniel Lane): the Nov 1 board minutes confirm Daffodil West (gained for spring) and the Donald Eismann Elementary turf fields (Mon, Wed, Fri, Sat, Sun; two games at a time; Majors and AA or below). The page names both in a New for spring 2027 note with directions coming soon. Send each site's address and field names so they get full cards, and say whether Daffodil West is part of the Daffodil Sports Complex.",
+  "Fields Coordinator (Daniel Lane): still held back until confirmed: Crestwood Elementary, Emerald Hills Elementary, Daffodil Sports Complex (unless it is Daffodil West), Bill Heath Sports Complex and Calistoga Park (Orting). Bill Heath hosted the Fall Ball coaches meeting in 2025 and 2026, so is it a game field, and what is its address?",
+  "Fields Coordinator (Daniel Lane): where is the Daffodil Shed (Fall Ball gear return, All-Star gear pickup)? Is it at the Daffodil Sports Complex? The Nov 1 minutes say BLS loses storage at the Daffodil shed in late spring 2027, when the turf project starts. Should the page list it at all?",
   "Fields Coordinator (Daniel Lane): the correct name for the Orting site. The page says Orting Lions Park, also called Orting Lions Field; posts also say Lions Field and Lions Community Park.",
   "Fields Coordinator (Daniel Lane): which Allan Yorke Park address to use (7203 W Tapps Hwy E is on the page; 19501 Bonney Lake Blvd E is also on file).",
   "Whoever manages the league email aliases: confirm fields@blslittleleague.org reaches Daniel Lane. The page uses it for the Fields Committee and for corrections.",
   "Field Rentals Coordinator (Greg Potts): should the page say how outside groups can rent BLS fields, and with what contact?",
-  "Board: menu placement for the new page (suggestion: under Team Central next to Posted Schedules).",
-  "Secretary (Tawnie LaValley): Fields Committee results from the Nov 1 meeting (minutes not posted yet), to update the Help with our fields section."
+  "Board: menu placement for the new page (suggestion: under Team Central next to Posted Schedules)."
  ],
  "required": []
 }
