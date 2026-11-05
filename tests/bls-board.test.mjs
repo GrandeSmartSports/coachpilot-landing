@@ -129,7 +129,7 @@ try {
     ok(r.s === 200 && r.j.ok === true, "state returns 200 without auth");
     ok(r.j.viewer && r.j.viewer.admin === false, "viewer.admin is false without PIN");
     ok(Array.isArray(r.j.people) && r.j.people.length >= 15 && r.j.people[0].name === "Ramey Harguess" && r.j.people[0].role === "President", "people roster in sort order, Ramey Harguess first");
-    ok(r.j.people.every((p) => Object.keys(p).sort().join(",") === "name,role"), "people entries carry only name and role");
+    ok(r.j.people.every((p) => Object.keys(p).sort().join(",") === "has_email,name,role" && typeof p.has_email === "boolean"), "people entries carry name, role and a has_email flag (never the address)");
     const slugs = r.j.pages.map((p) => p.slug);
     ok(["home", "registration", "faq", "board", "runbook", "schedules"].every((s) => slugs.includes(s)) && slugs.length >= 17, "17 seeded pages present");
     ok(!slugs.includes(SLUG), "test page is not in public state without test=1");
