@@ -1712,7 +1712,8 @@
     // Daniel only: Board review and Needs information panels, and the phases
     IX.rev = h('section', { class: 'blsb-panel blsb-nowp', 'aria-labelledby': 'blsbRevH' });
     IX.need = h('section', { class: 'blsb-panel blsb-nowp blsb-needp', 'aria-labelledby': 'blsbNeedH' });
-    IX.now = h('div', { class: 'blsb-now', hidden: true }, [IX.rev, IX.need]);
+    IX.openFb = h('section', { class: 'blsb-panel blsb-nowp blsb-openp', 'aria-labelledby': 'blsbOpenH' });
+    IX.now = h('div', { class: 'blsb-now', hidden: true }, [IX.openFb, IX.rev, IX.need]);
     IX.phases = h('section', { class: 'blsb-phases', 'aria-labelledby': 'blsbPhH', hidden: true });
     // board members: a slim "In board review now" strip at the top of the grid, only while a page is in review or on hold
     IX.stripMount = document.getElementById('blsbStrip');
@@ -1842,7 +1843,7 @@
       var dn = discussionCount(null);
       IX.discBtn.textContent = S.admin ? (dn ? 'Board discussion (' + dn + ')' : 'Board discussion') : 'Send feedback';
       IX.quickCap.textContent = discussionSub();
-      if (S.admin) { renderReviewNow(); renderNeeds(); renderPhases(); } else IX.phases.hidden = true;
+      if (S.admin) { renderOpenFeedback(); renderReviewNow(); renderNeeds(); renderPhases(); } else IX.phases.hidden = true;
       renderNews();
       IX.discSub.textContent = discussionSub();
       renderThread(IX.discThread, null, { composer: IX.discComp, limit: 4, key: 'ix', empty: 'No board discussion yet.', onReply: function () { IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
@@ -1976,6 +1977,28 @@
     var ra = running(a) ? 0 : hasClock(a) ? 1 : 2, rb = running(b) ? 0 : hasClock(b) ? 1 : 2;
     if (ra !== rb) return ra - rb;
     return (remaining(a) || 0) - (remaining(b) || 0);
+  }
+  // Daniel's first panel: every member note still open, newest first, one tap to the item (Coach 11/5: "a clear spot
+  // to see open feedback submissions"). Approvals and his own posts are not feedback to answer.
+  function renderOpenFeedback() {
+    var box = clear(IX.openFb);
+    var list = ((S.d && S.d.items) || []).filter(function (i) { return !i.parent_id && !i.is_admin && i.kind !== 'approve' && (!i.status || i.status === 'open'); })
+      .sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+    box.classList.toggle('blsb-nowp-quiet', !list.length);
+    add(box, h('div', { class: 'blsb-panel-h', id: 'blsbOpenH', text: list.length ? 'Open feedback (' + list.length + ')' : 'Open feedback' }));
+    if (!list.length) { add(box, h('p', { class: 'blsb-empty', text: 'Nothing waiting on you. New notes from the board land here.' })); return; }
+    add(box, h('p', { class: 'blsb-sub', text: 'Reply or mark Fixed from the note. Fixed clears it from this list.' }));
+    var ul = h('ul', { class: 'blsb-now-list' });
+    list.forEach(function (i) {
+      var who = i.author_name + (i.author_role ? ', ' + i.author_role : '');
+      var where = i.slug ? titleOf(i.slug) : 'Board-wide';
+      var snip = String(i.body || '').replace(/\s+/g, ' ').trim(); if (snip.length > 140) snip = snip.slice(0, 137) + '...';
+      ul.appendChild(h('li', { class: 'blsb-now-row' }, [
+        h('div', { class: 'blsb-now-main' }, [h('div', { class: 'blsb-now-t' }, [h('b', { text: who }), h('span', { class: 'blsb-muted', text: ' · ' + where + ' · ' + ago(i.created_at) })]), badge(i.kind), h('div', { class: 'blsb-now-s', text: snip })]),
+        h('button', { type: 'button', class: 'blsb-act', onclick: function () { openSheet(i.slug, { focus: i.id }); } }, ['Open', sr(' note from ' + i.author_name)])
+      ]));
+    });
+    add(box, ul);
   }
   function renderReviewNow() {
     var box = clear(IX.rev);

@@ -500,6 +500,9 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-nowp.blsb-nowp-quiet{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;padding-block:12px}
 .blsb .blsb-nowp-quiet .blsb-empty{margin:0;padding:0;font-size:15px}
 .blsb .blsb-nowp{border-top:4px solid var(--b-blue)}
+.blsb .blsb-openp{grid-column:1/-1;border-top-color:var(--b-red)}
+.blsb .blsb-openp .blsb-now-t{font-size:15px}
+.blsb .blsb-openp .blsb-now-s{margin-top:4px;white-space:normal}
 .blsb .blsb-nowp.blsb-needp{border-top-color:var(--b-amber)}
 .blsb .blsb-now-list{display:flex;flex-direction:column;margin-top:6px}
 .blsb .blsb-now-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 0;border-top:1px solid var(--b-line)}
