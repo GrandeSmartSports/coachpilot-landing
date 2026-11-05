@@ -49,6 +49,12 @@
     approve: { label: 'Approve', badge: 'Approved' }
   };
   var STATUS = { resolved: 'Resolved', accepted: 'Will change', declined: 'Keep as is' };
+  // Comments are Daniel-only until he opens them (Coach 11/4): the wording that swaps in for board members
+  var READ_ALL = 'Everyone on the board can read it.';
+  var READ_DANIEL = 'Only Daniel sees this for now.';
+  var HIDDEN_NOTE = 'Notes go straight to Daniel for now. He will open the discussion to everyone when the pages are ready.';
+  var DANIEL_LINE = 'Your notes stay between you and the website work unless you mark one for the board.';
+  var TO_BOARD_LABEL = 'Show this to the board';
 
   // ---------- small helpers ----------
   function store(kind) {
@@ -228,6 +234,29 @@
   function isMe(n) { return !!S.name && lc(n) === lc(S.name); }
   // a board member who picked a name (Daniel in admin mode has the Inbox instead)
   function member() { return !S.admin && !!S.name; }
+  // Comments on the board (Coach 11/4): comments, suggestions, concerns and help offers stay between the writer and
+  // Daniel until he opens the discussion (setting comments_public). Approvals always show. The server already filters;
+  // these only pick the words. Daniel-only is the safe default while the board loads or is offline.
+  function commentsPublic() { return !!(S.d && S.d.comments_public === true); }
+  function hiddenMode() { return !S.admin && !commentsPublic(); }
+  // Daniel on the name picker (member mode): the server keeps his notes off the board unless he marks one for it
+  function isDanielName() { return !S.admin && lc(S.name) === 'daniel grande'; }
+  function itemIsDaniel(i) { return !!i && (!!i.is_admin || lc(i.author_name) === 'daniel grande'); }
+  function hintFor(kind) {
+    var t = (KINDS[kind] || KINDS.comment).hint;
+    if (hiddenMode()) t = t.replace(READ_ALL + ' Daniel also gets an email.', READ_DANIEL + ' He also gets an email.').replace(READ_ALL, READ_DANIEL);
+    return t;
+  }
+  function discussionSub() {
+    if (hiddenMode()) return 'Anything not about one page. ' + READ_DANIEL;
+    if (S.admin && !commentsPublic()) return 'Anything not about one page. Comments are Daniel-only right now.';
+    return 'Anything not about one page. ' + READ_ALL;
+  }
+  // the phone caption under the Board discussion and Message Daniel buttons: in Daniel-only mode both reach only him
+  function quickCaption() {
+    if (hiddenMode()) return 'Board discussion goes to Daniel for now too. Message Daniel is for anything private.';
+    return 'Board discussion: anything not about one page. Message Daniel: only Daniel sees it.';
+  }
   function iReview(p) { return member() && reviewersOf(p).some(isMe); }
   function myAsks(p) { return member() ? asksOf(p).filter(function (a) { return peopleOf(a).some(isMe); }) : []; }
   // An ask that names people shows only to those people; an ask with no names is open to anyone on the board.
@@ -264,6 +293,9 @@
     if (r.offered.length) bits.push(andList(r.offered) + ' offered to help.');
     return bits.length ? h('div', { class: cls, text: bits.join(' ') }) : null;
   }
+  // Daniel-only mode: an ask this device answered or offered to help with (the thread cannot show it), kept for the session
+  function askKey(slug, text) { return 'blsb_ask:' + (slug == null ? '_' : slug) + ':' + String(text || ''); }
+  function askDone(p, a) { return hiddenMode() ? SS.get(askKey(p.slug, a.text)) : ''; }
   function firstName(n) { return String(n || '').trim().split(/\s+/)[0] || ''; }
   function andList(names) {
     names = (names || []).filter(Boolean);
@@ -281,6 +313,7 @@
   }
   // One counting rule everywhere (bar badge, sheet heading, card): top-level items except approvals.
   function discussionCount(slug) {
+    if (hiddenMode()) return 0; // members see no discussion counts while comments are Daniel-only
     return topItems(slug).filter(function (i) { return i.kind !== 'approve'; }).length;
   }
   function openParts(p) {
@@ -429,6 +462,8 @@
       else add(s, 'Approve, suggest a change, or raise a concern before the time runs out.');
     } else if (st === 'hold') {
       if (rem != null && S.admin) add(s, ['A concern paused the Board review clock with ', cdSpan(p, 'long'), ' left. Daniel is looking at it.']);
+      // while comments are Daniel-only the concern itself is not on the board, so the line does not point at one
+      else if (hiddenMode()) add(s, 'Paused while Daniel looks something over.');
       else add(s, rem != null ? STATES.hold.mean : 'Paused while Daniel looks at this page.');
     } else if (st === 'scheduled') {
       var ph = phaseOf(p.phase_id);
@@ -714,9 +749,10 @@
     }
     // o.kindVisible(kind, current): which kind buttons a board member sees. Private then folds into a small
     // "Only to Daniel" link (it shows as a pressed button once picked).
-    var privEl = null;
+    var privEl = null, privQ = null;
     if (kindsEl && o.kindVisible && o.kinds.indexOf('private') >= 0) {
-      privEl = h('p', { class: 'blsb-muted blsb-small blsb-priv' }, [h('span', { text: 'Private? ' }),
+      privQ = h('span', { text: 'Private? ' });
+      privEl = h('p', { class: 'blsb-muted blsb-small blsb-priv' }, [privQ,
         h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Only to Daniel', onclick: function () { c.setKind('private'); ta.focus(); } })]);
     }
     var hint = h('p', { class: 'blsb-hint' });
@@ -730,7 +766,13 @@
     send.addEventListener('click', function () { c.send(); });
     var msg = h('p', { class: 'blsb-msg', role: 'status', 'aria-live': 'polite' });
     var row = h('div', { class: 'blsb-comp-row' }, [spotBtn, send]);
-    c.el = h('div', { class: 'blsb-comp' }, [kindsEl, lab, hint, ctx, ta, row, privEl, o.note ? h('p', { class: 'blsb-muted blsb-small', text: o.note }) : null, msg]);
+    // Daniel (admin): his posts and replies stay Daniel-only unless he ticks this (sends to_board: true)
+    var tbId = uid();
+    var tbIn = h('input', { id: tbId, class: 'blsb-check', type: 'checkbox' });
+    var tbWrap = h('label', { class: 'blsb-checkl blsb-toboard', for: tbId, hidden: true }, [tbIn, h('span', { text: TO_BOARD_LABEL })]);
+    // Daniel on the name picker (member mode): the server keeps these notes off the board
+    var danLine = h('p', { class: 'blsb-muted blsb-small blsb-dan-line', text: DANIEL_LINE, hidden: true });
+    c.el = h('div', { class: 'blsb-comp' }, [kindsEl, lab, hint, ctx, ta, tbWrap, row, privEl, danLine, o.note ? h('p', { class: 'blsb-muted blsb-small', text: o.note }) : null, msg]);
     ta.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); c.send(); } });
     ta.addEventListener('input', function () { if (msg.classList.contains('blsb-err')) say(''); });
 
@@ -751,12 +793,20 @@
       if (kindsEl) kindsEl.hidden = !!c.reply || adminPlain || answering;
       if (o.kindVisible) Object.keys(btns).forEach(function (k) { btns[k].hidden = !o.kindVisible(k, c.kind); });
       if (privEl) privEl.hidden = !!c.reply || adminPlain || answering || c.kind === 'private';
+      // while comments are Daniel-only every note already reaches only him; a private one stays that way after they open
+      if (privQ) privQ.textContent = hiddenMode() ? 'Keep it private even after comments open? ' : 'Private? ';
       var kh = KINDS[c.kind] || KINDS.comment;
-      var t = kh.hint;
-      if (answering) t = 'Everyone on the board can read your answer. Daniel gets an email.';
-      if (adminPlain && !c.reply) t = 'Your comment shows as ' + ADMIN_NAME + '. Everyone on the board can read it.';
-      if (c.reply) t = S.admin ? 'Your reply shows as ' + ADMIN_NAME + '.' : 'Your reply shows under ' + (c.reply.name || 'this item') + '.';
+      var t = hintFor(c.kind);
+      if (answering) t = hiddenMode() ? 'Only Daniel sees your answer for now. He gets an email.' : 'Everyone on the board can read your answer. Daniel gets an email.';
+      // while comments are Daniel-only a marked post still waits for him to open them, and a reply never reaches the member before then
+      var onlyMe = commentsPublic() ? ' Only you see it unless you check ' + TO_BOARD_LABEL + '.'
+        : ' Only you see it. Checking ' + TO_BOARD_LABEL + ' shows it once comments are open to everyone.';
+      var replyWait = commentsPublic() ? '' : ' The member will not see this reply until then.';
+      if (adminPlain && !c.reply) t = 'Your comment shows as ' + ADMIN_NAME + '.' + onlyMe;
+      if (c.reply) t = S.admin ? 'Your reply shows as ' + ADMIN_NAME + '.' + (c.reply.kind === 'private' ? '' : onlyMe + replyWait) : 'Your reply shows under ' + (c.reply.name || 'this item') + '.';
       hint.textContent = o.hint || t;
+      tbWrap.hidden = !S.admin || c.kind === 'private' || !!(c.reply && c.reply.kind === 'private');
+      danLine.hidden = !(isDanielName() && c.kind !== 'private');
       ta.placeholder = c.reply ? 'Your reply' : answering ? 'Your answer' : (o.placeholder || kh.ph);
       if (!send.disabled) send.textContent = answering ? 'Send answer' : (o.sendText || 'Send');
       clear(ctx);
@@ -785,27 +835,39 @@
       if (!S.admin && !S.name) { openWho(function () { c.send(); }, 'comment'); return; }
       var kind = c.reply ? 'reply' : c.kind;
       var wasAns = c.ans && !c.reply;
+      var reqText = c.req && !c.reply ? c.req : null;
+      var toBoard = S.admin && !tbWrap.hidden && tbIn.checked;
       var req;
       if (c.reply && S.admin) {
-        req = api('admin_reply', { parent_id: c.reply.id, body: body });
+        req = api('admin_reply', { parent_id: c.reply.id, body: body, to_board: toBoard });
       } else {
         var b = { slug: c.slug, kind: c.reply ? 'comment' : c.kind, body: body, name: S.admin ? ADMIN_NAME : S.name, role: S.admin ? 'Website' : (S.role || null) };
         if (c.reply) b.parent_id = c.reply.id;
         if (c.spot && !c.reply) { b.variant = c.spot.v; b.pin_x = Math.round(c.spot.x * 100) / 100; b.pin_y = Math.round(c.spot.y * 100) / 100; if (c.spot.w) b.pin_w = c.spot.w; }
         if (c.req && !c.reply) b.req_item = c.req;
+        if (toBoard) b.to_board = true;
         req = api('post', b);
       }
       send.disabled = true; send.textContent = 'Sending...';
       say('');
       req.then(function (r) {
         ta.value = '';
+        tbIn.checked = false;
         c.reply = null; c.spot = null; c.req = null; c.ans = false; c.kind = o.kinds[0];
         send.disabled = false;
         c.refresh();
-        var done = kind === 'private' ? 'Sent. Only Daniel can see it.' : wasAns ? 'Answer sent. Daniel gets an email. Thank you.' : (kind === 'concern' || kind === 'suggestion' || kind === 'help') ? 'Sent. Daniel gets an email. Thank you.' : 'Sent. Thank you.';
+        var done = kind === 'private' ? 'Sent. Only Daniel can see it.'
+          : S.admin ? (!toBoard ? 'Posted. Only you see it.' : commentsPublic() ? 'Posted. The board can see it.' : 'Posted. Marked for the board; it shows once comments are open to everyone.')
+          : hiddenMode() ? 'Sent to Daniel.'
+          : isDanielName() ? 'Saved. It stays between you and the website work.'
+          : wasAns ? 'Answer sent. Daniel gets an email. Thank you.' : (kind === 'concern' || kind === 'suggestion' || kind === 'help') ? 'Sent. Daniel gets an email. Thank you.' : 'Sent. Thank you.';
         say(done);
         toast(done);
-        if (r && r.item && S.d && S.d.items && kind !== 'private') S.d.items.unshift(r.item);
+        // Daniel-only mode: the thread cannot show an answer to an ask, so this device remembers it (no second send by mistake)
+        if (hiddenMode() && kind === 'help' && reqText) SS.set(askKey(c.slug, reqText), wasAns ? 'answered' : 'offered');
+        // a member's post in Daniel-only mode, or Daniel's own note under his picked name, never shows in the thread
+        // (the next load would not bring it back either)
+        if (r && r.item && S.d && S.d.items && kind !== 'private' && !hiddenMode() && !isDanielName()) S.d.items.unshift(r.item);
         renderAll();
         if (o.onSent) o.onSent(r);
         return load();
@@ -842,6 +904,21 @@
   function adminCall(action, body, okMsg) {
     return api(action, body).then(function (r) { if (okMsg) toast(okMsg); return load().then(function () { return r; }); }, function (e) { toast(errText(e)); throw e; });
   }
+  // Daniel's own posts in his view: a badge that reads "Daniel only" or "Board can see"; one tap flips it (admin_to_board).
+  // While comments are Daniel-only, a marked post waits until he opens comments to everyone.
+  function toBoardToggle(i) {
+    var on = !!i.to_board;
+    // a visible "change" tail so the pill reads as a control, not a label (no hover on a phone)
+    var b = h('button', { type: 'button', class: 'blsb-tbtn' + (on ? ' blsb-tbtn-on' : ''), 'aria-pressed': on ? 'true' : 'false',
+      'aria-label': on ? 'Board can see this. Tap to make it Daniel only.' : 'Daniel only. Tap to show it to the board.' },
+      [h('span', { text: on ? 'Board can see' : 'Daniel only' }), h('span', { class: 'blsb-tbtn-s', 'aria-hidden': 'true', text: 'change' })]);
+    b.addEventListener('click', function () {
+      b.disabled = true;
+      var msg = on ? 'Daniel only now.' : commentsPublic() ? 'The board can see it now.' : 'Marked for the board. It shows once comments are open to everyone.';
+      adminCall('admin_to_board', { id: i.id, to_board: !on }, msg).catch(function () { b.disabled = false; });
+    });
+    return b;
+  }
   function itemActions(i, comp, opts) {
     var acts = h('div', { class: 'blsb-acts' });
     var top = !i.parent_id;
@@ -856,9 +933,10 @@
         var noteIn = null;
         if (i.status === 'open' && (i.kind === 'concern' || i.kind === 'suggestion')) {
           var nid = uid();
-          noteIn = h('input', { id: nid, class: 'blsb-in blsb-in-sm', type: 'text', maxlength: '500', placeholder: 'Note with your answer (optional)' });
+          // the note stays with Daniel (members get the status word only); a reason for the board goes in a Reply as Daniel marked for it
+          noteIn = h('input', { id: nid, class: 'blsb-in blsb-in-sm', type: 'text', maxlength: '500', placeholder: 'Private note (only you see it)' });
           trackDirty(noteIn, '');
-          acts.appendChild(h('label', { class: 'blsb-sr', for: nid, text: 'Note with your answer' }));
+          acts.appendChild(h('label', { class: 'blsb-sr', for: nid, text: 'Private note with your answer, only you see it' }));
           acts.appendChild(noteIn);
         }
         var res = function (status, msg) {
@@ -913,6 +991,7 @@
     var el = h('div', { class: 'blsb-item blsb-i-' + i.kind + (i.status && i.status !== 'open' ? ' blsb-closed' : ''), id: 'blsb-i-' + i.id });
     var ans = isAnswer(i);
     var head = h('div', { class: 'blsb-item-h' }, [ans ? h('span', { class: 'blsb-badge blsb-b-help', text: 'Answer' }) : badge(i.kind)]);
+    if (S.admin && itemIsDaniel(i) && i.kind !== 'private') head.appendChild(toBoardToggle(i));
     var sl = spotLink(i);
     if (sl) {
       if (sl.tagName === 'BUTTON') sl.addEventListener('click', function () { showPin(i.id); });
@@ -932,7 +1011,8 @@
       var rb = h('div', { class: 'blsb-replies' });
       reps.forEach(function (r) {
         var re = h('div', { class: 'blsb-reply' + (r.kind === 'private' ? ' blsb-reply-private' : ''), id: 'blsb-i-' + r.id }, [
-          r.kind === 'private' ? h('div', { class: 'blsb-item-h' }, [badge('private')]) : null,
+          r.kind === 'private' ? h('div', { class: 'blsb-item-h' }, [badge('private')])
+            : S.admin && itemIsDaniel(r) ? h('div', { class: 'blsb-item-h' }, [toBoardToggle(r)]) : null,
           byline(r), h('div', { class: 'blsb-body', text: r.body || '' })]);
         var ra = S.admin ? itemActions(r, null) : null;
         if (ra) re.appendChild(ra);
@@ -948,6 +1028,8 @@
     opts = opts || {};
     if (guarded(box)) return;
     clear(box);
+    // comments Daniel-only: a board member sees one calm note in place of the list (no items, no "be the first")
+    if (hiddenMode() && S.d) { box.appendChild(h('p', { class: 'blsb-quiet-note', text: HIDDEN_NOTE })); return; }
     var list = topItems(slug).filter(function (i) { return i.kind !== 'approve' || String(i.body || '').trim(); });
     if (opts.filter) list = list.filter(opts.filter);
     if (!list.length) { box.appendChild(h('p', { class: 'blsb-empty', text: opts.empty || 'No feedback yet.' })); return; }
@@ -1004,7 +1086,9 @@
       var mine = iApproved(p);
       var noteId = uid();
       var note = h('input', { id: noteId, class: 'blsb-in', type: 'text', maxlength: '500', placeholder: 'Optional note with your approval' });
-      var noteWrap = h('div', { class: 'blsb-appr-note', hidden: !S.open['note:' + p.slug] || mine }, [h('label', { class: 'blsb-sr', for: noteId, text: 'Note with your approval' }), note]);
+      // who reads the note: Daniel alone while comments are Daniel-only, the whole board once they are open
+      var noteWrap = h('div', { class: 'blsb-appr-note', hidden: !S.open['note:' + p.slug] || mine }, [h('label', { class: 'blsb-sr', for: noteId, text: 'Note with your approval' }), note,
+        h('p', { class: 'blsb-muted blsb-small blsb-appr-hint', text: hiddenMode() ? 'Only Daniel sees your note for now.' : 'Everyone on the board can read your note.' })]);
       var btn = h('button', { type: 'button', class: 'blsb-approve' + (mine ? ' blsb-on' : ''), 'aria-pressed': mine ? 'true' : 'false' }, [
         h('span', { class: 'blsb-approve-t', text: mine ? 'You approved this page' : 'Approve this page' }),
         h('span', { class: 'blsb-approve-s', text: mine ? 'Tap to remove your approval' : 'Optional. One tap tells Daniel it looks good to you.' })
@@ -1261,7 +1345,9 @@
     return h('p', { class: 'blsb-soft', text: 'This page is close to your role. Take a look when you have a minute.' });
   }
   // "Open questions" for board members: the page's optional asks, folded at the bottom of the sheet.
-  function askHelp(p, a, comp) {
+  function askHelp(p, a, comp, cls) {
+    var did = askDone(p, a);
+    if (did) return h('span', { class: cls || 'blsb-askq-did', text: did === 'answered' ? 'You answered this. Daniel has it.' : 'You offered to help. Daniel has it.' });
     var forMe = member() && peopleOf(a).some(isMe);
     return h('button', { type: 'button', class: 'blsb-act blsb-act-sm', onclick: function () {
       if (comp) { comp.setReply(null); comp.setReq(a.text, forMe); comp.focus(); } else openSheet(p.slug, { ask: a.text, answer: forMe });
@@ -1314,22 +1400,45 @@
     t = t.replace(/\s*\([^)]*\)\s*$/, '');
     return t.charAt(0).toUpperCase() + t.slice(1);
   }
+  // Every open item says what it is (Coach 11/4: "I can't tell if it's a statement, an ask or what"):
+  // "Board decision:", "Info needed (Name):" or "Daniel:" in the proposal text become a visible label.
+  var REQ_KIND = { board: 'Board decision', info: 'Info needed', daniel: "Daniel's step" };
+  function parseReq(r) {
+    var t = String(r || '').trim(), m;
+    if ((m = t.match(/^Board decision:\s*/i))) return { kind: 'board', text: t.slice(m[0].length) };
+    if ((m = t.match(/^Info needed(?:\s*\(([^)]*)\))?:\s*/i))) return { kind: 'info', who: m[1] || '', text: t.slice(m[0].length) };
+    if ((m = t.match(/^Daniel:\s*/i))) return { kind: 'daniel', text: t.slice(m[0].length) };
+    return { kind: 'other', text: softFact(t) };
+  }
+  function reqEl(q, withWho) {
+    var cap = q.text.charAt(0).toUpperCase() + q.text.slice(1);
+    return [REQ_KIND[q.kind] ? h('b', { text: REQ_KIND[q.kind] + ': ' }) : null, cap, withWho && q.who ? h('span', { class: 'blsb-muted', text: ' (' + q.who + ' may know)' }) : null];
+  }
   // One short line under the status so a board member sees what is missing without clicking (Coach 11/4).
   function gatherLine(p) {
     var st = stKey(p);
     if (st !== 'building' && st !== 'waiting') return null;
     var req = (META[p.slug] && META[p.slug].req) || [];
     if (!req.length) return h('p', { class: 'blsb-gather' }, [h('b', { text: 'All facts in. ' }), 'Daniel is finishing the page.']);
-    var shown = req.slice(0, 3).map(softFact), more = req.length - shown.length;
-    return h('p', { class: 'blsb-gather' }, [h('b', { text: 'Still gathering: ' }), shown.join('; ') + (more > 0 ? '; and ' + more + ' more' : '') + '.']);
+    var shown = req.slice(0, 2).map(parseReq), more = req.length - shown.length, parts = [];
+    shown.forEach(function (q, i) { if (i) parts.push(' '); parts = parts.concat(reqEl(q, false)); parts.push(/[.!?]$/.test(q.text) ? '' : '.'); });
+    if (more > 0) parts.push(' And ' + more + ' more.');
+    return h('p', { class: 'blsb-gather' }, parts);
   }
   function reqBlock(p, comp) {
     var req = (META[p.slug] && META[p.slug].req) || [];
     if (!req.length) return null;
     if (!S.admin) {
       if (p.state !== 'waiting' && p.state !== 'building') return null;
-      var soft = h('div', { class: 'blsb-req blsb-req-soft' }, [h('div', { class: 'blsb-req-h', text: 'What Daniel is still gathering' })]);
-      req.forEach(function (r) { soft.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t', text: softFact(r) })])); });
+      var soft = h('div', { class: 'blsb-req blsb-req-soft' }, [h('div', { class: 'blsb-req-h', text: 'What this page is waiting on' })]);
+      var groups = [['board', 'Board decisions'], ['info', 'Information needed'], ['daniel', 'Steps Daniel owns'], ['other', 'Also']];
+      var qs = req.map(parseReq);
+      groups.forEach(function (g) {
+        var rows = qs.filter(function (q) { return q.kind === g[0]; });
+        if (!rows.length) return;
+        soft.appendChild(h('div', { class: 'blsb-req-g', text: g[1] }));
+        rows.forEach(function (q) { soft.appendChild(h('div', { class: 'blsb-req-i' }, [h('span', { class: 'blsb-req-t' }, [q.text.charAt(0).toUpperCase() + q.text.slice(1), q.who ? h('span', { class: 'blsb-muted', text: ' (' + q.who + ' may know)' }) : null])])); });
+      });
       soft.appendChild(h('p', { class: 'blsb-muted blsb-small', text: 'Nothing for you to do here. If you happen to know one of these, a comment helps.' }));
       return soft;
     }
@@ -1423,7 +1532,7 @@
     if (!guarded(SH.statusBox)) {
       clear(SH.statusBox);
       if (p) SH.statusBox.appendChild(statusBlock(p, 'sheet'));
-      else if (slug == null) SH.statusBox.appendChild(h('p', { class: 'blsb-mean', text: 'Anything not about one page. Everyone on the board can read it.' }));
+      else if (slug == null) SH.statusBox.appendChild(h('p', { class: 'blsb-mean', text: discussionSub() }));
       SH.statusBox.hidden = !SH.statusBox.firstChild;
     }
     clear(SH.linksBox);
@@ -1457,7 +1566,7 @@
     }
     SH.pinsBox.hidden = !spots;
     comp.refresh();
-    var n = discussionCount(slug);
+    var n = discussionCount(slug); // 0 for members while comments are Daniel-only
     SH.threadH.textContent = n ? 'Discussion (' + n + ')' : 'Discussion';
     renderThread(SH.thread, slug, { composer: comp, empty: S.off ? 'Comments are offline right now.' : 'No feedback yet. Be the first.', onReply: function () { SH.compBox.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
     tick();
@@ -1648,9 +1757,10 @@
       h('p', { class: 'blsb-sub', text: 'Changes to the website pages.' }), IX.newsTools, IX.newsList]);
     IX.discComp = Composer({ slug: null, kinds: ['comment', 'suggestion', 'concern'], label: 'Your comment for the board' });
     IX.discThread = h('div', { class: 'blsb-thread' });
+    IX.discSub = h('p', { class: 'blsb-sub', text: discussionSub() });
     IX.disc = h('section', { class: 'blsb-panel blsb-discp blsb-only-desk', 'aria-labelledby': 'blsbDiscH' }, [
       h('div', { class: 'blsb-panel-h', id: 'blsbDiscH', text: 'Board discussion' }),
-      h('p', { class: 'blsb-sub', text: 'Anything not about one page. Everyone on the board can read it.' }),
+      IX.discSub,
       h('div', { class: 'blsb-who-slot', 'data-blsb-who': 'panel' }),
       IX.discComp.el, IX.discThread
     ]);
@@ -1659,9 +1769,10 @@
     // Phones: the discussion and the message box open in a sheet, so the page cards are not four screens down.
     IX.discBtn = h('button', { type: 'button', class: 'blsb-btn blsb-quick-b', onclick: function () { openSheet(null, { compose: false }); } });
     IX.msgBtn = h('button', { type: 'button', class: 'blsb-btn blsb-pri blsb-quick-b', text: 'Message Daniel', onclick: openMsg });
+    IX.quickCap = h('p', { class: 'blsb-muted blsb-small', text: quickCaption() });
     IX.quick = h('section', { class: 'blsb-panel blsb-quick blsb-only-phone', 'aria-label': 'Board discussion and messages' }, [
       h('div', { class: 'blsb-quick-row' }, [IX.discBtn, IX.msgBtn]),
-      h('p', { class: 'blsb-muted blsb-small', text: 'Board discussion: anything not about one page. Message Daniel: only Daniel sees it.' })
+      IX.quickCap
     ]);
     IX.cols = h('div', { class: 'blsb-icols' }, [IX.news, IX.quick, IX.disc, IX.msg, IX.how, IX.q]);
     IX.moreSum = h('span', { class: 'blsb-more-sum' });
@@ -1751,8 +1862,10 @@
     if (have) {
       var dn = discussionCount(null);
       IX.discBtn.textContent = dn ? 'Board discussion (' + dn + ')' : 'Board discussion';
+      IX.quickCap.textContent = quickCaption();
       if (S.admin) { renderReviewNow(); renderNeeds(); renderPhases(); } else IX.phases.hidden = true;
       renderNews();
+      IX.discSub.textContent = discussionSub();
       renderThread(IX.discThread, null, { composer: IX.discComp, limit: 4, key: 'ix', empty: 'No board discussion yet.', onReply: function () { IX.discComp.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } });
       IX.discComp.refresh();
     } else IX.phases.hidden = true;
@@ -1824,7 +1937,7 @@
     if (S.admin) return;
     if (!S.name) {
       box.classList.add('blsb-wc-none');
-      add(box, [h('p', { class: 'blsb-wc-p', id: 'blsbWcH' }, [h('b', { text: 'Welcome. ' }), 'Here\'s the new BLS website in progress. Pick your name to see the pages closest to your role.']),
+      add(box, [h('p', { class: 'blsb-wc-p', id: 'blsbWcH' }, [h('b', { text: 'BLS website rebuild: status update. ' }), 'Every page is shown as it looks today next to the proposed version, so anyone who wants to follow the build can. Several pages touch board roles. Pick your name to see the ones closest to yours.']),
         h('button', { type: 'button', class: 'blsb-btn blsb-pri blsb-wc-pick', text: 'Who are you?', onclick: function () { openWho(null); } })]);
       return;
     }
@@ -1833,9 +1946,9 @@
     // nobody lands on an empty card: people on no reviewer list (new members, guests) get a few pages to start with
     var starter = false;
     if (S.d && !mine.length) { mine = starterPages(); starter = true; }
-    var lead = 'Here\'s the new BLS website in progress. No rush and nothing is required.';
+    var lead = 'Here\'s a status update on the BLS website rebuild. Every page is shown as it looks today next to the proposed version, so anyone who wants to follow the build can. Several pages touch board roles.';
     add(box, [h('div', { class: 'blsb-wc-h', id: 'blsbWcH', role: 'heading', 'aria-level': '2', text: 'Hi ' + firstName(S.name) + '.' }),
-      h('p', { class: 'blsb-wc-p', text: !S.d ? lead : lead + (starter ? ' If you have a minute, here are a few to start with. Every page is open to you below.' : ' If you have a minute, these pages are closest to your role:') })]);
+      h('p', { class: 'blsb-wc-p', text: !S.d ? lead : lead + (starter ? ' Here are a few pages to start with. Every page is open to you below.' : ' The ones closest to yours are listed first, so you have a chance to look them over and give input if you\'d like.') })]);
     if (!mine.length) return;
     var all = !!S.open.wcAll;
     add(box, h('ul', { class: 'blsb-wc-list' }, (all ? mine : mine.slice(0, 3)).map(wcCard)));
@@ -1874,7 +1987,7 @@
       h('p', { class: 'blsb-sub', text: 'If you happen to know, tap I can help. Nothing here is required.' }),
       h('ul', { class: 'blsb-q-l' }, rows.map(function (x) {
         return h('li', { class: 'blsb-q-i' }, [h('div', { class: 'blsb-q-t', text: clean(x.a.text) }), h('div', { class: 'blsb-q-s', text: x.p.title || titleOf(x.p.slug) }),
-          askDid(x.p, x.a, 'blsb-q-did'), askHelp(x.p, x.a, null)]);
+          askDid(x.p, x.a, 'blsb-q-did'), askHelp(x.p, x.a, null, 'blsb-q-did')]);
       }))]);
   }
 
@@ -2127,10 +2240,43 @@
         IX.tabs.appendChild(b);
         IX.panes[t[0]] = h('div', { class: 'blsb-pane', role: 'tabpanel', id: 'blsbPane-' + t[0], 'aria-labelledby': 'blsbTab-' + t[0] });
       });
-      add(box, [h('div', { class: 'blsb-admin-h' }, [h('span', { class: 'blsb-panel-h', text: 'Admin' }), h('span', { class: 'blsb-sub', text: 'Only you see this. Page controls are under Manage on each card.' })]), IX.tabs,
+      IX.modeLine = h('span', { class: 'blsb-sub blsb-mode-line' });
+      add(box, [h('div', { class: 'blsb-admin-h' }, [h('span', { class: 'blsb-panel-h', text: 'Admin' }), h('span', { class: 'blsb-sub', text: 'Only you see this. Page controls are under Manage on each card.' }), IX.modeLine]), IX.tabs,
         IX.panes.inbox, IX.panes.people, IX.panes.phases]);
       paintTabs(true);
     } else paintTabs(false);
+    IX.modeLine.textContent = commentsPublic() ? 'Comments are open to everyone on the board.' : 'Comments are Daniel-only right now.';
+  }
+  // Comments on the board: Daniel only (members' notes reach only him, approvals still show) or Everyone (open
+  // discussion). A second tap confirms, the way a state change does. Calls admin_setting comments_public.
+  function commentsSwitch() {
+    var pub = commentsPublic();
+    var wrap = h('div', { class: 'blsb-setting', role: 'group', 'aria-label': 'Comments on the board' });
+    var conf = h('div', { class: 'blsb-confirm', hidden: true });
+    function closeConf() { clear(conf); conf.hidden = true; conf.classList.remove('blsb-dirty'); }
+    function seg(label, value) {
+      var on = pub === value;
+      var b = h('button', { type: 'button', class: 'blsb-mini' + (on ? ' blsb-mini-go' : ''), 'aria-pressed': on ? 'true' : 'false', text: label });
+      b.addEventListener('click', function () {
+        if (on) return;
+        clear(conf);
+        var yes = h('button', { type: 'button', class: 'blsb-mini blsb-mini-go', text: value ? 'Yes, open comments' : 'Yes, Daniel only' });
+        yes.addEventListener('click', function () {
+          yes.disabled = true;
+          conf.classList.remove('blsb-dirty'); // let the inbox re-render once the save lands
+          adminCall('admin_setting', { key: 'comments_public', value: value ? 'true' : 'false' }, value ? 'Comments are open to everyone on the board.' : 'Comments are Daniel-only again.')
+            .catch(function () { yes.disabled = false; conf.classList.add('blsb-dirty'); });
+        });
+        add(conf, [h('p', { class: 'blsb-confirm-q', text: value ? 'Open comments to everyone on the board? Daniel-only posts stay hidden.' : 'Make comments Daniel-only again? Members see only approvals until you reopen them.' }),
+          h('div', { class: 'blsb-confirm-b' }, [yes, h('button', { type: 'button', class: 'blsb-mini', text: 'Cancel', onclick: closeConf })])]);
+        conf.hidden = false;
+        conf.classList.add('blsb-dirty'); // keeps the next refresh from closing the question
+      });
+      return b;
+    }
+    add(wrap, [h('span', { class: 'blsb-setting-l', text: 'Comments on the board:' }), h('div', { class: 'blsb-setting-sw' }, [seg('Daniel only', false), seg('Everyone', true)]),
+      h('span', { class: 'blsb-muted blsb-small blsb-setting-s', text: pub ? 'Everyone on the board reads comments, suggestions and concerns. Your own posts still need ' + TO_BOARD_LABEL + '.' : 'Members\' comments, suggestions, concerns and help offers come only to you. Approvals still show to everyone.' })]);
+    return h('div', { class: 'blsb-setting-wrap' }, [wrap, conf]);
   }
   function paintTabs(full) {
     $$('.blsb-tab', IX.tabs).forEach(function (b) {
@@ -2154,6 +2300,7 @@
     var box = IX.panes.inbox;
     if (guarded(box)) return;
     clear(box);
+    box.appendChild(commentsSwitch());
     var list = inboxItems();
     if (!list.length) { box.appendChild(h('p', { class: 'blsb-empty', text: 'Inbox is clear. Private messages, open concerns, suggestions and help offers show up here.' })); return; }
     list.forEach(function (i) {

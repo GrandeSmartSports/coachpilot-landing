@@ -614,3 +614,32 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-gather{margin:6px 0 0;font-size:14px;line-height:1.4;color:var(--b-muted)}
 .blsb .blsb-gather b{color:var(--b-navy);font-weight:700}
 .blsb .blsb-wc-main .blsb-gather{margin:2px 0 6px}
+
+/* ---------- comments Daniel-only until opened (Coach 11/4) ---------- */
+/* the calm note a board member sees in place of a discussion list */
+.blsb .blsb-quiet-note{font-size:15px;line-height:1.5;color:var(--b-navy);padding:12px 14px;border-radius:12px;background:var(--b-bg);border:1px solid var(--b-line)}
+/* "Show this to the board" under Daniel's text box; the note under Daniel Grande's (member mode) */
+.blsb .blsb-toboard{margin-top:8px}
+.blsb .blsb-dan-line{margin-top:8px}
+/* Daniel's own posts in his view: a tappable badge, Daniel only (grey) or Board can see (green) */
+.blsb .blsb-tbtn{display:inline-flex;align-items:center;min-height:28px;padding:3px 10px;border-radius:999px;border:1.5px solid var(--b-line);background:#fff;color:var(--b-muted);
+  font:700 12.5px/1.2 var(--b-font);white-space:nowrap}
+.blsb .blsb-tbtn::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:6px;opacity:.8}
+.blsb .blsb-tbtn.blsb-tbtn-on{border-color:var(--b-green);background:var(--b-green-bg);color:var(--b-green)}
+/* the "change" tail that makes the pill read as a button on a phone (no hover there) */
+.blsb .blsb-tbtn-s{margin-left:7px;padding-left:7px;border-left:1px solid currentColor;font-weight:600;font-size:11px;text-decoration:underline;text-underline-offset:2px;opacity:.9}
+/* who reads the note under Approve this page */
+.blsb .blsb-appr-hint{margin:6px 0 0}
+/* the admin switch at the top of the Inbox: Comments on the board, Daniel only or Everyone */
+.blsb .blsb-setting-wrap{margin-bottom:12px}
+.blsb .blsb-setting{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px;border-radius:12px;background:var(--b-bg)}
+.blsb .blsb-setting-l{font:800 14px/1.2 var(--b-font);color:var(--b-navy)}
+.blsb .blsb-setting-sw{display:inline-flex;gap:6px}
+.blsb .blsb-setting-s{flex:1 1 100%}
+.blsb .blsb-mode-line{flex:1 1 100%}
+@media (hover:hover){
+  .blsb .blsb-tbtn:hover{border-color:var(--b-navy);color:var(--b-navy)}
+}
+
+.blsb .blsb-req-g{font:800 12px/1.2 var(--b-font);letter-spacing:.06em;text-transform:uppercase;color:var(--b-muted);margin:10px 0 2px}
+.blsb .blsb-req-g:first-of-type{margin-top:2px}

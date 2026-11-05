@@ -20,6 +20,15 @@ const ok = (c, m, extra) => {
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const near = (a, b, tol = TOL) => typeof a === "number" && Math.abs(a - b) <= tol;
+// Polls fn until it returns something truthy (or the time is up) and returns that last value.
+async function until(fn, ms = 40000, step = 1500) {
+  const t0 = Date.now();
+  for (;;) {
+    const v = await fn();
+    if (v || Date.now() - t0 > ms) return v;
+    await sleep(step);
+  }
+}
 
 function serviceKey() {
   if (process.env.SUPABASE_SERVICE_ROLE_KEY) return process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -33,10 +42,10 @@ function serviceKey() {
 const SK = serviceKey();
 if (!SK) { console.error("No service role key: set SUPABASE_SERVICE_ROLE_KEY or log in to the supabase CLI."); process.exit(2); }
 
-async function rest(path, { method = "GET", body } = {}) {
+async function rest(path, { method = "GET", body, prefer = "return=representation" } = {}) {
   const r = await fetch(REST + path, {
     method,
-    headers: { apikey: SK, Authorization: `Bearer ${SK}`, "content-type": "application/json", Prefer: "return=representation" },
+    headers: { apikey: SK, Authorization: `Bearer ${SK}`, "content-type": "application/json", Prefer: prefer },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const text = await r.text();
@@ -66,6 +75,9 @@ if (!PIN || !CRON) { console.error("admin_pin or cron_key missing from bls_board
 // Wrong-PIN lockout counter (settings row pin_fail). The run makes 3 wrong-PIN calls on purpose and one simulated
 // lockout, then clears the counter so Daniel is never locked out by a test run.
 const resetPinFails = () => rest(`/bls_board_settings?key=eq.pin_fail`, { method: "PATCH", body: { value: "" } });
+// Comments stay Daniel-only (comments_public false) until Coach opens them. The run flips the setting on purpose and
+// this puts it back, even when a check in between failed. Upsert, so a missing row is created rather than skipped.
+const commentsDanielOnly = () => rest("/bls_board_settings", { method: "POST", body: { key: "comments_public", value: "false" }, prefer: "resolution=merge-duplicates,return=representation" });
 
 async function cleanup() {
   await resetPinFails();
@@ -393,7 +405,8 @@ try {
     ok(ap.s === 200 && ap.j.item.kind === "private", "a reply posted under a private message is private whatever kind was sent");
     const pub2 = await publicState(true);
     ok(!pub2.text.includes(M1), "private reply not in public state");
-    const zp = pub2.j.pages.find((x) => x.slug === SLUG);
+    // Daniel's counts (members get no comment counts while comments are Daniel-only)
+    const zp = (await adminState()).pages.find((x) => x.slug === SLUG);
     ok(zp.counts.comment >= 1 && !JSON.stringify(zp.counts).includes("private"), "counts ignore private items");
   }
 
@@ -402,12 +415,14 @@ try {
     const c = await post({ kind: "comment", body: "ZZTEST hide me", name: "ZZTEST Hide" });
     const rep = await api("admin_reply", { body: { parent_id: c.j.item.id, body: "Thanks" }, pin: PIN });
     ok(rep.s === 200 && rep.j.item.author_name === "Daniel (Website)" && rep.j.item.is_admin === true && rep.j.item.parent_id === c.j.item.id, "admin_reply labeled Daniel (Website)");
-    let pub = await publicState(true);
-    ok(pub.j.items.some((i) => i.id === rep.j.item.id), "admin reply visible publicly");
+    // visibility is checked in Daniel's state here: comments are Daniel-only by default, and the block below covers
+    // what members see once comments are open
+    ok((await adminState()).items.some((i) => i.id === rep.j.item.id), "admin reply is in Daniel's state");
     const h = await api("admin_hide", { body: { id: c.j.item.id }, pin: PIN });
     ok(h.s === 200 && h.j.item.hidden === true, "admin_hide hides an item");
-    pub = await publicState(true);
-    ok(!pub.j.items.some((i) => i.id === c.j.item.id) && !pub.j.items.some((i) => i.id === rep.j.item.id), "hidden item and its replies leave public state");
+    let pub = await publicState(true);
+    const adm = await adminState();
+    ok(!adm.items.some((i) => i.id === c.j.item.id) && !adm.items.some((i) => i.id === rep.j.item.id), "hidden item and its replies leave the state (Daniel's too)");
     ok(!pub.j.events.some((e) => e.detail.includes("ZZTEST Hide")), "hidden item's event is not in the public feed");
     ok(!(await activity()).some((e) => e.detail.includes("ZZTEST Hide")), "hidden item's event leaves Daniel's activity list too");
     ok((await api("admin_hide", { body: { id: "00000000-0000-0000-0000-000000000000" }, pin: PIN })).s === 404, "hide unknown id is 404");
@@ -419,7 +434,154 @@ try {
     ok((await api("admin_reply", { body: { parent_id: c2.j.item.id, body: "  " }, pin: PIN })).s === 400, "empty admin reply is 400");
     ok((await api("admin_reply", { body: { parent_id: c.j.item.id, body: "late" }, pin: PIN })).s === 404, "reply to a hidden item is 404");
     const un = await api("admin_hide", { body: { id: c.j.item.id, hidden: false }, pin: PIN });
-    ok(un.s === 200 && un.j.item.hidden === false && (await publicState(true)).j.items.some((i) => i.id === c.j.item.id), "admin_hide with hidden false brings an item back");
+    ok(un.s === 200 && un.j.item.hidden === false && (await adminState()).items.some((i) => i.id === c.j.item.id), "admin_hide with hidden false brings an item back");
+  }
+
+  // ---------- comments Daniel-only until opened; Daniel's own posts stay off the board unless marked (Coach 11/4) ----------
+  // Comments are opened to everyone for a few seconds here (the only way to test open mode) and put back right after.
+  {
+    const setComments = (value) => api("admin_setting", { body: { key: "comments_public", value }, pin: PIN });
+    // Settings are cached for up to 30 seconds per function instance, so right after a flip one instance can still
+    // answer in the old mode. Every public read here waits for an answer in the mode under test (the flag and the
+    // item filter always agree within one answer).
+    const untilPublic = (want) => until(async () => { const r = await publicState(true); return r.j.comments_public === want ? r : null; });
+    const hiddenState = () => untilPublic(false);
+    const openState = () => untilPublic(true);
+    const evBefore = (await rest("/bls_board_events?select=id&order=id.desc&limit=1"))[0]?.id || 0;
+    const made = [];
+    try {
+      // validation
+      ok((await api("admin_setting", { body: { key: "comments_public", value: "true" } })).s === 401, "admin_setting needs the admin PIN");
+      ok((await api("admin_setting", { body: { key: "admin_pin", value: "1234" }, pin: PIN })).s === 400, "admin_setting refuses any key but comments_public");
+      ok((await api("admin_setting", { body: { key: "comments_public", value: "yes" }, pin: PIN })).s === 400, "admin_setting refuses a value that is not true or false");
+      ok((await api("admin_setting", { body: { key: "comments_public", value: "" }, pin: PIN })).s === 400, "admin_setting refuses an empty value");
+      ok((await api("admin_to_board", { body: { id: "x", to_board: true } })).s === 401, "admin_to_board needs the admin PIN");
+      ok((await api("admin_to_board", { body: { id: "00000000-0000-0000-0000-000000000000", to_board: true }, pin: PIN })).s === 404, "admin_to_board on an unknown item is 404");
+      ok((await api("admin_to_board", { body: { to_board: true }, pin: PIN })).s === 404, "admin_to_board with no id is 404");
+
+      // Daniel-only (the current default): members' notes reach only Daniel, approvals still show
+      let r = await setComments("false");
+      ok(r.s === 200 && r.j.ok === true && r.j.key === "comments_public" && r.j.value === "false", "admin_setting sets comments_public false", r.j);
+      let pub = await untilPublic(false);
+      ok(pub && pub.j.comments_public === false, "public state says comments_public false");
+      ok((await adminState()).comments_public === false, "admin state carries comments_public too");
+      const c = await post({ kind: "comment", body: "ZZTEST hidden comment", name: "ZZTEST Quiet" });
+      const sg = await post({ kind: "suggestion", body: "ZZTEST hidden suggestion", name: "ZZTEST Quiet" });
+      const cn = await post({ kind: "concern", body: "ZZTEST hidden concern", name: "ZZTEST Quiet" });
+      const hp = await post({ kind: "help", body: "ZZTEST hidden help", name: "ZZTEST Quiet" });
+      ok([c, sg, cn, hp].every((x) => x.s === 200) && c.j.item.to_board === false, "members can still post while comments are Daniel-only (to_board false)", [c.s, sg.s, cn.s, hp.s]);
+      made.push(c.j.item.id, sg.j.item.id, cn.j.item.id, hp.j.item.id);
+      const ap = await api("approve", { body: { slug: SLUG, name: "ZZTEST Quiet" } });
+      ok(ap.s === 200 && ap.j.approved === true && ap.j.item, "approve still works while comments are Daniel-only");
+      made.push(ap.j.item.id);
+      // a member's own post or approve answer goes through the same filter as state (no counts or notes leak back)
+      ok([c, sg, cn, hp].every((x) => x.j.page && ["comment", "suggestion", "concern", "help", "open"].every((k) => x.j.page.counts[k] === 0)), "Daniel-only: a member's own post answer carries no feedback counts", [c, sg, cn, hp].map((x) => x.j.page && x.j.page.counts));
+      ok(ap.j.page && ap.j.page.counts.comment === 0 && ap.j.page.counts.approve >= 1 && ap.j.page.approvers.includes("ZZTEST Quiet"), "Daniel-only: a member's own approve answer has approvals only", ap.j.page);
+      pub = await hiddenState();
+      const ids = new Set(pub.j.items.map((i) => i.id));
+      ok(![c, sg, cn, hp].some((x) => ids.has(x.j.item.id)), "Daniel-only: the ZZTEST comment, suggestion, concern and help offer are not in public state");
+      ok(pub.j.items.every((i) => i.kind === "approve"), "Daniel-only: public items are approvals only", [...new Set(pub.j.items.map((i) => i.kind))]);
+      ok(ids.has(ap.j.item.id), "Daniel-only: the approval is in public state");
+      ok(!pub.text.includes("ZZTEST hidden"), "Daniel-only: hidden text never reaches public state");
+      ok(pub.j.items.filter((i) => i.kind === "approve").every((i) => i.body === "") && !pub.text.includes("Looks good"), "Daniel-only: approval notes stay off public state");
+      let zp = pub.j.pages.find((x) => x.slug === SLUG);
+      ok(zp.counts.comment === 0 && zp.counts.suggestion === 0 && zp.counts.concern === 0 && zp.counts.help === 0 && zp.counts.open === 0 && zp.approvers.includes("ZZTEST Quiet"), "Daniel-only: public counts show no feedback, approvers still listed", zp.counts);
+      const adm = await adminState();
+      const aids = new Set(adm.items.map((i) => i.id));
+      ok([c, sg, cn, hp].every((x) => aids.has(x.j.item.id)), "Daniel-only: Daniel's state has the ZZTEST comment, suggestion, concern and help offer");
+      ok(adm.items.every((i) => typeof i.to_board === "boolean"), "every item carries to_board");
+      zp = adm.pages.find((x) => x.slug === SLUG);
+      ok(zp.counts.comment >= 1 && zp.counts.suggestion >= 1 && zp.counts.concern >= 1 && zp.counts.help >= 1, "Daniel-only: Daniel's counts include the hidden items", zp.counts);
+
+      // Daniel's own posts: off the board unless marked, whatever the setting
+      const d0 = await post({ kind: "comment", body: "ZZTEST Daniel private note", name: "ignored" }, PIN);
+      const d1 = await post({ kind: "comment", body: "ZZTEST Daniel board note", name: "ignored", to_board: true }, PIN);
+      const dm = await post({ kind: "comment", body: "ZZTEST note typed as Daniel Grande", name: "Daniel Grande" });
+      const fake = await post({ kind: "comment", body: "ZZTEST member sends to_board", name: "ZZTEST Quiet", to_board: true });
+      ok(d0.s === 200 && d0.j.item.to_board === false && d1.s === 200 && d1.j.item.to_board === true, "admin post stores to_board (false unless sent as true)", [d0.j, d1.j]);
+      ok(dm.s === 200 && dm.j.item.is_admin === false && dm.j.item.author_name === "Daniel Grande" && dm.j.item.to_board === false, "a post typed under the name Daniel Grande is a plain member post");
+      ok(fake.s === 200 && fake.j.item.to_board === false, "to_board from a member is ignored");
+      made.push(d0.j.item.id, d1.j.item.id, dm.j.item.id, fake.j.item.id);
+      const dr0 = await api("admin_reply", { body: { parent_id: c.j.item.id, body: "ZZTEST Daniel quiet reply" }, pin: PIN });
+      const dr1 = await api("admin_reply", { body: { parent_id: c.j.item.id, body: "ZZTEST Daniel board reply", to_board: true }, pin: PIN });
+      ok(dr0.s === 200 && dr0.j.item.to_board === false && dr1.s === 200 && dr1.j.item.to_board === true, "admin_reply stores to_board", [dr0.j, dr1.j]);
+      made.push(dr0.j.item.id, dr1.j.item.id);
+      pub = await hiddenState();
+      ok(![d0, d1, dm, dr0, dr1].some((x) => pub.j.items.some((i) => i.id === x.j.item.id)), "Daniel-only: none of Daniel's posts reach public state, marked or not");
+      // Daniel on the name picker can approve like any member: the approval shows (approvers are public), his note does not
+      const da = await api("approve", { body: { slug: SLUG, name: "Daniel Grande", note: "ZZTEST Daniel approval note" } });
+      ok(da.s === 200 && da.j.approved === true && da.j.item, "a Daniel Grande member approval is accepted", da.j);
+      made.push(da.j.item.id);
+      pub = await hiddenState();
+      zp = pub.j.pages.find((x) => x.slug === SLUG);
+      ok(pub.j.items.some((i) => i.id === da.j.item.id && i.body === "") && zp.approvers.includes("Daniel Grande") && !pub.text.includes("ZZTEST Daniel approval note"), "Daniel-only: his approval is in public state with its note blanked", zp.approvers);
+
+      // open comments to everyone
+      r = await setComments("true");
+      ok(r.s === 200 && r.j.value === "true", "admin_setting sets comments_public true", r.j);
+      pub = await untilPublic(true);
+      ok(pub && pub.j.comments_public === true, "public state says comments_public true");
+      const pids = new Set(pub.j.items.map((i) => i.id));
+      ok([c, sg, cn, hp, fake].every((x) => pids.has(x.j.item.id)), "open: members' posts are in public state");
+      ok(!pids.has(d0.j.item.id) && pids.has(d1.j.item.id), "open: Daniel's unmarked post stays hidden, the marked one shows");
+      ok(!pids.has(dm.j.item.id), "open: a post typed as Daniel Grande stays hidden (not marked for the board)");
+      ok(!pids.has(dr0.j.item.id) && pids.has(dr1.j.item.id), "open: Daniel's unmarked reply stays hidden, the marked reply shows");
+      ok(!pub.text.includes("ZZTEST Daniel private note") && !pub.text.includes("typed as Daniel Grande") && !pub.text.includes("Daniel quiet reply"), "open: Daniel's unmarked text never reaches public state");
+      zp = pub.j.pages.find((x) => x.slug === SLUG);
+      ok(zp.counts.comment >= 2 && zp.counts.concern >= 1 && zp.counts.open >= 1, "open: public counts include members' feedback", zp.counts);
+      ok(pub.j.items.some((i) => i.kind === "approve" && i.body === "Looks good"), "open: a member's approval note shows");
+      ok(pub.j.items.some((i) => i.id === da.j.item.id && i.body === "") && !pub.text.includes("ZZTEST Daniel approval note"), "open: Daniel Grande's approval shows, its note stays blank until marked");
+      // a member's own post answer leaves Daniel's unmarked posts out of its counts (an instance still on the old cached
+      // setting answers with no counts at all, never with Daniel's)
+      const probe = await post({ kind: "comment", body: "ZZTEST open probe", name: "ZZTEST Quiet" });
+      ok(probe.s === 200 && probe.j.page, "open: a member post answers with its page");
+      made.push(probe.j.item.id);
+      const adm2 = await adminState();
+      const ac = adm2.pages.find((x) => x.slug === SLUG).counts.comment;
+      const danielUnmarked = adm2.items.filter((i) => i.slug === SLUG && i.kind === "comment" && !i.parent_id && (i.is_admin || i.author_name === "Daniel Grande") && !i.to_board).length;
+      const pc = probe.j.page.counts.comment;
+      ok(danielUnmarked >= 2 && pc !== ac && (pc === 0 || pc === ac - danielUnmarked), "open: a member's own post answer counts leave out Daniel's unmarked posts", [pc, ac, danielUnmarked]);
+      // Daniel's note with an answer is his text: members get the status word only
+      const rn = await resolve(c.j.item.id, "resolved", "ZZTEST resolution note");
+      pub = await openState();
+      const cPub = pub.j.items.find((i) => i.id === c.j.item.id);
+      ok(rn.s === 200 && rn.j.item.resolution_note === "ZZTEST resolution note" && cPub && cPub.status === "resolved" && cPub.resolution_note === null && !pub.text.includes("ZZTEST resolution note"), "open: a resolution note reaches Daniel but not the board", cPub);
+      ok((await adminState()).items.some((i) => i.id === c.j.item.id && i.resolution_note === "ZZTEST resolution note"), "Daniel's state keeps the resolution note");
+
+      // admin_to_board flips one post
+      let t = await api("admin_to_board", { body: { id: d0.j.item.id, to_board: true }, pin: PIN });
+      ok(t.s === 200 && t.j.ok === true && t.j.item && t.j.item.id === d0.j.item.id && t.j.item.to_board === true, "admin_to_board true returns the item marked", t.j);
+      pub = await openState();
+      ok(pub && pub.j.items.some((i) => i.id === d0.j.item.id), "a post marked for the board shows in public state", pub && pub.j.items.filter((i) => /ZZTEST Daniel/.test(i.body)).map((i) => [i.body, i.to_board]));
+      t = await api("admin_to_board", { body: { id: d0.j.item.id, to_board: false }, pin: PIN });
+      pub = await openState();
+      ok(t.s === 200 && t.j.item.to_board === false && pub && !pub.j.items.some((i) => i.id === d0.j.item.id), "admin_to_board false takes it off the board again");
+      t = await api("admin_to_board", { body: { id: dm.j.item.id, to_board: true }, pin: PIN });
+      pub = await openState();
+      ok(t.s === 200 && t.j.item.to_board === true && pub && pub.j.items.some((i) => i.id === dm.j.item.id), "a Daniel Grande member post can be marked for the board too");
+      t = await api("admin_to_board", { body: { id: d1.j.item.id, to_board: "yes" }, pin: PIN });
+      ok(t.s === 200 && t.j.item.to_board === false, "admin_to_board treats anything but true as false");
+      t = await api("admin_to_board", { body: { id: da.j.item.id, to_board: true }, pin: PIN });
+      pub = await openState();
+      ok(t.s === 200 && pub.j.items.some((i) => i.id === da.j.item.id && i.body === "ZZTEST Daniel approval note"), "open: a marked Daniel Grande approval shows its note");
+      const da2 = await api("approve", { body: { slug: SLUG, name: "Daniel Grande" } });
+      ok(da2.s === 200 && da2.j.approved === false && da2.j.page && !da2.j.page.approvers.includes("Daniel Grande"), "a second Approve as Daniel Grande removes it (the first stayed put)", da2.j);
+
+      // round trip back to Daniel-only, with the admin-only event
+      r = await setComments("false");
+      ok(r.s === 200 && r.j.value === "false", "admin_setting sets comments_public back to false");
+      pub = await untilPublic(false);
+      ok(pub && pub.j.comments_public === false && pub.j.items.every((i) => i.kind === "approve"), "back to Daniel-only: public items are approvals only");
+      const act = await activity();
+      ok(act.some((e) => e.kind === "state_changed" && /Comments opened to everyone/.test(e.detail)) && act.some((e) => e.kind === "state_changed" && /Daniel only/.test(e.detail)), "the setting changes are in Daniel's activity list");
+      ok(!(await publicState(false)).j.events.some((e) => e.kind === "state_changed"), "the setting changes are not in the public feed");
+    } finally {
+      // comments stay Daniel-only until Coach opens them, whatever happened above
+      await commentsDanielOnly();
+      for (const id of made.slice().reverse()) await rest(`/bls_board_items?id=eq.${id}`, { method: "DELETE" });
+      // the setting events this block wrote (slug null, Daniel's activity only)
+      await rest(`/bls_board_events?kind=eq.state_changed&slug=is.null&id=gt.${evBefore}&or=(detail.eq."Comments opened to everyone on the board.",detail.eq."Comments set to Daniel only.")`, { method: "DELETE" });
+    }
   }
 
   // ---------- admin_page validation ----------
@@ -608,9 +770,12 @@ try {
   console.log("FAIL unexpected error:", e && e.message);
 } finally {
   try {
+    await commentsDanielOnly();
     await cleanup();
     const n = await leftovers();
     ok(n === 0, "all test rows cleaned up", n);
+    const cp = await rest("/bls_board_settings?select=value&key=eq.comments_public");
+    ok(cp.length === 1 && cp[0].value === "false", "comments_public is back to false", cp);
   } catch (e) {
     fail++;
     console.log("FAIL cleanup error:", e && e.message);

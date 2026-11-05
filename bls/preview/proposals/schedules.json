@@ -112,9 +112,9 @@
   "When PlayMetrics opens to BLS: compare its standings (tiebreaks, point adjustments, interlock) with GameChanger's before moving anything."
  ],
  "required": [
-  "Board: a home for scores and standings (GameChanger is the recommendation)",
-  "Board: approval to replace Posted Schedules, Scores and Standings",
-  "Scheduler: one GameChanger league per division",
-  "Scheduler: a test that a league link opens without a GameChanger account"
+  "Board decision: where scores and standings live. Daniel recommends GameChanger, one league per division.",
+  "Board decision: replace Posted Schedules, View Scores and View Standings with this page.",
+  "Daniel: create one GameChanger league per division.",
+  "Daniel: test that a league link opens without a GameChanger account."
  ]
 }

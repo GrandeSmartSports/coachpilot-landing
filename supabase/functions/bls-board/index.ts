@@ -457,12 +457,21 @@ async function applyTimer(p: Page, timer: string): Promise<Page> {
 
 // ---------- public shapes ----------
 const isDaniel = (i: Item) => !!i.is_admin || String(i.author_name || "").trim().toLowerCase() === "daniel grande";
-const publicItem = (i: Item) => ({
+// resolution_note is Daniel's own text with no to_board switch, so members get the status word only (Coach 11/4).
+const publicItem = (i: Item, admin = false) => ({
   id: i.id, slug: i.slug, kind: i.kind, body: i.body, author_name: i.author_name, author_role: i.author_role,
   is_admin: i.is_admin, parent_id: i.parent_id, variant: i.variant, pin_x: i.pin_x, pin_y: i.pin_y, pin_w: i.pin_w,
-  req_item: i.req_item, status: i.status, resolution_note: i.resolution_note, created_at: i.created_at, resolved_at: i.resolved_at,
+  req_item: i.req_item, status: i.status, resolution_note: admin ? i.resolution_note : null, created_at: i.created_at, resolved_at: i.resolved_at,
   to_board: !!i.to_board,
 });
+// What a reader may see (one rule for state, counts and approvers). Members: approvals only until Daniel opens comments
+// (Coach 11/4), and never one of Daniel's own posts unless he marked it for the board. Approvals are exempt from the
+// Daniel rule so his own Approve toggle keeps working when he picks his name as a member (approvers are public by
+// contract; the note on his approval is blanked in buildState).
+function visibleTo(items: Item[], admin: boolean, commentsPublic: boolean): Item[] {
+  if (admin) return items;
+  return items.filter((i) => i.kind === "approve" || (commentsPublic && !(isDaniel(i) && !i.to_board)));
+}
 
 // Counts are top-level items only (replies are part of their thread), never private or hidden ones.
 function publicPage(p: Page, all: Item[] = [], now = Date.now()) {
@@ -482,11 +491,13 @@ function publicPage(p: Page, all: Item[] = [], now = Date.now()) {
   };
 }
 
-async function pageWithCounts(slug: string): Promise<ReturnType<typeof publicPage> | null> {
+// The page as the caller may see it: counts and approvers go through the same filter as state.
+async function pageWithCounts(slug: string, admin: boolean): Promise<ReturnType<typeof publicPage> | null> {
   const p = await getPage(slug);
   if (!p) return null;
   const { data } = await db.from("bls_board_items").select(ITEM_COLS).eq("slug", slug).eq("hidden", false).neq("kind", "private").is("parent_id", null);
-  return publicPage(p, (data || []) as Item[]);
+  const commentsPublic = admin ? true : (await settings()).comments_public === "true";
+  return publicPage(p, visibleTo((data || []) as Item[], admin, commentsPublic));
 }
 
 async function buildState(admin: boolean, includeTest: boolean) {
@@ -510,13 +521,17 @@ async function buildState(admin: boolean, includeTest: boolean) {
   const visibleIds = new Set(items.map((i) => i.id));
   items = items.filter((i) => !i.parent_id || visibleIds.has(i.parent_id));
   // Comments, suggestions, concerns and help offers stay between the writer and Daniel until he opens the discussion
-  // (Coach 11/4). Approvals stay so each person's own Approve toggle keeps working.
-  const commentsPublic = (await settings()).comments_public === "true";
-  if (!admin && !commentsPublic) items = items.filter((i) => i.kind === "approve");
-  // Daniel's own notes are written for the website work, not for the board: members see one only when he marks it to_board.
-  if (!admin) items = items.filter((i) => !(isDaniel(i) && !i.to_board));
+  // (Coach 11/4), and Daniel's own notes stay off the board unless marked: see visibleTo. Daniel's own state reads the
+  // setting fresh, so the Inbox switch never snaps back to a cached value right after he flips it.
+  const commentsPublic = (await settings(admin)).comments_public === "true";
+  items = visibleTo(items, admin, commentsPublic);
   const pages = ((pagesR.data || []) as Page[]).filter((p) => includeTest || !isTestSlug(p.slug)).map((p) => publicPage(p, items, now));
-  const listed = items.filter((i) => admin || i.kind !== "private").slice(0, 500).map(publicItem);
+  const listed = items.filter((i) => admin || i.kind !== "private").slice(0, 500).map((i) => {
+    const o = publicItem(i, admin);
+    // An approval's note is text too: members read it only once comments are open, and never Daniel's unless marked.
+    if (!admin && i.kind === "approve" && (!commentsPublic || (isDaniel(i) && !i.to_board))) o.body = "";
+    return o;
+  });
   // A ZZTEST page update (test runs post them board-wide) only shows with test=1.
   const evOk = (e: Ev) => testOk(e.slug, e.actor) && (includeTest || e.kind !== "page_update" || !isTestName(e.detail));
   const events = ((eventsR.data || []) as Ev[]).filter((e) => PUBLIC_EVENTS.includes(e.kind) && evOk(e)).slice(0, 20);
@@ -587,20 +602,20 @@ async function toggleApproval(req: Request, b: Record<string, unknown>, mode: "t
     .eq("slug", slug).eq("kind", "approve").eq("hidden", false);
   if (error) throw error;
   const mine = ((rows || []) as Item[]).find((i) => nameKey(i.author_name) === nameKey(name));
-  if (mine && mode === "on") return { ok: true, approved: true, item: publicItem(mine), page: await pageWithCounts(slug) };
+  if (mine && mode === "on") return { ok: true, approved: true, item: publicItem(mine, admin), page: await pageWithCounts(slug, admin) };
   if (!admin && !isTestSlug(slug) && rateLimited(ipOf(req))) throw new HttpError(429, "Too many posts from here. Please try again in a bit.");
   if (mine) {
     await db.from("bls_board_items").delete().eq("id", mine.id);
-    return { ok: true, approved: false, page: await pageWithCounts(slug) };
+    return { ok: true, approved: false, page: await pageWithCounts(slug, admin) };
   }
   const { data: ins, error: insErr } = await db.from("bls_board_items")
     .insert({ slug, kind: "approve", body: note, author_name: name, author_role: role, is_admin: admin }).select(ITEM_COLS).single();
   if (insErr) {
-    if ((insErr as { code?: string }).code === "23505") return { ok: true, approved: true, page: await pageWithCounts(slug) };
+    if ((insErr as { code?: string }).code === "23505") return { ok: true, approved: true, page: await pageWithCounts(slug, admin) };
     throw insErr;
   }
   await event(slug, "approved", `${name} approved ${page.title}.`, name, (ins as Item).id);
-  return { ok: true, approved: true, item: publicItem(ins as Item), page: await pageWithCounts(slug) };
+  return { ok: true, approved: true, item: publicItem(ins as Item, admin), page: await pageWithCounts(slug, admin) };
 }
 
 async function postItem(req: Request, b: Record<string, unknown>) {
@@ -688,7 +703,7 @@ async function postItem(req: Request, b: Record<string, unknown>) {
     if (emailed) await db.from("bls_board_items").update({ emailed_at: isoNow() }).eq("id", item.id);
   }
 
-  return { ok: true, item: publicItem(item), page: slug ? await pageWithCounts(slug) : null, emailed };
+  return { ok: true, item: publicItem(item, admin), page: slug ? await pageWithCounts(slug, admin) : null, emailed };
 }
 
 // ---------- admin ----------
@@ -785,7 +800,7 @@ async function adminPage(b: Record<string, unknown>) {
   if (state && (state !== p.state || state === "review") && !timerDoesIt) p = await setState(p, state, ADMIN_NAME, extra);
   else if (Object.keys(extra).length) p = await updatePage(p.slug, extra);
   if (timer) p = await applyTimer(p, timer);
-  return { ok: true, page: await pageWithCounts(p.slug) };
+  return { ok: true, page: await pageWithCounts(p.slug, true) };
 }
 
 async function adminResolve(b: Record<string, unknown>) {
@@ -815,7 +830,7 @@ async function adminResolve(b: Record<string, unknown>) {
       page = await setState(page, "building", ADMIN_NAME, {}, "Daniel is making a change.");
     }
   }
-  return { ok: true, item: publicItem(upd as Item), page: page ? await pageWithCounts(page.slug) : null };
+  return { ok: true, item: publicItem(upd as Item, true), page: page ? await pageWithCounts(page.slug, true) : null };
 }
 
 // Resumes an On hold page's Board review with at least 24 hours when no other concern is open. Conditional writes, so
@@ -857,7 +872,7 @@ async function adminReply(b: Record<string, unknown>) {
     const page = parent.slug ? await getPage(parent.slug) : null;
     await event(parent.slug, "replied", `Daniel replied on ${pageLabel(page)}.`, ADMIN_NAME, (data as Item).id);
   }
-  return { ok: true, item: publicItem(data as Item) };
+  return { ok: true, item: publicItem(data as Item, true) };
 }
 
 // A page update: one short line in plain words about a real change to a page (or board-wide when slug is null).
@@ -893,7 +908,7 @@ async function adminHide(b: Record<string, unknown>) {
     if ((error as { code?: string }).code === "23505") throw new HttpError(409, "That person already has an approval on this page.");
     throw error;
   }
-  return { ok: true, item: { ...publicItem(data as Item), hidden: (data as Item).hidden } };
+  return { ok: true, item: { ...publicItem(data as Item, true), hidden: (data as Item).hidden } };
 }
 
 async function listPhases() {
@@ -1107,7 +1122,7 @@ Deno.serve(async (req) => {
         if (!it) return json({ ok: false, error: "Could not find that post." }, 404);
         const { data: upd, error: e2 } = await db.from("bls_board_items").update({ to_board: b.to_board === true }).eq("id", it.id).select(ITEM_COLS).single();
         if (e2) throw e2;
-        return json({ ok: true, item: publicItem(upd as Item) });
+        return json({ ok: true, item: publicItem(upd as Item, true) });
       }
       case "admin_setting": {
         await requireAdmin(req); postOnly();
