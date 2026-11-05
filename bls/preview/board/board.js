@@ -751,7 +751,7 @@
     var emIn = h('input', { class: 'blsb-in blsb-email', type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'you@example.com', 'aria-label': 'Email for a reply' });
     var emMsg = h('span', { class: 'blsb-muted blsb-small' });
     var emSave = h('button', { type: 'button', class: 'blsb-mini', text: 'Save' });
-    var emRow = h('div', { class: 'blsb-email-row' }, [h('span', { class: 'blsb-small', text: 'Want an email when it is handled? Optional.' }), h('div', { class: 'blsb-comp-row' }, [emIn, emSave]), emMsg]);
+    var emRow = h('div', { class: 'blsb-email-row' }, [h('span', { class: 'blsb-small', text: 'Want an email too when it is handled? Optional, and only you see the address.' }), h('div', { class: 'blsb-comp-row' }, [emIn, emSave]), emMsg]);
     emSave.addEventListener('click', function () {
       var v = emIn.value.trim(); if (!v) { emIn.focus(); return; }
       emSave.disabled = true;
@@ -761,7 +761,7 @@
       }, function (e) { emSave.disabled = false; emMsg.textContent = errText(e); });
     });
     var thanks = h('div', { class: 'blsb-thanks', role: 'status', hidden: true }, [
-      h('p', { text: 'Thanks for the feedback. Keep an eye out for updates.' }), h('p', { class: 'blsb-thanks-sig', text: 'Daniel' }),
+      h('p', { text: 'Thanks for the feedback. My answer will show up right here under Your notes when you open the board as you.' }), h('p', { class: 'blsb-thanks-sig', text: 'Daniel' }),
       emRow,
       h('p', { class: 'blsb-thanks-more' }, [h('button', { type: 'button', class: 'blsb-linkbtn', text: 'Send another', onclick: function () { c.thanks = false; c.refresh(); c.focus(); } })])
     ]);
