@@ -15,5 +15,6 @@
  "fields":      {"title":"Fields","new":true,"template":"faq"},
  "umpires":     {"title":"Umpires","new":true,"template":"faq"},
  "runbook":     {"title":"Coach Run Book","new":true,"template":"faq","today_file":"modules/runbook-today.html"},
- "schedules":   {"title":"Schedules & Scores","new":true,"template":"faq","today_file":"modules/schedules-today.html"}
+ "schedules":   {"title":"Schedules & Scores","new":true,"template":"faq","today_file":"modules/schedules-today.html"},
+ "leagueage":   {"title":"League Age","new":true,"template":"faq"}
 }

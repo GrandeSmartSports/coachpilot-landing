@@ -1,0 +1,55 @@
+{
+ "modules": {
+  "823340": {
+   "file": "modules/leagueage.html",
+   "title": "League Age"
+  }
+ },
+ "page_title": "League Age",
+ "status": "Ready after 2 items",
+ "summary": "New page: pick baseball or softball, find your child's birth date, see the league age and division. Why: this used to send parents off to littleleague.org and they got lost.",
+ "blurb": "A new page that turns a birth date into a league age and a BLS division, without leaving the site.",
+ "sources": [
+  {
+   "fact": "\"The Age Determination Date for a Little League Baseball player is the actual age of a child on August 31 of the current year.\" For 2027 that is Aug 31, 2027.",
+   "url": "https://www.littleleague.org/play-little-league/determine-league-age/",
+   "date": "2026-11-04"
+  },
+  {
+   "fact": "\"The Age Determination Date for a Little League Softball player is the actual age of a child on December 31 of the previous year.\" For 2027 that is Dec 31, 2026. The page covers league ages 4 through 16.",
+   "url": "https://www.littleleague.org/play-little-league/determine-league-age/",
+   "date": "2026-11-04"
+  },
+  {
+   "fact": "Baseball divisions by league age (Tee Ball 4-6, Coach Pitch 6-7, AA 8-9, Minors 9-11, Majors 11-12, 50/70 12-13, Juniors 13-14): the live FAQ #7 and the Registration page chart.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=776471",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "Softball divisions by league age (Co-Ed T-Ball 4-6, Minors B 6-8, Minors A 8-11, Majors 11-12, Juniors 13-14): the Registration page chart, matching the posted Fall Ball age guidelines.",
+   "url": "https://www.blslittleleague.org/Default.aspx?tabid=1462645",
+   "date": "2026-11-02"
+  },
+  {
+   "fact": "Challenger Division is adaptive baseball for players with physical and intellectual challenges, ages 4 to 18 (up to 22 if still in school); questions to vpchallenger@blslittleleague.org.",
+   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02rHnMMqTumwkFCobsUTSwCgxyG3CPXUiPZQce6yFn84mdBJJ9EnZ95eoEuMBsdmvLl",
+   "date": "2026-02-23"
+  },
+  {
+   "fact": "BLS serves the Bonney Lake, Sumner and Orting communities (Instagram profile bio).",
+   "url": "/Users/danielgrande/Workspace/ops/bls-website/social/instagram-meta.json",
+   "date": "2026-11-02"
+  }
+ ],
+ "later": [
+  "VP of Baseball (Jeremy Olsen): league ages 15 and 16 show their birth dates but no BLS division (the chart tops out at Juniors 13 to 14); confirm whether Juniors takes 15-year-olds (a Mar 2026 post said 13 to 15) so the rows can name it.",
+  "VP of Softball (Luke Kress): confirm the spring 2027 softball division names and league ages on this page (Minors B, Minors A, Majors, Juniors), and whether softball AA runs in spring.",
+  "Website (Daniel Grande): this page needs its own Sports Connect page under Registration in the menu; Registration and the FAQ already link to it.",
+  "President (Ramey Harguess): boundary questions go to president@ from this page (the Little League League Finder button came off 11/4 under the no-outside-links rule); a boundary map on our own site would answer them without an email."
+ ],
+ "required": [
+  "Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.",
+  "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."
+ ],
+ "long_summary": "New page: a Baseball/Softball switch, then a birth-date table for league ages 4 to 16 (baseball = age on Aug 31, 2027; softball = age on Dec 31, 2026) with the BLS division beside each age, the division chips from the Registration page, the Challenger contact, the towns BLS serves with the President's email for boundary questions, and a Registration button. No outside links. Replaces every League Age Calculator link that sent parents off the site."
+}

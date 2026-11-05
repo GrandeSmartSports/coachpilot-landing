@@ -22,9 +22,8 @@
 .blsc .cc-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
 .blsc .cc-hero h1 em{font-style:normal;display:block;position:relative;width:max-content;max-width:100%;}
 .blsc .cc-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blsc .cc-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:28em;}
-.blsc .cc-ask{margin-top:18px !important;font-size:15px;color:#b8c6ea;}
-.blsc .cc-ask a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);overflow-wrap:anywhere;}
+.blsc .cc-foot{font-size:15px;color:#4b5675;padding:0 6px;}
+.blsc .cc-foot a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
 
 /* clipboard with the coach guide */
 .blsc .cc-board{align-self:center;justify-self:center;width:100%;max-width:340px;padding:44px 34px 44px 6px;}
@@ -36,7 +35,6 @@
   background-image:linear-gradient(90deg,transparent 22px,rgba(205,22,63,.45) 22px 24px,transparent 24px),repeating-linear-gradient(180deg,transparent 0 31px,#e3e9f3 31px 32px);}
 .blsc .cc-k{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:8px;}
 .blsc .cc-paper h2{font-size:44px;line-height:.92;color:#00013a !important;}
-.blsc .cc-paper p{margin-top:12px !important;font-size:15px;line-height:1.5;color:#4b5675;}
 .blsc .cc-paper .cc-btn{margin-top:18px;}
 
 /* ---------- buttons and links ---------- */
@@ -55,39 +53,18 @@
 .blsc .cc-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
 .blsc .cc-intro{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:36em;}
 
-/* ---------- clearance steps (basepath) ---------- */
-.blsc .cc-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
-.blsc .cc-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
-.blsc .cc-step{position:relative;display:flex;flex-direction:column;}
-.blsc .cc-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:22px;}
-.blsc .cc-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
-.blsc .cc-base i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;}
-.blsc .cc-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:24px;}
-.blsc .cc-card h3{font-size:30px;color:#00013a !important;margin-bottom:10px !important;}
-.blsc .cc-card p{font-size:15px;line-height:1.55;color:#4b5675;}
-.blsc .cc-cut{margin-top:16px;width:100%;}
-.blsc .cc-cut span{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:#4b5675;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;}
-.blsc .cc-cut b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#00013a;}
-.blsc .cc-hot .cc-base::before{background:#cd163f;}
-.blsc .cc-hot .cc-card{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
-.blsc .cc-hot .cc-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsc .cc-hot .cc-card h3{color:#fff !important;}
-.blsc .cc-hot .cc-card p{color:#dbe2f4;}
-.blsc .cc-hot .cc-btn{margin-top:auto;background:#fff;color:#00013a !important;}
-.blsc .cc-hot .cc-card p + .cc-btn{margin-top:20px;}
-.blsc .cc-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
-.blsc .cc-home svg{width:44px;height:48px;flex:none;}
-.blsc .cc-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;}
-.blsc .cc-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
-.blsc .cc-plan{margin-top:22px;display:flex;align-items:center;gap:16px;background:#eef2f6;border-radius:14px;padding:16px 20px;color:#00013a !important;transition:background .2s;}
-.blsc .cc-plan:hover{background:#e3e9f2;}
-.blsc .cc-plan > svg:first-child{width:40px;height:40px;flex:none;}
+/* ---------- get cleared and safety: two big rows ---------- */
+.blsc .cc-plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px !important;}
+.blsc .cc-plan{display:flex;align-items:center;gap:16px;background:#fff;border-radius:14px;padding:18px 20px;color:#00013a !important;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);transition:transform .2s,box-shadow .2s;}
+.blsc .cc-plan:hover{transform:translateY(-3px);box-shadow:0 1px 0 var(--line),0 20px 40px rgba(0,1,58,.14);}
+.blsc .cc-plan > svg:first-child{width:44px;height:44px;flex:none;}
 .blsc .cc-plan span{flex:1;font-size:15px;line-height:1.4;color:#4b5675;}
-.blsc .cc-plan b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1.1;text-transform:uppercase;color:#00013a;}
+.blsc .cc-plan b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:24px;line-height:1.1;text-transform:uppercase;color:#00013a;}
 .blsc .cc-plan .cc-go{color:#cd163f;}
-.blsc .cc-gear,.blsc .cc-gear:hover{background:#fff;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);}
-.blsc .cc-gear{align-items:flex-start;}
-.blsc .cc-gear > svg:first-child{margin-top:2px;}
+.blsc .cc-plan.cc-main{background:#00013a;}
+.blsc .cc-plan.cc-main b{color:#fff;}
+.blsc .cc-plan.cc-main span{color:#b8c6ea;}
+.blsc .cc-plan.cc-main .cc-go{color:#fff;}
 
 /* ---------- schedules and standings tiles ---------- */
 .blsc .cc-tiles{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:28px !important;}
@@ -119,27 +96,19 @@
 .blsc .cc-doc strong{display:block;font-size:16px;font-weight:600;line-height:1.3;color:#00013a;margin-bottom:2px;}
 .blsc .cc-doc .cc-go{color:#cd163f;}
 .blsc .cc-doc:hover strong{color:#1452a0;}
-
-/* ---------- field layouts ---------- */
-.blsc .cc-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:28px !important;}
-.blsc .cc-fc{display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
-.blsc .cc-fc:hover{transform:translateY(-3px);box-shadow:0 1px 0 var(--line),0 20px 40px rgba(0,1,58,.14);}
-.blsc .cc-fa{position:relative;aspect-ratio:4/3;overflow:hidden;}
-.blsc .cc-fa svg{position:absolute;inset:0;width:100%;height:100%;}
-.blsc .cc-fa h3{position:absolute;left:16px;bottom:12px;font-size:30px;color:#fff !important;text-shadow:0 2px 14px rgba(0,0,30,.5);}
-.blsc .cc-fa i{position:absolute;right:12px;top:12px;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.12em;text-transform:uppercase;background:#fff;color:#00013a;border-radius:6px;padding:2px 8px;}
-.blsc .cc-fb{flex:1;display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px 18px;}
-.blsc .cc-fb p{font-size:15px;line-height:1.45;color:#4b5675;}
-.blsc .cc-fb .cc-link{padding-top:12px;font-size:15px;}
-
-/* ---------- tablet and phone: base path runs down the left, so the home plate never sits on base 3 ---------- */
-@media (max-width:991px){
-  .blsc .cc-path{grid-template-columns:1fr;gap:18px;padding-left:58px;}
-  .blsc .cc-path::before{left:22px;right:auto;top:24px;bottom:46px;border-top:0;border-left:3px dashed #c3ccdc;}
-  .blsc .cc-base{position:absolute;left:-58px;top:14px;margin:0;}
-  .blsc .cc-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
-  .blsc .cc-home span{text-align:left !important;background:none;padding:0;}
-}
+/* the one outside hop on this page: the Rulebook app, labeled as such */
+.blsc .cc-out{margin-top:14px;padding:16px;border:0;border-radius:12px;background:#00013a;}
+.blsc .cc-out .cc-tag{background:#cd163f;}
+.blsc .cc-out strong{color:#fff;}
+.blsc .cc-out > span:not(.cc-tag){color:#b8c6ea;}
+.blsc .cc-out .cc-go{color:#fff;}
+.blsc .cc-out:hover strong{color:#ffb8c6;}
+.blsc .cc-ext{display:block;margin-top:6px;font-style:normal;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ffb8c6;}
+.blsc .cc-out{flex-wrap:wrap;row-gap:10px;}
+.blsc .cc-stores{flex:0 0 100%;display:flex;flex-wrap:wrap;gap:8px;padding-left:58px;}
+.blsc .cc-store{display:inline-flex;align-items:center;gap:8px;background:#fff;color:#00013a !important;font-weight:700;font-size:13px;line-height:1.2;white-space:nowrap;padding:9px 14px 9px 10px;border-radius:9px;transition:transform .15s,box-shadow .15s;}
+.blsc .cc-store svg{width:16px;height:16px;flex:none;color:#cd163f;}
+.blsc .cc-store:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -147,20 +116,18 @@
   .blsc .cc-hero{grid-template-columns:1fr;min-height:0;border-radius:14px;}
   .blsc .cc-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.85) 50%,rgba(0,1,58,.45) 100%);}
   .blsc .cc-art{height:auto;top:auto;bottom:0;aspect-ratio:3/4;}
-  .blsc .cc-copy{padding:26px 20px 6px;}
-  .blsc .cc-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsc .cc-copy{padding:22px 20px 0;}
+  .blsc .cc-ribbon{margin-bottom:18px;padding-right:30px;}
   .blsc .cc-ribbon b{font-size:18px;}
-  .blsc .cc-hero h1{font-size:58px;}
+  .blsc .cc-hero h1{font-size:54px;}
   .blsc .cc-hero h1 small{font-size:.5em;}
-  .blsc .cc-lede{margin-top:24px !important;font-size:16px;}
-  .blsc .cc-board{max-width:none;padding:34px 22px 30px;}
+  .blsc .cc-board{max-width:none;padding:26px 22px 24px;}
   .blsc .cc-clip{transform:rotate(1.4deg);}
+  .blsc .cc-paper{padding:30px 18px 18px 32px;}
   .blsc .cc-paper h2{font-size:40px;}
   .blsc .cc-sec{padding:28px 18px;border-radius:14px;}
   .blsc .cc-sec h2{font-size:36px;}
-  .blsc .cc-path{margin-top:24px !important;}
-  .blsc .cc-card{padding:20px;}
-  .blsc .cc-card h3{font-size:28px;}
+  .blsc .cc-plans{grid-template-columns:1fr;gap:12px;margin-top:22px !important;}
   .blsc .cc-plan{padding:14px 16px;gap:12px;}
   .blsc .cc-tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px !important;}
   .blsc .cc-tile{padding:16px 14px 14px;}
@@ -172,12 +139,9 @@
   .blsc .cc-tile b{font-size:23px;}
   .blsc .cc-cols{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
   .blsc .cc-panel{padding:18px 16px 6px;}
-  .blsc .cc-fields{grid-template-columns:1fr;gap:12px;margin-top:22px !important;}
-  .blsc .cc-fc{flex-direction:row;min-height:118px;}
-  .blsc .cc-fa{flex:none;width:124px;aspect-ratio:auto;}
-  .blsc .cc-fa h3{font-size:22px;left:10px;bottom:8px;}
-  .blsc .cc-fa i{left:10px;right:auto;top:10px;font-size:12px;}
-  .blsc .cc-fb{padding:14px 16px;}
+  .blsc .cc-out{padding:14px;}
+  .blsc .cc-stores{padding-left:0;}
+  .blsc .cc-store{flex:1 1 140px;justify-content:center;}
 }
 @media (prefers-reduced-motion:reduce){.blsc *{transition:none !important;}}
 </style>
@@ -212,63 +176,20 @@
         <div><span>BLS</span><b>Coaches Corner</b></div>
       </div>
       <h1><small>Welcome, BLS coaches</small>Everything <em>you need.</em></h1>
-      <p class="cc-lede">Schedules, rules, safety training, field layouts and the BLS coach guide for Bonney Lake Sumner Little League, all in one place.</p>
-      <p class="cc-ask">Coaching questions? Email <a href="mailto:coaching@blslittleleague.org">coaching@blslittleleague.org</a></p>
     </div>
     <div class="cc-board">
-      <!-- GO-LIVE: this link points at the Coach Run Book preview page. Before pasting into Sports Connect, replace the href with the real Coach Run Book page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
+      <!-- GO-LIVE: links to go.blslittleleague.org/bls/preview/proposed/runbook.html point at the Coach Run Book preview page. Before pasting into Sports Connect, replace that address (keep any #anchor) with the real Coach Run Book page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
       <a class="cc-clip" href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html">
         <div class="cc-paper">
           <span class="cc-k">Coach guide</span>
           <h2>Coach Run Book</h2>
-          <p>The BLS guide to coaching a season, from getting cleared to Opening Day. Updated for Spring 2027.</p>
           <span class="cc-btn">Open the guide <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9M8 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
       </a>
     </div>
   </section>
 
-  <section class="cc-sec cc-white">
-    <header><span class="cc-eyebrow">Safety and training</span><h2>Before you take the&nbsp;field</h2></header>
-    <p class="cc-intro">Every BLS manager, coach and volunteer completes these three steps.</p>
-    <ol class="cc-path">
-      <li class="cc-step">
-        <span class="cc-base"><i>1</i></span>
-        <div class="cc-card">
-          <h3>Register as a volunteer</h3>
-          <p>In your BLS account, when you register your player or on its own.</p>
-          <a class="cc-link" href="/Default.aspx?tabid=716842">Volunteer page <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </li>
-      <li class="cc-step">
-        <span class="cc-base"><i>2</i></span>
-        <div class="cc-card">
-          <h3>Background check</h3>
-          <p>After you sign up, JDP emails you the background check. Complete it every year.</p>
-          <div class="cc-cut"><span><b>Resets yearly</b>October 1</span></div>
-        </div>
-      </li>
-      <li class="cc-step cc-hot">
-        <span class="cc-base"><i>3</i></span>
-        <div class="cc-card">
-          <h3>Abuse Awareness Training</h3>
-          <p>Through Little League, every year. Sign in with the email you volunteered with. No certificate to send.</p>
-          <a class="cc-btn" href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" target="_blank" rel="noopener">Start the training <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </li>
-      <li class="cc-home" aria-label="Then you are cleared to coach for spring 2027">
-        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
-        <span><b>Then: cleared</b>Ready for spring 2027</span>
-      </li>
-    </ol>
-    <a class="cc-plan" href="/Default.aspx?tabid=776469">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3l14 5v10c0 9.5-6 16-14 19C12 34 6 27.5 6 18V8z" fill="#00013a"/><path d="M13.5 20l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span><b>2025 Safety Plan</b>The league safety plan for BLS teams and fields.</span>
-      <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </a>
-  </section>
-
-  <section class="cc-sec cc-gray">
+  <section class="cc-sec cc-gray" id="schedules">
     <header><span class="cc-eyebrow">Schedules and standings</span><h2>Your season at a&nbsp;glance</h2></header>
     <div class="cc-tiles">
       <a class="cc-tile cc-main" href="/Default.aspx?tabid=719255">
@@ -302,17 +223,13 @@
         <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
-    <div class="cc-plan cc-gear">
-      <svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="13" width="32" height="21" rx="5" fill="#00013a"/><path d="M14 13v-3a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v3" fill="none" stroke="#00013a" stroke-width="3"/><path d="M4 21h32" stroke="#cd163f" stroke-width="3"/><rect x="17" y="18" width="6" height="6" rx="1.5" fill="#fff"/></svg>
-      <span><b>Team gear bags</b>Each team gets a gear bag for the season. When it ends, return it to the Daffodil Shed with the gear cleaned and the keys on the zipper. Pickup and return days are announced each season.</span>
-    </div>
   </section>
 
-  <section class="cc-sec cc-white">
+  <section class="cc-sec cc-white" id="rules">
     <header><span class="cc-eyebrow">Rules</span><h2>Know the&nbsp;rules</h2></header>
     <div class="cc-cols">
       <div class="cc-panel">
-        <header><h3>BLS and District 10</h3><small>Latest posted</small></header>
+        <header><h3>BLS and District 10</h3></header>
         <a class="cc-doc" href="/portals/50558/docs/local%20rules/2025%20blsll%20regular%20season%20local%20rules.pdf">
           <span class="cc-tag cc-pdf">PDF</span>
           <span><strong>Baseball League Rules</strong>2025 · BLS regular season local rules</span>
@@ -323,53 +240,49 @@
           <span><strong>Softball Rules</strong>2025 · District 10 interlock rules</span>
           <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <a class="cc-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf">
+        <a class="cc-doc" href="/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf">
           <span class="cc-tag cc-pdf">PDF</span>
           <span><strong>All-Star Selection Process</strong>2026 · How BLS picks All-Star teams</span>
           <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
       <div class="cc-panel">
-        <header><h3>Little League</h3><small>Official rules</small></header>
-        <a class="cc-doc" href="https://www.littleleague.org/playing-rules/rules-regulations-policies/" target="_blank" rel="noopener">
-          <span class="cc-tag">WEB</span>
-          <span><strong>Little League Rules</strong>Rules, regulations and policies</span>
-          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <header><h3>Little League</h3></header>
+        <!-- GO-LIVE: swap the preview address for the Coach Run Book page's tabid URL, keep #rules -->
+        <a class="cc-doc" href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#rules">
+          <span class="cc-tag">BLS</span>
+          <span><strong>Pitch counts and rest days</strong>By league age, in the Coach Run Book</span>
+          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
-        <a class="cc-doc" href="https://www.littleleague.org/playing-rules/little-league-rulebook-app/" target="_blank" rel="noopener">
+        <div class="cc-doc cc-out">
           <span class="cc-tag cc-app">APP</span>
-          <span><strong>Rulebook App</strong>The official rulebook on your phone</span>
-          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
-        <a class="cc-doc" href="https://www.littleleague.org/downloads/2026-rulebook-significant-changes/" target="_blank" rel="noopener">
-          <span class="cc-tag">WEB</span>
-          <span><strong>2026 Rulebook Changes</strong>Little League's list of significant changes</span>
-          <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </a>
+          <span><strong>Little League Rulebook app</strong>The official rules for every division, free for iPhone and Android</span>
+          <div class="cc-stores">
+            <a class="cc-store" href="https://apps.apple.com/us/app/little-league-rulebook/id1464594539" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><rect x="4" y="1.5" width="10" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 5.5v6M6.6 9.2L9 11.6l2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Opens the App Store</a>
+            <a class="cc-store" href="https://play.google.com/store/apps/details?id=com.littleleaguerulebook" target="_blank" rel="noopener"><svg viewBox="0 0 18 18" aria-hidden="true"><rect x="4" y="1.5" width="10" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 5.5v6M6.6 9.2L9 11.6l2.4-2.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Opens Google Play</a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <section class="cc-sec cc-gray">
-    <header><span class="cc-eyebrow">Field dimensions</span><h2>Field layouts by&nbsp;division</h2></header>
-    <div class="cc-fields">
-      <a class="cc-fc" href="https://www.littleleague.org/downloads/ll-baseball-field-layout/" target="_blank" rel="noopener">
-        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1452a0"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFb)"/><g><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".55" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L78 84A59 59 0 0 1 162 84Z" fill="#8a4c33" fill-opacity=".85"/><path d="M120 122L144 98L120 74L96 98Z" fill="#0f4a3e" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="4.5" fill="#8a4c33"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><h3>Baseball</h3></div>
-        <div class="cc-fb"><p>Majors, AA, Minors (player and coach pitch) and Tee Ball</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+    <header><span class="cc-eyebrow">Safety and training</span><h2>Before you take the&nbsp;field</h2></header>
+    <div class="cc-plans">
+      <!-- GO-LIVE: swap the preview address for the Coach Run Book page's tabid URL, keep #get-cleared -->
+      <a class="cc-plan cc-main" href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#get-cleared">
+        <svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3l15 5.5v11C37 30 30.5 37.5 22 41 13.5 37.5 7 30 7 19.5v-11z" fill="#cd163f"/><path d="M15.5 22l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><b>Get cleared for 2027</b>Sign-up, background check and training, every year.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
-      <a class="cc-fc" href="https://www.littleleague.org/downloads/jr-sl-baseball-field-layout/" target="_blank" rel="noopener">
-        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFj" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0a2a78"/><stop offset="1" stop-color="#00013a"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFj)"/><g transform="translate(120 126) scale(1.14) translate(-120 -126)"><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".55" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L78 84A59 59 0 0 1 162 84Z" fill="#8a4c33" fill-opacity=".85"/><path d="M120 122L144 98L120 74L96 98Z" fill="#0f4a3e" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="4.5" fill="#8a4c33"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><i>Juniors</i><h3>Baseball</h3></div>
-        <div class="cc-fb"><p>Junior Division</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-      </a>
-      <a class="cc-fc" href="https://www.littleleague.org/downloads/ll-softball-field-layout/" target="_blank" rel="noopener">
-        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cd163f"/><stop offset="1" stop-color="#7d0a24"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFs)"/><g><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".5" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L74 80A65 65 0 0 1 166 80Z" fill="#8a4c33"/><path d="M120 122L144 98L120 74L96 98Z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="8" fill="none" stroke="#fff" stroke-width="1.6"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><h3>Softball</h3></div>
-        <div class="cc-fb"><p>Majors, Minors A and Coach Pitch</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-      </a>
-      <a class="cc-fc" href="https://www.littleleague.org/downloads/field-layout-junior-senior-softball/" target="_blank" rel="noopener">
-        <div class="cc-fa"><svg viewBox="0 0 240 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="ccFt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a3102f"/><stop offset="1" stop-color="#4a0616"/></linearGradient></defs><rect width="240" height="180" fill="url(#ccFt)"/><g transform="translate(120 126) scale(1.14) translate(-120 -126)"><path d="M120 126L20 26A141 141 0 0 1 220 26Z" fill="#0f4a3e" fill-opacity=".5" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><path d="M120 126L74 80A65 65 0 0 1 166 80Z" fill="#8a4c33"/><path d="M120 122L144 98L120 74L96 98Z" fill="none" stroke="#fff" stroke-width="2"/><circle cx="120" cy="99" r="8" fill="none" stroke="#fff" stroke-width="1.6"/><g fill="#fff"><path d="M120 118l4 4-4 4-4-4z"/><path d="M144 94l4 4-4 4-4-4z"/><path d="M120 70l4 4-4 4-4-4z"/><path d="M96 94l4 4-4 4-4-4z"/></g></g></svg><i>Juniors</i><h3>Softball</h3></div>
-        <div class="cc-fb"><p>Junior Division</p><span class="cc-link">Field layout <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+      <a class="cc-plan" href="/Default.aspx?tabid=1270141">
+        <svg viewBox="0 0 44 44" aria-hidden="true"><rect x="4" y="4" width="36" height="36" rx="10" fill="#1452a0"/><path d="M18 11h8v7h7v8h-7v7h-8v-7h-7v-8h7z" fill="#fff"/></svg>
+        <span><b>Health &amp; Safety</b>Forms, handouts and how to report an injury.</span>
+        <svg class="cc-go" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
   </section>
+
+  <p class="cc-foot">Coaching questions? Email <a href="mailto:coaching@blslittleleague.org">coaching@blslittleleague.org</a></p>
 
 </div>

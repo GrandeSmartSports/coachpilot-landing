@@ -4,16 +4,16 @@
 .DnnModule:has(.blsx) > .dfContainer > .dfArea > h2.head{display:none !important;}
 .blsx{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin:0 0 6px;}
 .blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
-.blsx h1,.blsx h2,.blsx h3,.blsx p,.blsx figure,.blsx ul,.blsx li,.blsx section,.blsx header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx h1,.blsx h2,.blsx h3,.blsx p,.blsx figure,.blsx ul,.blsx ol,.blsx li,.blsx section,.blsx header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
 .blsx a{text-decoration:none !important;}
 .blsx svg{display:block;}
 
-/* ---------- hero: copy left, scoreboard right ---------- */
+/* ---------- hero: copy left, next-up ticket right ---------- */
 .blsx .bx-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
 .blsx .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
 .blsx .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.86) 28%,rgba(0,1,58,.3) 56%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
-.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);min-height:430px;}
+.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:400px;}
 .blsx .bx-copy{align-self:center;padding:44px 24px 44px 40px;}
 .blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
 .blsx .bx-ribbon svg{width:30px;height:30px;flex:none;}
@@ -27,36 +27,26 @@
 .blsx .bx-photo{position:relative;min-height:100%;}
 .blsx .bx-photo::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
 .blsx .bx-frame{position:absolute;inset:0;overflow:hidden;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);
-  display:flex;flex-direction:column;justify-content:center;gap:16px;padding:30px 30px 30px 78px;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:14px;padding:34px 34px 34px 84px;
   background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
-.blsx .fb-sb-top{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-.blsx .fb-sb-top b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:24px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#fff;}
-.blsx .fb-final{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:15px;letter-spacing:.2em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 10px 4px 13px;border-radius:6px;}
-.blsx .fb-cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-.blsx .fb-cell{background:#000127;border:1px solid #1b2670;border-radius:12px;padding:12px 10px 12px;text-align:center !important;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);
-  background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsx .fb-cell b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:76px;line-height:.95;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
-.blsx .fb-cell span{display:block;margin-top:4px;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#a9b8e3;}
-.blsx .fb-cell.fb-hl b{color:#ffd0da;text-shadow:0 0 22px rgba(255,90,130,.45);}
-.blsx .fb-dates{display:flex;align-items:center;justify-content:center;gap:10px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:20px;letter-spacing:.1em;text-transform:uppercase;color:#dbe2f4;}
-.blsx .fb-dates i{width:26px;height:2px;background:#cd163f;border-radius:2px;}
+.blsx .fb-next-k{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#ffb8c6;}
+.blsx .fb-date{display:flex;align-items:baseline;gap:12px;}
+.blsx .fb-date b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:96px;line-height:.9;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);white-space:nowrap;}
+.blsx .fb-date span{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase;color:#b8c6ea;}
+.blsx .fb-next-h{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:34px;line-height:1;text-transform:uppercase;color:#fff !important;text-wrap:balance;}
+.blsx .fb-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:16px;margin-top:8px;min-height:62px;padding:0 12px 0 22px;border-radius:14px;background:#fff;color:#00013a !important;font-weight:700;font-size:18px;box-shadow:0 14px 30px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s;}
+.blsx .fb-cta b{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#cd163f;flex:none;transition:transform .15s;}
+.blsx .fb-cta b svg{width:18px;height:18px;color:#fff;}
+.blsx .fb-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(0,0,0,.35);}
+.blsx .fb-cta:hover b{transform:translateX(3px);}
 
 /* ---------- shared section heads ---------- */
 .blsx .bx-sec{padding:40px 44px 44px;border-radius:18px;}
 .blsx .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
 .blsx .bx-sec h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
-.blsx .bx-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;}
 .blsx .bx-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
 .blsx .bx-link svg{width:16px;height:16px;transition:transform .2s;}
 .blsx .bx-link:hover svg{transform:translateX(3px);}
-
-/* ---------- sponsors ---------- */
-.blsx .fb-thanks{background:#fff;border:1px solid #dde3ec;}
-.blsx .fb-plates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px !important;}
-.blsx .fb-plate{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:128px;padding:24px 16px 20px;border-radius:14px;background:#f5f7fb;border:1px solid #dde3ec;text-align:center !important;}
-.blsx .fb-plate::before{content:"";position:absolute;left:0;right:0;top:0;height:9px;background:linear-gradient(#00013a 0 4px,#fff 4px 5px,#cd163f 5px);}
-.blsx .fb-plate svg{width:22px;height:22px;flex:none;}
-.blsx .fb-plate b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a;text-wrap:balance;}
 
 /* ---------- how it works ---------- */
 .blsx .fb-how{background:#eef2f6;}
@@ -66,47 +56,20 @@
 .blsx .fb-ic svg{width:28px;height:28px;}
 .blsx .fb-card h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:29px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:10px !important;}
 .blsx .fb-card p{font-size:15px;line-height:1.6;color:#4b5675;}
-.blsx .fb-card p + p{margin-top:8px !important;}
-.blsx .fb-card .bx-link{margin-top:auto;padding-top:16px;}
+.blsx .fb-card .bx-link{margin-top:auto;padding-top:4px;}
+/* the season at a glance: three dates, one row */
+.blsx .fb-when{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px !important;}
+.blsx .fb-when li{display:flex;align-items:center;gap:12px;background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 1px 0 #dde3ec;}
+.blsx .fb-when b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:24px;line-height:1;text-transform:uppercase;color:#cd163f;white-space:nowrap;}
+.blsx .fb-when span{font-size:14px;line-height:1.3;color:#4b5675;}
 
-/* ---------- next up ---------- */
-.blsx .fb-next{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px 28px;flex-wrap:wrap;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px;
-  background-image:linear-gradient(115deg,rgba(20,82,160,.55) 0%,rgba(20,82,160,0) 60%);}
-.blsx .fb-next::after{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsx .fb-next > div{flex:1 1 360px;position:relative;z-index:1;}
-.blsx .fb-next .bx-eyebrow{color:#ffb8c6;}
-.blsx .fb-next h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:38px;line-height:1;text-transform:uppercase;color:#fff !important;}
-.blsx .fb-next p{margin-top:10px !important;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:15px;color:#dbe2f4;}
-.blsx .fb-next p b{white-space:nowrap;background:#cd163f;color:#fff;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;letter-spacing:.02em;text-transform:uppercase;padding:2px 10px;border-radius:6px;}
-.blsx .bx-btn{position:relative;z-index:1;display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:13px 20px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
-.blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
-.blsx .bx-btn svg{width:16px;height:16px;}
-
-/* ---------- hero: teams per fall ---------- */
-.blsx .fb-grow{margin-top:26px !important;max-width:300px;}
-.blsx .fb-grow-k{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#b8c6ea;margin-bottom:8px !important;}
-.blsx .fb-grow ul{display:grid;gap:6px;}
-.blsx .fb-grow li{display:grid;grid-template-columns:42px minmax(0,1fr) 30px;align-items:center;gap:10px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:17px;color:#dbe2f4;}
-.blsx .fb-grow li i{display:block;height:10px;width:var(--w);border-radius:5px;background:rgba(184,198,234,.45);}
-.blsx .fb-grow li b{font-weight:800;font-size:20px;color:#fff;text-align:right !important;}
-.blsx .fb-grow li.fb-now i{background:#cd163f;}
-
-/* ---------- fall 2026 timeline ---------- */
-.blsx .fb-time{background:#fff;border:1px solid #dde3ec;}
-.blsx .fb-time-lede{margin-top:10px !important;font-size:16px;line-height:1.55;color:#4b5675;max-width:40em;}
-.blsx .fb-steps{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 14px;margin-top:30px !important;}
-.blsx .fb-steps::before{content:"";position:absolute;left:8px;right:8px;top:43px;height:3px;border-radius:2px;background:linear-gradient(90deg,#00013a 0%,#1452a0 70%,#cd163f 100%);}
-.blsx .fb-steps li{position:relative;display:flex;flex-direction:column;}
-.blsx .fb-steps time{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:27px;line-height:1;text-transform:uppercase;color:#00013a;white-space:nowrap;}
-.blsx .fb-steps li::after{content:"";order:1;width:17px;height:17px;margin:9px 0 14px;border-radius:50%;background:#fff;border:4px solid #00013a;position:relative;z-index:1;}
-.blsx .fb-steps li.fb-end::after{border-color:#cd163f;}
-.blsx .fb-steps b{order:2;display:block;font-size:15px;font-weight:600;line-height:1.3;color:#00013a;}
-.blsx .fb-steps span{order:3;display:block;margin-top:4px;font-size:14px;line-height:1.45;color:#4b5675;}
-.blsx .fb-divs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:26px !important;padding-top:18px;border-top:1px solid #dde3ec;}
-.blsx .fb-divs-k{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#cd163f;}
-.blsx .fb-divs ul{display:flex;flex-wrap:wrap;gap:8px;}
-.blsx .fb-divs li{display:block;background:#f5f7fb;border:1px solid #dde3ec;border-radius:10px;padding:6px 12px;font-size:14px;color:#4b5675;}
-.blsx .fb-divs li b{font-weight:600;color:#00013a;margin-right:6px;}
+/* ---------- sponsors ---------- */
+.blsx .fb-thanks{background:#fff;border:1px solid #dde3ec;}
+.blsx .fb-plates{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px !important;}
+.blsx .fb-plate{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:128px;padding:24px 16px 20px;border-radius:14px;background:#f5f7fb;border:1px solid #dde3ec;text-align:center !important;}
+.blsx .fb-plate::before{content:"";position:absolute;left:0;right:0;top:0;height:9px;background:linear-gradient(#00013a 0 4px,#fff 4px 5px,#cd163f 5px);}
+.blsx .fb-plate svg{width:22px;height:22px;flex:none;}
+.blsx .fb-plate b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a;text-wrap:balance;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -117,38 +80,24 @@
   .blsx .bx-copy{padding:24px 20px 30px;}
   .blsx .bx-photo{order:-1;min-height:0;}
   .blsx .bx-photo::before{display:none;}
-  .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-bottom:5px solid #cd163f;padding:20px 16px 18px;gap:12px;}
-  .blsx .fb-sb-top b{font-size:21px;}
-  .blsx .fb-cells{gap:8px;}
-  .blsx .fb-cell b{font-size:58px;}
-  .blsx .fb-cell span{font-size:11px;letter-spacing:.14em;}
-  .blsx .fb-dates{font-size:18px;}
+  .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-bottom:5px solid #cd163f;padding:22px 18px 22px;gap:10px;align-items:stretch;}
+  .blsx .fb-date b{font-size:72px;}
+  .blsx .fb-date span{font-size:19px;}
+  .blsx .fb-next-h{font-size:28px;}
+  .blsx .fb-cta{width:100%;font-size:17px;min-height:58px;}
   .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
   .blsx .bx-hero h1{font-size:60px;}
   .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
   .blsx .bx-sec{padding:28px 18px 28px;border-radius:14px;}
   .blsx .bx-sec h2{font-size:36px;}
-  .blsx .fb-plates{grid-template-columns:1fr;gap:10px;margin-top:20px !important;}
-  .blsx .fb-plate{min-height:0;flex-direction:row;justify-content:flex-start;gap:12px;padding:19px 16px 15px;text-align:left !important;}
-  .blsx .fb-plate b{font-size:25px;}
   .blsx .fb-grid{grid-template-columns:1fr;gap:14px;margin-top:20px !important;}
   .blsx .fb-card{padding:20px 18px;}
   .blsx .fb-card h3{font-size:27px;}
-  .blsx .fb-grow{margin-top:22px !important;}
-  .blsx .fb-steps{grid-template-columns:minmax(0,1fr);gap:0;margin-top:22px !important;}
-  .blsx .fb-steps::before{display:none;}
-  .blsx .fb-steps li:not(:last-child)::before{content:"";position:absolute;left:7px;top:12px;bottom:-12px;width:3px;background:#00013a;}
-  .blsx .fb-steps li:nth-last-child(2)::before{background:linear-gradient(180deg,#1452a0,#cd163f);}
-  .blsx .fb-steps li{display:grid;grid-template-columns:17px 76px minmax(0,1fr);column-gap:12px;padding:0 0 16px;}
-  .blsx .fb-steps li:last-child{padding-bottom:0;}
-  .blsx .fb-steps li::after{grid-column:1;grid-row:1 / span 2;margin:3px 0 0;}
-  .blsx .fb-steps time{grid-column:2;grid-row:1;font-size:23px;}
-  .blsx .fb-steps b{grid-column:3;grid-row:1;padding-top:2px;}
-  .blsx .fb-steps span{grid-column:3;grid-row:2;}
-  .blsx .fb-divs{gap:10px;}
-  .blsx .fb-next{padding:26px 20px;border-radius:14px;}
-  .blsx .fb-next h2{font-size:32px;}
+  .blsx .fb-when{grid-template-columns:1fr;gap:8px;margin-top:14px !important;}
+  .blsx .fb-plates{grid-template-columns:1fr;gap:10px;margin-top:20px !important;}
+  .blsx .fb-plate{min-height:0;flex-direction:row;justify-content:flex-start;gap:12px;padding:19px 16px 15px;text-align:left !important;}
+  .blsx .fb-plate b{font-size:25px;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
@@ -169,41 +118,17 @@
           <div><span>BLS Little League</span><b>Season complete</b></div>
         </div>
         <h1><small>Fall Ball 2026</small>That's a <em>wrap.</em></h1>
-        <p class="bx-lede">Thank you to every player, family, coach and volunteer who made the season happen.</p>
-        <div class="fb-grow" role="img" aria-label="Fall Ball teams: 5 in 2024, 32 in 2025, 36 in 2026">
-          <p class="fb-grow-k">Fall Ball teams</p>
-          <ul>
-            <li><span>2024</span><i style="--w:14%"></i><b>5</b></li>
-            <li><span>2025</span><i style="--w:89%"></i><b>32</b></li>
-            <li class="fb-now"><span>2026</span><i style="--w:100%"></i><b>36</b></li>
-          </ul>
-        </div>
+        <p class="bx-lede">36 teams. Practices from early August, 194 games Sep 12 to Oct 31. Thank you to every player, family, coach and volunteer.</p>
       </div>
       <figure class="bx-photo">
-        <div class="bx-frame" role="group" aria-label="Fall Ball 2026 final numbers">
-          <div class="fb-sb-top"><b>By the numbers</b><span class="fb-final">Final</span></div>
-          <div class="fb-cells">
-            <div class="fb-cell"><b>36</b><span>Teams</span></div>
-            <div class="fb-cell"><b>8</b><span>Divisions</span></div>
-            <div class="fb-cell"><b>194</b><span>Games</span></div>
-            <div class="fb-cell fb-hl"><b>91</b><span>vs D10 leagues</span></div>
-          </div>
-          <p class="fb-dates"><i></i>Sep 12 to Oct 31<i></i></p>
+        <div class="bx-frame" role="group" aria-label="Next up: Spring 2027 registration opens Friday, November 27">
+          <p class="fb-next-k">Next up</p>
+          <p class="fb-date"><b>Nov 27</b><span>Friday</span></p>
+          <h2 class="fb-next-h">Spring 2027 registration opens</h2>
+          <a class="fb-cta" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <b><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></a>
         </div>
       </figure>
     </div>
-  </section>
-
-  <section class="bx-sec fb-thanks">
-    <header class="bx-head">
-      <div><span class="bx-eyebrow">Thank you</span><h2>Our Fall Ball sponsors</h2></div>
-      <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=1462080">Become a sponsor <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    </header>
-    <ul class="fb-plates">
-      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Molen Orthodontics</b></li>
-      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Great Northwest Dental</b></li>
-      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Northwest Cascade</b></li>
-    </ul>
   </section>
 
   <section class="bx-sec fb-how">
@@ -212,59 +137,38 @@
       <article class="fb-card">
         <span class="fb-ic"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 22h5v-5h5v-5h5V7h3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 7h6v6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <h3>A step toward spring</h3>
-        <p>Fall Ball is a developmental season, set up as a progression for next season. Register for the division your player expects to play in next spring.</p>
+        <p>A developmental season. Register for the division your player expects to play in next spring.</p>
       </article>
       <article class="fb-card">
         <span class="fb-ic"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M4 11.5h20M9.5 3.5v5M18.5 3.5v5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><rect x="16" y="16" width="4.5" height="4.5" rx="1" fill="#cd163f"/></svg></span>
         <h3>Weekday practice, Saturday games</h3>
-        <p>Practices start in August. Teams practice during the week and play their games on Saturdays.</p>
+        <p>Practices start in August. Games are on Saturdays.</p>
       </article>
       <article class="fb-card">
         <span class="fb-ic"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M9 21s5.5-5.6 5.5-9.6a5.5 5.5 0 0 0-11 0C3.5 15.4 9 21 9 21z" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="9" cy="11.4" r="1.9" fill="#fff"/><path d="M19.5 25s4.5-4.6 4.5-7.8a4.5 4.5 0 0 0-9 0c0 3.2 4.5 7.8 4.5 7.8z" fill="#cd163f"/><circle cx="19.5" cy="17.2" r="1.6" fill="#00013a"/></svg></span>
         <h3>Games vs nearby leagues</h3>
-        <p>BLS interlocks with other leagues, so some games are at home and some are at nearby leagues. Most kids really enjoy playing against other leagues.</p>
+        <p>Some games are at home and some are at nearby leagues.</p>
       </article>
       <article class="fb-card">
         <span class="fb-ic"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="6" y="5" width="16" height="20" rx="2.5" fill="none" stroke="#fff" stroke-width="2.2"/><rect x="10" y="3" width="8" height="4.5" rx="1.5" fill="#00013a" stroke="#fff" stroke-width="2"/><path d="M10 14.5l2.6 2.6 5.4-5.6" fill="none" stroke="#cd163f" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         <h3>Coaches and volunteers needed</h3>
-        <p>Fall Ball is a great way to try coaching. Volunteered in the spring? Your background check and Abuse Awareness training still count, so just choose the volunteer sign-up when you register your player.</p>
-        <p>First time volunteering this calendar year? Complete the background check after you register as a volunteer.</p>
         <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716842">Volunteer opportunities <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </article>
     </div>
-  </section>
-
-  <section class="bx-sec fb-time">
-    <header>
-      <span class="bx-eyebrow">Plan for next fall</span>
-      <h2>How Fall 2026 ran</h2>
-      <p class="fb-time-lede">Registration opened in July and closed in early August in both 2025 and 2026. Divisions can fill before the deadline, so register early.</p>
-    </header>
-    <ol class="fb-steps">
-      <li><time>Jul 10</time><b>Registration opens</b><span>Online, on the BLS website.</span></li>
-      <li><time>Aug 9</time><b>Registration closes</b><span>Limited fields meant some divisions could fill early and go to a waitlist.</span></li>
-      <li><time>Mid-Aug</time><b>Practices begin</b><span>Weekday practices with your team.</span></li>
-      <li><time>Sep 12</time><b>Games begin</b><span>Saturday games at home and at nearby leagues.</span></li>
-      <li><time>Oct 31</time><b>Final games</b><span>The last Saturday of the season.</span></li>
-      <li class="fb-end"><time>Nov 7</time><b>Gear return</b><span>Coaches return team gear to the Daffodil Shed, 10AM to 1PM.</span></li>
+    <ol class="fb-when" aria-label="Fall Ball season at a glance">
+      <li><b>July</b><span>Registration opens</span></li>
+      <li><b>Mid-Aug</b><span>Practices begin</span></li>
+      <li><b>Aug to Oct</b><span>Practices in August, Saturday games from Sep 12</span></li>
     </ol>
-    <div class="fb-divs">
-      <span class="fb-divs-k">8 divisions in 2026</span>
-      <ul>
-        <li><b>Tee Ball</b>Co-ed</li>
-        <li><b>Baseball</b>Coach Pitch, AA, Minors, Majors</li>
-        <li><b>Softball</b>Minors B (coach pitch), Minors A, Majors</li>
-      </ul>
-    </div>
   </section>
 
-  <section class="fb-next">
-    <div>
-      <span class="bx-eyebrow">Next up</span>
-      <h2>Spring 2027 registration opens Friday, Nov&nbsp;27</h2>
-      <p><b>$50 off</b> per family Nov 27 to 29, then <b>$25 off</b> through Dec 31</p>
-    </div>
-    <a class="bx-btn" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <section class="bx-sec fb-thanks">
+    <header><span class="bx-eyebrow">Thank you</span><h2>Our Fall Ball sponsors</h2></header>
+    <ul class="fb-plates">
+      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Molen Orthodontics</b></li>
+      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Great Northwest Dental</b></li>
+      <li class="fb-plate"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M11 1.5l2.8 6.1 6.7.7-5 4.5 1.4 6.6L11 16l-5.9 3.4 1.4-6.6-5-4.5 6.7-.7z" fill="#cd163f"/></svg><b>Northwest Cascade</b></li>
+    </ul>
   </section>
 
 </div>

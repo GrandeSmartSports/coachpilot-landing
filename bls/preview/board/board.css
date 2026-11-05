@@ -153,14 +153,12 @@ html.blsb-lock{overflow:hidden!important}
 .blsb .blsb-cd{font-weight:700;font-variant-numeric:tabular-nums}
 .blsb .blsb-note{margin-top:8px;padding:8px 12px;border-left:4px solid var(--b-blue);background:#eef4fc;border-radius:0 10px 10px 0;font-size:15px;line-height:1.45}
 
-/* approve */
+/* approve: members get one button, "Looks good to me" (pressed: "You said it looks good") */
 .blsb .blsb-appr{display:flex;flex-direction:column;gap:8px}
-.blsb .blsb-approve{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;width:100%;min-height:58px;padding:9px 14px;border-radius:14px;
+.blsb .blsb-approve{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:9px 14px;border-radius:14px;
   border:2px solid var(--b-green);background:#fff;color:var(--b-green)}
 .blsb .blsb-approve.blsb-on{background:var(--b-green);color:#fff}
 .blsb .blsb-approve-t{font:800 17px/1.15 var(--b-font)}
-.blsb .blsb-approve-s{font:500 13.5px/1.2 var(--b-font);opacity:.9}
-.blsb .blsb-appr-row{display:flex;justify-content:center}
 .blsb .blsb-appr-names{font-size:14.5px;line-height:1.4;color:var(--b-muted)}
 .blsb .blsb-appr-names b{color:var(--b-green)}
 
@@ -175,12 +173,6 @@ html.blsb-lock{overflow:hidden!important}
 
 /* ---------- composer ---------- */
 .blsb .blsb-comp{display:flex;flex-direction:column}
-.blsb .blsb-kinds{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
-.blsb .blsb-kind{min-height:44px;padding:9px 14px;border-radius:999px;border:1.5px solid var(--b-line);background:#fff;color:var(--b-navy);font:700 15px/1.1 var(--b-font)}
-.blsb .blsb-kind[aria-pressed="true"]{background:var(--b-navy);border-color:var(--b-navy);color:#fff}
-.blsb .blsb-kind.blsb-k-concern[aria-pressed="true"]{background:var(--b-red);border-color:var(--b-red)}
-.blsb .blsb-kind.blsb-k-suggestion[aria-pressed="true"]{background:var(--b-blue);border-color:var(--b-blue)}
-.blsb .blsb-kind.blsb-k-help[aria-pressed="true"]{background:#6b3fa0;border-color:#6b3fa0}
 .blsb .blsb-hint{font-size:14px;line-height:1.4;color:var(--b-muted);margin:0 0 8px}
 .blsb .blsb-ctx{display:flex;flex-direction:column;gap:6px;margin:0 0 8px}
 .blsb .blsb-ctx-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:8px 10px;border-radius:10px;background:var(--b-bg);font-size:14.5px;line-height:1.35}
@@ -189,6 +181,15 @@ html.blsb-lock{overflow:hidden!important}
 .blsb .blsb-comp-row{display:flex;gap:8px;margin-top:10px}
 .blsb .blsb-comp-row .blsb-btn{flex:1 1 0;min-width:0;padding-left:14px;padding-right:14px}
 .blsb .blsb-comp-row .blsb-btn.blsb-ghost{flex:0 0 auto;white-space:nowrap}
+/* members (Coach 11/4): the thank-you note that stands in for the box after a send, and the one small "Sending as"
+   line under the actions */
+.blsb .blsb-thanks{padding:14px 16px;border-radius:12px;background:var(--b-green-bg);color:var(--b-ink);font-size:16px;line-height:1.5}
+.blsb .blsb-thanks-sig{margin-top:4px;font-weight:700;color:var(--b-navy)}
+.blsb .blsb-thanks-more{margin-top:10px;font-size:14.5px}
+.blsb .blsb-thanks-more .blsb-linkbtn{padding:8px 0}
+#blsbRoot .blsb-sh-sending{margin:-4px 0 14px}
+#blsbRoot .blsb-sh-sending .blsb-who-line{font-size:13.5px;line-height:1.4;color:var(--b-muted)}
+#blsbRoot .blsb-sh-sending .blsb-linkbtn{font-size:13.5px;padding:8px 0}
 
 /* ---------- thread items ---------- */
 .blsb .blsb-thread{display:flex;flex-direction:column}
@@ -316,16 +317,18 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-panel>.blsb-sub{margin-top:4px}
 .blsb .blsb-who-slot{margin:10px 0 12px;padding:9px 12px;border-radius:10px;background:var(--b-bg)}
 .blsb .blsb-discp .blsb-comp{margin-bottom:6px}
-.blsb .blsb-msgp .blsb-comp{margin-top:8px}
-/* the More area (after the page grid): What's new, Board discussion, Message Daniel, How this works, Open questions */
+/* the More area (after the page grid): What's new, Send feedback (members) or Board discussion (Daniel), How this works,
+   Open questions */
 .blsb .blsb-icols{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start;margin-top:12px}
 @media (min-width:900px){
-  .blsb .blsb-icols{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-areas:"news disc" "msg disc" "q disc" "how how"}
+  .blsb .blsb-icols{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);grid-template-areas:"news disc" "q disc" "how how"}
   .blsb .blsb-icols>.blsb-newsp{grid-area:news}
   .blsb .blsb-icols>.blsb-discp{grid-area:disc}
-  .blsb .blsb-icols>.blsb-msgp{grid-area:msg}
   .blsb .blsb-icols>.blsb-qp{grid-area:q}
   .blsb .blsb-icols>.blsb-how{grid-area:how}
+  /* board members: no discussion panel, so What's new sits next to Send feedback */
+  .blsb .blsb-icols.blsb-icols-m{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);grid-template-areas:"news quick" "q q" "how how"}
+  .blsb .blsb-icols>.blsb-quick{grid-area:quick}
 }
 #blsbMore.blsb{max-width:1180px;margin:28px auto 0}
 .blsb .blsb-more-area>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;min-height:56px;padding:14px 48px 14px 16px;border-radius:14px;
@@ -393,7 +396,7 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-news-s{font-size:13.5px;line-height:1.35;color:var(--b-muted);margin-top:2px}
 .blsb .blsb-news-d{overflow-wrap:anywhere}
 .blsb .blsb-news-go{margin-left:8px;font-weight:700;color:var(--b-blue);text-decoration:underline;text-underline-offset:2px}
-/* phone shortcuts: board discussion and message Daniel open in a sheet */
+/* the one button that opens the board-wide sheet: Send feedback (members), Board discussion (Daniel, phones) */
 .blsb .blsb-quick-row{display:flex;flex-wrap:wrap;gap:8px}
 .blsb .blsb-quick-row .blsb-quick-b{flex:1 1 150px}
 .blsb .blsb-quick .blsb-small{margin-top:8px}
@@ -486,20 +489,6 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-q-did{font:600 14px/1.35 var(--b-font);color:var(--b-green)}
 .blsb .blsb-q-i .blsb-act{margin-top:5px}
 
-/* ---------- feedback sheet: soft reviewer line and the folded optional asks ---------- */
-.blsb .blsb-soft{font-size:15.5px;line-height:1.45;color:var(--b-navy);padding:9px 12px;border-radius:10px;background:var(--b-bg)}
-.blsb .blsb-askq{border-top:1px solid var(--b-line)}
-.blsb .blsb-askq>summary{display:flex;align-items:center;min-height:48px;padding-right:28px;font:700 15px/1.3 var(--b-font);color:var(--b-navy);cursor:pointer;list-style:none;position:relative}
-.blsb .blsb-askq>summary::-webkit-details-marker{display:none}
-.blsb .blsb-askq>summary::after{content:"+";position:absolute;right:2px;top:50%;transform:translateY(-50%);font:400 22px/1 var(--b-font);color:var(--b-muted)}
-.blsb .blsb-askq[open]>summary::after{content:"\2212"}
-.blsb .blsb-askq-b{padding:0 0 8px}
-.blsb .blsb-askq-l{display:flex;flex-direction:column;margin-top:4px}
-.blsb .blsb-askq-i{display:flex;flex-direction:column;align-items:flex-start;gap:5px;padding:9px 0;border-top:1px solid var(--b-line)}
-.blsb .blsb-askq-i:first-child{border-top:0}
-.blsb .blsb-askq-t{font-size:15.5px;line-height:1.4}
-.blsb .blsb-askq-did{font:600 14px/1.35 var(--b-font);color:var(--b-green)}
-
 /* ---------- "In board review now" and "Needs information" ---------- */
 .blsb .blsb-now{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
 @media (min-width:900px){
@@ -561,10 +550,6 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 /* "Near your role" on a grid card: a soft grey note, not an assignment */
 .blsb .blsb-mine-pill{display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#eef2f6;color:#4b5675;
   font:700 13px/1.1 var(--b-font);border:1px solid #d9dfea;white-space:nowrap}
-/* "Private? Only to Daniel" under the feedback box (board members) */
-.blsb .blsb-priv{margin-top:10px}
-.blsb .blsb-priv .blsb-linkbtn{padding:10px 0}
-
 /* ---------- admin: reviewers, asks, page updates ---------- */
 .blsb .blsb-subed{margin-top:12px;border-top:1px solid var(--b-line)}
 .blsb .blsb-subed>summary{display:flex;align-items:center;min-height:44px;font:800 14px/1.2 var(--b-font);color:var(--b-navy);cursor:pointer;list-style:none}
@@ -592,7 +577,6 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   #blsbRoot .blsb-x:hover{background:#dfe5ef}
   #blsbRoot .blsb-person:hover{border-color:var(--b-navy);background:#f7f9fc}
   .blsb .blsb-approve:not(.blsb-on):hover{background:var(--b-green-bg)}
-  .blsb .blsb-kind:hover{border-color:var(--b-navy)}
   #blsbBar .blsb-bar-stat:hover{background:rgba(255,255,255,.08)}
   #blsbBar .blsb-bar-fb:hover{background:#e9edf7}
   #blsbRoot .blsb-pin:hover{opacity:1;transform:scale(1.25)}
@@ -606,21 +590,13 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   .blsb .blsb-pill:hover{border-color:var(--b-navy)}
 }
 
-.blsb .blsb-req-soft{background:var(--b-bg);border:1px solid var(--b-line)}
-.blsb .blsb-req-soft .blsb-req-h{color:var(--b-navy)}
-.blsb .blsb-req-soft .blsb-req-i{border-top-color:var(--b-line)}
-.blsb .blsb-req-soft .blsb-small{margin-top:8px;display:block}
-
 .blsb .blsb-gather{margin:6px 0 0;font-size:14px;line-height:1.4;color:var(--b-muted)}
 .blsb .blsb-gather b{color:var(--b-navy);font-weight:700}
 .blsb .blsb-wc-main .blsb-gather{margin:2px 0 6px}
 
 /* ---------- comments Daniel-only until opened (Coach 11/4) ---------- */
-/* the calm note a board member sees in place of a discussion list */
-.blsb .blsb-quiet-note{font-size:15px;line-height:1.5;color:var(--b-navy);padding:12px 14px;border-radius:12px;background:var(--b-bg);border:1px solid var(--b-line)}
-/* "Show this to the board" under Daniel's text box; the note under Daniel Grande's (member mode) */
+/* "Show this to the board" under Daniel's text box */
 .blsb .blsb-toboard{margin-top:8px}
-.blsb .blsb-dan-line{margin-top:8px}
 /* Daniel's own posts in his view: a tappable badge, Daniel only (grey) or Board can see (green) */
 .blsb .blsb-tbtn{display:inline-flex;align-items:center;min-height:28px;padding:3px 10px;border-radius:999px;border:1.5px solid var(--b-line);background:#fff;color:var(--b-muted);
   font:700 12.5px/1.2 var(--b-font);white-space:nowrap}
@@ -628,8 +604,6 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
 .blsb .blsb-tbtn.blsb-tbtn-on{border-color:var(--b-green);background:var(--b-green-bg);color:var(--b-green)}
 /* the "change" tail that makes the pill read as a button on a phone (no hover there) */
 .blsb .blsb-tbtn-s{margin-left:7px;padding-left:7px;border-left:1px solid currentColor;font-weight:600;font-size:11px;text-decoration:underline;text-underline-offset:2px;opacity:.9}
-/* who reads the note under Approve this page */
-.blsb .blsb-appr-hint{margin:6px 0 0}
 /* the admin switch at the top of the Inbox: Comments on the board, Daniel only or Everyone */
 .blsb .blsb-setting-wrap{margin-bottom:12px}
 .blsb .blsb-setting{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 12px;border-radius:12px;background:var(--b-bg)}
@@ -641,5 +615,18 @@ html.blsb-bar #blsSwitch{margin-bottom:0!important}
   .blsb .blsb-tbtn:hover{border-color:var(--b-navy);color:var(--b-navy)}
 }
 
+.blsb .blsb-req-soft{background:var(--b-bg);border:1px solid var(--b-line)}
+.blsb .blsb-req-soft .blsb-req-h{color:var(--b-navy)}
+.blsb .blsb-req-soft .blsb-req-i{border-top-color:var(--b-line)}
+
 .blsb .blsb-req-g{font:800 12px/1.2 var(--b-font);letter-spacing:.06em;text-transform:uppercase;color:var(--b-muted);margin:10px 0 2px}
-.blsb .blsb-req-g:first-of-type{margin-top:2px}
+
+.blsb .blsb-wc + .blsb-quick, .blsb .blsb-quick{margin-top:12px}
+
+.blsb .blsb-bar-navs{display:inline-flex;gap:6px;align-items:center}
+.blsb .blsb-bar-nav{font:700 14px/1 var(--b-font);color:#fff;text-decoration:none;padding:8px 10px;border:1px solid rgba(255,255,255,.35);border-radius:999px;white-space:nowrap}
+.blsb .blsb-bar-nav-off{opacity:.3;border-color:transparent}
+@media (max-width:420px){.blsb .blsb-bar-nav{padding:8px 8px;font-size:13px}}
+
+.blsb .blsb-general{margin-top:18px}
+.blsb .blsb-general .blsb-panel-h{margin-bottom:10px}

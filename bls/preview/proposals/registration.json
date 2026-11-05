@@ -2,28 +2,30 @@
  "insert_before": [
   {
    "mid": "765766",
+   "new_mid": "97657661",
    "file": "modules/registration.html",
    "title": "Registration Info"
   }
  ],
- "status": "Ready to launch",
- "summary": "Registration hero with the Nov 27 opening and the discount windows (Black Friday $50 off, Early Bird $25 off, full price from Jan 1), three steps for new families, division chart and 2027 fees, each with a Baseball/Softball switch, Challenger card with its contact, Fall Ball 2026 scoreboard, then the sign-up list.",
- "blurb": "How to sign up for spring, with discount dates, steps for new families, and baseball and softball divisions and fees.",
+ "insert_after": [
+  {
+   "mid": "765766",
+   "new_mid": "97657662",
+   "file": "modules/registration-divisions.html",
+   "title": "Divisions and 2027 fees"
+  }
+ ],
+ "hide": [
+  "765766"
+ ],
+ "status": "Ready after 1 item",
+ "summary": "One big button at the top (set up your account now, Register from Nov 27), the discount windows, a link to check league age on our own page, and the fee table below. Why: a parent should see where to register in five seconds.",
+ "blurb": "When registration opens, one button to sign up, and the divisions and fees below it.",
  "sources": [
   {
    "fact": "Challenger Division is adaptive baseball for players with physical and intellectual challenges, ages 4 to 18 (up to 22 if still in school); questions to vpchallenger@blslittleleague.org.",
    "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02rHnMMqTumwkFCobsUTSwCgxyG3CPXUiPZQce6yFn84mdBJJ9EnZ95eoEuMBsdmvLl",
    "date": "2026-02-23"
-  },
-  {
-   "fact": "Fall Ball 2026 had 8 divisions: Tee Ball (co-ed); Baseball Coach Pitch, AA, Minors, Majors; Softball Minors B, Minors A, Majors.",
-   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid08PCm8UyyQvfzmjpiNvERQyE3GCUsAydAY19hRwdvrW5bLaqcvdd1DUYz2XeZ6qpAl",
-   "date": "2026-08-07"
-  },
-  {
-   "fact": "Fall Ball 2026 games ran Sep 12 through Oct 31.",
-   "url": "https://www.instagram.com/p/DanvXBCAQg6/",
-   "date": "2026-07-10"
   },
   {
    "fact": "Spring 2027 registration windows (board motion passed Nov 1): Black Friday sale Nov 27 to 29, $50 off per family; Early Bird Nov 30 to Dec 31, $25 off per family; full price from Jan 1, 2027. Minutes are up for board approval Dec 6.",
@@ -39,15 +41,26 @@
    "fact": "Coach 11/4: Tee Ball stays $90 for everyone (co-ed); softball is $10 less than baseball (Minors B $140, Minors A $285). Prices must not go public before the board announces them to families.",
    "url": "conversation 2026-11-04",
    "date": "2026-11-04"
+  },
+  {
+   "fact": "Baseball league age is the player's age on Aug 31, 2027; softball league age is the age on Dec 31, 2026 (Little League age determination rule).",
+   "url": "https://www.littleleague.org/play-little-league/determine-league-age/",
+   "date": "2026-11-04"
   }
  ],
  "later": [
+  "Website (Daniel Grande), Nov 27 checklist: (1) remove the hide on Sports Connect module 765766 so the sign-up list shows right under the card; (2) in modules/registration.html change the red 'Set up your account' button (chosen 11/4 over a dead date badge; until the 27th it opens the Sports Connect sign-in, Default.aspx?tabid=716844, the same hop as the shell's Register button) to <a class=\"bx-cta\" href=\"#765766\">Register</a> and the 'Registration opens' label to 'Registration is open'; (3) the Home card, Calendar card and FAQ button get the same 'Register' wording the same day; (4) once the President releases the amounts, add them back to the three windows on the card ($50 off per family Nov 27 to 29, $25 off per family Nov 30 to Dec 31, Nov 1 draft minutes, for approval Dec 6); until then the card shows dates only, like the Calendar.",
+  "President (Ramey Harguess): the 2027 fee table is on this page below the sign-up card; your own rule says prices stay private until the board announces them to families, so say the word if the table should wait until Nov 27.",
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): 2027 registration deadlines (in 2026 upper divisions closed Feb 1, lower divisions went to a waitlist Mar 1, Challenger closed Mar 1, and Juniors and 50/70 ran to Mar 10).",
-  "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the Softball tab of the division chart, and which fee each takes. The fee tab uses the board's names (Coach Pitch $140, Minors $285, Majors $285, Juniors $290) while the chart shows Minors B and Minors A; if softball AA runs in spring (the Nov 1 board added a Softball AA/Coach Pitch Player Agent), it needs a tile too.",
-  "VP of Baseball (Jeremy Olsen): is spring Minors league age 9 to 11 (this chart and the FAQ) or AAA 10 to 11 (Fall Ball page)?",
-  "VP of Baseball (Jeremy Olsen): will 50/70 and Juniors run in 2027, and is Juniors 13 to 14 (this chart) or 13 to 15 (a Mar 2026 post)?",
+  "VP of Softball (Luke Kress): spring 2027 softball division names and league ages for the League Age page and the fee tab (the fee tab uses the board's names, Coach Pitch $140, Minors $285, Majors $285, Juniors $290, while the League Age page shows Minors B and Minors A); if softball AA runs in spring (the Nov 1 board added a Softball AA/Coach Pitch Player Agent), it needs a fee tile too.",
+  "VP of Baseball (Jeremy Olsen): is spring Minors league age 9 to 11 (League Age page and the FAQ) or AAA 10 to 11 (Fall Ball page)?",
+  "VP of Baseball (Jeremy Olsen): will 50/70 and Juniors run in 2027, and is Juniors 13 to 14 (League Age page) or 13 to 15 (a Mar 2026 post)?",
   "League Player Agent (Jason Guertin) with the VPs: spring 2027 evaluation dates and places, and Opening Day 2027 (2026 was Apr 25 at Allan Yorke Field 5), to add once set.",
-  "VP of Challenger (Mandie Pitingoro, voted in Nov 1): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them."
+  "VP of Challenger (Mandie Pitingoro, voted in Nov 1): the 2027 Challenger registration window, and confirm vpchallenger@blslittleleague.org reaches them.",
+  "Removed 11/4 under Coach's audience standard: the Fall Ball 2026 scoreboard (36 teams, 8 divisions, 194 games) stays on the Fall Ball page only; the 'Registration details' news-post button, the League Age Calculator and 'How Challenger works' links to littleleague.org, and the step-2 note about the Facebook link are gone. Later the same day: the $50 off and $25 off badges came off the card (no prices before the board announces them)."
  ],
- "required": []
+ "required": [
+  "Daniel: put the League Age page live first. The card's 'Check your league age' row and the Baseball and Softball tiles link to it."
+ ],
+ "long_summary": "One dominant card: Registration opens Nov 27 with a full-width button ('Set up your account', the Sports Connect sign-in, until the 27th, then Register), one line to the new League Age page, one to the FAQ, and the three dated windows beside it with no amounts until the board announces them. The Sports Connect sign-up list sits right under the card (hidden until Nov 27 so nobody reads 'No Programs'). Below: three tiles (Baseball and Softball to League Age, Challenger to its email) and the 2027 fee table with a Baseball/Softball switch. Cut: the 'Start here' headline and lede, the three-step path, the divisions chart (now on League Age), the chart and fee footnotes, the Fall Ball scoreboard (already on the Fall Ball page), and every littleleague.org link."
 }

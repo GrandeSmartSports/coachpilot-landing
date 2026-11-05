@@ -1,28 +1,30 @@
 {
+ "insert_before": [
+  {
+   "mid": "765764",
+   "new_mid": "9765764",
+   "file": "modules/home-register.html",
+   "title": "Spring 2027 Registration"
+  }
+ ],
  "rotator": [
   {
    "img": "img/slides/s1-registration.png",
    "caption": "",
    "alt": "Spring 2027 registration opens Friday, November 27. $50 off per family.",
-   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716835&mid=765764&newskeyid=HN1&newsid=574104&ctl=newsdetail"
-  },
-  {
-   "img": "img/slides/s5-gear-return.png",
-   "caption": "",
-   "alt": "Fall Ball gear return: Saturday, Nov 7, 10AM to 1PM at the Daffodil Shed.",
-   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716835&mid=765764&newskeyid=HN1&newsid=574205&ctl=newsdetail"
-  },
-  {
-   "img": "img/slides/s6-fields-committee.png",
-   "caption": "",
-   "alt": "Join the Fields Committee. Help improve BLS fields for 2027. info@blslittleleague.org",
-   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716835&mid=765764&newskeyid=HN1&newsid=574206&ctl=newsdetail"
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716841"
   },
   {
    "img": "img/slides/s2-start-here.png",
    "caption": "",
    "alt": "New to BLS? Start here: check league age, register, questions? read the FAQ.",
    "link": "https://www.blslittleleague.org/Default.aspx?tabid=716841"
+  },
+  {
+   "img": "img/slides/s6-fields-committee.png",
+   "caption": "",
+   "alt": "Join the Fields Committee. Help improve BLS fields for 2027. info@blslittleleague.org",
+   "link": "https://www.blslittleleague.org/Default.aspx?tabid=716842"
   },
   {
    "img": "img/slides/s3-volunteer.png",
@@ -38,9 +40,9 @@
   }
  ],
  "extra_css": "modules/home.css",
- "status": "Ready to launch",
- "summary": "Six slides as big announcements, registration first: Spring 2027 registration, gear return (through Nov 7), Join the Fields Committee, new families, volunteers, and a 17-logo sponsor thank-you. The first three are live on the site now.",
- "blurb": "The home page slideshow, with Spring 2027 registration up first.",
+ "status": "Ready after 2 items",
+ "summary": "Registration leads the page: a fixed 'Spring 2027 registration opens Fri Nov 27' card above the slideshow, new slides, and the blank Facebook box removed. Why: a parent's first question is how to register.",
+ "blurb": "Registration first, in a card that never slides away, with the slideshow under it.",
  "sources": [
   {
    "fact": "2026 spring sponsors: Los Pinos Mexican Restaurant, Grasshopper Landscaping and Construction, Molen Orthodontics, Titan Door, Ossman Harding Dental, Round Table Pizza, Cal-Line Equipment, Owen Equipment, RLS Lending, Prospect Construction, Land O'Frost, Honey Bucket, Lowe's, Sumner/Bonney Lake Jr. Panthers Wrestling Club, Enrique Trujeque Agency.",
@@ -79,15 +81,22 @@
   }
  ],
  "later": [
+  "Information Officer (Melissa Olsen) or Website (Daniel Grande): the site-wide announcement bar at the top of every page (Sports Connect site settings, not a content block) reads 'Gear return this Saturday, Nov 7. Bring team equipment to the Daffodil Shed, 10AM to 1PM.' That is a coach task and names the shed; take it down now (the Coach Run Book and coach email carry it) or replace it with 'Spring 2027 registration opens Fri Nov 27'. The preview cannot change it, so it still shows in both views.",
   "Sponsorship and Fundraising (Ashley Gauthier): confirm the 17 logos on slide 4, the same list as the Sponsorship page wall (the 15 spring 2026 sponsors plus DICK'S and ProTime Sports, the two not on either 2026 sponsor list), and send a Great Northwest Dental logo (Fall Ball 2026 sponsor) so it can join both.",
   "Sponsorship and Fundraising (Ashley Gauthier): does any current sponsor package promise its own rotator slide, since Division sponsors get rotator placement and today's DICK'S slide retires into slide 4?",
   "President (Ramey Harguess): OK to retire today's Fan Store slide, since the store stays in the menu and has been open all year since March 2026?",
-  "Website (Daniel Grande): on Nov 27 swap slide 1 for a 'Registration is open' slide (Nov 1 board motion: $50 off per family through Sun Nov 29, then Early Bird $25 off per family Nov 30 to Dec 31, full price Jan 1, 2027), on one checklist with every other page that says registration opens Nov 27.",
-  "Website (Daniel Grande): the home CSS look (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) needs a way onto the home page, which has no HTML block to carry it, so the 4 slides ship without it for now.",
+  "Website (Daniel Grande), Nov 27: the card reads 'Registration is open' with a 'Register' button, and slide 1 becomes a 'Registration is open' slide (Nov 1 board motion: $50 off per family through Sun Nov 29, then Early Bird $25 off per family Nov 30 to Dec 31, full price Jan 1, 2027), on one checklist with every other page that says registration opens Nov 27.",
+  "Website (Daniel Grande): add one HTML content block to the home page above the slideshow to carry modules/home-register.html; the home CSS (compact phone header, navy title bars, On-Deck/Social switch, round arrows, pill dots) can ride in the same block.",
+  "Information Officer (Melissa Olsen): in Sports Connect News, pin 'Spring 2027 registration opens Black Friday' as the first Local News story; today the gear return story sits above it.",
+  "Information Officer (Melissa Olsen): the 'Meet the 2026-27 BLS Board' and 'Join the Fields Committee for 2027' news posts are board items; move them below the family stories or off the home list (the Board Members and Volunteer pages carry them).",
   "Website (Daniel Grande): the Local Sponsors strip at the bottom of every page lacks Cal-Line Equipment, Land O'Frost, Lowe's and Owen Equipment, so add them once Ashley confirms the list.",
-  "Information Officer (Melissa Olsen), optional: home news posts for the Fall Ball gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) and a thank-you to Federal Way National Little League for the infield dirt, both already on social media.",
+  "Information Officer (Melissa Olsen), optional: a home news thank-you to Federal Way National Little League for the infield dirt, already on social media.",
   "President (Ramey Harguess), optional: a spring 2027 'Dates to Remember' list for a home news post (last year's went up Nov 21, 2025).",
-  "Gear return slide comes off the rotator after Saturday, Nov 7."
+  "Moved off the home page 11/4: the gear return (Saturday Nov 7, 10AM to 1PM, Daffodil Shed) is a coach task for the Coach Run Book and the coach email; the Fields Committee call lives on the Volunteer page."
  ],
- "required": []
+ "required": [
+  "Daniel: confirm a content block can be added above the home slideshow (Sports Connect home template).",
+  "Daniel: after Saturday, take down the gear return bar and pin the registration post first in Local News."
+ ],
+ "long_summary": "A fixed registration card above the slideshow: 'Spring 2027 registration opens Fri Nov 27' with a Registration button (one new HTML block on the home page; the whole card is the tap target and reads Register from Nov 27). The slideshow drops to four slides under it: registration (now linking to the Registration page, not a news post), new families, volunteers, and the 17-logo sponsor thank-you. Cut under Coach's 11/4 audience standard: the gear return slide (a coach task) and the Fields Committee slide (board recruiting). On phones the Little League International privacy box in the right column is hidden; the ad slot stays."
 }

@@ -7,7 +7,7 @@
  },
  "page_title": "Schedules & Scores",
  "status": "Ready after 2 items",
- "summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings: one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.",
+ "summary": "New page that replaces Team Central's empty schedule, score and standings pages: one button per division (links come before Opening Day) and how to follow your team. Why: the old pages showed four dropdowns and no data.",
  "blurb": "A proposed new page that makes your team's spring schedule easy to find.",
  "sources": [
   {
@@ -92,7 +92,8 @@
   }
  ],
  "later": [
-  "Website (Daniel Grande), at go-live: for each division button, put that league's Share with Fans link in href, then delete the ss-soon class, the aria-disabled attribute and the 'Link coming before Opening Day' line (see the GO-LIVE comments in the file).",
+  "Website (Daniel Grande), at go-live: for each division button, put that league's Share with Fans link in href, then delete the ss-soon class and the aria-disabled attribute; delete the hero's 'schedules post before Opening Day' notice once the first links are live (see the GO-LIVE comments in the file).",
+  "Coach's call: the 12 division buttons will open GameChanger league pages, an outside hop the 11/4 standard does not list. They stay because they are the page's purpose; each sport tile carries one Opens GameChanger tag.",
   "Website (Daniel Grande): if the signed-out test shows league pages need a login, add one line under the division buttons saying families need a free GameChanger account, or plan the optional scoreboard page.",
   "Website (Daniel Grande): once this page has a URL, point the Coaches Corner Team Schedules, Game Scores and Standings tiles and the Coach Run Book's League schedules link (all on Team Central today) at it.",
   "Board: hide the Team Central tab and add this page to the menu (six of the nine other District 10 leagues hide Team Central), or keep the tab with its pages turned into links. Whether Sports Connect allows link pages under Team Central is unconfirmed.",
@@ -118,5 +119,6 @@
  "board_calls": [
   "where scores and standings live. Daniel recommends GameChanger, one league per division. (board's own call, never asked for)",
   "replace Posted Schedules, View Scores and View Standings with this page. (board's own call, never asked for)"
- ]
+ ],
+ "long_summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings: title, one 'schedules post before Opening Day' notice, then Baseball and Softball tiles with one button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page at go-live (tagged Opens GameChanger once per tile). Three short steps follow your team: App Store and Google Play buttons (the page's only outside links today), the team search taps, the calendar sync taps; no help-center links. Then a one-line rain note, a Key Dates pointer to the Calendar page, and the scheduler email at the foot. Scoreboard, ledes, free-plan talk and the parent/follower table removed."
 }

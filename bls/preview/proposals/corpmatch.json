@@ -9,7 +9,7 @@
   "1553296"
  ],
  "status": "Ready to launch",
- "summary": "Double your donation: how BLS is listed in giving portals, step-by-step guides for Boeing, Microsoft and Starbucks, 43 matching employers (MultiCare added), one help box.",
+ "summary": "The league's registered name and ID up top with one Email button, then Boeing, Microsoft and Starbucks guides as tap-to-open rows. Why: the match info parents need, nothing else.",
  "blurb": "How families can have their employer match a donation to BLS.",
  "sources": [
   {
@@ -33,8 +33,8 @@
   "Donations (Katie Sloan): confirm donations@blslittleleague.org is the inbox for match questions and nonprofit approval help, since a June 2026 post sent those to president@.",
   "Treasurer (Dan Swatman): confirm registration ID 94-3060867, carried over from today's page (no ID or EIN appears on social media).",
   "Donations (Katie Sloan), optional: how MultiCare staff submit a match, if MultiCare (added to the list from the June 2026 post) should get its own step-by-step guide.",
-  "Treasurer (Dan Swatman), optional: is the PayPal donate option for 'Bonney Lake Baseball Association' still active, and should this page offer it for direct gifts?",
-  "Website (Daniel Grande), optional: keep BLS's own copy of the Boeing guidelines PDF, which Kent Little League hosts today."
+  "Treasurer (Dan Swatman), optional: is the PayPal donate option for 'Bonney Lake Baseball Association' still active, and should this page offer it for direct gifts?"
  ],
- "required": []
+ "required": [],
+ "long_summary": "Double your donation: the registered name and Registration ID are the hero, with one button under them (email donations@); Boeing, Microsoft and Starbucks guides are tap-to-open rows with the portal addresses as plain text and our Boeing walkthrough file linked from our portal; one line for other employers (MultiCare named). No outside links and no 43-employer list."
 }

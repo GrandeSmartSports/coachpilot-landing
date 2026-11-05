@@ -1,144 +1,118 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
 /* hide this module's own container title bar; the hero is the title */
-.DnnModule:has(.blsb) > .dfContainer > .dfArea > h2.head{display:none !important;}
-.blsb{--line:#dde3ec;font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
-.blsb *,.blsb *::before,.blsb *::after{box-sizing:border-box;}
-.blsb h1,.blsb h2,.blsb h3,.blsb p,.blsb ul,.blsb li,.blsb section,.blsb header,.blsb article{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
-.blsb a{text-decoration:none !important;text-align:left !important;}
-.blsb svg{display:block;}
-.blsb h1,.blsb h2,.blsb h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;line-height:1;text-transform:uppercase;}
+.DnnModule:has(.blsbd) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.blsbd{--line:#dde3ec;font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
+.blsbd *,.blsbd *::before,.blsbd *::after{box-sizing:border-box;}
+.blsbd h1,.blsbd h2,.blsbd h3,.blsbd p,.blsbd ul,.blsbd li,.blsbd section,.blsbd header,.blsbd article{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsbd a{text-decoration:none !important;text-align:left !important;}
+.blsbd svg{display:block;}
+.blsbd h1,.blsbd h2,.blsbd h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;line-height:1;text-transform:uppercase;}
 
 /* ---------- hero ---------- */
-.blsb .bd-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:420px;}
-.blsb .bd-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;}
-.blsb .bd-copy{align-self:center;padding:44px 24px 44px 40px;}
-.blsb .bd-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
-.blsb .bd-ribbon svg{width:30px;height:30px;flex:none;}
-.blsb .bd-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
-.blsb .bd-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
-.blsb .bd-hero h1{font-size:68px;line-height:.9;letter-spacing:.005em;color:#fff !important;}
-.blsb .bd-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
-.blsb .bd-hero h1 em{font-style:normal;display:block;position:relative;width:max-content;max-width:100%;}
-.blsb .bd-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blsb .bd-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:26em;}
-.blsb .bd-lede a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);}
-/* date ticket */
-.blsb .bd-side{position:relative;}
-.blsb .bd-side::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
-.blsb .bd-ticket{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center !important;padding:24px 24px 24px 70px;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);
-  background:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.4px) 0 0/8px 8px,linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
-.blsb .bd-ticket .k{font-size:14px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
-.blsb .bd-ticket .d{font-family:Poppins,Arial,sans-serif;font-weight:800;font-size:clamp(64px,9vw,112px);line-height:.9;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;}
-.blsb .bd-ticket .w{font-size:20px;font-weight:700;line-height:1.2;color:#e7ecff;}
-.blsb .bd-ticket .p{margin-top:14px;background:#cd163f;border:3px solid #fff;border-radius:999px;padding:9px 20px;font-size:17px;font-weight:700;line-height:1;color:#fff;}
+.blsbd .bd-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr);min-height:0;}
+.blsbd .bd-art{position:absolute;inset:0;width:100%;height:100%;z-index:-1;}
+.blsbd .bd-copy{align-self:center;max-width:680px;padding:40px 40px 42px;}
+.blsbd .bd-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+.blsbd .bd-ribbon svg{width:30px;height:30px;flex:none;}
+.blsbd .bd-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
+.blsbd .bd-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
+.blsbd .bd-hero h1{font-size:68px;line-height:.9;letter-spacing:.005em;color:#fff !important;}
+.blsbd .bd-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
+.blsbd .bd-hero h1 em{font-style:normal;display:block;position:relative;width:max-content;max-width:100%;}
+.blsbd .bd-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
+.blsbd .bd-faq{display:inline-flex;align-items:center;gap:8px;margin-top:28px;font-size:15px;font-weight:600;color:#fff !important;border-radius:10px;padding:11px 16px;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55);transition:box-shadow .15s;}
+.blsbd .bd-faq:hover{box-shadow:inset 0 0 0 1.5px #fff,0 10px 22px rgba(0,0,0,.25);}
+.blsbd .bd-faq svg{width:15px;height:15px;flex:none;}
 
 /* ---------- sections ---------- */
-.blsb .bd-sec{padding:44px 44px 46px;border-radius:18px;}
-.blsb .bd-white{background:#fff;border:1px solid var(--line);}
-.blsb .bd-gray{background:#eef2f6;}
-.blsb .bd-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
-.blsb .bd-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
-.blsb .bd-intro{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:36em;}
-.blsb .bd-mail{display:inline-block;font-size:15px;font-weight:600;line-height:1.35;color:#1452a0 !important;border-bottom:1px solid rgba(20,82,160,.3);transition:color .15s,border-color .15s;}
-.blsb .bd-mail:hover{color:#cd163f !important;border-color:#cd163f;}
+.blsbd .bd-sec{padding:44px 44px 46px;border-radius:18px;}
+.blsbd .bd-white{background:#fff;border:1px solid var(--line);}
+.blsbd .bd-gray{background:#eef2f6;}
+.blsbd .bd-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
+.blsbd .bd-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
 
-/* ---------- officers ---------- */
-.blsb .bd-officers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px !important;}
-.blsb .bd-oc{position:relative;overflow:hidden;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:20px 22px 20px 18px;display:grid;grid-template-columns:58px minmax(0,1fr);column-gap:18px;align-items:center;}
-.blsb .bd-mono{position:relative;width:58px;height:58px;display:grid;place-items:center;}
-.blsb .bd-mono::before{content:"";position:absolute;inset:8px;background:#00013a;transform:rotate(45deg);border-radius:5px;box-shadow:0 0 0 4px #fff,0 0 0 5px var(--line);}
-.blsb .bd-mono i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:19px;letter-spacing:.02em;color:#fff;}
-.blsb .bd-role{font-size:12px !important;font-weight:700;letter-spacing:.14em;text-transform:uppercase !important;color:#cd163f;margin-bottom:6px !important;}
-.blsb .bd-oc h3{font-size:30px;color:#00013a !important;margin-bottom:8px !important;}
-.blsb .bd-hot{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);}
-.blsb .bd-hot::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsb .bd-hot .bd-mono::before{background:#cd163f;box-shadow:0 0 0 4px #00013a,0 0 0 5px rgba(255,255,255,.3);}
-.blsb .bd-hot .bd-role{color:#ffb8c6;}
-.blsb .bd-hot h3{color:#fff !important;}
-.blsb .bd-hot .bd-mail{color:#fff !important;border-color:rgba(255,255,255,.4);}
-.blsb .bd-lead{grid-column:1/-1;padding:26px 28px 26px 22px;grid-template-columns:66px minmax(0,1fr);column-gap:20px;
-  background:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.4px) 0 0/8px 8px,linear-gradient(105deg,#00013a 40%,#0a2a78 78%,#1452a0 100%);}
-.blsb .bd-lead::before{content:"";position:absolute;top:-10px;bottom:-10px;right:150px;width:9px;background:#cd163f;transform:skewX(-20deg);}
-.blsb .bd-lead > *{position:relative;z-index:1;}
-.blsb .bd-lead .bd-mono{width:66px;height:66px;}
-.blsb .bd-lead .bd-mono i{font-size:22px;}
-.blsb .bd-lead h3{font-size:40px;}
+/* ---------- who to ask: the whole row is the email ---------- */
+.blsbd .bd-dir{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:24px !important;align-items:start;}
+.blsbd .bd-group{background:#fff;border-radius:14px;padding:18px 18px 6px;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);}
+.blsbd .bd-group header{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:3px solid #00013a;}
+.blsbd .bd-gi{width:40px;height:40px;border-radius:10px;background:#1452a0;display:grid;place-items:center;flex:none;}
+.blsbd .bd-gi svg{width:22px;height:22px;}
+.blsbd .bd-group h3{font-size:26px;color:#00013a !important;}
+.blsbd .bd-group li{border-bottom:1px solid var(--line);}
+.blsbd .bd-group li:last-child{border-bottom:0;}
+.blsbd .bd-row{display:grid;grid-template-columns:minmax(0,1fr) 40px;column-gap:14px;align-items:center;padding:12px 2px 12px 0;transition:background .15s;}
+.blsbd .bd-row:hover{background:#f5f7fb;}
+.blsbd .bd-row span{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;line-height:1.3;}
+.blsbd .bd-row b{display:block;font-size:17px;font-weight:600;color:#00013a;line-height:1.35;margin-top:3px;}
+.blsbd .bd-row small{display:block;font-size:13px;font-weight:500;color:#4b5675;line-height:1.4;}
+.blsbd .bd-row em{display:block;font-style:normal;font-size:13.5px;font-weight:600;color:#1452a0;line-height:1.3;margin-top:4px;overflow-wrap:break-word;}
+.blsbd .bd-row:hover em{color:#cd163f;}
+.blsbd .bd-go{width:40px;height:40px;border-radius:10px;background:#eef2f6;display:grid;place-items:center;transition:background .15s;}
+.blsbd .bd-go svg{width:18px;height:18px;}
+.blsbd .bd-go svg *{stroke:#00013a;transition:stroke .15s;}
+.blsbd .bd-row:hover .bd-go,.blsbd .bd-oc:hover .bd-go{background:#cd163f;}
+.blsbd .bd-row:hover .bd-go svg *,.blsbd .bd-oc:hover .bd-go svg *{stroke:#fff;}
 
-/* ---------- directory ---------- */
-.blsb .bd-dir{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px !important;align-items:start;}
-.blsb .bd-col{display:grid;gap:20px;}
-.blsb .bd-group{background:#fff;border-radius:14px;padding:22px 24px 8px;box-shadow:0 1px 0 var(--line),0 12px 28px rgba(0,1,58,.08);}
-.blsb .bd-group header{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:3px solid #00013a;}
-.blsb .bd-gi{width:40px;height:40px;border-radius:10px;background:#1452a0;display:grid;place-items:center;flex:none;}
-.blsb .bd-gi svg{width:22px;height:22px;}
-.blsb .bd-group h3{font-size:26px;color:#00013a !important;}
-.blsb .bd-group li{display:flex;flex-direction:column;align-items:flex-start;padding:13px 0 14px;border-bottom:1px solid var(--line);}
-.blsb .bd-group li:last-child{border-bottom:0;}
-.blsb .bd-group li > span:first-child{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;line-height:1.3;}
-.blsb .bd-group li > b{font-size:17px;font-weight:600;color:#00013a;line-height:1.35;margin:3px 0 4px;}
-.blsb .bd-mails{display:flex;flex-wrap:wrap;gap:4px 16px;}
-.blsb .bd-group li > span:first-child + .bd-mail{margin-top:5px;}
+/* ---------- officers: compact rows, president first ---------- */
+.blsbd .bd-officers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px !important;}
+.blsbd .bd-oc{display:grid;grid-template-columns:50px minmax(0,1fr) 40px;column-gap:14px;align-items:center;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 12px;transition:border-color .15s,background .15s;}
+.blsbd .bd-oc:hover{background:#fff;border-color:#00013a;}
+.blsbd .bd-mono{position:relative;width:50px;height:50px;display:grid;place-items:center;}
+.blsbd .bd-mono::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:5px;box-shadow:0 0 0 4px #fff,0 0 0 5px var(--line);}
+.blsbd .bd-mono i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:17px;letter-spacing:.02em;color:#fff;}
+.blsbd .bd-oc div > span{display:block;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#cd163f;line-height:1.3;}
+.blsbd .bd-oc b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:25px;line-height:1;text-transform:uppercase;color:#00013a;margin-top:4px;}
+.blsbd .bd-oc em{display:block;font-style:normal;font-size:13.5px;font-weight:600;color:#1452a0;line-height:1.3;margin-top:5px;overflow-wrap:break-word;}
+.blsbd .bd-lead{grid-column:1/-1;background:#00013a;border-color:#00013a;}
+.blsbd .bd-lead:hover{background:#000127;border-color:#cd163f;}
+.blsbd .bd-lead .bd-mono::before{background:#cd163f;box-shadow:0 0 0 4px #00013a,0 0 0 5px rgba(255,255,255,.3);}
+.blsbd .bd-lead div > span{color:#ffb8c6;}
+.blsbd .bd-lead b{color:#fff;font-size:30px;}
+.blsbd .bd-lead em{color:#c6d1ee;}
+.blsbd .bd-lead .bd-go{background:#1b2670;}
+.blsbd .bd-lead .bd-go svg *{stroke:#fff;}
 
-/* ---------- get involved ---------- */
-.blsb .bd-cta{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:40px 44px 40px;
+/* ---------- want to help ---------- */
+.blsbd .bd-cta{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:24px 32px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;
   background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsb .bd-cta .bd-eyebrow{color:#ffb8c6;}
-.blsb .bd-cta h2{font-size:46px;color:#fff !important;}
-.blsb .bd-cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px !important;}
-.blsb .bd-cell{position:relative;background:#000127;border:1px solid #1b2670;border-radius:14px;padding:22px 22px 22px 88px;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);min-height:118px;}
-.blsb .bd-cell > svg{position:absolute;left:22px;top:22px;width:48px;height:48px;}
-.blsb .bd-tag{display:inline-block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.18em;text-transform:uppercase;background:#cd163f;color:#fff;padding:3px 10px 2px;border-radius:6px;margin-bottom:10px;}
-.blsb .bd-tag.bd-blue{background:#1452a0;}
-.blsb .bd-cell h3{font-size:32px;color:#fff !important;margin-bottom:6px !important;}
-.blsb .bd-cell p{font-size:15px;line-height:1.5;color:#c6d1ee;}
-.blsb .bd-foot{display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;margin-top:24px !important;}
-.blsb .bd-ask{flex-basis:100%;font-size:15px;color:#c6d1ee;margin-bottom:-4px !important;}
-.blsb .bd-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;max-width:100%;}
-.blsb .bd-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.35);}
-.blsb .bd-btn svg,.blsb .bd-link svg{width:16px;height:16px;flex:none;}
-.blsb .bd-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#fff !important;}
-.blsb .bd-link svg{transition:transform .2s;}
-.blsb .bd-link:hover svg{transform:translateX(3px);}
+.blsbd .bd-cta p{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:26px;line-height:1;text-transform:uppercase;color:#fff;}
+.blsbd .bd-foot{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;}
+.blsbd .bd-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;max-width:100%;}
+.blsbd .bd-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.35);}
+.blsbd .bd-btn svg,.blsbd .bd-link svg{width:16px;height:16px;flex:none;}
+.blsbd .bd-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#fff !important;}
+.blsbd .bd-link svg{transition:transform .2s;}
+.blsbd .bd-link:hover svg{transform:translateX(3px);}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
-  .blsb{gap:16px;}
-  .blsb .bd-hero{grid-template-columns:1fr;min-height:0;border-radius:14px;}
-  .blsb .bd-copy{padding:26px 20px 28px;}
-  .blsb .bd-ribbon{margin-bottom:20px;padding-right:30px;}
-  .blsb .bd-ribbon b{font-size:18px;}
-  .blsb .bd-hero h1{font-size:60px;}
-  .blsb .bd-lede{margin-top:24px !important;font-size:16px;}
-  .blsb .bd-side{min-height:0;}
-  .blsb .bd-side::before{display:none;}
-  .blsb .bd-ticket{position:relative;inset:auto;clip-path:none;padding:26px 20px 28px;border-top:5px solid #cd163f;}
-  .blsb .bd-ticket .d{font-size:72px;}
-  .blsb .bd-ticket .k{font-size:13px;}
-  .blsb .bd-sec{padding:28px 18px;border-radius:14px;}
-  .blsb .bd-sec h2,.blsb .bd-cta h2{font-size:36px;}
-  .blsb .bd-officers{grid-template-columns:1fr;gap:12px;margin-top:22px !important;}
-  .blsb .bd-oc{grid-template-columns:54px minmax(0,1fr);column-gap:16px;padding:18px 18px 18px 16px;}
-  .blsb .bd-mono{width:54px;height:54px;}
-  .blsb .bd-oc h3{font-size:27px;margin-bottom:8px !important;}
-  .blsb .bd-lead .bd-mono{width:54px;height:54px;}
-  .blsb .bd-lead .bd-mono i{font-size:19px;}
-  .blsb .bd-lead::before{display:none;}
-  .blsb .bd-dir{grid-template-columns:1fr;gap:14px;margin-top:22px !important;}
-  .blsb .bd-col{display:contents;}
-  .blsb .bd-o2{order:2;}.blsb .bd-o3{order:3;}.blsb .bd-o4{order:4;}
-  .blsb .bd-group{padding:18px 18px 4px;}
-  .blsb .bd-cta{padding:28px 18px;border-radius:14px;}
-  .blsb .bd-cells{grid-template-columns:1fr;gap:12px;margin-top:20px !important;}
-  .blsb .bd-cell{padding:18px 18px 18px 78px;min-height:0;}
-  .blsb .bd-cell > svg{left:16px;top:18px;width:46px;height:46px;}
-  .blsb .bd-cell h3{font-size:28px;}
-  .blsb .bd-foot{flex-direction:column;align-items:flex-start;gap:14px;}
-  .blsb .bd-ask{flex-basis:auto;}
+  .blsbd{gap:16px;}
+  .blsbd .bd-hero{border-radius:14px;}
+  .blsbd .bd-copy{max-width:none;padding:24px 20px 26px;}
+  .blsbd .bd-ribbon{margin-bottom:18px;padding-right:30px;}
+  .blsbd .bd-ribbon b{font-size:18px;}
+  .blsbd .bd-hero h1{font-size:56px;}
+  .blsbd .bd-faq{margin-top:24px;}
+  .blsbd .bd-sec{padding:24px 16px 26px;border-radius:14px;}
+  .blsbd .bd-sec h2{font-size:34px;}
+  .blsbd .bd-dir{grid-template-columns:1fr;gap:12px;margin-top:18px !important;}
+  .blsbd .bd-group{padding:14px 14px 2px;}
+  .blsbd .bd-group h3{font-size:23px;}
+  .blsbd .bd-row{padding:11px 0;}
+  .blsbd .bd-row b{font-size:16px;}
+  .blsbd .bd-officers{grid-template-columns:1fr;gap:10px;margin-top:18px !important;}
+  .blsbd .bd-oc{padding:12px 12px 12px 10px;}
+  .blsbd .bd-oc b{font-size:23px;}
+  .blsbd .bd-lead b{font-size:26px;}
+  .blsbd .bd-cta{padding:22px 18px;border-radius:14px;flex-direction:column;align-items:flex-start;}
+  .blsbd .bd-cta p{font-size:24px;}
+  .blsbd .bd-foot{width:100%;flex-direction:column;align-items:stretch;}
+  .blsbd .bd-btn{justify-content:center;}
 }
-@media (prefers-reduced-motion:reduce){.blsb *{transition:none !important;}}
+@media (prefers-reduced-motion:reduce){.blsbd *{transition:none !important;}}
 </style>
-<div class="blsx blsb">
+<div class="blsx blsbd">
 
   <section class="bd-hero">
     <svg class="bd-art" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
@@ -152,117 +126,66 @@
         <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M16 6.5l2.6 6.1 6.6.5-5 4.3 1.6 6.4L16 20.3l-5.8 3.5 1.6-6.4-5-4.3 6.6-.5z" fill="#cd163f"/></svg>
         <div><span>2026-27</span><b>Board of Directors</b></div>
       </div>
-      <h1><small>Meet your</small><em>BLS board.</em></h1>
-      <p class="bd-lede">The volunteers who run Bonney Lake Sumner Little League. Email the role that fits your question. General questions? Start with the <a href="/Default.aspx?tabid=776471">FAQ</a>.</p>
+      <h1><small>Your BLS board</small><em>Who to ask.</em></h1>
+      <a class="bd-faq" href="/Default.aspx?tabid=776471">General questions? Start with the FAQ <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     </div>
-    <div class="bd-side">
-      <div class="bd-ticket"><span class="k">Annual Meeting</span><span class="d">OCT 25</span><span class="w">2026</span><span class="p">11 new members voted in</span></div>
+  </section>
+
+  <section class="bd-sec bd-gray">
+    <header><span class="bd-eyebrow">Tap a row to email</span><h2>Who to&nbsp;ask</h2></header>
+    <div class="bd-dir">
+      <div class="bd-group">
+        <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 0 5 2.2 5 5.3"/></svg></span><h3>Players and coaches</h3></header>
+        <ul>
+          <li><a class="bd-row" href="mailto:pa@blslittleleague.org"><div><span>Player placement</span><b>Jason Guertin<small>League Player Agent. Softball AA and Coach Pitch: Zach Thibodeau</small></b><em>pa@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:vpchallenger@blslittleleague.org"><div><span>Challenger division</span><b>Mandie Pitingoro<small>VP of Challenger</small></b><em>vpchallenger@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:coaching@blslittleleague.org"><div><span>Coaching</span><b>Rod Vincent<small>Coaching Coordinator</small></b><em>coaching@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:safety@blslittleleague.org"><div><span>Safety</span><b>Daneen Galvez<small>Safety Officer</small></b><em>safety@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+        </ul>
+      </div>
+      <div class="bd-group">
+        <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21L3.5 12.5 12 4l8.5 8.5z"/><path d="M12 18l-2.2-2.2L12 13.6l2.2 2.2z" fill="#fff"/></svg></span><h3>Fields and schedules</h3></header>
+        <ul>
+          <li><a class="bd-row" href="mailto:scheduler@blslittleleague.org"><div><span>Practice and game schedules</span><b>Daniel Grande<small>Practice and Game Scheduler</small></b><em>scheduler@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:fields@blslittleleague.org"><div><span>Fields and field rentals</span><b>Daniel Lane<small>Fields Coordinator. Field rentals: Greg Potts</small></b><em>fields@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:equipment@blslittleleague.org"><div><span>Equipment</span><b>Daniel Lane<small>Equipment</small></b><em>equipment@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+        </ul>
+      </div>
+      <div class="bd-group">
+        <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg></span><h3>Uniforms and news</h3></header>
+        <ul>
+          <li><a class="bd-row" href="mailto:uniforms@blslittleleague.org"><div><span>Uniforms</span><b>Dena Berkey<small>Uniforms</small></b><em>uniforms@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:social@blslittleleague.org"><div><span>Social media</span><b>Dena Berkey<small>Social Media</small></b><em>social@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:info@blslittleleague.org"><div><span>General questions and news</span><b>Melissa Olsen<small>Information Officer</small></b><em>info@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:website@blslittleleague.org"><div><span>Website</span><b>Daniel Grande<small>Website</small></b><em>website@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+        </ul>
+      </div>
+      <div class="bd-group">
+        <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.9c0 5.6-7.5 10-7.5 10z"/></svg></span><h3>Sponsors and giving</h3></header>
+        <ul>
+          <li><a class="bd-row" href="mailto:pr@blslittleleague.org"><div><span>Sponsorship</span><b>Ashley Gauthier<small>Sponsorship and Fundraising</small></b><em>pr@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+          <li><a class="bd-row" href="mailto:donations@blslittleleague.org"><div><span>Donations and corporate match</span><b>Katie Sloan<small>Donations</small></b><em>donations@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a></li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <section class="bd-sec bd-white">
     <header><span class="bd-eyebrow">Officers</span><h2>League&nbsp;officers</h2></header>
     <div class="bd-officers">
-      <article class="bd-oc bd-hot bd-lead">
-        <span class="bd-mono"><i>RH</i></span>
-        <div><p class="bd-role">President</p><h3>Ramey Harguess</h3><a class="bd-mail" href="mailto:president@blslittleleague.org">president@<wbr>blslittleleague.org</a></div>
-      </article>
-      <article class="bd-oc">
-        <span class="bd-mono"><i>JO</i></span>
-        <div><p class="bd-role">VP of Baseball</p><h3>Jeremy Olsen</h3><a class="bd-mail" href="mailto:vpbb@blslittleleague.org">vpbb@<wbr>blslittleleague.org</a></div>
-      </article>
-      <article class="bd-oc">
-        <span class="bd-mono"><i>LK</i></span>
-        <div><p class="bd-role">VP of Softball</p><h3>Luke Kress</h3><a class="bd-mail" href="mailto:vpsb@blslittleleague.org">vpsb@<wbr>blslittleleague.org</a></div>
-      </article>
-      <article class="bd-oc">
-        <span class="bd-mono"><i>DS</i></span>
-        <div><p class="bd-role">Treasurer</p><h3>Dan Swatman</h3><a class="bd-mail" href="mailto:treasurer@blslittleleague.org">treasurer@<wbr>blslittleleague.org</a></div>
-      </article>
-      <article class="bd-oc">
-        <span class="bd-mono"><i>TL</i></span>
-        <div><p class="bd-role">Secretary</p><h3>Tawnie LaValley</h3><a class="bd-mail" href="mailto:secretary@blslittleleague.org">secretary@<wbr>blslittleleague.org</a></div>
-      </article>
-    </div>
-  </section>
-
-  <section class="bd-sec bd-gray">
-    <header><span class="bd-eyebrow">Board positions</span><h2>Who to&nbsp;ask</h2></header>
-    <div class="bd-dir">
-      <div class="bd-col">
-        <div class="bd-group bd-o1">
-          <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.2c3 0 5 2.2 5 5.3"/></svg></span><h3>Players and coaches</h3></header>
-          <ul>
-            <li><span>League Player Agent</span><b>Jason Guertin</b><a class="bd-mail" href="mailto:pa@blslittleleague.org">pa@<wbr>blslittleleague.org</a></li>
-            <li><span>Softball AA and Coach Pitch Player Agent</span><b>Zach Thibodeau</b></li>
-            <li><span>VP of Challenger</span><b>Mandie Pitingoro</b><a class="bd-mail" href="mailto:vpchallenger@blslittleleague.org">vpchallenger@<wbr>blslittleleague.org</a></li>
-            <li><span>Coaching Coordinator</span><b>Rod Vincent</b><a class="bd-mail" href="mailto:coaching@blslittleleague.org">coaching@<wbr>blslittleleague.org</a></li>
-            <li><span>Safety Officer</span><b>Daneen Galvez</b><a class="bd-mail" href="mailto:safety@blslittleleague.org">safety@<wbr>blslittleleague.org</a></li>
-          </ul>
-        </div>
-        <div class="bd-group bd-o4">
-          <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.9c0 5.6-7.5 10-7.5 10z"/></svg></span><h3>Sponsors and giving</h3></header>
-          <ul>
-            <li><span>Sponsorship and Fundraising</span><b>Ashley Gauthier</b><a class="bd-mail" href="mailto:pr@blslittleleague.org">pr@<wbr>blslittleleague.org</a></li>
-            <li><span>Donations</span><b>Katie Sloan</b><a class="bd-mail" href="mailto:donations@blslittleleague.org">donations@<wbr>blslittleleague.org</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="bd-col">
-        <div class="bd-group bd-o2">
-          <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21L3.5 12.5 12 4l8.5 8.5z"/><path d="M12 18l-2.2-2.2L12 13.6l2.2 2.2z" fill="#fff"/></svg></span><h3>Fields and schedules</h3></header>
-          <ul>
-            <li><span>Practice and Game Scheduler</span><b>Daniel Grande</b><a class="bd-mail" href="mailto:scheduler@blslittleleague.org">scheduler@<wbr>blslittleleague.org</a></li>
-            <li><span>Fields Coordinator and Equipment</span><b>Daniel Lane</b><span class="bd-mails"><a class="bd-mail" href="mailto:fields@blslittleleague.org">fields@<wbr>blslittleleague.org</a><a class="bd-mail" href="mailto:equipment@blslittleleague.org">equipment@<wbr>blslittleleague.org</a></span></li>
-            <li><span>Fields Assistant</span><b>Jason Guertin</b></li>
-            <li><span>Field Rentals Coordinator</span><b>Greg Potts</b></li>
-          </ul>
-        </div>
-        <div class="bd-group bd-o3">
-          <header><span class="bd-gi"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11"/></svg></span><h3>News and uniforms</h3></header>
-          <ul>
-            <li><span>Information Officer</span><b>Melissa Olsen</b><a class="bd-mail" href="mailto:info@blslittleleague.org">info@<wbr>blslittleleague.org</a></li>
-            <li><span>Uniforms and Social Media</span><b>Dena Berkey</b><span class="bd-mails"><a class="bd-mail" href="mailto:uniforms@blslittleleague.org">uniforms@<wbr>blslittleleague.org</a><a class="bd-mail" href="mailto:social@blslittleleague.org">social@<wbr>blslittleleague.org</a></span></li>
-            <li><span>Website</span><b>Daniel Grande</b><a class="bd-mail" href="mailto:website@blslittleleague.org">website@<wbr>blslittleleague.org</a></li>
-          </ul>
-        </div>
-      </div>
+      <a class="bd-oc bd-lead" href="mailto:president@blslittleleague.org"><span class="bd-mono"><i>RH</i></span><div><span>President</span><b>Ramey Harguess</b><em>president@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a>
+      <a class="bd-oc" href="mailto:vpbb@blslittleleague.org"><span class="bd-mono"><i>JO</i></span><div><span>VP of Baseball</span><b>Jeremy Olsen</b><em>vpbb@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a>
+      <a class="bd-oc" href="mailto:vpsb@blslittleleague.org"><span class="bd-mono"><i>LK</i></span><div><span>VP of Softball</span><b>Luke Kress</b><em>vpsb@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a>
+      <a class="bd-oc" href="mailto:treasurer@blslittleleague.org"><span class="bd-mono"><i>DS</i></span><div><span>Treasurer</span><b>Dan Swatman</b><em>treasurer@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a>
+      <a class="bd-oc" href="mailto:secretary@blslittleleague.org"><span class="bd-mono"><i>TL</i></span><div><span>Secretary</span><b>Tawnie LaValley</b><em>secretary@<wbr>blslittleleague.org</em></div><i class="bd-go"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke-width="1.8" stroke-linejoin="round"/></svg></i></a>
     </div>
   </section>
 
   <section class="bd-cta">
-    <header><span class="bd-eyebrow">Get involved</span><h2>Help run the&nbsp;league</h2></header>
-    <div class="bd-cells">
-      <div class="bd-cell">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="12" fill="#cd163f"/><path d="M14 17c0-4 4.5-7 10-7s10 3 10 7v8c0 7-4.5 12-10 12s-10-5-10-12z" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M14 21h20M14 27h20M20 17v18M28 17v18" stroke="#fff" stroke-width="2" stroke-opacity=".85"/></svg>
-        <span class="bd-tag">Open seat</span>
-        <h3>Umpire in Chief</h3>
-        <p>Lead BLS umpires. This board seat is open for 2026-27.</p>
-      </div>
-      <div class="bd-cell">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="12" fill="#cd163f"/><path d="M24 11L37 24 24 37 11 24z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-opacity=".75"/><g fill="#fff"><rect x="21" y="8" width="6" height="6" transform="rotate(45 24 11)"/><rect x="8" y="21" width="6" height="6" transform="rotate(45 11 24)"/><rect x="34" y="21" width="6" height="6" transform="rotate(45 37 24)"/><path d="M20.5 34h7v3.5L24 40.5l-3.5-3z"/></g></svg>
-        <span class="bd-tag">New for 2027</span>
-        <h3>Fields Committee</h3>
-        <p>Created by the board on Nov 1 to keep BLS fields safe and ready for play. The committee will recruit volunteers to help with field prep.</p>
-      </div>
-      <div class="bd-cell">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="12" fill="#1452a0"/><rect x="11" y="13" width="26" height="23" rx="3" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M11 20h26M18 10v6M30 10v6" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M19 28l3.5 3.5L30 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span class="bd-tag bd-blue">Board meetings</span>
-        <h3>Come to a meeting</h3>
-        <p>Next meeting: Sunday, Dec 6, 6 to 8 PM, at Round Table Pizza in Bonney Lake. Anyone interested is welcome.</p>
-      </div>
-      <div class="bd-cell">
-        <svg viewBox="0 0 48 48" aria-hidden="true"><rect x="1" y="1" width="46" height="46" rx="12" fill="#1452a0"/><path d="M12 22h24v15a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2z" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M17 22V10h14v12" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 16l3 3 5-5.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 30h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
-        <span class="bd-tag bd-blue">Every October</span>
-        <h3>Annual Meeting</h3>
-        <p>Every board seat is voted on each October. Role descriptions are in the BLSLL Constitution.</p>
-      </div>
-    </div>
+    <p>Want to help run the league?</p>
     <div class="bd-foot">
-      <p class="bd-ask">Ask about a seat, the Fields Committee or the next meeting</p>
-      <a class="bd-btn" href="mailto:info@blslittleleague.org"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>info@blslittleleague.org</a>
-      <a class="bd-link" href="/Default.aspx?tabid=716842">Volunteer opportunities <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <a class="bd-link" href="/LinkClick.aspx?fileticket=Q9W6r0TyXuQ%3d&amp;tabid=776467&amp;portalid=50558">BLSLL Constitution <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a class="bd-btn" href="/Default.aspx?tabid=716842">Volunteer opportunities <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a class="bd-link" href="mailto:info@blslittleleague.org"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 4.5L8 9l5.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>info@blslittleleague.org</a>
     </div>
   </section>
 

@@ -30,16 +30,24 @@
 .blsx .bx-frame{position:absolute;inset:0;overflow:hidden;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);
   background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
 
-/* in an emergency (inside the hero frame) */
+/* report an injury (inside the hero frame): the page's one big action */
 .blsx .hs-sos{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:34px 34px 30px 84px;}
 .blsx .hs-k{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
-.blsx .hs-911{display:flex;align-items:center;gap:18px;margin:6px 0 14px !important;}
-.blsx .hs-911 b{font:900 104px/.9 Poppins,Arial,sans-serif;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;}
-.blsx .hs-911 span{font-size:17px;font-weight:600;line-height:1.3;color:#e7ecff;}
-.blsx .hs-steps{counter-reset:hs;display:grid;gap:10px;}
-.blsx .hs-steps li{position:relative;padding-left:40px;counter-increment:hs;font-size:15px;line-height:1.45;color:#dbe2f4;}
-.blsx .hs-steps li::before{content:counter(hs);position:absolute;left:0;top:-1px;width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.75);font:700 13px/22px Poppins,Arial,sans-serif;text-align:center;color:#fff;}
-.blsx .hs-src{margin-top:14px !important;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#9fb0dc;}
+.blsx .hs-sos h2{margin-top:8px !important;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:.95;text-transform:uppercase;color:#fff !important;}
+.blsx .hs-when{margin-top:12px !important;font-size:16px;line-height:1.5;color:#dbe2f4;max-width:26em;}
+.blsx .hs-cta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:20px;}
+.blsx .hs-cta .bx-btn{font-size:17px;padding:16px 22px;border-radius:12px;box-shadow:0 14px 30px rgba(0,0,20,.35);}
+.blsx .hs-cta .bx-btn svg{width:18px;height:18px;}
+.blsx .hs-alt{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#fff !important;border:1.5px solid rgba(255,255,255,.55);border-radius:12px;padding:14px 18px;transition:background .2s;}
+.blsx .hs-alt:hover{background:rgba(255,255,255,.1);}
+.blsx .hs-alt svg{width:16px;height:16px;}
+.blsx .hs-src{margin-top:16px !important;font-size:13px;line-height:1.5;color:#9fb0dc;}
+.blsx .hs-src b{color:#fff;font-weight:600;}
+
+/* 911 strip */
+.blsx .hs-911{display:flex;align-items:center;gap:18px;background:#cd163f;color:#fff;border-radius:14px;padding:14px 22px;}
+.blsx .hs-911 b{font:900 44px/.9 Poppins,Arial,sans-serif;letter-spacing:-.02em;color:#fff;flex:none;}
+.blsx .hs-911 span{font-size:16px;font-weight:600;line-height:1.4;color:#fff;}
 
 /* ---------- shared section heads ---------- */
 .blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -48,52 +56,6 @@
 .blsx .bx-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
 .blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
 .blsx .bx-btn svg{width:16px;height:16px;}
-
-/* ---------- start here: manual + report ---------- */
-.blsx .hs-start{background:#fff;border:1px solid var(--line);}
-.blsx .hs-two{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;margin-top:28px !important;}
-.blsx .hs-card{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;border-radius:14px;padding:26px 26px 26px;}
-.blsx .hs-card h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:32px;line-height:1;text-transform:uppercase;}
-.blsx .hs-meta{font-size:12px !important;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin:8px 0 14px !important;}
-.blsx .hs-manual{background:#00013a;color:#fff;box-shadow:0 18px 40px rgba(0,1,58,.22);}
-.blsx .hs-manual::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsx .hs-manual h3{color:#fff !important;}
-.blsx .hs-manual .hs-meta{color:#ffb8c6;}
-.blsx .hs-manual p{font-size:15px;line-height:1.55;color:#dbe2f4;}
-.blsx .hs-inside{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin:16px 0 22px !important;width:100%;}
-.blsx .hs-inside li{position:relative;padding-left:18px;font-size:15px;line-height:1.4;color:#fff;}
-.blsx .hs-inside li::before{content:"";position:absolute;left:2px;top:.5em;width:7px;height:7px;background:#cd163f;transform:rotate(45deg);}
-.blsx .hs-manual .bx-btn{margin-top:auto;}
-.blsx .hs-manual .bx-btn{text-align:left !important;}
-.blsx .hs-report{background:#f5f7fb;border:1px solid var(--line);}
-.blsx .hs-report h3{color:#00013a !important;}
-.blsx .hs-report .hs-meta{color:#cd163f;}
-.blsx .hs-report p{font-size:15px;line-height:1.6;color:#4b5675;}
-.blsx .hs-report p b{color:#00013a;font-weight:600;}
-.blsx .hs-who{display:flex;align-items:center;gap:14px;width:100%;margin-top:auto !important;padding-top:18px;border-top:1px solid var(--line);}
-.blsx .hs-report p + .hs-who{margin-top:20px !important;}
-.blsx .hs-who i{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#cd163f;}
-.blsx .hs-who i svg{width:24px;height:24px;}
-.blsx .hs-who small{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;}
-.blsx .hs-who b{display:block;font-size:17px;font-weight:600;line-height:1.3;color:#00013a;}
-.blsx .hs-who a{font-size:15px;font-weight:600;color:#1452a0 !important;border-bottom:1.5px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
-
-/* ---------- cleared volunteers (inside start here) ---------- */
-.blsx .hs-clear{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1fr) minmax(0,1fr);gap:16px 18px;align-items:stretch;margin-top:22px !important;padding-top:22px;border-top:1px solid var(--line);}
-.blsx .hs-clear-h{display:flex;flex-direction:column;align-items:flex-start;gap:10px;}
-.blsx .hs-clear-h i{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#00013a;box-shadow:inset 0 -4px 0 #cd163f;}
-.blsx .hs-clear-h i svg{width:26px;height:26px;}
-.blsx .hs-clear-h h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;}
-.blsx .hs-clear-h p{font-size:15px;line-height:1.55;color:#4b5675;}
-.blsx .hs-clear-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
-.blsx .hs-clear-link svg{width:16px;height:16px;transition:transform .2s;}
-.blsx .hs-clear-link:hover svg{transform:translateX(3px);}
-.blsx .hs-clear-step{position:relative;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;}
-.blsx .hs-clear-step em{font-style:normal;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#cd163f;color:#fff;font:800 17px/1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;margin-bottom:10px;}
-.blsx .hs-clear-step b{display:block;font-size:17px;font-weight:600;line-height:1.3;color:#00013a;}
-.blsx .hs-clear-step span{display:block;margin-top:4px;font-size:15px;line-height:1.5;color:#4b5675;}
-.blsx .hs-clear-step a{margin-top:auto;padding-top:10px;display:inline-flex;align-items:center;gap:6px;font-weight:600;font-size:15px;color:#1452a0 !important;}
-.blsx .hs-clear-step a svg{width:14px;height:14px;}
 
 /* ---------- forms and handouts ---------- */
 .blsx .hs-docs{background:#eef2f6;}
@@ -115,17 +77,8 @@
 .blsx .hs-go{flex:none;width:32px;height:32px;border-radius:50%;background:#eef2f6;display:grid;place-items:center;color:#00013a;transition:background .2s,color .2s;}
 .blsx .hs-go svg{width:14px;height:14px;}
 
-/* ---------- at the ballpark ---------- */
-.blsx .hs-park{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:34px 36px 28px;
-  background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsx .hs-park-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
-.blsx .hs-park h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:40px;line-height:1;text-transform:uppercase;color:#fff !important;}
-.blsx .hs-park .bx-eyebrow{color:#ffb8c6;}
-.blsx .hs-tag{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;letter-spacing:.16em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 12px;border-radius:6px;}
-.blsx .hs-rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
-.blsx .hs-rules li{display:flex;gap:12px;align-items:flex-start;background:#000127;border:1px solid #1b2670;border-radius:12px;padding:16px 16px 15px;font-size:15px;line-height:1.45;color:#dbe2f4;}
-.blsx .hs-rules svg{flex:none;width:28px;height:28px;margin-top:1px;}
-.blsx .hs-park-foot{margin-top:16px !important;font-size:15px;color:#a9b8e3;}
+/* ---------- more: the manual and volunteer clearance ---------- */
+.blsx .hs-more{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 16px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 20px;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -134,36 +87,28 @@
   .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.82) 48%,rgba(0,1,58,.55) 100%);}
   .blsx .bx-field{bottom:auto;height:360px;}
   .blsx .bx-hero-in{grid-template-columns:1fr;min-height:0;}
-  .blsx .bx-copy{padding:26px 20px 30px;}
-  .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsx .bx-copy{padding:22px 20px 22px;}
+  .blsx .bx-ribbon{margin-bottom:18px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
-  .blsx .bx-hero h1{font-size:58px;}
+  .blsx .bx-hero h1{font-size:54px;}
   .blsx .hs-br{display:none;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
   .blsx .bx-photo{min-height:0;}
   .blsx .bx-photo::before{display:none;}
   .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-top:5px solid #cd163f;}
   .blsx .hs-sos{padding:22px 20px 22px;}
-  .blsx .hs-911 b{font-size:78px;}
-  .blsx .hs-911 span{font-size:16px;}
-  .blsx .hs-steps li{font-size:15px;}
+  .blsx .hs-sos h2{font-size:40px;}
+  .blsx .hs-cta{margin-top:16px;}
+  .blsx .hs-cta .bx-btn{padding:15px 20px;}
+  .blsx .hs-911{padding:12px 16px;gap:14px;border-radius:12px;}
+  .blsx .hs-911 b{font-size:36px;}
+  .blsx .hs-911 span{font-size:15px;}
   .blsx .bx-sec{padding:28px 16px 22px;border-radius:14px;}
   .blsx .bx-sec h2{font-size:36px;}
-  .blsx .hs-two{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
-  .blsx .hs-card{padding:22px 18px;}
-  .blsx .hs-card h3{font-size:30px;}
-  .blsx .hs-inside{grid-template-columns:1fr;}
-  .blsx .hs-clear{grid-template-columns:1fr;gap:12px;margin-top:18px !important;padding-top:18px;}
-  .blsx .hs-clear-h h3{font-size:27px;}
-  .blsx .hs-clear-step{padding:16px 16px 14px;}
   .blsx .hs-grid{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
   .blsx .bx-art h3{font-size:30px;left:18px;bottom:12px;}
   .blsx .hs-list{padding:4px 6px 8px;}
   .blsx .hs-doc{gap:12px;padding:13px 8px;}
-  .blsx .hs-park{padding:26px 16px 22px;border-radius:14px;}
-  .blsx .hs-park h2{font-size:34px;}
-  .blsx .hs-rules{grid-template-columns:1fr;gap:8px;}
-  .blsx .hs-rules li{padding:13px 14px;}
+  .blsx .hs-more{grid-template-columns:1fr;padding:8px 8px;border-radius:14px;}
 }
 @media (hover:hover){.blsx a.hs-doc:hover{background:#f5f7fb;}.blsx a.hs-doc:hover .hs-go{background:#cd163f;color:#fff;}}
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
@@ -185,70 +130,23 @@
           <div><span>Players, coaches, families</span><b>Health &amp; Safety</b></div>
         </div>
         <h1><small>A fun and</small><em>Safe<br class="hs-br"> season</em></h1>
-        <p class="bx-lede">Safety policies, code of conduct, emergency procedures and key contacts, so every player, coach and volunteer has a fun and safe season.</p>
       </div>
       <div class="bx-photo"><div class="bx-frame">
         <div class="hs-sos">
-          <p class="hs-k">In an emergency</p>
-          <p class="hs-911"><b>911</b><span>First, dial 9-1-1.<br>Then:</span></p>
-          <ol class="hs-steps">
-            <li>Give the dispatcher the field name and location, your phone number and what happened.</li>
-            <li>Do not hang up until the dispatcher hangs up. Keep caring for the injured person until help arrives.</li>
-            <li>Send someone to the street to flag down the ambulance or fire engine.</li>
-          </ol>
-          <p class="hs-src">From the BLSLL Safety Manual</p>
+          <p class="hs-k">Hurt at a game or practice?</p>
+          <h2>Report an injury</h2>
+          <p class="hs-when">Any injury that needed first aid or medical care: email the Safety Officer within 48 hours.</p>
+          <div class="hs-cta">
+            <a class="bx-btn" href="mailto:safety@blslittleleague.org?subject=Injury%20report">Email the Safety Officer <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            <a class="hs-alt" href="/portals/50558/docs/2025%20blsll%20safetyplan.pdf" target="_blank" rel="noopener">Injury form (in the Safety Manual, PDF) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          </div>
+          <p class="hs-src"><b>Safety Officer: Daneen Galvez</b>, safety@blslittleleague.org. Coaches: same address to restock your first aid kit.</p>
         </div>
       </div></div>
     </div>
   </section>
 
-  <section class="bx-sec hs-start">
-    <header><span class="bx-eyebrow">Start here</span><h2>Safety plan and contacts</h2></header>
-    <div class="hs-two">
-      <article class="hs-card hs-manual">
-        <h3>BLSLL Safety Manual</h3>
-        <p class="hs-meta">2025 edition · PDF · 17 pages</p>
-        <p>Everyone running BLSLL activities gets a copy and carries it. Inside:</p>
-        <ul class="hs-inside">
-          <li>Emergency procedures</li>
-          <li>Emergency contacts</li>
-          <li>BLSLL Safety Code</li>
-          <li>First aid kits</li>
-          <li>Injury tracking form</li>
-          <li>Field inspection checklist</li>
-        </ul>
-        <a class="bx-btn" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf" target="_blank" rel="noopener">Download the 2025 Safety Manual <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v9M4 7l4 4 4-4M3 14h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </article>
-      <article class="hs-card hs-report">
-        <h3>Report an injury</h3>
-        <p class="hs-meta">Within 24 to 48 hours</p>
-        <p>Any incident where a <b>player, manager, coach, umpire or volunteer</b> receives medical treatment or first aid is reported to the BLSLL Safety Officer. Use the injury tracking form in the Safety Manual.</p>
-        <div class="hs-who">
-          <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.3-3 7.8-7 9.5-4-1.7-7-5.2-7-9.5V6z"/><path d="M12 8.5v6M9 11.5h6"/></svg></i>
-          <span><small>Safety Officer</small><b>Daneen Galvez</b><a href="mailto:safety@blslittleleague.org">safety@blslittleleague.org</a></span>
-        </div>
-      </article>
-    </div>
-    <div class="hs-clear">
-      <div class="hs-clear-h">
-        <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5.5c0 4.3-3 7.8-7 9.5-4-1.7-7-5.2-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></i>
-        <h3>Every coach and volunteer, every year</h3>
-        <p>Little League requires both steps for every BLS volunteer.</p>
-        <a class="hs-clear-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716842">Volunteer steps <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-      <div class="hs-clear-step">
-        <em>1</em>
-        <b>Background check</b>
-        <span>Run by JDP, Little League's approved provider. JDP emails you, and the check starts once you answer that email.</span>
-      </div>
-      <div class="hs-clear-step">
-        <em>2</em>
-        <b>Abuse Awareness Training</b>
-        <span>Little League's online course. Sign in with the email on your BLS account.</span>
-        <a href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" target="_blank" rel="noopener">Take the training <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11L11 5M6 5h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </div>
-  </section>
+  <div class="hs-911"><b>911</b><span>Emergency: call 911 first. Give the field name and location, stay on the line, and send someone to the street to meet the ambulance.</span></div>
 
   <section class="bx-sec hs-docs">
     <header><span class="bx-eyebrow">Forms and handouts</span><h2>Read, print and sign</h2></header>
@@ -260,15 +158,11 @@
           <h3>Medical</h3>
         </div>
         <ul class="hs-list">
-          <li><a class="hs-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" target="_blank" rel="noopener">
+          <li><a class="hs-doc" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" target="_blank" rel="noopener">
             <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
             <span class="hs-dt"><b>Medical Release Form</b><span>Carried by the team manager with the team roster.</span><small>PDF · 1 page</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </a></li>
-          <li><div class="hs-doc hs-kit">
-            <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><rect x="1" y="11" width="36" height="28" rx="5" fill="#cd163f"/><path d="M13 11V8a3 3 0 013-3h6a3 3 0 013 3v3" fill="none" stroke="#cd163f" stroke-width="2.5"/><path d="M16.5 19h5v4.5H26v5h-4.5V33h-5v-4.5H12v-5h4.5z" fill="#fff"/></svg></span>
-            <span class="hs-dt"><b>First aid kits</b><span>Each team gets one at the start of the season. It is required at every game and practice. Email the Safety Officer to restock it.</span></span>
-          </div></li>
         </ul>
       </article>
 
@@ -278,12 +172,12 @@
           <h3>Concussion</h3>
         </div>
         <ul class="hs-list">
-          <li><a class="hs-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_coach.pdf" target="_blank" rel="noopener">
+          <li><a class="hs-doc" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_coach.pdf" target="_blank" rel="noopener">
             <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
             <span class="hs-dt"><b>Concussion Coach Handout</b><span>CDC fact sheet for coaches.</span><small>PDF · 4 pages</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </a></li>
-          <li><a class="hs-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_parent.pdf" target="_blank" rel="noopener">
+          <li><a class="hs-doc" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_parent.pdf" target="_blank" rel="noopener">
             <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
             <span class="hs-dt"><b>Concussion Parent Handout</b><span>CDC fact sheet for parents.</span><small>PDF · 2 pages</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -297,12 +191,12 @@
           <h3>Sudden cardiac arrest</h3>
         </div>
         <ul class="hs-list">
-          <li><a class="hs-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/sudden%20cardiac%20arrest%20education%20flyer.pdf" target="_blank" rel="noopener">
+          <li><a class="hs-doc" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/sudden%20cardiac%20arrest%20education%20flyer.pdf" target="_blank" rel="noopener">
             <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
             <span class="hs-dt"><b>Sudden Cardiac Arrest Information Sheet</b><span>For student-athletes, coaches and parents or guardians.</span><small>PDF · 1 page</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </a></li>
-          <li><a class="hs-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/sumner%20district%20sudden%20cardiac%20arrest%20form...pdf" target="_blank" rel="noopener">
+          <li><a class="hs-doc" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/sumner%20district%20sudden%20cardiac%20arrest%20form...pdf" target="_blank" rel="noopener">
             <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
             <span class="hs-dt"><b>Sudden Cardiac Arrest Form</b><span>Sumner School District form.</span><small>PDF · 1 page</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
@@ -321,31 +215,23 @@
             <span class="hs-dt"><b>Parent Code of Conduct</b><span>Parents read, understand and sign it before their children play.</span><small>PDF · 1 page</small></span>
             <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           </a></li>
-          <li><a class="hs-doc" href="https://www.littleleague.org/playing-rules/bat-information/" target="_blank" rel="noopener">
-            <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><rect x="1" y="5" width="36" height="36" rx="9" fill="#00013a"/><path d="M11 33l3 3 15-16c1.5-1.6 1.5-3.4 0-4.6s-3.2-1-4.6.4z" fill="#f2e3c6"/><circle cx="11.5" cy="35" r="2.6" fill="#f2e3c6"/></svg></span>
-            <span class="hs-dt"><b>Approved Bats</b><span>Bat rules and approved bat information from Little League.</span><small>littleleague.org</small></span>
-            <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </a></li>
         </ul>
       </article>
 
     </div>
   </section>
 
-  <section class="hs-park">
-    <div class="hs-park-top">
-      <div><span class="bx-eyebrow">For everyone at the field</span><h2>At the ballpark</h2></div>
-      <span class="hs-tag">Safety Code</span>
-    </div>
-    <ul class="hs-rules">
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#cd163f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="14" cy="14" r="11"/><path d="M6.5 6.5l15 15"/></svg>No alcohol or drugs on the premises at any time.</li>
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#cd163f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="14" cy="14" r="11"/><path d="M6.5 6.5l15 15"/></svg>No smoking within twenty feet of the dugouts and concession stands.</li>
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#cd163f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="14" cy="14" r="11"/><path d="M6.5 6.5l15 15"/></svg>No playing in the parking lots at any time.</li>
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#cd163f" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="14" cy="14" r="11"/><path d="M6.5 6.5l15 15"/></svg>No swinging bats or throwing balls in walkways and spectator areas.</li>
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 14S7 6.5 14 6.5 25.5 14 25.5 14 21 21.5 14 21.5 2.5 14 2.5 14z"/><circle cx="14" cy="14" r="3.5"/></svg>Stay alert at all times for foul balls and errant throws.</li>
-      <li><svg viewBox="0 0 28 28" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="20" height="18" rx="2"/><path d="M14 5v18M4 14h20"/></svg>Keep field gates closed and secured after players enter or leave.</li>
-    </ul>
-    <p class="hs-park-foot">From the BLSLL Safety Code. The full code is in the Safety Manual.</p>
-  </section>
+  <div class="hs-more">
+    <a class="hs-doc" href="/portals/50558/docs/2025%20blsll%20safetyplan.pdf" target="_blank" rel="noopener">
+      <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M3 4a3 3 0 013-3h19l10 10v31a3 3 0 01-3 3H6a3 3 0 01-3-3z" fill="#fff" stroke="#c3ccdc" stroke-width="1.5"/><path d="M25 1v7a3 3 0 003 3h7" fill="none" stroke="#c3ccdc" stroke-width="1.5"/><rect x="0" y="24" width="26" height="12" rx="3" fill="#cd163f"/><text x="13" y="33" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="8" font-weight="700" fill="#fff">PDF</text></svg></span>
+      <span class="hs-dt"><b>BLSLL Safety Manual</b><span>Safety Code, first aid kits, injury form, field checklist.</span><small>2025 edition · PDF · 17 pages</small></span>
+      <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </a>
+    <a class="hs-doc" href="https://www.blslittleleague.org/Default.aspx?tabid=716842">
+      <span class="hs-ic"><svg viewBox="0 0 38 46" aria-hidden="true"><path d="M19 3l14 5v10c0 9.5-6 16-14 20C11 34 5 27.5 5 18V8z" fill="#00013a"/><path d="M12.5 20l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="hs-dt"><b>Coach and volunteer clearance</b><span>Background check and training, every year.</span><small>Volunteer page</small></span>
+      <span class="hs-go"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    </a>
+  </div>
 
 </div>

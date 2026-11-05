@@ -8,9 +8,9 @@
   "1544899",
   "1544892"
  ],
- "status": "Ready to launch",
- "summary": "Coach hub in one block: run book on a clipboard, the three clearance steps (JDP email, yearly training, no certificate), schedule tiles, gear bag rules, rules and field layouts; the All-Star link opens the same 2026 PDF as the All-Stars page.",
- "blurb": "One place for coaches: the run book, clearance steps, schedules, gear and rules.",
+ "status": "Ready after 1 item",
+ "summary": "Coaches Corner is one hub: the Run Book first, then schedules, rules and the Rulebook app. Why: a coach finds every link without hunting.",
+ "blurb": "One place for coaches: the run book first, then schedules, rules and getting cleared.",
  "sources": [
   {
    "fact": "Spring volunteers get the background check emailed automatically by JDP and must also complete Abuse Awareness Training with the same email.",
@@ -18,30 +18,28 @@
    "date": "2026-03-22"
   },
   {
-   "fact": "Abuse Awareness Training is required and valid for the year; no certificate needed, use the email you registered to volunteer with.",
+   "fact": "Abuse Awareness Training is required and valid for the year; use the email you registered to volunteer with.",
    "url": "https://www.instagram.com/p/DTl3_pkAXau/",
    "date": "2026-01-16"
   },
   {
-   "fact": "Coaches return team gear to the Daffodil Shed at the end of the season (Fall 2026: Sat Nov 7).",
-   "url": "https://www.instagram.com/p/DfPyxIwCao1/",
-   "date": "2026-11-02"
-  },
-  {
-   "fact": "Gear return rules: gear cleaned, keys on the zipper.",
-   "url": "https://www.facebook.com/BLSLittleLeague/posts/pfbid02NkhDE2DmJHoTBLHZt7RjPTUwpYFiNJEsq3UvpZ3sUc2sQMnJqbbbzWPi9npEo24Al",
-   "date": "2025-10-28"
+   "fact": "The Little League Rulebook app is free on iOS and Android and covers baseball, softball and Challenger.",
+   "url": "https://www.littleleague.org/playing-rules/little-league-rulebook-app/",
+   "date": "2026-11-03"
   }
  ],
  "later": [
+  "Website (Daniel Grande), at go-live: the clipboard, the Pitch counts row and the Get cleared tile point at the Run Book preview page (go.blslittleleague.org/bls/preview/proposed/runbook.html, with #rules and #get-cleared); swap in the live Run Book URL and keep the anchors.",
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 BLS local rules and the 2027 District 10 softball interlock rules, once approved. The 2025 files stay up, each labeled 2025.",
   "League Player Agent (Jason Guertin): the 2027 All-Star selection process, once approved. Until then Coaches Corner links the same 2026 PDF as the All-Stars page.",
-  "Coaching Coordinator (Rod Vincent): a 2027 New Coach Run Book. The 2026 edition still has 2026 dates in it.",
   "Coaching Coordinator (Rod Vincent): the 2027 coach sign-up deadline and the upper and lower division coaches meeting dates (2026: Feb 22 and Mar 22 at Round Table Pizza, Bonney Lake), so the page can list them.",
   "Coaching Coordinator (Rod Vincent): the 2027 District 10 coaching clinic date, once District 10 posts it.",
-  "Safety Officer (Daneen Galvez): the 2027 Safety Plan, when ready. The 2025 plan stays linked until then.",
-  "Fields / Equipment (Daniel Lane): the spring 2027 gear bag pickup date and place, and confirm gear returns stay at the Daffodil Shed.",
-  "Website (Daniel Grande): swap the 2026 Rulebook Changes link for the 2027 list once littleleague.org posts it."
+  "Website (Daniel Grande): field dimensions by division (base and pitching distances, one diagram per division, figures from the littleleague.org layout pages) as a Field Dimensions page or a section on the Fields page. The four littleleague.org layout cards were cut from Coaches Corner until that exists.",
+  "Website (Daniel Grande): an 'Is my bat approved?' entry on the FAQ page, sourced from littleleague.org bat information. The Approved Bats link was cut from Health & Safety and has no BLS home yet.",
+  "Website (Daniel Grande): once the Schedules & Scores page is live, collapse the Team Schedules, Standings and Game Scores tiles into one Schedules & Scores tile; today they lead to Sports Connect pages that list no programs."
  ],
- "required": []
+ "required": [
+  "Daniel: put the Coach Run Book page live first. The hero clipboard, the pitch count row and the Get cleared card link to it."
+ ],
+ "long_summary": "Coach hub in one block with one action: the Run Book on a clipboard. Then the schedule tiles, BLS and District 10 rule PDFs plus a pitch-count link into the Run Book and the Rulebook app as the page's only outside button, a Get cleared tile into the Run Book and a Health & Safety tile. The clearance steps, gear bag note, Little League rules links and field layout cards are off the page; the All-Star PDF links through our portal path."
 }

@@ -130,6 +130,14 @@ body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocial
   body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2 > li{width:auto!important;list-style:none}
 }
 
+/* Phone: the Little League International box in the right column only shows a privacy notice (its feed is blocked by cookie consent),
+   so it is hidden on phones. The ad slot under it (.skBanner) stays. */
+@media (max-width:768px){
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs > .skNewsTitle,
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs .skSocialFeed > .sksocialTab,
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs #skFacebookTab{display:none!important}
+}
+
 /* Facebook boxes: page header and Follow button only. Their timelines do not load on most phones, which left about 1,000px of blank space under the news.
    Sports Connect asked (support case, 11/3/2026) to set these plugins to header only; this is the preview of that result. */
 [id$="ctlFaceBookPlugInManager_fb_module"] iframe.facebook-plugin,[id$="ctlFaceBookPlugInManager2_fb_module"] iframe.facebook-plugin{height:80px!important}

@@ -7,7 +7,7 @@
  },
  "page_title": "Umpires",
  "status": "Ready to launch",
- "summary": "New Umpires page: hero, one big button to the game sign-up site, why umpire (Junior Umpire Program, pay, graduation hours, spring clinics), adult umpires and the open Umpire in Chief seat.",
+ "summary": "New page: I want to umpire (email) and the umpire schedule button, plus why to umpire. Why: new umpires had no page to start from.",
  "blurb": "A new page about umpiring, including the Junior Umpire Program.",
  "sources": [
   {
@@ -64,5 +64,6 @@
   "Umpire in Chief or President (Ramey Harguess): confirm the umpire game sign-up site (cgisports.com/ump/5745) is still the one for 2027.",
   "President (Ramey Harguess): OK to add this new page to the menu, where it could take the place of the Umpire Game Sign Up link since the page carries that button."
  ],
- "required": []
+ "required": [],
+ "long_summary": "New Umpires page: a red I want to umpire button (email info@) and an outline Umpire schedule button (the page's one labeled outside hop, cgisports) both in the hero, why umpire (pay, graduation hours, spring clinics), and get cleared first for adults with a link to our Volunteer page. No shortage note, clinic history, littleleague.org link or board seat."
 }

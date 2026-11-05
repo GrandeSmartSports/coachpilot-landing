@@ -182,10 +182,18 @@ def build(slug, variant):
     on, off = 'background:#cd163f;color:#fff;', 'background:#fff;color:#00013a;'
     def seg(v, label):
         return f'<a href="{BASE}/{v}/{slug}.html" style="{on if v == variant else off}flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">{label}</a>'
+    # Previous / Next page in pages.json order, same version, so a reader can walk the pages without backing out (Coach 11/4)
+    order = list(CFG); i = order.index(slug)
+    def nav(target, label):
+        st = 'flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;'
+        if target is None:
+            return f'<span aria-hidden="true" style="{st}opacity:.3;border-color:transparent;">{label}</span>'
+        word = 'Previous' if 'Prev' in label else 'Next'
+        return f'<a href="{BASE}/{variant}/{target}.html" title="{CFG[target]["title"]}" aria-label="{word} page: {CFG[target]["title"]}" style="{st}">{label}</a>'
     bar = (f'<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);">'
            f'<div id="blsbBar" class="blsb"></div>'
-           f'<div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;">{seg("today", "Today")}{seg("proposed", "Proposed")}</div>'
-           f'<div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · {cfg["title"]} · <a href="{BASE}/" style="color:#fff;">All pages</a></div>'
+           f'<div id="blsSwitch" style="display:flex;gap:6px;max-width:560px;margin:0 auto 6px;">{nav(order[i - 1] if i > 0 else None, "&lsaquo; Prev")}{seg("today", "Today")}{seg("proposed", "Proposed")}{nav(order[i + 1] if i + 1 < len(order) else None, "Next &rsaquo;")}</div>'
+           f'<div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · {cfg["title"]} · <a href="{BASE}/#p-{slug}" style="color:#fff;">All pages</a></div>'
            + needs_panel(slug) + '</div><div id="blsPreviewSpacer" style="height:96px"></div>'
            + board_scripts(page=slug, variant=variant))
     soup.body.append(BeautifulSoup(bar, 'html.parser'))

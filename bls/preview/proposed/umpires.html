@@ -239,7 +239,7 @@ body.Inner-Skin .dfArea .registration-listing #BSBGrid .grid-title{color:var(--b
   body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(:last-child):not(.blsx):not(.blsx *){padding-right:16px}
   body.Inner-Skin .skInnerWrapper .Normal td > :is(ul,ol):not(.blsx):not(.blsx *){padding-left:1.15em!important}
 }
-</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=489ed3479a" rel="stylesheet"/></head>
+</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=0676cf4a4f" rel="stylesheet"/></head>
 <body class="LittleLeague2020-navy LittleLeague-Default Inner-Skin" id="Body">
 <!-- Google Tag Manager (noscript) -->
 <noscript>
@@ -1030,18 +1030,14 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsx .bx-bso i.on{background:#e7ecff;box-shadow:0 0 14px rgba(150,185,255,.8);}
 .blsx .bx-bso i.r{background:#ff4d6f;box-shadow:0 0 14px rgba(255,77,111,.8);}
 .blsx .bx-count .d{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:84px;line-height:.9;text-transform:uppercase;color:#fff;text-shadow:0 5px 0 #cd163f;}
-
-/* ---------- sign-up scoreboard ---------- */
-.blsx .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:34px 40px 30px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px 32px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsx .bx-board .bx-eyebrow{color:#ffb8c6;}
-.blsx .bx-board h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:44px;line-height:1;text-transform:uppercase;color:#fff !important;}
-.blsx .bx-board p{margin-top:10px !important;font-size:16px;line-height:1.55;color:#c6d1ee;max-width:32em;}
-.blsx .bx-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#cd163f;color:#fff !important;font-weight:700;font-size:18px;padding:18px 28px;border-radius:12px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 14px 30px rgba(205,22,63,.35);transition:transform .15s,box-shadow .15s;white-space:nowrap;}
+/* the two actions: new umpires (red) and current umpires (outline, leaves the site) */
+.blsx .bx-acts{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:30px;}
+.blsx .bx-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#cd163f;color:#fff !important;font-weight:700;font-size:18px;line-height:1.2;text-align:center !important;padding:18px 28px;border-radius:12px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 14px 30px rgba(205,22,63,.35);transition:transform .15s,box-shadow .15s;}
 .blsx .bx-cta:hover{transform:translateY(-2px);box-shadow:0 0 0 3px #fff,0 18px 36px rgba(205,22,63,.45);}
-.blsx .bx-cta svg{width:18px;height:18px;}
-.blsx .bx-board .bx-foot{grid-column:1 / -1;margin-top:4px !important;border-top:1px solid #1b2670;padding-top:16px;font-size:15px;max-width:none;}
-.blsx .bx-board .bx-foot b{color:#fff;}
-.blsx .bx-board .bx-foot a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);}
+.blsx .bx-cta svg{width:18px;height:18px;flex:none;}
+.blsx .bx-cta.ghost{background:transparent;font-size:15px;padding:14px 20px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);}
+.blsx .bx-cta.ghost:hover{box-shadow:inset 0 0 0 2px #fff,0 10px 22px rgba(0,0,0,.25);}
+.blsx .bx-cta.ghost svg{width:15px;height:15px;}
 
 /* ---------- section heads ---------- */
 .blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -1063,19 +1059,11 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsx .bx-ic h3,.blsx .bx-tile h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:10px !important;}
 .blsx .bx-ic p,.blsx .bx-tile p{font-size:15px;line-height:1.55;color:#4b5675;}
 
-/* ---------- step up: adults + open seat ---------- */
+/* ---------- step up: adults ---------- */
 .blsx .bx-up{background:#fff;border:1px solid var(--line);}
-.blsx .bx-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px !important;}
+.blsx .bx-pair{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-top:28px !important;}
 .blsx .bx-tile{background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:26px;display:flex;flex-direction:column;align-items:flex-start;}
-.blsx .bx-hot{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
-.blsx .bx-hot::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsx .bx-hot h3{color:#fff !important;font-size:40px !important;}
-.blsx .bx-hot p{color:#dbe2f4;}
-.blsx .bx-chip{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:15px;letter-spacing:.16em;text-transform:uppercase;background:#cd163f;color:#fff;padding:3px 10px;border-radius:6px;margin-bottom:12px;}
-.blsx .bx-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;margin-top:auto;transition:transform .15s,box-shadow .15s;position:relative;z-index:1;}
-.blsx .bx-hot p + .bx-btn{margin-top:20px;}
-.blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
-.blsx .bx-btn svg{width:16px;height:16px;}
+.blsx .bx-tile p{max-width:44em;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -1087,19 +1075,22 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blsx .bx-photo{order:-1;min-height:0;}
   .blsx .bx-photo::before{display:none;}
   .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-bottom:5px solid #cd163f;}
-  .blsx .bx-count{position:relative;inset:auto;padding:24px 20px 22px;gap:12px;}
-  .blsx .bx-bso{padding:12px 18px;gap:8px;}
-  .blsx .bx-bso b{font-size:24px;width:24px;}
-  .blsx .bx-bso i{width:22px;height:22px;}
-  .blsx .bx-count .d{font-size:60px;}
+  .blsx .bx-count{position:relative;inset:auto;flex-direction:row;justify-content:center;padding:14px 18px;gap:16px;}
+  .blsx .bx-count::after{display:none;}
+  .blsx .bx-count .k{display:none;}
+  .blsx .bx-bso{padding:8px 12px;gap:5px;}
+  .blsx .bx-bso div{gap:8px;}
+  .blsx .bx-bso b{font-size:18px;width:18px;}
+  .blsx .bx-bso i{width:14px;height:14px;}
+  .blsx .bx-count .d{font-size:40px;text-shadow:0 3px 0 #cd163f;}
   .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
   .blsx .bx-hero h1{font-size:60px;}
   .blsx .bx-hero h1 small{font-size:.52em;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
-  .blsx .bx-board{grid-template-columns:minmax(0,1fr);padding:26px 18px 22px;border-radius:14px;}
-  .blsx .bx-board h2{font-size:36px;}
+  .blsx .bx-lede{margin-top:18px !important;font-size:15px;}
+  .blsx .bx-acts{margin-top:26px;gap:10px;}
   .blsx .bx-cta{width:100%;font-size:17px;padding:16px 20px;}
+  .blsx .bx-cta.ghost{font-size:14.5px;padding:13px 16px;}
   .blsx .bx-sec{padding:28px 18px;border-radius:14px;}
   .blsx .bx-sec h2{font-size:36px;}
   .blsx .bx-cards,.blsx .bx-pair{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:22px !important;}
@@ -1109,7 +1100,6 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blsx .bx-ic .bx-icon{grid-column:1;grid-row:1 / span 4;width:48px;height:48px;margin:2px 0 0;}
   .blsx .bx-icon svg{width:26px;height:26px;}
   .blsx .bx-ic .bx-link{justify-self:start;}
-  .blsx .bx-hot h3{font-size:34px !important;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
@@ -1136,7 +1126,11 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div><span>Spring 2027</span><b>Umpires</b></div>
 </div>
 <h1><small>Call the game</small><em>Umpire<br/>for BLS.</em></h1>
-<p class="bx-lede">Call Little League baseball and softball games in Bonney Lake, Sumner and Orting. Junior and adult umpires are welcome, and BLS brought back its Junior Umpire Program in 2025.</p>
+<div class="bx-acts">
+<a class="bx-cta" href="mailto:info@blslittleleague.org?subject=Umpiring%20for%20BLS">I want to umpire <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg></a>
+<a class="bx-cta ghost" href="https://cgisports.com/ump/5745/" rel="noopener" target="_blank">Umpire schedule (opens the umpire scheduling site) <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg></a>
+</div>
+<p class="bx-lede">Junior (teen) and adult umpires welcome. Games in Bonney Lake, Sumner and Orting.</p>
 </div>
 <figure class="bx-photo"><div class="bx-frame"><div aria-label="Scoreboard showing a full count" class="bx-count" role="img">
 <span class="k">Full count</span>
@@ -1149,17 +1143,8 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div></div></figure>
 </div>
 </section>
-<section class="bx-board">
-<div>
-<span class="bx-eyebrow">Already a BLS umpire?</span>
-<h2>Umpire game sign-up</h2>
-<p>Log in to the BLS umpire schedule to see open games and sign up for the ones you can call.</p>
-</div>
-<a class="bx-cta" href="https://cgisports.com/ump/5745/" rel="noopener" target="_blank">Open game sign-up <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path></svg></a>
-<p class="bx-foot"><b>New umpire?</b> Email <a href="mailto:info@blslittleleague.org?subject=Umpiring%20for%20BLS">info@blslittleleague.org</a> to ask about joining.</p>
-</section>
 <section class="bx-sec bx-why">
-<header><span class="bx-eyebrow">Why umpire</span><h2>Worth the call</h2><p class="bx-sub">BLS ran short of umpires for Fall Ball games in September 2026. Each new umpire helps cover more games.</p></header>
+<header><span class="bx-eyebrow">Why umpire</span><h2>Worth the call</h2></header>
 <div class="bx-cards">
 <article class="bx-ic">
 <span class="bx-icon"><svg aria-hidden="true" viewbox="0 0 32 32"><circle cx="16" cy="16" fill="none" r="12" stroke="#fff" stroke-width="2.4"></circle><path d="M19.6 12c-.8-1.2-2.1-1.8-3.7-1.8-2.1 0-3.6 1.1-3.6 2.7 0 3.8 7.6 2 7.6 5.9 0 1.8-1.7 3-4 3-1.7 0-3.1-.7-3.9-1.9M16 7.8v2.4M16 21.8v2.4" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2.2"></path></svg></span>
@@ -1175,27 +1160,20 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </article>
 <article class="bx-ic">
 <span class="bx-icon"><svg aria-hidden="true" viewbox="0 0 32 32"><rect fill="none" height="25" rx="4" stroke="#fff" stroke-width="2.2" width="14" x="9" y="3.5"></rect><circle cx="16" cy="10" fill="#fff" r="2.2"></circle><circle cx="16" cy="16" fill="#fff" r="2.2"></circle><circle cx="16" cy="22" fill="#fff" r="2.2"></circle></svg></span>
-<p class="bx-meta">District 10 clinics</p>
+<p class="bx-meta">Before the season</p>
 <h3>Get trained</h3>
-<p>District 10 holds umpire clinics each spring, taught in 2025 by Little League World Series umpires. In 2026 BLS also ran its own clinic at Allan Yorke Park.</p>
-<a class="bx-link" href="https://www.littleleague.org/umpires/" rel="noopener" target="_blank">Umpire resources <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<p>Umpire clinics are held each spring before games start.</p>
 </article>
 </div>
 </section>
 <section class="bx-sec bx-up">
-<header><span class="bx-eyebrow">Adults and leaders</span><h2>Step up to the plate</h2></header>
+<header><span class="bx-eyebrow">Adults</span><h2>Step up to the plate</h2></header>
 <div class="bx-pair">
 <article class="bx-tile">
 <p class="bx-meta">Adult umpires</p>
 <h3>Get cleared first</h3>
-<p>The board appoints umpires every year. Adult umpires get cleared like every BLS volunteer: register, pass the background check, and finish Abuse Awareness training.</p>
+<p>Adult umpires get cleared like every BLS volunteer: register, pass the background check, and finish Abuse Awareness training.</p>
 <a class="bx-link" href="https://go.blslittleleague.org/bls/preview/proposed/volunteer.html">How to get cleared <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
-</article>
-<article class="bx-tile bx-hot">
-<span class="bx-chip">Open board seat</span>
-<h3>Umpire in Chief</h3>
-<p>Lead BLS umpires from a seat on the league board.</p>
-<a class="bx-btn" href="mailto:info@blslittleleague.org?subject=Umpire%20in%20Chief">Ask about the seat <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
 </article>
 </div>
 </section>
@@ -1591,5 +1569,5 @@ $(window).load(function(){
        } 
    </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script>
-<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;"><a href="https://go.blslittleleague.org/bls/preview/today/umpires.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/umpires.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Umpires · <a href="https://go.blslittleleague.org/bls/preview/" style="color:#fff;">All pages</a></div><div id="blsNeeds" style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">All facts in</div></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "umpires", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": []}, "registration": {"t": "Registration Info", "req": []}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": []}, "faq": {"t": "FAQ", "req": []}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=489ed3479a"></script></body>
+<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:560px;margin:0 auto 6px;"><a aria-label="Previous page: Fields" href="https://go.blslittleleague.org/bls/preview/proposed/fields.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Fields">‹ Prev</a><a href="https://go.blslittleleague.org/bls/preview/today/umpires.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/umpires.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a><a aria-label="Next page: Coach Run Book" href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Coach Run Book">Next ›</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Umpires · <a href="https://go.blslittleleague.org/bls/preview/#p-umpires" style="color:#fff;">All pages</a></div><div id="blsNeeds" style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">All facts in</div></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "umpires", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": ["Daniel (Website) or Melissa (Information Officer), in Sports Connect: take down the site-wide announcement bar (gear return, Daffodil Shed, the first thing on every page) or set it to 'Spring 2027 registration opens Fri Nov 27'; pin the registration story first in Local News; move the 'Meet the 2026-27 BLS Board' and 'Join the Fields Committee for 2027' posts off the home feed. Site settings and news posts, not content blocks, so the preview still shows them."]}, "registration": {"t": "Registration Info", "req": ["Daniel: put the League Age page live first. The card's 'Check your league age' row and the Baseball and Softball tiles link to it."]}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: finish the Spring 2027 registration setup and move volunteer sign-up onto this page. It's running today, just not shown here.", "Daniel: put the Umpires page live first. The Umpire tile links to it."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": ["Daniel: put the Coach Run Book page live first. The hero clipboard, the pitch count row and the Get cleared card link to it."]}, "faq": {"t": "FAQ", "req": ["Daniel: put the League Age page live first. Answer 2's button links to it.", "Daniel: put the Fields page live first. Answer 7's button links to it."]}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Daniel: put the League Age page live first. The roster step links to it.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}, "leagueage": {"t": "League Age", "req": ["Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.", "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=0676cf4a4f"></script></body>
 </html>

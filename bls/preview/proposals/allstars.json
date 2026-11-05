@@ -6,7 +6,7 @@
   }
  },
  "status": "Ready after 1 item",
- "summary": "All-Stars hero with the tournament trail, three-step selection, summer commitment, required documents, 2026 District 10 dates with BLS results (two titles, 3rd at State), and a link card to the new Champions page.",
+ "summary": "A short All-Stars page: how a player is picked (with the selection PDF), the summer commitment, required documents, and a link to the Champions page. Why: answers the questions families ask in June.",
  "blurb": "How All-Stars works, from selection to the summer schedule, with the 2026 results.",
  "sources": [
   {
@@ -53,11 +53,13 @@
  "later": [
   "League Player Agent (Jason Guertin): the 2027 All-Star rules (8-game minimum, boundary rule) and the 2027 selection process PDF. Until then this page and Coaches Corner both link the 2026 PDF.",
   "League Player Agent (Jason Guertin), VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 team announcement date. The page shows 2026 (after May 16, posted May 20 to 24).",
-  "League Player Agent (Jason Guertin): the 2027 District 10 tournament dates and hosts, once District 10 releases them. Until then the page shows 2026 dates and results as last season.",
+  "League Player Agent (Jason Guertin): the 2027 District 10 tournament dates and hosts, once District 10 releases them. The page no longer lists tournament dates or host fields; when 2027 dates arrive, add a Tournament sites section to our Fields page (address plus Directions) and link it from here.",
+  "Website (Daniel Grande): upload the School Enrollment Form and Tournament Player Verification PDFs to our portal (docs/allstars/) and turn those two document cards back into links (GO-LIVE comment in the module).",
   "Uniforms (Dena Berkey): the 2027 All-Stars gear store dates and pickup plan, once set.",
   "Website (Daniel Grande): create the Champions page in Sports Connect and put its real link in the 2025 Champions card (marked GO-LIVE in the module)."
  ],
  "required": [
   "Daniel: put the Champions page live first. The 2025 card on this page links to it."
- ]
+ ],
+ "long_summary": "All-Stars hero (one-line lede, tournament trail), three-step selection with the 2026 selection process PDF as the page's one button, summer commitment, required documents (Medical Release Form from our portal; the two other Little League forms are plain labels until their PDFs are on our portal), recent All-Star titles (2026 tally plus the 2025 and 2026 All-Star honor roll, moved here from Champions), and a link card to the Champions page. No outside links: the littleleague.org parent article, the three littleleague.org form downloads, the 2026 District 10 tournament tables with 10 map pins, and the State and Region links are gone."
 }

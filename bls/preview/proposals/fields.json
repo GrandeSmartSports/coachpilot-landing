@@ -7,7 +7,7 @@
  },
  "page_title": "Fields",
  "status": "Ready to launch",
- "summary": "New page: 11 field sites by town with one-tap directions, a live map of Allan Yorke Park (fields AY1 to AY5 and the parking note), site tips from BLS posts, a note on the two sites new for spring 2027, a Fields Committee volunteer call and a thank-you to the groups that donated infield dirt.",
+ "summary": "New page: pick a site, see the address and field names, tap Directions. Why: every field one tap away on game day.",
  "blurb": "A new page with every field site, one-tap directions and parking tips.",
  "sources": [
   {
@@ -19,11 +19,6 @@
    "fact": "Allan Yorke Field #5 hosted a 2026 Majors Softball semifinal (field numbering).",
    "url": "https://www.instagram.com/p/DY5dTaPgSvt/",
    "date": "2026-05-28"
-  },
-  {
-   "fact": "Allan Yorke Park has the BLS shed/snack shack (field prep day meeting point).",
-   "url": "https://www.instagram.com/p/DVY1O7ujos5/",
-   "date": "2026-03-02"
   },
   {
    "fact": "Juniors and 50/70 evaluations use the Mountain View Middle School 90-foot field.",
@@ -39,11 +34,6 @@
    "fact": "Orting Lions Field concessions on Saturdays, grab and go, cash or card.",
    "url": "https://www.instagram.com/p/DYDU3JlgZNJ/",
    "date": "2026-05-07"
-  },
-  {
-   "fact": "Snack shack open at Lions Field on fall Saturdays.",
-   "url": "https://www.instagram.com/p/DdecEHqk2XQ/",
-   "date": "2026-09-19"
   },
   {
    "fact": "BLS is asking people to join the Fields Committee for the upcoming season (meeting Nov 1).",
@@ -68,14 +58,15 @@
  ],
  "later": [
   "Fields Coordinator (Daniel Lane) and Scheduler (Daniel Grande): confirm the 11 sites and field names for spring 2027.",
-  "Fields Coordinator (Daniel Lane): the Nov 1 board minutes confirm Daffodil West (gained for spring) and the Donald Eismann Elementary turf fields (Mon, Wed, Fri, Sat, Sun; two games at a time; Majors and AA or below). The page names both in a New for spring 2027 note with directions coming soon. Send each site's address and field names so they get full cards, and say whether Daffodil West is part of the Daffodil Sports Complex.",
+  "Fields Coordinator (Daniel Lane): the Nov 1 board minutes mention Daffodil West and the Donald Eismann Elementary turf fields for spring. Neither is on the public page (no new-field specifics there). Send each site's address and field names when confirmed so they get full cards, and say whether Daffodil West is part of the Daffodil Sports Complex.",
   "Fields Coordinator (Daniel Lane): still held back until confirmed: Crestwood Elementary, Emerald Hills Elementary, Daffodil Sports Complex (unless it is Daffodil West), Bill Heath Sports Complex and Calistoga Park (Orting). Bill Heath hosted the Fall Ball coaches meeting in 2025 and 2026, so is it a game field, and what is its address?",
-  "Fields Coordinator (Daniel Lane): where is the Daffodil Shed (Fall Ball gear return, All-Star gear pickup)? Is it at the Daffodil Sports Complex? The Nov 1 minutes say BLS loses storage at the Daffodil shed in late spring 2027, when the turf project starts. Should the page list it at all?",
+  "Coach 11/4: the shed and the snack shack are not needed on this page. Do not add them back from the source posts or the Nov 1 minutes (gear return and storage are coach and board operations).",
   "Fields Coordinator (Daniel Lane): the correct name for the Orting site. The page says Orting Lions Park, also called Orting Lions Field; posts also say Lions Field and Lions Community Park.",
   "Fields Coordinator (Daniel Lane): which Allan Yorke Park address to use (7203 W Tapps Hwy E is on the page; 19501 Bonney Lake Blvd E is also on file).",
   "Whoever manages the league email aliases: confirm fields@blslittleleague.org reaches Daniel Lane. The page uses it for the Fields Committee and for corrections.",
   "Field Rentals Coordinator (Greg Potts): should the page say how outside groups can rent BLS fields, and with what contact?",
   "Board: menu placement for the new page (suggestion: under Team Central next to Posted Schedules)."
  ],
- "required": []
+ "required": [],
+ "long_summary": "New page with one job: find your field. Title, a site picker (all 11 sites, each button jumps to that site's card), then every card with the address, the field names as they appear on schedules and one Directions button (opens Maps). Allan Yorke Park first, with its parking note. No map embed, no site counts, no ownership eyebrows, no surface or diamond-size notes, no Fields Committee call, no dirt-donor list, no save-this-page tip."
 }

@@ -1,0 +1,36 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Poppins:wght@500;600;700;800;900&display=swap');
+/* Home page: this block sits above the slideshow. It carries its own look, since the home page has no Inner-Skin styles. */
+.DnnModule:has(.blsh) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.DnnModule:has(.blsh) > .dfContainer,.DnnModule:has(.blsh) > .dfContainer > .dfArea,.DnnModule:has(.blsh) .content{margin:0 !important;padding:0 !important;background:transparent !important;border:0 !important;box-shadow:none !important;}
+.blsh{font-family:Poppins,Arial,sans-serif !important;color:#fff;font-size:16px;line-height:1.4;text-align:left !important;margin:0 0 18px;}
+.blsh *,.blsh *::before,.blsh *::after{box-sizing:border-box;}
+.blsh a{text-decoration:none !important;}
+.blsh svg{display:block;}
+.blsh .bh-card{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:20px 28px;padding:22px 26px 22px 30px;border-radius:14px;background:linear-gradient(120deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);color:#fff !important;box-shadow:0 1px 2px rgba(0,1,58,.08),0 14px 34px rgba(0,1,58,.22);transition:transform .15s,box-shadow .15s;}
+.blsh .bh-card:hover{transform:translateY(-2px);box-shadow:0 1px 2px rgba(0,1,58,.08),0 20px 40px rgba(0,1,58,.28);}
+.blsh .bh-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:#cd163f;}
+.blsh .bh-card::after{content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;border:2px dashed rgba(255,255,255,.14);z-index:-1;}
+.blsh .bh-k{display:block;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
+.blsh .bh-d{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin-top:4px;}
+.blsh .bh-d b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:44px;line-height:1;letter-spacing:.01em;text-transform:uppercase;color:#fff;white-space:nowrap;}
+.blsh .bh-d span{font-size:15px;font-weight:600;color:#dbe2f4;}
+.blsh .bh-btn{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:12px;padding:16px 22px;border-radius:12px;background:#cd163f;color:#fff !important;font-weight:800;font-size:18px;line-height:1.1;white-space:nowrap;box-shadow:0 12px 26px rgba(205,22,63,.4);}
+.blsh .bh-btn svg{width:20px;height:20px;flex:none;}
+@media (max-width:768px){
+  .blsh{margin:0 0 14px;}
+  .blsh .bh-card{flex-direction:column;align-items:stretch;gap:16px;padding:18px 18px 18px 24px;border-radius:12px;}
+  .blsh .bh-d b{font-size:38px;}
+  .blsh .bh-btn{margin-left:0;justify-content:center;width:100%;padding:16px 18px;}
+}
+@media (prefers-reduced-motion:reduce){.blsh *{transition:none !important;}}
+</style>
+<div class="blsh">
+  <a class="bh-card" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">
+    <div>
+      <span class="bh-k">Spring 2027 registration</span>
+      <span class="bh-d"><b>Opens Fri Nov 27</b><span>Baseball and softball, Bonney Lake, Sumner and Orting</span></span>
+    </div>
+    <span class="bh-btn">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  </a>
+</div>

@@ -14,8 +14,8 @@
 .blsx .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
 .blsx .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.86) 28%,rgba(0,1,58,.3) 56%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
-.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:430px;}
-.blsx .bx-copy{align-self:center;padding:44px 24px 44px 40px;}
+.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,1fr);min-height:0;}
+.blsx .bx-copy{align-self:center;max-width:780px;padding:44px 40px 46px;}
 .blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
 .blsx .bx-ribbon svg{width:30px;height:30px;flex:none;}
 .blsx .bx-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
@@ -24,15 +24,10 @@
 .blsx .bx-hero h1 em{font-style:normal;display:block;color:#fff;position:relative;width:max-content;max-width:100%;}
 .blsx .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
 .blsx .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
-.blsx .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
-.blsx .bx-photo{position:relative;min-height:100%;}
-.blsx .bx-photo::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
-.blsx .bx-frame{position:absolute;inset:0;overflow:hidden;background:#0b1a5c;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);}
-.blsx .bx-ticket{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);color:#fff;text-align:center;padding:24px 24px 24px 70px;}
-.blsx .bx-ticket .k{font:800 14px/1 Poppins,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
-.blsx .bx-ticket .d{font:800 clamp(96px,13vw,150px)/.86 'Barlow Condensed','Arial Narrow',Arial,sans-serif;color:#fff;text-shadow:0 6px 0 #cd163f;}
-.blsx .bx-ticket .w{font:700 20px/1.2 Poppins,Arial,sans-serif;color:#e7ecff;}
-.blsx .bx-ticket .p{margin-top:14px;background:#cd163f;border:3px solid #fff;border-radius:999px;padding:9px 20px;font:800 17px/1 Poppins,Arial,sans-serif;color:#fff;}
+/* the one action: help by email, right under the name-and-ID card */
+.blsx .bx-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#cd163f;color:#fff !important;font-weight:700;font-size:17px;line-height:1.25;text-align:center !important;padding:17px 26px;border-radius:12px;margin-top:18px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 14px 30px rgba(205,22,63,.35);transition:transform .15s,box-shadow .15s;}
+.blsx .bx-cta:hover{transform:translateY(-2px);box-shadow:0 0 0 3px #fff,0 18px 36px rgba(205,22,63,.45);}
+.blsx .bx-cta svg{width:18px;height:18px;flex:none;}
 
 /* ---------- shared section heads + buttons ---------- */
 .blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -43,119 +38,84 @@
 .blsx .bx-btn svg{width:16px;height:16px;flex:none;}
 .blsx .bx-btn.lt{background:#fff;color:#00013a !important;}
 
-/* ---------- "search for us as" ticket ---------- */
-.blsx .cm-id{display:grid;grid-template-columns:200px minmax(0,1fr);background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 12px 28px rgba(0,1,58,.07);}
-.blsx .cm-stub{position:relative;background:#cd163f;color:#fff;padding:26px 24px;display:flex;flex-direction:column;justify-content:center;gap:10px;}
+/* ---------- "search for us as": the name and ID card, inside the hero ---------- */
+.blsx .cm-id{margin-top:30px;display:grid;grid-template-columns:168px minmax(0,1fr);background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 24px 50px rgba(0,0,30,.35);color:#00013a;text-align:left !important;}
+.blsx .cm-stub{position:relative;background:#cd163f;color:#fff;padding:22px 20px;display:flex;flex-direction:column;justify-content:center;gap:10px;}
 .blsx .cm-stub::after{content:"";position:absolute;right:-1px;top:14px;bottom:14px;border-right:3px dashed #fff;opacity:.55;}
-.blsx .cm-stub svg{width:34px;height:34px;}
-.blsx .cm-stub b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:30px;line-height:.95;text-transform:uppercase;}
-.blsx .cm-stub span{font-size:13px;line-height:1.35;color:#ffe1e8;}
-.blsx .cm-id-main{padding:24px 30px 22px;}
-.blsx .cm-id dl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:18px 28px;}
-.blsx .cm-id dd .nw{white-space:nowrap;}
-.blsx .cm-id dt{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#7a84a0;margin-bottom:4px !important;}
-.blsx .cm-id dd{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:25px;line-height:1.05;text-transform:uppercase;color:#00013a;}
-.blsx .cm-id dd.num{font-variant-numeric:tabular-nums;letter-spacing:.03em;}
-.blsx .cm-id-note{margin-top:16px !important;padding-top:14px;border-top:1px solid var(--line) !important;font-size:15px;color:#4b5675;}
+.blsx .cm-stub svg{width:30px;height:30px;}
+.blsx .cm-stub b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;line-height:.95;text-transform:uppercase;}
+.blsx .cm-id-main{padding:22px 26px 20px;}
+.blsx .cm-id dl{display:grid;gap:14px;}
+.blsx .cm-id dt{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#7a84a0;margin-bottom:3px !important;}
+.blsx .cm-id dd{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:36px;line-height:1;text-transform:uppercase;color:#00013a;}
+.blsx .cm-id dd.num{font-variant-numeric:tabular-nums;letter-spacing:.04em;}
+.blsx .cm-id-note{margin-top:12px !important;padding-top:10px;border-top:1px solid var(--line) !important;font-size:13px;line-height:1.45;color:#4b5675;}
 .blsx .cm-id-note b{color:#00013a;}
 
-/* ---------- employer guides ---------- */
+/* ---------- employer guides: one closed row each, tap to open ---------- */
 .blsx .cm-guides{background:#eef2f6;}
-.blsx .cm-list{display:grid;gap:20px;margin-top:28px !important;}
-.blsx .cm-g{display:grid;grid-template-columns:270px minmax(0,1fr);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.08);}
-.blsx .cm-art{position:relative;overflow:hidden;min-height:220px;background:linear-gradient(135deg,#1452a0,#00013a);}
-.blsx .cm-art.ms{background:linear-gradient(135deg,#0d5a5f,#00013a);}
-.blsx .cm-art.sb{background:linear-gradient(135deg,#cd163f,#6e0820);}
-.blsx .cm-art::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,transparent 0 22%,rgba(255,255,255,.12) 22% 25%,transparent 25% 31%,rgba(255,255,255,.06) 31% 31.8%,transparent 31.8%);}
-.blsx .cm-art::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,1,58,.72) 0%,rgba(0,1,58,0) 48%);}
-.blsx .cm-ico{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);width:74%;max-width:210px;height:auto;}
-.blsx .cm-art h3{position:absolute;z-index:1;left:22px;right:16px;bottom:18px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:42px;line-height:.95;text-transform:uppercase;color:#fff !important;text-shadow:0 2px 14px rgba(0,0,30,.45);}
-.blsx .cm-art h3 small{display:block;font-size:15px;line-height:1.2;font-weight:700;letter-spacing:.12em;color:#dbe2f4;margin-top:6px;}
-.blsx .cm-body{padding:26px 30px 28px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;}
-.blsx .bx-meta{font-size:12px !important;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f !important;}
-.blsx .cm-body > p{font-size:15px;line-height:1.6;color:#4b5675;}
+.blsx .cm-list{display:grid;gap:12px;margin-top:22px !important;}
+.blsx details,.blsx summary{margin:0;padding:0;border:0;background:none;}
+.blsx .cm-g{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.08);}
+.blsx .cm-g summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:52px minmax(0,1fr) 32px;column-gap:16px;align-items:center;padding:16px 20px;}
+.blsx .cm-g summary::-webkit-details-marker{display:none;}
+.blsx .cm-mark{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#1452a0,#00013a);}
+.blsx .cm-mark.ms{background:linear-gradient(135deg,#0d5a5f,#00013a);}
+.blsx .cm-mark.sb{background:linear-gradient(135deg,#cd163f,#6e0820);}
+.blsx .cm-mark svg{width:34px;height:30px;}
+.blsx .cm-g h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;}
+.blsx .cm-g h3 small{display:block;font-family:Poppins,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f;margin-top:5px;}
+.blsx .cm-tog{width:32px;height:32px;border-radius:50%;background:#eef2f6;position:relative;}
+.blsx .cm-tog::before,.blsx .cm-tog::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2.5px;background:#00013a;border-radius:2px;transform:translate(-50%,-50%);}
+.blsx .cm-tog::after{transform:translate(-50%,-50%) rotate(90deg);transition:transform .2s;}
+.blsx .cm-g[open] .cm-tog::after{transform:translate(-50%,-50%) rotate(0);}
+.blsx .cm-body{padding:0 20px 20px 88px;display:grid;gap:10px;}
+.blsx .cm-body > p{font-size:15px;line-height:1.55;color:#4b5675;}
 .blsx .cm-body > p b{color:#00013a;}
-.blsx .cm-body a:not(.bx-btn){color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
-.blsx .cm-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;}
-.blsx .cm-two div{background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.5;color:#4b5675;}
-.blsx .cm-two b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;line-height:1.1;text-transform:uppercase;color:#00013a;margin-bottom:4px;}
+.blsx .cm-body a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
 .blsx .cm-steps{counter-reset:s;display:grid;gap:0;width:100%;border-top:1px solid var(--line) !important;}
 .blsx .cm-steps li{counter-increment:s;position:relative;padding:11px 0 11px 46px;border-bottom:1px solid var(--line) !important;font-size:15px;line-height:1.5;color:#2b3550;}
 .blsx .cm-steps li::before{content:counter(s);position:absolute;left:4px;top:10px;width:26px;height:26px;display:grid;place-items:center;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;color:#fff;z-index:1;}
 .blsx .cm-steps li::after{content:"";position:absolute;left:8px;top:14px;width:18px;height:18px;background:#00013a;transform:rotate(45deg);border-radius:3px;}
 .blsx .cm-steps b{color:#00013a;}
-.blsx .cm-steps-h{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:#00013a;margin-top:4px !important;}
-.blsx .cm-body .bx-btn{margin-top:6px;}
-
-/* ---------- employer index ---------- */
-.blsx .cm-emp{background:#fff;border:1px solid var(--line);}
-.blsx .cm-emp header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;}
-.blsx .cm-count{display:flex;align-items:center;gap:10px;flex:none;}
-.blsx .cm-count b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:58px;line-height:.85;color:#cd163f;}
-.blsx .cm-count span{font-size:13px;line-height:1.3;color:#4b5675;font-weight:600;}
-.blsx .cm-idx{columns:2;column-gap:40px;margin-top:26px !important;}
-.blsx .cm-idx li{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:baseline;gap:10px;padding:12px 0;border-top:1px solid var(--line) !important;break-inside:avoid;-webkit-column-break-inside:avoid;}
-.blsx .cm-idx li > b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:30px;line-height:1;color:#00013a;}
-.blsx .cm-idx li > span{display:flex;flex-wrap:wrap;gap:6px;}
-.blsx .cm-idx i{font-style:normal;font-size:15px;font-weight:500;line-height:1.3;color:#00013a;background:#eef2f6;border-radius:999px;padding:5px 12px;}
-.blsx .cm-idx i.on{background:#00013a;color:#fff;}
-.blsx .cm-legend{margin-top:14px !important;font-size:13px;color:#7a84a0;display:flex;align-items:center;gap:8px;}
-.blsx .cm-legend i{display:inline-block;width:22px;height:12px;border-radius:999px;background:#00013a;}
 
 /* ---------- help band ---------- */
-.blsx .cm-help{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:40px 44px 34px;
+.blsx .cm-help{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:40px 44px 36px;
   background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
 .blsx .cm-help .bx-eyebrow{color:#ffb8c6;}
 .blsx .cm-help h2{color:#fff !important;}
-.blsx .cm-help-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px !important;}
-.blsx .cm-q{background:#000127;border:1px solid #1b2670;border-radius:14px;padding:20px 22px;}
-.blsx .cm-q h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:24px;line-height:1.05;text-transform:uppercase;color:#fff !important;margin-bottom:8px !important;}
-.blsx .cm-q p{font-size:15px;line-height:1.55;color:#c6d1ee;}
-.blsx .cm-help-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:22px !important;}
-.blsx .cm-help-cta p{font-size:15px;color:#c6d1ee;max-width:34em;}
+.blsx .cm-help p{margin-top:12px !important;font-size:16px;line-height:1.55;color:#c6d1ee;max-width:40em;}
+.blsx .cm-help .bx-btn{margin-top:20px;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
   .blsx{gap:16px;}
   .blsx .bx-hero{border-radius:14px;}
   .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.82) 48%,rgba(0,1,58,.55) 100%);}
-  .blsx .bx-hero-in{grid-template-columns:1fr;min-height:0;}
-  .blsx .bx-copy{padding:24px 20px 28px;}
-  .blsx .bx-photo{order:-1;min-height:0;}
-  .blsx .bx-photo::before{display:none;}
-  .blsx .bx-frame{position:relative;inset:auto;aspect-ratio:3/2;clip-path:none;border-bottom:5px solid #cd163f;}
-  .blsx .bx-ticket{padding:22px;}
-  .blsx .bx-ticket .d{font-size:104px;}
-  .blsx .bx-ticket .w{font-size:18px;}
-  .blsx .bx-ticket .p{font-size:15px;margin-top:10px;}
-  .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsx .bx-copy{max-width:none;padding:22px 18px 26px;}
+  .blsx .bx-ribbon{margin-bottom:18px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
-  .blsx .bx-hero h1{font-size:58px;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
+  .blsx .bx-hero h1{font-size:50px;}
+  .blsx .bx-hero h1 small{font-size:.5em;}
+  .blsx .bx-cta{width:100%;margin-top:14px;font-size:16px;padding:15px 18px;}
   .blsx .bx-sec{padding:28px 18px 28px;border-radius:14px;}
   .blsx .bx-sec h2,.blsx .cm-help h2{font-size:36px;}
-  .blsx .cm-id{grid-template-columns:1fr;border-radius:14px;}
-  .blsx .cm-stub{flex-direction:row;align-items:center;padding:16px 18px;}
+  .blsx .cm-id{margin-top:22px;grid-template-columns:1fr;border-radius:14px;}
+  .blsx .cm-stub{flex-direction:row;align-items:center;padding:10px 16px;gap:10px;}
   .blsx .cm-stub::after{left:14px;right:14px;top:auto;bottom:-1px;border-right:0;border-bottom:3px dashed #fff;}
-  .blsx .cm-stub b{font-size:24px;}
-  .blsx .cm-stub span{display:none;}
-  .blsx .cm-id-main{padding:18px 18px 16px;}
-  .blsx .cm-id dl{grid-template-columns:1fr;gap:12px;}
-  .blsx .cm-id dd{font-size:24px;}
-  .blsx .cm-g{grid-template-columns:1fr;}
-  .blsx .cm-art{min-height:0;aspect-ratio:2/1;}
-  .blsx .cm-ico{left:auto;right:16px;top:16px;transform:none;width:auto;height:58%;}
-  .blsx .cm-art h3{font-size:36px;left:18px;bottom:14px;}
-  .blsx .cm-art h3 small{font-size:13px;margin-top:4px;}
-  .blsx .cm-body{padding:20px 18px 22px;}
-  .blsx .cm-two{grid-template-columns:1fr;}
-  .blsx .cm-emp header{flex-direction:column;align-items:flex-start;gap:12px;}
-  .blsx .cm-idx{columns:1;margin-top:18px !important;}
-  .blsx .cm-idx li{grid-template-columns:30px minmax(0,1fr);gap:8px;padding:10px 0;}
-  .blsx .cm-idx li > b{font-size:26px;}
+  .blsx .cm-stub svg{width:22px;height:22px;}
+  .blsx .cm-stub b{font-size:20px;}
+  .blsx .cm-id-main{padding:16px 16px 14px;}
+  .blsx .cm-id dl{gap:10px;}
+  .blsx .cm-id dd{font-size:27px;}
+  .blsx .cm-id-note{margin-top:10px !important;padding-top:8px;font-size:12.5px;}
+  .blsx .cm-g summary{grid-template-columns:44px minmax(0,1fr) 28px;column-gap:12px;padding:14px 14px;}
+  .blsx .cm-mark{width:44px;height:44px;border-radius:10px;}
+  .blsx .cm-mark svg{width:28px;height:24px;}
+  .blsx .cm-g h3{font-size:24px;}
+  .blsx .cm-tog{width:28px;height:28px;}
+  .blsx .cm-body{padding:0 14px 16px 14px;}
   .blsx .cm-help{padding:28px 18px 24px;border-radius:14px;}
-  .blsx .cm-help-grid{grid-template-columns:1fr;gap:12px;margin-top:18px !important;}
-  .blsx .cm-q{padding:16px 16px;}
   .blsx .cm-help .bx-btn{width:100%;justify-content:center;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
@@ -177,27 +137,21 @@
           <div><span>Support BLS</span><b>Corporate match</b></div>
         </div>
         <h1><small>Give once.</small>Double your <em>donation.</em></h1>
-        <p class="bx-lede">Many employers match what their people give to nonprofits like BLS, in dollars and in volunteer hours. Boeing, Microsoft and Starbucks all have programs. Here is how to claim yours.</p>
+        <div class="cm-id" aria-label="How BLS is listed in employer giving portals">
+          <div class="cm-stub">
+            <svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#fff" stroke-width="3.2"/><path d="M21.5 21.5l8 8" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg>
+            <b>Search for us as</b>
+          </div>
+          <div class="cm-id-main">
+            <dl>
+              <div><dt>Registered name</dt><dd>Bonney Lake Baseball Association</dd></div>
+              <div><dt>Registration ID</dt><dd class="num">94-3060867</dd></div>
+            </dl>
+            <p class="cm-id-note">Some portals then list us as <b>Bonney Lake Sumner Little League</b>. Mailing address: PO Box 7573, Bonney Lake, WA 98391.</p>
+          </div>
+        </div>
+        <a class="bx-cta" href="mailto:donations@blslittleleague.org">Need help? Email donations@blslittleleague.org <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
-      <figure class="bx-photo"><div class="bx-frame"><div class="bx-ticket">
-        <span class="k">Employer match</span><span class="d">2X</span><span class="w">Your gift, doubled</span><span class="p">Dollars or volunteer hours</span>
-      </div></div></figure>
-    </div>
-  </section>
-
-  <section class="cm-id" aria-label="How BLS is listed in employer giving portals">
-    <div class="cm-stub">
-      <svg viewBox="0 0 34 34" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#fff" stroke-width="3.2"/><path d="M21.5 21.5l8 8" stroke="#fff" stroke-width="3.6" stroke-linecap="round"/></svg>
-      <b>Search for us as</b>
-      <span>Use these details in any employer giving portal.</span>
-    </div>
-    <div class="cm-id-main">
-      <dl>
-        <div><dt>Registered name</dt><dd>Bonney Lake Baseball Association</dd></div>
-        <div><dt>Mailing address</dt><dd>PO Box 7573<br><span class="nw">Bonney Lake, WA 98391</span></dd></div>
-        <div><dt>Registration ID</dt><dd class="num">94-3060867</dd></div>
-      </dl>
-      <p class="cm-id-note">Some portals then list us as <b>Bonney Lake Sumner Little League</b>.</p>
     </div>
   </section>
 
@@ -205,102 +159,61 @@
     <header><span class="bx-eyebrow">Step by step</span><h2>Employer guides</h2></header>
     <div class="cm-list">
 
-      <article class="cm-g">
-        <div class="cm-art">
-          <svg class="cm-ico" viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="2 11" stroke-linecap="round"><path d="M86 112L20 178" stroke-opacity=".45"/><path d="M104 128L44 188" stroke-opacity=".25"/></g><g transform="translate(118 74) rotate(45) scale(1.05)" fill="#fff"><path d="M0-62c6 0 8 10 8 20v84l-4 16h-8l-4-16v-84c0-10 2-20 8-20z"/><path d="M8-8l58 28v9L8 16zM-8-8l-58 28v9L-8 16zM5 40l20 13v7L5 54zM-5 40l-20 13v7L-5 54z"/><rect x="22" y="4" width="9" height="16" rx="4"/><rect x="-31" y="4" width="9" height="16" rx="4"/></g></svg>
+      <details class="cm-g">
+        <summary>
+          <span class="cm-mark"><svg viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="2 11" stroke-linecap="round"><path d="M86 112L20 178" stroke-opacity=".45"/><path d="M104 128L44 188" stroke-opacity=".25"/></g><g transform="translate(118 74) rotate(45) scale(1.05)" fill="#fff"><path d="M0-62c6 0 8 10 8 20v84l-4 16h-8l-4-16v-84c0-10 2-20 8-20z"/><path d="M8-8l58 28v9L8 16zM-8-8l-58 28v9L-8 16zM5 40l20 13v7L5 54zM-5 40l-20 13v7L-5 54z"/><rect x="22" y="4" width="9" height="16" rx="4"/><rect x="-31" y="4" width="9" height="16" rx="4"/></g></svg></span>
           <h3>Boeing<small>Gift Match Program</small></h3>
-        </div>
+          <span class="cm-tog" aria-hidden="true"></span>
+        </summary>
         <div class="cm-body">
-          <p class="bx-meta">Employees and retirees · Up to $10,000 a year</p>
-          <p>Boeing's Gift Match Program can double your charitable contributions and volunteer hours, in any combination, up to <b>$10,000 per year</b>. BLS is a qualified nonprofit for this program.</p>
+          <p>Employees and retirees. Boeing matches donations and volunteer hours, in any combination, up to <b>$10,000 per year</b>.</p>
           <ol class="cm-steps">
-            <li><b>Read the program rules.</b> <a href="https://www.kentll.org/Portals/24102/docs/Sponsors/BoeingGiftMatchingProgramGuidelines.pdf" target="_blank" rel="noopener">Boeing Gift Match guidelines (PDF)</a></li>
-            <li><b>Follow our step-by-step guide</b> to record volunteer hours and the company match. <a href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/how%20to%20record%20volunteer%20hours%20and%20company%20match%20for%20boeing%20company%20contributions.docx">Step-by-step guide (Word)</a></li>
-            <li><b>Submit your match</b> at boeing.yourcause.com and search for Bonney Lake Baseball Association.</li>
+            <li>Sign in at <b>boeing.yourcause.com</b> and search <b>Bonney Lake Baseball Association</b>.</li>
+            <li>Record your donation or your volunteer hours and submit the match.</li>
           </ol>
-          <a class="bx-btn" href="https://boeing.yourcause.com/" target="_blank" rel="noopener">Match at boeing.yourcause.com <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <p>Want every click? <a href="https://www.blslittleleague.org/portals/50558/docs/how%20to%20record%20volunteer%20hours%20and%20company%20match%20for%20boeing%20company%20contributions.docx">Step-by-step guide (Word)</a></p>
         </div>
-      </article>
+      </details>
 
-      <article class="cm-g">
-        <div class="cm-art ms">
-          <svg class="cm-ico" viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"><rect x="22" y="22" width="156" height="104" rx="10"/><path d="M4 140h192l-14 18H18z"/></g><path d="M100 108s-30-17-30-38a16 16 0 0 1 30-8 16 16 0 0 1 30 8c0 21-30 38-30 38z" fill="#cd163f"/><circle cx="170" cy="30" r="26" fill="#00013a" stroke="#fff" stroke-width="5"/><path d="M170 16v15l10 7" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+      <details class="cm-g">
+        <summary>
+          <span class="cm-mark ms"><svg viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-width="7" stroke-linejoin="round"><rect x="22" y="22" width="156" height="104" rx="10"/><path d="M4 140h192l-14 18H18z"/></g><path d="M100 108s-30-17-30-38a16 16 0 0 1 30-8 16 16 0 0 1 30 8c0 21-30 38-30 38z" fill="#cd163f"/></svg></span>
           <h3>Microsoft<small>GIVE and volunteer match</small></h3>
-        </div>
+          <span class="cm-tog" aria-hidden="true"></span>
+        </summary>
         <div class="cm-body">
-          <p class="bx-meta">Employees · Two programs · BLS qualifies for both</p>
-          <div class="cm-two">
-            <div><b>GIVE campaign</b>You donate money to a qualifying nonprofit and Microsoft matches it.</div>
-            <div><b>Volunteer Connection System</b>You record your BLS volunteer time and Microsoft matches it with a cash gift.</div>
-          </div>
-          <p class="cm-steps-h">Microsoft match example</p>
+          <p>Employees. Microsoft matches money you give and the volunteer time you record. BLS qualifies for both.</p>
           <ol class="cm-steps">
-            <li>On the corporate network, go to the GIVE portal at <a href="https://aka.ms/give" target="_blank" rel="noopener">aka.ms/give</a>.</li>
-            <li>Choose <b>Donate</b> to give money or request a match of a financial donation. Choose <b>Volunteer</b> and <b>Track time</b> to have volunteer time matched.</li>
-            <li>Search <b>Bonney Lake Baseball Association</b> and click on Bonney Lake Sumner Little League.</li>
-            <li>Enter your hours volunteered and the date range, then click <b>Submit</b>.</li>
-            <li>Please add BLSLL to <b>My favorite causes</b>.</li>
+            <li>On the corporate network, open the GIVE portal at <b>aka.ms/give</b>.</li>
+            <li>Choose <b>Donate</b> to match money, or <b>Volunteer</b> and <b>Track time</b> to match hours.</li>
+            <li>Search <b>Bonney Lake Baseball Association</b>, pick Bonney Lake Sumner Little League, enter your hours and dates, and submit.</li>
           </ol>
-          <p>Contact Microsoft for more details on either program.</p>
         </div>
-      </article>
+      </details>
 
-      <article class="cm-g">
-        <div class="cm-art sb">
-          <svg class="cm-ico" viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-linecap="round" stroke-opacity=".8" stroke-width="6"><path d="M72 6c-9 10 9 17 0 29"/><path d="M100 2c-9 12 9 20 0 34"/><path d="M128 6c-9 10 9 17 0 29"/></g><rect x="42" y="44" width="116" height="18" rx="6" fill="#fff"/><path d="M50 58h100l-11 98a12 12 0 0 1-12 10H73a12 12 0 0 1-12-10z" fill="#fff" fill-opacity=".92"/><path d="M56 92h88l-5 52H61z" fill="#00013a"/><circle cx="100" cy="118" r="16" fill="none" stroke="#fff" stroke-width="4"/><path d="M100 109v10l7 4" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>
+      <details class="cm-g">
+        <summary>
+          <span class="cm-mark sb"><svg viewBox="0 0 200 170" aria-hidden="true" focusable="false"><g fill="none" stroke="#fff" stroke-linecap="round" stroke-opacity=".8" stroke-width="6"><path d="M72 6c-9 10 9 17 0 29"/><path d="M100 2c-9 12 9 20 0 34"/><path d="M128 6c-9 10 9 17 0 29"/></g><rect x="42" y="44" width="116" height="18" rx="6" fill="#fff"/><path d="M50 58h100l-11 98a12 12 0 0 1-12 10H73a12 12 0 0 1-12-10z" fill="#fff" fill-opacity=".92"/><path d="M56 92h88l-5 52H61z" fill="#00013a"/></svg></span>
           <h3>Starbucks<small>Partner volunteer match</small></h3>
-        </div>
+          <span class="cm-tog" aria-hidden="true"></span>
+        </summary>
         <div class="cm-body">
-          <p class="bx-meta">Partners · Matching donations for volunteer time</p>
+          <p>Partners. Starbucks matches your volunteer time with a donation.</p>
           <ol class="cm-steps">
-            <li>Go to <a href="http://community.starbucks.com/en_us/home" target="_blank" rel="noopener">community.starbucks.com</a>.</li>
-            <li>Click <b>Sign In as a Partner</b>. You will need your global username and password.</li>
-            <li>Click <b>My Projects</b>, then the <b>My Partner Match</b> link.</li>
-            <li>Find our league and choose type = <b>Partner Time</b>.</li>
-            <li>Select the first one that comes up, the one with our full name on it.</li>
-            <li>Enter the from and to dates and the number of hours.</li>
+            <li>Go to <b>community.starbucks.com</b> and sign in as a partner.</li>
+            <li>Open <b>My Projects</b>, then <b>My Partner Match</b>.</li>
+            <li>Find our league, choose type <b>Partner Time</b>, and enter your dates and hours.</li>
           </ol>
         </div>
-      </article>
+      </details>
 
     </div>
-  </section>
-
-  <section class="bx-sec cm-emp">
-    <header>
-      <div><span class="bx-eyebrow">Does your employer match?</span><h2>Employers with match programs</h2></div>
-      <div class="cm-count"><b>43</b><span>employers<br>on our list</span></div>
-    </header>
-    <ul class="cm-idx">
-      <li><b>A</b><span><i>Accenture</i><i>Adobe Systems</i><i>Alaska Airlines</i><i>Albertsons</i><i>Allstate</i><i>Amgen</i><i>Aon Corp.</i><i>Avaya</i></span></li>
-      <li><b>B</b><span><i>Ball Corp</i><i>Bank of America</i><i>BP</i></span></li>
-      <li><b>C</b><span><i>Chevron</i><i>Chicago Title</i><i>Citigroup</i><i>Coca-Cola</i><i>Costco</i></span></li>
-      <li><b>E</b><span><i>Ecolab</i><i>Eddie Bauer</i></span></li>
-      <li><b>G</b><span><i>Gates Foundation</i><i>Georgia Pacific</i></span></li>
-      <li><b>H</b><span><i>Honeywell</i></span></li>
-      <li><b>M</b><span><i>Macy's</i><i class="on">Microsoft</i><i>Morgan Stanley</i><i>MultiCare</i></span></li>
-      <li><b>N</b><span><i>Nike</i><i>Nordstrom</i></span></li>
-      <li><b>O</b><span><i>Office Depot</i><i>Oracle</i></span></li>
-      <li><b>P</b><span><i>Paccar</i><i>PepsiCo</i><i>Philips</i><i>Puget Sound Energy</i></span></li>
-      <li><b>S</b><span><i>Safeco</i><i>Siemens</i><i class="on">Starbucks</i><i>State Farm Insurance</i><i>Sysco</i></span></li>
-      <li><b>T</b><span><i>Thomson Reuters</i></span></li>
-      <li><b>U</b><span><i>US Bank</i></span></li>
-      <li><b>V</b><span><i>Verizon</i></span></li>
-      <li><b>W</b><span><i>Wells Fargo</i><i>Weyerhaeuser</i></span></li>
-    </ul>
-    <p class="cm-legend"><i></i>Step-by-step guide above</p>
   </section>
 
   <section class="cm-help">
-    <header><span class="bx-eyebrow">We can help</span><h2>Need help with a corporate match?</h2></header>
-    <div class="cm-help-grid">
-      <div class="cm-q"><h3>Company needs to approve BLS?</h3><p>If your company has to approve BLSLL as a nonprofit in its system, we can help with that.</p></div>
-      <div class="cm-q"><h3>Employer not on the list?</h3><p>Talk to your HR rep to find your matching funds procedure for your BLS volunteer time. BLS is always looking to work with more companies, so let us know about yours.</p></div>
-    </div>
-    <div class="cm-help-cta">
-      <a class="bx-btn lt" href="mailto:donations@blslittleleague.org">Email donations@blslittleleague.org <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      <p>On behalf of the BLSLL board and league members, thank you for your contributions to the community!</p>
-    </div>
+    <header><span class="bx-eyebrow">Other employers</span><h2>Not Boeing, Microsoft or Starbucks?</h2></header>
+    <p>Ask HR whether your employer matches donations or volunteer hours. Many do, MultiCare included. If your company needs to approve BLS as a nonprofit first, we can help.</p>
+    <a class="bx-btn lt" href="mailto:donations@blslittleleague.org">Email donations@blslittleleague.org <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
   </section>
 
 </div>

@@ -1,5 +1,5 @@
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 /* hide this module's own container title bar; the hero is the title */
 .DnnModule:has(.blsx) > .dfContainer > .dfArea > h2.head{display:none !important;}
 .blsx{--n:#00013a;--r:#cd163f;--b:#1452a0;--l:#eef2f6;--m:#4b5675;--line:#dde3ec;
@@ -7,207 +7,69 @@
 .blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
 .blsx h1,.blsx h2,.blsx h3,.blsx p,.blsx figure,.blsx figcaption,.blsx ol,.blsx li,.blsx section,.blsx header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
 .blsx a{text-decoration:none !important;}
-.blsx label{font-family:Poppins,Arial,sans-serif !important;font-weight:600;}
 .blsx svg{display:block;}
-.blsx .bx-d{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;}
 
-/* ---------- hero ---------- */
+/* ---------- hero: the date and the one button ---------- */
 .blsx .bx-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
 .blsx .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
 .blsx .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.86) 28%,rgba(0,1,58,.3) 56%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
-.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,.76fr) minmax(0,1.24fr);gap:0;align-items:stretch;padding:0;min-height:430px;}
-.blsx .bx-copy{align-self:center;padding:44px 24px 44px 40px;}
-.blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
+  background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.88) 34%,rgba(0,1,58,.3) 60%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
+.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:0;align-items:stretch;min-height:420px;}
+.blsx .bx-copy{align-self:center;padding:40px 28px 40px 40px;}
+.blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
 .blsx .bx-ribbon svg{width:30px;height:30px;flex:none;}
 .blsx .bx-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
 .blsx .bx-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
-.blsx .bx-hero h1{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:68px;line-height:.9;letter-spacing:.005em;text-transform:uppercase;color:#fff !important;}
-.blsx .bx-hero h1 em{font-style:normal;display:block;color:#fff;position:relative;width:max-content;max-width:100%;}
-.blsx .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blsx .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
-.blsx .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
+.blsx .bx-open{display:block;margin-top:26px;font-size:13px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
+.blsx .bx-date{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-top:4px;}
+.blsx .bx-date b{font-family:Poppins,Arial,sans-serif;font-weight:900;font-size:clamp(64px,8vw,104px);line-height:.95;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;white-space:nowrap;}
+.blsx .bx-date span{font-size:20px;font-weight:700;line-height:1.2;color:#e7ecff;}
+/* the button: "Set up your account" (the Sports Connect sign-in) until Nov 27, then <a class="bx-cta" href="#765766">Register</a> */
+.blsx .bx-cta{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin-top:26px;padding:18px 20px;border-radius:14px;background:#cd163f;color:#fff !important;font-weight:800;font-size:20px;line-height:1.1;text-align:center !important;box-shadow:0 14px 30px rgba(205,22,63,.38);transition:transform .15s,box-shadow .15s;}
+.blsx a.bx-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(205,22,63,.45);}
+.blsx .bx-cta svg{width:24px;height:24px;flex:none;}
+.blsx .bx-cta.bx-wait{background:#fff;color:#00013a !important;cursor:default;box-shadow:0 14px 30px rgba(0,0,0,.28);}
+.blsx .bx-cta span{display:block;text-align:center !important;}
+.blsx .bx-cta small{display:block;margin-top:3px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ffd7df;}
+.blsx .bx-cta svg:last-child{width:18px;height:18px;}
+.blsx .bx-next{display:grid;gap:8px;margin-top:12px !important;}
+.blsx .bx-next a{display:flex;align-items:center;gap:12px;min-height:50px;padding:10px 14px;border-radius:12px;border:1.5px solid rgba(255,255,255,.32);background:rgba(255,255,255,.06);color:#fff !important;font-weight:600;font-size:15px;line-height:1.25;transition:background .2s;}
+.blsx .bx-next a:hover{background:rgba(255,255,255,.14);}
+.blsx .bx-next a > svg:first-child{width:22px;height:22px;flex:none;color:#ffb8c6;}
+.blsx .bx-next a > svg:last-child{width:16px;height:16px;flex:none;margin-left:auto;}
+.blsx .bx-next em{font-style:normal;color:#b8c6ea;font-weight:500;}
+/* discount windows, right of the date */
 .blsx .bx-photo{position:relative;min-height:100%;}
 .blsx .bx-photo::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
-.blsx .bx-frame{position:absolute;inset:0;overflow:hidden;container-type:size;background:#0b1a5c;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);}
-/* registration-opens ticket inside the hero frame */
-.blsx .bx-ticket{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);color:#fff;text-align:center;padding:24px 24px 24px 70px;}
-.blsx .bx-ticket .k{font:800 14px/1 Poppins,Arial,sans-serif;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
-.blsx .bx-ticket .d{font:900 clamp(64px,9vw,118px)/.9 Poppins,Arial,sans-serif;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;}
-.blsx .bx-ticket .w{font:700 20px/1.2 Poppins,Arial,sans-serif;color:#e7ecff;}
-/* discount windows under the opening date */
-.blsx .bx-win{margin-top:14px !important;width:100%;max-width:330px;display:grid;}
-.blsx .bx-win li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:8px 2px;border-top:1px solid rgba(255,255,255,.2);}
+.blsx .bx-frame{position:absolute;inset:0;overflow:hidden;background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);}
+.blsx .bx-ticket{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:center;gap:6px;color:#fff;padding:28px 28px 28px 76px;}
+.blsx .bx-ticket .k{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;margin-bottom:6px;}
+.blsx .bx-win{width:100%;display:grid;}
+.blsx .bx-win li{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:14px;padding:10px 2px;border-top:1px solid rgba(255,255,255,.2);}
 .blsx .bx-win li:last-child{border-bottom:1px solid rgba(255,255,255,.2);}
-.blsx .bx-win b{grid-column:1;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;color:#fff;}
+.blsx .bx-win b{grid-column:1;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:21px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;color:#fff;}
 .blsx .bx-win span{grid-column:1;font-size:13px;font-weight:500;line-height:1.3;color:#b8c6ea;}
-.blsx .bx-win em{grid-column:2;grid-row:1 / span 2;font-style:normal;white-space:nowrap;background:#cd163f;border:2px solid #fff;border-radius:999px;padding:6px 12px;font:800 15px/1 Poppins,Arial,sans-serif;color:#fff;}
+.blsx .bx-win em{grid-column:2;grid-row:1 / span 2;font-style:normal;white-space:nowrap;background:#cd163f;border:2px solid #fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:15px;line-height:1;color:#fff;}
 .blsx .bx-win li + li em{background:transparent;}
-.blsx .bx-ticket .f{margin-top:6px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffb8c6;}
-@media (max-width:768px){.blsx .bx-ticket{padding:22px;}.blsx .bx-ticket .d{font-size:64px;}}
+.blsx .bx-ticket .f{margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffb8c6;}
 
-/* ---------- shared section heads ---------- */
-.blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
-.blsx .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
-.blsx .bx-sec h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
-
-/* ---------- steps as a basepath ---------- */
-.blsx .bx-steps{background:#fff;border:1px solid var(--line);}
-.blsx .bx-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
-.blsx .bx-path::before{content:"";position:absolute;left:24px;right:60px;top:23px;border-top:3px dashed #c3ccdc;}
-.blsx .bx-step{position:relative;display:flex;flex-direction:column;}
-.blsx .bx-base{position:relative;width:48px;height:48px;display:grid;place-items:center;margin-bottom:22px;}
-.blsx .bx-base::before{content:"";position:absolute;inset:7px;background:#00013a;transform:rotate(45deg);border-radius:4px;box-shadow:0 0 0 5px #fff;}
-.blsx .bx-base i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;color:#fff;}
-.blsx .bx-card{flex:1;display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:24px 24px 24px;}
-.blsx .bx-card h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:30px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:10px !important;}
-.blsx .bx-card p{font-size:15px;line-height:1.55;color:#4b5675;}
-.blsx .bx-card p a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
-.blsx .bx-cut{margin-top:16px;display:grid;gap:0;width:100%;}
-.blsx .bx-cut span{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:13px;color:#4b5675;border-top:1px solid #dde3ec;padding:8px 0;}
-.blsx .bx-cut span:last-child{border-bottom:1px solid #dde3ec;}
-.blsx .bx-cut b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#00013a;}
-.blsx .bx-link{margin-top:auto;padding-top:18px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;cursor:pointer;text-align:left !important;}
-.blsx .bx-link svg{width:16px;height:16px;transition:transform .2s;}
-.blsx .bx-link:hover svg{transform:translateX(3px);}
-.blsx .bx-hot .bx-base::before{background:#cd163f;}
-.blsx .bx-hot .bx-card{background:#00013a;border-color:#00013a;color:#fff;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
-.blsx .bx-hot .bx-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsx .bx-hot .bx-card h3{color:#fff !important;}
-.blsx .bx-date{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:2px 0 14px;}
-.blsx .bx-date b{white-space:nowrap;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:54px;line-height:.9;text-transform:uppercase;color:#fff;}
-.blsx .bx-date span{font-size:14px;font-weight:500;line-height:1.3;color:#b8c6ea;}
-.blsx .bx-hot .bx-card p{color:#dbe2f4;}
-.blsx .bx-deal{display:flex;align-items:center;gap:10px;}
-.blsx .bx-deal b{white-space:nowrap;background:#cd163f;color:#fff;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;letter-spacing:.02em;text-transform:uppercase;padding:2px 10px;border-radius:6px;}
-.blsx .bx-btn{margin-top:auto;display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
-.blsx .bx-hot .bx-btn{margin-top:auto;}
-.blsx .bx-hot .bx-card p{padding-bottom:20px;}
-.blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
-.blsx .bx-btn svg{width:16px;height:16px;}
-.blsx .bx-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
-.blsx .bx-home svg{width:44px;height:48px;flex:none;}
-.blsx .bx-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#fff;padding-left:8px;}
-.blsx .bx-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
-
-/* ---------- programs ---------- */
-.blsx .bx-progs{background:#eef2f6;}
-.blsx .bx-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:28px !important;}
-.blsx .bx-pc{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 0 #dde3ec,0 12px 28px rgba(0,1,58,.08);display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s;}
-.blsx .bx-pc:hover{transform:translateY(-3px);box-shadow:0 1px 0 #dde3ec,0 20px 40px rgba(0,1,58,.14);}
-.blsx .bx-art{position:relative;aspect-ratio:2/1;overflow:hidden;}
-.blsx .bx-art svg{position:absolute;inset:0;width:100%;height:100%;}
-.blsx .bx-art h3{position:absolute;left:20px;bottom:14px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:36px;line-height:1;text-transform:uppercase;color:#fff !important;text-shadow:0 2px 14px rgba(0,0,30,.45);}
-.blsx .bx-pc-body{padding:18px 22px 22px;display:flex;flex-direction:column;align-items:flex-start;flex:1;}
-.blsx .bx-meta{font-size:12px !important;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f !important;margin-bottom:8px !important;}
-.blsx .bx-pc-body p{font-size:15px;line-height:1.55;color:#4b5675;}
-.blsx .bx-pc-body p a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
-
-/* ---------- league-age ladder with CSS tabs ---------- */
-.blsx .bx-ladder{margin-top:22px !important;background:#fff;border-radius:14px;padding:26px 28px 22px;box-shadow:0 1px 0 #dde3ec;}
-.blsx .bx-ladder > input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
-.blsx .bx-tabbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-bottom:20px;}
-.blsx .bx-tabbar h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:26px;line-height:1;text-transform:uppercase;color:#00013a !important;}
-.blsx .bx-seg{display:inline-flex;background:#eef2f6;border-radius:999px;padding:4px;}
-.blsx .bx-seg label{cursor:pointer;padding:8px 20px;border-radius:999px;font-weight:600;font-size:14px;color:#4b5675;transition:background .2s,color .2s;margin:0;}
-.blsx .bx-seg label[for="bx-t-bb"]{background:#00013a;color:#fff;}
-.blsx #bx-t-sb:checked ~ .bx-tabbar label[for="bx-t-bb"]{background:transparent;color:#4b5675;}
-.blsx #bx-t-sb:checked ~ .bx-tabbar label[for="bx-t-sb"]{background:#00013a;color:#fff;}
-.blsx .bx-legend{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:#4b5675;}
-.blsx .bx-legend span{display:inline-flex;align-items:center;gap:7px;}
-.blsx .bx-legend i{width:22px;height:10px;border-radius:3px;background:#1452a0;}
-.blsx .bx-legend i.bx-kp{background:#cd163f;}
-
-.blsx #bx-t-sb:checked ~ .bx-panel-sb{display:grid;}
-.blsx #bx-t-sb:checked ~ .bx-panel-bb{display:none;}
-.blsx .bx-gantt{display:grid;grid-template-columns:170px repeat(11,minmax(0,1fr));row-gap:8px;align-items:center;
-  background-image:repeating-linear-gradient(90deg,#e6ebf2 0 1px,transparent 1px calc(100% / 11));background-size:calc(100% - 170px) 100%;background-position:right top;background-repeat:no-repeat;}
-.blsx .bx-tick{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:15px;color:#8a93ab;text-align:center !important;padding-bottom:4px;}
-.blsx .bx-tick-lab{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#8a93ab;padding-bottom:4px;}
-.blsx .bx-dn{grid-column:1;font-weight:600;font-size:15px;line-height:1.2;color:#00013a;padding-right:10px;}
-.blsx .bx-dn small{display:block;font-weight:500;font-size:12px;color:#7a84a0;}
-.blsx .bx-bar{height:36px;border-radius:8px;background:#1452a0;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:17px;margin:0 3px;}
-.blsx .bx-bar.bx-kp{background:#cd163f;}
-.blsx .bx-gantt.bx-panel-sb{display:none;}
-.blsx .bx-note{margin-top:16px !important;font-size:13px;color:#7a84a0;}
-
-/* ---------- 2027 fees (same tab card as the chart) ---------- */
-.blsx .bx-seg label[for="bx-f-bb"]{background:#00013a;color:#fff;}
-.blsx #bx-f-sb:checked ~ .bx-tabbar label[for="bx-f-bb"]{background:transparent;color:#4b5675;}
-.blsx #bx-f-sb:checked ~ .bx-tabbar label[for="bx-f-sb"]{background:#00013a;color:#fff;}
-.blsx .bx-fees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
-.blsx .bx-fees li{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#f5f7fb;border:1px solid var(--line);border-radius:12px;padding:14px 16px 13px;}
-.blsx .bx-fees span{font-weight:600;font-size:15px;line-height:1.2;color:#00013a;}
-.blsx .bx-fees b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:1;color:#00013a;}
-.blsx .bx-fees.bx-fee-sb{display:none;}
-.blsx #bx-f-sb:checked ~ .bx-fee-sb{display:grid;}
-.blsx #bx-f-sb:checked ~ .bx-fee-bb{display:none;}
-
-/* ---------- fall ball scoreboard ---------- */
-.blsx .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 28px;
-  background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsx .bx-board-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
-.blsx .bx-board-top h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:30px;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:#fff !important;}
-.blsx .bx-final{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;letter-spacing:.2em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 12px 4px 14px;border-radius:6px;}
-.blsx .bx-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
-.blsx .bx-cell{background:#000127;border:1px solid #1b2670;border-radius:12px;padding:16px 10px 14px;text-align:center !important;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);}
-.blsx .bx-cell b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:92px;line-height:.95;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
-.blsx .bx-cell span{display:block;margin-top:6px;font-size:13px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:#a9b8e3;}
-.blsx .bx-board-foot{margin-top:18px !important;font-size:14px;color:#c6d1ee;text-align:center !important;}
-.blsx .bx-board-foot b{color:#fff;}
-
-/* ---------- tablet and phone: steps run down a vertical base path (three columns only fit at the full 880px width) ---------- */
-@media (max-width:991px){
-  .blsx .bx-path{grid-template-columns:minmax(0,1fr);gap:18px;padding-left:58px;}
-  .blsx .bx-path::before{left:22px;right:auto;top:24px;bottom:46px;border-top:0;border-left:3px dashed #c3ccdc;}
-  .blsx .bx-base{position:absolute;left:-58px;top:14px;margin:0;}
-  .blsx .bx-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
-  .blsx .bx-home span{text-align:left !important;background:none;padding:0;}
-}
-
-/* ---------- phone ---------- */
+/* ---------- phone: date, button, then the windows ---------- */
 @media (max-width:760px){
   .blsx{gap:16px;}
   .blsx .bx-hero{border-radius:14px;}
-  .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.82) 48%,rgba(0,1,58,.55) 100%);}
-  .blsx .bx-hero-in{grid-template-columns:minmax(0,1fr);gap:0;padding:0;min-height:0;}
-  .blsx .bx-copy{padding:24px 20px 28px;}
-  .blsx .bx-photo{order:-1;min-height:0;}
-  .blsx .bx-photo::before{display:none;}
-  .blsx .bx-frame{position:relative;inset:auto;container-type:normal;clip-path:none;border-bottom:5px solid #cd163f;}
-  .blsx .bx-ticket{position:relative;inset:auto;}
-  .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.84) 55%,rgba(0,1,58,.6) 100%);}
+  .blsx .bx-hero-in{grid-template-columns:minmax(0,1fr);min-height:0;}
+  .blsx .bx-copy{padding:22px 18px 22px;}
+  .blsx .bx-ribbon{padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
-  .blsx .bx-ribbon span{font-size:11px;}
-  .blsx .bx-hero h1{font-size:60px;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
-  .blsx .bx-sec{padding:28px 18px 28px;border-radius:14px;}
-  .blsx .bx-sec h2{font-size:36px;}
-  .blsx .bx-path{margin-top:24px !important;}
-  .blsx .bx-card{padding:22px 18px;}
-  .blsx .bx-date b{font-size:46px;}
-  .blsx .bx-cards{grid-template-columns:1fr;gap:16px;margin-top:22px !important;}
-  .blsx .bx-art{aspect-ratio:5/2;}
-  .blsx .bx-art h3{font-size:32px;left:18px;bottom:12px;}
-  .blsx .bx-ladder{padding:20px 14px 16px;}
-  .blsx .bx-tabbar{flex-direction:column;align-items:flex-start;}
-  /* phone chart: name sits above its bar, so the age axis gets the full width */
-  .blsx .bx-gantt{grid-template-columns:0 repeat(11,minmax(0,1fr));background-size:100% 100%;row-gap:0;}
-  .blsx .bx-tick-lab{grid-column:1 / -1;font-size:11px;letter-spacing:.14em;padding-bottom:2px;}
-  .blsx .bx-tick{font-size:15px;padding-bottom:2px;}
-  .blsx .bx-dn{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px;font-size:14px;padding:12px 0 5px;}
-  .blsx .bx-dn small{display:inline;font-size:12px;}
-  .blsx .bx-bar{height:32px;font-size:15px;margin:0 2px;border-radius:6px;}
-  .blsx .bx-legend{font-size:13px;}
-  .blsx .bx-fees{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
-  .blsx .bx-fees li{padding:12px 14px 11px;}
-  .blsx .bx-fees b{font-size:34px;}
-  .blsx .bx-board{padding:22px 14px 20px;border-radius:14px;}
-  .blsx .bx-board-top h2{font-size:24px;}
-  .blsx .bx-cells{gap:8px;}
-  .blsx .bx-cell{padding:12px 4px 10px;}
-  .blsx .bx-cell b{font-size:52px;}
-  .blsx .bx-cell span{font-size:11px;letter-spacing:.12em;}
+  .blsx .bx-open{margin-top:20px;font-size:12px;}
+  .blsx .bx-date b{font-size:76px;}
+  .blsx .bx-date span{font-size:18px;}
+  .blsx .bx-cta{margin-top:20px;padding:17px 16px;font-size:19px;}
+  .blsx .bx-photo{min-height:0;}
+  .blsx .bx-photo::before{display:none;}
+  .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-top:5px solid #cd163f;}
+  .blsx .bx-ticket{position:relative;inset:auto;padding:18px 18px 20px;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
@@ -227,148 +89,18 @@
           <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M16 6.5l2.6 6.1 6.6.5-5 4.3 1.6 6.4L16 20.3l-5.8 3.5 1.6-6.4-5-4.3 6.6-.5z" fill="#cd163f"/></svg>
           <div><span>Spring 2027</span><b>Registration</b></div>
         </div>
-        <h1><small>New to BLS?</small><em>Start here.</em></h1>
-        <p class="bx-lede">Little League baseball and softball for Bonney Lake, Sumner and Orting. Three steps get your player on the field this spring.</p>
+        <span class="bx-open">Registration opens</span>
+        <h1 class="bx-date"><b>Nov 27</b><span>Friday</span></h1>
+        <!-- NOV 27: change this button to <a class="bx-cta" href="#765766">Register</a> and the label above to "Registration is open". Until then it opens the Sports Connect sign-in, where a family can set up its account. -->
+        <a class="bx-cta" href="https://www.blslittleleague.org/Default.aspx?tabid=716844"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>Set up your account<small>Be ready for Nov&nbsp;27</small></span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <nav class="bx-next" aria-label="Before you register">
+          <!-- GO-LIVE: swap the preview address for the League Age page's tabid URL -->
+          <a href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V6M16 20v-8M22 20H2"/><circle cx="16" cy="6" r="2.2"/></svg><span><em>Not sure which division?</em> Check your league age</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a href="https://www.blslittleleague.org/Default.aspx?tabid=776471"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114.2 1.8c-.8.7-1.7 1.2-1.7 2.4"/><circle cx="12" cy="17" r=".9" fill="currentColor"/></svg><span>Questions? FAQ</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </nav>
       </div>
-      <figure class="bx-photo"><div class="bx-frame"><div class="bx-ticket"><span class="k">Registration opens</span><span class="d">NOV 27</span><span class="w">Friday</span><ol class="bx-win"><li><b>Nov 27 to 29</b><span>Black Friday sale</span><em>$50 off</em></li><li><b>Nov 30 to Dec 31</b><span>Early Bird</span><em>$25 off</em></li><li><b>From Jan 1, 2027</b><span>Full price</span></li></ol><span class="f">Discounts are per family</span></div></div></figure>
+      <figure class="bx-photo"><div class="bx-frame"><div class="bx-ticket"><span class="k">Registration windows</span><ol class="bx-win"><li><b>Nov 27 to 29</b><span>Black Friday sale</span></li><li><b>Nov 30 to Dec 31</b><span>Early Bird</span></li><li><b>From Jan 1, 2027</b><span>Full price</span></li></ol><span class="f">Fees are below</span></div></div></figure>
     </div>
-  </section>
-
-  <section class="bx-sec bx-steps">
-    <header><span class="bx-eyebrow">Three steps</span><h2>Your path to Opening&nbsp;Day</h2></header>
-    <ol class="bx-path">
-      <li class="bx-step">
-        <span class="bx-base"><i>1</i></span>
-        <div class="bx-card">
-          <h3>Check league age</h3>
-          <p>Little League age, not school grade, decides your player's division.</p>
-          <div class="bx-cut"><span><b>Baseball</b>Age on Aug 31, 2027</span><span><b>Softball</b>Age on Dec 31, 2026</span></div>
-          <a class="bx-link" href="https://www.littleleague.org/play-little-league/determine-league-age/" target="_blank" rel="noopener">League age calculator <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </li>
-      <li class="bx-step bx-hot">
-        <span class="bx-base"><i>2</i></span>
-        <div class="bx-card">
-          <h3>Register online</h3>
-          <p>When registration opens, sign up in the list at the bottom of this page. The link also goes up on the BLS Facebook page.</p>
-          <a class="bx-btn" href="https://www.blslittleleague.org/Default.aspx?tabid=716835&amp;mid=765764&amp;newskeyid=HN1&amp;newsid=574104&amp;ctl=newsdetail">Registration details <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </li>
-      <li class="bx-step">
-        <span class="bx-base"><i>3</i></span>
-        <div class="bx-card">
-          <h3>Questions?</h3>
-          <p>Most answers are in the BLS FAQ. Still stuck? Email <a href="mailto:info@blslittleleague.org">info@blslittleleague.org</a></p>
-          <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=776471">Read the FAQ <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </li>
-      <li class="bx-home" aria-label="Then Opening Day, spring 2027">
-        <svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#00013a" stroke-width="3" stroke-linejoin="round"/></svg>
-        <span><b>Then: Opening Day</b>Spring 2027 season</span>
-      </li>
-    </ol>
-  </section>
-
-  <section class="bx-sec bx-progs">
-    <header><span class="bx-eyebrow">Programs</span><h2>Find your player's&nbsp;division</h2></header>
-    <div class="bx-cards">
-      <article class="bx-pc">
-        <div class="bx-art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bxBbBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1452a0"/><stop offset="1" stop-color="#00013a"/></linearGradient>
-  <radialGradient id="bxBbBall" cx=".32" cy=".28" r=".85"><stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#ffffff"/><stop offset="1" stop-color="#bfc5d4"/></radialGradient>
-  <linearGradient id="bxBbFade" x1="0" y1="1" x2=".75" y2=".2"><stop offset="0" stop-color="#00013a" stop-opacity=".55"/><stop offset=".55" stop-color="#00013a" stop-opacity="0"/></linearGradient><clipPath id="bxBbClip"><circle cx="326" cy="108" r="118"/></clipPath>
-  <filter id="bxBbTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .18 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs><rect width="400" height="200" fill="url(#bxBbBg)"/><path d="M-20 170 L180 -30" stroke="#fff" stroke-opacity=".16" stroke-width="10"/><path d="M-20 210 L220 -30" stroke="#fff" stroke-opacity=".07" stroke-width="3"/><circle cx="334" cy="118" r="118" fill="#000" fill-opacity=".28"/><circle cx="326" cy="108" r="118" fill="url(#bxBbBall)"/><g clip-path="url(#bxBbClip)"><path d="M255.2 -18.3L254.3 -17.1L253.5 -15.9L252.6 -14.7L251.8 -13.4L251 -12.2L250.2 -11L249.4 -9.8L248.6 -8.6L247.8 -7.3L247.1 -6.1L246.3 -4.9L245.6 -3.6L244.9 -2.4L244.2 -1.1L243.6 0.1L242.9 1.4L242.3 2.6L241.6 3.9L241 5.2L240.4 6.4L239.8 7.7L239.2 9L238.7 10.2L238.1 11.5L237.6 12.8L237.1 14.1L236.6 15.4L236.1 16.7L235.6 17.9L235.2 19.2L234.7 20.5L234.3 21.8L233.9 23.1L233.4 24.4L233.1 25.7L232.7 27L232.3 28.3L232 29.7L231.6 31L231.3 32.3L231 33.6L230.7 34.9L230.4 36.2L230.2 37.5L229.9 38.9L229.7 40.2L229.4 41.5L229.2 42.8L229 44.1L228.8 45.5L228.7 46.8L228.5 48.1L228.4 49.4L228.2 50.8L228.1 52.1L228 53.4L227.9 54.7L227.8 56.1L227.8 57.4L227.7 58.7L227.7 60L227.7 61.4L227.7 62.7L227.7 64L227.7 65.3L227.7 66.7L227.8 68L227.8 69.3L227.9 70.6L228 72L228.1 73.3L228.2 74.6L228.3 75.9L228.4 77.2L228.6 78.6L228.8 79.9L228.9 81.2L229.1 82.5L229.3 83.8L229.5 85.1L229.8 86.4L230 87.8L230.3 89.1L230.5 90.4L230.8 91.7L231.1 93L231.4 94.3L231.7 95.6L232.1 96.9L232.4 98.2L232.8 99.4L233.1 100.7L233.5 102L233.9 103.3L234.3 104.6L234.7 105.9L235.2 107.1L235.6 108.4L236.1 109.7L236.5 111L237 112.2L237.5 113.5L238 114.7L238.5 116L239.1 117.2L239.6 118.5L240.2 119.7L240.7 121L241.3 122.2L241.9 123.4L242.5 124.7L243.2 125.9L243.8 127.1L244.4 128.3L245.1 129.6L245.8 130.8L246.4 132L247.1 133.2L247.8 134.4L248.6 135.6L249.3 136.8L250 137.9L250.8 139.1L251.6 140.3L252.3 141.5L253.1 142.6L253.9 143.8L254.7 144.9L255.6 146.1L256.4 147.2L257.3 148.4L258.1 149.5L259 150.6L259.9 151.8L260.8 152.9L261.7 154L262.6 155.1L263.6 156.2L264.5 157.3L265.5 158.4L266.4 159.5L267.4 160.5L268.4 161.6L269.4 162.7L270.4 163.7L271.5 164.8L272.5 165.8L273.5 166.9L274.6 167.9L275.7 168.9L276.8 169.9L277.9 171L279 172L280.1 173L281.2 174L282.4 174.9L283.5 175.9L284.7 176.9L285.9 177.8L287.1 178.8L287.1 178.8L290.8 181.4L294.4 184L297.8 186.6L301.2 189.1L304.3 191.5L307.4 194L310.3 196.4L313.1 198.7L315.8 201L318.4 203.3L320.9 205.6L323.3 207.8L325.5 210L327.7 212.1L329.8 214.3L331.7 216.4L333.6 218.4L335.5 220.5L337.2 222.5L338.8 224.5L340.4 226.5L341.9 228.5L343.4 230.4L344.7 232.3L346.1 234.2L347.3 236.1L348.6 238L349.7 239.8L350.9 241.7L351.9 243.5L353 245.3L354 247.1L355 248.9L356 250.7L356.9 252.5L357.8 254.3L358.7 256.1L359.6 257.9L360.5 259.6L361.4 261.4" fill="none" stroke="#d5d9e3" stroke-width="5"/><path d="M251.9 -8.2L255.4 1.2M246.8 -11.4L236.9 -10.7M246.9 0.3L251 9.4M241.6 -2.6L231.7 -1.1M242.5 8.9L247.3 17.7M237.1 6.4L227.3 8.6M238.9 17.7L244.3 26.1M233.3 15.6L223.7 18.4M235.9 26.6L241.9 34.6M230.2 24.9L220.8 28.4M233.6 35.5L240.2 43.1M227.8 34.3L218.7 38.4M232 44.6L239.1 51.7M226.1 43.7L217.3 48.5M231 53.6L238.6 60.2M225 53.2L216.6 58.6M230.7 62.7L238.7 68.7M224.7 62.7L216.7 68.7M231 71.8L239.4 77.2M225 72.2L217.4 78.7M231.9 80.8L240.6 85.6M226 81.6L218.9 88.7M233.5 89.8L242.5 94M227.6 91L221 98.5M235.6 98.6L245 102.2M229.9 100.3L223.8 108.2M238.4 107.4L248 110.4M232.8 109.4L227.2 117.8M241.8 116.1L251.6 118.4M236.3 118.4L231.4 127.1M245.8 124.5L255.7 126.2M240.5 127.3L236.1 136.3M250.4 132.8L260.4 133.9M245.3 135.9L241.5 145.2M255.6 140.9L265.6 141.3M250.7 144.3L247.5 153.8M261.4 148.8L271.4 148.6M256.6 152.5L254 162.1M267.7 156.4L277.7 155.6M263.2 160.4L261.2 170.2M274.6 163.7L284.5 162.3M270.4 168L269 177.9M282.1 170.7L291.9 168.7M278.1 175.2L277.3 185.2M288.8 176.3L298.3 173.3M285.3 181.3L285.6 191.2M312.2 194.1L322 191.7M308.4 198.7L308 208.7M329.8 210L339.7 208.7M325.6 214.2L324.1 224.1M342.8 224.7L352.8 224.4M338.1 228.4L335.5 238M352.3 238.3L362.2 239.1M347.2 241.4L343.5 250.7" stroke="#cd163f" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M420.4 -25.3L419.3 -24.5L418.2 -23.6L417.1 -22.6L416.1 -21.7L415 -20.8L414 -19.9L413 -18.9L412 -18L411 -17L410 -16L409 -15.1L408.1 -14.1L407.1 -13.1L406.2 -12.1L405.3 -11.1L404.4 -10.1L403.5 -9.1L402.6 -8L401.8 -7L400.9 -5.9L400.1 -4.9L399.3 -3.8L398.5 -2.8L397.7 -1.7L396.9 -0.6L396.1 0.5L395.4 1.6L394.6 2.7L393.9 3.8L393.2 4.9L392.5 6L391.8 7.2L391.1 8.3L390.5 9.4L389.8 10.6L389.2 11.7L388.6 12.9L388 14L387.4 15.2L386.8 16.4L386.3 17.6L385.7 18.7L385.2 19.9L384.7 21.1L384.2 22.3L383.7 23.5L383.2 24.8L382.8 26L382.3 27.2L381.9 28.4L381.5 29.6L381.1 30.9L380.7 32.1L380.3 33.4L380 34.6L379.6 35.8L379.3 37.1L379 38.4L378.7 39.6L378.4 40.9L378.1 42.2L377.9 43.4L377.7 44.7L377.4 46L377.2 47.3L377 48.6L376.8 49.8L376.7 51.1L376.5 52.4L376.4 53.7L376.3 55L376.2 56.3L376.1 57.6L376 59L375.9 60.3L375.9 61.6L375.9 62.9L375.8 64.2L375.8 65.5L375.9 66.8L375.9 68.2L375.9 69.5L376 70.8L376.1 72.1L376.2 73.5L376.3 74.8L376.4 76.1L376.5 77.5L376.7 78.8L376.8 80.1L377 81.5L377.2 82.8L377.4 84.2L377.7 85.5L377.9 86.8L378.2 88.2L378.5 89.5L378.7 90.8L379.1 92.2L379.4 93.5L379.7 94.9L380.1 96.2L380.4 97.5L380.8 98.9L381.2 100.2L381.7 101.6L382.1 102.9L382.5 104.2L383 105.6L383.5 106.9L384 108.2L384.5 109.6L385 110.9L385.6 112.2L386.1 113.6L386.7 114.9L387.3 116.2L387.9 117.5L388.6 118.9L389.2 120.2L389.9 121.5L390.5 122.8L391.2 124.1L391.9 125.5L392.7 126.8L393.4 128.1L394.2 129.4L394.9 130.7L395.7 132L396.6 133.3L397.4 134.6L398.2 135.9L399.1 137.2L400 138.5L400.8 139.7L401.8 141L402.7 142.3L403.6 143.6L404.6 144.8L405.6 146.1L406.6 147.4L407.6 148.6L408.6 149.9L409.6 151.1L410.7 152.4L411.8 153.6L412.9 154.9L414 156.1L415.1 157.3L416.3 158.6L417.4 159.8L418.6 161L419.8 162.2L421 163.4L422.2 164.6L423.5 165.8L424.8 167L426 168.2L427.3 169.4L428.7 170.5" fill="none" stroke="#d5d9e3" stroke-width="5"/><path d="M415 -16.7L416.1 -6.8M410.9 -21.1L401.1 -22.9M408.4 -10.1L410.2 -0.2M404 -14.1L394 -15.1M402.4 -3L405 6.6M397.7 -6.7L387.7 -6.9M397.1 4.3L400.5 13.8M392.1 1L382.1 1.6M392.5 12L396.6 21.1M387.2 9.1L377.3 10.5M388.5 20L393.3 28.7M383 17.5L373.2 19.7M385.2 28.2L390.7 36.5M379.5 26.2L370 29.1M382.5 36.6L388.7 44.5M376.7 35.1L367.5 38.8M380.6 45.2L387.4 52.6M374.7 44.2L365.8 48.6M379.4 54L386.7 60.8M373.4 53.4L364.9 58.6M378.9 62.9L386.7 69.1M372.9 62.8L364.8 68.7M379.1 72L387.4 77.4M373.1 72.3L365.5 78.8M380 81.1L388.8 85.9M374.1 81.9L367 89M381.7 90.2L390.8 94.3M375.8 91.5L369.3 99.1M384.1 99.3L393.5 102.7M378.4 101.1L372.5 109.2M387.3 108.5L396.9 111.1M381.7 110.7L376.5 119.2M391.3 117.6L401.1 119.5M385.9 120.2L381.2 129M396 126.6L405.9 127.8M390.8 129.6L386.9 138.8M401.6 135.5L411.6 136M396.6 138.8L393.3 148.3M407.9 144.3L417.9 144.1M403.2 147.9L400.6 157.6M415.1 152.9L425.1 152M410.6 156.9L408.7 166.7" stroke="#cd163f" stroke-width="3" stroke-linecap="round" fill="none"/><rect width="400" height="200" filter="url(#bxBbTex)"/></g><rect width="400" height="200" fill="url(#bxBbFade)"/></svg><h3>Baseball</h3></div>
-        <div class="bx-pc-body">
-          <p class="bx-meta">Ages 4 to 14 · 7 divisions</p>
-          <p>From first swings in Tee Ball up through 50/70 and Juniors.</p>
-          <label class="bx-link" for="bx-t-bb">See baseball divisions <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></label>
-        </div>
-      </article>
-      <article class="bx-pc">
-        <div class="bx-art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bxSbBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#cd163f"/><stop offset="1" stop-color="#7d0a24"/></linearGradient>
-  <radialGradient id="bxSbBall" cx=".32" cy=".28" r=".85"><stop offset="0" stop-color="#eef93a"/><stop offset=".55" stop-color="#eef93a"/><stop offset="1" stop-color="#a9b812"/></radialGradient>
-  <linearGradient id="bxSbFade" x1="0" y1="1" x2=".75" y2=".2"><stop offset="0" stop-color="#00013a" stop-opacity=".55"/><stop offset=".55" stop-color="#00013a" stop-opacity="0"/></linearGradient><clipPath id="bxSbClip"><circle cx="326" cy="108" r="118"/></clipPath>
-  <filter id="bxSbTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="3"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .18 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs><rect width="400" height="200" fill="url(#bxSbBg)"/><path d="M-20 170 L180 -30" stroke="#fff" stroke-opacity=".16" stroke-width="10"/><path d="M-20 210 L220 -30" stroke="#fff" stroke-opacity=".07" stroke-width="3"/><circle cx="334" cy="118" r="118" fill="#000" fill-opacity=".28"/><circle cx="326" cy="108" r="118" fill="url(#bxSbBall)"/><g clip-path="url(#bxSbClip)"><path d="M255.2 -18.3L254.3 -17.1L253.5 -15.9L252.6 -14.7L251.8 -13.4L251 -12.2L250.2 -11L249.4 -9.8L248.6 -8.6L247.8 -7.3L247.1 -6.1L246.3 -4.9L245.6 -3.6L244.9 -2.4L244.2 -1.1L243.6 0.1L242.9 1.4L242.3 2.6L241.6 3.9L241 5.2L240.4 6.4L239.8 7.7L239.2 9L238.7 10.2L238.1 11.5L237.6 12.8L237.1 14.1L236.6 15.4L236.1 16.7L235.6 17.9L235.2 19.2L234.7 20.5L234.3 21.8L233.9 23.1L233.4 24.4L233.1 25.7L232.7 27L232.3 28.3L232 29.7L231.6 31L231.3 32.3L231 33.6L230.7 34.9L230.4 36.2L230.2 37.5L229.9 38.9L229.7 40.2L229.4 41.5L229.2 42.8L229 44.1L228.8 45.5L228.7 46.8L228.5 48.1L228.4 49.4L228.2 50.8L228.1 52.1L228 53.4L227.9 54.7L227.8 56.1L227.8 57.4L227.7 58.7L227.7 60L227.7 61.4L227.7 62.7L227.7 64L227.7 65.3L227.7 66.7L227.8 68L227.8 69.3L227.9 70.6L228 72L228.1 73.3L228.2 74.6L228.3 75.9L228.4 77.2L228.6 78.6L228.8 79.9L228.9 81.2L229.1 82.5L229.3 83.8L229.5 85.1L229.8 86.4L230 87.8L230.3 89.1L230.5 90.4L230.8 91.7L231.1 93L231.4 94.3L231.7 95.6L232.1 96.9L232.4 98.2L232.8 99.4L233.1 100.7L233.5 102L233.9 103.3L234.3 104.6L234.7 105.9L235.2 107.1L235.6 108.4L236.1 109.7L236.5 111L237 112.2L237.5 113.5L238 114.7L238.5 116L239.1 117.2L239.6 118.5L240.2 119.7L240.7 121L241.3 122.2L241.9 123.4L242.5 124.7L243.2 125.9L243.8 127.1L244.4 128.3L245.1 129.6L245.8 130.8L246.4 132L247.1 133.2L247.8 134.4L248.6 135.6L249.3 136.8L250 137.9L250.8 139.1L251.6 140.3L252.3 141.5L253.1 142.6L253.9 143.8L254.7 144.9L255.6 146.1L256.4 147.2L257.3 148.4L258.1 149.5L259 150.6L259.9 151.8L260.8 152.9L261.7 154L262.6 155.1L263.6 156.2L264.5 157.3L265.5 158.4L266.4 159.5L267.4 160.5L268.4 161.6L269.4 162.7L270.4 163.7L271.5 164.8L272.5 165.8L273.5 166.9L274.6 167.9L275.7 168.9L276.8 169.9L277.9 171L279 172L280.1 173L281.2 174L282.4 174.9L283.5 175.9L284.7 176.9L285.9 177.8L287.1 178.8L287.1 178.8L290.8 181.4L294.4 184L297.8 186.6L301.2 189.1L304.3 191.5L307.4 194L310.3 196.4L313.1 198.7L315.8 201L318.4 203.3L320.9 205.6L323.3 207.8L325.5 210L327.7 212.1L329.8 214.3L331.7 216.4L333.6 218.4L335.5 220.5L337.2 222.5L338.8 224.5L340.4 226.5L341.9 228.5L343.4 230.4L344.7 232.3L346.1 234.2L347.3 236.1L348.6 238L349.7 239.8L350.9 241.7L351.9 243.5L353 245.3L354 247.1L355 248.9L356 250.7L356.9 252.5L357.8 254.3L358.7 256.1L359.6 257.9L360.5 259.6L361.4 261.4" fill="none" stroke="#b9bf1c" stroke-width="5"/><path d="M251.9 -8.2L255.7 2.1M246.8 -11.4L235.9 -10.6M246.9 0.3L251.4 10.3M241.6 -2.6L230.7 -1M242.5 8.9L247.8 18.6M237.1 6.4L226.3 8.8M238.9 17.7L244.8 27M233.3 15.6L222.7 18.7M235.9 26.6L242.5 35.4M230.2 24.9L219.9 28.7M233.6 35.5L240.8 43.9M227.8 34.3L217.8 38.8M232 44.6L239.8 52.4M226.1 43.7L216.4 49M231 53.6L239.3 60.8M225 53.2L215.8 59.1M230.7 62.7L239.5 69.3M224.7 62.7L215.9 69.3M231 71.8L240.2 77.7M225 72.2L216.7 79.4M231.9 80.8L241.5 86.1M226 81.6L218.1 89.4M233.5 89.8L243.4 94.4M227.6 91L220.3 99.2M235.6 98.6L245.9 102.6M229.9 100.3L223.2 109M238.4 107.4L248.9 110.7M232.8 109.4L226.7 118.6M241.8 116.1L252.5 118.6M236.3 118.4L230.9 128M245.8 124.5L256.7 126.4M240.5 127.3L235.7 137.2M250.4 132.8L261.4 134M245.3 135.9L241.1 146.1M255.6 140.9L266.6 141.4M250.7 144.3L247.1 154.7M261.4 148.8L272.4 148.6M256.6 152.5L253.8 163.1M267.7 156.4L278.7 155.5M263.2 160.4L261 171.1M274.6 163.7L285.5 162.1M270.4 168L268.8 178.8M282.1 170.7L292.9 168.5M278.1 175.2L277.2 186.2M288.8 176.3L299.3 173M285.3 181.3L285.7 192.2M312.2 194.1L322.9 191.5M308.4 198.7L307.9 209.7M329.8 210L340.7 208.5M325.6 214.2L323.9 225.1M342.8 224.7L353.8 224.4M338.1 228.4L335.2 239M352.3 238.3L363.2 239.2M347.2 241.4L343.2 251.7" stroke="#c4122f" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M420.4 -25.3L419.3 -24.5L418.2 -23.6L417.1 -22.6L416.1 -21.7L415 -20.8L414 -19.9L413 -18.9L412 -18L411 -17L410 -16L409 -15.1L408.1 -14.1L407.1 -13.1L406.2 -12.1L405.3 -11.1L404.4 -10.1L403.5 -9.1L402.6 -8L401.8 -7L400.9 -5.9L400.1 -4.9L399.3 -3.8L398.5 -2.8L397.7 -1.7L396.9 -0.6L396.1 0.5L395.4 1.6L394.6 2.7L393.9 3.8L393.2 4.9L392.5 6L391.8 7.2L391.1 8.3L390.5 9.4L389.8 10.6L389.2 11.7L388.6 12.9L388 14L387.4 15.2L386.8 16.4L386.3 17.6L385.7 18.7L385.2 19.9L384.7 21.1L384.2 22.3L383.7 23.5L383.2 24.8L382.8 26L382.3 27.2L381.9 28.4L381.5 29.6L381.1 30.9L380.7 32.1L380.3 33.4L380 34.6L379.6 35.8L379.3 37.1L379 38.4L378.7 39.6L378.4 40.9L378.1 42.2L377.9 43.4L377.7 44.7L377.4 46L377.2 47.3L377 48.6L376.8 49.8L376.7 51.1L376.5 52.4L376.4 53.7L376.3 55L376.2 56.3L376.1 57.6L376 59L375.9 60.3L375.9 61.6L375.9 62.9L375.8 64.2L375.8 65.5L375.9 66.8L375.9 68.2L375.9 69.5L376 70.8L376.1 72.1L376.2 73.5L376.3 74.8L376.4 76.1L376.5 77.5L376.7 78.8L376.8 80.1L377 81.5L377.2 82.8L377.4 84.2L377.7 85.5L377.9 86.8L378.2 88.2L378.5 89.5L378.7 90.8L379.1 92.2L379.4 93.5L379.7 94.9L380.1 96.2L380.4 97.5L380.8 98.9L381.2 100.2L381.7 101.6L382.1 102.9L382.5 104.2L383 105.6L383.5 106.9L384 108.2L384.5 109.6L385 110.9L385.6 112.2L386.1 113.6L386.7 114.9L387.3 116.2L387.9 117.5L388.6 118.9L389.2 120.2L389.9 121.5L390.5 122.8L391.2 124.1L391.9 125.5L392.7 126.8L393.4 128.1L394.2 129.4L394.9 130.7L395.7 132L396.6 133.3L397.4 134.6L398.2 135.9L399.1 137.2L400 138.5L400.8 139.7L401.8 141L402.7 142.3L403.6 143.6L404.6 144.8L405.6 146.1L406.6 147.4L407.6 148.6L408.6 149.9L409.6 151.1L410.7 152.4L411.8 153.6L412.9 154.9L414 156.1L415.1 157.3L416.3 158.6L417.4 159.8L418.6 161L419.8 162.2L421 163.4L422.2 164.6L423.5 165.8L424.8 167L426 168.2L427.3 169.4L428.7 170.5" fill="none" stroke="#b9bf1c" stroke-width="5"/><path d="M415 -16.7L416.2 -5.8M410.9 -21.1L400.1 -23.1M408.4 -10.1L410.4 0.7M404 -14.1L393 -15.2M402.4 -3L405.3 7.6M397.7 -6.7L386.7 -7M397.1 4.3L400.8 14.7M392.1 1L381.1 1.7M392.5 12L397 22.1M387.2 9.1L376.3 10.6M388.5 20L393.8 29.6M383 17.5L372.3 19.9M385.2 28.2L391.2 37.4M379.5 26.2L369 29.4M382.5 36.6L389.3 45.3M376.7 35.1L366.5 39.2M380.6 45.2L388.1 53.3M374.7 44.2L364.9 49.1M379.4 54L387.5 61.5M373.4 53.4L364 59.1M378.9 62.9L387.5 69.7M372.9 62.8L363.9 69.3M379.1 72L388.3 78M373.1 72.3L364.7 79.5M380 81.1L389.6 86.3M374.1 81.9L366.3 89.7M381.7 90.2L391.7 94.7M375.8 91.5L368.7 99.9M384.1 99.3L394.5 103.1M378.4 101.1L371.9 110M387.3 108.5L397.9 111.4M381.7 110.7L375.9 120M391.3 117.6L402.1 119.7M385.9 120.2L380.8 129.9M396 126.6L406.9 127.9M390.8 129.6L386.5 139.7M401.6 135.5L412.6 136.1M396.6 138.8L393 149.2M407.9 144.3L418.9 144.1M403.2 147.9L400.3 158.6M415.1 152.9L426.1 151.9M410.6 156.9L408.5 167.6" stroke="#c4122f" stroke-width="3.4" stroke-linecap="round" fill="none"/><rect width="400" height="200" filter="url(#bxSbTex)"/></g><rect width="400" height="200" fill="url(#bxSbFade)"/></svg><h3>Softball</h3></div>
-        <div class="bx-pc-body">
-          <p class="bx-meta">Ages 4 to 14</p>
-          <p>Coach pitch first, then player pitch from Minors A through Juniors.</p>
-          <label class="bx-link" for="bx-t-sb">See softball divisions <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></label>
-        </div>
-      </article>
-      <article class="bx-pc">
-        <div class="bx-art"><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="bxChBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d3f45"/><stop offset="1" stop-color="#00013a"/></linearGradient>
-  <linearGradient id="bxChFade" x1="0" y1="1" x2=".7" y2=".2"><stop offset="0" stop-color="#00013a" stop-opacity=".6"/><stop offset=".55" stop-color="#00013a" stop-opacity="0"/></linearGradient><filter id="bxChTex" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="11"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .2 0"/><feComposite in2="SourceGraphic" operator="in"/></filter></defs><rect width="400" height="200" fill="url(#bxChBg)"/><path d="M-180 0 L-150 0 L-350 200 L-380 200Z" fill="#fff" fill-opacity=".035"/><path d="M-120 0 L-90 0 L-290 200 L-320 200Z" fill="#fff" fill-opacity=".035"/><path d="M-60 0 L-30 0 L-230 200 L-260 200Z" fill="#fff" fill-opacity=".035"/><path d="M0 0 L30 0 L-170 200 L-200 200Z" fill="#fff" fill-opacity=".035"/><path d="M60 0 L90 0 L-110 200 L-140 200Z" fill="#fff" fill-opacity=".035"/><path d="M120 0 L150 0 L-50 200 L-80 200Z" fill="#fff" fill-opacity=".035"/><path d="M180 0 L210 0 L10 200 L-20 200Z" fill="#fff" fill-opacity=".035"/><path d="M240 0 L270 0 L70 200 L40 200Z" fill="#fff" fill-opacity=".035"/><path d="M300 0 L330 0 L130 200 L100 200Z" fill="#fff" fill-opacity=".035"/><path d="M360 0 L390 0 L190 200 L160 200Z" fill="#fff" fill-opacity=".035"/><path d="M420 0 L450 0 L250 200 L220 200Z" fill="#fff" fill-opacity=".035"/><path d="M480 0 L510 0 L310 200 L280 200Z" fill="#fff" fill-opacity=".035"/><path d="M540 0 L570 0 L370 200 L340 200Z" fill="#fff" fill-opacity=".035"/><path d="M300 204L372 130A 62.720000000000006 62.720000000000006 0 0 0 228 130Z" fill="#7a4430" fill-opacity=".9"/><circle cx="300" cy="190" r="15" fill="#7a4430"/><path d="M300 176L343 134L300 91L257 134Z" fill="#0f4a3e"/><path d="M300 190L520 -30M300 190L80 -30" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M356 134L300 78L244 134" stroke="#fff" stroke-opacity=".35" stroke-width="1.6" fill="none"/><rect x="351" y="129" width="10" height="10" fill="#fff" transform="rotate(45 356 134)"/><rect x="295" y="73" width="10" height="10" fill="#fff" transform="rotate(45 300 78)"/><rect x="239" y="129" width="10" height="10" fill="#fff" transform="rotate(45 244 134)"/><path d="M294 184h12v5l-6 6l-6-6z" fill="#fff"/><circle cx="300" cy="134" r="9" fill="#7d4532"/><rect x="296" y="133" width="8" height="2" fill="#fff"/><path d="M352 11L359.1 30.3L379.6 31L363.4 43.7L369 63.5L352 52L335 63.5L340.6 43.7L324.4 31L344.9 30.3Z" fill="none" stroke="#cd163f" stroke-width="5" stroke-linejoin="round"/><rect width="400" height="200" filter="url(#bxChTex)"/><rect width="400" height="200" fill="url(#bxChFade)"/></svg><h3>Challenger</h3></div>
-        <div class="bx-pc-body">
-          <p class="bx-meta">Ages 4 to 18, or to 22 in school</p>
-          <p>Adaptive baseball for players with physical and intellectual challenges. Questions? Email <a href="mailto:vpchallenger@blslittleleague.org">vpchallenger@<wbr>blslittleleague.org</a></p>
-          <a class="bx-link" href="https://www.littleleague.org/play-little-league/challenger/" target="_blank" rel="noopener">How Challenger works <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </article>
-    </div>
-
-    <div class="bx-ladder">
-      <input type="radio" name="bx-tab" id="bx-t-bb" checked>
-      <input type="radio" name="bx-tab" id="bx-t-sb">
-      <div class="bx-tabbar">
-        <h3>Divisions by league age</h3>
-        <div class="bx-seg"><label for="bx-t-bb">Baseball</label><label for="bx-t-sb">Softball</label></div>
-        <div class="bx-legend"><span><i></i>Tee or coach pitch</span><span><i class="bx-kp"></i>Player pitch</span></div>
-      </div>
-      <div class="bx-gantt bx-panel-bb">
-        <div class="bx-tick-lab">League age</div><div class="bx-tick" style="grid-column:2">4</div><div class="bx-tick" style="grid-column:3">5</div><div class="bx-tick" style="grid-column:4">6</div><div class="bx-tick" style="grid-column:5">7</div><div class="bx-tick" style="grid-column:6">8</div><div class="bx-tick" style="grid-column:7">9</div><div class="bx-tick" style="grid-column:8">10</div><div class="bx-tick" style="grid-column:9">11</div><div class="bx-tick" style="grid-column:10">12</div><div class="bx-tick" style="grid-column:11">13</div><div class="bx-tick" style="grid-column:12">14</div>
-        <div class="bx-dn">Tee Ball<small>Co-ed</small></div><div class="bx-bar" style="grid-column:2 / 5">4–6</div>
-        <div class="bx-dn">Coach Pitch</div><div class="bx-bar" style="grid-column:4 / 6">6–7</div>
-        <div class="bx-dn">AA<small>Intro to player pitch</small></div><div class="bx-bar bx-kp" style="grid-column:6 / 8">8–9</div>
-        <div class="bx-dn">Minors</div><div class="bx-bar bx-kp" style="grid-column:7 / 10">9–11</div>
-        <div class="bx-dn">Majors</div><div class="bx-bar bx-kp" style="grid-column:9 / 11">11–12</div>
-        <div class="bx-dn">50/70<small>Intermediate</small></div><div class="bx-bar bx-kp" style="grid-column:10 / 12">12–13</div>
-        <div class="bx-dn">Juniors</div><div class="bx-bar bx-kp" style="grid-column:11 / 13">13–14</div>
-      </div>
-      <div class="bx-gantt bx-panel-sb">
-        <div class="bx-tick-lab">League age</div><div class="bx-tick" style="grid-column:2">4</div><div class="bx-tick" style="grid-column:3">5</div><div class="bx-tick" style="grid-column:4">6</div><div class="bx-tick" style="grid-column:5">7</div><div class="bx-tick" style="grid-column:6">8</div><div class="bx-tick" style="grid-column:7">9</div><div class="bx-tick" style="grid-column:8">10</div><div class="bx-tick" style="grid-column:9">11</div><div class="bx-tick" style="grid-column:10">12</div><div class="bx-tick" style="grid-column:11">13</div><div class="bx-tick" style="grid-column:12">14</div>
-        <div class="bx-dn">Co-Ed T-Ball</div><div class="bx-bar" style="grid-column:2 / 5">4–6</div>
-        <div class="bx-dn">Minors B<small>Coach pitch</small></div><div class="bx-bar" style="grid-column:4 / 7">6–8</div>
-        <div class="bx-dn">Minors A<small>Player pitch</small></div><div class="bx-bar bx-kp" style="grid-column:6 / 10">8–11</div>
-        <div class="bx-dn">Majors</div><div class="bx-bar bx-kp" style="grid-column:9 / 11">11–12</div>
-        <div class="bx-dn">Juniors</div><div class="bx-bar bx-kp" style="grid-column:11 / 13">13–14</div>
-      </div>
-      <p class="bx-note">Typical league ages from BLS guidelines. Where two divisions overlap, evaluations help decide placement.</p>
-    </div>
-
-    <div class="bx-ladder">
-      <input type="radio" name="bx-fee" id="bx-f-bb" checked>
-      <input type="radio" name="bx-fee" id="bx-f-sb">
-      <div class="bx-tabbar">
-        <h3>2027 registration fees</h3>
-        <div class="bx-seg"><label for="bx-f-bb">Baseball</label><label for="bx-f-sb">Softball</label></div>
-      </div>
-      <ol class="bx-fees bx-fee-bb">
-        <li><span>Tee Ball</span><b>$90</b></li>
-        <li><span>Coach Pitch</span><b>$150</b></li>
-        <li><span>AA</span><b>$275</b></li>
-        <li><span>Minors</span><b>$295</b></li>
-        <li><span>Majors</span><b>$295</b></li>
-        <li><span>50/70</span><b>$300</b></li>
-        <li><span>Juniors</span><b>$300</b></li>
-      </ol>
-      <ol class="bx-fees bx-fee-sb">
-        <li><span>Co-Ed T-Ball</span><b>$90</b></li>
-        <li><span>Minors B (coach pitch)</span><b>$140</b></li>
-        <li><span>Minors A</span><b>$285</b></li>
-        <li><span>Majors</span><b>$285</b></li>
-        <li><span>Juniors</span><b>$290</b></li>
-      </ol>
-      <p class="bx-note">Softball divisions are $10 less than baseball. Tee Ball is co-ed and $90 for everyone. Discounts are per family: $50 off Nov 27 to 29, $25 off Nov 30 to Dec 31, full price from Jan 1, 2027.</p>
-    </div>
-  </section>
-
-  <section class="bx-board">
-    <div class="bx-board-top"><h2>Fall Ball 2026</h2><span class="bx-final">Final</span></div>
-    <div class="bx-cells">
-      <div class="bx-cell"><b>36</b><span>Teams</span></div>
-      <div class="bx-cell"><b>8</b><span>Divisions</span></div>
-      <div class="bx-cell"><b>194</b><span>Games</span></div>
-    </div>
-    <p class="bx-board-foot"><b>Sep 12 to Oct 31</b>, including 91 games against other District 10 leagues</p>
   </section>
 
 </div>

@@ -1,0 +1,90 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+.blsy{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:22px;margin:0 0 6px;}
+.blsy *,.blsy *::before,.blsy *::after{box-sizing:border-box;}
+.blsy h3,.blsy p,.blsy ol,.blsy li,.blsy header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsy a{text-decoration:none !important;}
+.blsy label{font-family:Poppins,Arial,sans-serif !important;font-weight:600;}
+.blsy svg{display:block;}
+
+/* ---------- three tiles, each goes somewhere ---------- */
+.blsy .by-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.blsy .by-tile{position:relative;display:flex;align-items:center;gap:14px;min-height:88px;padding:16px 16px 16px 0;border-radius:14px;background:#fff;border:1px solid #dde3ec;box-shadow:0 1px 0 #dde3ec,0 10px 24px rgba(0,1,58,.07);overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.blsy .by-tile:hover{transform:translateY(-2px);box-shadow:0 1px 0 #dde3ec,0 16px 34px rgba(0,1,58,.12);}
+.blsy .by-tile i{flex:none;align-self:stretch;width:14px;background:linear-gradient(180deg,#1452a0,#00013a);}
+.blsy .by-tile.by-sb i{background:linear-gradient(180deg,#cd163f,#7d0a24);}
+.blsy .by-tile.by-ch i{background:linear-gradient(180deg,#0d3f45,#00013a);}
+.blsy .by-tile b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a;}
+.blsy .by-tile span{display:block;margin-top:4px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#cd163f;}
+.blsy .by-tile small{display:block;margin-top:3px;font-size:13px;line-height:1.35;color:#4b5675;overflow-wrap:anywhere;}
+.blsy .by-tile > svg{margin-left:auto;width:20px;height:20px;flex:none;color:#cd163f;transition:transform .2s;}
+.blsy .by-tile:hover > svg{transform:translateX(3px);}
+
+/* ---------- 2027 fees with a Baseball/Softball switch ---------- */
+.blsy .by-ladder{position:relative;background:#f5f7fb;border:1px solid #dde3ec;border-radius:14px;padding:22px 24px 22px;}
+.blsy .by-ladder > input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+.blsy .by-tabbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px;}
+.blsy .by-tabbar h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;}
+.blsy .by-seg{display:inline-flex;background:#e4e9f1;border-radius:999px;padding:4px;}
+.blsy .by-seg label{cursor:pointer;padding:8px 20px;border-radius:999px;font-weight:600;font-size:14px;color:#4b5675;transition:background .2s,color .2s;margin:0;}
+.blsy .by-seg label[for="by-f-bb"]{background:#00013a;color:#fff;}
+.blsy #by-f-sb:checked ~ .by-tabbar label[for="by-f-bb"]{background:transparent;color:#4b5675;}
+.blsy #by-f-sb:checked ~ .by-tabbar label[for="by-f-sb"]{background:#00013a;color:#fff;}
+.blsy .by-ladder > input:focus-visible ~ .by-tabbar .by-seg{outline:2px solid #1452a0;outline-offset:2px;}
+.blsy .by-fees{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.blsy .by-fees li{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:#fff;border:1px solid #dde3ec;border-radius:12px;padding:14px 16px 13px;}
+.blsy .by-fees span{font-weight:600;font-size:15px;line-height:1.2;color:#00013a;}
+.blsy .by-fees b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:1;color:#00013a;}
+.blsy .by-fees.by-fee-sb{display:none;}
+.blsy #by-f-sb:checked ~ .by-fee-sb{display:grid;}
+.blsy #by-f-sb:checked ~ .by-fee-bb{display:none;}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsy{gap:14px;}
+  .blsy .by-tiles{grid-template-columns:minmax(0,1fr);gap:10px;}
+  .blsy .by-tile{min-height:76px;padding:12px 14px 12px 0;}
+  .blsy .by-tile b{font-size:26px;}
+  .blsy .by-ladder{padding:18px 14px 16px;}
+  .blsy .by-tabbar{flex-direction:column;align-items:flex-start;gap:10px;}
+  .blsy .by-fees{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .blsy .by-fees li{padding:12px 14px 11px;}
+  .blsy .by-fees b{font-size:34px;}
+}
+@media (prefers-reduced-motion:reduce){.blsy *{transition:none !important;}}
+</style>
+<div class="blsy">
+
+  <div class="by-tiles">
+    <!-- GO-LIVE: the Baseball and Softball tiles use the League Age preview address; swap it for the League Age page's tabid URL -->
+    <a class="by-tile by-bb" href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html"><i></i><div><b>Baseball</b><span>League age 4 to 14</span><small>Tee Ball to Juniors</small></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="by-tile by-sb" href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html"><i></i><div><b>Softball</b><span>League age 4 to 14</span><small>T-Ball to Juniors</small></div><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    <a class="by-tile by-ch" href="mailto:vpchallenger@blslittleleague.org"><i></i><div><b>Challenger</b><span>Ages 4 to 18, or to 22 in school</span><small>vpchallenger@<wbr>blslittleleague.org</small></div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 7 8.5-7"/></svg></a>
+  </div>
+
+  <div class="by-ladder">
+    <input type="radio" name="by-fee" id="by-f-bb" checked>
+    <input type="radio" name="by-fee" id="by-f-sb">
+    <div class="by-tabbar">
+      <h3>2027 registration fees</h3>
+      <div class="by-seg"><label for="by-f-bb">Baseball</label><label for="by-f-sb">Softball</label></div>
+    </div>
+    <ol class="by-fees by-fee-bb">
+      <li><span>Tee Ball</span><b>$90</b></li>
+      <li><span>Coach Pitch</span><b>$150</b></li>
+      <li><span>AA</span><b>$275</b></li>
+      <li><span>Minors</span><b>$295</b></li>
+      <li><span>Majors</span><b>$295</b></li>
+      <li><span>50/70</span><b>$300</b></li>
+      <li><span>Juniors</span><b>$300</b></li>
+    </ol>
+    <ol class="by-fees by-fee-sb">
+      <li><span>Co-Ed T-Ball</span><b>$90</b></li>
+      <li><span>Minors B (coach pitch)</span><b>$140</b></li>
+      <li><span>Minors A</span><b>$285</b></li>
+      <li><span>Majors</span><b>$285</b></li>
+      <li><span>Juniors</span><b>$290</b></li>
+    </ol>
+  </div>
+
+</div>

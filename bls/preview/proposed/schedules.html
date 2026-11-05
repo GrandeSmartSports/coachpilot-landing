@@ -239,7 +239,7 @@ body.Inner-Skin .dfArea .registration-listing #BSBGrid .grid-title{color:var(--b
   body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(:last-child):not(.blsx):not(.blsx *){padding-right:16px}
   body.Inner-Skin .skInnerWrapper .Normal td > :is(ul,ol):not(.blsx):not(.blsx *){padding-left:1.15em!important}
 }
-</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=489ed3479a" rel="stylesheet"/></head>
+</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=0676cf4a4f" rel="stylesheet"/></head>
 <body class="LittleLeague2020-navy LittleLeague-Default Inner-Skin" id="Body">
 <!-- Google Tag Manager (noscript) -->
 <noscript>
@@ -1004,13 +1004,12 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss em,.blss i{font-style:normal;}
 .blss svg{display:block;}
 .blss h1,.blss h2,.blss h3,.blss .ss-d{font-family:var(--disp) !important;font-weight:800;font-stretch:condensed;line-height:1;text-transform:uppercase;}
-.blss .ss-t a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
 
-/* ---------- hero ---------- */
-.blss .ss-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);min-height:440px;}
+/* ---------- hero: title plus one notice ---------- */
+.blss .ss-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
 .blss .ss-art{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
 .blss .ss-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(0,1,58,.97) 0%,rgba(0,1,58,.86) 40%,rgba(0,1,58,.3) 72%,rgba(0,1,58,.12) 100%);}
-.blss .ss-copy{align-self:center;padding:44px 16px 44px 40px;}
+.blss .ss-copy{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:22px 28px;padding:40px 40px 38px;}
 .blss .ss-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
 .blss .ss-ribbon svg{width:30px;height:30px;flex:none;}
 .blss .ss-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.92;line-height:1.3;}
@@ -1019,23 +1018,8 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-hero h1 small{display:block;font-size:.5em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:8px !important;}
 .blss .ss-hero h1 em{display:block;position:relative;width:max-content;max-width:100%;}
 .blss .ss-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blss .ss-lede{margin-top:30px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:29em;}
-.blss .ss-ask{margin-top:18px !important;font-size:15px;color:#b8c6ea;}
-.blss .ss-ask a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);overflow-wrap:anywhere;}
-
-/* scoreboard in the hero */
-.blss .ss-sbw{align-self:center;justify-self:center;width:100%;max-width:420px;padding:44px 34px 44px 6px;}
-.blss .ss-sb{position:relative;border-radius:18px;background:#000127;border:3px solid #1b2670;padding:20px 18px 18px;box-shadow:0 26px 50px rgba(0,0,20,.55);
-  background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1.4px);background-size:7px 7px;}
-.blss .ss-sb-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;}
-.blss .ss-sb-top span{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:22px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#fff;}
-.blss .ss-sb-top i{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:15px;line-height:1;letter-spacing:.18em;text-transform:uppercase;background:#cd163f;color:#fff;padding:5px 10px 5px 12px;border-radius:6px;white-space:nowrap;}
-.blss .ss-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
-.blss .ss-cell{background:#00011f;border:1px solid #1b2670;border-radius:12px;padding:14px 6px 12px;text-align:center !important;box-shadow:inset 0 2px 12px rgba(0,0,0,.55);}
-.blss .ss-cell b{display:block;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:76px;line-height:.95;color:#fff;text-align:center !important;text-shadow:0 0 22px rgba(120,160,255,.45);}
-.blss .ss-cell span{display:block;margin-top:6px;font-size:11px;font-weight:600;letter-spacing:.14em;line-height:1.3;text-transform:uppercase;color:#a9b8e3;text-align:center !important;}
-.blss .ss-sb-foot{margin-top:16px !important;padding-top:14px;border-top:1px solid #1b2670;font-size:15px;line-height:1.45;color:#c6d1ee;text-align:center !important;}
-.blss .ss-sb-foot b{color:#fff;font-weight:700;}
+.blss .ss-soon-note{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1.5px dashed rgba(255,255,255,.45);border-radius:999px;padding:9px 16px 9px 12px;font-size:14px;font-weight:600;line-height:1.3;color:#fff;}
+.blss .ss-soon-note svg{width:18px;height:18px;flex:none;color:#ffb8c6;}
 
 /* ---------- sections ---------- */
 .blss .ss-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -1043,7 +1027,6 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-gray{background:#eef2f6;}
 .blss .ss-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
 .blss .ss-sec h2{font-size:46px;color:#00013a !important;letter-spacing:.005em;text-wrap:balance;}
-.blss .ss-intro{margin-top:10px !important;font-size:16px;color:#4b5675;max-width:40em;}
 
 /* ---------- division buttons ---------- */
 .blss .ss-sports{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;margin-top:28px !important;align-items:start;}
@@ -1051,9 +1034,10 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-sport-h{display:flex;align-items:center;gap:12px;padding-bottom:14px;margin-bottom:14px;border-bottom:3px solid #00013a;}
 .blss .ss-sport-h svg{width:40px;height:40px;flex:none;}
 .blss .ss-sport-h h3{flex:1;font-size:34px;white-space:nowrap;word-break:normal;overflow-wrap:normal;color:#00013a !important;}
-.blss .ss-sport-h small{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;white-space:nowrap;}
+.blss .ss-sport-h small{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7a84a0;white-space:nowrap;}
+.blss .ss-sport-h small svg{width:12px;height:12px;flex:none;}
 .blss .ss-divs{display:grid;gap:10px;}
-.blss .ss-div{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;column-gap:14px;row-gap:10px;min-height:76px;background:#fff;border-radius:12px;border-left:6px solid #1452a0;padding:14px 14px 14px 16px;box-shadow:0 1px 0 var(--line),0 8px 20px rgba(0,1,58,.06);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
+.blss .ss-div{display:grid;grid-template-columns:minmax(0,1fr) 40px;align-items:center;column-gap:14px;min-height:76px;background:#fff;border-radius:12px;border-left:6px solid #1452a0;padding:14px 14px 14px 16px;box-shadow:0 1px 0 var(--line),0 8px 20px rgba(0,1,58,.06);color:#00013a !important;transition:transform .2s,box-shadow .2s;}
 .blss .ss-softball .ss-div{border-left-color:#cd163f;}
 .blss .ss-div:hover{transform:translateY(-2px);box-shadow:0 1px 0 var(--line),0 16px 32px rgba(0,1,58,.12);}
 .blss .ss-div:focus-visible{outline:3px solid #1452a0;outline-offset:2px;}
@@ -1063,12 +1047,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-go{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#cd163f;color:#fff;transition:transform .2s;}
 .blss .ss-go svg{width:16px;height:16px;}
 .blss .ss-div:hover .ss-go{transform:translateX(3px);}
-.blss .ss-wait{grid-column:1 / -1;justify-self:start;display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;line-height:1.25;color:#4b5675;background:#f5f7fb;border:1.5px dashed #b3bed2;border-radius:999px;padding:5px 12px 5px 10px;}
-.blss .ss-wait svg{width:14px;height:14px;flex:none;color:#cd163f;}
 /* until a division's GameChanger link exists, its button is a label, not a link */
 .blss .ss-soon{pointer-events:none;cursor:default;}
 .blss .ss-soon .ss-go{background:#eef2f6;color:#a6afc3;}
-.blss .ss-note{margin-top:16px !important;font-size:13px;color:#7a84a0;}
 
 /* ---------- follow your team: base path ---------- */
 .blss .ss-path{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px !important;}
@@ -1082,31 +1063,26 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-card p{font-size:15px;line-height:1.55;color:#4b5675;}
 .blss .ss-card p + p{margin-top:10px !important;}
 .blss .ss-card p b{color:#00013a;font-weight:600;}
-.blss .ss-cut{margin-top:16px;width:100%;}
-.blss .ss-cut span{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:14px;color:#4b5675;border-top:1px solid var(--line);padding:8px 0;}
-.blss .ss-cut span:last-child{border-bottom:1px solid var(--line);}
-.blss .ss-cut b{font-family:var(--disp);font-stretch:condensed;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:#00013a;}
+.blss .ss-stores{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:16px;}
+.blss .ss-store{display:inline-flex;align-items:center;gap:10px;background:#00013a;color:#fff !important;font-weight:700;font-size:14px;line-height:1.2;padding:11px 16px 11px 12px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
+.blss .ss-store svg{width:18px;height:18px;flex:none;color:#ffb8c6;}
+.blss .ss-store:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,1,58,.25);}
 .blss .ss-link{margin-top:auto;padding-top:16px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
 .blss .ss-link svg{width:16px;height:16px;flex:none;transition:transform .2s;}
 .blss .ss-link:hover svg{transform:translateX(3px);}
-.blss .ss-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
-.blss .ss-btn svg{width:16px;height:16px;flex:none;}
-.blss .ss-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
 .blss .ss-hot .ss-base::before{background:#cd163f;}
 .blss .ss-hot .ss-card{background:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
 .blss .ss-hot .ss-card::after{content:"";position:absolute;right:-60px;top:-60px;width:180px;height:180px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);pointer-events:none;}
 .blss .ss-hot .ss-card h3{color:#fff !important;}
 .blss .ss-hot .ss-card p{color:#dbe2f4;}
 .blss .ss-hot .ss-card p b{color:#fff;}
-.blss .ss-hot .ss-btn{margin-top:auto;}
-.blss .ss-hot .ss-card p + .ss-btn{margin-top:20px;}
 .blss .ss-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
 .blss .ss-home svg{width:44px;height:48px;flex:none;}
 .blss .ss-home span{font-size:12px;line-height:1.3;color:#4b5675;text-align:right !important;background:#eef2f6;padding-left:8px;}
 .blss .ss-home b{display:block;font-family:var(--disp);font-stretch:condensed;font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
 
 /* ---------- good to know ---------- */
-.blss .ss-know{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px !important;}
+.blss .ss-know{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px !important;}
 .blss .ss-k{display:flex;flex-direction:column;align-items:flex-start;background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:22px;color:#00013a !important;}
 .blss .ss-k > svg{width:44px;height:44px;margin-bottom:14px;}
 .blss .ss-k h3{font-size:26px;color:#00013a !important;margin-bottom:8px !important;}
@@ -1118,6 +1094,11 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blss .ss-dates .ss-link{color:#fff !important;}
 .blss .ss-dates:hover .ss-link svg{transform:translateX(3px);}
 
+/* ---------- foot ---------- */
+.blss .ss-foot{display:flex;align-items:center;gap:12px;font-size:15px;line-height:1.5;color:#4b5675;padding:0 4px;}
+.blss .ss-foot svg{width:22px;height:22px;flex:none;color:#1452a0;}
+.blss .ss-foot a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
+
 /* ---------- tablet and phone: steps run down a base path ---------- */
 @media (max-width:991px){
   .blss .ss-path{grid-template-columns:minmax(0,1fr);gap:18px;padding-left:58px;}
@@ -1126,34 +1107,23 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blss .ss-home{position:relative;left:-58px;top:auto;right:auto;flex-direction:row;gap:12px;}
   .blss .ss-home span{text-align:left !important;background:none;padding:0;}
   .blss .ss-know{grid-template-columns:minmax(0,1fr);gap:12px;}
-  /* narrower buttons: the status reads as one plain line under the division, so it never wraps inside a pill */
   .blss .ss-sport{padding:16px 12px 14px;}
   .blss .ss-sport-h{padding:0 4px 12px;gap:10px;}
   .blss .ss-sport-h h3{font-size:30px;}
   .blss .ss-sport-h small{font-size:11px;letter-spacing:.1em;}
   .blss .ss-div{padding:12px 12px 12px 14px;column-gap:12px;min-height:72px;}
-  .blss .ss-wait{background:none;border:0;border-radius:0;padding:0;gap:6px;font-size:13px;}
 }
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
   .blss{gap:16px;}
-  .blss .ss-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:14px;}
+  .blss .ss-hero{border-radius:14px;}
   .blss .ss-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.86) 50%,rgba(0,1,58,.6) 100%);}
-  .blss .ss-copy{padding:26px 20px 6px;}
+  .blss .ss-copy{padding:26px 20px 24px;gap:22px;}
   .blss .ss-ribbon{margin-bottom:20px;padding-right:30px;}
   .blss .ss-ribbon b{font-size:19px;}
   .blss .ss-hero h1{font-size:clamp(44px,14vw,60px);}
-  .blss .ss-lede{margin-top:26px !important;font-size:16px;}
-  .blss .ss-sbw{max-width:none;padding:26px 16px 18px;}
-  .blss .ss-sb{padding:16px 12px 14px;border-radius:14px;}
-  .blss .ss-sb-top span{font-size:19px;}
-  .blss .ss-sb-top i{font-size:13px;}
-  .blss .ss-cells{gap:8px;}
-  .blss .ss-cell{padding:12px 4px 10px;}
-  .blss .ss-cell b{font-size:54px;}
-  .blss .ss-cell span{font-size:10px;letter-spacing:.1em;}
-  .blss .ss-sb-foot{font-size:14px;}
+  .blss .ss-soon-note{font-size:13px;}
   .blss .ss-sec{padding:28px 16px;border-radius:14px;}
   .blss .ss-sec h2{font-size:36px;}
   .blss .ss-sports{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:22px !important;}
@@ -1161,14 +1131,12 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blss .ss-path{margin-top:24px !important;}
   .blss .ss-card{padding:20px 18px;}
   .blss .ss-card h3{font-size:27px;}
+  .blss .ss-store{flex:1 1 150px;justify-content:center;}
   .blss .ss-know{margin-top:22px !important;}
   .blss .ss-k{padding:18px 16px;}
   .blss .ss-k > svg{width:38px;height:38px;margin-bottom:12px;}
   .blss .ss-k h3{font-size:24px;}
-}
-@media (max-width:380px){
-  .blss .ss-wait{font-size:12px;}
-  .blss .ss-wait svg{display:none;}
+  .blss .ss-foot{align-items:flex-start;}
 }
 @media (prefers-reduced-motion:reduce){.blss *{transition:none !important;}}
 </style>
@@ -1192,87 +1160,78 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <g fill="#fff" fill-opacity=".4"><circle cx="1112" cy="22" r="6"></circle><circle cx="1130" cy="22" r="6"></circle><circle cx="1148" cy="22" r="6"></circle><circle cx="1166" cy="22" r="6"></circle><circle cx="1112" cy="40" r="6"></circle><circle cx="1130" cy="40" r="6"></circle><circle cx="1148" cy="40" r="6"></circle><circle cx="1166" cy="40" r="6"></circle></g>
 </svg>
 <div class="ss-copy">
+<div>
 <div class="ss-ribbon">
 <svg aria-hidden="true" viewbox="0 0 32 32"><circle cx="16" cy="16" fill="#fff" r="15"></circle><rect fill="none" height="12" rx="2" stroke="#cd163f" stroke-width="1.8" width="17" x="7.5" y="10"></rect><path d="M16 10v12" stroke="#cd163f" stroke-width="1.6"></path><path d="M10.5 14.2h2.4l-1.5 2 .1.1a1.3 1.3 0 1 1-1.1 2M19 14.2h2.6l-2 4.2" fill="none" stroke="#cd163f" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg>
 <div><span>Spring 2027</span><b>Schedules &amp; Scores</b></div>
 </div>
 <h1><small>BLS baseball and softball</small>Follow <em>your team.</em></h1>
-<p class="ss-lede">This spring, game schedules, live scores and standings are on GameChanger. Pick your division below, or follow your team in the free app in three steps.</p>
-<p class="ss-ask">Schedule questions? Email <a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr/>blslittleleague.org</a></p>
 </div>
-<div class="ss-sbw">
-<div class="ss-sb">
-<div class="ss-sb-top"><span>BLS Spring 2027</span><i>On deck</i></div>
-<div class="ss-cells">
-<div class="ss-cell"><b>7</b><span>Baseball divisions</span></div>
-<div class="ss-cell"><b>5</b><span>Softball divisions</span></div>
-<div class="ss-cell"><b>1</b><span>Free app</span></div>
-</div>
-<p class="ss-sb-foot">Spring 2027 schedules post here before <b>Opening Day</b>.</p>
-</div>
+<!-- GO-LIVE: delete this notice once the first division links are live. -->
+<p class="ss-soon-note"><svg aria-hidden="true" viewbox="0 0 18 18"><circle cx="9" cy="9" fill="none" r="7.2" stroke="currentColor" stroke-width="1.8"></circle><path d="M9 5v4.2l2.6 1.7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"></path></svg>Spring 2027 schedules post before Opening Day</p>
 </div>
 </section>
 <section class="ss-sec ss-white">
-<header><span class="ss-eyebrow">Pick your division</span><h2>Schedules, scores and standings</h2><p class="ss-intro">Each button opens your division's league page in GameChanger: the game schedule, plus live scores, standings and stat leaders in divisions that keep them.</p></header>
-<!-- GO-LIVE: each division button below points to "#" until its GameChanger league exists. For each one: put that league's "Share with Fans" link in href, then delete the ss-soon class, the aria-disabled attribute and the ss-wait line ("Link coming before Opening Day"). -->
+<header><span class="ss-eyebrow">Schedules, scores and standings</span><h2>Pick your division</h2></header>
+<!-- GO-LIVE: each division button below points to "#" until its GameChanger league exists. For each one: put that league's "Share with Fans" link in href, then delete the ss-soon class and the aria-disabled attribute. -->
 <div class="ss-sports">
 <div class="ss-sport ss-baseball">
 <header class="ss-sport-h">
 <svg aria-hidden="true" viewbox="0 0 40 40"><circle cx="20" cy="20" fill="#fff" r="17" stroke="#00013a" stroke-width="2.5"></circle><path d="M11.5 8.6c3.4 3 5.4 7 5.4 11.4s-2 8.4-5.4 11.4M28.5 8.6c-3.4 3-5.4 7-5.4 11.4s2 8.4 5.4 11.4" fill="none" stroke="#cd163f" stroke-dasharray="2.4 2.2" stroke-width="2.2"></path></svg>
-<h3>Baseball</h3><small>7 divisions</small>
+<h3>Baseball</h3><small><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Opens GameChanger</small>
 </header>
 <ul class="ss-divs">
-<li><!-- GO-LIVE: Tee Ball (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Tee Ball</b><small>Co-ed · Ages 4 to 6</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Coach Pitch (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Coach Pitch</b><small>Ages 6 to 7</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: AA (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>AA</b><small>Intro to player pitch · Ages 8 to 9</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Minors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors</b><small>Ages 9 to 11</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Majors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Majors</b><small>Ages 11 to 12</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: 50/70 (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>50/70</b><small>Intermediate · Ages 12 to 13</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Juniors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Juniors</b><small>Ages 13 to 14</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
+<li><!-- GO-LIVE: Tee Ball (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Tee Ball</b><small>Co-ed · Ages 4 to 6</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Coach Pitch (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Coach Pitch</b><small>Ages 6 to 7</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: AA (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>AA</b><small>Intro to player pitch · Ages 8 to 9</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Minors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors</b><small>Ages 9 to 11</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Majors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Majors</b><small>Ages 11 to 12</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: 50/70 (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>50/70</b><small>Intermediate · Ages 12 to 13</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Juniors (baseball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Juniors</b><small>Ages 13 to 14</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
 </ul>
 </div>
 <div class="ss-sport ss-softball">
 <header class="ss-sport-h">
 <svg aria-hidden="true" viewbox="0 0 40 40"><circle cx="20" cy="20" fill="#e9f04c" r="17" stroke="#00013a" stroke-width="2.5"></circle><path d="M11.5 8.6c3.4 3 5.4 7 5.4 11.4s-2 8.4-5.4 11.4M28.5 8.6c-3.4 3-5.4 7-5.4 11.4s2 8.4 5.4 11.4" fill="none" stroke="#cd163f" stroke-dasharray="2.4 2.2" stroke-width="2.2"></path></svg>
-<h3>Softball</h3><small>5 divisions</small>
+<h3>Softball</h3><small><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>Opens GameChanger</small>
 </header>
 <ul class="ss-divs">
-<li><!-- GO-LIVE: Co-Ed T-Ball (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Co-Ed T-Ball</b><small>Ages 4 to 6</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Minors B (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors B</b><small>Coach pitch · Ages 6 to 8</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Minors A (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors A</b><small>Player pitch · Ages 8 to 11</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Majors (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Majors</b><small>Ages 11 to 12</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
-<li><!-- GO-LIVE: Juniors (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Juniors</b><small>Ages 13 to 14</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span><span class="ss-wait"><svg aria-hidden="true" viewbox="0 0 14 14"><circle cx="7" cy="7" fill="none" r="5.6" stroke="currentColor" stroke-width="1.6"></circle><path d="M7 4v3.3l2 1.3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"></path></svg>Link coming before Opening Day</span></a></li>
+<li><!-- GO-LIVE: Co-Ed T-Ball (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Co-Ed T-Ball</b><small>Ages 4 to 6</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Minors B (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors B</b><small>Coach pitch · Ages 6 to 8</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Minors A (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Minors A</b><small>Player pitch · Ages 8 to 11</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Majors (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Majors</b><small>Ages 11 to 12</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
+<li><!-- GO-LIVE: Juniors (softball) GameChanger league link --><a aria-disabled="true" class="ss-div ss-soon" href="#"><span class="ss-dn"><b>Juniors</b><small>Ages 13 to 14</small></span><span class="ss-go"><svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span></a></li>
 </ul>
 </div>
 </div>
-<p class="ss-note">Typical league ages from BLS guidelines.</p>
 </section>
 <section class="ss-sec ss-gray">
-<header><span class="ss-eyebrow">Three steps</span><h2>Follow your team in GameChanger</h2><p class="ss-intro">Follow your player's team to get the game schedule, live and final scores and game alerts on your phone.</p></header>
+<header><span class="ss-eyebrow">Three steps</span><h2>Follow your team in GameChanger</h2></header>
 <ol class="ss-path">
 <li class="ss-step">
 <span class="ss-base"><i>1</i></span>
 <div class="ss-card">
 <h3>Get the app</h3>
-<p>Download GameChanger from the App Store or Google Play. Sign in, or create a free account.</p>
+<p>Download GameChanger, then sign in or create a free account.</p>
+<div class="ss-stores">
+<a class="ss-store" href="https://apps.apple.com/us/app/gamechanger/id1308415878" rel="noopener" target="_blank"><svg aria-hidden="true" viewbox="0 0 18 18"><rect fill="none" height="15" rx="2" stroke="currentColor" stroke-width="1.6" width="10" x="4" y="1.5"></rect><path d="M9 5.5v6M6.6 9.2L9 11.6l2.4-2.4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"></path></svg>Opens the App Store</a>
+<a class="ss-store" href="https://play.google.com/store/apps/details?id=com.gc.teammanager" rel="noopener" target="_blank"><svg aria-hidden="true" viewbox="0 0 18 18"><rect fill="none" height="15" rx="2" stroke="currentColor" stroke-width="1.6" width="10" x="4" y="1.5"></rect><path d="M9 5.5v6M6.6 9.2L9 11.6l2.4-2.4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"></path></svg>Opens Google Play</a>
+</div>
 </div>
 </li>
 <li class="ss-step ss-hot">
 <span class="ss-base"><i>2</i></span>
 <div class="ss-card">
 <h3>Follow your team</h3>
-<p>Tap the search icon at the top left of the Home tab, type your team's name, select it, then tap <b>Follow Team</b>. The State and City filters help.</p>
-<p>Choose <b>Parent or guardian</b> and pick your player to also get practices and team messages. The coach approves it, or your player's other parent or guardian if they joined first. Got an invite from your coach? Open it to join.</p>
-<a class="ss-btn" href="https://help.gc.com/hc/en-us/articles/360019957491-Searching-and-Adding-Teams-to-Your-Account" rel="noopener" target="_blank">Team search help <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<p>Tap the search icon at the top left of the Home tab, type your team's name, select it, then tap <b>Follow Team</b>.</p>
+<p>Choose <b>Parent or guardian</b> and pick your player.</p>
 </div>
 </li>
 <li class="ss-step">
 <span class="ss-base"><i>3</i></span>
 <div class="ss-card">
 <h3>Sync your calendar</h3>
-<p>Open your team, tap the gear icon at the top right, then <b>Schedule Sync</b> and <b>Sync Schedule to Your Calendar</b>. Choose Apple or Google. Google on an iPhone takes a few extra steps, shown in the help below.</p>
-<div class="ss-cut"><span><b>Parents</b>Games and practices</span><span><b>Followers</b>Games only</span></div>
-<a class="ss-link" href="https://help.gc.com/hc/en-us/articles/115005457626-Integrating-Your-Personal-Calendar" rel="noopener" target="_blank">Calendar sync help <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<p>Open your team, tap the gear icon at the top right, then <b>Schedule Sync</b> and <b>Sync Schedule to Your Calendar</b>. Choose Apple or Google.</p>
 </div>
 </li>
 <li aria-label="Then: game day, with scores on your phone" class="ss-home">
@@ -1285,23 +1244,19 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <header><span class="ss-eyebrow">Good to know</span><h2>Before the first pitch</h2></header>
 <div class="ss-know">
 <div class="ss-k">
-<svg aria-hidden="true" viewbox="0 0 44 44"><rect fill="#1452a0" height="40" rx="12" width="40" x="2" y="2"></rect><path d="M14 22.5l5.5 5.5L31 16.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.4"></path></svg>
-<h3>What's free</h3>
-<p>Following a team, final scores, live game alerts and the live Animated GameStream are free. Live video is free on a limited basis. Box scores and season stats need a paid GameChanger plan.</p>
-</div>
-<div class="ss-k">
 <svg aria-hidden="true" viewbox="0 0 44 44"><rect fill="#00013a" height="40" rx="12" width="40" x="2" y="2"></rect><path d="M14.5 25.5a5.5 5.5 0 0 1 .8-10.9 7 7 0 0 1 13.4 1.4 4.8 4.8 0 0 1 .3 9.5z" fill="#fff"></path><path d="M17 30l-1.5 4M23 30l-1.5 4M29 30l-1.5 4" stroke="#7fa6ff" stroke-linecap="round" stroke-width="2.4"></path></svg>
 <h3>When games move</h3>
-<p>When a game moves for rain or a time change, the new time shows on your team's schedule in the app and in your synced calendar. Google Calendar can take up to 24 hours to catch up, so on rainy days, check the app.</p>
+<p>Rain or time change: the app has the new time.</p>
 </div>
 <a class="ss-k ss-dates" href="https://go.blslittleleague.org/bls/preview/proposed/calendar.html">
 <svg aria-hidden="true" viewbox="0 0 44 44"><rect fill="#cd163f" height="40" rx="12" width="40" x="2" y="2"></rect><rect fill="none" height="19" rx="3" stroke="#fff" stroke-width="2.4" width="22" x="11" y="13"></rect><path d="M11 19h22M16.5 10.5v5M27.5 10.5v5" stroke="#fff" stroke-linecap="round" stroke-width="2.4"></path><path d="M17.5 25.5l3 3 6-6" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"></path></svg>
 <h3>Key dates</h3>
-<p>Registration, Opening Day and other league dates go on the BLS Calendar page as they are set.</p>
+<p>Registration, Opening Day and other league dates are on the Calendar page.</p>
 <span class="ss-link">See key dates <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span>
 </a>
 </div>
 </section>
+<p class="ss-foot"><svg aria-hidden="true" viewbox="0 0 24 24"><rect fill="none" height="14" rx="2.5" stroke="currentColor" stroke-width="1.8" width="18" x="3" y="5"></rect><path d="M3.5 7l8.5 6.5L20.5 7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg><span>Schedule questions? Email <a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr/>blslittleleague.org</a></span></p>
 </div>
 </div>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">
@@ -1694,5 +1649,5 @@ $(window).load(function(){
        } 
    </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script>
-<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;"><a href="https://go.blslittleleague.org/bls/preview/today/schedules.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/schedules.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Schedules &amp; Scores · <a href="https://go.blslittleleague.org/bls/preview/" style="color:#fff;">All pages</a></div><details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;"><summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed (2)</summary><ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;"><li style="margin:4px 0">Daniel: create one GameChanger league per division.</li><li style="margin:4px 0">Daniel: test that a league link opens without a GameChanger account.</li></ul></details></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "schedules", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": []}, "registration": {"t": "Registration Info", "req": []}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": []}, "faq": {"t": "FAQ", "req": []}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=489ed3479a"></script></body>
+<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:560px;margin:0 auto 6px;"><a aria-label="Previous page: Coach Run Book" href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Coach Run Book">‹ Prev</a><a href="https://go.blslittleleague.org/bls/preview/today/schedules.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/schedules.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a><a aria-label="Next page: League Age" href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="League Age">Next ›</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Schedules &amp; Scores · <a href="https://go.blslittleleague.org/bls/preview/#p-schedules" style="color:#fff;">All pages</a></div><details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;"><summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed (2)</summary><ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;"><li style="margin:4px 0">Daniel: create one GameChanger league per division.</li><li style="margin:4px 0">Daniel: test that a league link opens without a GameChanger account.</li></ul></details></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "schedules", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": ["Daniel (Website) or Melissa (Information Officer), in Sports Connect: take down the site-wide announcement bar (gear return, Daffodil Shed, the first thing on every page) or set it to 'Spring 2027 registration opens Fri Nov 27'; pin the registration story first in Local News; move the 'Meet the 2026-27 BLS Board' and 'Join the Fields Committee for 2027' posts off the home feed. Site settings and news posts, not content blocks, so the preview still shows them."]}, "registration": {"t": "Registration Info", "req": ["Daniel: put the League Age page live first. The card's 'Check your league age' row and the Baseball and Softball tiles link to it."]}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: finish the Spring 2027 registration setup and move volunteer sign-up onto this page. It's running today, just not shown here.", "Daniel: put the Umpires page live first. The Umpire tile links to it."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": ["Daniel: put the Coach Run Book page live first. The hero clipboard, the pitch count row and the Get cleared card link to it."]}, "faq": {"t": "FAQ", "req": ["Daniel: put the League Age page live first. Answer 2's button links to it.", "Daniel: put the Fields page live first. Answer 7's button links to it."]}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Daniel: put the League Age page live first. The roster step links to it.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}, "leagueage": {"t": "League Age", "req": ["Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.", "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=0676cf4a4f"></script></body>
 </html>

@@ -239,7 +239,7 @@ body.Inner-Skin .dfArea .registration-listing #BSBGrid .grid-title{color:var(--b
   body.Inner-Skin .skInnerWrapper .Normal td:has(> ul, > ol):not(:last-child):not(.blsx):not(.blsx *){padding-right:16px}
   body.Inner-Skin .skInnerWrapper .Normal td > :is(ul,ol):not(.blsx):not(.blsx *){padding-left:1.15em!important}
 }
-</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=489ed3479a" rel="stylesheet"/></head>
+</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=0676cf4a4f" rel="stylesheet"/></head>
 <body class="LittleLeague2020-navy LittleLeague-Default Inner-Skin" id="Body">
 <!-- Google Tag Manager (noscript) -->
 <noscript>
@@ -1020,12 +1020,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsr .rb-hero h1 small{display:block;font-size:.5em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:8px;}
 .blsr .rb-hero h1 em{display:block;position:relative;width:max-content;max-width:100%;}
 .blsr .rb-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blsr .rb-lede{margin-top:30px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:29em;}
-.blsr .rb-lede + .rb-lede{margin-top:12px !important;}
-.blsr .rb-ask{margin-top:18px !important;font-size:15px;color:#b8c6ea;}
-.blsr .rb-ask a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);overflow-wrap:anywhere;}
-
-/* lineup card on a clipboard: the first five steps */
+/* lineup card on a clipboard: the first five steps, each a tap target; step 1 is the big button */
 .blsr .rb-board{align-self:center;justify-self:center;width:100%;max-width:400px;padding:44px 30px 40px 4px;}
 .blsr .rb-clip{position:relative;background:#1452a0;border-radius:18px;padding:16px 14px 14px;transform:rotate(1.6deg);box-shadow:0 26px 50px rgba(0,0,20,.5),inset 0 0 0 2px rgba(255,255,255,.12);}
 .blsr .rb-clip::before{content:"";position:absolute;left:50%;top:-14px;width:118px;height:34px;transform:translateX(-50%);border-radius:10px 10px 8px 8px;background:linear-gradient(180deg,#f3f5f9 0%,#b9c1cf 55%,#8d97a8 100%);box-shadow:0 4px 8px rgba(0,0,0,.35),inset 0 -3px 0 rgba(0,0,0,.12);z-index:2;}
@@ -1034,15 +1029,20 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsr .rb-k{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
 .blsr .rb-paper h2{font-size:38px;line-height:.95;color:#00013a !important;}
 .blsr .rb-lineup{margin-top:12px !important;}
-.blsr .rb-lineup li{display:grid;grid-template-columns:30px minmax(0,1fr);column-gap:12px;align-items:start;padding:11px 0;border-top:1px dashed #cfd7e4;}
-.blsr .rb-lineup li:first-child{border-top:0;}
+.blsr .rb-lineup li{border-top:1px dashed #cfd7e4;}
+.blsr .rb-lineup li:first-child,.blsr .rb-lineup li:nth-child(2){border-top:0;}
+.blsr .rb-lineup a{display:grid;grid-template-columns:30px minmax(0,1fr) 16px;column-gap:12px;align-items:center;padding:11px 0;color:#00013a !important;}
 .blsr .rb-lineup i{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#00013a;color:#fff;font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:17px;line-height:1;}
-.blsr .rb-lineup li:first-child i{background:#cd163f;}
 .blsr .rb-lineup b{display:block;font-size:16px;font-weight:700;line-height:1.3;color:#00013a;margin-bottom:2px;}
 .blsr .rb-lineup span{display:block;font-size:15px;line-height:1.45;color:#4b5675;}
-.blsr .rb-pa{margin-top:2px !important;padding:12px 0 6px;border-top:2px solid #00013a;font-size:15px;line-height:1.45;color:#4b5675;}
-.blsr .rb-pa b{display:block;font-size:16px;font-weight:700;line-height:1.3;color:#00013a;margin-bottom:2px;}
-.blsr .rb-pa a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
+.blsr .rb-lineup .rb-go{color:#cd163f;}
+.blsr .rb-lineup a:hover b{color:#1452a0;}
+.blsr .rb-lineup li:first-child a{background:#cd163f;border-radius:12px;padding:14px 12px;margin:2px -6px 8px -8px;box-shadow:0 12px 26px rgba(205,22,63,.32);transition:transform .15s,box-shadow .15s;}
+.blsr .rb-lineup li:first-child a:hover{transform:translateY(-2px);box-shadow:0 16px 30px rgba(205,22,63,.4);}
+.blsr .rb-lineup li:first-child i{background:#fff;color:#cd163f;}
+.blsr .rb-lineup li:first-child b,.blsr .rb-lineup li:first-child a:hover b{color:#fff;font-size:18px;}
+.blsr .rb-lineup li:first-child span{color:#ffe2e8;}
+.blsr .rb-lineup li:first-child .rb-go{color:#fff;}
 
 /* ---------- sections ---------- */
 .blsr .rb-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -1168,6 +1168,17 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsr .rb-kind p{color:#00013a;}
 .blsr .rb-kind + .rb-docs{margin-top:6px;}
 .blsr .rb-body p.rb-kind{color:#00013a;}
+.blsr .rb-ext{display:block;margin-top:8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7a84a0;}
+.blsr .rb-hot .rb-ext{color:#ffb8c6;}
+
+/* pitch counts: two small tables */
+.blsr .rb-pc{width:100%;border-collapse:collapse;border:0;margin:8px 0 0;background:none;font-size:15px;}
+.blsr .rb-pc td{padding:7px 0;border:0;border-top:1px solid var(--line);background:none;color:#4b5675;text-align:left;vertical-align:middle;line-height:1.3;}
+.blsr .rb-pc tr:first-child td{border-top:0;}
+.blsr .rb-pc td:last-child{text-align:right;white-space:nowrap;color:#00013a;}
+.blsr .rb-pc td b{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:22px;line-height:1;color:#00013a;}
+.blsr .rb-box.rb-dark .rb-pc td{border-color:rgba(255,255,255,.14);color:#dbe2f4;}
+.blsr .rb-box.rb-dark .rb-pc td:last-child,.blsr .rb-box.rb-dark .rb-pc td b{color:#fff;}
 
 /* welcome email: select and copy */
 .blsr .rb-copyk{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px;margin-bottom:8px;}
@@ -1178,14 +1189,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 .blsr .rb-subj{padding:12px 18px;}
 
 /* ---------- safety ---------- */
-.blsr .rb-911{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:center;margin-top:26px !important;background:#cd163f;color:#fff;border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;}
-.blsr .rb-911::after{content:"";position:absolute;right:-50px;bottom:-70px;width:200px;height:200px;border-radius:50%;border:2px dashed rgba(255,255,255,.2);pointer-events:none;}
-.blsr .rb-911 .rb-big{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:84px;line-height:.85;color:#fff;}
-.blsr .rb-911 .rb-big small{display:block;font-family:Poppins,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffe2e8;margin-top:8px;}
-.blsr .rb-911 h3{font-size:28px;color:#fff !important;margin-bottom:8px !important;}
-.blsr .rb-911 li{position:relative;padding-left:20px;font-size:16px;line-height:1.5;color:#fff;}
-.blsr .rb-911 li + li{margin-top:5px !important;}
-.blsr .rb-911 li::before{content:"";position:absolute;left:2px;top:.6em;width:8px;height:8px;background:#fff;transform:rotate(45deg);border-radius:1px;}
+.blsr .rb-911s{display:flex;align-items:center;gap:16px;margin-top:22px !important;background:#cd163f;color:#fff;border-radius:14px;padding:14px 20px;}
+.blsr .rb-911s b{font-family:var(--disp);font-stretch:condensed;font-weight:800;font-size:40px;line-height:.9;color:#fff;}
+.blsr .rb-911s span{font-size:16px;font-weight:600;line-height:1.35;color:#fff;}
 .blsr .rb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px !important;}
 .blsr .rb-sc{background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;align-items:flex-start;}
 .blsr .rb-sc h3{font-size:24px;color:#00013a !important;margin-bottom:10px !important;}
@@ -1236,15 +1242,15 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blsr{gap:16px;}
   .blsr .rb-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:14px;}
   .blsr .rb-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.95) 0%,rgba(0,1,58,.86) 50%,rgba(0,1,58,.55) 100%);}
-  .blsr .rb-copy{padding:26px 20px 8px;}
-  .blsr .rb-ribbon{margin-bottom:20px;padding-right:30px;}
+  .blsr .rb-copy{padding:22px 20px 0;}
+  .blsr .rb-ribbon{margin-bottom:18px;padding-right:30px;}
   .blsr .rb-ribbon b{font-size:19px;}
-  .blsr .rb-hero h1{font-size:clamp(44px,14vw,60px);}
-  .blsr .rb-lede{margin-top:26px !important;font-size:16px;}
-  .blsr .rb-board{max-width:none;padding:30px 12px 18px;}
+  .blsr .rb-hero h1{font-size:clamp(44px,13vw,56px);}
+  .blsr .rb-board{max-width:none;padding:24px 12px 16px;}
   .blsr .rb-clip{transform:none;padding:12px 10px 10px;}
-  .blsr .rb-paper{padding:28px 16px 10px;background-image:none;}
+  .blsr .rb-paper{padding:26px 16px 10px;background-image:none;}
   .blsr .rb-paper h2{font-size:34px;}
+  .blsr .rb-lineup li:first-child a{margin:2px 0 8px;padding:14px 12px;}
   .blsr .rb-sec{padding:28px 16px;border-radius:14px;}
   .blsr .rb-sec h2,.blsr .rb-cta h2{font-size:36px;}
   .blsr .rb-tl{margin-top:20px !important;padding:2px 14px;}
@@ -1271,9 +1277,8 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
   .blsr .rb-box{padding:16px;}
   .blsr .rb-copybox{padding:16px 14px;}
   .blsr .rb-subj{padding:12px 14px;}
-  .blsr .rb-911{grid-template-columns:minmax(0,1fr);row-gap:12px;padding:20px 18px;}
-  .blsr .rb-911::after{display:none;}
-  .blsr .rb-911 .rb-big{font-size:72px;}
+  .blsr .rb-911s{padding:12px 16px;gap:12px;}
+  .blsr .rb-911s b{font-size:34px;}
   .blsr .rb-grid{grid-template-columns:minmax(0,1fr);gap:12px;}
   .blsr .rb-sc{padding:18px 16px;}
   .blsr .rb-report{grid-template-columns:minmax(0,1fr);row-gap:10px;padding:18px 16px;}
@@ -1309,37 +1314,30 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div><span>Spring 2027</span><b>Coaches Corner</b></div>
 </div>
 <h1><small>Welcome, BLS coaches</small>Coach <em>Run Book.</em></h1>
-<p class="rb-lede">Thank you for volunteering to coach. Coaching takes real time and effort, and we appreciate it. None of this happens without you.</p>
-<p class="rb-lede">This guide walks you through a BLS season, from getting cleared to returning your gear. Coached with BLS before? Use it as a quick refresher.</p>
-<p class="rb-ask">Ideas or tips for this guide? Email <a href="mailto:coaching@blslittleleague.org">coaching@<wbr/>blslittleleague.org</a></p>
 </div>
 <div class="rb-board">
 <div class="rb-clip">
 <div class="rb-paper">
 <span class="rb-k">Lineup card</span>
 <h2>Your first five</h2>
+<!-- GO-LIVE: the five lineup links jump to sections on this page. They use the preview address (https://go.blslittleleague.org/bls/preview/proposed/runbook.html#...) because Sports Connect pages carry a base URL. Before pasting into Sports Connect, replace that address, keeping each #anchor, with the real Coach Run Book page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
 <ol class="rb-lineup">
-<li><i>1</i><div><b>Get cleared</b><span>Volunteer sign-up, background check and Abuse Awareness Training. Every year, before you work with players.</span></div></li>
-<li><i>2</i><div><b>Go to the coaches meeting</b><span>Your player agent sends the date, time and place.</span></div></li>
-<li><i>3</i><div><b>Welcome your families</b><span>When your roster arrives, check it, then send a welcome email. The template is in The playbook, chapter 3.</span></div></li>
-<li><i>4</i><div><b>Pick up your gear</b><span>The league holds an equipment pickup right before practices start.</span></div></li>
-<li><i>5</i><div><b>Learn your division's rules</b><span>BLS and District 10 rules, plus the free Little League Rulebook app. Links are in The playbook, chapter 2.</span></div></li>
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#get-cleared"><i>1</i><div><b>Get cleared</b><span>Sign-up, background check and training. Every year, before you work with players.</span></div><svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a></li>
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#meeting"><i>2</i><div><b>Go to the coaches meeting</b><span>Your player agent sends the date, time and place.</span></div><svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a></li>
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#welcome-email"><i>3</i><div><b>Welcome your families</b><span>Check your roster, then send the welcome email.</span></div><svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a></li>
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#gear"><i>4</i><div><b>Pick up your gear</b><span>Equipment pickup is right before practices start.</span></div><svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a></li>
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html#rules"><i>5</i><div><b>Learn your division's rules</b><span>BLS and District 10 rules, pitch counts and the Rulebook app.</span></div><svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a></li>
 </ol>
-<p class="rb-pa"><b>Your player agent</b>Each division has a player agent who sends coaches their roster and meeting details. Not sure who yours is? Email the League Player Agent at <a href="mailto:pa@blslittleleague.org">pa@<wbr/>blslittleleague.org</a>.</p>
 </div>
 </div>
 </div>
 </section>
 <section class="rb-sec rb-gray">
-<header><span class="rb-eyebrow">Season at a glance</span><h2>Your spring 2027 season</h2><p class="rb-intro">Dates are added here as the league sets them. Until then, this is the usual order of a BLS spring.</p></header>
+<header><span class="rb-eyebrow">Season at a glance</span><h2>Your spring 2027 season</h2></header>
 <ol class="rb-tl">
 <li class="rb-ev">
 <span class="rb-date rb-set"><b>Oct 1</b><small>2026</small></span>
 <h3>Clearances reset</h3><p>Background checks and training done on or after this date count for spring 2027.</p>
-</li>
-<li class="rb-ev">
-<span class="rb-date rb-set"><b>Nov 27</b><small>Fri, 2026</small></span>
-<h3>Registration opens</h3><p>Black Friday sale, Nov 27 to 29: $50 off per family. Early Bird, Nov 30 to Dec 31: $25 off per family. Full price from Jan 1, 2027.</p>
 </li>
 <li class="rb-ev">
 <span class="rb-date rb-tba"><small>Date coming soon</small></span>
@@ -1349,9 +1347,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <span class="rb-date rb-tba"><small>Date coming soon</small></span>
 <h3>Draft and teams</h3><p>Majors and Minors usually draft in <span class="rb-nw">mid-February</span>, after evaluations. Juniors and 50/70 can be later.</p>
 </li>
-<li class="rb-ev">
+<li class="rb-ev" id="meeting">
 <span class="rb-date rb-tba"><small>Date coming soon</small></span>
-<h3>Coaches meetings</h3><p>By sport and division, with league leaders and player agents.</p>
+<h3>Coaches meetings</h3><p>By sport and division, with league leaders and player agents. Your player agent sends the date, time and place.</p>
 </li>
 <li class="rb-ev">
 <span class="rb-date rb-tba"><small>Date coming soon</small></span>
@@ -1367,18 +1365,17 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </li>
 </ol>
 </section>
-<section class="rb-sec rb-white">
-<header><span class="rb-eyebrow">Before your first practice</span><h2>Get cleared</h2><p class="rb-intro">Every head coach, assistant coach and team volunteer gets cleared every year, before working with players. Little League resets clearances every October 1, so a clearance from before Oct 1, 2026 does not count for spring 2027.</p></header>
+<section class="rb-sec rb-white" id="get-cleared">
+<header><span class="rb-eyebrow">Before your first practice</span><h2>Get cleared</h2><p class="rb-intro">Every year, before you work with players.</p></header>
 <ol class="rb-path">
 <li class="rb-step">
 <span class="rb-base"><i>1</i></span>
 <div class="rb-card rb-t">
 <em class="rb-pill">Coach <span class="rb-nw">sign-up</span> opening soon</em>
 <h3>Volunteer <span class="rb-nw">sign-up</span></h3>
-<p>Log in at blslittleleague.org, open your account (profile icon, top right) and choose Volunteer. Sign up for your coaching role, fill out the volunteer application and upload a photo ID. You can also sign up when you register your player.</p>
-<p class="rb-wait">If the Volunteer page says "No Programs are Currently Displayed," coach sign-up is not open yet. Check back soon.</p>
+<p>Sign up for your coaching role in your BLS account, or when you register your player, and upload a photo ID.</p>
 <div class="rb-cut"><b>New to BLS?</b>Have three references ready</div>
-<a class="rb-link" href="https://go.blslittleleague.org/bls/preview/proposed/volunteer.html">Volunteer page <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<a class="rb-btn" href="https://go.blslittleleague.org/bls/preview/proposed/volunteer.html">Volunteer page <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
 </div>
 </li>
 <li class="rb-step rb-hot">
@@ -1386,7 +1383,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="rb-card rb-t">
 <h3>Background check</h3>
 <div class="rb-stat"><b>14 days</b><span>to answer the background check email</span></div>
-<p>The league checks your ID and sends your request to JDP, Little League's background check provider. JDP then emails you. Open it, confirm your details and submit.</p>
+<p>JDP, Little League's background check provider, emails you. Open it, confirm your details and submit.</p>
 <ul class="rb-ticks">
 <li>Check your junk folder for the JDP email.</li>
 <li>JDP asks for your Social Security number.</li>
@@ -1398,8 +1395,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <span class="rb-base"><i>3</i></span>
 <div class="rb-card">
 <h3>Abuse Awareness Training</h3>
-<p>Little League's free online course, about 45 minutes. Take it on or after Oct 1, 2026, with the same email as your BLS account, and pick Bonney Lake Sumner Little League as your associated league. Little League emails you a certificate. Save it.</p>
+<p>Little League's free online course, about 45 minutes. Take it on or after Oct 1, 2026, with the same email as your BLS account, and pick Bonney Lake Sumner Little League as your league.</p>
 <a class="rb-btn" href="https://www.littleleague.org/university/articles/abuse-awareness-training-course/" rel="noopener" target="_blank">Start the training <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<em class="rb-ext">Opens littleleague.org: Little League University</em>
 </div>
 </li>
 <li aria-label="Then the league reviews your results and clears you" class="rb-home">
@@ -1411,7 +1409,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <svg aria-hidden="true" viewbox="0 0 44 44"><path d="M22 3l15 5.5v11C37 30 30.5 37.5 22 41 13.5 37.5 7 30 7 19.5v-11z" fill="#00013a"></path><circle cx="18" cy="18" fill="#fff" r="3.4"></circle><circle cx="27" cy="19.5" fill="#fff" r="2.8"></circle><path d="M12 30c.6-4.2 3-6.6 6-6.6s5.4 2.4 6 6.6M22.5 30c.5-3.4 2.4-5.4 4.5-5.4s4 2 4.5 5.4" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2.2"></path></svg>
 <div>
 <b>Every helper, every year</b>
-<p>Only cleared adults coach, run drills or sit in the dugout, including at the first practice. The league does not post a list of cleared volunteers. To check on a helper, or on your own status, email <a href="mailto:secretary@blslittleleague.org">secretary@<wbr/>blslittleleague.org</a>.</p>
+<p>Only cleared adults coach, run drills or sit in the dugout, including at the first practice. To check on a helper, or on your own status, email <a href="mailto:secretary@blslittleleague.org">secretary@<wbr/>blslittleleague.org</a>.</p>
 </div>
 </aside>
 </section>
@@ -1438,7 +1436,8 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div>
 <h3>Player evaluations</h3>
 <ul class="rb-list">
-<li><b>Baseball:</b> players <a href="https://www.littleleague.org/play-little-league/determine-league-age/" rel="noopener" target="_blank">League Age</a> 10 and up attend. League Age 9 players with at least one season of player-pitch may attend.</li>
+<!-- GO-LIVE: this link points at the League Age preview page. Before pasting into Sports Connect, replace the href with the real League Age page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
+<li><b>Baseball:</b> players <a href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html">League Age</a> 10 and up attend. League Age 9 players with at least one season of player-pitch may attend.</li>
 <li><b>Softball:</b> all Majors and Minors A players attend.</li>
 <li>Players drafted to Majors last season go back to Majors and do not attend.</li>
 <li>Head coaches in draft divisions attend evaluations.</li>
@@ -1446,7 +1445,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 <div>
 <h3>Head coaches and the draft</h3>
-<p>Before evaluations, the board sets how many teams each division will have, based on how many players registered. The league president appoints, and the board approves, a head coach for each team. Head coach spots are filled fresh each season, so returning coaches are not automatic. Little League calls the head coach the manager.</p>
+<p>Head coach spots are filled fresh each season, so returning coaches are not automatic. Little League calls the head coach the manager.</p>
 <p>Drafts follow the Little League rulebook. Questions about the draft or the draft order: email the League Player Agent at <a href="mailto:pa@blslittleleague.org">pa@<wbr/>blslittleleague.org</a>.</p>
 </div>
 <div>
@@ -1467,27 +1466,44 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </details>
 <details class="rb-ch">
 <summary><span class="rb-num"><i>2</i></span><span><b>Rules, GameChanger and schedules</b><small>Rulebooks, your team app, league schedules and training</small></span><span aria-hidden="true" class="rb-tog"></span></summary>
-<div class="rb-body rb-t">
+<div class="rb-body rb-t" id="rules">
 <div>
 <h3>Rules for your division</h3>
-<p class="rb-kind">Tee Ball and coach pitch divisions (baseball and softball) have their own rules. Following them as written keeps games fair, safe and fun for every player.</p>
+<p class="rb-kind">Tee Ball and coach pitch divisions (baseball and softball) have their own rules.</p>
 <div class="rb-docs">
 <a class="rb-doc" href="https://go.blslittleleague.org/bls/preview/proposed/coaches.html">
 <span class="rb-tag">BLS</span>
-<span><strong>BLS and District 10 rules</strong>Baseball local rules and District 10 softball rules, on Coaches Corner</span>
+<span><strong>BLS and District 10 rules</strong>Baseball local rules, District 10 softball rules and the Little League Rulebook app, on Coaches Corner</span>
 <svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
 </a>
-<a class="rb-doc" href="https://www.littleleague.org/playing-rules/little-league-rulebook-app/" rel="noopener" target="_blank">
-<span class="rb-tag rb-app">APP</span>
-<span><strong>Little League Rulebook app</strong>Free for iPhone and Android, with the official rules for every division</span>
-<svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</a>
-<a class="rb-doc" href="https://www.littleleague.org/playing-rules/pitch-count/" rel="noopener" target="_blank">
-<span class="rb-tag">WEB</span>
-<span><strong>Pitching rules</strong>Baseball pitch counts and rest days, softball innings limits</span>
-<svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-</a>
 </div>
+</div>
+<div>
+<h3>Pitch counts and rest days</h3>
+<p class="rb-kind">Baseball, regular season. A pitcher who reaches the limit mid-batter may finish that batter.</p>
+<div class="rb-pair">
+<div class="rb-box">
+<span class="rb-k">Max pitches per day</span>
+<table class="rb-pc">
+<tr><td>League age 6 to 8</td><td><b>50</b></td></tr>
+<tr><td>League age 9 to 10</td><td><b>75</b></td></tr>
+<tr><td>League age 11 to 12</td><td><b>85</b></td></tr>
+<tr><td>League age 13 to 16</td><td><b>95</b></td></tr>
+</table>
+</div>
+<div class="rb-box rb-dark">
+<span class="rb-k">Rest days, league age 14 and under</span>
+<table class="rb-pc">
+<tr><td>1 to 20 pitches</td><td><b>0</b> days</td></tr>
+<tr><td>21 to 35 pitches</td><td><b>1</b> day</td></tr>
+<tr><td>36 to 50 pitches</td><td><b>2</b> days</td></tr>
+<tr><td>51 to 65 pitches</td><td><b>3</b> days</td></tr>
+<tr><td>66 or more</td><td><b>4</b> days</td></tr>
+</table>
+<p>League age 15 and 16: 1 to 30 pitches, no rest. 31 to 45, one day. 46 to 60, two. 61 to 75, three. 76 or more, four.</p>
+</div>
+</div>
+<p>Softball Minors and Majors: up to 12 innings pitched in a day. Seven or more innings in a day means one calendar day of rest.</p>
 </div>
 <div class="rb-box rb-dark">
 <span class="rb-k">Your team app</span>
@@ -1496,29 +1512,19 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <ol class="rb-steps">
 <li><span>Download GameChanger from the App Store or Google Play.</span></li>
 <li><span>Sign in, or create an account, with the same email as your BLS account.</span></li>
-<li><span>Connect your team to the league. <em class="rb-pill">Steps coming soon</em></span></li>
 </ol>
 </div>
-<div class="rb-pair">
 <div class="rb-box">
 <span class="rb-k">Schedules</span>
 <h3>League schedules</h3>
-<p>Teams must play 12 games, and the league tries to schedule 13 for each division.</p>
-<p>League game schedules post on the BLS website before Opening Day. A new Schedules &amp; Scores page is planned. Schedule questions: <a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr/>blslittleleague.org</a>.</p>
-</div>
-<div class="rb-box">
-<span class="rb-k">Training</span>
-<h3>Keep learning</h3>
-<p><a href="https://www.littleleague.org/university/articles/diamond-leader-training/" rel="noopener" target="_blank">Diamond Leader</a>: Little League's free online course. Optional for most coaches, and required once for All-Star managers and coaches.</p>
-<p>District 10 rules and safety clinics: dates coming soon.</p>
-</div>
+<p>League game schedules post before Opening Day, under Schedules on <a href="https://go.blslittleleague.org/bls/preview/proposed/coaches.html">Coaches Corner</a>. Schedule questions: <a href="mailto:scheduler@blslittleleague.org">scheduler@<wbr/>blslittleleague.org</a>.</p>
 </div>
 </div>
 </details>
 <details class="rb-ch">
 <summary><span class="rb-num"><i>3</i></span><span><b>Welcome email for families</b><small>Copy it, fill in the [brackets] and send it</small></span><span aria-hidden="true" class="rb-tog"></span></summary>
-<div class="rb-body">
-<p class="rb-kind">Families see you as the face of BLS, so a friendly first email goes a long way. Send it once your roster arrives. Copy the text in each box and paste it into your email as plain text. Then fill in each part in [brackets], or delete the parts that do not apply. Be sure to add how families can reach you.</p>
+<div class="rb-body" id="welcome-email">
+<p class="rb-kind">Send it once your roster arrives. Copy each box, paste it into your email as plain text, fill in the [brackets] (or delete what does not apply) and add how families can reach you.</p>
 <div>
 <div class="rb-copyk"><span>Subject line</span></div>
 <div class="rb-copybox rb-subj"><p>Welcome to [team name], BLS [baseball or softball] [division], [season]</p></div>
@@ -1542,9 +1548,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 </details>
 <details class="rb-ch">
-<summary><span class="rb-num"><i>4</i></span><span><em class="rb-pill">Confirming for 2027</em><b>Uniforms</b><small>What each division wears and how to hand uniforms out</small></span><span aria-hidden="true" class="rb-tog"></span></summary>
+<summary><span class="rb-num"><i>4</i></span><span><b>Uniforms</b><small>What each division wears and how to hand uniforms out</small></span><span aria-hidden="true" class="rb-tog"></span></summary>
 <div class="rb-body rb-t">
-<p>Uniform steps can change from year to year. Questions about your division: <a href="mailto:uniforms@blslittleleague.org">uniforms@<wbr/>blslittleleague.org</a> (baseball and softball).</p>
+<p>Questions about your division: <a href="mailto:uniforms@blslittleleague.org">uniforms@<wbr/>blslittleleague.org</a> (baseball and softball).</p>
 <div class="rb-pair">
 <div class="rb-box">
 <span class="rb-k">Baseball</span>
@@ -1554,7 +1560,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="rb-box">
 <span class="rb-k">Softball Majors and Minors A</span>
 <h3>Custom fitted</h3>
-<p>Players are sized at evaluations, and each player gets a custom-fitted uniform. You get a link to share with families so they can place their order. The board picks team names before evaluations, based on college softball programs.</p>
+<p>Players are sized at evaluations, and each player gets a custom-fitted uniform. You get a link to share with families so they can place their order.</p>
 </div>
 <div class="rb-box">
 <span class="rb-k">Softball Minors B (coach pitch)</span>
@@ -1571,7 +1577,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </details>
 <details class="rb-ch">
 <summary><span class="rb-num"><i>5</i></span><span><b>Gear and fields</b><small>Gear bag pickup and return, field care and field contacts</small></span><span aria-hidden="true" class="rb-tog"></span></summary>
-<div class="rb-body rb-t">
+<div class="rb-body rb-t" id="gear">
 <div class="rb-pair">
 <div class="rb-box">
 <span class="rb-k">Start of season</span>
@@ -1590,8 +1596,9 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <ul class="rb-list">
 <li>Baseball game days (BLS local rules): the home team preps the field before the game (drag, chalk and fence). The away team puts equipment away and secures the field after.</li>
 <li>Field problem or question? Email the Fields Coordinator at <a href="mailto:fields@blslittleleague.org">fields@<wbr/>blslittleleague.org</a>.</li>
-<li>Field addresses: coming soon on the <!-- GO-LIVE: this link points at the Fields preview page. Before pasting into Sports Connect, replace the href with the real Fields page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). --><a href="https://go.blslittleleague.org/bls/preview/proposed/fields.html">BLS Fields page</a>.</li>
-<li>Want to help more? The new Fields Committee, created Nov 1, 2026, is recruiting volunteers to clean up, clear weeds, set pegs and get fields and job boxes ready. Ask at <a href="mailto:info@blslittleleague.org?subject=Fields%20Committee">info@<wbr/>blslittleleague.org</a>.</li>
+<!-- GO-LIVE: the two Fields links point at the Fields preview page. Before pasting into Sports Connect, replace the href with the real Fields page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->
+<li><a href="https://go.blslittleleague.org/bls/preview/proposed/fields.html">Field addresses and directions</a>, on the BLS Fields page.</li>
+<li>Want to help with field work? <a href="https://go.blslittleleague.org/bls/preview/proposed/fields.html">Help with our fields</a>.</li>
 </ul>
 </div>
 <p>Gear questions: <a href="mailto:equipment@blslittleleague.org">equipment@<wbr/>blslittleleague.org</a></p>
@@ -1600,19 +1607,8 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 </section>
 <section class="rb-sec rb-white">
-<header class="rb-t"><span class="rb-eyebrow">Safety</span><h2>Keep every player safe</h2><p class="rb-intro">A quick reference. The full details are in the <a href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf" rel="noopener" target="_blank">BLSLL Safety Manual</a> and on the <a href="https://go.blslittleleague.org/bls/preview/proposed/health.html">Health and Safety page</a>.</p></header>
-<div class="rb-911">
-<p class="rb-big">911<small>Call first</small></p>
-<div>
-<h3>In an emergency</h3>
-<ul>
-<li>Give the field name and location, your phone number and what happened.</li>
-<li>Stay on the line until the dispatcher hangs up.</li>
-<li>Keep caring for the injured person until help arrives.</li>
-<li>Send someone to the street to meet the ambulance.</li>
-</ul>
-</div>
-</div>
+<header class="rb-t"><span class="rb-eyebrow">Safety</span><h2>Keep every player safe</h2></header>
+<div class="rb-911s"><b>911</b><span>Emergency: call 911 first. Give the field name and location, stay on the line, and send someone to the street to meet the ambulance.</span></div>
 <div class="rb-grid">
 <div class="rb-sc rb-t">
 <h3>After an injury</h3>
@@ -1621,15 +1617,14 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="rb-sc rb-t">
 <h3>Head injuries</h3>
 <p>Suspect a head injury? Take the player out of the game or practice right away. They return only with written clearance from a licensed health care provider trained in concussion care.</p>
-<a class="rb-link" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_coach.pdf" rel="noopener" target="_blank">Concussion Coach Handout <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
+<a class="rb-link" href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/concussion_coach.pdf" rel="noopener" target="_blank">Concussion Coach Handout <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></a>
 </div>
 <div class="rb-sc rb-t">
 <h3>Start of the season</h3>
 <ul class="rb-list">
 <li>You get a first aid kit at the start of the season. Bring it to every practice and game, and email <a href="mailto:safety@blslittleleague.org">safety@<wbr/>blslittleleague.org</a> to restock it.</li>
-<li>Keep each player's <a href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" rel="noopener" target="_blank">Medical Release Form</a> with your roster.</li>
+<li>Keep each player's <a href="/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" rel="noopener" target="_blank">Medical Release Form</a> with your roster.</li>
 <li>Read the BLS Safety Code (in the Safety Manual) to your players early in the season. Your first practice is a good time. You, your coaches and your players sign it, and your player agent checks that it is done.</li>
-<li>First aid training: the 2027 requirement and how to complete it are coming soon from the Safety Officer (<a href="mailto:safety@blslittleleague.org">safety@<wbr/>blslittleleague.org</a>). <em class="rb-pill">Coming soon</em></li>
 </ul>
 </div>
 <div class="rb-sc">
@@ -1642,10 +1637,10 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 <div class="rb-report">
 <svg aria-hidden="true" viewbox="0 0 44 44"><path d="M22 3l15 5.5v11C37 30 30.5 37.5 22 41 13.5 37.5 7 30 7 19.5v-11z" fill="#cd163f"></path><path d="M15.5 22l4.5 4.5 8.5-9" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path></svg>
-<p><b>Report suspected abuse.</b> As a Little League volunteer, you are a mandatory reporter under federal law. If you suspect a child is being abused, report it to the proper authorities within 24 hours. The <a href="https://www.littleleague.org/player-safety/child-protection-program/" rel="noopener" target="_blank">Little League Child Protection Program</a> explains how.</p>
+<p><b>Report suspected abuse.</b> As a Little League volunteer, you are a mandatory reporter under federal law. If you suspect a child is being abused, report it to the proper authorities within 24 hours.</p>
 </div>
 <div class="rb-more">
-<a class="rb-doc" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/2025%20blsll%20safetyplan.pdf" rel="noopener" target="_blank">
+<a class="rb-doc" href="/portals/50558/docs/2025%20blsll%20safetyplan.pdf" rel="noopener" target="_blank">
 <span class="rb-tag rb-pdf">PDF</span>
 <span><strong>BLSLL Safety Manual</strong>2025 edition: Safety Code, first aid, injury form</span>
 <svg aria-hidden="true" class="rb-go" viewbox="0 0 16 16"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
@@ -2068,5 +2063,5 @@ $(window).load(function(){
        } 
    </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script>
-<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;"><a href="https://go.blslittleleague.org/bls/preview/today/runbook.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Coach Run Book · <a href="https://go.blslittleleague.org/bls/preview/" style="color:#fff;">All pages</a></div><details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;"><summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed (3)</summary><ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;"><li style="margin:4px 0">Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.</li><li style="margin:4px 0">Daniel: put the Fields page live on blslittleleague.org first.</li><li style="margin:4px 0">Info needed (Dena Berkey): the 2027 uniform sizing steps by division.</li></ul></details></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "runbook", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": []}, "registration": {"t": "Registration Info", "req": []}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": []}, "faq": {"t": "FAQ", "req": []}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=489ed3479a"></script></body>
+<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:560px;margin:0 auto 6px;"><a aria-label="Previous page: Umpires" href="https://go.blslittleleague.org/bls/preview/proposed/umpires.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Umpires">‹ Prev</a><a href="https://go.blslittleleague.org/bls/preview/today/runbook.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/runbook.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a><a aria-label="Next page: Schedules &amp; Scores" href="https://go.blslittleleague.org/bls/preview/proposed/schedules.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Schedules &amp; Scores">Next ›</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Coach Run Book · <a href="https://go.blslittleleague.org/bls/preview/#p-runbook" style="color:#fff;">All pages</a></div><details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;"><summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed (4)</summary><ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;"><li style="margin:4px 0">Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.</li><li style="margin:4px 0">Daniel: put the Fields page live on blslittleleague.org first.</li><li style="margin:4px 0">Daniel: put the League Age page live first. The roster step links to it.</li><li style="margin:4px 0">Info needed (Dena Berkey): the 2027 uniform sizing steps by division.</li></ul></details></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "runbook", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": ["Daniel (Website) or Melissa (Information Officer), in Sports Connect: take down the site-wide announcement bar (gear return, Daffodil Shed, the first thing on every page) or set it to 'Spring 2027 registration opens Fri Nov 27'; pin the registration story first in Local News; move the 'Meet the 2026-27 BLS Board' and 'Join the Fields Committee for 2027' posts off the home feed. Site settings and news posts, not content blocks, so the preview still shows them."]}, "registration": {"t": "Registration Info", "req": ["Daniel: put the League Age page live first. The card's 'Check your league age' row and the Baseball and Softball tiles link to it."]}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: finish the Spring 2027 registration setup and move volunteer sign-up onto this page. It's running today, just not shown here.", "Daniel: put the Umpires page live first. The Umpire tile links to it."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": ["Daniel: put the Coach Run Book page live first. The hero clipboard, the pitch count row and the Get cleared card link to it."]}, "faq": {"t": "FAQ", "req": ["Daniel: put the League Age page live first. Answer 2's button links to it.", "Daniel: put the Fields page live first. Answer 7's button links to it."]}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Daniel: put the League Age page live first. The roster step links to it.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}, "leagueage": {"t": "League Age", "req": ["Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.", "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=0676cf4a4f"></script></body>
 </html>

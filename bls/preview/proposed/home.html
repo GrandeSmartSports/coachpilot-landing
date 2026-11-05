@@ -374,12 +374,20 @@ body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent :is(.skFacebookLink,.sksocial
   body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent #tab2 > li{width:auto!important;list-style:none}
 }
 
+/* Phone: the Little League International box in the right column only shows a privacy notice (its feed is blocked by cookie consent),
+   so it is hidden on phones. The ad slot under it (.skBanner) stays. */
+@media (max-width:768px){
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs > .skNewsTitle,
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs .skSocialFeed > .sksocialTab,
+  body:not(.Inner-Skin) #dnn_ctr765764_ModuleContent .skRightTabs #skFacebookTab{display:none!important}
+}
+
 /* Facebook boxes: page header and Follow button only. Their timelines do not load on most phones, which left about 1,000px of blank space under the news.
    Sports Connect asked (support case, 11/3/2026) to set these plugins to header only; this is the preview of that result. */
 [id$="ctlFaceBookPlugInManager_fb_module"] iframe.facebook-plugin,[id$="ctlFaceBookPlugInManager2_fb_module"] iframe.facebook-plugin{height:80px!important}
 [id$="ctlFaceBookPlugInManager3_fb_module"] iframe.facebook-plugin{height:135px!important}
 .fb-module-wrapper,.fb-module-wrapper .fb-active-feed{height:auto!important;min-height:0!important}
-</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=489ed3479a" rel="stylesheet"/></head>
+</style><link href="https://go.blslittleleague.org/bls/preview/board/board.css?v=0676cf4a4f" rel="stylesheet"/></head>
 <body class="LittleLeague2020-navy LittleLeague-Default" id="Body">
 <!-- Google Tag Manager (noscript) -->
 <noscript>
@@ -1473,7 +1481,153 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="clear-both"></div>
 </div>
 <div class="skContentArea">
-<div class="ContentPane" id="dnn_ContentPane"><div class="DnnModule DnnModule-BSBContent DnnModule-765764"><a name="765764"></a><div class="empty-club-home" id="dnn_ctr765764_ContentPane"><!-- Start_Module_765764 --><div class="DNNModuleContent ModBSBContentC" id="dnn_ctr765764_ModuleContent">
+<div class="ContentPane" id="dnn_ContentPane"><div class="DnnModule DnnModule-DNN_HTML DnnModule-9765764"><a name="823340"></a>
+<div class="dfContainer">
+<div class="dfArea">
+<h2 class="head">Spring 2027 Registration</h2>
+<div class="content" id="dnn_ctr823340_ContentPane"><!-- Start_Module_823340 --><div class="DNNModuleContent ModDNNHTMLC" id="dnn_ctr823340_ModuleContent">
+<div class="Normal" id="dnn_ctr823340_HtmlModule_lblContent"><style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Poppins:wght@500;600;700;800;900&display=swap');
+/* Home page: this block sits above the slideshow. It carries its own look, since the home page has no Inner-Skin styles. */
+.DnnModule:has(.blsh) > .dfContainer > .dfArea > h2.head{display:none !important;}
+.DnnModule:has(.blsh) > .dfContainer,.DnnModule:has(.blsh) > .dfContainer > .dfArea,.DnnModule:has(.blsh) .content{margin:0 !important;padding:0 !important;background:transparent !important;border:0 !important;box-shadow:none !important;}
+.blsh{font-family:Poppins,Arial,sans-serif !important;color:#fff;font-size:16px;line-height:1.4;text-align:left !important;margin:0 0 18px;}
+.blsh *,.blsh *::before,.blsh *::after{box-sizing:border-box;}
+.blsh a{text-decoration:none !important;}
+.blsh svg{display:block;}
+.blsh .bh-card{position:relative;overflow:hidden;isolation:isolate;display:flex;align-items:center;gap:20px 28px;padding:22px 26px 22px 30px;border-radius:14px;background:linear-gradient(120deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);color:#fff !important;box-shadow:0 1px 2px rgba(0,1,58,.08),0 14px 34px rgba(0,1,58,.22);transition:transform .15s,box-shadow .15s;}
+.blsh .bh-card:hover{transform:translateY(-2px);box-shadow:0 1px 2px rgba(0,1,58,.08),0 20px 40px rgba(0,1,58,.28);}
+.blsh .bh-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:8px;background:#cd163f;}
+.blsh .bh-card::after{content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;border:2px dashed rgba(255,255,255,.14);z-index:-1;}
+.blsh .bh-k{display:block;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
+.blsh .bh-d{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;margin-top:4px;}
+.blsh .bh-d b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:44px;line-height:1;letter-spacing:.01em;text-transform:uppercase;color:#fff;white-space:nowrap;}
+.blsh .bh-d span{font-size:15px;font-weight:600;color:#dbe2f4;}
+.blsh .bh-btn{margin-left:auto;flex:none;display:inline-flex;align-items:center;gap:12px;padding:16px 22px;border-radius:12px;background:#cd163f;color:#fff !important;font-weight:800;font-size:18px;line-height:1.1;white-space:nowrap;box-shadow:0 12px 26px rgba(205,22,63,.4);}
+.blsh .bh-btn svg{width:20px;height:20px;flex:none;}
+@media (max-width:768px){
+  .blsh{margin:0 0 14px;}
+  .blsh .bh-card{flex-direction:column;align-items:stretch;gap:16px;padding:18px 18px 18px 24px;border-radius:12px;}
+  .blsh .bh-d b{font-size:38px;}
+  .blsh .bh-btn{margin-left:0;justify-content:center;width:100%;padding:16px 18px;}
+}
+@media (prefers-reduced-motion:reduce){.blsh *{transition:none !important;}}
+</style>
+<div class="blsh">
+<a class="bh-card" href="https://go.blslittleleague.org/bls/preview/proposed/registration.html">
+<div>
+<span class="bh-k">Spring 2027 registration</span>
+<span class="bh-d"><b>Opens Fri Nov 27</b><span>Baseball and softball, Bonney Lake, Sumner and Orting</span></span>
+</div>
+<span class="bh-btn">Registration info <svg aria-hidden="true" viewbox="0 0 16 16"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></span>
+</a>
+</div>
+</div>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="text/javascript">
+    (function ($) {
+
+        var MAX_WAIT = 2000;
+        var CHECK_INTERVAL = 100;
+        var startTime = Date.now();
+        var initialized = false;
+
+        function hasVideoConsent() {
+            if (typeof OnetrustActiveGroups === 'undefined') {
+                console.log('[OT] OneTrust not ready');
+                return false;
+            }
+            var consent = OnetrustActiveGroups.includes('C0004');
+            console.log('[OT] Video consent:', consent);
+            return consent;
+        }
+
+        function handleVideoConsent(forceLoad) {
+            console.log('[OT] handleVideoConsent called. forceLoad:', forceLoad, 'OneTrustReady:', typeof OnetrustActiveGroups !== 'undefined', 'hasConsent:', hasVideoConsent());
+
+            document.querySelectorAll('.ot-video-gate').forEach(function (iframe) {
+                var src = iframe.getAttribute('data-src') || iframe.getAttribute('data-src-original');
+                var wrapper = iframe.closest('.video-wrapper');
+                var placeholder = wrapper?.querySelector('.video-placeholder');
+
+                if ((hasVideoConsent() || forceLoad) && src) {
+                    if (!iframe.src || iframe.src.indexOf('about:blank') > -1) {
+                        console.log('[OT] iframe activated:', src);
+                        iframe.src = src;
+                    }
+                    iframe.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
+                } else {
+                    console.log('[OT] iframe blocked');
+                    iframe.src = 'about:blank';
+                    iframe.style.display = 'none';
+                    if (placeholder) placeholder.style.display = 'block';
+                }
+            });
+        }
+
+        function initVideoGate() {
+            if (initialized) return;
+
+            if (typeof OnetrustActiveGroups !== 'undefined') {
+                initialized = true;
+                console.log('[OT] OneTrust ready – running initial check');
+                handleVideoConsent(false);
+            } else if (Date.now() - startTime < MAX_WAIT) {
+                setTimeout(initVideoGate, CHECK_INTERVAL);
+            } else {
+                initialized = true;
+                console.log('[OT] OneTrust timeout – default block');
+                handleVideoConsent(true);
+            }
+        }
+
+        $(document).ready(function () {
+            console.log('[OT] DOM ready – initializing video gate');
+            initVideoGate();
+
+            // OneTrust live hooks
+            if (typeof OneTrust !== 'undefined') {
+                OneTrust.OnConsentChanged(function () {
+                    console.log('[OT] OnConsentChanged triggered');
+                    setTimeout(function () {
+                        handleVideoConsent(false);
+                    }, 300);
+                });
+            }
+        });
+
+        window.addEventListener('OneTrustGroupsUpdated', function () {
+            console.log('[OT] OneTrustGroupsUpdated');
+            handleVideoConsent(false);
+        });
+
+    })(jQuery);
+</script>
+<style type="text/css">
+    /* Hide iframes that have an empty source */
+    iframe.ot-video-gate[src=""], 
+    iframe.ot-video-gate:not([src]) {
+        display: none !important;
+    }
+    iframe.ot-video-gate {
+    display: none;
+}
+
+    .video-placeholder {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 40px 20px;
+        text-align: center;
+        color: #6c757d;
+        font-family: sans-serif;
+        line-height: 1.5;
+        display: none; /* JS will toggle this to block if needed */
+    }
+</style>
+</div><!-- End_Module_823340 --></div>
+<div class="clear-both"></div>
+</div>
+</div></div><div class="DnnModule DnnModule-BSBContent DnnModule-765764"><a name="765764"></a><div class="empty-club-home" id="dnn_ctr765764_ContentPane"><!-- Start_Module_765764 --><div class="DNNModuleContent ModBSBContentC" id="dnn_ctr765764_ModuleContent">
 <script async="" src="https://www.googletagservices.com/tag/js/gpt.js"></script>
 <script>
 var googletag = googletag || { cmd: [] };
@@ -1530,7 +1684,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div id="slider1110520">
 <ul class="skList">
 <li class="skItem skFirst" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
-<a href="https://www.blslittleleague.org/Default.aspx?tabid=716835&amp;mid=765764&amp;newskeyid=HN1&amp;newsid=574104&amp;ctl=newsdetail">
+<a href="https://go.blslittleleague.org/bls/preview/proposed/registration.html">
 <img alt="Spring 2027 registration opens Friday, November 27. $50 off per family." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s1-registration.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s1-registration.png"/>
 </a>
 <div class="skCaption">
@@ -1541,7 +1695,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="skPager"></div>
 </li>
 <li class="skItem skAlt" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
-<a href="https://www.blslittleleague.org/Default.aspx?tabid=716835&amp;mid=765764&amp;newskeyid=HN1&amp;newsid=574205&amp;ctl=newsdetail"><img alt="Fall Ball gear return: Saturday, Nov 7, 10AM to 1PM at the Daffodil Shed." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s5-gear-return.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s5-gear-return.png"/></a>
+<a href="https://go.blslittleleague.org/bls/preview/proposed/registration.html"><img alt="New to BLS? Start here: check league age, register, questions? read the FAQ." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s2-start-here.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s2-start-here.png"/></a>
 <div class="skCaption">
 <div class="skWrapper">
 <h3 class="skTitle skTwoLineClamp"></h3>
@@ -1550,7 +1704,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="skPager"></div>
 </li>
 <li class="skItem" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
-<a href="https://www.blslittleleague.org/Default.aspx?tabid=716835&amp;mid=765764&amp;newskeyid=HN1&amp;newsid=574206&amp;ctl=newsdetail">
+<a href="https://go.blslittleleague.org/bls/preview/proposed/volunteer.html">
 <img alt="Join the Fields Committee. Help improve BLS fields for 2027. info@blslittleleague.org" class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s6-fields-committee.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s6-fields-committee.png"/>
 </a>
 <div class="skCaption">
@@ -1561,17 +1715,6 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 <div class="skPager"></div>
 </li>
 <li class="skItem skAlt" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
-<a href="https://go.blslittleleague.org/bls/preview/proposed/registration.html">
-<img alt="New to BLS? Start here: check league age, register, questions? read the FAQ." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s2-start-here.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s2-start-here.png"/>
-</a>
-<div class="skCaption">
-<div class="skWrapper">
-<h3 class="skTitle skTwoLineClamp"></h3>
-</div>
-</div>
-<div class="skPager"></div>
-</li>
-<li class="skItem" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
 <a href="https://go.blslittleleague.org/bls/preview/proposed/volunteer.html">
 <img alt="Volunteer with BLS: managers, coaches, umpires." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s3-volunteer.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s3-volunteer.png"/>
 </a>
@@ -1582,7 +1725,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 <div class="skPager"></div>
 </li>
-<li class="skItem skAlt skLast" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
+<li class="skItem" id="dnn_ctr765764_Home_ctl00_sWebThemeContentRotator">
 <a href="https://go.blslittleleague.org/bls/preview/proposed/sponsorship.html">
 <img alt="Thank you to our sponsors: Cal-Line Equipment, DICK'S Sporting Goods, Enrique Trujeque Agency, Grasshopper Landscaping, Northwest Cascade (Honey Bucket), Land O'Frost, Los Pinos, Lowe's, Molen Orthodontics, Ossman Harding Dental, Owen Equipment, Panther Wrestling Club, Prospect Construction, ProTime Sports, Round Table Pizza, RS Lending and Titan Door. Become a sponsor." class="skImg" data-thumb="https://go.blslittleleague.org/bls/preview/img/slides/s4-sponsors.png" src="https://go.blslittleleague.org/bls/preview/img/slides/s4-sponsors.png"/>
 </a>
@@ -1593,6 +1736,7 @@ window.addEventListener('OneTrustGroupsUpdated', handleGptAd);
 </div>
 <div class="skPager"></div>
 </li>
+
 </ul>
 <a class="skPrevBtn" href="javascript:void(0)"></a>
 <a class="skNextBtn" href="javascript:void(0)"></a>
@@ -2321,5 +2465,5 @@ $(window).load(function(){
        } 
    </script>
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" type="text/javascript"></script>
-<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:520px;margin:0 auto 6px;"><a href="https://go.blslittleleague.org/bls/preview/today/home.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/home.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Home · <a href="https://go.blslittleleague.org/bls/preview/" style="color:#fff;">All pages</a></div><div id="blsNeeds" style="text-align:center;color:#9be3b5;font:700 12px/1.6 Arial,sans-serif;">All facts in</div></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "home", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": []}, "registration": {"t": "Registration Info", "req": []}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": []}, "faq": {"t": "FAQ", "req": []}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=489ed3479a"></script></body>
+<div id="blsPreviewBar" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#00013a;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px rgba(0,0,0,.35);"><div class="blsb" id="blsbBar"></div><div id="blsSwitch" style="display:flex;gap:6px;max-width:560px;margin:0 auto 6px;"><span aria-hidden="true" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;opacity:.3;border-color:transparent;">‹ Prev</span><a href="https://go.blslittleleague.org/bls/preview/today/home.html" style="background:#fff;color:#00013a;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Today</a><a href="https://go.blslittleleague.org/bls/preview/proposed/home.html" style="background:#cd163f;color:#fff;flex:1;text-align:center;padding:11px 6px;border-radius:999px;font:700 15px/1 Arial,sans-serif;text-decoration:none;">Proposed</a><a aria-label="Next page: Registration Info" href="https://go.blslittleleague.org/bls/preview/proposed/registration.html" style="flex:0 0 auto;display:flex;align-items:center;padding:0 12px;border-radius:999px;font:700 14px/1 Arial,sans-serif;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.35);white-space:nowrap;" title="Registration Info">Next ›</a></div><div id="blsPreviewInfo" style="text-align:center;color:#c9d3f2;font:600 12px/1.3 Arial,sans-serif;">PREVIEW · Home · <a href="https://go.blslittleleague.org/bls/preview/#p-home" style="color:#fff;">All pages</a></div><details id="blsNeeds" style="max-width:520px;margin:6px auto 0;color:#fff;font:500 14px/1.4 Arial,sans-serif;"><summary style="cursor:pointer;text-align:center;color:#ffd166;font-weight:700;list-style:none;">Facts needed (2)</summary><ul style="margin:8px 0 4px;padding:10px 12px 10px 28px;background:#fff;color:#0a0f2e;border-radius:10px;max-height:45vh;overflow:auto;"><li style="margin:4px 0">Daniel: confirm a content block can be added above the home slideshow (Sports Connect home template).</li><li style="margin:4px 0">Daniel: after Saturday, take down the gear return bar and pin the registration post first in Local News.</li></ul></details></div><div id="blsPreviewSpacer" style="height:96px"></div><script>window.BLSB={"base": "https://go.blslittleleague.org/bls/preview", "page": "home", "variant": "proposed", "index": false, "pages": {"home": {"t": "Home", "req": ["Daniel: confirm a content block can be added above the home slideshow (Sports Connect home template).", "Daniel: after Saturday, take down the gear return bar and pin the registration post first in Local News."]}, "registration": {"t": "Registration Info", "req": ["Daniel: put the League Age page live first. The card's 'Check your league age' row and the Baseball and Softball tiles link to it."]}, "volunteer": {"t": "Volunteer Opportunities", "req": ["Daniel: finish the Spring 2027 registration setup and move volunteer sign-up onto this page. It's running today, just not shown here.", "Daniel: put the Umpires page live first. The Umpire tile links to it."]}, "corpmatch": {"t": "Corporate Match", "req": []}, "sponsorship": {"t": "Sponsorship Opportunities", "req": ["Info needed (Ashley Gauthier): the 2027 sponsor prices. The page shows 2026 prices."]}, "allstars": {"t": "Allstars", "req": ["Daniel: put the Champions page live first. The 2025 card on this page links to it."]}, "fallball": {"t": "Fall Ball", "req": []}, "coaches": {"t": "Coaches Corner", "req": ["Daniel: put the Coach Run Book page live first. The hero clipboard, the pitch count row and the Get cleared card link to it."]}, "faq": {"t": "FAQ", "req": ["Daniel: put the League Age page live first. Answer 2's button links to it.", "Daniel: put the Fields page live first. Answer 7's button links to it."]}, "health": {"t": "Health & Safety", "req": []}, "board": {"t": "Board Members", "req": []}, "calendar": {"t": "Calendar", "req": []}, "champions": {"t": "Champions", "req": []}, "fields": {"t": "Fields", "req": []}, "umpires": {"t": "Umpires", "req": []}, "runbook": {"t": "Coach Run Book", "req": ["Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.", "Daniel: put the Fields page live on blslittleleague.org first.", "Daniel: put the League Age page live first. The roster step links to it.", "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."]}, "schedules": {"t": "Schedules & Scores", "req": ["Daniel: create one GameChanger league per division.", "Daniel: test that a league link opens without a GameChanger account."]}, "leagueage": {"t": "League Age", "req": ["Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.", "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."]}}};</script><script defer="" src="https://go.blslittleleague.org/bls/preview/board/board.js?v=0676cf4a4f"></script></body>
 </html>

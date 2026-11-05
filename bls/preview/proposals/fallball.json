@@ -5,27 +5,13 @@
    "title": "Fall Ball"
   }
  },
- "insert_after": [
-  {
-   "mid": "1554224",
-   "new_mid": "91554227",
-   "file": "modules/fallball-ages.html",
-   "title": "Fall Ball Age Guidelines (2025)"
-  },
-  {
-   "mid": "91554227",
-   "new_mid": "91554225",
-   "file": "modules/fallball-rules.html",
-   "title": "Fall Ball Rules (2025)"
-  }
- ],
  "hide": [
   "1554225",
   "1554227"
  ],
  "status": "Ready to launch",
- "summary": "Fall Ball 2026 wrap-up: final scoreboard with team growth since 2024, sponsor thank-you, how Fall Ball works, the 2026 timeline and divisions, the last posted age guidelines (Baseball/Softball switch on phones) and the 2025 District 10 rule PDFs.",
- "blurb": "The Fall Ball 2026 wrap-up and a thank-you to sponsors, plus how Fall Ball works.",
+ "summary": "Fall Ball 2026 wrap-up with the season numbers, how Fall Ball works, and a Spring 2027 registration button; the 2025 rule PDFs and age charts come off. Why: last season's rules are stale and the next step is spring.",
+ "blurb": "Fall Ball 2026 is a wrap: sign up for Spring 2027, and how Fall Ball works.",
  "sources": [
   {
    "fact": "Fall Ball 2026 sponsors: Molen Orthodontics, Great Northwest Dental, Northwest Cascade.",
@@ -76,11 +62,13 @@
  "later": [
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): confirm next fall runs the same way (weekday practices starting in August, Saturday games, games against nearby leagues) and whether Juniors will be offered (it was not in Fall 2026).",
   "VP of Baseball and VP of Softball: the age cutoffs and registration dates for Fall 2027 (spring 2028 league age), to replace the Fall 2025 age chart on this page.",
-  "VP of Baseball (Jeremy Olsen): Minors age conflict. This page keeps 'AAA (Minors player pitch) 10 to 11' from the 2025 guidelines, while the FAQ and Registration pages say Minors 9 to 11. One answer is needed for all three pages.",
-  "VP of Softball (Luke Kress): OK to show the Fall 2025 softball cutoff as 'Age on Dec 31, 2025' (the live page says 'as of January 1, 2026', the same rule)?",
-  "VP of Baseball and VP of Softball: the Fall 2027 District 10 rule PDFs when the district releases them. The 2025 PDFs stay up, labeled 2025.",
-  "Scheduler (Daniel Grande): confirm the 2026 numbers on the scoreboard and team bars (36 teams, 194 games, 91 against other D10 leagues). They come from the schedule, not social media.",
+  "VP of Baseball (Jeremy Olsen): Minors age conflict. The 2025 Fall Ball guidelines said 'AAA (Minors player pitch) 10 to 11', while the FAQ, Registration and League Age pages say Minors 9 to 11. One answer is needed before a Fall 2027 chart goes up.",
+  "VP of Softball (Luke Kress), for the kept Fall 2027 chart: OK to show a softball cutoff as 'Age on Dec 31' (the 2025 page said 'as of January 1', the same rule)?",
+  "VP of Baseball and VP of Softball: the Fall 2027 District 10 rule PDFs when the district releases them. The 2025 PDFs sit in modules/fallball-rules.html, off the page until then.",
+  "Removed 11/4 under Coach's audience standard: modules/fallball-ages.html (Fall 2025 cutoffs) and modules/fallball-rules.html (2025 District 10 interlock PDFs, coach material) no longer insert after the Fall Ball block; about two phone screens of 2025 content on a page whose one job is Spring 2027 registration. To put them back, restore the two insert_after entries in this file.",
+  "Scheduler (Daniel Grande): confirm the one line left from the scoreboard (36 teams, Sep 12 to Oct 31). It comes from the schedule, not social media.",
   "Sponsorship and Fundraising (Ashley Gauthier), optional: logos for the three Fall Ball 2026 sponsors (Molen Orthodontics, Great Northwest Dental, Northwest Cascade). The page thanks them by name until then."
  ],
- "required": []
+ "required": [],
+ "long_summary": "Fall Ball 2026 wrap-up with one job: the hero's big button is Spring 2027 registration (opens Friday, Nov 27, no prices). Then four short How Fall Ball works cards with the season at a glance (July, mid-August, Sep to Oct) and the sponsor thank-you, and the page ends there. Scoreboard, growth bars, timeline, division chips, gear-return and discount lines removed; the Fall 2025 age guidelines and 2025 District 10 rule PDFs are off the page too (the hero's League Age route answers which division; both files stay in modules/ for Fall 2027)."
 }

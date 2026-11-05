@@ -1,0 +1,187 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+.blsx{--n:#00013a;--r:#cd163f;--b:#1452a0;--l:#eef2f6;--m:#4b5675;--line:#dde3ec;
+  font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin:0 0 6px;}
+.blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
+.blsx h2,.blsx h3,.blsx p,.blsx ol,.blsx ul,.blsx li,.blsx table,.blsx section,.blsx header{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx a{text-decoration:none !important;}
+.blsx label{font-family:Poppins,Arial,sans-serif !important;font-weight:600;}
+.blsx svg{display:block;}
+
+/* ---------- one switch drives the birth-date table and the division rows ---------- */
+.blsx .la{position:relative;display:grid;gap:18px;}
+.blsx .la > input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+.blsx .la-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#eef2f6;border-radius:16px;padding:6px;}
+.blsx .la-seg label{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:64px;cursor:pointer;padding:10px 12px;border-radius:12px;color:#4b5675;text-align:center !important;transition:background .2s,color .2s,box-shadow .2s;margin:0;}
+.blsx .la-seg label b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:24px;line-height:1;letter-spacing:.02em;text-transform:uppercase;}
+.blsx .la-seg label span{font-size:12px;font-weight:600;line-height:1.2;text-align:center !important;}
+.blsx .la-seg label[for="la-t-bb"]{background:#00013a;color:#fff;box-shadow:0 8px 20px rgba(0,1,58,.25);}
+.blsx #la-t-sb:checked ~ .la-seg label[for="la-t-bb"]{background:transparent;color:#4b5675;box-shadow:none;}
+.blsx #la-t-sb:checked ~ .la-seg label[for="la-t-sb"]{background:#cd163f;color:#fff;box-shadow:0 8px 20px rgba(205,22,63,.3);}
+.blsx .la > input:focus-visible ~ .la-seg{outline:3px solid #1452a0;outline-offset:2px;}
+.blsx .la-sb{display:none;}
+.blsx #la-t-sb:checked ~ .la-bb{display:none;}
+.blsx #la-t-sb:checked ~ .la-sb{display:block;}
+
+/* birth-date table */
+.blsx .la-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+.blsx .la-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;padding:16px 20px;background:#00013a;color:#fff;}
+.blsx .la-sb .la-top{background:#cd163f;}
+.blsx .la-top h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:26px;line-height:1;text-transform:uppercase;color:#fff !important;}
+.blsx .la-top span{font-size:13px;font-weight:600;color:#fff;background:rgba(255,255,255,.14);border-radius:999px;padding:6px 12px;}
+.blsx table.la-tbl{width:100%;border-collapse:collapse;}
+.blsx .la-tbl th{padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7a84a0;text-align:left !important;background:#f5f7fb;border-bottom:1px solid var(--line);}
+.blsx .la-tbl td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:15px;line-height:1.35;color:#3c4664;}
+.blsx .la-tbl tr:last-child td{border-bottom:0;}
+.blsx .la-tbl td.age{width:84px;}
+.blsx .la-tbl td.age i{display:grid;place-items:center;width:44px;height:38px;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1;color:#fff;background:#1452a0;border-radius:9px;}
+.blsx .la-sb .la-tbl td.age i{background:#cd163f;}
+.blsx .la-tbl td.born{font-weight:600;color:#00013a;}
+.blsx .la-tbl td.born small{display:block;font-weight:500;font-size:13px;color:#7a84a0;}
+.blsx .la-tbl td.div{color:#00013a;font-weight:500;}
+.blsx .la-tbl td.div a{color:#1452a0 !important;font-weight:600;border-bottom:1.5px solid rgba(20,82,160,.35);}
+
+/* division chips */
+.blsx .la-divs{padding:16px 20px 20px;border-top:1px solid var(--line);}
+.blsx .la-divs h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:12px !important;}
+.blsx .la-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
+.blsx .la-chips li{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f5f7fb;border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+.blsx .la-chips span{font-size:14px;font-weight:600;line-height:1.2;color:#00013a;}
+.blsx .la-chips small{display:block;font-weight:500;font-size:12px;color:#7a84a0;}
+.blsx .la-chips b{white-space:nowrap;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:20px;line-height:1;color:#fff;background:#00013a;border-radius:7px;padding:5px 8px;}
+.blsx .la-sb .la-chips b{background:#cd163f;}
+.blsx .la-note{margin-top:12px !important;font-size:13px;line-height:1.5;color:#7a84a0;}
+
+/* challenger, boundary, next step */
+.blsx .la-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.blsx .la-box{display:flex;flex-direction:column;align-items:flex-start;gap:8px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;}
+.blsx .la-box h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:24px;line-height:1;text-transform:uppercase;color:#00013a !important;}
+.blsx .la-box p{font-size:15px;line-height:1.5;color:#4b5675;}
+.blsx .la-box p b{color:#00013a;font-weight:600;}
+.blsx .la-btn{margin-top:auto;display:inline-flex;align-items:center;gap:10px;background:#00013a;color:#fff !important;font-weight:700;font-size:15px;padding:12px 16px;border-radius:10px;transition:transform .15s,box-shadow .15s;}
+.blsx .la-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,1,58,.2);}
+.blsx .la-btn svg{width:16px;height:16px;flex:none;}
+.blsx .la-btn.la-out{background:#fff;color:#00013a !important;border:1.5px solid #c3ccdc;}
+.blsx .la-btn.la-out small{font-weight:600;font-size:12px;color:#7a84a0;}
+.blsx .la-cta{display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 20px;border-radius:16px;background:#cd163f;color:#fff !important;font-weight:800;font-size:20px;line-height:1.1;text-align:center !important;box-shadow:0 14px 30px rgba(205,22,63,.3);transition:transform .15s,box-shadow .15s;}
+.blsx .la-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(205,22,63,.4);}
+.blsx .la-cta svg{width:22px;height:22px;flex:none;}
+.blsx .la-src{font-size:12px;color:#7a84a0;}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsx{gap:14px;}
+  .blsx .la{gap:12px;}
+  .blsx .la-seg label{min-height:60px;padding:8px 10px;}
+  .blsx .la-seg label b{font-size:22px;}
+  .blsx .la-seg label span{font-size:11px;}
+  .blsx .la-top{padding:14px 16px;}
+  .blsx .la-top h3{font-size:24px;}
+  .blsx .la-tbl th{padding:8px 12px;}
+  .blsx .la-tbl td{padding:9px 10px;font-size:14px;}
+  .blsx .la-tbl td.age{width:60px;padding-left:12px;}
+  .blsx .la-tbl td.age i{width:40px;height:36px;font-size:20px;}
+  .blsx .la-divs{padding:14px 14px 16px;}
+  .blsx .la-chips{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .blsx .la-row{grid-template-columns:1fr;gap:12px;}
+  .blsx .la-box{padding:16px 16px;}
+  .blsx .la-cta{padding:17px 16px;font-size:19px;}
+}
+@media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
+</style>
+<div class="blsx">
+
+  <div class="la">
+    <input type="radio" name="la-tab" id="la-t-bb" checked>
+    <input type="radio" name="la-tab" id="la-t-sb">
+    <div class="la-seg">
+      <label for="la-t-bb"><b>Baseball</b><span>Age on Aug 31, 2027</span></label>
+      <label for="la-t-sb"><b>Softball</b><span>Age on Dec 31, 2026</span></label>
+    </div>
+
+    <section class="la-card la-bb" aria-label="Baseball league age for spring 2027">
+      <div class="la-top"><h3>Baseball 2027</h3><span>League age = age on Aug 31, 2027</span></div>
+      <table class="la-tbl">
+        <thead><tr><th>League age</th><th>Born</th><th>Division</th></tr></thead>
+        <tbody>
+          <tr><td class="age"><i>4</i></td><td class="born">Sep 1, 2022 to Aug 31, 2023</td><td class="div">Tee Ball</td></tr>
+          <tr><td class="age"><i>5</i></td><td class="born">Sep 1, 2021 to Aug 31, 2022</td><td class="div">Tee Ball</td></tr>
+          <tr><td class="age"><i>6</i></td><td class="born">Sep 1, 2020 to Aug 31, 2021</td><td class="div">Tee Ball or Coach Pitch</td></tr>
+          <tr><td class="age"><i>7</i></td><td class="born">Sep 1, 2019 to Aug 31, 2020</td><td class="div">Coach Pitch</td></tr>
+          <tr><td class="age"><i>8</i></td><td class="born">Sep 1, 2018 to Aug 31, 2019</td><td class="div">AA</td></tr>
+          <tr><td class="age"><i>9</i></td><td class="born">Sep 1, 2017 to Aug 31, 2018</td><td class="div">AA or Minors</td></tr>
+          <tr><td class="age"><i>10</i></td><td class="born">Sep 1, 2016 to Aug 31, 2017</td><td class="div">Minors</td></tr>
+          <tr><td class="age"><i>11</i></td><td class="born">Sep 1, 2015 to Aug 31, 2016</td><td class="div">Minors or Majors</td></tr>
+          <tr><td class="age"><i>12</i></td><td class="born">Sep 1, 2014 to Aug 31, 2015</td><td class="div">Majors or 50/70</td></tr>
+          <tr><td class="age"><i>13</i></td><td class="born">Sep 1, 2013 to Aug 31, 2014</td><td class="div">50/70 or Juniors</td></tr>
+          <tr><td class="age"><i>14</i></td><td class="born">Sep 1, 2012 to Aug 31, 2013</td><td class="div">Juniors</td></tr>
+          <tr><td class="age"><i>15</i></td><td class="born">Sep 1, 2011 to Aug 31, 2012</td><td class="div"><a href="mailto:info@blslittleleague.org">Ask the league</a></td></tr>
+          <tr><td class="age"><i>16</i></td><td class="born">Sep 1, 2010 to Aug 31, 2011</td><td class="div"><a href="mailto:info@blslittleleague.org">Ask the league</a></td></tr>
+        </tbody>
+      </table>
+      <div class="la-divs">
+        <h3>Which division?</h3>
+        <ul class="la-chips">
+          <li><span>Tee Ball<small>Co-ed</small></span><b>4 to 6</b></li>
+          <li><span>Coach Pitch</span><b>6 to 7</b></li>
+          <li><span>AA<small>Intro to player pitch</small></span><b>8 to 9</b></li>
+          <li><span>Minors</span><b>9 to 11</b></li>
+          <li><span>Majors</span><b>11 to 12</b></li>
+          <li><span>50/70<small>Intermediate</small></span><b>12 to 13</b></li>
+          <li><span>Juniors</span><b>13 to 14</b></li>
+        </ul>
+        <p class="la-note">Where two divisions overlap, evaluations help decide placement.</p>
+      </div>
+    </section>
+
+    <section class="la-card la-sb" aria-label="Softball league age for spring 2027">
+      <div class="la-top"><h3>Softball 2027</h3><span>League age = age on Dec 31, 2026</span></div>
+      <table class="la-tbl">
+        <thead><tr><th>League age</th><th>Born</th><th>Division</th></tr></thead>
+        <tbody>
+          <tr><td class="age"><i>4</i></td><td class="born">Jan 1 to Dec 31, 2022<small>Any day in 2022</small></td><td class="div">Co-Ed T-Ball</td></tr>
+          <tr><td class="age"><i>5</i></td><td class="born">Jan 1 to Dec 31, 2021<small>Any day in 2021</small></td><td class="div">Co-Ed T-Ball</td></tr>
+          <tr><td class="age"><i>6</i></td><td class="born">Jan 1 to Dec 31, 2020<small>Any day in 2020</small></td><td class="div">Co-Ed T-Ball or Minors B</td></tr>
+          <tr><td class="age"><i>7</i></td><td class="born">Jan 1 to Dec 31, 2019<small>Any day in 2019</small></td><td class="div">Minors B</td></tr>
+          <tr><td class="age"><i>8</i></td><td class="born">Jan 1 to Dec 31, 2018<small>Any day in 2018</small></td><td class="div">Minors B or Minors A</td></tr>
+          <tr><td class="age"><i>9</i></td><td class="born">Jan 1 to Dec 31, 2017<small>Any day in 2017</small></td><td class="div">Minors A</td></tr>
+          <tr><td class="age"><i>10</i></td><td class="born">Jan 1 to Dec 31, 2016<small>Any day in 2016</small></td><td class="div">Minors A</td></tr>
+          <tr><td class="age"><i>11</i></td><td class="born">Jan 1 to Dec 31, 2015<small>Any day in 2015</small></td><td class="div">Minors A or Majors</td></tr>
+          <tr><td class="age"><i>12</i></td><td class="born">Jan 1 to Dec 31, 2014<small>Any day in 2014</small></td><td class="div">Majors</td></tr>
+          <tr><td class="age"><i>13</i></td><td class="born">Jan 1 to Dec 31, 2013<small>Any day in 2013</small></td><td class="div">Juniors</td></tr>
+          <tr><td class="age"><i>14</i></td><td class="born">Jan 1 to Dec 31, 2012<small>Any day in 2012</small></td><td class="div">Juniors</td></tr>
+          <tr><td class="age"><i>15</i></td><td class="born">Jan 1 to Dec 31, 2011<small>Any day in 2011</small></td><td class="div"><a href="mailto:info@blslittleleague.org">Ask the league</a></td></tr>
+          <tr><td class="age"><i>16</i></td><td class="born">Jan 1 to Dec 31, 2010<small>Any day in 2010</small></td><td class="div"><a href="mailto:info@blslittleleague.org">Ask the league</a></td></tr>
+        </tbody>
+      </table>
+      <div class="la-divs">
+        <h3>Which division?</h3>
+        <ul class="la-chips">
+          <li><span>Co-Ed T-Ball</span><b>4 to 6</b></li>
+          <li><span>Minors B<small>Coach pitch</small></span><b>6 to 8</b></li>
+          <li><span>Minors A<small>Player pitch</small></span><b>8 to 11</b></li>
+          <li><span>Majors</span><b>11 to 12</b></li>
+          <li><span>Juniors</span><b>13 to 14</b></li>
+        </ul>
+        <p class="la-note">Where two divisions overlap, evaluations help decide placement.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="la-row">
+    <section class="la-box">
+      <h3>Challenger</h3>
+      <p>Adaptive baseball for players with physical and intellectual challenges. <b>Ages 4 to 18</b>, or up to 22 if still in school.</p>
+      <a class="la-btn" href="mailto:vpchallenger@blslittleleague.org"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 7 8.5-7"/></svg>vpchallenger@blslittleleague.org</a>
+    </section>
+    <section class="la-box">
+      <h3>Where you live</h3>
+      <p>BLS serves <b>Bonney Lake, Sumner and Orting</b>. Not sure your address is inside the boundary? Ask before you register.</p>
+      <a class="la-btn" href="mailto:president@blslittleleague.org"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 7 8.5-7"/></svg>president@blslittleleague.org</a>
+    </section>
+  </div>
+
+  <a class="la-cta" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+  <p class="la-src">League age rule: Little League International age determination. Division ages: BLS guidelines.</p>
+
+</div>

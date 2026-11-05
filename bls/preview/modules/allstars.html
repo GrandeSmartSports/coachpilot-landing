@@ -15,7 +15,7 @@
 .bxa .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
 .bxa .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.88) 34%,rgba(0,1,58,.35) 62%,rgba(0,1,58,.15) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
-.bxa .bx-hero-in{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);min-height:440px;}
+.bxa .bx-hero-in{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);min-height:420px;}
 .bxa .bx-copy{align-self:center;padding:44px 20px 44px 40px;}
 .bxa .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
 .bxa .bx-ribbon svg{width:30px;height:30px;flex:none;}
@@ -26,15 +26,12 @@
 .bxa .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
 .bxa .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
 .bxa .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
-.bxa .bx-tlink{display:inline-flex;align-items:center;gap:8px;margin-top:22px;color:#fff !important;font-weight:600;font-size:15px;border-bottom:2px solid rgba(255,255,255,.35);padding-bottom:3px;transition:border-color .2s;}
-.bxa .bx-tlink:hover{border-color:#cd163f;}
-.bxa .bx-tlink svg{width:16px;height:16px;}
 /* right side: the tournament trail over the field art */
 .bxa .bx-side{position:relative;display:flex;align-items:flex-end;padding:30px 28px 28px 74px;}
 .bxa .bx-side::before{content:"";position:absolute;inset:0;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
 .bxa .bx-trail{position:relative;width:100%;background:rgba(0,1,40,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:20px 22px 20px;box-shadow:0 24px 50px rgba(0,0,20,.45);}
 .bxa .bx-trail-h{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:15px;letter-spacing:.2em;text-transform:uppercase;color:#ff9db3;}
-.bxa .bx-trail ol{position:relative;display:grid;gap:14px;margin-top:14px !important;}
+.bxa .bx-trail ol{position:relative;display:grid;gap:12px;margin-top:14px !important;}
 .bxa .bx-trail ol::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;border-left:3px dashed rgba(255,255,255,.3);}
 .bxa .bx-trail li{position:relative;display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;align-items:center;}
 .bxa .bx-trail i{position:relative;width:32px;height:32px;display:grid;place-items:center;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:17px;color:#00013a;}
@@ -51,7 +48,6 @@
 .bxa .bx-white{background:#fff;border:1px solid #dde3ec;}
 .bxa .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
 .bxa .bx-sec h2{font-size:46px;letter-spacing:.005em;text-wrap:balance;}
-.bxa .bx-sub{margin-top:12px !important;font-size:15px;line-height:1.55;color:#4b5675;max-width:42em;}
 .bxa .bx-link{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
 .bxa .bx-link svg{width:16px;height:16px;transition:transform .2s;}
 .bxa .bx-link:hover svg{transform:translate(2px,-2px);}
@@ -81,7 +77,7 @@
 .bxa .bx-hot .bx-btn{margin-top:20px;width:100%;justify-content:space-between;}
 .bxa .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
 .bxa .bx-btn svg{width:16px;height:16px;flex:none;}
-.bxa .bx-when{display:flex;flex-direction:column;gap:4px;margin:0 0 12px;}
+.bxa .bx-when{display:flex;flex-direction:column;gap:4px;margin:0;}
 .bxa .bx-when b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:40px;line-height:.9;text-transform:uppercase;color:#00013a;white-space:nowrap;}
 .bxa .bx-when span{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f;}
 .bxa .bx-home{position:absolute;right:0;top:0;display:flex;align-items:center;gap:10px;flex-direction:row-reverse;}
@@ -90,7 +86,7 @@
 .bxa .bx-home b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#00013a;}
 
 /* ---------- commitment board ---------- */
-.bxa .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 28px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
+.bxa .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 30px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
 .bxa .bx-board-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
 .bxa .bx-board-top h2{font-size:30px;letter-spacing:.06em;color:#fff !important;}
 .bxa .bx-tag{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;letter-spacing:.2em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 12px 4px 14px;border-radius:6px;white-space:nowrap;}
@@ -99,8 +95,6 @@
 .bxa .bx-cell svg{width:30px;height:30px;margin-bottom:14px;}
 .bxa .bx-cell b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:36px;line-height:.95;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
 .bxa .bx-cell span{display:block;margin-top:8px;font-size:15px;line-height:1.45;color:#b4c2ea;}
-.bxa .bx-board-foot{margin-top:18px !important;font-size:15px;line-height:1.55;color:#c6d1ee;}
-.bxa .bx-board-foot b{color:#fff;}
 
 /* ---------- documents ---------- */
 .bxa .bx-docs{background:#eef2f6;}
@@ -112,39 +106,24 @@
 .bxa .bx-doc p{margin-top:auto !important;padding-top:14px;font-size:15px;line-height:1.45;font-weight:600;color:#4b5675;}
 .bxa .bx-doc .bx-link{margin-top:auto;padding-top:14px;}
 
-/* ---------- last season's dates ---------- */
-.bxa .bx-sched{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:26px !important;align-items:start;}
-.bxa .bx-sport{border:1px solid #dde3ec;border-radius:14px;overflow:hidden;}
-.bxa .bx-sport h3{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:#00013a;color:#fff !important;font-size:26px;letter-spacing:.02em;}
-.bxa .bx-sport h3 svg{width:26px;height:26px;}
-.bxa .bx-fx li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;padding:14px 18px 15px;border-top:1px solid #dde3ec;}
-.bxa .bx-fx li:first-child{border-top:0;}
-.bxa .bx-day{align-self:start;background:#eef2f6;border-radius:10px;padding:8px 2px 7px;text-align:center !important;white-space:nowrap;}
-.bxa .bx-day b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#00013a;}
-.bxa .bx-day span{display:block;margin-top:3px;font-size:11px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:#4b5675;text-align:center !important;}
-.bxa .bx-fx h4{font-size:22px;line-height:1.05;}
-.bxa .bx-fx h4 small{font-family:Poppins,Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;color:#cd163f;margin-left:4px;}
-.bxa .bx-fx p{margin-top:2px !important;font-size:15px;line-height:1.45;color:#4b5675;}
-.bxa .bx-pin{display:flex;align-items:flex-start;gap:6px;margin-top:6px;font-size:15px;font-weight:600;line-height:1.35;color:#1452a0 !important;}
-.bxa .bx-pin svg{width:14px;height:14px;flex:none;margin-top:3px;}
-.bxa .bx-pin:hover{color:#cd163f !important;}
-.bxa .bx-col{display:grid;gap:20px;}
-.bxa .bx-more{display:grid;gap:12px;background:#eef2f6;border-radius:14px;padding:20px 20px 22px;}
-.bxa .bx-more h3{font-size:24px;}
-.bxa .bx-more p{font-size:15px;line-height:1.5;color:#4b5675;}
-.bxa .bx-more .bx-link{justify-self:start;}
-.bxa .bx-more .bx-nw{border-top:1px solid #d3dae6;padding-top:14px;margin-top:4px !important;}
-/* 2026 results: a small scoreboard tally, then a result line on the rows BLS teams won or placed */
+/* ---------- recent titles: tally, then the banners ---------- */
 .bxa .bx-tally{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:24px !important;}
 .bxa .bx-tally li{display:flex;align-items:center;gap:16px;background:#00013a;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;border-radius:12px;padding:14px 20px;}
 .bxa .bx-tally b{flex:none;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:52px;line-height:.9;text-transform:uppercase;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);}
 .bxa .bx-tally span{font-size:13px;font-weight:700;line-height:1.3;letter-spacing:.12em;text-transform:uppercase;color:#b4c2ea;}
-.bxa .bx-fx li.bx-won-row{box-shadow:inset 4px 0 0 #cd163f;background:#fbf4f6;}
-.bxa .bx-fx .bx-result{display:grid;justify-items:start;gap:6px;margin-top:10px !important;font-size:14px;line-height:1.45;font-weight:500;color:#00013a;}
+.bxa .bx-tally em{font-style:normal;white-space:nowrap;}
+.bxa .bx-roll{display:grid;gap:10px;margin-top:18px !important;}
+.bxa .bx-roll li{display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;gap:14px;background:#f5f7fb;border:1px solid #dde3ec;border-radius:12px;padding:12px 16px;}
+.bxa .bx-roll .bx-yr{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:26px;line-height:1;color:#00013a;}
+.bxa .bx-roll b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#00013a;}
+.bxa .bx-roll .bx-r{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:6px !important;font-size:14px;line-height:1.4;color:#4b5675;}
 .bxa .bx-won{display:inline-flex;align-items:center;gap:6px;background:#cd163f;color:#fff;font-size:11px;font-weight:700;line-height:1.2;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:5px;white-space:nowrap;}
 .bxa .bx-won svg{width:13px;height:13px;flex:none;}
 .bxa .bx-won.bx-2nd{background:#1452a0;}
-.bxa .bx-tally em{font-style:normal;white-space:nowrap;}
+.bxa .bx-roll li.bx-top{background:#00013a;border-color:#00013a;}
+.bxa .bx-roll li.bx-top .bx-yr,.bxa .bx-roll li.bx-top b{color:#fff;}
+.bxa .bx-roll li.bx-top .bx-r{color:#dbe2f4;}
+.bxa .bx-roll li.bx-top .bx-won{background:#fff;color:#cd163f;}
 
 /* ---------- champions link card ---------- */
 .bxa .bx-champ{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-radius:18px;overflow:hidden;background:#00013a;color:#fff !important;box-shadow:0 18px 40px rgba(0,1,58,.22);transition:transform .2s,box-shadow .2s;}
@@ -173,8 +152,17 @@
   .bxa .bx-lede{margin-top:24px !important;font-size:16px;}
   .bxa .bx-side{padding:22px 14px 14px;}
   .bxa .bx-side::before{display:none;}
-  .bxa .bx-trail{padding:18px 16px;}
-  .bxa .bx-trail b{font-size:22px;}
+  .bxa .bx-lede{margin-top:18px !important;}
+  /* phone: the trail is a 2x2 grid of stops (labels only), so the selection steps start sooner */
+  .bxa .bx-trail{padding:16px 14px 14px;}
+  .bxa .bx-trail ol{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 8px;margin-top:12px !important;}
+  .bxa .bx-trail ol::before{display:none;}
+  .bxa .bx-trail li{grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;}
+  .bxa .bx-trail i{width:28px;height:28px;font-size:15px;}
+  .bxa .bx-trail li.hm svg{width:24px;height:26px;}
+  .bxa .bx-trail b{font-size:20px;padding-top:5px;}
+  .bxa .bx-trail li > div > span{display:none;}
+  .bxa .bx-trail em{display:block;width:max-content;max-width:100%;margin:5px 0 0;vertical-align:baseline;font-size:10px;padding:2px 6px;}
   .bxa .bx-sec{padding:28px 18px;border-radius:14px;}
   .bxa .bx-sec h2{font-size:36px;}
   .bxa .bx-path{grid-template-columns:1fr;gap:18px;padding-left:58px;margin-top:24px !important;}
@@ -197,16 +185,13 @@
   .bxa .bx-doc h3{font-size:22px;}
   .bxa .bx-doc p{margin-top:0 !important;padding-top:4px;}
   .bxa .bx-doc .bx-link{padding-top:6px;}
-  .bxa .bx-sched{grid-template-columns:1fr;gap:16px;margin-top:20px !important;}
   .bxa .bx-tally{gap:8px;margin-top:20px !important;}
   .bxa .bx-tally li{flex-direction:column;align-items:flex-start;gap:6px;padding:12px 12px 13px;}
   .bxa .bx-tally b{font-size:40px;}
   .bxa .bx-tally span{font-size:11px;letter-spacing:.06em;}
-  .bxa .bx-fx li{grid-template-columns:68px minmax(0,1fr);gap:12px;padding:13px 14px 14px;}
-  .bxa .bx-day b{font-size:20px;}
-  .bxa .bx-day span{font-size:11px;letter-spacing:0;}
-  .bxa .bx-more{padding:18px 16px 20px;}
-  .bxa .bx-sport h3{padding:12px 14px;font-size:24px;}
+  .bxa .bx-roll li{grid-template-columns:52px minmax(0,1fr);gap:12px;padding:12px 14px;}
+  .bxa .bx-roll .bx-yr{font-size:22px;}
+  .bxa .bx-roll b{font-size:20px;}
   .bxa .bx-champ{grid-template-columns:1fr;border-radius:14px;}
   .bxa .bx-champ-ph{order:-1;min-height:0;aspect-ratio:3/2;border-bottom:5px solid #cd163f;}
   .bxa .bx-champ-ph::before{display:none;}
@@ -233,17 +218,16 @@
           <div><span>Little League</span><b>Summer tournament</b></div>
         </div>
         <h1><small>Represent BLS</small><em>All-Stars.</em></h1>
-        <p class="bx-lede">The All-Star tournament is Little League's post-season. After the spring season, a select group of BLS players and coaches is chosen to compete for the District 10 championship.</p>
-        <a class="bx-tlink" href="https://www.littleleague.org/university/articles/little-league-international-tournament-what-parents-need-to-know/" target="_blank" rel="noopener">What parents need to know <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <p class="bx-lede">Little League's summer tournament. BLS picks All-Star teams after the spring season.</p>
       </div>
       <div class="bx-side">
         <div class="bx-trail">
           <p class="bx-trail-h">The tournament trail</p>
           <ol>
-            <li><i><span>1</span></i><div><b>District 10</b><span>Double elimination. Every All-Star team starts here.</span></div></li>
-            <li><i><span>2</span></i><div><b>State <em>Ages 8 to 11 end here</em></b><span>Win your way through District to get here.</span></div></li>
+            <li><i><span>1</span></i><div><b>District 10</b><span>Every All-Star team starts here.</span></div></li>
+            <li><i><span>2</span></i><div><b>State <em>Ages 8 to 11 end here</em></b><span>Win District to get here.</span></div></li>
             <li><i><span>3</span></i><div><b>Region</b><span>Majors and Juniors play on.</span></div></li>
-            <li class="hm"><i><svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#000128" stroke-width="3" stroke-linejoin="round"/></svg></i><div><b>World Series</b><span>Where the Majors and Junior divisions finish.</span></div></li>
+            <li class="hm"><i><svg viewBox="0 0 44 48" aria-hidden="true"><path d="M4 4h36v22L22 44 4 26z" fill="#fff" stroke="#000128" stroke-width="3" stroke-linejoin="round"/></svg></i><div><b>World Series</b><span>Where Majors and Juniors finish.</span></div></li>
           </ol>
         </div>
       </div>
@@ -272,7 +256,7 @@
           <h3>Coaches vote</h3>
           <p>Players are selected through a voting process involving BLS coaches, based on:</p>
           <ul class="bx-chips"><li>Skill</li><li>Sportsmanship</li><li>Attitude</li><li>Team contribution</li></ul>
-          <a class="bx-btn" href="https://dt5602vnjxv0c.cloudfront.net/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf" target="_blank" rel="noopener">2026 selection process (PDF) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="bx-btn" href="https://www.blslittleleague.org/portals/50558/docs/allstars/2026%20bonney%20lake%20sumner%20little%20league%20allstar%20selection%20process.pdf" target="_blank" rel="noopener">2026 selection process (PDF) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
         </div>
       </li>
       <li class="bx-step">
@@ -280,7 +264,6 @@
         <div class="bx-card">
           <h3>Teams announced</h3>
           <div class="bx-when"><span>2026, softball and baseball</span><b>After May 16</b></div>
-          <p>Selected players hear first, through a special process. Little League International limits how soon teams can be announced publicly. In 2026, BLS posted the teams May 20 to 24.</p>
         </div>
       </li>
       <li class="bx-home" aria-label="Then practice starts">
@@ -297,89 +280,50 @@
       <div class="bx-cell"><svg viewBox="0 0 30 30" aria-hidden="true"><circle cx="15" cy="15" r="12" fill="none" stroke="#ff9db3" stroke-width="2.2"/><path d="M15 8v7l5 3" fill="none" stroke="#ff9db3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg><b>Weekdays too</b><span>Tournament games fall on weekends and weekdays.</span></div>
       <div class="bx-cell"><svg viewBox="0 0 30 30" aria-hidden="true"><path d="M15 27s9-8.2 9-15a9 9 0 0 0-18 0c0 6.8 9 15 9 15z" fill="none" stroke="#ff9db3" stroke-width="2.2" stroke-linejoin="round"/><circle cx="15" cy="12" r="3.2" fill="#ff9db3"/></svg><b>Travel</b><span>Depends on how far the team advances.</span></div>
     </div>
-    <p class="bx-board-foot">Please consider your summer availability <b>before accepting a spot</b>. It takes full dedication to the team and the schedule.</p>
   </section>
 
   <section class="bx-sec bx-docs">
     <header><span class="bx-eyebrow">Paperwork</span><h2>Required documents</h2></header>
+    <!-- GO-LIVE: School Enrollment Form and Tournament Player Verification become links once their PDFs are uploaded to our portal (docs/allstars/). -->
     <div class="bx-docgrid">
       <div class="bx-doc">
         <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         <h3>Birth certificate</h3>
         <p>Original copy</p>
       </div>
-      <a class="bx-doc" href="https://www.littleleague.org/downloads/school-enrollment-form/" target="_blank" rel="noopener">
+      <div class="bx-doc">
         <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         <h3>School Enrollment Form</h3>
-        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
-      <a class="bx-doc" href="https://www.littleleague.org/downloads/medical-release-form/" target="_blank" rel="noopener">
+        <p>Little League form</p>
+      </div>
+      <a class="bx-doc" href="https://www.blslittleleague.org/portals/50558/docs/sports%20connect-bonney%20lake%20sumner%20little%20league-documents/medical_release_form.pdf" target="_blank" rel="noopener">
         <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         <h3>Medical Release Form</h3>
-        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="bx-link">Get the form (PDF) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </a>
-      <a class="bx-doc" href="https://www.littleleague.org/downloads/tournament-player-verification/" target="_blank" rel="noopener">
+      <div class="bx-doc">
         <svg viewBox="0 0 40 48" aria-hidden="true"><path d="M4 2h22l10 10v32a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#00013a"/><path d="M26 2v10h10" fill="#1452a0"/><rect x="2" y="30" width="34" height="7" fill="#cd163f"/><path d="M9 20h18M9 25h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
         <h3>Tournament Player Verification</h3>
-        <span class="bx-link">Get the form <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      </a>
+        <p>Little League form</p>
+      </div>
     </div>
   </section>
 
   <section class="bx-sec bx-white">
-    <header><span class="bx-eyebrow">Last season</span><h2>2026 District 10: dates and results</h2></header>
-    <p class="bx-sub">BLS sent 8 All-Star teams to District 10 in 2026. Double elimination tournaments, dates as posted for 2026.</p>
+    <header><span class="bx-eyebrow">Banner seasons</span><h2>Recent All-Star titles</h2></header>
     <ul class="bx-tally">
-      <li><b>8</b><span><em>All-Star</em> teams</span></li>
-      <li><b>2</b><span>District 10 titles</span></li>
+      <li><b>8</b><span><em>All-Star</em> teams in 2026</span></li>
+      <li><b>2</b><span>District 10 titles in 2026</span></li>
       <li><b>3rd</b><span>At State, <em>8-9-10</em> baseball</span></li>
     </ul>
-    <div class="bx-sched">
-      <div class="bx-sport">
-        <h3>Baseball <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#fff"/><path d="M6.5 4.5c3 3 3 14 0 17M19.5 4.5c-3 3-3 14 0 17" fill="none" stroke="#cd163f" stroke-width="1.6" stroke-dasharray="2 1.6"/></svg></h3>
-        <ol class="bx-fx">
-          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 28</span></div><div><h4>Majors <small>10-11-12</small></h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a></div></li>
-          <li><div class="bx-day"><b>Jun 15</b><span>to Jun 21</span></div><div><h4>9-10-11</h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a></div></li>
-          <li class="bx-won-row"><div class="bx-day"><b>Jun 27</b><span>to Jul 4</span></div><div><h4>8-9-10</h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Federal+Way+National+Little+League+Complex/@47.2942394,-122.3369143,765m/data=!3m1!1e3!4m6!3m5!1s0x549057b2b2d20d51:0xc2699243c73d115b!8m2!3d47.2942358!4d-122.3374046!16s%2Fg%2F1pxq61f0v" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Federal Way National LL, FNWLL Complex</a>
-            <p class="bx-result"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Won the final 19-4 over South Hill, then finished 3rd at State.</span></p></div></li>
-          <li><div class="bx-day"><b>Jun 15</b><span>to Jun 20</span></div><div><h4>Intermediate <small>50/70</small></h4><p>Monday to Saturday</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Pete%E2%80%99s+Pool+Ballfield/@47.1983628,-121.9581796,759m/data=!3m1!1e3!4m6!3m5!1s0x5490ed2d166313b9:0x87785137a44d6f8b!8m2!3d47.1981172!4d-121.9605495!16s%2Fg%2F11tx0b7p1f" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Chinook LL, Pete's Pool</a></div></li>
-          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 28</span></div><div><h4>Juniors</h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Pete%E2%80%99s+Pool+Ballfield/@47.1983628,-121.9581796,759m/data=!3m1!1e3!4m6!3m5!1s0x5490ed2d166313b9:0x87785137a44d6f8b!8m2!3d47.1981172!4d-121.9605495!16s%2Fg%2F11tx0b7p1f" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Chinook LL, Pete's Pool</a>
-            <a class="bx-pin" href="https://www.google.com/maps/place/South+King+County+Baseball+Fields,+S+354th+St,+Auburn,+WA+98001/@47.2844403,-122.2732509,764m/data=!3m2!1e3!4b1!4m6!3m5!1s0x549057e2c5da1d1d:0xb7070158aa37fb4c!8m2!3d47.2846926!4d-122.2732256!16s%2Fg%2F11b8td2nj3" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>South King County Ball Fields</a></div></li>
-        </ol>
-      </div>
-      <div class="bx-col">
-      <div class="bx-sport">
-        <h3>Softball <svg viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="12" fill="#eef93a"/><path d="M6.5 4.5c3 3 3 14 0 17M19.5 4.5c-3 3-3 14 0 17" fill="none" stroke="#cd163f" stroke-width="1.6" stroke-dasharray="2 1.6"/></svg></h3>
-        <ol class="bx-fx">
-          <li class="bx-won-row"><div class="bx-day"><b>Jun 15</b><span>to Jun 20</span></div><div><h4>Majors <small>10-11-12</small></h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a>
-            <p class="bx-result"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Undefeated, then played at State.</span></p></div></li>
-          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 27</span></div><div><h4>9-10-11</h4><p>Monday to Saturday</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a></div></li>
-          <li><div class="bx-day"><b>Jun 27</b><span>to Jul 3</span></div><div><h4>8-9-10</h4><p>Weekdays and weekends</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Real+Life+Church/@47.3653089,-122.1018839,1533m/data=!3m1!1e3!4m6!3m5!1s0x54905fb986d07c6d:0x62a706f49afcae09!8m2!3d47.3665!4d-122.102585!16s%2Fg%2F1hhhchnvn" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Kent LL, Real Life Church</a>
-            <p class="bx-result"><span class="bx-won bx-2nd">2nd in District 10</span></p></div></li>
-          <li><div class="bx-day"><b>Jun 22</b><span>to Jun 27</span></div><div><h4>Juniors</h4><p>Monday to Saturday</p>
-            <a class="bx-pin" href="https://www.google.com/maps/place/Sunset+Park,+Auburn,+WA+98092/@47.2453696,-122.2132551,765m/data=!3m2!1e3!4b1!4m6!3m5!1s0x5490f9d99be96a0b:0xe94878ad888d7a61!8m2!3d47.245507!4d-122.2118935!16s%2Fg%2F11b8tcwyp4" target="_blank" rel="noopener"><svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 13.5s5-4.6 5-8.5A5 5 0 0 0 2 5c0 3.9 5 8.5 5 8.5z" fill="currentColor"/><circle cx="7" cy="5" r="1.8" fill="#fff"/></svg>Auburn LL, Sunset Park</a></div></li>
-        </ol>
-      </div>
-      <div class="bx-more">
-        <h3>After District</h3>
-        <p>District winners advance to State. The 2026 state dates were also subject to change.</p>
-        <a class="bx-link" href="https://www.littleleaguewa.org/state-tournaments/2026-state-tournament-dates-locations/" target="_blank" rel="noopener">2026 State dates and locations <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <p class="bx-nw">In 2026, Washington's Majors baseball and softball state champions played in the Northwest Region tournament in San Bernardino, Calif.</p>
-        <a class="bx-link" href="https://www.littleleague.org/world-series/2026/llbws/tournaments/northwest-region/" target="_blank" rel="noopener">Northwest Region baseball <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <a class="bx-link" href="https://www.littleleague.org/world-series/2026/llsws/tournaments/northwest-region/" target="_blank" rel="noopener">Northwest Region softball <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <a class="bx-link" href="https://www.littleleague.org/region/west-region/" target="_blank" rel="noopener">Little League West Region <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-      </div>
-    </div>
-
+    <ul class="bx-roll">
+      <li><span class="bx-yr">2026</span><div><b>Majors softball All-Stars</b><p class="bx-r"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Undefeated at District, then played at State.</span></p></div></li>
+      <li><span class="bx-yr">2026</span><div><b>8-9-10 baseball All-Stars</b><p class="bx-r"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Won the final 19-4, then finished 3rd at State.</span></p></div></li>
+      <li><span class="bx-yr">2026</span><div><b>8-9-10 softball All-Stars</b><p class="bx-r"><span class="bx-won bx-2nd">2nd in District 10</span></p></div></li>
+      <li class="bx-top"><span class="bx-yr">2025</span><div><b>Majors baseball All-Stars</b><p class="bx-r"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>Northwest Region champions</span><span>District 10 and Washington State champions. Played in the World Series.</span></p></div></li>
+      <li><span class="bx-yr">2025</span><div><b>9-10-11 softball All-Stars</b><p class="bx-r"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Played at State.</span></p></div></li>
+      <li><span class="bx-yr">2025</span><div><b>8-9-10 softball All-Stars</b><p class="bx-r"><span class="bx-won"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><span>Finished 3rd at State.</span></p></div></li>
+    </ul>
   </section>
 
   <!-- GO-LIVE: this link points at the Champions preview page. Before pasting into Sports Connect, replace the href with the real Champions page URL (https://www.blslittleleague.org/Default.aspx?tabid=NNNNNNN). -->

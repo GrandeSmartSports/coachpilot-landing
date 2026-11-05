@@ -37,18 +37,14 @@
 .blsx .bx-bso i.on{background:#e7ecff;box-shadow:0 0 14px rgba(150,185,255,.8);}
 .blsx .bx-bso i.r{background:#ff4d6f;box-shadow:0 0 14px rgba(255,77,111,.8);}
 .blsx .bx-count .d{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:84px;line-height:.9;text-transform:uppercase;color:#fff;text-shadow:0 5px 0 #cd163f;}
-
-/* ---------- sign-up scoreboard ---------- */
-.blsx .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:34px 40px 30px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px 32px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
-.blsx .bx-board .bx-eyebrow{color:#ffb8c6;}
-.blsx .bx-board h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:44px;line-height:1;text-transform:uppercase;color:#fff !important;}
-.blsx .bx-board p{margin-top:10px !important;font-size:16px;line-height:1.55;color:#c6d1ee;max-width:32em;}
-.blsx .bx-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#cd163f;color:#fff !important;font-weight:700;font-size:18px;padding:18px 28px;border-radius:12px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 14px 30px rgba(205,22,63,.35);transition:transform .15s,box-shadow .15s;white-space:nowrap;}
+/* the two actions: new umpires (red) and current umpires (outline, leaves the site) */
+.blsx .bx-acts{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:30px;}
+.blsx .bx-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;background:#cd163f;color:#fff !important;font-weight:700;font-size:18px;line-height:1.2;text-align:center !important;padding:18px 28px;border-radius:12px;box-shadow:0 0 0 3px rgba(255,255,255,.9),0 14px 30px rgba(205,22,63,.35);transition:transform .15s,box-shadow .15s;}
 .blsx .bx-cta:hover{transform:translateY(-2px);box-shadow:0 0 0 3px #fff,0 18px 36px rgba(205,22,63,.45);}
-.blsx .bx-cta svg{width:18px;height:18px;}
-.blsx .bx-board .bx-foot{grid-column:1 / -1;margin-top:4px !important;border-top:1px solid #1b2670;padding-top:16px;font-size:15px;max-width:none;}
-.blsx .bx-board .bx-foot b{color:#fff;}
-.blsx .bx-board .bx-foot a{color:#fff !important;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);}
+.blsx .bx-cta svg{width:18px;height:18px;flex:none;}
+.blsx .bx-cta.ghost{background:transparent;font-size:15px;padding:14px 20px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);}
+.blsx .bx-cta.ghost:hover{box-shadow:inset 0 0 0 2px #fff,0 10px 22px rgba(0,0,0,.25);}
+.blsx .bx-cta.ghost svg{width:15px;height:15px;}
 
 /* ---------- section heads ---------- */
 .blsx .bx-sec{padding:44px 44px 46px;border-radius:18px;}
@@ -70,19 +66,11 @@
 .blsx .bx-ic h3,.blsx .bx-tile h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;margin-bottom:10px !important;}
 .blsx .bx-ic p,.blsx .bx-tile p{font-size:15px;line-height:1.55;color:#4b5675;}
 
-/* ---------- step up: adults + open seat ---------- */
+/* ---------- step up: adults ---------- */
 .blsx .bx-up{background:#fff;border:1px solid var(--line);}
-.blsx .bx-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:28px !important;}
+.blsx .bx-pair{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-top:28px !important;}
 .blsx .bx-tile{background:#f5f7fb;border:1px solid var(--line);border-radius:14px;padding:26px;display:flex;flex-direction:column;align-items:flex-start;}
-.blsx .bx-hot{background:#00013a;border-color:#00013a;box-shadow:0 18px 40px rgba(0,1,58,.22);position:relative;overflow:hidden;}
-.blsx .bx-hot::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;border:2px dashed rgba(255,255,255,.12);}
-.blsx .bx-hot h3{color:#fff !important;font-size:40px !important;}
-.blsx .bx-hot p{color:#dbe2f4;}
-.blsx .bx-chip{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:15px;letter-spacing:.16em;text-transform:uppercase;background:#cd163f;color:#fff;padding:3px 10px;border-radius:6px;margin-bottom:12px;}
-.blsx .bx-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#00013a !important;font-weight:700;font-size:15px;padding:12px 18px;border-radius:10px;margin-top:auto;transition:transform .15s,box-shadow .15s;position:relative;z-index:1;}
-.blsx .bx-hot p + .bx-btn{margin-top:20px;}
-.blsx .bx-btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.25);}
-.blsx .bx-btn svg{width:16px;height:16px;}
+.blsx .bx-tile p{max-width:44em;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -94,19 +82,22 @@
   .blsx .bx-photo{order:-1;min-height:0;}
   .blsx .bx-photo::before{display:none;}
   .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-bottom:5px solid #cd163f;}
-  .blsx .bx-count{position:relative;inset:auto;padding:24px 20px 22px;gap:12px;}
-  .blsx .bx-bso{padding:12px 18px;gap:8px;}
-  .blsx .bx-bso b{font-size:24px;width:24px;}
-  .blsx .bx-bso i{width:22px;height:22px;}
-  .blsx .bx-count .d{font-size:60px;}
+  .blsx .bx-count{position:relative;inset:auto;flex-direction:row;justify-content:center;padding:14px 18px;gap:16px;}
+  .blsx .bx-count::after{display:none;}
+  .blsx .bx-count .k{display:none;}
+  .blsx .bx-bso{padding:8px 12px;gap:5px;}
+  .blsx .bx-bso div{gap:8px;}
+  .blsx .bx-bso b{font-size:18px;width:18px;}
+  .blsx .bx-bso i{width:14px;height:14px;}
+  .blsx .bx-count .d{font-size:40px;text-shadow:0 3px 0 #cd163f;}
   .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
   .blsx .bx-ribbon b{font-size:18px;}
   .blsx .bx-hero h1{font-size:60px;}
   .blsx .bx-hero h1 small{font-size:.52em;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
-  .blsx .bx-board{grid-template-columns:minmax(0,1fr);padding:26px 18px 22px;border-radius:14px;}
-  .blsx .bx-board h2{font-size:36px;}
+  .blsx .bx-lede{margin-top:18px !important;font-size:15px;}
+  .blsx .bx-acts{margin-top:26px;gap:10px;}
   .blsx .bx-cta{width:100%;font-size:17px;padding:16px 20px;}
+  .blsx .bx-cta.ghost{font-size:14.5px;padding:13px 16px;}
   .blsx .bx-sec{padding:28px 18px;border-radius:14px;}
   .blsx .bx-sec h2{font-size:36px;}
   .blsx .bx-cards,.blsx .bx-pair{grid-template-columns:minmax(0,1fr);gap:16px;margin-top:22px !important;}
@@ -116,7 +107,6 @@
   .blsx .bx-ic .bx-icon{grid-column:1;grid-row:1 / span 4;width:48px;height:48px;margin:2px 0 0;}
   .blsx .bx-icon svg{width:26px;height:26px;}
   .blsx .bx-ic .bx-link{justify-self:start;}
-  .blsx .bx-hot h3{font-size:34px !important;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
@@ -144,7 +134,11 @@
           <div><span>Spring 2027</span><b>Umpires</b></div>
         </div>
         <h1><small>Call the game</small><em>Umpire<br>for BLS.</em></h1>
-        <p class="bx-lede">Call Little League baseball and softball games in Bonney Lake, Sumner and Orting. Junior and adult umpires are welcome, and BLS brought back its Junior Umpire Program in 2025.</p>
+        <div class="bx-acts">
+          <a class="bx-cta" href="mailto:info@blslittleleague.org?subject=Umpiring%20for%20BLS">I want to umpire <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+          <a class="bx-cta ghost" href="https://cgisports.com/ump/5745/" target="_blank" rel="noopener">Umpire schedule (opens the umpire scheduling site) <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        </div>
+        <p class="bx-lede">Junior (teen) and adult umpires welcome. Games in Bonney Lake, Sumner and Orting.</p>
       </div>
       <figure class="bx-photo"><div class="bx-frame"><div class="bx-count" role="img" aria-label="Scoreboard showing a full count">
         <span class="k">Full count</span>
@@ -158,18 +152,8 @@
     </div>
   </section>
 
-  <section class="bx-board">
-    <div>
-      <span class="bx-eyebrow">Already a BLS umpire?</span>
-      <h2>Umpire game sign-up</h2>
-      <p>Log in to the BLS umpire schedule to see open games and sign up for the ones you can call.</p>
-    </div>
-    <a class="bx-cta" href="https://cgisports.com/ump/5745/" target="_blank" rel="noopener">Open game sign-up <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-    <p class="bx-foot"><b>New umpire?</b> Email <a href="mailto:info@blslittleleague.org?subject=Umpiring%20for%20BLS">info@blslittleleague.org</a> to ask about joining.</p>
-  </section>
-
   <section class="bx-sec bx-why">
-    <header><span class="bx-eyebrow">Why umpire</span><h2>Worth the call</h2><p class="bx-sub">BLS ran short of umpires for Fall Ball games in September 2026. Each new umpire helps cover more games.</p></header>
+    <header><span class="bx-eyebrow">Why umpire</span><h2>Worth the call</h2></header>
     <div class="bx-cards">
       <article class="bx-ic">
         <span class="bx-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M19.6 12c-.8-1.2-2.1-1.8-3.7-1.8-2.1 0-3.6 1.1-3.6 2.7 0 3.8 7.6 2 7.6 5.9 0 1.8-1.7 3-4 3-1.7 0-3.1-.7-3.9-1.9M16 7.8v2.4M16 21.8v2.4" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg></span>
@@ -185,28 +169,21 @@
       </article>
       <article class="bx-ic">
         <span class="bx-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3.5" width="14" height="25" rx="4" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="16" cy="10" r="2.2" fill="#fff"/><circle cx="16" cy="16" r="2.2" fill="#fff"/><circle cx="16" cy="22" r="2.2" fill="#fff"/></svg></span>
-        <p class="bx-meta">District 10 clinics</p>
+        <p class="bx-meta">Before the season</p>
         <h3>Get trained</h3>
-        <p>District 10 holds umpire clinics each spring, taught in 2025 by Little League World Series umpires. In 2026 BLS also ran its own clinic at Allan Yorke Park.</p>
-        <a class="bx-link" href="https://www.littleleague.org/umpires/" target="_blank" rel="noopener">Umpire resources <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <p>Umpire clinics are held each spring before games start.</p>
       </article>
     </div>
   </section>
 
   <section class="bx-sec bx-up">
-    <header><span class="bx-eyebrow">Adults and leaders</span><h2>Step up to the plate</h2></header>
+    <header><span class="bx-eyebrow">Adults</span><h2>Step up to the plate</h2></header>
     <div class="bx-pair">
       <article class="bx-tile">
         <p class="bx-meta">Adult umpires</p>
         <h3>Get cleared first</h3>
-        <p>The board appoints umpires every year. Adult umpires get cleared like every BLS volunteer: register, pass the background check, and finish Abuse Awareness training.</p>
+        <p>Adult umpires get cleared like every BLS volunteer: register, pass the background check, and finish Abuse Awareness training.</p>
         <a class="bx-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716842">How to get cleared <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </article>
-      <article class="bx-tile bx-hot">
-        <span class="bx-chip">Open board seat</span>
-        <h3>Umpire in Chief</h3>
-        <p>Lead BLS umpires from a seat on the league board.</p>
-        <a class="bx-btn" href="mailto:info@blslittleleague.org?subject=Umpire%20in%20Chief">Ask about the seat <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </article>
     </div>
   </section>

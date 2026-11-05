@@ -6,8 +6,8 @@
   }
  },
  "page_title": "Coach Run Book",
- "status": "Ready after 3 items",
- "summary": "New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.",
+ "status": "Ready after 4 items",
+ "summary": "The 2026 Word run book becomes a phone-first page: get cleared, the season in order, team tools, uniforms and gear, safety, who to ask. Why: coaches can read it at the field, and it stays current.",
  "blurb": "A phone-friendly coach run book to replace the Word document.",
  "sources": [
   {
@@ -106,14 +106,9 @@
    "date": "2026-11-03"
   },
   {
-   "fact": "Baseball pitch counts and rest days by league age; softball uses innings limits.",
+   "fact": "Regular season baseball pitch limits per day: league age 6 to 8, 50; 9 to 10, 75; 11 to 12, 85; 13 to 16, 95. Rest days, league age 14 and under: 1 to 20 pitches 0 days, 21 to 35 one day, 36 to 50 two, 51 to 65 three, 66 or more four. League age 15 to 16: 1 to 30 none, 31 to 45 one, 46 to 60 two, 61 to 75 three, 76 or more four. A pitcher who reaches the limit while facing a batter may finish that batter. Softball Minors and Majors: a maximum of 12 innings in a day, and 7 or more innings in a day means one calendar day of rest.",
    "url": "https://www.littleleague.org/playing-rules/pitch-count/",
-   "date": "2026-11-03"
-  },
-  {
-   "fact": "Diamond Leader is free and required once for tournament (All-Star) managers and coaches.",
-   "url": "https://www.littleleague.org/university/articles/diamond-leader-training/",
-   "date": "2026-11-03"
+   "date": "2026-11-04"
   },
   {
    "fact": "A player suspected of a concussion is removed and returns only with written clearance from a licensed health care provider trained in concussion care.",
@@ -176,14 +171,18 @@
    "date": "2026-11-02"
   },
   {
-   "fact": "Nov 1 board meeting (draft minutes, for approval Dec 6): teams must play 12 games and the league tries to schedule 13 for each division. Spring 2027 registration windows (motion passed): Black Friday sale Nov 27 to 29, $50 off per family; Early Bird Nov 30 to Dec 31, $25 off per family; full price from Jan 1, 2027. Zach Thibodeau is the Softball AA and Coach Pitch Player Agent. The Fields Committee was created to help clean up, clear weeds, set pegs and prepare fields and job boxes, and recruits volunteers. BLS loses storage at the Daffodil shed in late spring when the turf project starts.",
+   "fact": "Nov 1 board meeting (draft minutes, for approval Dec 6): Zach Thibodeau is the Softball AA and Coach Pitch Player Agent. The Fields Committee recruits volunteers for field work. BLS loses storage at the Daffodil shed in late spring when the turf project starts. (Game counts and registration discounts from the same minutes are board operations and prices, and are kept off the page.)",
    "url": "/Users/danielgrande/Workspace/ops/bls-meetings/minutes/2026-11-01-board-minutes.txt",
    "date": "2026-11-01"
   }
  ],
  "later": [
   "Website (Daniel Grande), at go-live: point the Coaches Corner run book clipboard to this page and retire the 2026 Word file link.",
-  "Website (Daniel Grande), at go-live: the Fields link in Gear and fields points at the Fields preview page; swap in the live Fields page URL (see the GO-LIVE comment in the file) and change 'Field addresses: coming soon on the BLS Fields page' to say the addresses are there.",
+  "Website (Daniel Grande), at go-live: the five lineup card links jump to #get-cleared, #meeting, #welcome-email, #gear and #rules using the preview address (Sports Connect pages carry a base URL, so a bare #anchor would leave the page); swap in the live Run Book URL and keep the anchors (see the GO-LIVE comment in the file). Coaches Corner's Get cleared tile and Pitch counts row use the same anchors.",
+  "Website (Daniel Grande), at go-live: the two Fields links in Gear and fields point at the Fields preview page; swap in the live Fields page URL (see the GO-LIVE comment in the file).",
+  "Website (Daniel Grande), at go-live: the League Age link in How teams are formed points at the new BLS League Age preview page; swap in the live League Age page URL (see the GO-LIVE comment in the file).",
+  "Website (Daniel Grande): check the pitch count and rest day tables in Rules, GameChanger and schedules against littleleague.org before each season.",
+  "League Player Agent (Jason Guertin): the Diamond Leader line (free Little League course, required once for All-Star managers and coaches) was cut from the Run Book; it belongs on the All-Stars page if kept.",
   "Website (Daniel Grande): as each 2027 date is set, replace its Date coming soon badge with the date (evaluations, draft, coaches meetings, gear pickup, Opening Day and Picture Day, gear return), and do the same for the gear pickup pill in Gear and fields.",
   "Coaching Coordinator (Rod Vincent): name the owner of this page (Coaching Coordinator, League Player Agent or both) and review the welcome email template.",
   "League Player Agent (Jason Guertin): confirm the draft order rule (last place picks first where teams keep returning players, random order elsewhere). It is left off the page until confirmed.",
@@ -192,31 +191,33 @@
   "Coaching Coordinator (Rod Vincent): the 2027 coaches meeting format and dates (2026 had two: Feb 22 and Mar 22 at Round Table Pizza, Bonney Lake), and whether to call it required (the 2025 Safety Manual calls it a mandatory managers meeting, at least one per team).",
   "Uniforms (Dena Berkey): whether sbuniforms@ still reaches the uniforms lead (the page uses uniforms@ for both sports); which pieces the league supplies and which families buy; whether families pay for custom softball uniforms.",
   "Uniforms (Dena Berkey) and VP of Softball (Luke Kress): who names Minors B teams (the page lets the coach pick or the players choose); baseball team names MLB only or minor league too (the page says professional teams).",
-  "Safety Officer (Daneen Galvez): the 2027 first aid training rule (the 2025 manual says both one coach per team and every coach) and how to complete it; the page shows it as coming soon from the Safety Officer until set.",
+  "Safety Officer (Daneen Galvez): the 2027 first aid training rule (the 2025 manual says both one coach per team and every coach) and how to complete it; the line is off the page until set.",
   "Safety Officer (Daneen Galvez): the 2027 Safety Plan to replace the 2025 manual link, and confirm the Safety Code read-and-sign step with the player agent check.",
   "Scheduler (Daniel Grande): decide whether the league field scheduler (go.blslittleleague.org/fields) runs spring 2027 practices and the spring practice guideline; if yes, add a Practice fields card under Rules, GameChanger and schedules.",
-  "Scheduler (Daniel Grande): once spring 2027 game schedules have a home (Schedules & Scores if that page ships), name and link it in the League schedules box. Until then the page says only that a Schedules & Scores page is planned, and the welcome email names no schedules page.",
+  "Scheduler (Daniel Grande): once spring 2027 game schedules have a home (Schedules & Scores if that page ships), link it in the League schedules box. Until then the box points at the schedule tiles on Coaches Corner, and the welcome email names no schedules page.",
   "Scheduler (Daniel Grande): whether managers still send pitch counts with the final score to scheduler@ (rule 11 of the 1/17/22 baseball handbook); add it to Pitching rules if so.",
   "VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 local rules; the page sends coaches to Coaches Corner, which links the 2025 files.",
-  "Website (Daniel Grande): once the spring 2027 coach and volunteer roles show on the Volunteer page, remove the Coach sign-up opening soon pill and the 'No Programs are Currently Displayed' line from Get cleared step 1.",
+  "Website (Daniel Grande): once the spring 2027 coach and volunteer roles show on the Volunteer page, remove the Coach sign-up opening soon pill from Get cleared step 1.",
   "President (Ramey Harguess): whether to mention the board member interview the Child Protection Program requires (sec. 1A) in the clearance steps.",
   "President (Ramey Harguess): the old 2025 cleared volunteer PDF (tabid 776468) still opens by direct link; removing it is a board call.",
   "Fields and Equipment (Daniel Lane): the spring 2027 gear pickup and return date and place. The Nov 1 minutes say BLS loses storage at the Daffodil shed in late spring, when the turf project starts.",
   "Coaching Coordinator (Rod Vincent): the 2027 District 10 rules and safety clinic dates, once District 10 posts them.",
   "Board: whether to add a line asking coaches to keep roster contact information private. No posted policy says so, so it is not on the page.",
   "Board or Scheduler: choose the spring 2027 GameChanger team setup, then replace the Steps coming soon pill in Rules, GameChanger and schedules.",
-  "President (Ramey Harguess): how cleared volunteers are told they are cleared (the page says only that the league reviews and clears them; Sports Connect sends no notice when someone is marked Passed), and the Abuse Awareness certificate rule (the page says save it; Coaches Corner says no certificate to send).",
+  "President (Ramey Harguess): how cleared volunteers are told they are cleared (the page says only that the league reviews and clears them; Sports Connect sends no notice when someone is marked Passed), and the Abuse Awareness certificate rule (the Run Book now says nothing about a certificate; the Volunteer page says no certificate to send).",
   "Safety Officer (Daneen Galvez): who fills out the Medical Release Form and when coaches collect it. The page says only to keep each form with the roster.",
-  "Website (Daniel Grande): coaches.html and volunteer.html still say 'Then: cleared / Ready for spring 2027'; match the run book's 'Then: league review' wording.",
-  "Website (Daniel Grande): the run book, Volunteer and Board pages send Fields Committee sign-ups to info@; the Fields page uses fields@. Pick one address for all four."
+  "Website (Daniel Grande): volunteer.html still says 'Then: cleared / Ready for spring 2027'; match the run book's 'Then: league review' wording (the Coaches Corner copy of the steps is gone).",
+  "Website (Daniel Grande): the Volunteer and Board pages send Fields Committee sign-ups to info@; the Fields page uses fields@, and the Run Book now sends field helpers to the Fields page. Pick one address for all of them."
  ],
  "required": [
   "Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.",
   "Daniel: put the Fields page live on blslittleleague.org first.",
+  "Daniel: put the League Age page live first. The roster step links to it.",
   "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."
  ],
  "board_calls": [
   "replace the 2026 Word run book with this page. (board's own call, never asked for)",
   "set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates. (board's own call, never asked for)"
- ]
+ ],
+ "long_summary": "New phone-first page that replaces the 2026 Word run book: a lineup card whose five steps tap through to their sections (Get cleared is the big button), the season in order with 2027 dates marked coming soon, the three clearance steps with the training course as the page's only outside button, tap-to-open chapters on teams, rules with the pitch count and rest day tables, GameChanger, a copy-ready family email, uniforms and gear, a short safety section and a who-to-ask directory. Board process notes, prices, the Diamond Leader and Little League rules links and every cloudfront address are off the page."
 }

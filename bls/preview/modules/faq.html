@@ -1,84 +1,39 @@
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
-/* hide this module's own title bar; the hero is the title */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+/* hide this module's own title bar; the card is the title */
 .DnnModule:has(.blsx) > .dfContainer > .dfArea > h2.head{display:none !important;}
 .blsx{--n:#00013a;--r:#cd163f;--b:#1452a0;--l:#eef2f6;--m:#4b5675;--line:#dde3ec;
-  font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
+  font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;margin:0 0 6px;}
 .blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
 .blsx h1,.blsx h2,.blsx h3,.blsx h4,.blsx p,.blsx ol,.blsx ul,.blsx li,.blsx section,.blsx header,.blsx details,.blsx summary{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
 .blsx a{text-decoration:none !important;}
-.blsx label{font-family:Poppins,Arial,sans-serif !important;font-weight:600;}
 .blsx svg{display:block;}
 
-/* ---------- hero ---------- */
-.blsx .bx-hero{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;isolation:isolate;}
-.blsx .bx-field{position:absolute;inset:0;width:100%;height:100%;z-index:-2;}
-.blsx .bx-hero::before{content:"";position:absolute;inset:0;z-index:-1;
-  background:linear-gradient(90deg,rgba(0,1,58,.96) 0%,rgba(0,1,58,.86) 28%,rgba(0,1,58,.3) 56%,rgba(0,1,58,.12) 100%),linear-gradient(0deg,rgba(0,1,58,.35) 0%,rgba(0,1,58,0) 35%);}
-.blsx .bx-hero-in{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);align-items:stretch;min-height:430px;}
-.blsx .bx-copy{align-self:center;padding:44px 24px 44px 40px;}
-.blsx .bx-ribbon{display:inline-flex;align-items:center;gap:12px;background:#cd163f;color:#fff;padding:9px 34px 9px 12px;clip-path:polygon(0 0,100% 0,calc(100% - 16px) 50%,100% 100%,0 100%);border-radius:6px 0 0 6px;margin-bottom:24px;box-shadow:0 10px 24px rgba(205,22,63,.25);}
-.blsx .bx-ribbon svg{width:30px;height:30px;flex:none;}
-.blsx .bx-ribbon span{display:block;font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;opacity:.9;line-height:1.3;}
-.blsx .bx-ribbon b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.05;}
-.blsx .bx-hero h1{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:68px;line-height:.9;letter-spacing:.005em;text-transform:uppercase;color:#fff !important;}
-.blsx .bx-hero h1 em{font-style:normal;display:block;color:#fff;position:relative;width:max-content;max-width:100%;}
-.blsx .bx-hero h1 em::after{content:"";position:absolute;left:2px;right:6px;bottom:-10px;height:7px;border-radius:4px;background:#cd163f;transform:skewX(-18deg);}
-.blsx .bx-hero h1 small{display:block;font-size:.62em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
-.blsx .bx-lede{margin-top:28px !important;font-size:17px;line-height:1.55;color:#dbe2f4;max-width:30em;}
-.blsx .bx-photo{position:relative;min-height:100%;}
-.blsx .bx-photo::before{content:"";position:absolute;inset:0;z-index:1;background:#cd163f;clip-path:polygon(46px 0,54px 0,8px 100%,0 100%);}
-.blsx .bx-frame{position:absolute;inset:0;overflow:hidden;clip-path:polygon(54px 0,100% 0,100% 100%,8px 100%);
-  background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
+/* ---------- title card with the one button ---------- */
+.blsx .fq-hero{position:relative;overflow:hidden;isolation:isolate;border-radius:18px;background:#00013a;color:#fff;padding:30px 32px 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:20px 32px;align-items:center;}
+.blsx .fq-ball{position:absolute;right:-130px;top:-150px;width:400px;height:400px;z-index:-1;}
+.blsx .fq-hero h1{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:64px;line-height:.9;text-transform:uppercase;color:#fff !important;}
+.blsx .fq-hero h1 small{display:block;font-size:.5em;color:#b8c6ea;letter-spacing:.02em;margin-bottom:6px;}
+.blsx .fq-cta{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;background:#cd163f;color:#fff !important;box-shadow:0 14px 30px rgba(205,22,63,.38);transition:transform .15s,box-shadow .15s;}
+.blsx .fq-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(205,22,63,.45);}
+.blsx .fq-cta b{display:block;font-weight:800;font-size:20px;line-height:1.1;}
+.blsx .fq-cta span{display:block;margin-top:3px;font-size:13px;font-weight:600;color:#ffd7df;}
+.blsx .fq-cta > svg{width:26px;height:26px;flex:none;}
+.blsx .fq-cta > svg:last-child{margin-left:auto;width:20px;height:20px;}
 
-/* most asked (inside the hero frame) */
-.blsx .fq-top{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;padding:34px 34px 34px 80px;}
-.blsx .fq-top-k{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;margin-bottom:8px !important;}
-.blsx .fq-top li{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:16px;padding:16px 0;border-top:1px solid rgba(255,255,255,.14);}
-.blsx .fq-top li:first-child{border-top:0;}
-.blsx .fq-top .fq-n{grid-row:span 2;margin-top:2px;}
-.blsx .fq-top .fq-n::before{background:#cd163f;box-shadow:0 0 0 3px rgba(255,255,255,.9);}
-.blsx .fq-top h3{font-family:Poppins,Arial,sans-serif !important;font-size:16px;font-weight:600;line-height:1.3;color:#fff !important;}
-.blsx .fq-top p{margin-top:4px !important;font-size:15px;line-height:1.45;color:#c9d4f2;}
-
-/* number diamond (the live FAQ number) */
-.blsx .fq-n{position:relative;width:36px;height:36px;display:grid;place-items:center;flex:none;}
-.blsx .fq-n::before{content:"";position:absolute;inset:6px;background:#00013a;transform:rotate(45deg);border-radius:4px;transition:background .2s;}
-.blsx .fq-n i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:17px;line-height:1;color:#fff;}
-
-/* ---------- shared section heads ---------- */
-.blsx .bx-sec{padding:44px 44px 40px;border-radius:18px;}
-.blsx .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
-.blsx .bx-sec h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#00013a !important;letter-spacing:.005em;}
-
-/* ---------- browse by topic ---------- */
-.blsx .fq-desk{background:#fff;border:1px solid var(--line);}
-.blsx .fq-desk > input{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
-.blsx .fq-chips{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 8px !important;}
-.blsx .fq-chips label{display:inline-flex;align-items:center;gap:9px;cursor:pointer;margin:0;padding:8px 8px 8px 16px;border-radius:999px;background:#eef2f6;color:#00013a;font-size:14px;line-height:1.2;transition:background .2s,color .2s;}
-.blsx .fq-chips label b{display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:999px;background:#fff;color:#00013a;font-size:12px;font-weight:700;}
-.blsx :is(#fq-f-all:checked ~ .fq-chips [for="fq-f-all"],#fq-f-reg:checked ~ .fq-chips [for="fq-f-reg"],#fq-f-age:checked ~ .fq-chips [for="fq-f-age"],#fq-f-team:checked ~ .fq-chips [for="fq-f-team"],#fq-f-season:checked ~ .fq-chips [for="fq-f-season"],#fq-f-vol:checked ~ .fq-chips [for="fq-f-vol"],#fq-f-as:checked ~ .fq-chips [for="fq-f-as"]){background:#00013a;color:#fff;}
-.blsx :is(#fq-f-all:checked ~ .fq-chips [for="fq-f-all"],#fq-f-reg:checked ~ .fq-chips [for="fq-f-reg"],#fq-f-age:checked ~ .fq-chips [for="fq-f-age"],#fq-f-team:checked ~ .fq-chips [for="fq-f-team"],#fq-f-season:checked ~ .fq-chips [for="fq-f-season"],#fq-f-vol:checked ~ .fq-chips [for="fq-f-vol"],#fq-f-as:checked ~ .fq-chips [for="fq-f-as"]) b{background:#cd163f;color:#fff;}
-.blsx :is(#fq-f-all:focus-visible ~ .fq-chips [for="fq-f-all"],#fq-f-reg:focus-visible ~ .fq-chips [for="fq-f-reg"],#fq-f-age:focus-visible ~ .fq-chips [for="fq-f-age"],#fq-f-team:focus-visible ~ .fq-chips [for="fq-f-team"],#fq-f-season:focus-visible ~ .fq-chips [for="fq-f-season"],#fq-f-vol:focus-visible ~ .fq-chips [for="fq-f-vol"],#fq-f-as:focus-visible ~ .fq-chips [for="fq-f-as"]){outline:3px solid #1452a0;outline-offset:2px;}
-.blsx #fq-f-reg:checked ~ .fq-topics > :not(.fq-t-reg),.blsx #fq-f-age:checked ~ .fq-topics > :not(.fq-t-age),.blsx #fq-f-team:checked ~ .fq-topics > :not(.fq-t-team),.blsx #fq-f-season:checked ~ .fq-topics > :not(.fq-t-season),.blsx #fq-f-vol:checked ~ .fq-topics > :not(.fq-t-vol),.blsx #fq-f-as:checked ~ .fq-topics > :not(.fq-t-as){display:none;}
-
-.blsx .fq-topic{display:grid;grid-template-columns:190px minmax(0,1fr);gap:28px;padding:30px 0 22px;border-top:1px solid var(--line);}
-.blsx .fq-th{display:flex;flex-direction:column;align-items:flex-start;gap:12px;}
-.blsx .fq-ico{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#00013a;color:#fff;}
-.blsx .fq-ico svg{width:24px;height:24px;}
-.blsx .fq-th h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:28px;line-height:1;text-transform:uppercase;color:#00013a !important;}
-.blsx .fq-cnt{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#cd163f;}
-
-/* tap-to-open answers */
-.blsx .fq-item{transition:background .2s,box-shadow .2s;}
+/* ---------- the questions: big tap rows ---------- */
+.blsx .fq-list{background:#fff;border:1px solid var(--line);border-radius:18px;padding:6px 12px;}
 .blsx .fq-item + .fq-item{border-top:1px solid var(--line);}
 .blsx .fq-item[open] + .fq-item,.blsx .fq-item[open]{border-top-color:transparent;}
-.blsx .fq-item summary{display:flex;align-items:center;gap:14px;padding:14px 12px;cursor:pointer;list-style:none;}
+.blsx .fq-item summary{display:flex;align-items:center;gap:14px;min-height:68px;padding:14px 10px;cursor:pointer;list-style:none;}
 .blsx .fq-item summary::-webkit-details-marker{display:none;}
 .blsx .fq-item summary::marker{content:"";}
-.blsx .fq-q{flex:1;font-size:17px;font-weight:600;line-height:1.35;color:#00013a;}
-.blsx .fq-tog{position:relative;flex:none;width:32px;height:32px;border-radius:50%;background:#eef2f6;transition:background .2s,transform .3s;}
-.blsx .fq-tog::before,.blsx .fq-tog::after{content:"";position:absolute;left:50%;top:50%;width:12px;height:2px;margin:-1px 0 0 -6px;border-radius:2px;background:#00013a;}
+.blsx .fq-n{position:relative;width:38px;height:38px;display:grid;place-items:center;flex:none;}
+.blsx .fq-n::before{content:"";position:absolute;inset:6px;background:#00013a;transform:rotate(45deg);border-radius:4px;transition:background .2s;}
+.blsx .fq-n i{position:relative;font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:18px;line-height:1;color:#fff;}
+.blsx .fq-q{flex:1;font-size:18px;font-weight:600;line-height:1.3;color:#00013a;}
+.blsx .fq-tog{position:relative;flex:none;width:34px;height:34px;border-radius:50%;background:#eef2f6;transition:background .2s,transform .3s;}
+.blsx .fq-tog::before,.blsx .fq-tog::after{content:"";position:absolute;left:50%;top:50%;width:13px;height:2.5px;margin:-1px 0 0 -6.5px;border-radius:2px;background:#00013a;}
 .blsx .fq-tog::after{transform:rotate(90deg);}
 .blsx .fq-item[open]{border-radius:14px;background:#f5f7fb;box-shadow:inset 0 0 0 1px var(--line);margin:6px 0 !important;}
 .blsx .fq-item[open] .fq-n::before{background:#cd163f;}
@@ -87,7 +42,7 @@
 .blsx .fq-item summary:focus-visible{outline:3px solid #1452a0;outline-offset:-3px;border-radius:14px;}
 .blsx .fq-a{padding:2px 22px 22px 62px;max-width:46em;}
 .blsx .fq-a > * + *{margin-top:12px !important;}
-.blsx .fq-a p,.blsx .fq-a li{font-size:16px;line-height:1.65;color:#3c4664;}
+.blsx .fq-a p,.blsx .fq-a li{font-size:16px;line-height:1.6;color:#3c4664;}
 .blsx .fq-a a{color:#1452a0 !important;font-weight:600;border-bottom:1.5px solid rgba(20,82,160,.35);overflow-wrap:anywhere;}
 .blsx .fq-a a:hover{border-bottom-color:#1452a0;}
 .blsx .fq-a strong{color:#00013a;font-weight:600;}
@@ -99,31 +54,22 @@
 .blsx .fq-now span{color:#dbe2f4;}
 .blsx .fq-now strong{color:#fff !important;}
 .blsx .fq-note{font-size:15px !important;line-height:1.5 !important;color:#4b5675 !important;background:#fff;border-left:3px solid #cd163f;border-radius:0 8px 8px 0;padding:9px 14px;}
-.blsx .fq-quote{background:#fff;border-left:3px solid #1452a0;border-radius:0 10px 10px 0;padding:14px 18px;}
-.blsx .fq-quote p{color:#00013a;font-weight:500;}
-.blsx .fq-src{display:block;margin-top:6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#1452a0;}
 .blsx .fq-dots li{position:relative;padding-left:20px;}
 .blsx .fq-dots li + li{margin-top:6px !important;}
 .blsx .fq-dots li::before{content:"";position:absolute;left:3px;top:.68em;width:7px;height:7px;background:#cd163f;transform:rotate(45deg);}
-.blsx .fq-abc{counter-reset:fq;}
-.blsx .fq-abc li{position:relative;padding-left:36px;counter-increment:fq;}
-.blsx .fq-abc li + li{margin-top:8px !important;}
-.blsx .fq-abc li::before{content:counter(fq,lower-alpha);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:6px;background:#00013a;color:#fff;font:700 13px/24px Poppins,Arial,sans-serif;text-align:center;}
 .blsx .fq-split{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
 .blsx .fq-split > div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
 .blsx .fq-split h4{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:20px;line-height:1.1;text-transform:uppercase;color:#00013a !important;margin-bottom:6px !important;}
 .blsx .fq-split p,.blsx .fq-split li{font-size:15px;line-height:1.55;}
-.blsx .fq-ages{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
-.blsx .fq-ages li{background:#1452a0;border-radius:10px;padding:10px 4px 9px;text-align:center !important;color:#fff;}
-.blsx .fq-ages li:nth-child(n+3){background:#00013a;}
-.blsx .fq-ages span{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;line-height:1.2;color:#c9d4f2;text-align:center !important;}
-.blsx .fq-ages b{display:block;white-space:nowrap;margin-top:3px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:26px;line-height:1;color:#fff;text-align:center !important;}
+.blsx .fq-cut{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.blsx .fq-cut li{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;}
+.blsx .fq-cut b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#00013a;}
+.blsx .fq-cut span{display:block;margin-top:4px;font-size:14px;color:#4b5675;}
 
 /* ---------- still stuck ---------- */
-.blsx .fq-help{position:relative;overflow:hidden;isolation:isolate;border-radius:18px;background:#cd163f;color:#fff;padding:38px 40px 30px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 36px;align-items:center;}
-.blsx .fq-ball{position:absolute;right:-120px;top:-150px;width:400px;height:400px;z-index:-1;}
+.blsx .fq-help{position:relative;overflow:hidden;isolation:isolate;border-radius:18px;background:#cd163f;color:#fff;padding:34px 36px 30px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 36px;align-items:center;}
+.blsx .fq-help .fq-ball{right:-120px;top:-150px;}
 .blsx .fq-help h2{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:46px;line-height:1;text-transform:uppercase;color:#fff !important;}
-.blsx .fq-help > div > p{margin-top:8px !important;font-size:16px;line-height:1.55;color:#ffe3ea;}
 .blsx .fq-mail{display:flex;align-items:center;gap:14px;background:#fff;border-radius:14px;padding:16px 18px;color:#00013a !important;box-shadow:0 16px 34px rgba(80,0,20,.25);transition:transform .2s;}
 .blsx .fq-mail:hover{transform:translateY(-2px);}
 .blsx .fq-mail i{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#00013a;}
@@ -131,351 +77,127 @@
 .blsx .fq-mail span,.blsx .fq-mail small,.blsx .fq-mail b{text-align:left !important;}
 .blsx .fq-mail small{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cd163f;}
 .blsx .fq-mail b{display:block;font-size:18px;font-weight:700;color:#00013a;overflow-wrap:anywhere;}
-.blsx .fq-more{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;border-top:1px solid rgba(255,255,255,.3);padding-top:20px;}
-.blsx .fq-more .fq-n::before{background:#fff;}
-.blsx .fq-more .fq-n i{color:#cd163f;}
-.blsx .fq-more h3{flex:1 1 260px;font-family:Poppins,Arial,sans-serif !important;font-size:16px;font-weight:600;line-height:1.35;color:#fff !important;}
-.blsx .fq-more ul{display:flex;flex-wrap:wrap;gap:8px;}
-.blsx .fq-more ul a{display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(255,255,255,.7);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;color:#fff !important;transition:background .2s,color .2s;}
-.blsx .fq-more ul a:hover{background:#fff;color:#cd163f !important;}
-.blsx .fq-more ul svg{width:14px;height:14px;}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
-  .blsx{gap:16px;}
-  .blsx .bx-hero{border-radius:14px;}
-  .blsx .bx-hero::before{background:linear-gradient(180deg,rgba(0,1,58,.94) 0%,rgba(0,1,58,.82) 48%,rgba(0,1,58,.55) 100%);}
-  .blsx .bx-hero-in{grid-template-columns:1fr;min-height:0;}
-  .blsx .bx-field{bottom:auto;height:360px;}
-  .blsx .bx-copy{padding:26px 20px 30px;}
-  .blsx .bx-ribbon{margin-bottom:20px;padding-right:30px;}
-  .blsx .bx-ribbon b{font-size:18px;}
-  .blsx .bx-hero h1{font-size:56px;}
-  .blsx .bx-lede{margin-top:24px !important;font-size:16px;}
-  .blsx .bx-photo{min-height:0;}
-  .blsx .bx-photo::before{display:none;}
-  .blsx .bx-frame{position:relative;inset:auto;clip-path:none;border-top:5px solid #cd163f;}
-  .blsx .fq-top{padding:22px 20px 10px;}
-  .blsx .fq-top li{grid-template-columns:36px minmax(0,1fr);column-gap:12px;}
-  .blsx .fq-top h3{font-size:16px;}
-  .blsx .fq-top p{font-size:15px;}
-  .blsx .bx-sec{padding:28px 16px 18px;border-radius:14px;}
-  .blsx .bx-sec h2{font-size:36px;}
-  .blsx .fq-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0 4px !important;}
-  .blsx .fq-chips label{justify-content:space-between;min-height:48px;padding:8px 8px 8px 13px;border-radius:12px;font-size:14px;line-height:1.2;}
-  .blsx .fq-chips label[for="fq-f-all"]{grid-column:1 / -1;}
-  .blsx .fq-chips label b{display:none;}
-  .blsx .fq-topic{grid-template-columns:1fr;gap:10px;padding:22px 0 12px;}
-  .blsx .fq-th{flex-direction:row;align-items:center;flex-wrap:wrap;gap:4px 12px;}
-  .blsx .fq-ico{width:40px;height:40px;border-radius:10px;}
-  .blsx .fq-ico svg{width:21px;height:21px;}
-  .blsx .fq-th h3{font-size:26px;}
-  .blsx .fq-cnt{flex-basis:100%;padding-left:52px;margin-top:-6px;}
-  .blsx .fq-item summary{gap:10px;padding:13px 6px;}
-  .blsx .fq-n{width:32px;height:32px;}
+  .blsx{gap:14px;}
+  .blsx .fq-hero{grid-template-columns:1fr;gap:18px;padding:22px 18px 20px;border-radius:14px;}
+  .blsx .fq-ball{width:260px;height:260px;right:-110px;top:-120px;}
+  .blsx .fq-hero h1{font-size:50px;}
+  .blsx .fq-cta{padding:15px 16px;}
+  .blsx .fq-cta b{font-size:18px;}
+  .blsx .fq-list{border-radius:14px;padding:4px 8px;}
+  .blsx .fq-item summary{gap:10px;min-height:62px;padding:12px 6px;}
+  .blsx .fq-n{width:34px;height:34px;}
   .blsx .fq-n i{font-size:16px;}
   .blsx .fq-q{font-size:16px;}
-  .blsx .fq-tog{width:30px;height:30px;}
+  .blsx .fq-tog{width:32px;height:32px;}
   .blsx .fq-a{padding:0 14px 18px;}
   .blsx .fq-now{flex-direction:column;align-items:flex-start;gap:8px;}
   .blsx .fq-split{grid-template-columns:1fr;}
-  .blsx .fq-ages{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .blsx .fq-ages li{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:9px 12px;}
-  .blsx .fq-ages span{white-space:nowrap;}
-  .blsx .fq-ages li:last-child{grid-column:1 / -1;}
-  .blsx .fq-ages span{font-size:13px;text-align:left !important;color:#fff;}
-  .blsx .fq-ages b{font-size:22px;margin:0;}
   .blsx .fq-help{grid-template-columns:1fr;gap:18px;padding:28px 18px 24px;border-radius:14px;}
-  .blsx .fq-ball{width:260px;height:260px;right:-110px;top:-110px;}
   .blsx .fq-help h2{font-size:40px;}
   .blsx .fq-mail{padding:14px;gap:12px;}
   .blsx .fq-mail b{font-size:16px;}
-  .blsx .fq-more h3{flex-basis:calc(100% - 50px);}
 }
-@media (hover:hover){.blsx .fq-chips label:hover{background:#dfe6f0;}.blsx .fq-item summary:hover .fq-q{color:#1452a0;}}
+@media (hover:hover){.blsx .fq-item summary:hover .fq-q{color:#1452a0;}}
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
 <div class="blsx">
 
-  <section class="bx-hero">
-    <svg class="bx-field" viewBox="0 0 1200 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><defs>
-  <linearGradient id="fqSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00013a"/><stop offset="1" stop-color="#06104e"/></linearGradient>
-  <linearGradient id="fqGrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3a3d"/><stop offset="1" stop-color="#0f4a3e"/></linearGradient>
-  <linearGradient id="fqDirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e3d2e"/><stop offset="1" stop-color="#8a4c33"/></linearGradient>
-  <radialGradient id="fqGlowL" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".18" stop-color="#cfe0ff" stop-opacity=".45"/><stop offset="1" stop-color="#1452a0" stop-opacity="0"/></radialGradient>
-  <filter id="fqGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .22 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-  </defs><rect width="1200" height="560" fill="url(#fqSky)"/><path d="M-18685.5 779.6L19965.5 779.6L1551.9 160.2L-271.9 160.2Z" fill="url(#fqGrass)"/><clipPath id="fqIn"><path d="M640 523.2L5574.9 869.6L4797.7 749.2L4229.8 662.2L3795.6 596.4L3452 544.9L3172.7 503.6L2940.5 469.9L2744 441.7L2575.1 418L2428.1 397.7L2298.6 380.2L2183.5 364.9L2080.2 351.6L1986.8 339.8L1901.7 329.3L1823.8 319.9L1751.9 311.6L1685.3 304L1623.3 297.2L1565.2 291.1L1510.7 285.5L1459.3 280.4L1410.7 275.8L1364.4 271.6L1320.4 267.7L1278.2 264.2L1237.9 260.9L1199 258L1161.6 255.3L1125.5 252.8L1090.4 250.6L1056.4 248.6L1023.3 246.7L990.9 245L959.4 243.5L928.4 242.2L898.1 241L868.2 239.9L838.7 239L809.7 238.2L780.9 237.6L752.4 237L724.2 236.6L696 236.3L668 236.1L640 236.1L612 236.1L584 236.3L555.8 236.6L527.6 237L499.1 237.6L470.3 238.2L441.3 239L411.8 239.9L381.9 241L351.6 242.2L320.6 243.5L289.1 245L256.7 246.7L223.6 248.6L189.6 250.6L154.5 252.8L118.4 255.3L81 258L42.1 260.9L1.8 264.2L-40.4 267.7L-84.4 271.6L-130.7 275.8L-179.3 280.4L-230.7 285.5L-285.2 291.1L-343.3 297.2L-405.3 304L-471.9 311.6L-543.8 319.9L-621.7 329.3L-706.8 339.8L-800.2 351.6L-903.5 364.9L-1018.6 380.2L-1148.1 397.7L-1295.1 418L-1464 441.7L-1660.5 469.9L-1892.7 503.6L-2172 544.9L-2515.6 596.4L-2949.8 662.2L-3517.7 749.2L-4294.9 869.6Z"/></clipPath><g clip-path="url(#fqIn)" fill="#ffffff" fill-opacity=".045"><path d="M-5181.9 663.6L-4987.8 663.6L-474.5 235.3L-512.9 235.3Z"/><path d="M-4793.7 663.6L-4599.7 663.6L-397.6 235.3L-436.1 235.3Z"/><path d="M-4405.6 663.6L-4211.6 663.6L-320.8 235.3L-359.2 235.3Z"/><path d="M-4017.5 663.6L-3823.4 663.6L-243.9 235.3L-282.3 235.3Z"/><path d="M-3629.4 663.6L-3435.3 663.6L-167 235.3L-205.5 235.3Z"/><path d="M-3241.2 663.6L-3047.2 663.6L-90.2 235.3L-128.6 235.3Z"/><path d="M-2853.1 663.6L-2659.1 663.6L-13.3 235.3L-51.8 235.3Z"/><path d="M-2465 663.6L-2270.9 663.6L63.5 235.3L25.1 235.3Z"/><path d="M-2076.9 663.6L-1882.8 663.6L140.4 235.3L102 235.3Z"/><path d="M-1688.7 663.6L-1494.7 663.6L217.3 235.3L178.8 235.3Z"/><path d="M-1300.6 663.6L-1106.6 663.6L294.1 235.3L255.7 235.3Z"/><path d="M-912.5 663.6L-718.4 663.6L371 235.3L332.6 235.3Z"/><path d="M-524.4 663.6L-330.3 663.6L447.8 235.3L409.4 235.3Z"/><path d="M-136.2 663.6L57.8 663.6L524.7 235.3L486.3 235.3Z"/><path d="M251.9 663.6L445.9 663.6L601.6 235.3L563.1 235.3Z"/><path d="M640 663.6L834.1 663.6L678.4 235.3L640 235.3Z"/><path d="M1028.1 663.6L1222.2 663.6L755.3 235.3L716.9 235.3Z"/><path d="M1416.2 663.6L1610.3 663.6L832.2 235.3L793.7 235.3Z"/><path d="M1804.4 663.6L1998.4 663.6L909 235.3L870.6 235.3Z"/><path d="M2192.5 663.6L2386.6 663.6L985.9 235.3L947.4 235.3Z"/><path d="M2580.6 663.6L2774.7 663.6L1062.7 235.3L1024.3 235.3Z"/><path d="M2968.7 663.6L3162.8 663.6L1139.6 235.3L1101.2 235.3Z"/><path d="M3356.9 663.6L3550.9 663.6L1216.5 235.3L1178 235.3Z"/><path d="M3745 663.6L3939.1 663.6L1293.3 235.3L1254.9 235.3Z"/><path d="M4133.1 663.6L4327.2 663.6L1370.2 235.3L1331.8 235.3Z"/><path d="M4521.2 663.6L4715.3 663.6L1447 235.3L1408.6 235.3Z"/><path d="M4909.4 663.6L5103.4 663.6L1523.9 235.3L1485.5 235.3Z"/><path d="M5297.5 663.6L5491.6 663.6L1600.8 235.3L1562.3 235.3Z"/><path d="M5685.6 663.6L5879.7 663.6L1677.6 235.3L1639.2 235.3Z"/><path d="M6073.7 663.6L6267.8 663.6L1754.5 235.3L1716.1 235.3Z"/></g><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-88098.6 1025L55.5 135.5L1224.5 135.5L89378.6 1025Z" fill="#000530"/><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-4730.3 977.6L-4101.1 874.4L-3603.5 793.3L-3199.5 727.9L-2864.7 674L-2582.4 629L-2340.9 590.7L-2131.6 557.9L-1948.4 529.4L-1786.4 504.4L-1642.1 482.4L-1512.5 462.9L-1395.4 445.4L-1288.9 429.7L-1191.6 415.5L-1102.3 402.7L-1019.8 391L-943.4 380.3L-872.4 370.5L-806.1 361.6L-744 353.3L-685.7 345.6L-630.8 338.5L-578.9 331.9L-529.8 325.8L-483.2 320.1L-438.9 314.8L-396.7 309.8L-356.3 305.2L-317.7 300.8L-280.7 296.7L-245.1 292.9L-210.9 289.3L-178 285.9L-146.2 282.7L-115.4 279.7L-85.7 276.9L-56.8 274.2L-28.9 271.7L-1.7 269.3L24.8 267.1L50.5 265L75.7 263L100.2 261.1L124.2 259.3L147.6 257.6L170.6 256.1L193.1 254.6L215.2 253.2L236.9 251.9L258.2 250.7L279.2 249.5L299.9 248.4L320.3 247.4L340.4 246.5L360.3 245.6L379.9 244.8L399.3 244.1L418.6 243.4L437.6 242.8L456.5 242.2L475.3 241.7L493.9 241.3L512.4 240.9L530.8 240.5L549.1 240.3L567.4 240L585.6 239.8L603.7 239.7L621.9 239.6L640 239.6L658.1 239.6L676.3 239.7L694.4 239.8L712.6 240L730.9 240.3L749.2 240.5L767.6 240.9L786.1 241.3L804.7 241.7L823.5 242.2L842.4 242.8L861.4 243.4L880.7 244.1L900.1 244.8L919.7 245.6L939.6 246.5L959.7 247.4L980.1 248.4L1000.8 249.5L1021.8 250.7L1043.1 251.9L1064.8 253.2L1086.9 254.6L1109.4 256.1L1132.4 257.6L1155.8 259.3L1179.8 261.1L1204.3 263L1229.5 265L1255.2 267.1L1281.7 269.3L1308.9 271.7L1336.8 274.2L1365.7 276.9L1395.4 279.7L1426.2 282.7L1458 285.9L1490.9 289.3L1525.1 292.9L1560.7 296.7L1597.7 300.8L1636.3 305.2L1676.7 309.8L1718.9 314.8L1763.2 320.1L1809.8 325.8L1858.9 331.9L1910.8 338.5L1965.7 345.6L2024 353.3L2086.1 361.6L2152.4 370.5L2223.4 380.3L2299.8 391L2382.3 402.7L2471.6 415.5L2568.9 429.7L2675.4 445.4L2792.5 462.9L2922.1 482.4L3066.4 504.4L3228.4 529.4L3411.6 557.9L3620.9 590.7L3862.4 629L4144.7 674L4479.5 727.9L4883.5 793.3L5381.1 874.4L6010.3 977.6Z" fill="#5a3527" fill-opacity=".85"/><path d="M6571.3 1025L5810.7 906.2L5222.7 814.9L4754.1 742.5L4371.3 683.8L4052.5 635.2L3782.5 594.4L3550.7 559.6L3349.2 529.6L3172.3 503.6L3015.6 480.7L2875.6 460.5L2749.7 442.5L2635.7 426.5L2532 412L2437 398.9L2349.6 387L2269 376.2L2194.1 366.3L2124.5 357.3L2059.4 348.9L1998.4 341.2L1941.1 334.1L1887.1 327.5L1836 321.4L1787.6 315.7L1741.7 310.4L1697.9 305.4L1656.2 300.8L1616.4 296.5L1578.2 292.4L1541.6 288.6L1506.4 285L1472.5 281.7L1439.8 278.5L1408.3 275.6L1377.8 272.8L1348.3 270.1L1319.6 267.6L1291.8 265.3L1264.8 263.1L1238.5 261L1212.9 259L1187.8 257.2L1163.4 255.4L1139.5 253.8L1116.1 252.2L1093.2 250.8L1070.8 249.4L1048.7 248.1L1027 246.9L1005.7 245.8L984.7 244.7L964 243.7L943.6 242.8L923.4 242L903.5 241.2L883.8 240.5L864.3 239.8L845 239.2L825.8 238.6L806.8 238.1L788 237.7L769.2 237.3L750.6 237L732 236.7L713.5 236.5L695.1 236.3L676.7 236.2L658.3 236.1L640 236.1L621.7 236.1L603.3 236.2L584.9 236.3L566.5 236.5L548 236.7L529.4 237L510.8 237.3L492 237.7L473.2 238.1L454.2 238.6L435 239.2L415.7 239.8L396.2 240.5L376.5 241.2L356.6 242L336.4 242.8L316 243.7L295.3 244.7L274.3 245.8L253 246.9L231.3 248.1L209.2 249.4L186.8 250.8L163.9 252.2L140.5 253.8L116.6 255.4L92.2 257.2L67.1 259L41.5 261L15.2 263.1L-11.8 265.3L-39.6 267.6L-68.3 270.1L-97.8 272.8L-128.3 275.6L-159.8 278.5L-192.5 281.7L-226.4 285L-261.6 288.6L-298.2 292.4L-336.4 296.5L-376.2 300.8L-417.9 305.4L-461.7 310.4L-507.6 315.7L-556 321.4L-607.1 327.5L-661.1 334.1L-718.4 341.2L-779.4 348.9L-844.5 357.3L-914.1 366.3L-989 376.2L-1069.6 387L-1157 398.9L-1252 412L-1355.7 426.5L-1469.7 442.5L-1595.6 460.5L-1735.6 480.7L-1892.3 503.6L-2069.2 529.6L-2270.7 559.6L-2502.5 594.4L-2772.5 635.2L-3091.3 683.8L-3474.1 742.5L-3942.7 814.9L-4530.7 906.2L-5291.3 1025L-5464 836.1L-4660.8 740L-4044.1 666.6L-3555.3 608.8L-3157.8 562L-2827.9 523.5L-2549.4 491.2L-2310.8 463.8L-2103.9 440.2L-1922.6 419.7L-1762.2 401.8L-1619.2 386L-1490.8 371.9L-1374.6 359.3L-1269 348L-1172.4 337.8L-1083.7 328.6L-1001.8 320.2L-925.9 312.5L-855.2 305.4L-789.3 298.9L-727.6 292.9L-669.6 287.4L-614.9 282.3L-563.3 277.5L-514.4 273.1L-468 269L-423.9 265.2L-381.8 261.6L-341.5 258.2L-303 255.1L-266.1 252.1L-230.6 249.4L-196.5 246.8L-163.6 244.3L-131.8 242L-101.1 239.8L-71.4 237.8L-42.6 235.9L-14.6 234.1L12.6 232.4L39 230.7L64.8 229.2L89.9 227.8L114.5 226.4L138.5 225.2L162 224L185 222.9L207.6 221.8L229.8 220.8L251.6 219.9L273 219L294.1 218.2L314.9 217.4L335.4 216.7L355.6 216.1L375.6 215.4L395.4 214.9L414.9 214.4L434.3 213.9L453.5 213.5L472.6 213.1L491.5 212.8L510.3 212.5L529 212.2L547.7 212L566.2 211.8L584.7 211.7L603.2 211.6L621.6 211.5L640 211.5L658.4 211.5L676.8 211.6L695.3 211.7L713.8 211.8L732.3 212L751 212.2L769.7 212.5L788.5 212.8L807.4 213.1L826.5 213.5L845.7 213.9L865.1 214.4L884.6 214.9L904.4 215.4L924.4 216.1L944.6 216.7L965.1 217.4L985.9 218.2L1007 219L1028.4 219.9L1050.2 220.8L1072.4 221.8L1095 222.9L1118 224L1141.5 225.2L1165.5 226.4L1190.1 227.8L1215.2 229.2L1241 230.7L1267.4 232.4L1294.6 234.1L1322.6 235.9L1351.4 237.8L1381.1 239.8L1411.8 242L1443.6 244.3L1476.5 246.8L1510.6 249.4L1546.1 252.1L1583 255.1L1621.5 258.2L1661.8 261.6L1703.9 265.2L1748 269L1794.4 273.1L1843.3 277.5L1894.9 282.3L1949.6 287.4L2007.6 292.9L2069.3 298.9L2135.2 305.4L2205.9 312.5L2281.8 320.2L2363.7 328.6L2452.4 337.8L2549 348L2654.6 359.3L2770.8 371.9L2899.2 386L3042.2 401.8L3202.6 419.7L3383.9 440.2L3590.8 463.8L3829.4 491.2L4107.9 523.5L4437.8 562L4835.3 608.8L5324.1 666.6L5940.8 740L6744 836.1Z" fill="#000327"/><path d="M6744 836.1L5940.8 740L5324.1 666.6L4835.3 608.8L4437.8 562L4107.9 523.5L3829.4 491.2L3590.8 463.8L3383.9 440.2L3202.6 419.7L3042.2 401.8L2899.2 386L2770.8 371.9L2654.6 359.3L2549 348L2452.4 337.8L2363.7 328.6L2281.8 320.2L2205.9 312.5L2135.2 305.4L2069.3 298.9L2007.6 292.9L1949.6 287.4L1894.9 282.3L1843.3 277.5L1794.4 273.1L1748 269L1703.9 265.2L1661.8 261.6L1621.5 258.2L1583 255.1L1546.1 252.1L1510.6 249.4L1476.5 246.8L1443.6 244.3L1411.8 242L1381.1 239.8L1351.4 237.8L1322.6 235.9L1294.6 234.1L1267.4 232.4L1241 230.7L1215.2 229.2L1190.1 227.8L1165.5 226.4L1141.5 225.2L1118 224L1095 222.9L1072.4 221.8L1050.2 220.8L1028.4 219.9L1007 219L985.9 218.2L965.1 217.4L944.6 216.7L924.4 216.1L904.4 215.4L884.6 214.9L865.1 214.4L845.7 213.9L826.5 213.5L807.4 213.1L788.5 212.8L769.7 212.5L751 212.2L732.3 212L713.8 211.8L695.3 211.7L676.8 211.6L658.4 211.5L640 211.5L621.6 211.5L603.2 211.6L584.7 211.7L566.2 211.8L547.7 212L529 212.2L510.3 212.5L491.5 212.8L472.6 213.1L453.5 213.5L434.3 213.9L414.9 214.4L395.4 214.9L375.6 215.4L355.6 216.1L335.4 216.7L314.9 217.4L294.1 218.2L273 219L251.6 219.9L229.8 220.8L207.6 221.8L185 222.9L162 224L138.5 225.2L114.5 226.4L89.9 227.8L64.8 229.2L39 230.7L12.6 232.4L-14.6 234.1L-42.6 235.9L-71.4 237.8L-101.1 239.8L-131.8 242L-163.6 244.3L-196.5 246.8L-230.6 249.4L-266.1 252.1L-303 255.1L-341.5 258.2L-381.8 261.6L-423.9 265.2L-468 269L-514.4 273.1L-563.3 277.5L-614.9 282.3L-669.6 287.4L-727.6 292.9L-789.3 298.9L-855.2 305.4L-925.9 312.5L-1001.8 320.2L-1083.7 328.6L-1172.4 337.8L-1269 348L-1374.6 359.3L-1490.8 371.9L-1619.2 386L-1762.2 401.8L-1922.6 419.7L-2103.9 440.2L-2310.8 463.8L-2549.4 491.2L-2827.9 523.5L-3157.8 562L-3555.3 608.8L-4044.1 666.6L-4660.8 740L-5464 836.1" fill="none" stroke="#cd163f" stroke-width="2.2"/><line x1="130.3" y1="232.4" x2="115.2" y2="16.6" stroke="#0a1660" stroke-width="2"/><rect x="102.2" y="7.6" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="115.2" cy="12.6" r="170" fill="url(#fqGlowL)" opacity=".7"/><line x1="1149.7" y1="232.4" x2="1164.8" y2="16.6" stroke="#0a1660" stroke-width="2"/><rect x="1151.8" y="7.6" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="1164.8" cy="12.6" r="170" fill="url(#fqGlowL)" opacity=".7"/><line x1="518.7" y1="221.4" x2="515.5" y2="29" stroke="#0a1660" stroke-width="2"/><rect x="502.5" y="20" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="515.5" cy="25" r="170" fill="url(#fqGlowL)" opacity=".7"/><line x1="822" y1="221.4" x2="826.8" y2="29" stroke="#0a1660" stroke-width="2"/><rect x="813.8" y="20" width="26" height="10" rx="1.5" fill="#e9f0ff"/><circle cx="826.8" cy="25" r="170" fill="url(#fqGlowL)" opacity=".7"/><path d="M640 556.9L1021.5 392L1073.2 397.7L1067.7 391.8L1061.3 386.1L1054.1 380.7L1046.1 375.4L1037.4 370.4L1028.1 365.6L1018.1 361L1007.7 356.6L996.8 352.4L985.4 348.4L973.7 344.6L961.6 341L949.2 337.6L936.5 334.4L923.6 331.4L910.4 328.5L897 325.8L883.5 323.3L869.8 321L856 318.8L842.1 316.8L828 314.9L813.8 313.2L799.6 311.6L785.3 310.2L770.9 308.9L756.5 307.8L742 306.8L727.5 305.9L713 305.2L698.4 304.6L683.8 304.2L669.2 303.8L654.6 303.6L640 303.6L625.4 303.6L610.8 303.8L596.2 304.2L581.6 304.6L567 305.2L552.5 305.9L538 306.8L523.5 307.8L509.1 308.9L494.7 310.2L480.4 311.6L466.2 313.2L452 314.9L437.9 316.8L424 318.8L410.2 321L396.5 323.3L383 325.8L369.6 328.5L356.4 331.4L343.5 334.4L330.8 337.6L318.4 341L306.3 344.6L294.6 348.4L283.2 352.4L272.3 356.6L261.9 361L251.9 365.6L242.6 370.4L233.9 375.4L225.9 380.7L218.7 386.1L212.3 391.8L206.8 397.7L258.5 392Z" fill="url(#fqDirt)"/><path d="M640 499.4L953.1 382.3L640 321.5L326.9 382.3Z" fill="#0f4a3e"/><g clip-path="url(#fqIn)"><path d="M640 499.4L953.1 382.3L640 321.5L326.9 382.3Z" fill="#ffffff" fill-opacity=".04"/></g><path d="M783 523.2L778.1 514.5L770.2 506.4L759.6 498.9L746.6 492.4L731.8 486.7L715.3 482L697.5 478.3L678.9 475.6L659.6 474L640 473.5L620.4 474L601.1 475.6L582.5 478.3L564.7 482L548.2 486.7L533.4 492.4L520.4 498.9L509.8 506.4L501.9 514.5L497 523.2L495.5 532.3L497.6 541.6L503.6 550.9L513.5 559.8L527.3 568L544.8 575.4L565.5 581.4L588.8 586L613.9 588.8L640 589.8L666.1 588.8L691.2 586L714.5 581.4L735.2 575.4L752.7 568L766.5 559.8L776.4 550.9L782.4 541.6L784.5 532.3L783 523.2Z" fill="#7f4631"/><path d="M1052.4 382.3L1047.9 380L1042.2 377.8L1035.4 375.7L1027.8 373.8L1019.4 372.2L1010.6 370.8L1001.5 369.7L992.2 368.8L983.1 368.4L974.2 368.2L965.8 368.4L958 368.8L951.1 369.7L945 370.8L940.1 372.2L936.4 373.8L934 375.7L933 377.8L933.5 380L935.5 382.3L939 384.7L943.9 387L950.2 389.3L957.7 391.4L966.3 393.3L975.7 395L985.6 396.3L995.9 397.3L1006.2 398L1016.2 398.2L1025.6 398L1034.2 397.3L1041.7 396.3L1047.8 395L1052.5 393.3L1055.7 391.4L1057.2 389.3L1057.2 387L1055.5 384.7L1052.4 382.3Z" fill="#7a4430"/><path d="M683 315.7L682.2 314.4L680.4 313.2L677.6 312.1L673.9 311L669.5 310.1L664.4 309.4L658.8 308.7L652.8 308.3L646.5 308L640 307.9L633.5 308L627.2 308.3L621.2 308.7L615.6 309.4L610.5 310.1L606.1 311L602.4 312.1L599.6 313.2L597.8 314.4L597 315.7L597.2 317L598.5 318.2L600.9 319.4L604.3 320.6L608.6 321.6L613.8 322.5L619.7 323.2L626.1 323.7L633 324L640 324.1L647 324L653.9 323.7L660.3 323.2L666.2 322.5L671.4 321.6L675.7 320.6L679.1 319.4L681.5 318.2L682.8 317L683 315.7Z" fill="#6e3d2e"/><path d="M344.5 382.3L346.5 380L347 377.8L346 375.7L343.6 373.8L339.9 372.2L335 370.8L328.9 369.7L322 368.8L314.2 368.4L305.8 368.2L296.9 368.4L287.8 368.8L278.5 369.7L269.4 370.8L260.6 372.2L252.2 373.8L244.6 375.7L237.8 377.8L232.1 380L227.6 382.3L224.5 384.7L222.8 387L222.8 389.3L224.3 391.4L227.5 393.3L232.2 395L238.3 396.3L245.8 397.3L254.4 398L263.8 398.2L273.8 398L284.1 397.3L294.4 396.3L304.3 395L313.7 393.3L322.3 391.4L329.8 389.3L336.1 387L341 384.7L344.5 382.3Z" fill="#7a4430"/><path d="M692.7 374.8L691.6 372.8L689.3 370.9L685.8 369.1L681.3 367.4L675.9 365.9L669.7 364.7L662.8 363.7L655.5 363L647.8 362.6L640 362.4L632.2 362.6L624.5 363L617.2 363.7L610.3 364.7L604.1 365.9L598.7 367.4L594.2 369.1L590.7 370.9L588.4 372.8L587.3 374.8L587.5 376.9L589.1 378.9L591.9 380.9L596 382.8L601.3 384.4L607.7 385.9L614.9 387.1L622.9 387.9L631.3 388.5L640 388.6L648.7 388.5L657.1 387.9L665.1 387.1L672.3 385.9L678.7 384.4L684 382.8L688.1 380.9L690.9 378.9L692.5 376.9L692.7 374.8Z" fill="#7d4532"/><line x1="640" y1="523.2" x2="1288.6" y2="265" stroke="#fff" stroke-opacity="0.92" stroke-width="2.6" stroke-linecap="round"/><line x1="640" y1="523.2" x2="-8.6" y2="265" stroke="#fff" stroke-opacity="0.92" stroke-width="2.6" stroke-linecap="round"/><line x1="994" y1="382.3" x2="640" y2="315.7" stroke="#fff" stroke-opacity="0.25" stroke-width="1.2" stroke-linecap="round"/><line x1="286" y1="382.3" x2="640" y2="315.7" stroke="#fff" stroke-opacity="0.25" stroke-width="1.2" stroke-linecap="round"/><path d="M623.9 536.6L583.5 536.6L587.8 505.9L625.1 505.9Z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/><path d="M656.1 536.6L696.5 536.6L692.2 505.9L654.9 505.9Z" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.4"/><path d="M997.3 384.7L1003.2 382.3L990.7 380L984.8 382.3Z" fill="#fff"/><path d="M640 317L646.8 315.7L640 314.4L633.2 315.7Z" fill="#fff"/><path d="M282.7 384.7L295.2 382.3L289.3 380L276.8 382.3Z" fill="#fff"/><path d="M631 519.6L649 519.6L649.1 523.2L640 526.9L630.9 523.2Z" fill="#fff"/><path d="M631.9 375.2L648.1 375.2L648.1 374.2L631.9 374.2Z" fill="#fff"/><rect width="1200" height="560" filter="url(#fqGrain)" opacity=".9"/></svg>
-    <div class="bx-hero-in">
-      <div class="bx-copy">
-        <div class="bx-ribbon">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#fff"/><path d="M12.2 12.4a3.9 3.9 0 117.4 1.7c-.9 1.6-3.4 2.3-3.4 4.6" fill="none" stroke="#cd163f" stroke-width="3" stroke-linecap="round"/><circle cx="16.2" cy="23.2" r="1.9" fill="#cd163f"/></svg>
-          <div><span>Answers for families</span><b>BLS help desk</b></div>
-        </div>
-        <h1><small>Frequently asked</small><em>Questions</em></h1>
-        <p class="bx-lede">Straight answers on registration, evaluations, teams and the season. Tap any question to open its answer.</p>
-      </div>
-      <div class="bx-photo"><div class="bx-frame">
-        <div class="fq-top">
-          <p class="fq-top-k">Most asked</p>
-          <ol>
-            <li><span class="fq-n"><i>1</i></span><h3>When can I register?</h3><p>Opens Friday, Nov 27. Per family: $50 off to Nov 29, $25 off to Dec 31.</p></li>
-            <li><span class="fq-n"><i>5</i></span><h3>Should my player attend evaluations?</h3><p>Baseball League Age 10 and up, and softball Majors and Minors A players. Players drafted to Majors last season do not attend.</p></li>
-            <li><span class="fq-n"><i>14</i></span><h3>When will I hear what team my child is on?</h3><p>Draft divisions: a day or two after the mid-February draft. AA, Coach Pitch and Tee Ball: typically mid-March.</p></li>
-          </ol>
-        </div>
-      </div></div>
-    </div>
+  <section class="fq-hero">
+    <svg class="fq-ball" viewBox="0 0 380 380" aria-hidden="true" fill="none" stroke="#fff"><circle cx="190" cy="190" r="176" stroke-opacity=".14" stroke-width="2.5"/><path d="M62 70Q150 190 62 310M318 70Q230 190 318 310" stroke-opacity=".14" stroke-width="2"/><path d="M62 70Q150 190 62 310M318 70Q230 190 318 310" stroke-opacity=".2" stroke-width="12" stroke-dasharray="2 9"/></svg>
+    <h1><small>Frequently asked</small>Questions</h1>
+    <a class="fq-cta" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14.5l2.5 2.5L16 12.5"/></svg>
+      <div><b>Spring 2027 registration</b><span>Opens Friday, Nov 27</span></div>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </a>
   </section>
 
-  <section class="bx-sec fq-desk">
-    <input type="radio" name="fq-filter" id="fq-f-all" checked>
-    <input type="radio" name="fq-filter" id="fq-f-reg">
-    <input type="radio" name="fq-filter" id="fq-f-age">
-    <input type="radio" name="fq-filter" id="fq-f-team">
-    <input type="radio" name="fq-filter" id="fq-f-season">
-    <input type="radio" name="fq-filter" id="fq-f-vol">
-    <input type="radio" name="fq-filter" id="fq-f-as">
-    <header><span class="bx-eyebrow">Every answer</span><h2>Browse by topic</h2></header>
-    <div class="fq-chips">
-      <label for="fq-f-all">All topics</label>
-      <label for="fq-f-reg">Registration <b>4</b></label>
-      <label for="fq-f-age">Age and divisions <b>2</b></label>
-      <label for="fq-f-team">Evaluations and teams <b>5</b></label>
-      <label for="fq-f-season">The season <b>2</b></label>
-      <label for="fq-f-vol">Coaches and volunteers <b>4</b></label>
-      <label for="fq-f-as">All Stars <b>1</b></label>
-    </div>
+  <section class="fq-list" aria-label="Questions">
 
-    <div class="fq-topics">
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>1</i></span><span class="fq-q">When can I register?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <p class="fq-now"><b>Spring 2027</b><span>Opens <strong>Friday, Nov 27</strong>. Black Friday and Early Bird discounts run Nov 27 to Dec 31; the windows and fees are on the Registration page.</span></p>
+        <p class="fq-note">Refunds for canceled registrations are not given once rosters are released.</p>
+        <p><a class="fq-btn" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-reg">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14.5l2.5 2.5L16 12.5"/></svg></span>
-          <h3>Registration</h3><span class="fq-cnt">4 questions</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>1</i></span><span class="fq-q">When can I register?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p class="fq-now"><b>Spring 2027</b><span>Opens Friday, Nov&nbsp;27. Black Friday sale, Nov&nbsp;27 to&nbsp;29: <strong>$50 off</strong> per family. Early Bird, Nov&nbsp;30 to Dec&nbsp;31: <strong>$25 off</strong> per family. Full price from Jan&nbsp;1, 2027.</span></p>
-              <p>Online registration for BLSLL typically opens in late October to early November for the following spring season. Registration typically closes February 1st for upper divisions and March 1st for lower divisions.</p>
-              <p><a class="fq-btn" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration Info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>2</i></span><span class="fq-q">How do I determine what league I should register for?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Go to the <a href="https://www.littleleague.org/play-little-league/league-finder/">Little League League Finder</a> and enter your address.</p>
-              <p>Any player who:</p>
-              <ul class="fq-dots"><li>does not reside in the league boundaries, OR</li><li>the school where they attend classes is not within the league's boundaries</li></ul>
-              <p>must have an approved waiver issued by the Charter Committee at Little League International.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>3</i></span><span class="fq-q">How do I register for BLSLL?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>First, refer to FAQ #2 to determine if your address is in the BLSLL boundaries. Once confirmed, you can register for your program on the <a href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration page</a>.</p>
-              <p>If your address is not within BLSLL boundaries, but the school your child attends is in the boundaries, you can still register for BLSLL by requesting that the league president process a II(d) form and a "residency or <a href="https://www.blslittleleague.org/LinkClick.aspx?fileticket=DGP-FL1P_E0%3d&amp;tabid=1031078&amp;portalid=50558">school enrollment/attendance</a>" form.</p>
-              <p class="fq-note">Refunds for canceled registrations are not given once rosters are released.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>17</i></span><span class="fq-q">Are there scholarships available?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p class="fq-now"><b>2027 season</b><span>Still available this season, paid for by the 2026 Night Out with the Rainiers raffle.</span></p>
-              <p>Those experiencing financial hardship can request scholarship support by <a href="https://www.blslittleleague.org/LinkClick.aspx?fileticket=Etpm8jhNUR4%3d&amp;tabid=1029346&amp;portalid=50558">submitting an application</a> to <a href="mailto:president@blslittleleague.org">president@blslittleleague.org</a>.</p>
-              <p>T-Mobile Little League also offers a call up grant program. Learn more at <a href="https://www.littleleague.org/call-up-grant-program/">T-Mobile Call Up Grant</a>.</p>
-            </div>
-          </details>
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>2</i></span><span class="fq-q">Which division is my player in?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <p>League age decides, not school grade.</p>
+        <ul class="fq-cut"><li><b>Baseball</b><span>Age on Aug 31, 2027</span></li><li><b>Softball</b><span>Age on Dec 31, 2026</span></li></ul>
+        <!-- GO-LIVE: swap the preview address for the League Age page's tabid URL -->
+        <p><a class="fq-btn" href="https://go.blslittleleague.org/bls/preview/proposed/leagueage.html">Find your league age and division <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
+        <p>BLS serves Bonney Lake, Sumner and Orting. Outside the boundary? Email <a href="mailto:president@blslittleleague.org">president@blslittleleague.org</a> before you register.</p>
+        <p><strong>Challenger:</strong> adaptive baseball for players with physical and intellectual challenges, ages 4 to 18, or up to 22 if still in school. <a href="mailto:vpchallenger@blslittleleague.org">vpchallenger@<wbr>blslittleleague.org</a></p>
+      </div>
+    </details>
+
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>3</i></span><span class="fq-q">Does my player need to attend evaluations?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <p>Any softball or baseball player who was drafted to Majors the previous season does not attend evaluations and will be placed back in the Majors division.</p>
+        <div class="fq-split">
+          <div><h4>Baseball</h4><ul class="fq-dots"><li>Players League Age 10 and up need to attend an evaluation.</li><li>Players League Age 9 who have played at least one year of kid-pitch baseball may attend evaluations.</li><li>Players League Age 9 and 10 who do not attend evaluations will not be drafted into Minors/Majors and will be placed in AA.</li></ul></div>
+          <div><h4>Softball</h4><ul class="fq-dots"><li>All players registered for player pitch divisions (Majors and Minors A) must attend an evaluation.</li></ul></div>
         </div>
-      </section>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-age">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V6M16 20v-8M22 20H2"/><circle cx="16" cy="6" r="2.2"/></svg></span>
-          <h3>Age and divisions</h3><span class="fq-cnt">2 questions</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>6</i></span><span class="fq-q">How do I find my child's "League Age"?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Go to <a href="https://www.littleleague.org/play-little-league/determine-league-age/">Little League Age Determination</a>.</p>
-            </div>
-          </details>
-          <details class="fq-item" open>
-            <summary><span class="fq-n"><i>7</i></span><span class="fq-q">How does "League Age" map to BLSLL divisions?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>With few exceptions, the typical League Age to division mapping is:</p>
-              <ul class="fq-ages">
-                <li><span>Tee Ball</span><b>4-6</b></li>
-                <li><span>Coach Pitch</span><b>6-7</b></li>
-                <li><span>AA</span><b>8-9</b></li>
-                <li><span>Minors</span><b>9-11</b></li>
-                <li><span>Majors</span><b>11-12</b></li>
-                <li><span>50/70</span><b>12-13</b></li>
-                <li><span>Juniors</span><b>13-14</b></li>
-              </ul>
-              <p><strong>Challenger Division:</strong> adaptive baseball for players with physical and intellectual challenges, ages 4 to 18, or up to 22 if still in school. Questions: <a href="mailto:vpchallenger@blslittleleague.org">vpchallenger@<wbr>blslittleleague.org</a></p>
-            </div>
-          </details>
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>4</i></span><span class="fq-q">When will I hear my player's team?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <div class="fq-split">
+          <div><h4>Draft divisions</h4><p>Minors, Majors, 50/70, Juniors: you should be contacted within a day or two after the draft is completed (mid-February).</p></div>
+          <div><h4>Non-draft divisions</h4><p>AA, Coach Pitch, Tee Ball: you should typically be contacted in the middle of March.</p></div>
         </div>
-      </section>
+        <p>Carpool requests are not part of roster formation; for AA, Coach Pitch and Tee Ball, the one exception needs the League President's approval before you register.</p>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-team">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V2.8h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/></svg></span>
-          <h3>Evaluations and teams</h3><span class="fq-cnt">5 questions</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>4</i></span><span class="fq-q">How are team rosters formed for Minors, Majors, 50/70 and Juniors divisions?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Rosters for baseball and softball Minors divisions and above (Minors, Majors, 50/70, Juniors) are established via an evaluation and draft process. There are no "pre-designated" coaches or assistant coaches for these divisions (refer to FAQ #9).</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>5</i></span><span class="fq-q">Should my player attend evaluations/try-outs?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Any softball or baseball player who was drafted to Majors the previous season does not attend evaluations and will be placed back in the Majors division.</p>
-              <div class="fq-split">
-                <div><h4>Baseball</h4><ul class="fq-dots"><li>Players League Age 10 and up need to attend an evaluation.</li><li>Players League Age 9 who have played at least one year of kid-pitch baseball may attend evaluations.</li><li>Players League Age 9 and 10 who do not attend evaluations will not be drafted into Minors/Majors and will be placed in AA.</li></ul></div>
-                <div><h4>Softball</h4><ul class="fq-dots"><li>All players registered for player pitch divisions (Majors and Minors A) must attend an evaluation.</li></ul></div>
-              </div>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>8</i></span><span class="fq-q">How are team rosters formed for AA, Coach Pitch and Tee Ball divisions?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Rosters for AA division and below (AA, Coach Pitch, Tee Ball) are formed as follows:</p>
-              <ol class="fq-abc">
-                <li>First criteria is by school attended.</li>
-                <li>Second criteria is an equitable division of players to each team by age.</li>
-                <li>Managers can be assured that their child(ren) will be placed on their roster.</li>
-                <li>Managers may request one (1) assistant coach whose child(ren) will also be placed on their roster. Only managers can request a specific assistant, not the other way around.</li>
-              </ol>
-              <div class="fq-quote"><p>"Minor League and T-Ball teams must be dissolved at the end of the current season, with all players being returned to a player pool."</p><span class="fq-src">Little League Baseball rule book, Rule III.(e) note 2</span></div>
-              <p>What this means is that there is no guarantee that any player will remain with a given coach, player or team from one year to the next. The only exceptions are as noted in items c) and d) above.</p>
-              <p class="fq-note">Refunds for canceled registrations are not given once rosters are released.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>13</i></span><span class="fq-q">Can I request placement of my child on a specific team because of carpooling?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>No. Carpool arrangements should be made with other parents/guardians AFTER the rosters are announced. In general, carpool requests will not be considered as a part of roster formation (refer to FAQ #4 and FAQ #8).</p>
-              <p><strong>For AA, Coach Pitch and Tee Ball divisions:</strong> if the ONLY way your child can participate is by carpooling with another family, both families are required to secure the approval of the carpool request from the League President prior to registration. If the carpool request is approved by the President, the Player Agent will make every attempt to place your child on the same roster as the family you identify as your carpool partner. If approved, this does not mean your child will be on a specific manager's team, only that the identified children will be on the same roster.</p>
-              <p>No carpool requests will be considered without prior approval of the League President. No refunds will be issued for carpool requests that could not be accommodated unless approved by the League President.</p>
-              <p class="fq-note">Refunds for canceled registrations are not given once rosters are released.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>14</i></span><span class="fq-q">When will I hear what team my child is on?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <div class="fq-split">
-                <div><h4>Draft divisions</h4><p>Minors, Majors, 50/70, Juniors: you should be contacted within a day or two after the draft is completed (mid-February).</p></div>
-                <div><h4>Non-draft divisions</h4><p>AA, Coach Pitch, Tee Ball: you should typically be contacted in the middle of March.</p></div>
-              </div>
-            </div>
-          </details>
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>5</i></span><span class="fq-q">When is the season, and how much time is it?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <div class="fq-split">
+          <div><h4>Draft divisions</h4><p>Minors, Majors, 50/70, Juniors: practices can start as early as mid to late February.</p></div>
+          <div><h4>Non-draft divisions</h4><p>AA, Coach Pitch, Tee Ball: practices typically start mid-March to early April.</p></div>
         </div>
-      </section>
+        <p>The regular season typically concludes early June.</p>
+        <p>Games and practices are typically 2 to 3 events per week, each about 1.5 to 3 hours depending on division. Upper division events are generally longer, and can be more frequent, than lower division events.</p>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-season">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></span>
-          <h3>The season</h3><span class="fq-cnt">2 questions</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>15</i></span><span class="fq-q">What is the time commitment?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Games and practices are typically scheduled for 2-3 events per week. Each event varies from approximately 1.5 to 3 hours depending on division. Upper division events are generally longer (and potentially more frequent) than lower division events.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>16</i></span><span class="fq-q">When does the season start and end?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Draft formed teams can start practices as early as mid to late February and end around the first week of March.</p>
-              <p>Non-draft division practices typically commence mid-March to early April. The regular season typically concludes early June.</p>
-            </div>
-          </details>
-        </div>
-      </section>
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>6</i></span><span class="fq-q">Is there help with the cost?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <p>Yes. Families experiencing financial hardship can request scholarship support by <a href="https://www.blslittleleague.org/LinkClick.aspx?fileticket=Etpm8jhNUR4%3d&amp;tabid=1029346&amp;portalid=50558">submitting an application</a> to <a href="mailto:president@blslittleleague.org">president@blslittleleague.org</a>.</p>
+        <p class="fq-note">The 2026 Night Out with the Rainiers raffle funded the scholarship program for the 2027 season.</p>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-vol">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.3 3.3 0 010 6.4M18 14.7c2 .7 3.2 2.5 3.5 5.3"/></svg></span>
-          <h3>Coaches and volunteers</h3><span class="fq-cnt">4 questions</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>9</i></span><span class="fq-q">How are team managers and coaches selected?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <div class="fq-quote"><p>"The Board of Directors shall appoint managers, coaches and umpires annually."</p><span class="fq-src">Little League Baseball rule book, Rule I.(b)</span></div>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>11</i></span><span class="fq-q">Can I request to be a coach or assistant coach for a particular manager?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>No. <strong>For Minors, Majors, 50/70 and Juniors,</strong> a manager secures his preferred coaches and assistant coaches via drafting that person's child(ren) during the draft. In draft divisions, there is no provision for a manager to request coaches or assistant coaches.</p>
-              <p><strong>For AA, Coach Pitch and Tee Ball divisions,</strong> managers may request one (1) assistant coach whose child(ren) will be placed on their roster. Only managers can request a specific assistant, not the other way around.</p>
-              <p class="fq-note">Refunds for canceled registrations are not given once rosters are released.</p>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>12</i></span><span class="fq-q">If a manager, coach or umpire is returning from previous years, do they automatically get the same position in the next year?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <div class="fq-quote"><p>"Volunteers in the local Little League program DO NOT HAVE TENURE, regardless of the years of service. In order to serve, a manager, coach or umpire must be appointed by the league president and approved by the local league board of directors annually. Prior service DOES NOT guarantee re-appointment."</p><span class="fq-src">Little League rule book</span></div>
-            </div>
-          </details>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>18</i></span><span class="fq-q">Are there volunteer opportunities with Bonney Lake Sumner Little League?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>Absolutely! To volunteer, you must <a href="https://www.blslittleleague.org/Default.aspx?tabid=716842">register on the BLS website</a>, fill out the volunteer application and complete a background check.</p>
-              <p>Please email <a href="mailto:president@blslittleleague.org">president@blslittleleague.org</a> when you've done these things to learn about current needs and openings.</p>
-            </div>
-          </details>
-        </div>
-      </section>
+    <details class="fq-item">
+      <summary><span class="fq-n"><i>7</i></span><span class="fq-q">Where are the fields?</span><span class="fq-tog"></span></summary>
+      <div class="fq-a">
+        <p>Every BLS field site, with directions, is on the Fields page.</p>
+        <!-- GO-LIVE: swap the preview address for the Fields page's tabid URL -->
+        <p><a class="fq-btn" href="https://go.blslittleleague.org/bls/preview/proposed/fields.html">Fields <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></p>
+      </div>
+    </details>
 
-      <section class="fq-topic fq-t-as">
-        <header class="fq-th">
-          <span class="fq-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/></svg></span>
-          <h3>All Stars</h3><span class="fq-cnt">1 question</span>
-        </header>
-        <div>
-          <details class="fq-item">
-            <summary><span class="fq-n"><i>10</i></span><span class="fq-q">How are All Star teams selected?</span><span class="fq-tog"></span></summary>
-            <div class="fq-a">
-              <p>The method used to select All Star teams is typically via the managers in each division (Majors and Minors) ranking the All Star candidates from 1 to 18 for each age group (League Age 8-10, 9-11 and 10-12).</p>
-              <p>The individual manager rankings are consolidated, and the top 9 ranked players in each age group are selected for the All Star roster. The board-selected All Star manager for each age group has discretion for selecting the final roster spots from players ranked 10 to 16.</p>
-              <p>Players will participate on the All Star team according to their League Age. More on the <a href="https://www.blslittleleague.org/Default.aspx?tabid=1457983">Allstars page</a>.</p>
-            </div>
-          </details>
-        </div>
-      </section>
-
-    </div>
   </section>
 
   <section class="fq-help">
     <svg class="fq-ball" viewBox="0 0 380 380" aria-hidden="true" fill="none" stroke="#fff"><circle cx="190" cy="190" r="176" stroke-opacity=".18" stroke-width="2.5"/><path d="M62 70Q150 190 62 310M318 70Q230 190 318 310" stroke-opacity=".18" stroke-width="2"/><path d="M62 70Q150 190 62 310M318 70Q230 190 318 310" stroke-opacity=".24" stroke-width="12" stroke-dasharray="2 9"/></svg>
-    <div>
-      <h2>Still stuck?</h2>
-      <p>Can't find your answer here? Email the league with your question.</p>
-    </div>
+    <h2>Still stuck?</h2>
     <a class="fq-mail" href="mailto:info@blslittleleague.org">
       <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 6.5l8.5 7 8.5-7"/></svg></i>
       <span><small>Email the league</small><b>info@blslittleleague.org</b></span>
     </a>
-    <div class="fq-more">
-      <span class="fq-n"><i>19</i></span>
-      <h3>Where can I get additional information on Little League?</h3>
-      <ul>
-        <li><a href="https://www.littleleague.org/university/parents/">Little League Parents Section <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
-        <li><a href="https://www.littleleaguewa.org/">Washington State Little League <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
-        <li><a href="https://wad10ll.org/">Washington District 10 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l7-7M6 4h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li>
-      </ul>
-    </div>
   </section>
 
 </div>

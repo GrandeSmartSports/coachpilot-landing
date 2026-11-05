@@ -5,7 +5,7 @@
   }
  },
  "status": "Ready to launch",
- "summary": "2026-27 board from the Oct 25 Annual Meeting and the Nov 1 board meeting: five officers (President as the lead card), every other seat grouped by what parents ask about with role emails, and a Get involved block (open Umpire in Chief seat, the new Fields Committee, the Dec 6 meeting, the October vote).",
+ "summary": "The board as a who-to-ask directory: tap a topic row to email that seat; new seats from Nov 1 added. Why: families need a person, not a committee list.",
  "blurb": "Who is on the 2026-27 board and how to reach each role.",
  "sources": [
   {
@@ -45,17 +45,17 @@
   }
  ],
  "later": [
-  "Whoever manages the league email aliases: whether the Softball AA and Coach Pitch Player Agent (Zach Thibodeau) has an email alias, since the page shows that row with no email.",
-  "Secretary (Tawnie LaValley): board meeting dates after Dec 6, so the Come to a meeting card can show the next one.",
+  "Whoever manages the league email aliases: whether the Softball AA and Coach Pitch Player Agent (Zach Thibodeau) has an email alias. For now he is named under the Player placement row, which emails pa@ (League Player Agent).",
+  "Fields Coordinator (Daniel Lane): field rentals now sit in the Fields row, which emails fields@, with Greg Potts named as Field Rentals Coordinator; confirm that routing or give Greg an alias.",
   "President (Ramey Harguess): OK to turn the page on in the menu under About BLS (it is hidden today, and social media has not announced the new board, so this would be the first public list).",
   "President (Ramey Harguess): whether outgoing 2026 President Alexis Ramos keeps a board role for 2026-27.",
   "Fields Coordinator (Daniel Lane): who leads the Fields Committee and whether it has its own email, since the page sends questions to info@ for now.",
-  "Whoever manages the league email aliases: confirm uniforms@ and social@ reach Dena Berkey, fields@ and equipment@ reach Daniel Lane, pr@ reaches Ashley Gauthier and vpchallenger@ reaches Mandie Pitingoro, and whether Field Rentals (Greg Potts) has an alias.",
-  "Whoever manages the league email aliases: the division player agent aliases (majorsbbpa@, minorsbbpa@, doubleapa@, jrspabb@, sbmajorspa@, minorssbpa@, cppa@, tbpa@), sbuniforms@, sbequipment@, bbequipment@ and umpires@ are left off because the new roster names no one for them (those questions go to pa@, uniforms@, equipment@ and info@), so add back any that are still staffed.",
-  "Information Officer (Melissa Olsen): confirm the BLSLL Constitution file the page links to is the current version."
+  "Whoever manages the league email aliases: confirm uniforms@ and social@ reach Dena Berkey, fields@ and equipment@ reach Daniel Lane, pr@ reaches Ashley Gauthier and vpchallenger@ reaches Mandie Pitingoro.",
+  "Whoever manages the league email aliases: the division player agent aliases (majorsbbpa@, minorsbbpa@, doubleapa@, jrspabb@, sbmajorspa@, minorssbpa@, cppa@, tbpa@), sbuniforms@, sbequipment@, bbequipment@ and umpires@ are left off because the new roster names no one for them (those questions go to pa@, uniforms@, equipment@ and info@), so add back any that are still staffed."
  ],
  "required": [],
  "board_calls": [
   "show the board list on the site. The page is hidden today. (board's own call, never asked for)"
- ]
+ ],
+ "long_summary": "2026-27 board as a who-to-ask directory: topic rows in four groups (players and coaches, fields and schedules, uniforms and news, sponsors and giving) where the whole row is the email, then the five officers as compact tap-to-email rows (President first), then one Want to help line to the Volunteer page and info@. No meeting dates, vote rules, committee news or open-seat recruiting. Module root class renamed to blsbd so the preview's build board styles no longer restyle it."
 }

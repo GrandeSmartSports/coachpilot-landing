@@ -6,9 +6,14 @@
   }
  },
  "status": "Ready to launch",
- "summary": "Safety hub: 911 steps from the Safety Manual, manual download, how to report an injury, the two yearly volunteer clearances, every form and handout by topic, and ballpark rules from the Safety Code.",
- "blurb": "Safety in one place: emergency steps, how to report an injury, and every form.",
+ "summary": "Report an injury is the one action, with 911 steps, every form by topic, and the Safety Manual. Why: a parent in a hurry finds the right form fast.",
+ "blurb": "Report an injury in one tap, then every form and handout.",
  "sources": [
+  {
+   "fact": "BLSLL Safety Manual (2025): injuries that get first aid or medical treatment are reported to the Safety Officer within 24 to 48 hours on the injury tracking form inside the manual; first aid kits are restocked through the Safety Officer; the 911 steps (field name and location, stay on the line, send someone to the street).",
+   "url": "https://www.blslittleleague.org/portals/50558/docs/2025%20blsll%20safetyplan.pdf",
+   "date": "2026-11-03"
+  },
   {
    "fact": "Little League Abuse Awareness Training is required for all volunteers in addition to the background check, valid for the year; use the email you registered with (course link).",
    "url": "https://www.instagram.com/p/DTl3_pkAXau/",
@@ -29,7 +34,10 @@
   "Safety Officer (Daneen Galvez): the 2027 Safety Manual/Plan. The only posted one is the 2025 plan, which lists the 2025 safety officer and board. Then swap the link and the '2025 edition, 17 pages' label.",
   "Safety Officer (Daneen Galvez): confirm safety@blslittleleague.org reaches her.",
   "Safety Officer (Daneen Galvez): are the Medical Release, concussion and sudden cardiac arrest forms still current for 2027, and do coaches still email her to restock first aid kits?",
-  "Safety Officer (Daneen Galvez): the 2027 injury report process (who receives reports, and whether the 24 to 48 hour window still applies) and the field inspection checklist. Social media has nothing on these, so they have to come from her."
+  "Safety Officer (Daneen Galvez): the 2027 injury report process (who receives reports, and whether the 24 to 48 hour window still applies) and the field inspection checklist. Social media has nothing on these, so they have to come from her.",
+  "Safety Officer (Daneen Galvez): the injury tracking form as its own one-page PDF on the portal, so the hero's second button opens the form instead of the 17-page manual.",
+  "Website (Daniel Grande): the Approved Bats link (littleleague.org) was cut from this page; its answer belongs on the FAQ page as 'Is my bat approved?' once sourced."
  ],
- "required": []
+ "required": [],
+ "long_summary": "Safety page with one action: Report an injury in the hero (Email the Safety Officer, plus the injury form in the Safety Manual), a one-line 911 strip, every form and handout by topic, then the Safety Manual PDF and a volunteer clearance link. The lede, clearance steps, first aid kit row, Approved Bats link and the ballpark Safety Code list are off the page, and every PDF links through our portal path."
 }

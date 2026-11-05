@@ -3,7 +3,7 @@
 /* BLS Champions page. One content block. Every rule is scoped to .bxc so nothing else on the site changes.
    The first rule hides this block's own title bar; the hero is the title.
    Photo: the team photo BLS already hosts as a home page slide (1110x520 with black side bars), cropped in CSS.
-   Scores and records: littleleague.org, 2025 Little League Baseball World Series. No player names, by design. */
+   Record and runs: littleleague.org, 2025 Little League Baseball World Series. No player names, by design. */
 .DnnModule:has(.bxc) > .dfContainer > .dfArea > h2.head{display:none !important;}
 .bxc{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;display:grid;gap:22px;margin:0 0 6px;}
 .bxc *,.bxc *::before,.bxc *::after{box-sizing:border-box;}
@@ -37,21 +37,26 @@
 .bxc .bx-photo figcaption{position:absolute;z-index:2;left:44px;right:24px;bottom:16px;font-size:13px;line-height:1.45;color:#dbe2f4;}
 .bxc .bx-photo figcaption b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-size:17px;letter-spacing:.08em;text-transform:uppercase;color:#fff;}
 
-/* ---------- scoreboard ---------- */
+/* ---------- scoreboard with the one button ---------- */
 .bxc .bx-board{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;padding:30px 36px 28px;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1.4px);background-size:7px 7px;}
 .bxc .bx-board-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
 .bxc .bx-board-top h2{font-size:30px;letter-spacing:.06em;color:#fff !important;}
 .bxc .bx-tag{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:16px;letter-spacing:.2em;text-transform:uppercase;background:#cd163f;color:#fff;padding:4px 12px 4px 14px;border-radius:6px;white-space:nowrap;}
-.bxc .bx-cells{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.bxc .bx-board-in{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.8fr);gap:14px 24px;align-items:stretch;}
+.bxc .bx-cells{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
 .bxc .bx-cell{background:#000127;border:1px solid #1b2670;border-radius:12px;padding:16px 10px 14px;text-align:center !important;box-shadow:inset 0 2px 12px rgba(0,0,0,.5);}
 .bxc .bx-cell b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:92px;line-height:.95;color:#fff;text-shadow:0 0 22px rgba(120,160,255,.45);white-space:nowrap;}
-.bxc .bx-cell b small{font-size:.42em;color:#a9b8e3;text-transform:uppercase;margin:0 .12em;}
 .bxc .bx-cell span{display:block;margin-top:6px;font-size:13px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:#a9b8e3;text-align:center !important;}
+.bxc .bx-go{display:flex;flex-direction:column;justify-content:center;gap:10px;background:#cd163f;border-radius:12px;padding:20px 22px;color:#fff !important;box-shadow:0 14px 30px rgba(205,22,63,.3);transition:transform .15s,box-shadow .15s;}
+.bxc .bx-go:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(205,22,63,.4);}
+.bxc .bx-go small{font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ffd0da;}
+.bxc .bx-go b{display:flex;align-items:center;justify-content:space-between;gap:12px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:30px;line-height:1;text-transform:uppercase;text-wrap:balance;}
+.bxc .bx-go b svg{width:24px;height:24px;flex:none;transition:transform .15s;}
+.bxc .bx-go:hover b svg{transform:translateX(3px);}
 
 /* ---------- shared section heads ---------- */
 .bxc .bx-sec{padding:44px 44px 46px;border-radius:18px;}
 .bxc .bx-white{background:#fff;border:1px solid #dde3ec;}
-.bxc .bx-light{background:#eef2f6;}
 .bxc .bx-eyebrow{display:block;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#cd163f;margin-bottom:6px;}
 .bxc .bx-sec h2{font-size:46px;letter-spacing:.005em;text-wrap:balance;}
 
@@ -78,60 +83,11 @@
 .bxc .bx-hot .bx-card p{color:#dbe2f4;}
 .bxc .bx-hot .bx-pill span{background:#cd163f;}
 
-/* ---------- final scores ---------- */
-.bxc .bx-games{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:26px !important;align-items:start;}
-.bxc .bx-grp h3{font-size:24px;}
-.bxc .bx-grp > p{margin:4px 0 14px !important;font-size:14px;color:#4b5675;}
-.bxc .bx-grp ol{display:grid;gap:12px;}
-.bxc .bx-game{position:relative;overflow:hidden;border-radius:14px;padding:14px 16px 12px;color:#fff;background:#00013a;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1.4px);background-size:7px 7px;box-shadow:0 12px 26px -14px rgba(0,1,58,.7);}
-.bxc .bx-gh{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a9b8e3;margin-bottom:6px;}
-.bxc .bx-res{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.18em;padding:2px 9px 2px 11px;border-radius:5px;background:#cd163f;color:#fff;}
-.bxc .bx-res.l{background:none;border:1px solid rgba(255,255,255,.3);color:#c3cbee;}
-.bxc .bx-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 0;border-top:1px solid rgba(255,255,255,.09);}
-.bxc .bx-ab{width:38px;height:38px;border-radius:8px;display:grid;place-items:center;background:#1452a0;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;color:#fff;}
-.bxc .bx-us .bx-ab{background:#cd163f;}
-.bxc .bx-nm{font-size:15px;font-weight:600;line-height:1.2;color:#fff;}
-.bxc .bx-nm small{display:block;font-size:12px;font-weight:400;color:#a9b8e3;margin-top:2px;}
-.bxc .bx-sc{min-width:46px;height:46px;padding:0 8px;border-radius:8px;display:grid;place-items:center;background:#000127;border:1px solid #1b2670;box-shadow:inset 0 2px 8px rgba(0,0,0,.5);font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:30px;color:#fff;text-shadow:0 0 16px rgba(120,160,255,.45);}
-.bxc .bx-lost .bx-nm{opacity:.62;}
-.bxc .bx-lost .bx-sc{color:#7e88bd;text-shadow:none;}
-.bxc .bx-note{margin-top:4px !important;padding-top:9px;border-top:1px solid rgba(255,255,255,.09);font-size:13px;font-weight:600;color:#ff9db3;}
-.bxc .bx-src{margin-top:20px !important;font-size:14px;color:#4b5675;}
-.bxc .bx-src a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);}
-
 /* ---------- road footer: coaches and welcome home ---------- */
 .bxc .bx-credits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 28px;margin-top:26px !important;padding-top:22px;border-top:1px solid #dde3ec;}
 .bxc .bx-credits p{display:flex;gap:12px;align-items:flex-start;font-size:15px;line-height:1.5;color:#4b5675;}
 .bxc .bx-credits svg{width:24px;height:24px;flex:none;color:#cd163f;margin-top:1px;}
 .bxc .bx-credits b{display:block;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:19px;line-height:1.1;letter-spacing:.04em;text-transform:uppercase;color:#00013a;margin-bottom:2px;}
-
-/* ---------- honor roll: title banners hanging from a rod ---------- */
-.bxc .bx-sub{margin-top:12px !important;font-size:15px;line-height:1.55;color:#4b5675;max-width:42em;}
-.bxc .bx-yr{margin-top:30px;}
-.bxc .bx-yr + .bx-yr{margin-top:36px;}
-.bxc .bx-yr-h{display:flex;align-items:center;gap:14px;font-size:40px;letter-spacing:.02em;margin-bottom:14px !important;}
-.bxc .bx-yr-h::after{content:"";flex:1;height:2px;background:#dde3ec;}
-.bxc .bx-banners{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;padding-top:10px !important;}
-.bxc .bx-banners::before{content:"";position:absolute;left:-8px;right:-8px;top:0;height:6px;border-radius:3px;background:linear-gradient(180deg,#c3ccdc,#9aa6bd);}
-.bxc .bx-bn{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:236px;padding:0 14px 44px;background:#00013a;color:#fff;clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 26px),0 100%);box-shadow:none;}
-.bxc .bx-bn::before{content:"";position:absolute;left:0;right:0;top:0;height:5px;background:#cd163f;}
-.bxc .bx-bn-k{display:flex;align-items:center;gap:6px;margin:16px 0 8px;font-size:11px;font-weight:700;line-height:1.25;letter-spacing:.12em;text-transform:uppercase;color:#ff9db3;}
-.bxc .bx-bn-k svg{width:14px;height:14px;flex:none;}
-.bxc .bx-bn b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:25px;line-height:1;text-transform:uppercase;color:#fff;text-wrap:balance;}
-.bxc .bx-bn-a{font-size:13px;font-weight:600;color:#a9b8e3;}
-.bxc .bx-bn-d{margin-top:auto;padding-top:12px;font-size:14px;line-height:1.45;color:#dbe2f4;}
-.bxc .bx-bn.bx-sp{background:#1452a0;}
-.bxc .bx-bn.bx-sp::before{background:#fff;opacity:.85;}
-.bxc .bx-bn.bx-sp .bx-bn-k{color:#fff;}
-.bxc .bx-bn.bx-sp .bx-bn-a{color:#cfe0ff;}
-.bxc .bx-bn.bx-sp .bx-bn-d{color:#e6eefc;}
-.bxc .bx-bn.bx-top{background:#cd163f;grid-column:span 2;}
-.bxc .bx-nw{white-space:nowrap;}
-.bxc .bx-bn.bx-top b{font-size:34px;}
-.bxc .bx-bn.bx-top::before{background:#00013a;}
-.bxc .bx-bn.bx-top .bx-bn-k{color:#fff;}
-.bxc .bx-bn.bx-top .bx-bn-a{color:#ffe1e8;}
-.bxc .bx-bn.bx-top .bx-bn-d{color:#fff;}
 
 /* ---------- what's next ---------- */
 .bxc .bx-next{position:relative;overflow:hidden;border-radius:18px;background:#00013a;color:#fff;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);}
@@ -148,9 +104,6 @@
 .bxc .bx-grass{position:relative;min-height:200px;background:repeating-linear-gradient(90deg,#0b3a3d 0 34px,#0f4a3e 34px 68px);}
 .bxc .bx-grass::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#00013a 0%,rgba(0,1,58,0) 55%);}
 .bxc .bx-grass::after{content:"";position:absolute;top:-20%;bottom:-20%;left:58%;width:5px;background:rgba(255,255,255,.85);transform:rotate(18deg);}
-.bxc .bx-ask{display:flex;align-items:center;gap:12px;font-size:15px;line-height:1.5;color:#4b5675;padding:0 4px;}
-.bxc .bx-ask svg{width:22px;height:22px;flex:none;}
-.bxc .bx-ask a{color:#1452a0 !important;font-weight:600;border-bottom:1px solid rgba(20,82,160,.35);}
 
 /* ---------- phone ---------- */
 @media (max-width:760px){
@@ -172,38 +125,25 @@
   .bxc .bx-board{padding:22px 14px 20px;border-radius:14px;}
   .bxc .bx-board-top{flex-wrap:wrap;}
   .bxc .bx-board-top h2{font-size:24px;}
+  .bxc .bx-board-in{grid-template-columns:1fr;gap:12px;}
   .bxc .bx-cells{gap:8px;}
   .bxc .bx-cell{padding:12px 4px 10px;}
   .bxc .bx-cell b{font-size:46px;}
   .bxc .bx-cell span{font-size:11px;letter-spacing:.1em;}
+  .bxc .bx-go{padding:16px 18px;}
+  .bxc .bx-go b{font-size:26px;}
   .bxc .bx-sec{padding:28px 18px;border-radius:14px;}
   .bxc .bx-sec h2{font-size:36px;}
   .bxc .bx-path{grid-template-columns:1fr;gap:18px;padding-left:58px;margin-top:24px !important;}
   .bxc .bx-path::before{left:22px;right:auto;top:24px;bottom:60px;border-top:0;border-left:3px dashed #c3ccdc;}
   .bxc .bx-base{position:absolute;left:-58px;top:14px;margin:0;}
-  .bxc .bx-games{grid-template-columns:1fr;gap:24px;margin-top:20px !important;}
-  .bxc .bx-game{padding:12px 14px 10px;}
-  .bxc .bx-row{grid-template-columns:34px minmax(0,1fr) auto;gap:10px;}
-  .bxc .bx-ab{width:34px;height:34px;font-size:13px;}
-  .bxc .bx-sc{min-width:42px;height:42px;font-size:28px;}
   .bxc .bx-credits{grid-template-columns:1fr;margin-top:22px !important;padding-top:18px;}
-  .bxc .bx-yr{margin-top:22px;}
-  .bxc .bx-yr + .bx-yr{margin-top:28px;}
-  .bxc .bx-yr-h{font-size:34px;margin-bottom:10px !important;}
-  .bxc .bx-banners{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;}
-  .bxc .bx-banners::before{left:-6px;right:-6px;}
-  .bxc .bx-bn{min-height:200px;padding:0 12px 38px;clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 22px),0 100%);}
-  .bxc .bx-bn.bx-wide{grid-column:1 / -1;min-height:0;}
-  .bxc .bx-bn-k{margin:14px 0 6px;font-size:10px;letter-spacing:.08em;}
-  .bxc .bx-bn b{font-size:22px;}
-  .bxc .bx-bn-d{font-size:13px;padding-top:10px;}
   .bxc .bx-next{grid-template-columns:1fr;border-radius:14px;}
   .bxc .bx-next-tx{padding:26px 20px 28px;}
   .bxc .bx-next h2{font-size:32px;}
   .bxc .bx-grass{min-height:64px;order:-1;}
   .bxc .bx-grass::before{background:linear-gradient(0deg,#00013a 0%,rgba(0,1,58,0) 70%);}
   .bxc .bx-grass::after{left:72%;}
-  .bxc .bx-ask{align-items:flex-start;}
 }
 @media (prefers-reduced-motion:reduce){.bxc *{transition:none !important;}}
 </style>
@@ -224,7 +164,7 @@
           <div><span>2025</span><b>World Series team</b></div>
         </div>
         <h1><small>Northwest Region</small><em>Champions.</em></h1>
-        <p class="bx-lede">Our Majors baseball All-Stars won the Northwest Region title in San Bernardino, Calif., then represented the region at the Little League Baseball World Series.</p>
+        <p class="bx-lede">Our Majors baseball All-Stars won the Northwest Region in San Bernardino, Calif., then played in the Little League Baseball World Series.</p>
       </div>
       <figure class="bx-photo">
         <div class="bx-frame"><img src="https://www.blslittleleague.org/portals/50558/contentrotator/contentrotator638918277739067851.png" alt="The 2025 Bonney Lake Sumner Little League World Series team"></div>
@@ -235,10 +175,12 @@
 
   <section class="bx-board">
     <div class="bx-board-top"><h2>Northwest Region 2025</h2><span class="bx-tag">Final</span></div>
-    <div class="bx-cells">
-      <div class="bx-cell"><b>3-0</b><span>Region record</span></div>
-      <div class="bx-cell"><b>43</b><span>Runs in 3 games</span></div>
-      <div class="bx-cell"><b>1<small>of</small>10</b><span>U.S. region champs</span></div>
+    <div class="bx-board-in">
+      <div class="bx-cells">
+        <div class="bx-cell"><b>3-0</b><span>Region record</span></div>
+        <div class="bx-cell"><b>43</b><span>Runs in 3 games</span></div>
+      </div>
+      <a class="bx-go" href="https://www.blslittleleague.org/Default.aspx?tabid=1457983"><small>Your player's path</small><b>How All-Stars works <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></b></a>
     </div>
   </section>
 
@@ -284,80 +226,7 @@
     </ol>
     <div class="bx-credits">
       <p><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 2.5h6v3H9z" fill="currentColor"/><path d="M8.5 11l1.3 1.3 2.4-2.6M8.5 16l1.3 1.3 2.4-2.6M14 11h2M14 16h2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span><b>The coaches</b>Scott Seibert, Chris Heacox and Andy Audette.</span></p>
-      <p><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V20h12V9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span><b>Welcome home</b>September 6, 2025: a celebration with the City of Bonney Lake that also opened a new ADA playground. UW baseball coach Eddie Smith spoke to the team.</span></p>
-    </div>
-  </section>
-
-  <section class="bx-sec bx-light">
-    <header><span class="bx-eyebrow">Final scores</span><h2>Six games in August</h2></header>
-    <div class="bx-games">
-      <div class="bx-grp">
-        <h3>Northwest Region Tournament</h3>
-        <p>San Bernardino, Calif. · Aug 3 to 8, 2025</p>
-        <ol>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 1 · Sun Aug 3</span><span class="bx-res">Win</span></div>
-            <div class="bx-row bx-us"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Washington</small></span><span class="bx-sc">17</span></div>
-            <div class="bx-row bx-lost"><span class="bx-ab">AK</span><span class="bx-nm">Alaska<small>Abbott O Rabbit LL, Anchorage</small></span><span class="bx-sc">5</span></div>
-          </li>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 4 · Tue Aug 5</span><span class="bx-res">Win</span></div>
-            <div class="bx-row bx-us"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Washington</small></span><span class="bx-sc">20</span></div>
-            <div class="bx-row bx-lost"><span class="bx-ab">OR</span><span class="bx-nm">Oregon<small>Murrayhill LL, Beaverton</small></span><span class="bx-sc">6</span></div>
-          </li>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 6 · Fri Aug 8</span><span class="bx-res">Win</span></div>
-            <div class="bx-row bx-us"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Washington</small></span><span class="bx-sc">6</span></div>
-            <div class="bx-row bx-lost"><span class="bx-ab">OR</span><span class="bx-nm">Oregon<small>Murrayhill LL, Beaverton</small></span><span class="bx-sc">1</span></div>
-            <p class="bx-note">Region championship game</p>
-          </li>
-        </ol>
-      </div>
-      <div class="bx-grp">
-        <h3>Little League Baseball World Series</h3>
-        <p>Williamsport, Pa. · Aug 15 to 19, 2025</p>
-        <ol>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 10 · Fri Aug 15</span><span class="bx-res l">Loss</span></div>
-            <div class="bx-row bx-us bx-lost"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Northwest Region</small></span><span class="bx-sc">3</span></div>
-            <div class="bx-row"><span class="bx-ab">MTN</span><span class="bx-nm">Mountain Region<small>U.S. bracket</small></span><span class="bx-sc">5</span></div>
-          </li>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 17 · Sun Aug 17</span><span class="bx-res">Win</span></div>
-            <div class="bx-row bx-us"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Northwest Region</small></span><span class="bx-sc">3</span></div>
-            <div class="bx-row bx-lost"><span class="bx-ab">NE</span><span class="bx-nm">New England Region<small>U.S. bracket</small></span><span class="bx-sc">2</span></div>
-          </li>
-          <li class="bx-game">
-            <div class="bx-gh"><span>Game 28 · Tue Aug 19</span><span class="bx-res l">Loss</span></div>
-            <div class="bx-row bx-us bx-lost"><span class="bx-ab">BLS</span><span class="bx-nm">Bonney Lake/Sumner<small>Northwest Region</small></span><span class="bx-sc">0</span></div>
-            <div class="bx-row"><span class="bx-ab">MW</span><span class="bx-nm">Midwest Region<small>U.S. bracket</small></span><span class="bx-sc">9</span></div>
-          </li>
-        </ol>
-      </div>
-    </div>
-    <p class="bx-src">Scores and records: <a href="https://www.littleleague.org/world-series/2025/llbws/teams/northwest-region/" target="_blank" rel="noopener">littleleague.org, 2025 Little League Baseball World Series</a></p>
-  </section>
-
-  <section class="bx-sec bx-white">
-    <header><span class="bx-eyebrow">Honor roll</span><h2>Banner seasons</h2></header>
-    <p class="bx-sub">The District, State and Region titles BLS All-Star teams won in 2025 and 2026, plus the 2026 spring champions.</p>
-    <div class="bx-yr">
-      <h3 class="bx-yr-h">2026</h3>
-      <ul class="bx-banners">
-        <li class="bx-bn"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><b>Majors softball</b><span class="bx-bn-a">All-Stars, 10-11-12</span><span class="bx-bn-d">Undefeated at District, then played at State.</span></li>
-        <li class="bx-bn"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><b><span class="bx-nw">8-9-10</span> baseball</b><span class="bx-bn-a">All-Stars</span><span class="bx-bn-d">Won the final <span class="bx-nw">19-4</span>, then finished 3rd at State.</span></li>
-        <li class="bx-bn bx-sp"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>Interlock champions</span><b>Majors softball Huskies</b><span class="bx-bn-a">Spring season</span><span class="bx-bn-d">District 10 softball interlock. Beat Kent <span class="bx-nw">10-0</span> in the final.</span></li>
-        <li class="bx-bn bx-sp"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District champions</span><b>Juniors baseball Panthers</b><span class="bx-bn-a">Spring season</span><span class="bx-bn-d">Won the end-of-season final <span class="bx-nw">16-0</span>.</span></li>
-        <li class="bx-bn bx-sp bx-wide"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>Division champions</span><b>Spring 2026</b><span class="bx-bn-d">Majors baseball Pirates, Minors baseball Tin Caps and Juniors softball Party Animals (also 2nd at District).</span></li>
-      </ul>
-    </div>
-    <div class="bx-yr">
-      <h3 class="bx-yr-h">2025</h3>
-      <ul class="bx-banners">
-        <li class="bx-bn bx-top bx-wide"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>Northwest Region champions</span><b>Majors baseball</b><span class="bx-bn-a">All-Stars, 10-11-12</span><span class="bx-bn-d">Also District 10 and Washington State champions. Played in the World Series.</span></li>
-        <li class="bx-bn"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><b><span class="bx-nw">9-10-11</span> softball</b><span class="bx-bn-a">All-Stars</span><span class="bx-bn-d">Played at State.</span></li>
-        <li class="bx-bn"><span class="bx-bn-k"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7v3.5a3.5 3.5 0 0 1-7 0z" fill="currentColor"/><path d="M4.5 3h-2v1a2.5 2.5 0 0 0 2.3 2.5M11.5 3h2v1a2.5 2.5 0 0 1-2.3 2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M7 9h2v2.5H7zM5 12h6v2H5z" fill="currentColor"/></svg>District 10 champions</span><b><span class="bx-nw">8-9-10</span> softball</b><span class="bx-bn-a">All-Stars</span><span class="bx-bn-d">Finished 3rd at State.</span></li>
-      </ul>
+      <p><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9.5V20h12V9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M10 20v-5h4v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg><span><b>Welcome home</b>Welcomed home September 6, 2025.</span></p>
     </div>
   </section>
 
@@ -365,15 +234,12 @@
     <div class="bx-next-tx">
       <span class="bx-eyebrow">What's next</span>
       <h2>All-Star summers start in the spring</h2>
-      <p>Spring 2027 registration opens <b>Friday, Nov 27</b>, with a <b>$50 per family</b> opening discount.</p>
+      <p>Spring 2027 registration opens <b>Friday, Nov 27</b>.</p>
       <div class="bx-ctas">
-        <a class="bx-btn" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <a class="bx-btn bx-ghost" href="https://www.blslittleleague.org/Default.aspx?tabid=1457983">How All-Stars works</a>
+        <a class="bx-btn bx-ghost" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
       </div>
     </div>
     <div class="bx-grass" aria-hidden="true"></div>
   </section>
-
-  <p class="bx-ask"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l2-2.5h6L17 7h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z" fill="none" stroke="#1452a0" stroke-width="1.7"/><circle cx="12" cy="12.5" r="3.6" fill="none" stroke="#1452a0" stroke-width="1.7"/></svg><span>Have a photo from San Bernardino or Williamsport? Send it to <a href="mailto:info@blslittleleague.org">info@blslittleleague.org</a></span></p>
 
 </div>

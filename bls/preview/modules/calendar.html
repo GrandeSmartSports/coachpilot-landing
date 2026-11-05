@@ -1,98 +1,58 @@
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap');
 .blsx{font-family:Poppins,Arial,sans-serif !important;color:#00013a;font-size:16px;line-height:1.5;text-align:left !important;}
 .blsx *,.blsx *::before,.blsx *::after{box-sizing:border-box;}
-.blsx h3,.blsx p,.blsx ol,.blsx li{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
+.blsx h2,.blsx h3,.blsx p,.blsx ol,.blsx li{margin:0 !important;padding:0;border:0;background:none;list-style:none;text-align:left !important;text-transform:none;letter-spacing:normal;box-shadow:none;}
 .blsx a{text-decoration:none !important;}
 .blsx svg{display:block;}
 
-/* ---------- key dates ---------- */
-.blsx .ku-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
-.blsx .ku-item{display:flex;flex-direction:column;background:#f5f7fb;border:1px solid #dde3ec;border-radius:14px;overflow:hidden;}
-.blsx .ku-date{display:flex;align-items:baseline;gap:10px;background:#00013a;color:#fff;padding:14px 18px 12px;border-bottom:5px solid #cd163f;}
-.blsx .ku-date i,.blsx .ku-date b{font-style:normal;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:44px;line-height:.9;text-transform:uppercase;color:#fff;white-space:nowrap;}
-.blsx .ku-date span{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:700;font-size:17px;letter-spacing:.12em;text-transform:uppercase;color:#b8c6ea;}
-.blsx .ku-hot .ku-date{background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);}
-.blsx .ku-soon .ku-date{background:#eef2f6;border-bottom-color:#c3ccdc;}
-.blsx .ku-soon .ku-date i,.blsx .ku-soon .ku-date b{color:#00013a;}
-.blsx .ku-soon .ku-date span{color:#4b5675;}
-.blsx .ku-body{flex:1;display:flex;flex-direction:column;align-items:flex-start;padding:16px 18px 18px;}
-.blsx .ku-body h3{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif !important;font-weight:800;font-size:24px;line-height:1.05;text-transform:uppercase;color:#00013a !important;margin-bottom:8px !important;}
-.blsx .ku-body p{font-size:15px;line-height:1.55;color:#4b5675;}
-.blsx .ku-link{margin-top:auto;padding-top:14px;display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#cd163f !important;}
-.blsx .ku-link svg{width:16px;height:16px;transition:transform .2s;}
-.blsx .ku-link:hover svg{transform:translateX(3px);}
-.blsx .ku-tip{margin-top:16px !important;display:flex;align-items:center;gap:10px;font-size:14px;line-height:1.45;color:#4b5675;}
-.blsx .ku-tip svg{flex:none;width:20px;height:20px;}
-.blsx .ku-tip b{color:#00013a;font-weight:600;}
+/* ---------- the one date that matters ---------- */
+.blsx .ku-hero{position:relative;overflow:hidden;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:0;border-radius:18px;background:linear-gradient(155deg,#1452a0 0%,#0a2a78 45%,#00013a 100%);color:#fff;}
+.blsx .ku-hero::after{content:"";position:absolute;right:-90px;top:-110px;width:320px;height:320px;border-radius:50%;border:2px dashed rgba(255,255,255,.14);z-index:-1;}
+.blsx .ku-main{padding:34px 32px 32px 36px;}
+.blsx .ku-eyebrow{display:block;font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;}
+.blsx .ku-date{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin-top:8px;}
+.blsx .ku-date b{font-family:Poppins,Arial,sans-serif;font-weight:900;font-size:clamp(60px,7.5vw,96px);line-height:.95;letter-spacing:-.02em;color:#fff;text-shadow:0 6px 0 #cd163f;white-space:nowrap;}
+.blsx .ku-date span{font-size:19px;font-weight:700;color:#e7ecff;}
+.blsx .ku-h{display:block;margin-top:6px;font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:30px;line-height:1;letter-spacing:.02em;text-transform:uppercase;color:#fff;}
+.blsx .ku-cta{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin-top:24px;padding:17px 20px;border-radius:14px;background:#cd163f;color:#fff !important;font-weight:800;font-size:19px;line-height:1.1;text-align:center !important;box-shadow:0 14px 30px rgba(205,22,63,.38);transition:transform .15s,box-shadow .15s;}
+.blsx .ku-cta:hover{transform:translateY(-2px);box-shadow:0 18px 36px rgba(205,22,63,.45);}
+.blsx .ku-cta svg{width:20px;height:20px;flex:none;}
+.blsx .ku-side{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:30px 32px 30px 28px;border-left:1px solid rgba(255,255,255,.18);background:rgba(0,1,58,.28);}
+.blsx .ku-side .k{font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#ffb8c6;margin-bottom:6px !important;}
+.blsx .ku-win li{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:baseline;column-gap:14px;padding:11px 0;border-top:1px solid rgba(255,255,255,.2);}
+.blsx .ku-win li:last-child{border-bottom:1px solid rgba(255,255,255,.2);}
+.blsx .ku-win b{font-family:'Barlow Condensed','Arial Narrow',Arial,sans-serif;font-weight:800;font-size:21px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;color:#fff;white-space:nowrap;}
+.blsx .ku-win span{font-size:14px;font-weight:500;line-height:1.3;color:#dbe2f4;}
 
-/* ---------- tablet and phone: one date per row ---------- */
-@media (max-width:991px){
-  .blsx .ku-list{grid-template-columns:minmax(0,1fr);gap:12px;}
-  .blsx .ku-item{flex-direction:row;}
-  .blsx .ku-date{flex:none;width:96px;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px 6px;border-bottom:0;border-right:5px solid #cd163f;text-align:center !important;}
-  .blsx .ku-date i{font-size:15px;font-weight:700;letter-spacing:.12em;color:#ffb8c6;line-height:1.1;}
-  .blsx .ku-soon .ku-date i{color:#cd163f;}
-  .blsx .ku-soon .ku-date{border-right-color:#c3ccdc;}
-  .blsx .ku-date b{font-size:46px;}
-  .blsx .ku-date span{font-size:15px;}
-  .blsx .ku-body{padding:14px 16px 16px;}
-  .blsx .ku-body h3{font-size:21px;}
-  .blsx .ku-link{padding-top:10px;}
-}
-@media (max-width:420px){
-  .blsx .ku-date{width:80px;}
-  .blsx .ku-date b{font-size:40px;}
-  .blsx .ku-date i{font-size:13px;letter-spacing:.08em;}
-  .blsx .ku-date span{font-size:13px;letter-spacing:.08em;}
-  .blsx .ku-body p{font-size:14px;}
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .blsx .ku-hero{grid-template-columns:minmax(0,1fr);border-radius:14px;}
+  .blsx .ku-main{padding:22px 18px 22px;}
+  .blsx .ku-date b{font-size:72px;}
+  .blsx .ku-date span{font-size:17px;}
+  .blsx .ku-h{font-size:26px;}
+  .blsx .ku-cta{margin-top:20px;padding:16px 16px;font-size:18px;}
+  .blsx .ku-side{padding:16px 18px 18px;border-left:0;border-top:5px solid #cd163f;}
+  .blsx .ku-win li{padding:9px 0;}
 }
 @media (prefers-reduced-motion:reduce){.blsx *{transition:none !important;}}
 </style>
 <div class="blsx">
-  <ol class="ku-list">
-    <li class="ku-item">
-      <div class="ku-date"><i>Nov</i><b>7</b><span>Sat</span></div>
-      <div class="ku-body">
-        <h3>Fall Ball gear return</h3>
-        <p>10AM to 1PM at the Daffodil Shed. Bring back Fall Ball equipment so it can be packed up for the winter.</p>
-      </div>
-    </li>
-    <li class="ku-item ku-hot">
-      <div class="ku-date"><i>Nov</i><b>27</b><span>Fri</span></div>
-      <div class="ku-body">
-        <h3>Spring 2027 registration opens</h3>
-        <p>Black Friday sale, Fri Nov 27 to Sun Nov 29: $50 off per family.</p>
-        <a class="ku-link" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-      </div>
-    </li>
-    <li class="ku-item">
-      <div class="ku-date"><i>Nov</i><b>30</b><span>Mon</span></div>
-      <div class="ku-body">
-        <h3>Early Bird registration</h3>
-        <p>Mon Nov 30 to Thu Dec 31: $25 off per family.</p>
-      </div>
-    </li>
-    <li class="ku-item">
-      <div class="ku-date"><i>Dec</i><b>6</b><span>Sun</span></div>
-      <div class="ku-body">
-        <h3>Board meeting</h3>
-        <p>6 to 8 PM at Round Table Pizza, Bonney Lake.</p>
-      </div>
-    </li>
-    <li class="ku-item">
-      <div class="ku-date"><i>Jan</i><b>1</b><span>Fri</span></div>
-      <div class="ku-body">
-        <h3>Full price registration</h3>
-        <p>Spring 2027 registration is full price from Jan 1, 2027.</p>
-      </div>
-    </li>
-    <li class="ku-item ku-soon">
-      <div class="ku-date"><i>Spring</i><b>2027</b></div>
-      <div class="ku-body">
-        <h3>Season dates</h3>
-        <p>Posted here as the board sets them.</p>
-      </div>
-    </li>
-  </ol>
+  <section class="ku-hero">
+    <div class="ku-main">
+      <span class="ku-eyebrow">Spring 2027 registration</span>
+      <h2 class="ku-date"><b>Nov 27</b><span>Friday</span></h2>
+      <span class="ku-h">Registration opens</span>
+      <a class="ku-cta" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+    <div class="ku-side">
+      <p class="k">Registration windows</p>
+      <ol class="ku-win">
+        <li><b>Nov 27 to 29</b><span>Black Friday sale</span></li>
+        <li><b>Nov 30 to Dec 31</b><span>Early Bird</span></li>
+        <li><b>Jan 1, 2027</b><span>Full price</span></li>
+      </ol>
+    </div>
+  </section>
 </div>
