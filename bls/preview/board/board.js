@@ -1420,7 +1420,10 @@
     if (st !== 'building' && st !== 'waiting') return null;
     var req = (META[p.slug] && META[p.slug].req) || [];
     if (!req.length) return h('p', { class: 'blsb-gather' }, [h('b', { text: 'All facts in. ' }), 'Daniel is finishing the page.']);
-    var shown = req.slice(0, 2).map(parseReq), more = req.length - shown.length, parts = [];
+    // board decisions are the board's own; members never see them listed (Coach 11/4)
+    req = req.map(parseReq).filter(function (q) { return S.admin || q.kind !== 'board'; });
+    if (!req.length) return h('p', { class: 'blsb-gather' }, [h('b', { text: 'All facts in. ' }), 'Daniel is finishing the page.']);
+    var shown = req.slice(0, 2), more = req.length - shown.length, parts = [];
     shown.forEach(function (q, i) { if (i) parts.push(' '); parts = parts.concat(reqEl(q, false)); parts.push(/[.!?]$/.test(q.text) ? '' : '.'); });
     if (more > 0) parts.push(' And ' + more + ' more.');
     return h('p', { class: 'blsb-gather' }, parts);
@@ -1432,7 +1435,8 @@
       if (p.state !== 'waiting' && p.state !== 'building') return null;
       var soft = h('div', { class: 'blsb-req blsb-req-soft' }, [h('div', { class: 'blsb-req-h', text: 'What this page is waiting on' })]);
       var groups = [['board', 'Board decisions'], ['info', 'Information needed'], ['daniel', 'Steps Daniel owns'], ['other', 'Also']];
-      var qs = req.map(parseReq);
+      var qs = req.map(parseReq).filter(function (q) { return q.kind !== 'board'; });
+      if (!qs.length) return null;
       groups.forEach(function (g) {
         var rows = qs.filter(function (q) { return q.kind === g[0]; });
         if (!rows.length) return;

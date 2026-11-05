@@ -12,7 +12,7 @@
   "765767",
   "1561699"
  ],
- "status": "Ready after 2 items",
+ "status": "Ready after 1 item",
  "summary": "Volunteer recruiting page: Fall Ball 2026 tally, four roles (coach, umpire, team and fields, board with the open Umpire in Chief seat), employer hour matching, the three cleared-volunteer steps, then the sign-up listing.",
  "blurb": "Ways to help this season, from coaching to umpiring to fields, and how to get cleared to volunteer.",
  "sources": [
@@ -78,7 +78,9 @@
   "Board: who leads the Opening Day and Tacoma Rainiers Day committees for 2027; they are left off the page until confirmed."
  ],
  "required": [
-  "Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today.",
-  "Board decision: the cleared-volunteer plan, and who sends the weekly cleared email."
+  "Daniel: turn on the Spring 2027 volunteer form, with Ramey or Melissa. The sign-up list is empty today."
+ ],
+ "board_calls": [
+  "the cleared-volunteer plan, and who sends the weekly cleared email. (board's own call, never asked for)"
  ]
 }

@@ -6,7 +6,7 @@
   }
  },
  "page_title": "Schedules & Scores",
- "status": "Ready after 4 items",
+ "status": "Ready after 2 items",
  "summary": "New phone-first page that replaces Posted Schedules, View Scores and View Standings: one big button per spring division (7 baseball, 5 softball), each opening that division's GameChanger league page, three steps to follow your team and sync games to your phone calendar, a Key Dates pointer to the Calendar page, and a note that spring 2027 schedules post before Opening Day.",
  "blurb": "A proposed new page that makes your team's spring schedule easy to find.",
  "sources": [
@@ -112,9 +112,11 @@
   "When PlayMetrics opens to BLS: compare its standings (tiebreaks, point adjustments, interlock) with GameChanger's before moving anything."
  ],
  "required": [
-  "Board decision: where scores and standings live. Daniel recommends GameChanger, one league per division.",
-  "Board decision: replace Posted Schedules, View Scores and View Standings with this page.",
   "Daniel: create one GameChanger league per division.",
   "Daniel: test that a league link opens without a GameChanger account."
+ ],
+ "board_calls": [
+  "where scores and standings live. Daniel recommends GameChanger, one league per division. (board's own call, never asked for)",
+  "replace Posted Schedules, View Scores and View Standings with this page. (board's own call, never asked for)"
  ]
 }

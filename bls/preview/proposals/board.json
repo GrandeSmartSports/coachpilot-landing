@@ -4,7 +4,7 @@
    "file": "modules/board.html"
   }
  },
- "status": "Ready after 1 item",
+ "status": "Ready to launch",
  "summary": "2026-27 board from the Oct 25 Annual Meeting and the Nov 1 board meeting: five officers (President as the lead card), every other seat grouped by what parents ask about with role emails, and a Get involved block (open Umpire in Chief seat, the new Fields Committee, the Dec 6 meeting, the October vote).",
  "blurb": "Who is on the 2026-27 board and how to reach each role.",
  "sources": [
@@ -54,7 +54,8 @@
   "Whoever manages the league email aliases: the division player agent aliases (majorsbbpa@, minorsbbpa@, doubleapa@, jrspabb@, sbmajorspa@, minorssbpa@, cppa@, tbpa@), sbuniforms@, sbequipment@, bbequipment@ and umpires@ are left off because the new roster names no one for them (those questions go to pa@, uniforms@, equipment@ and info@), so add back any that are still staffed.",
   "Information Officer (Melissa Olsen): confirm the BLSLL Constitution file the page links to is the current version."
  ],
- "required": [
-  "Board decision: show the board list on the site. The page is hidden today."
+ "required": [],
+ "board_calls": [
+  "show the board list on the site. The page is hidden today. (board's own call, never asked for)"
  ]
 }

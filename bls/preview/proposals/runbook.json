@@ -6,7 +6,7 @@
   }
  },
  "page_title": "Coach Run Book",
- "status": "Ready after 5 items",
+ "status": "Ready after 3 items",
  "summary": "New phone-first page that replaces the 2026 Word run book: a first-five lineup card, the season in order with 2027 dates marked coming soon, the three clearance steps, tap-to-open chapters on teams, rules and GameChanger, a copy-ready family email, uniforms and gear, a new safety section and a who-to-ask directory.",
  "blurb": "A phone-friendly coach run book to replace the Word document.",
  "sources": [
@@ -211,10 +211,12 @@
   "Website (Daniel Grande): the run book, Volunteer and Board pages send Fields Committee sign-ups to info@; the Fields page uses fields@. Pick one address for all four."
  ],
  "required": [
-  "Board decision: replace the 2026 Word run book with this page.",
-  "Board decision: set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates.",
   "Daniel: turn on spring 2027 coach and volunteer sign-up, with the Secretary or Information Officer.",
   "Daniel: put the Fields page live on blslittleleague.org first.",
   "Info needed (Dena Berkey): the 2027 uniform sizing steps by division."
+ ],
+ "board_calls": [
+  "replace the 2026 Word run book with this page. (board's own call, never asked for)",
+  "set the 2027 evaluation, draft, meeting, gear pickup and Opening Day dates. (board's own call, never asked for)"
  ]
 }
