@@ -45,11 +45,13 @@
   "VP of Baseball (Jeremy Olsen): league ages 15 and 16 show their birth dates but no BLS division (the chart tops out at Juniors 13 to 14); confirm whether Juniors takes 15-year-olds (a Mar 2026 post said 13 to 15) so the rows can name it.",
   "VP of Softball (Luke Kress): confirm the spring 2027 softball division names and league ages on this page (Minors B, Minors A, Majors, Juniors), and whether softball AA runs in spring.",
   "Website (Daniel Grande): this page needs its own Sports Connect page under Registration in the menu; Registration and the FAQ already link to it.",
-  "President (Ramey Harguess): boundary questions go to president@ from this page (the Little League League Finder button came off 11/4 under the no-outside-links rule); a boundary map on our own site would answer them without an email."
+  "President (Ramey Harguess): boundary questions go to president@ from this page (the Little League League Finder button came off 11/4 under the no-outside-links rule); a boundary map on our own site would answer them without an email.",
+  "Detail for the required items (moved 11/4): Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.",
+  "Detail for the required items (moved 11/4): Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."
  ],
  "required": [
-  "Daniel (Website), in Sports Connect: edit menu page 1270154 (Registration > Age Charts) so it links to this League Age page and rename it League Age; change the footer quick link League Age Calculator to the same page. Both send parents to littleleague.org from every page today, the hop that lost Coach's wife.",
-  "Daniel (Website), same pass in Sports Connect: menu page 1270164 Challenger Division (littleleague.org) to this page's Challenger box or the Registration page; 776461 Approved Bats (littleleague.org) to the FAQ once the bat rule is in answer 3; the five Health menu PDFs 776463, 776474, 776475, 776476 and 776477 (clubs.bluesombrero.com) to the /portals/50558/ paths the Health page uses."
+  "Daniel: point the Age Charts menu link and the footer League Age Calculator link to this page.",
+  "Daniel: point the Challenger, Approved Bats and Health menu links to our own pages."
  ],
  "long_summary": "New page: a Baseball/Softball switch, then a birth-date table for league ages 4 to 16 (baseball = age on Aug 31, 2027; softball = age on Dec 31, 2026) with the BLS division beside each age, the division chips from the Registration page, the Challenger contact, the towns BLS serves with the President's email for boundary questions, and a Registration button. No outside links. Replaces every League Age Calculator link that sent parents off the site."
 }
