@@ -6,7 +6,7 @@
   }
  },
  "page_title": "League Age",
- "status": "Ready after 2 items",
+ "status": "Ready after 3 items",
  "summary": "New page: pick baseball or softball, find your child's birth date, see the league age and division. Why: this used to send parents off to littleleague.org and they got lost.",
  "blurb": "A new page that turns a birth date into a league age and a BLS division, without leaving the site.",
  "sources": [
@@ -51,7 +51,8 @@
  ],
  "required": [
   "Daniel: point the Age Charts menu link and the footer League Age Calculator link to this page.",
-  "Daniel: point the Challenger, Approved Bats and Health menu links to our own pages."
+  "Daniel: point the Challenger, Approved Bats and Health menu links to our own pages.",
+  "Info needed (Luke Kress): which league ages play softball AA, so the softball table can show it. AA ran in 2026 (Sports Connect schedules) but the age chart only names Minors B and Minors A."
  ],
  "long_summary": "New page: a Baseball/Softball switch, then a birth-date table for league ages 4 to 16 (baseball = age on Aug 31, 2027; softball = age on Dec 31, 2026) with the BLS division beside each age, the division chips from the Registration page, the Challenger contact, the towns BLS serves with the President's email for boundary questions, and a Registration button. No outside links. Replaces every League Age Calculator link that sent parents off the site."
 }
