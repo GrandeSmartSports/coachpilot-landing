@@ -63,6 +63,11 @@
       "source": "/bls/website-updates",
       "destination": "/bls/website-updates/",
       "permanent": false
+    },
+    {
+      "source": "/bls/remind",
+      "destination": "/bls/remind/",
+      "permanent": false
     }
   ],
   "rewrites": [

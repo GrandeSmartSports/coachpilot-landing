@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registration day reminder | Bonney Lake Sumner Little League</title>
+<meta name="description" content="Leave your email and get one message the morning Spring 2027 registration opens.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="https://go.blslittleleague.org/bls/assets/bls-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--ink:#1f2326;--mute:#5f6b7a;--line:#dde3ec;--bg:#eef2f6;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.5 Poppins,-apple-system,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:520px;margin:0 auto;padding:28px 16px 48px;}
+  .card{background:#fff;border-radius:18px;border-top:6px solid var(--red);box-shadow:0 10px 30px rgba(0,1,58,.08);padding:26px 22px 28px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand img{width:56px;height:56px;display:block;}
+  .brand span{font:700 11px/1.3 Poppins,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--red);}
+  h1{margin:16px 0 0;font:800 clamp(32px,9vw,42px)/.98 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--navy);}
+  .lead{margin:12px 0 0;color:var(--ink);}
+  .lead b{color:var(--navy);}
+  form{margin:22px 0 0;}
+  label{display:block;font:600 13px/1.3 Poppins,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:8px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+  input[type=email]{flex:1 1 220px;min-width:0;height:54px;border:2px solid var(--line);border-radius:14px;padding:0 16px;font:500 17px Poppins,sans-serif;color:var(--ink);background:#fff;}
+  input[type=email]:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(20,82,160,.15);}
+  button{flex:0 0 auto;height:54px;border:0;border-radius:999px;padding:0 26px;background:var(--red);color:#fff;font:700 17px Poppins,sans-serif;cursor:pointer;}
+  button:hover{background:#b01236;}
+  button[disabled]{opacity:.6;cursor:default;}
+  .hp{position:absolute;left:-9999px;top:-9999px;height:1px;width:1px;overflow:hidden;}
+  .msg{margin:18px 0 0;padding:14px 16px;border-radius:14px;font-weight:500;}
+  .ok{background:#e9f2ff;color:#0f3f7d;border:1px solid #c9dcf5;}
+  .err{background:#fdecef;color:#8a0f2a;border:1px solid #f5c4ce;}
+  .windows{margin:24px 0 0;border-top:1px solid var(--line);padding-top:18px;}
+  .windows span.k{display:block;font:600 12px/1.3 Poppins,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:8px;}
+  .windows ol{list-style:none;margin:0;padding:0;}
+  .windows li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid #eef1f5;}
+  .windows li:first-child{border-top:0;}
+  .windows b{font:700 20px/1.1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--navy);white-space:nowrap;}
+  .windows i{font-style:normal;color:var(--mute);text-align:right;}
+  .foot{margin:22px 0 0;font-size:14px;color:var(--mute);}
+  .foot a{color:var(--blue);font-weight:600;}
+  .back{display:inline-block;margin-top:18px;color:var(--blue);font-weight:600;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="brand"><img src="https://go.blslittleleague.org/bls/assets/bls-logo.png" alt=""><span>Bonney Lake Sumner Little League</span></div>
+    <h1>Registration day reminder</h1>
+    <p class="lead">Spring 2027 registration opens <b>Friday, November 27</b>. Leave your email and we'll send one message that morning so you don't miss the Black Friday sale.</p>
+
+    <div id="msg" hidden></div>
+
+    <form id="f" method="post" action="https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway?action=remind_signup">
+      <input type="hidden" name="next" value="https://go.blslittleleague.org/bls/remind/">
+      <input type="hidden" name="source" value="remind-page">
+      <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <label for="email">Your email</label>
+      <div class="row">
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
+        <button type="submit">Remind me</button>
+      </div>
+    </form>
+
+    <div class="windows">
+      <span class="k">Registration windows</span>
+      <ol>
+        <li><b>Nov 27 to 29</b><i>Black Friday sale: $50 off per family</i></li>
+        <li><b>Nov 30 to Dec 31</b><i>Early Bird: $25 off per family</i></li>
+        <li><b>From Jan 1, 2027</b><i>Full price</i></li>
+      </ol>
+    </div>
+
+    <p class="foot">One reminder email, nothing else. Every email has a remove link. Questions? <a href="mailto:website@blslittleleague.org">website@blslittleleague.org</a></p>
+    <a class="back" href="https://www.blslittleleague.org/Default.aspx?tabid=716841">Registration info &rsaquo;</a>
+  </div>
+</div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), msg = document.getElementById('msg'), f = document.getElementById('f');
+  function show(kind, text) { msg.className = 'msg ' + kind; msg.textContent = text; msg.hidden = false; }
+  if (q.get('ok')) { show('ok', "You're on the list. Watch for an email from us the morning of Friday, November 27."); f.hidden = true; }
+  else if (q.get('gone')) { show('ok', 'Your email has been removed. You will not get the reminder.'); }
+  else if (q.get('err')) { show('err', q.get('err')); }
+  if (q.toString()) history.replaceState(null, '', location.pathname);
+  f.addEventListener('submit', function (e) {
+    if (!window.fetch) return; // plain post still works
+    e.preventDefault();
+    var btn = f.querySelector('button'); btn.disabled = true;
+    fetch(f.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: 'remind-page' }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) { if (x.ok && x.j.ok) { show('ok', "You're on the list. Watch for an email from us the morning of Friday, November 27."); f.hidden = true; } else { show('err', (x.j && x.j.error) || 'Could not save that. Please try again.'); btn.disabled = false; } })
+      .catch(function () { btn.disabled = false; f.submit(); });
+  });
+})();
+</script>
+</body>
+</html>

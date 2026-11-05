@@ -93,11 +93,155 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   return !!(res && res.ok);
 }
 
+// ---------- Registration-day reminders (table bls_reg_reminders) ----------
+// A family leaves an email on the Registration page (or go.blslittleleague.org/bls/remind/), gets one confirmation
+// now and one email the morning registration opens. pg_cron calls remind_send on Nov 27 with x-cron-key.
+const GW = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
+const REMIND_PAGE = "https://go.blslittleleague.org/bls/remind/";
+const REGISTER_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716844";
+const REG_INFO_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716841";
+const BLS_FROM = Deno.env.get("BLS_FROM") || "BLS Little League <noreply@coachpilot.org>";
+const BLS_REPLY_TO = "website@blslittleleague.org";
+const OPEN_DAY = "Friday, November 27";
+const SIGNUP_IP_HOURLY = 6;
+
+const emailOk = (e: string) => e.length <= 254 && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e);
+async function settingValue(key: string): Promise<string> {
+  const { data } = await db.from("bls_board_settings").select("value").eq("key", key).maybeSingle();
+  return String(data?.value ?? "");
+}
+async function ipHash(req: Request): Promise<string> {
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || req.headers.get("cf-connecting-ip") || "";
+  const salt = await settingValue("cron_key");
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + "|" + salt));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+const F = "-apple-system,Helvetica,Arial,sans-serif";
+function blsEmail(title: string, lead: string, ctaText: string, ctaUrl: string, foot: string): string {
+  return `<!doctype html><html><body style="margin:0;padding:0;background:#eef2f6"><div style="max-width:560px;margin:0 auto;padding:16px">
+<div style="background:#fff;border-radius:14px;border-top:5px solid #cd163f;padding:22px 22px 24px">
+  <img src="https://coachpilot.org/bls/assets/bls-logo.png" width="64" height="64" border="0" alt="BLS Little League" style="display:block;width:64px;height:64px;margin:0 0 10px">
+  <div style="font:700 11px/1.3 ${F};letter-spacing:.2em;text-transform:uppercase;color:#cd163f">Bonney Lake Sumner Little League</div>
+  <div style="margin-top:6px;font:800 24px/1.15 ${F};color:#00013a">${title}</div>
+  <p style="margin:12px 0 0;font:400 16px/1.5 ${F};color:#1f2326">${lead}</p>
+  <p style="margin:20px 0 0"><a href="${ctaUrl}" style="display:inline-block;background:#cd163f;color:#fff;text-decoration:none;font:700 16px/1 ${F};padding:14px 22px;border-radius:999px">${ctaText}</a></p>
+  <p style="margin:22px 0 0;font:400 13px/1.5 ${F};color:#6b7279">${foot}</p>
+</div></div></body></html>`;
+}
+async function resendSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
+  const key = Deno.env.get("RESEND_API_KEY") || "";
+  if (!key) return { ok: false };
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: BLS_FROM, reply_to: BLS_REPLY_TO, ...msg }),
+  }).catch(() => null);
+  if (!res || !res.ok) return { ok: false };
+  const j = await res.json().catch(() => ({}));
+  return { ok: true, id: j?.id };
+}
+function unsubUrl(token: string) { return `${GW}?action=remind_unsub&t=${encodeURIComponent(token)}`; }
+function confirmMsg(to: string, token: string) {
+  const u = unsubUrl(token);
+  return {
+    to: [to], subject: "You're on the list for BLS registration day", headers: { "List-Unsubscribe": `<${u}>` },
+    text: `Spring 2027 registration opens ${OPEN_DAY}. We'll email you that morning.\n\nBlack Friday sale Nov 27 to 29: $50 off per family. Early Bird Nov 30 to Dec 31: $25 off per family.\n\nRegistration info: ${REG_INFO_URL}\n\nDidn't sign up for this? Ignore it, or remove your email here: ${u}`,
+    html: blsEmail("You're on the list", `Spring 2027 registration opens <b>${OPEN_DAY}</b>. We'll email you that morning.<br><br>Black Friday sale Nov 27 to 29: $50 off per family. Early Bird Nov 30 to Dec 31: $25 off per family.`,
+      "Registration info", REG_INFO_URL, `Didn't sign up for this? Ignore it, or <a href="${u}" style="color:#1452a0">remove your email</a>.`),
+  };
+}
+function reminderMsg(to: string, token: string) {
+  const u = unsubUrl(token);
+  return {
+    to: [to], subject: "BLS registration is open today", headers: { "List-Unsubscribe": `<${u}>` },
+    text: `Spring 2027 registration for Bonney Lake Sumner Little League opens today.\n\nBlack Friday sale through Sunday, Nov 29: $50 off per family.\n\nRegister: ${REGISTER_URL}\nRegistration info: ${REG_INFO_URL}\n\nYou asked for this one-time reminder. Remove your email: ${u}`,
+    html: blsEmail("Registration is open today", `Spring 2027 registration for Bonney Lake Sumner Little League opens today.<br><br><b>Black Friday sale through Sunday, Nov 29: $50 off per family.</b>`,
+      "Register now", REGISTER_URL, `You asked for this one-time reminder. <a href="${REG_INFO_URL}" style="color:#1452a0">Registration info</a> &middot; <a href="${u}" style="color:#1452a0">Remove your email</a>`),
+  };
+}
+async function readBody(req: Request): Promise<Record<string, string>> {
+  const ct = req.headers.get("content-type") || "";
+  if (ct.includes("application/json")) { const j = await req.json().catch(() => ({})); return Object.fromEntries(Object.entries(j || {}).map(([k, v]) => [k, String(v ?? "")])); }
+  const t = await req.text().catch(() => "");
+  return Object.fromEntries(new URLSearchParams(t).entries());
+}
+const redirect = (to: string) => new Response(null, { status: 303, headers: { ...cors, Location: to } });
+const safeNext = (n: string) => (n.startsWith("https://go.blslittleleague.org/") || n.startsWith("https://www.blslittleleague.org/")) ? n.split("#")[0].split("?")[0] : REMIND_PAGE;
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "";
   try {
+    if (action === "remind_signup" && req.method === "POST") {
+      const b = await readBody(req);
+      const wantsJson = (req.headers.get("content-type") || "").includes("application/json");
+      const next = safeNext(String(b.next || ""));
+      const fail = (msg: string, code = 400) => wantsJson ? json({ error: msg }, code) : redirect(`${next}?err=${encodeURIComponent(msg)}`);
+      const email = String(b.email || "").trim().toLowerCase();
+      if (String(b.website || "").trim()) return wantsJson ? json({ ok: true }) : redirect(`${next}?ok=1`); // honeypot: pretend
+      if (!emailOk(email)) return fail("Please enter a valid email address.");
+      const hash = await ipHash(req);
+      const since = new Date(Date.now() - 3600_000).toISOString();
+      const { count } = await db.from("bls_reg_reminders").select("id", { count: "exact", head: true }).eq("ip_hash", hash).gte("created_at", since);
+      if ((count || 0) >= SIGNUP_IP_HOURLY) return wantsJson ? json({ ok: true }) : redirect(`${next}?ok=1`); // quiet cap
+      const { data: existing } = await db.from("bls_reg_reminders").select("id, unsub_token, confirm_sent_at, unsubscribed_at").eq("email_key", email).maybeSingle();
+      let token = existing?.unsub_token as string | undefined;
+      if (!existing) {
+        const { data: row, error } = await db.from("bls_reg_reminders").insert({ email, email_key: email, source: clip(b.source, 40) || "page", ip_hash: hash }).select("unsub_token").single();
+        if (error || !row) return fail("Could not save that. Please try again.", 500);
+        token = row.unsub_token;
+      } else if (existing.unsubscribed_at) {
+        await db.from("bls_reg_reminders").update({ unsubscribed_at: null, confirm_sent_at: null, reminder_sent_at: null, source: clip(b.source, 40) || "page" }).eq("id", existing.id);
+      }
+      if (!existing || existing.unsubscribed_at || !existing.confirm_sent_at) {
+        const sent = await resendSend(confirmMsg(email, token!));
+        if (sent.ok) await db.from("bls_reg_reminders").update({ confirm_sent_at: new Date().toISOString() }).eq("email_key", email);
+      }
+      return wantsJson ? json({ ok: true }) : redirect(`${next}?ok=1`);
+    }
+    if (action === "remind_unsub") {
+      const t = url.searchParams.get("t") || "";
+      if (t) await db.from("bls_reg_reminders").update({ unsubscribed_at: new Date().toISOString() }).eq("unsub_token", t).is("unsubscribed_at", null);
+      return redirect(`${REMIND_PAGE}?gone=1`);
+    }
+    if (action === "remind_send" && req.method === "POST") {
+      const pin = req.headers.get("x-admin-pin") || "", ck = req.headers.get("x-cron-key") || "";
+      const [code, cronKey] = await Promise.all([adminCode(), settingValue("cron_key")]);
+      const isAdmin = !!code && pin === code, isCron = !!cronKey && ck === cronKey;
+      if (!isAdmin && !isCron) return json({ error: "Not allowed" }, 401);
+      const b = await readBody(req);
+      if (isAdmin && b.test_to) { // sample to one inbox, rows untouched
+        if (!emailOk(String(b.test_to))) return json({ error: "Bad test_to" }, 400);
+        const r = await resendSend(reminderMsg(String(b.test_to).toLowerCase(), "test"));
+        return json({ ok: r.ok, id: r.id, test: true });
+      }
+      const { data: rows } = await db.from("bls_reg_reminders").select("id, email, unsub_token").is("reminder_sent_at", null).is("unsubscribed_at", null).order("created_at").limit(500);
+      let sent = 0, failed = 0;
+      for (const r of rows || []) {
+        const res = await resendSend(reminderMsg(r.email, r.unsub_token));
+        if (res.ok) { sent++; await db.from("bls_reg_reminders").update({ reminder_sent_at: new Date().toISOString() }).eq("id", r.id); } else failed++;
+        await new Promise((ok) => setTimeout(ok, 550)); // Resend default rate: 2 requests per second
+      }
+      return json({ ok: true, sent, failed, remaining: Math.max(0, (rows || []).length - sent - failed) });
+    }
+    if (action === "remind_delete" && req.method === "POST") { // admin: honor a removal request, or clear a test row
+      const pin = req.headers.get("x-admin-pin") || "";
+      const code = await adminCode();
+      if (!code || pin !== code) return json({ error: "Wrong PIN" }, 401);
+      const b = await readBody(req);
+      const email = String(b.email || "").trim().toLowerCase();
+      if (!emailOk(email)) return json({ error: "Bad email" }, 400);
+      const { error } = await db.from("bls_reg_reminders").delete().eq("email_key", email);
+      return json({ ok: !error });
+    }
+    if (action === "remind_report") {
+      const pin = req.headers.get("x-admin-pin") || "";
+      const code = await adminCode();
+      if (!code || pin !== code) return json({ error: "Wrong PIN" }, 401);
+      const { data: rows } = await db.from("bls_reg_reminders").select("email, source, created_at, confirm_sent_at, reminder_sent_at, unsubscribed_at, unsub_token").order("created_at", { ascending: false }).limit(2000);
+      const all = rows || [];
+      return json({ total: all.length, active: all.filter((r) => !r.unsubscribed_at).length, reminded: all.filter((r) => r.reminder_sent_at).length, unsubscribed: all.filter((r) => r.unsubscribed_at).length, rows: all });
+    }
     if (action === "review_submit" && req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       const review = String(body.review || "");
