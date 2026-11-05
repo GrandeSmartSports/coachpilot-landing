@@ -1,6 +1,6 @@
 {
  "status": "Ready to launch",
- "summary": "Key Dates card (Nov 7 gear return, Nov 27 to 29 Black Friday registration, Nov 30 to Dec 31 Early Bird, Dec 6 board meeting, Jan 1 full price, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today.",
+ "summary": "Key Dates card (Nov 7 gear return, Nov 27 to 29 Black Friday registration, Nov 30 to Dec 31 Early Bird, Dec 6 board meeting, Jan 1 full price, spring dates) above Sports Connect's own calendar, which keeps the shared site style; on phones the month grid scrolls sideways inside its box, same as today. The empty month grid is removed; Key Dates is the whole page until the league keeps a live calendar.",
  "blurb": "Key dates up top, with the league calendar below.",
  "insert_before": [
   {
@@ -31,7 +31,11 @@
   "President (Ramey Harguess) with VP of Baseball (Jeremy Olsen) and VP of Softball (Luke Kress): the 2027 key dates to load into the Sports Connect calendar (registration close, evaluations, draft, coaches meetings, DICK'S weekends, Opening Day, picture day, Rainiers night, All-Star start); nothing for 2027 is posted yet.",
   "Secretary (Tawnie LaValley): the rest of the 2026-27 board meeting dates for the calendar; the Nov 1 minutes set only the next one (Sunday Dec 6, 6 to 8 PM, Round Table Pizza, Bonney Lake), now on the Key Dates card.",
   "Information Officer (Melissa Olsen): who keeps the Sports Connect calendar up to date this season? It is empty today; the Nov 7 gear return, Nov 27 registration opening, Nov 30 Early Bird start, Dec 6 board meeting and Jan 1 full price date should go in first.",
-  "Website (Daniel Grande): take each Key Dates card down after its date passes (gear return after Nov 7, Black Friday after Nov 29, board meeting after Dec 6, Early Bird after Dec 31), and add the next key dates as they are set."
+  "Website (Daniel Grande): take each Key Dates card down after its date passes (gear return after Nov 7, Black Friday after Nov 29, board meeting after Dec 6, Early Bird after Dec 31), and add the next key dates as they are set.",
+  "Coach 11/4: the blank Sports Connect month calendar at the bottom was ugly; removed from the page. Bring it back (or link it) only once someone keeps it filled."
  ],
- "required": []
+ "required": [],
+ "hide": [
+  "767585"
+ ]
 }

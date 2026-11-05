@@ -42,7 +42,7 @@ const PIN_WINDOW = 15 * 60 * 1000;
 const PIN_IP_MAX = 10;
 const PIN_ALL_MAX = 30;
 const EMAIL_HOUR_MAX = 20;
-const ITEM_COLS = "id, slug, kind, body, author_name, author_role, is_admin, parent_id, variant, pin_x, pin_y, pin_w, req_item, status, resolution_note, hidden, created_at, resolved_at, emailed_at";
+const ITEM_COLS = "id, slug, kind, body, author_name, author_role, is_admin, parent_id, variant, pin_x, pin_y, pin_w, req_item, status, resolution_note, hidden, created_at, resolved_at, emailed_at, to_board";
 const PAGE_COLS = "slug, title, state, phase_id, ready_deadline, hold_remaining_ms, due_date, live_since, live_url, note, sort, updated_at, reviewers, asks";
 const EVENT_COLS = "id, slug, kind, detail, actor, item_id, created_at";
 // The only event kinds everyone sees. All others (state changes, countdowns, feedback activity) are admin only.
@@ -80,6 +80,7 @@ type Item = {
   is_admin: boolean; parent_id: string | null; variant: string | null; pin_x: number | null; pin_y: number | null;
   pin_w: number | null; req_item: string | null; status: string; resolution_note: string | null; hidden: boolean;
   created_at: string; resolved_at: string | null; emailed_at: string | null;
+  to_board?: boolean | null;
 };
 
 // ---------- small helpers ----------
@@ -455,10 +456,12 @@ async function applyTimer(p: Page, timer: string): Promise<Page> {
 }
 
 // ---------- public shapes ----------
+const isDaniel = (i: Item) => !!i.is_admin || String(i.author_name || "").trim().toLowerCase() === "daniel grande";
 const publicItem = (i: Item) => ({
   id: i.id, slug: i.slug, kind: i.kind, body: i.body, author_name: i.author_name, author_role: i.author_role,
   is_admin: i.is_admin, parent_id: i.parent_id, variant: i.variant, pin_x: i.pin_x, pin_y: i.pin_y, pin_w: i.pin_w,
   req_item: i.req_item, status: i.status, resolution_note: i.resolution_note, created_at: i.created_at, resolved_at: i.resolved_at,
+  to_board: !!i.to_board,
 });
 
 // Counts are top-level items only (replies are part of their thread), never private or hidden ones.
@@ -506,6 +509,12 @@ async function buildState(admin: boolean, includeTest: boolean) {
   items = items.filter((i) => testOk(i.slug, i.author_name));
   const visibleIds = new Set(items.map((i) => i.id));
   items = items.filter((i) => !i.parent_id || visibleIds.has(i.parent_id));
+  // Comments, suggestions, concerns and help offers stay between the writer and Daniel until he opens the discussion
+  // (Coach 11/4). Approvals stay so each person's own Approve toggle keeps working.
+  const commentsPublic = (await settings()).comments_public === "true";
+  if (!admin && !commentsPublic) items = items.filter((i) => i.kind === "approve");
+  // Daniel's own notes are written for the website work, not for the board: members see one only when he marks it to_board.
+  if (!admin) items = items.filter((i) => !(isDaniel(i) && !i.to_board));
   const pages = ((pagesR.data || []) as Page[]).filter((p) => includeTest || !isTestSlug(p.slug)).map((p) => publicPage(p, items, now));
   const listed = items.filter((i) => admin || i.kind !== "private").slice(0, 500).map(publicItem);
   // A ZZTEST page update (test runs post them board-wide) only shows with test=1.
@@ -534,6 +543,7 @@ async function buildState(admin: boolean, includeTest: boolean) {
     ok: true,
     now: new Date(now).toISOString(),
     viewer: { admin, name: admin ? ADMIN_NAME : null },
+    comments_public: commentsPublic,
     people: ((peopleR.data || []) as { name: string; role: string }[]).filter((p) => includeTest || !isTestName(p.name)).map((p) => ({ name: p.name, role: p.role })),
     pages,
     phases: ((phasesR.data || []) as { name: string }[]).filter((p) => includeTest || !isTestName(p.name)),
@@ -645,7 +655,7 @@ async function postItem(req: Request, b: Record<string, unknown>) {
 
   const { data: ins, error } = await db.from("bls_board_items").insert({
     slug, kind, body, author_name: name, author_role: role, is_admin: admin, parent_id: parent?.id ?? null,
-    variant, pin_x, pin_y, pin_w, req_item: reqItem,
+    variant, pin_x, pin_y, pin_w, req_item: reqItem, to_board: admin && b.to_board === true,
   }).select(ITEM_COLS).single();
   if (error) throw error;
   const item = ins as Item;
@@ -840,7 +850,7 @@ async function adminReply(b: Record<string, unknown>) {
   const kind = parent.kind === "private" ? "private" : "comment";
   const { data, error } = await db.from("bls_board_items").insert({
     slug: parent.slug, kind, body, author_name: ADMIN_NAME, author_role: ADMIN_ROLE, is_admin: true, parent_id: parent.id,
-    variant: parent.variant,
+    variant: parent.variant, to_board: b.to_board === true,
   }).select(ITEM_COLS).single();
   if (error) throw error;
   if (kind !== "private") {
@@ -1091,6 +1101,23 @@ Deno.serve(async (req) => {
       case "admin_resolve": await requireAdmin(req); postOnly(); await expire(); return json(await adminResolve(b));
       case "admin_reply": await requireAdmin(req); postOnly(); return json(await adminReply(b));
       case "admin_hide": await requireAdmin(req); postOnly(); return json(await adminHide(b));
+      case "admin_to_board": {
+        await requireAdmin(req); postOnly();
+        const it = await getItem(String(b.id || ""));
+        if (!it) return json({ ok: false, error: "Could not find that post." }, 404);
+        const { data: upd, error: e2 } = await db.from("bls_board_items").update({ to_board: b.to_board === true }).eq("id", it.id).select(ITEM_COLS).single();
+        if (e2) throw e2;
+        return json({ ok: true, item: publicItem(upd as Item) });
+      }
+      case "admin_setting": {
+        await requireAdmin(req); postOnly();
+        const key = String(b.key ?? ""), value = String(b.value ?? "");
+        if (key !== "comments_public") return json({ ok: false, error: "That setting cannot be changed here." }, 400);
+        if (value !== "true" && value !== "false") return json({ ok: false, error: "value must be true or false" }, 400);
+        await setSetting(key, value);
+        await db.from("bls_board_events").insert({ slug: null, kind: "state_changed", detail: value === "true" ? "Comments opened to everyone on the board." : "Comments set to Daniel only.", actor: ADMIN_NAME });
+        return json({ ok: true, key, value });
+      }
       case "admin_update": await requireAdmin(req); postOnly(); return json(await adminUpdate(b));
       case "admin_phase": await requireAdmin(req); postOnly(); return json(await adminPhase(b));
       case "admin_person": await requireAdmin(req); postOnly(); return json(await adminPerson(b));
