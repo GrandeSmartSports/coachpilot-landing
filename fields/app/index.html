@@ -248,30 +248,131 @@
   .instrow .ic { width: 30px; height: 30px; flex: 0 0 30px; color: var(--t-accent); }
   .instrow .tx { font-size: 14.5px; color: var(--t-ink); }
 
-  /* ---------- look C only: ballfield identity ----------
-     A chalk-dash baseline (see --t-chalkline above), a clay infield-dirt edge
-     on every card, a home-plate mark on each field card, a turf-stripe card
-     background behind each field, and a diamond bullet on This week's dates.
-     Every bit of it is CSS (two ::before icon marks via clip-path); no JS,
-     no new markup, nothing that touches look A, B, or the default. */
   [data-look="c"] .chalkline { height: 6px; }
-  [data-look="c"] .card, [data-look="c"] .person { border-top: 4px solid var(--t-clay); }
-  [data-look="c"] .fieldblock {
-    background: repeating-linear-gradient(135deg, #e7eee1 0 16px, #dce6d4 16px 32px);
-    border: 1px solid var(--t-line); border-radius: 12px; padding: 10px 12px 14px; margin-bottom: 14px;
-  }
-  [data-look="c"] .fieldblock .fname::before {
-    content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 7px; vertical-align: -1px;
-    background: var(--t-ink); clip-path: polygon(0% 0%, 100% 0%, 100% 55%, 50% 100%, 0% 55%);
-  }
-  [data-look="c"] .weekrow .wr-when::before {
-    content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 8px; vertical-align: 1px;
-    background: var(--t-clay); transform: rotate(45deg);
-  }
-  [data-look="c"] .stepnum {
-    border-radius: 3px; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-    width: 28px; height: 28px;
-  }
+
+  /* =======================================================================
+     LOOK C REDESIGN (c2-*): a real layout, not a recolor of the default
+     markup. Only ever rendered when LOOK === "c" (demo-only today, see the
+     JS). Every rule below is scoped [data-look="c"] so it can only ever
+     paint C's own markup; it never touches the default/A/B DOM at all since
+     those elements don't exist outside look C.
+     ======================================================================= */
+  [data-look="c"] main { animation: c2fade 0.28s ease; }
+  @keyframes c2fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---- compact header: team identity front and center ---- */
+  [data-look="c"] header.top { padding: 12px 16px; }
+  [data-look="c"] .c2-head { display: flex; align-items: center; gap: 10px; }
+  [data-look="c"] .c2-mark { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 9px; background: var(--t-accent); display: flex; align-items: center; justify-content: center; color: #fff; }
+  [data-look="c"] .c2-mark svg { width: 20px; height: 20px; }
+  [data-look="c"] .c2-head-id { flex: 1; min-width: 0; }
+  [data-look="c"] .c2-team { font-family: var(--t-font-disp); font-weight: 700; font-size: 19px; line-height: 1.15; display: flex; align-items: center; gap: 7px; }
+  [data-look="c"] .c2-divchip { font-family: var(--t-font-body); font-weight: 700; font-size: 10px; letter-spacing: 0.04em; background: var(--t-accent); color: #fff; border-radius: 6px; padding: 2px 7px; }
+  [data-look="c"] .c2-league { font-size: 11px; color: var(--t-header-sub-ink); opacity: 0.85; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  [data-look="c"] header.top .demotag { margin-left: 6px; }
+
+  /* ---- Home: hero next-practice card ---- */
+  [data-look="c"] .c2-hero { background: var(--t-header-bg); color: var(--t-header-ink); border-radius: var(--t-radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--t-shadow); position: relative; overflow: hidden; }
+  [data-look="c"] .c2-hero-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t-accent); font-weight: 700; margin-bottom: 6px; }
+  [data-look="c"] .c2-hero-top { display: flex; align-items: center; gap: 14px; }
+  [data-look="c"] .c2-hero-diamond { flex: 0 0 auto; color: rgba(246,239,224,0.9); }
+  [data-look="c"] .c2-hero-day { font-family: var(--t-font-disp); font-weight: 700; font-size: 26px; line-height: 1.1; }
+  [data-look="c"] .c2-hero-time { font-size: 15px; color: rgba(246,239,224,0.85); margin-top: 2px; }
+  [data-look="c"] .c2-hero-field { font-size: 14px; font-weight: 600; margin-top: 6px; }
+  [data-look="c"] .c2-hero-actions { display: flex; gap: 8px; margin-top: 16px; }
+  [data-look="c"] .c2-hero-actions .btn { font-size: 12.5px; padding: 9px 10px; background: rgba(246,239,224,0.14); color: var(--t-header-ink); box-shadow: none; border: 1px solid rgba(246,239,224,0.25); }
+  [data-look="c"] .c2-hero-empty { font-size: 14px; color: rgba(246,239,224,0.85); margin: 4px 0 14px; }
+
+  /* ---- Home: compact timeline ---- */
+  [data-look="c"] .c2-timeline-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 1px solid var(--t-line); }
+  [data-look="c"] .c2-timeline-row:first-child { border-top: none; padding-top: 2px; }
+  [data-look="c"] .c2-tl-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--t-accent-2); margin-top: 6px; flex: 0 0 auto; }
+  [data-look="c"] .c2-tl-dot.game { background: #3a5fb8; }
+  [data-look="c"] .c2-tl-body { flex: 1; min-width: 0; }
+  [data-look="c"] .c2-tl-when { font-weight: 700; font-size: 14px; }
+  [data-look="c"] .c2-tl-what { font-size: 13px; color: var(--t-muted); margin-top: 1px; }
+  [data-look="c"] .c2-tl-actions { display: flex; gap: 6px; margin-top: 7px; }
+  [data-look="c"] .c2-tl-actions button { font-size: 11.5px; padding: 6px 9px; width: auto; background: var(--t-bg); color: var(--t-ink); border: 1px solid var(--t-line); border-radius: 8px; font-weight: 600; box-shadow: none; }
+
+  /* ---- Home: compact alert rows ---- */
+  [data-look="c"] .c2-alert { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--t-line); }
+  [data-look="c"] .c2-alert:first-child { border-top: none; padding-top: 2px; }
+  [data-look="c"] .c2-alert-ic { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--t-alert-bg); color: var(--t-accent-2); }
+  [data-look="c"] .c2-alert.closure .c2-alert-ic, [data-look="c"] .c2-alert.urgent .c2-alert-ic { background: #fdefe9; color: #b3432b; }
+  [data-look="c"] .c2-alert.warning .c2-alert-ic { background: var(--t-alert-warn-bg); color: var(--t-accent); }
+  [data-look="c"] .c2-alert-ic svg { width: 15px; height: 15px; }
+  [data-look="c"] .c2-alert-title { font-weight: 700; font-size: 13.5px; }
+  [data-look="c"] .c2-alert-body { font-size: 12.5px; color: var(--t-muted); margin-top: 1px; }
+
+  /* ---- Book: division-rule progress ---- */
+  [data-look="c"] .c2-progress-row { display: flex; gap: 14px; }
+  [data-look="c"] .c2-progress-item { flex: 1; }
+  [data-look="c"] .c2-progress-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--t-muted); margin-bottom: 5px; }
+  [data-look="c"] .c2-progress-bar { height: 6px; border-radius: 4px; background: var(--t-line); overflow: hidden; }
+  [data-look="c"] .c2-progress-bar > div { height: 100%; background: var(--t-accent); border-radius: 4px; }
+  [data-look="c"] .c2-progress-num { font-size: 12px; color: var(--t-muted); margin-top: 4px; font-weight: 600; }
+
+  /* ---- Book: rich field cards ---- */
+  [data-look="c"] .c2-fieldcard { background: var(--t-card); border: 1px solid var(--t-line); border-top: 4px solid var(--t-clay); border-radius: var(--t-radius); padding: 14px; margin-bottom: 12px; box-shadow: var(--t-shadow); }
+  [data-look="c"] .c2-fc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  [data-look="c"] .c2-fc-icon { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; background: var(--t-open-bg); display: flex; align-items: center; justify-content: center; color: var(--t-accent-2); }
+  [data-look="c"] .c2-fc-icon svg { width: 24px; height: 17px; }
+  [data-look="c"] .c2-fc-name { font-family: var(--t-font-disp); font-weight: 700; font-size: 16.5px; line-height: 1.2; }
+  [data-look="c"] .c2-fc-tags { display: flex; gap: 5px; margin-top: 4px; }
+  [data-look="c"] .c2-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; background: var(--t-taken-bg); color: var(--t-muted); border-radius: 6px; padding: 2px 7px; }
+  [data-look="c"] .c2-daychips { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+  [data-look="c"] .c2-daychip { flex: 0 0 auto; min-width: 66px; border-radius: 12px; padding: 9px 10px; text-align: center; border: 1.5px solid var(--t-line); background: var(--t-bg); }
+  [data-look="c"] .c2-daychip .c2-dc-day { font-weight: 700; font-size: 12.5px; }
+  [data-look="c"] .c2-daychip .c2-dc-sub { font-size: 10px; color: var(--t-muted); margin-top: 2px; }
+  [data-look="c"] .c2-daychip.open { border-color: var(--t-accent-2); background: var(--t-open-bg); }
+  [data-look="c"] .c2-daychip.open .c2-dc-sub { color: var(--t-accent-2); font-weight: 700; }
+  [data-look="c"] .c2-daychip.mine { border-color: var(--t-accent); background: var(--t-mine-bg); }
+  [data-look="c"] .c2-daychip.mine .c2-dc-sub { color: var(--t-accent); font-weight: 700; }
+  [data-look="c"] .c2-daychip.taken { opacity: 0.6; }
+  [data-look="c"] .c2-daychip.taken .c2-dc-sub { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- Book: bottom sheet confirm ---- */
+  [data-look="c"] .c2-sheet { background: var(--t-card); border-radius: 20px 20px 0 0; padding: 10px 20px 22px; box-shadow: 0 -10px 30px rgba(0,0,0,0.2); transform: translateY(100%); transition: transform 0.26s cubic-bezier(.2,.8,.3,1); }
+  [data-look="c"] .c2-sheet.in { transform: translateY(0); }
+  [data-look="c"] .c2-sheet-handle { width: 36px; height: 4px; border-radius: 3px; background: var(--t-line); margin: 0 auto 14px; }
+  [data-look="c"] .c2-sheet h2 { font-size: 19px; margin-bottom: 4px; }
+  [data-look="c"] .c2-sheet .hint { margin-bottom: 14px; }
+
+  /* ---- Setup: visual stepper ---- */
+  [data-look="c"] .c2-stepper { text-align: center; }
+  [data-look="c"] .c2-sdots { display: flex; justify-content: center; gap: 6px; margin-bottom: 14px; }
+  [data-look="c"] .c2-sdots span { width: 7px; height: 7px; border-radius: 50%; background: var(--t-line); }
+  [data-look="c"] .c2-sdots span.on { background: var(--t-accent); width: 20px; border-radius: 4px; }
+  [data-look="c"] .c2-sillust { width: 84px; height: 84px; border-radius: 22px; background: var(--t-open-bg); color: var(--t-accent-2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  [data-look="c"] .c2-stepper h2 { text-align: center; }
+  [data-look="c"] .c2-stepper .hint { text-align: center; }
+  [data-look="c"] .c2-stepper ol.steps { text-align: left; }
+  [data-look="c"] .c2-stepper .btnrow { flex-direction: column; }
+  [data-look="c"] .c2-stepper .btnrow .btn.clay { order: -1; margin-bottom: 8px; }
+
+  /* ---- People: grouped with avatars ---- */
+  [data-look="c"] .c2-pa-card { display: flex; align-items: center; gap: 12px; background: var(--t-header-bg); color: var(--t-header-ink); border-radius: var(--t-radius); padding: 16px; margin-bottom: 14px; box-shadow: var(--t-shadow); }
+  [data-look="c"] .c2-avatar { width: 46px; height: 46px; border-radius: 50%; flex: 0 0 46px; display: flex; align-items: center; justify-content: center; font-family: var(--t-font-disp); font-weight: 700; font-size: 16px; background: var(--t-accent); color: #fff; }
+  [data-look="c"] .c2-pa-card .c2-avatar { background: rgba(246,239,224,0.18); color: var(--t-header-ink); border: 1px solid rgba(246,239,224,0.3); }
+  [data-look="c"] .c2-pa-role { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-accent); font-weight: 700; }
+  [data-look="c"] .c2-pa-name { font-family: var(--t-font-disp); font-weight: 700; font-size: 18px; margin-top: 1px; }
+  [data-look="c"] .c2-pa-actions { display: flex; gap: 6px; }
+  [data-look="c"] .c2-pa-actions a { background: rgba(246,239,224,0.16); color: var(--t-header-ink); border: 1px solid rgba(246,239,224,0.3); border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; }
+  [data-look="c"] .c2-personrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--t-line); }
+  [data-look="c"] .c2-personrow:first-child { border-top: none; }
+  [data-look="c"] .c2-personrow .c2-avatar { width: 34px; height: 34px; flex: 0 0 34px; font-size: 12px; background: var(--t-open-bg); color: var(--t-accent-2); }
+  [data-look="c"] .c2-pr-name { font-weight: 700; font-size: 14px; }
+  [data-look="c"] .c2-pr-role { font-size: 11.5px; color: var(--t-muted); }
+  [data-look="c"] .c2-pr-actions { margin-left: auto; display: flex; gap: 5px; }
+  [data-look="c"] .c2-pr-actions a { font-size: 11px; font-weight: 700; color: var(--t-accent-2); border: 1px solid var(--t-line); border-radius: 7px; padding: 5px 8px; }
+
+  /* ---- booking-success checkmark (replaces the plain toast for look C) ---- */
+  [data-look="c"] .c2-successwrap { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; background: rgba(0,1,58,0.35); animation: c2fade 0.15s ease; }
+  [data-look="c"] .c2-success { background: var(--t-card); border-radius: 20px; padding: 26px 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+  [data-look="c"] .c2-checkcircle { width: 56px; height: 56px; border-radius: 50%; background: var(--t-accent-2); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  [data-look="c"] .c2-checkcircle svg path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: c2draw 0.4s ease 0.1s forwards; }
+  @keyframes c2draw { to { stroke-dashoffset: 0; } }
+  [data-look="c"] .c2-success p { font-weight: 700; font-size: 15px; color: var(--t-ink); }
 </style>
 </head>
 <body>
@@ -465,6 +566,57 @@ function fmtDateShort(str) {
   return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
 }
 function fieldStartLabel(f) { return f && f.default_start === "18:00" ? "6:00 PM" : "5:00 PM"; }
+// A field's "size tag" (60' / Turf / Lights) read straight off data already
+// on hand: the field name (real field names already carry 60/70/90 or Turf,
+// e.g. "LAKERIDGE 60", "SUMNER MS 60/70", "Donald Eismann Turf 1") plus
+// default_start (6pm fields are lit). Look C only -- purely descriptive.
+function fieldTags(f) {
+  if (!f) return [];
+  var tags = [];
+  var name = f.name || "";
+  if (/turf/i.test(name)) tags.push("Turf");
+  var sizeMatch = name.match(/\b(\d{2}(?:\/\d{2}){0,2})\b/);
+  if (sizeMatch) tags.push(sizeMatch[1] + "'");
+  if (f.default_start === "18:00") tags.push("Lights");
+  return tags;
+}
+
+/* ---------- look C icon set: small inline SVGs, currentColor-driven ---------- */
+function c2DiamondIcon(size) {
+  size = size || 28;
+  return '<svg viewBox="0 0 100 70" width="' + size + '" height="' + Math.round(size * 0.62) + '" fill="none">' +
+    '<path d="M50 62 L87 34 L50 6 L13 34 Z" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>' +
+    '<circle cx="50" cy="6" r="5" fill="currentColor"/><circle cx="87" cy="34" r="5" fill="currentColor"/><circle cx="13" cy="34" r="5" fill="currentColor"/>' +
+    '<path d="M43 62 L50 55 L57 62 L50 69 Z" fill="currentColor"/>' +
+    '</svg>';
+}
+function c2MarkIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"><path d="M12 3 L21 10 L12 17 L3 10 Z"/></svg>';
+}
+function c2PhoneHomeIcon() {
+  return '<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' +
+    '<rect x="22" y="8" width="36" height="64" rx="8"/><line x1="33" y1="18" x2="47" y2="18"/>' +
+    '<rect x="30" y="32" width="9" height="9" rx="2"/><rect x="43" y="32" width="9" height="9" rx="2"/>' +
+    '<rect x="30" y="45" width="9" height="9" rx="2"/><rect x="43" y="45" width="9" height="9" rx="2"/></svg>';
+}
+function c2BellIcon() {
+  return '<svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M40 12c-10 0-16 9-16 19v9l-7 11h46l-7-11v-9c0-10-6-19-16-19z"/><path d="M33 59a7 7 0 0014 0"/></svg>';
+}
+function c2AlertIcon(kind) {
+  if (kind === "closure" || kind === "urgent") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01M10.3 3.9L2.7 18a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>';
+  if (kind === "warning") return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h4l6 5V4L8 9H4a1 1 0 00-1 1z"/><path d="M18 8a5 5 0 010 8"/></svg>';
+}
+function c2CheckIcon() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="28" height="28"><path d="M5 13l4 4L19 7"/></svg>';
+}
+function c2Initials(name) {
+  var parts = String(name || "?").trim().split(/\s+/);
+  var a = parts[0] ? parts[0].charAt(0) : "";
+  var b = parts.length > 1 ? parts[parts.length - 1].charAt(0) : "";
+  return (a + b).toUpperCase() || "?";
+}
 function fieldById(id) { return (P.fields || []).filter(function (f) { return f.id === id; })[0] || null; }
 function teamById(id) { return (P.teams || []).filter(function (t) { return t.id === id; })[0] || null; }
 /* Is this slot "live" on this specific calendar date? Mirrors fields/index.html's
@@ -701,6 +853,21 @@ var TABS = [
   { k: "book", label: "Book", icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
   { k: "people", label: "People", icon: '<circle cx="9" cy="7" r="4"/><path d="M17 11a3 3 0 100-6"/><path d="M3 21c0-3.5 3-6 6-6s6 2.5 6 6"/><path d="M21 21c0-2.5-1.5-4.5-4-5"/>' }
 ];
+function headerHtml(leagueName) {
+  var signoutBtn = DEMO ? '<button class="signout" id="shSignOut">Start over</button>' : '<button class="signout" id="shSignOut">Sign out</button>';
+  if (LOOK === "c") {
+    var t = myTeam();
+    var teamLabel = t ? t.name : (H && H.coach ? H.coach.team_name : null) || "Field Command";
+    var div = myDivision();
+    return '<header class="top"><div class="c2-head">' +
+      '<div class="c2-mark">' + c2MarkIcon() + '</div>' +
+      '<div class="c2-head-id"><div class="c2-team">' + esc(teamLabel) + (div ? ' <span class="c2-divchip">' + esc(div) + '</span>' : '') + '</div>' +
+      '<div class="c2-league">' + esc(leagueName) + '</div></div>' +
+      signoutBtn + '</div></header>';
+  }
+  return '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + (DEMO ? '<span class="demotag">Demo</span>' : '') + '</h1><div class="sub">Coach App</div></div>' +
+    signoutBtn + '</div></header>';
+}
 function renderShell() {
   var r = root();
   var leagueName = (H && H.league_name) || "Field Command";
@@ -713,9 +880,7 @@ function renderShell() {
   else body = homeScreenHtml();
 
   r.innerHTML =
-    '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + (DEMO ? '<span class="demotag">Demo</span>' : '') + '</h1><div class="sub">Coach App</div></div>' +
-    (DEMO ? '<button class="signout" id="shSignOut">Start over</button>' : '<button class="signout" id="shSignOut">Sign out</button>') +
-    '</div></header>' +
+    headerHtml(leagueName) +
     '<div class="chalkline"></div>' +
     '<main id="mainBody">' + body + '</main>' +
     (showTabs ? '<nav class="tabbar">' + TABS.map(function (t) {
@@ -764,7 +929,59 @@ function slotsForDayField(dayK, fieldId) {
   if (!SEASON) return [];
   return (P.slots || []).filter(function (s) { return s.season_id === SEASON.id && s.day_key === dayK && s.field_id === fieldId && !s.cancelled_at; });
 }
+function bookScreenHtmlC() {
+  if (!SEASON) return '<div class="card"><h2>No season set up yet</h2><p class="hint">Ask the league to open a season window.</p></div>';
+  var winMsg = bookingWindowMessage();
+  var t = myTeam();
+  var rules = (typeof FLM_RULES !== "undefined") ? FLM_RULES.parse(P.settings.practice_rules) : null;
+  var satAllowed = !rules || rules.max_weekend > 0;
+  var fields = divisionFields();
+  var alreadyBooked = hasBookedAnything();
+
+  var head = '<div class="card"><h2>Book your practice</h2>' + (t ? '<p class="hint">' + esc(t.name) + '</p>' : '') + '</div>';
+  if (winMsg) return head + '<div class="card"><p class="err" style="margin:0;">' + winMsg + '</p><button class="btn ghost" id="bkRecheck" style="margin-top:10px;">Check again</button></div>';
+  if (!t) return head + '<div class="card"><p class="hint" style="margin:0;">Your team is still being linked by the league. Check back soon, or use <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
+  if (!fields.length) return head + '<div class="card"><p class="hint" style="margin:0;">No fields are tagged for your division yet. Ask the league to tag a field, or book from <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
+
+  var progressHtml = "";
+  if (rules) {
+    var ev = FLM_RULES.evaluate(rules, mySlots());
+    function bar(label, have, max) {
+      var pct = max > 0 ? Math.min(100, Math.round((have / max) * 100)) : 0;
+      return '<div class="c2-progress-item"><div class="c2-progress-label">' + esc(label) + '</div><div class="c2-progress-bar"><div style="width:' + pct + '%"></div></div><div class="c2-progress-num">' + have + ' of ' + max + '</div></div>';
+    }
+    var bars = bar("Weekday", ev.weekdays.length, rules.max_weekdays);
+    if (satAllowed) bars += bar("Saturday", ev.satCount, rules.max_weekend);
+    progressHtml = '<div class="card"><div class="c2-progress-row">' + bars + '</div></div>';
+  }
+
+  var cards = fields.map(function (f) {
+    var tags = fieldTags(f);
+    var tagsHtml = ('<span class="c2-tag">' + esc(fieldStartLabel(f)) + '</span>' + tags.map(function (tg) { return '<span class="c2-tag">' + esc(tg) + '</span>'; }).join(""));
+    var chips = DAYS.filter(function (d) { return !d.sat || satAllowed; }).map(function (d) {
+      var existing = slotsForDayField(d.k, f.id);
+      var mine = existing.filter(function (s) { return s.team_id === t.id; })[0];
+      var heldForMe = existing.filter(function (s) { return s.held && !s.team_id && (H.claimable_hold_slot_ids || []).indexOf(s.id) >= 0; })[0];
+      var pendingHold = existing.some(function (s) { return s.held && !s.team_id; }) && !heldForMe;
+      var takenByOther = existing.filter(function (s) { return s.team_id && s.team_id !== t.id; })[0];
+      var cls = "c2-daychip", sub = "Open", tag = "open";
+      if (mine) { cls += " mine"; sub = "Your team"; tag = "mine"; }
+      else if (heldForMe) { cls += " open"; sub = "Reserved"; tag = "open"; }
+      else if (pendingHold) { cls += " taken"; sub = "Pending"; tag = "pending"; }
+      else if (takenByOther) { cls += " taken"; sub = esc(teamById(takenByOther.team_id) ? teamById(takenByOther.team_id).name : "Taken"); tag = "taken"; }
+      else { cls += " open"; tag = "open"; }
+      return '<button type="button" class="' + cls + '" data-daypill data-day="' + d.k + '" data-field="' + f.id + '" data-tag="' + tag + '"' + (tag === "taken" ? " disabled" : "") + '><div class="c2-dc-day">' + esc(d.label.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat")) + '</div><div class="c2-dc-sub">' + sub + '</div></button>';
+    }).join("");
+    return '<div class="c2-fieldcard"><div class="c2-fc-top"><div class="c2-fc-icon">' + c2DiamondIcon(22) + '</div>' +
+      '<div><div class="c2-fc-name">' + esc(f.name) + '</div><div class="c2-fc-tags">' + tagsHtml + '</div></div></div>' +
+      '<div class="c2-daychips">' + chips + '</div></div>';
+  }).join("");
+
+  return head + progressHtml + cards +
+    (alreadyBooked ? '<button class="btn ghost" id="bkDoneBtn">Done booking, take me home</button>' : '');
+}
 function bookScreenHtml() {
+  if (LOOK === "c") return bookScreenHtmlC();
   if (!SEASON) return '<div class="card"><h2>No season set up yet</h2><p class="hint">Ask the league to open a season window.</p></div>';
   var winMsg = bookingWindowMessage();
   var t = myTeam();
@@ -813,11 +1030,20 @@ function bookScreenHtml() {
 function openClaimConfirm(dayK, fieldId) {
   var t = myTeam(), f = fieldById(fieldId);
   var d = DAYS.filter(function (x) { return x.k === dayK; })[0];
-  var html = '<div class="card"><h2>Claim this slot?</h2>' +
-    '<p class="hint">' + esc(t.name) + ' &rarr; ' + esc(d ? d.label : dayK) + ' at <b>' + esc(f ? f.name : "") + '</b> (opens ' + fieldStartLabel(f) + ')</p>' +
-    '<div id="ccErr" class="err hidden"></div>' +
-    '<div class="btnrow"><button class="btn quiet" id="ccCancel">Cancel</button><button class="btn clay" id="ccGo">Claim it</button></div></div>';
+  var html;
+  if (LOOK === "c") {
+    html = '<div class="c2-sheet" id="ccSheet"><div class="c2-sheet-handle"></div><h2>Claim this slot?</h2>' +
+      '<p class="hint">' + esc(t.name) + ' &rarr; ' + esc(d ? d.label : dayK) + ' at <b>' + esc(f ? f.name : "") + '</b> (opens ' + fieldStartLabel(f) + ')</p>' +
+      '<div id="ccErr" class="err hidden"></div>' +
+      '<div class="btnrow"><button class="btn quiet" id="ccCancel">Cancel</button><button class="btn clay" id="ccGo">Claim it</button></div></div>';
+  } else {
+    html = '<div class="card"><h2>Claim this slot?</h2>' +
+      '<p class="hint">' + esc(t.name) + ' &rarr; ' + esc(d ? d.label : dayK) + ' at <b>' + esc(f ? f.name : "") + '</b> (opens ' + fieldStartLabel(f) + ')</p>' +
+      '<div id="ccErr" class="err hidden"></div>' +
+      '<div class="btnrow"><button class="btn quiet" id="ccCancel">Cancel</button><button class="btn clay" id="ccGo">Claim it</button></div></div>';
+  }
   var overlay = openOverlay(html);
+  if (LOOK === "c") requestAnimationFrame(function () { var sheet = overlay.querySelector("#ccSheet"); if (sheet) sheet.classList.add("in"); });
   overlay.querySelector("#ccCancel").addEventListener("click", function () { closeOverlay(overlay); });
   overlay.querySelector("#ccGo").addEventListener("click", function () {
     var btn = overlay.querySelector("#ccGo"), err = overlay.querySelector("#ccErr");
@@ -839,7 +1065,7 @@ function refreshAfterClaim() {
       if (firstTime && !setupIsDone()) { S.screen = "setup"; S.setupStep = "a"; }
       else { S.screen = "book"; }
       render();
-      toast("Booked. You're on the schedule.");
+      toast("Booked. You're on the schedule.", true);
     });
   });
 }
@@ -895,12 +1121,26 @@ function setupScreenHtml() {
           '<li><span class="stepnum2">3</span><div><svg class="stepicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg> Tap <b>Add</b>, then open Field Command from your Home Screen icon.</div></li>' +
         '</ol>'
       : '<p class="hint">Use your browser\'s menu and choose "Add to Home Screen" or "Install app".</p>' + androidBtn;
+    var dotsA = '<div class="c2-sdots"><span class="on"></span><span></span></div>';
+    var illustA = '<div class="c2-sillust">' + c2PhoneHomeIcon() + '</div>';
+    if (LOOK === "c") {
+      return '<div class="card c2-stepper">' + dotsA + illustA + '<h2>Add to your Home Screen</h2><p class="hint">So it opens like an app and can reach you with alerts.</p>' + iosSteps +
+        '<div class="btnrow"><button class="btn clay" id="supDoneA">I added it</button><button class="btn quiet" id="supSkipA">Skip for now</button></div></div>';
+    }
     return '<div class="card"><h2>Step 1 of 2</h2><p class="hint">Add Field Command to your Home Screen so it opens like an app and can reach you with alerts.</p>' + iosSteps +
       '<div class="btnrow"><button class="btn quiet" id="supSkipA">Skip for now</button><button class="btn ghost" id="supDoneA">I added it</button></div></div>';
   }
   // Step B: notifications. Demo mode never gates on a real install state --
   // "turn on notifications" always just shows the success state.
   var needsInstallFirst = !DEMO && isIOS() && !isStandalone();
+  if (LOOK === "c") {
+    var dotsB = '<div class="c2-sdots"><span></span><span class="on"></span></div>';
+    var illustB = '<div class="c2-sillust">' + c2BellIcon() + '</div>';
+    return '<div class="card c2-stepper">' + dotsB + illustB + '<h2>Turn on notifications</h2><p class="hint">Hear about field closures and rainouts right away.</p>' +
+      (needsInstallFirst ? '<p class="err">Finish Step 1 first. iPhone only allows notifications from the Home Screen app.</p><button class="btn ghost" id="supBackA">Back to Step 1</button>' :
+      '<button class="btn clay" id="supEnablePush">Turn on notifications</button>') +
+      '<div class="btnrow"><button class="btn quiet" id="supSkipB">Skip for now</button><button class="btn ghost" id="supFinish">Done, take me home</button></div></div>';
+  }
   return '<div class="card"><h2>Step 2 of 2</h2><p class="hint">Turn on notifications so you hear about field closures and rainouts right away.</p>' +
     (needsInstallFirst ? '<p class="err">Finish Step 1 first. iPhone only allows notifications from the Home Screen app.</p><button class="btn ghost" id="supBackA">Back to Step 1</button>' :
     '<button class="btn clay" id="supEnablePush">Turn on notifications</button>') +
@@ -981,7 +1221,58 @@ function thisWeekRows() {
   out.sort(function (a, b) { return a.date.localeCompare(b.date); });
   return out;
 }
+function homeScreenHtmlC() {
+  var banner = "";
+  if (!setupIsDone()) {
+    banner = '<div class="setupbanner"><span>Finish setup so you never miss a closure or rainout alert.</span><button id="hmSetup">Finish</button></div>';
+  }
+  var rows = thisWeekRows();
+  var hero = rows.filter(function (r) { return r.kind === "practice"; })[0] || null;
+  var restRows = rows.filter(function (r) { return r !== hero; });
+
+  var heroHtml;
+  if (hero) {
+    var hf = hero.field;
+    heroHtml = '<div class="c2-hero"><div class="c2-hero-label">Next practice</div>' +
+      '<div class="c2-hero-top"><div class="c2-hero-diamond">' + c2DiamondIcon(56) + '</div>' +
+      '<div><div class="c2-hero-day">' + fmtDateShort(hero.date) + '</div>' +
+      '<div class="c2-hero-time">' + fieldStartLabel(hf) + '</div>' +
+      '<div class="c2-hero-field">' + esc(hf ? hf.name : "?") + '</div></div></div>' +
+      '<div class="c2-hero-actions"><button class="btn sm" data-release data-slot="' + hero.slot.id + '" data-date="' + hero.date + '" data-singledate="' + (hero.slot.single_date ? "1" : "0") + '">Not using it</button>' +
+      '<button class="btn sm" data-release data-reason="rainout" data-slot="' + hero.slot.id + '" data-date="' + hero.date + '" data-singledate="' + (hero.slot.single_date ? "1" : "0") + '">Rained out</button></div></div>';
+  } else {
+    heroHtml = '<div class="c2-hero"><div class="c2-hero-label">Next practice</div>' +
+      '<div class="c2-hero-top"><div class="c2-hero-diamond">' + c2DiamondIcon(56) + '</div>' +
+      '<div class="c2-hero-empty">Nothing booked this week yet.</div></div>' +
+      '<div class="c2-hero-actions"><button class="btn sm" id="hmBookHero">Book a practice</button></div></div>';
+  }
+
+  var timelineHtml = restRows.length ? restRows.map(function (r) {
+    if (r.kind === "game") {
+      return '<div class="c2-timeline-row"><div class="c2-tl-dot game"></div><div class="c2-tl-body"><div class="c2-tl-when">' + fmtDateShort(r.date) + ' &middot; Game</div><div class="c2-tl-what">' + esc(r.label) + '</div></div></div>';
+    }
+    return '<div class="c2-timeline-row"><div class="c2-tl-dot"></div><div class="c2-tl-body"><div class="c2-tl-when">' + fmtDateShort(r.date) + '</div><div class="c2-tl-what">' + r.label + '</div>' +
+      '<div class="c2-tl-actions"><button data-release data-slot="' + r.slot.id + '" data-date="' + r.date + '" data-singledate="' + (r.slot.single_date ? "1" : "0") + '">Not using it</button>' +
+      '<button data-release data-reason="rainout" data-slot="' + r.slot.id + '" data-date="' + r.date + '" data-singledate="' + (r.slot.single_date ? "1" : "0") + '">Rained out</button></div></div></div>';
+  }).join("") : '<p class="hint" style="margin:0;">That\'s everything booked this week.</p>';
+
+  var alertItems = (P.announcements || []).filter(function (a) { return a.active !== false; }).map(function (a) {
+    var sev = (a.severity === "warning" || a.severity === "urgent") ? a.severity : "info";
+    return '<div class="c2-alert ' + sev + '"><div class="c2-alert-ic">' + c2AlertIcon(sev) + '</div><div><div class="c2-alert-title">' + esc(a.title) + '</div>' + (a.body ? '<div class="c2-alert-body">' + esc(a.body) + '</div>' : '') + '</div></div>';
+  });
+  ((H && H.closures) || []).forEach(function (c) {
+    var f = fieldById(c.field_id);
+    alertItems.push('<div class="c2-alert closure"><div class="c2-alert-ic">' + c2AlertIcon("closure") + '</div><div><div class="c2-alert-title">' + esc(f ? f.name : "Field") + ' closed ' + fmtDateShort(c.closure_date) + '</div><div class="c2-alert-body">' + esc(c.reason || "") + '</div></div></div>');
+  });
+  var alertsHtmlC = alertItems.length ? alertItems.join("") : '<p class="hint" style="margin:0;">No alerts right now.</p>';
+
+  return banner + heroHtml +
+    '<div class="card"><h2>This week</h2>' + timelineHtml + '</div>' +
+    '<div class="card"><h2>Alerts</h2>' + alertsHtmlC + '</div>' +
+    '<div class="card"><h2>Book or change</h2><p class="hint">Grab more open field time, or change what you already have.</p><button class="btn clay" id="hmBook">Open booking</button></div>';
+}
 function homeScreenHtml() {
+  if (LOOK === "c") return homeScreenHtmlC();
   var banner = "";
   if (!setupIsDone()) {
     banner = '<div class="setupbanner"><span>Finish setup so you never miss a closure or rainout alert.</span><button id="hmSetup">Finish</button></div>';
@@ -1015,6 +1306,8 @@ function wireHome() {
   if (setup) setup.addEventListener("click", function () { S.screen = "setup"; S.setupStep = stepADone() ? "b" : "a"; render(); });
   var book = document.getElementById("hmBook");
   if (book) book.addEventListener("click", function () { S.screen = "book"; render(); });
+  var bookHero = document.getElementById("hmBookHero");
+  if (bookHero) bookHero.addEventListener("click", function () { S.screen = "book"; render(); });
   document.querySelectorAll("[data-release]").forEach(function (b) {
     b.addEventListener("click", function () {
       var slotId = b.getAttribute("data-slot"), date = b.getAttribute("data-date"), single = b.getAttribute("data-singledate") === "1";
@@ -1037,7 +1330,7 @@ function refreshQuiet() {
 /* =======================================================================
    PEOPLE screen: player agent, other division coaches, board contacts
    ======================================================================= */
-function peopleScreenHtml() {
+function peopleGroups() {
   var div = myDivision();
   var contacts = (H && H.contacts) || [];
   function matchesDivision(role) {
@@ -1048,19 +1341,45 @@ function peopleScreenHtml() {
   if (!playerAgents.length) playerAgents = contacts.filter(function (c) { return /league player agent/i.test(c.role); });
   var board = contacts.filter(function (c) { return playerAgents.indexOf(c) < 0; });
   var otherCoaches = (P.teams || []).filter(function (t) { return t.division === div && t.id !== (H.coach && H.coach.team_id) && t.is_active && (t.coach_name || t.coach_phone); });
+  return { div: div, playerAgents: playerAgents, board: board, otherCoaches: otherCoaches };
+}
+function peopleScreenHtmlC() {
+  var g = peopleGroups();
+  var pa = g.playerAgents[0];
+  var paHtml = pa
+    ? '<div class="c2-pa-card"><div class="c2-avatar">' + esc(c2Initials(pa.name)) + '</div><div style="flex:1;min-width:0;"><div class="c2-pa-role">Your player agent</div><div class="c2-pa-name">' + esc(pa.name) + '</div></div>' +
+      '<div class="c2-pa-actions">' + (pa.phone ? '<a href="tel:' + esc(pa.phone) + '">Call</a><a href="sms:' + esc(pa.phone) + '">Text</a>' : '') + (pa.email ? '<a href="mailto:' + esc(pa.email) + '">Email</a>' : '') + '</div></div>'
+    : '<div class="card"><p class="hint" style="margin:0;">No player agent on file yet.</p></div>';
 
+  function row(name, role, phone, email) {
+    var cx = [];
+    if (phone) cx.push('<a href="tel:' + esc(phone) + '">Call</a>', '<a href="sms:' + esc(phone) + '">Text</a>');
+    else if (email) cx.push('<a href="mailto:' + esc(email) + '">Email</a>');
+    return '<div class="c2-personrow"><div class="c2-avatar">' + esc(c2Initials(name)) + '</div><div style="flex:1;min-width:0;"><div class="c2-pr-name">' + esc(name) + '</div><div class="c2-pr-role">' + esc(role) + '</div></div>' +
+      (cx.length ? '<div class="c2-pr-actions">' + cx.join("") + '</div>' : '') + '</div>';
+  }
+  var coachHtml = g.otherCoaches.length ? g.otherCoaches.map(function (t) { return row(t.coach_name || t.name, t.name, t.coach_phone, ""); }).join("") : '<p class="hint">No other coaches listed in your division yet.</p>';
+  var boardHtml = g.board.length ? g.board.map(function (c) { return row(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No board contacts posted yet.</p>';
+
+  return paHtml +
+    '<div class="card"><h2>Coaches in ' + esc(g.div || "your division") + '</h2>' + coachHtml + '</div>' +
+    '<div class="card"><h2>League board</h2>' + boardHtml + '</div>';
+}
+function peopleScreenHtml() {
+  if (LOOK === "c") return peopleScreenHtmlC();
+  var g = peopleGroups();
   function personCard(name, role, phone, email) {
     var cx = [];
     if (phone) cx.push('<a href="tel:' + esc(phone) + '">Call</a>', '<a href="sms:' + esc(phone) + '">Text</a>');
     if (email) cx.push('<a href="mailto:' + esc(email) + '">Email</a>');
     return '<div class="person"><div class="role">' + esc(role) + '</div><div class="nm">' + esc(name) + '</div>' + (cx.length ? '<div class="pcontact">' + cx.join("") + '</div>' : "") + '</div>';
   }
-  var paHtml = playerAgents.length ? playerAgents.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No player agent on file yet.</p>';
-  var coachHtml = otherCoaches.length ? otherCoaches.map(function (t) { return personCard(t.coach_name || t.name, t.name + " coach", t.coach_phone, ""); }).join("") : '<p class="hint">No other coaches listed in your division yet.</p>';
-  var boardHtml = board.length ? board.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No board contacts posted yet.</p>';
+  var paHtml = g.playerAgents.length ? g.playerAgents.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No player agent on file yet.</p>';
+  var coachHtml = g.otherCoaches.length ? g.otherCoaches.map(function (t) { return personCard(t.coach_name || t.name, t.name + " coach", t.coach_phone, ""); }).join("") : '<p class="hint">No other coaches listed in your division yet.</p>';
+  var boardHtml = g.board.length ? g.board.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No board contacts posted yet.</p>';
 
   return '<div class="card"><h2>Your player agent</h2>' + paHtml + '</div>' +
-    '<div class="card"><h2>Coaches in ' + esc(div || "your division") + '</h2>' + coachHtml + '</div>' +
+    '<div class="card"><h2>Coaches in ' + esc(g.div || "your division") + '</h2>' + coachHtml + '</div>' +
     '<div class="card"><h2>League board</h2>' + boardHtml + '</div>';
 }
 
@@ -1076,7 +1395,16 @@ function openOverlay(innerHtml) {
   return d;
 }
 function closeOverlay(d) { if (d && d.parentNode) d.parentNode.removeChild(d); }
-function toast(msg) {
+function toast(msg, isSuccess) {
+  if (isSuccess && LOOK === "c") {
+    var wrap = document.createElement("div");
+    wrap.className = "c2-successwrap";
+    wrap.innerHTML = '<div class="c2-success"><div class="c2-checkcircle">' + c2CheckIcon() + '</div><p>' + esc(msg) + '</p></div>';
+    document.body.appendChild(wrap);
+    wrap.addEventListener("click", function () { wrap.remove(); });
+    setTimeout(function () { wrap.remove(); }, 1600);
+    return;
+  }
   var t = document.createElement("div");
   t.textContent = msg;
   t.style.cssText = "position:fixed;left:14px;right:14px;bottom:86px;background:var(--t-btn-bg,#0e3b2e);color:var(--t-btn-ink,#f4f1e8);padding:12px 16px;border-radius:12px;font-size:14px;z-index:70;box-shadow:0 8px 26px rgba(14,59,46,0.3);text-align:center;";
