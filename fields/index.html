@@ -808,6 +808,7 @@ function load() {
     if (!Array.isArray(d.announcements)) d.announcements = [];
     if (!Array.isArray(d.ext_teams)) d.ext_teams = [];
     S.data = d;
+    enforceSessionEpoch(d.settings);
     if (!S.season || !d.seasons.some(function (x) { return x.id === S.season && !x.locked; })) {
       var remembered = lsGet("flm_season");
       /* Coaches only ever belong on an unlocked practice season. A remembered
@@ -2040,10 +2041,24 @@ function loadHubState(cb) {
 
 function hubSignOut(quiet) {
   CRED_C = { id: "", pin: "", email: "", name: "" };
-  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name");
+  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name"); lsDel("flm_coach_session_at");
   HUB = { loaded: false, loading: false, error: "", data: null };
   if (!quiet) toast("Signed out of the Coaches Hub.");
   renderView();
+}
+/* Session epoch (11/6): when the league sets flm_settings.session_epoch
+   (admin "Require everyone to sign in again" button), every coach whose
+   stored session predates it gets signed out so they have to sign back in.
+   There's no server-side session token to carry an issued-at, so this is
+   client-side only: doLogin() stamps flm_coach_session_at on every real
+   sign-in, and this runs on every load() so a remembered-device auto sign-in
+   from before the epoch never proceeds. Inert while session_epoch is unset
+   (the default; nothing changes for anyone until an admin sets it). */
+function enforceSessionEpoch(settings) {
+  var epoch = settings && settings.session_epoch;
+  if (!epoch || !isCoachSignedIn()) return;
+  var sessionAt = lsGet("flm_coach_session_at");
+  if (!sessionAt || sessionAt < epoch) hubSignOut(true);
 }
 
 var TOUR_ACTIVE = false; // welcome tour owns the hub box; background refreshes must not repaint over it
@@ -2156,6 +2171,7 @@ function renderHub() {
           CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
           lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin);
           lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
+          lsSet("flm_coach_session_at", new Date().toISOString());
           loadHubState(function () { renderHub(); });
         })
         .catch(function () { showErr("Could not reach the server."); go.disabled = false; go.textContent = "Sign in"; });

@@ -2183,6 +2183,22 @@ Deno.serve(async (req: Request) => {
         await db.from("flm_settings").upsert({ key: "booking_windows", value: JSON.stringify(current) }, { onConflict: "key" });
         await log("settings", `Booking windows updated: ${JSON.stringify(current)}`, "admin");
       }
+      // v21: session epoch. Setting this forces every coach whose stored
+      // session predates it to sign in again (enforced client-side by
+      // fields/index.html and fields/app/index.html on every load, since
+      // coach sessions are just a PIN check, not a server-side token with an
+      // issued-at). null clears it; every existing session stays valid again.
+      if (b.session_epoch !== undefined) {
+        if (b.session_epoch === null || b.session_epoch === "") {
+          await db.from("flm_settings").delete().eq("key", "session_epoch");
+          await log("settings", "Session epoch cleared; no coach is forced to re-sign-in", "admin");
+        } else {
+          const d = new Date(String(b.session_epoch));
+          if (Number.isNaN(d.getTime())) return json({ ok: false, error: "bad session_epoch time" }, 400);
+          await db.from("flm_settings").upsert({ key: "session_epoch", value: d.toISOString() }, { onConflict: "key" });
+          await log("settings", `Session epoch set to ${d.toISOString()}; every coach must sign in again`, "admin");
+        }
+      }
       if (typeof b.ump_defaults === "string") {
         try {
           const o = JSON.parse(b.ump_defaults);

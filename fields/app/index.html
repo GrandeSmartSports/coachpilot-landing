@@ -103,20 +103,26 @@
   }
   /* ---------- look C: warm field-day, BLS navy + red, serif/sans pairing ---------- */
   [data-look="c"] {
+    /* Coach picked this one. Navy + red, a warm paper field-day feel, plus a
+       light ballfield identity: a clay-colored chalk-dash baseline instead of
+       a plain bar, a home-plate mark on every field card, a turf-stripe card
+       background behind each field, diamond-shaped step/date markers. All of
+       it is CSS here (plus a couple of ::before icons) -- no new JS. */
     --t-bg: #f6efe0; --t-card: #fffdf7; --t-ink: #00013a; --t-muted: #746d59; --t-line: #e8dec4;
     --t-accent: #cd163f; --t-accent-ink: #ffffff; --t-accent-2: #00013a;
+    --t-clay: #b5651d; --t-turf: #2f6b4f;
     --t-radius: 14px; --t-radius-sm: 11px;
     --t-shadow: 0 12px 28px rgba(0, 1, 58, 0.10);
     --t-font-disp: "Fraunces", Georgia, serif; --t-font-body: "Figtree", system-ui, sans-serif;
     --t-header-bg: #00013a; --t-header-ink: #f6efe0; --t-header-sub-ink: #cd163f;
     --t-header-border: none;
-    --t-chalkline: linear-gradient(90deg, #cd163f, #00013a);
+    --t-chalkline: repeating-linear-gradient(90deg, #fbf3e0 0 10px, var(--t-clay) 10px 22px);
     --t-tabbar-bg: #fffdf7; --t-tabbar-active: #cd163f;
     --t-numeral-size: 15.5px;
     --t-transition: all 0.2s ease;
     --t-open-bg: #eef0ea;
     --t-mine-bg: #fbe6ea;
-    --t-badge-game-bg: #e3e4ef; --t-badge-game-ink: #00013a;
+    --t-badge-game-bg: #e3ebe4; --t-badge-game-ink: #2f6b4f;
     --t-alert-bg: #fbf6ea;
     --t-alert-warn-bg: #fbe6ea;
     --t-accent-shadow: rgba(205, 22, 63, 0.2);
@@ -241,6 +247,31 @@
   .instrow { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
   .instrow .ic { width: 30px; height: 30px; flex: 0 0 30px; color: var(--t-accent); }
   .instrow .tx { font-size: 14.5px; color: var(--t-ink); }
+
+  /* ---------- look C only: ballfield identity ----------
+     A chalk-dash baseline (see --t-chalkline above), a clay infield-dirt edge
+     on every card, a home-plate mark on each field card, a turf-stripe card
+     background behind each field, and a diamond bullet on This week's dates.
+     Every bit of it is CSS (two ::before icon marks via clip-path); no JS,
+     no new markup, nothing that touches look A, B, or the default. */
+  [data-look="c"] .chalkline { height: 6px; }
+  [data-look="c"] .card, [data-look="c"] .person { border-top: 4px solid var(--t-clay); }
+  [data-look="c"] .fieldblock {
+    background: repeating-linear-gradient(135deg, #e7eee1 0 16px, #dce6d4 16px 32px);
+    border: 1px solid var(--t-line); border-radius: 12px; padding: 10px 12px 14px; margin-bottom: 14px;
+  }
+  [data-look="c"] .fieldblock .fname::before {
+    content: ""; display: inline-block; width: 12px; height: 12px; margin-right: 7px; vertical-align: -1px;
+    background: var(--t-ink); clip-path: polygon(0% 0%, 100% 0%, 100% 55%, 50% 100%, 0% 55%);
+  }
+  [data-look="c"] .weekrow .wr-when::before {
+    content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 8px; vertical-align: 1px;
+    background: var(--t-clay); transform: rotate(45deg);
+  }
+  [data-look="c"] .stepnum {
+    border-radius: 3px; clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    width: 28px; height: 28px;
+  }
 </style>
 </head>
 <body>
@@ -269,7 +300,10 @@ var VAPID_PUBLIC_KEY = "BDvNJFl3B89RD88uFJRJy01SQeZ2CLLZdPlKaPjQEtOilQng__xQoZ2t
        (no ?demo=1) always renders the unchanged default look */
 var QP = new URLSearchParams(location.search);
 var DEMO = QP.get("demo") === "1";
-var LOOK = DEMO && ["a", "b", "c"].indexOf(QP.get("look")) >= 0 ? QP.get("look") : null;
+// Coach picked look C as the direction to invest in; it's the default the
+// instant you open demo mode with no &look= at all. The switcher can still
+// jump to the original look ("Og"), A, or B.
+var LOOK = DEMO ? (["a", "b", "c"].indexOf(QP.get("look")) >= 0 ? QP.get("look") : "c") : null;
 var DEMO_STORE = {};
 
 function lsGet(k) { if (DEMO) return Object.prototype.hasOwnProperty.call(DEMO_STORE, k) ? DEMO_STORE[k] : null; try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -509,6 +543,7 @@ function boot() {
   gwPublicState().then(function (d) {
     if (!d.ok) { S.screen = "error"; S.err = d.error || "Could not load the schedule."; render(); return; }
     P = d;
+    enforceSessionEpoch(d.settings);
     SEASON = openSeason();
     if (SEASON) lsSet("flm_season", SEASON.id);
     if (!isCoachSignedIn()) { S.screen = "signin"; render(); return; }
@@ -534,10 +569,20 @@ function loadCoachState(cb) {
 }
 function signOut(quiet) {
   CRED_C = { id: "", pin: "", email: "", name: "" };
-  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name");
+  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name"); lsDel("flm_coach_session_at");
   H = null;
   S.screen = "signin";
   if (!quiet) render();
+}
+/* Session epoch: same mechanism and same shared flm_coach_session_at stamp as
+   fields/index.html (see its enforceSessionEpoch comment). Demo mode never
+   reaches this -- lsGet/lsSet are memory-only there and demoState() carries
+   no session_epoch, so nothing to enforce. */
+function enforceSessionEpoch(settings) {
+  var epoch = settings && settings.session_epoch;
+  if (!epoch || !isCoachSignedIn()) return;
+  var sessionAt = lsGet("flm_coach_session_at");
+  if (!sessionAt || sessionAt < epoch) signOut(true);
 }
 
 /* =======================================================================
@@ -634,6 +679,7 @@ function renderSignIn() {
       if (!j.ok) { showErr(j.error || "That did not work."); go.disabled = false; go.textContent = "Sign in"; return; }
       CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
       lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin); lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
+      lsSet("flm_coach_session_at", new Date().toISOString());
       loadCoachState(function (okLoad) {
         if (!okLoad) { showErr("Signed in, but could not load your hub. Pull to reload."); go.disabled = false; go.textContent = "Sign in"; return; }
         S.screen = hasBookedAnything() ? "home" : "book";
