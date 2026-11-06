@@ -373,6 +373,15 @@
   [data-look="c"] .c2-checkcircle svg path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: c2draw 0.4s ease 0.1s forwards; }
   @keyframes c2draw { to { stroke-dashoffset: 0; } }
   [data-look="c"] .c2-success p { font-weight: 700; font-size: 15px; color: var(--t-ink); }
+
+  /* ---- sign-in, redesigned to match: navy hero + a cream form card ---- */
+  [data-look="c"] .c2-signhero { background: var(--t-header-bg); padding: 54px 24px 40px; text-align: center; color: var(--t-header-ink); }
+  [data-look="c"] .c2-signhero .c2-sh-mark { width: 72px; height: 72px; border-radius: 20px; background: var(--t-accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; color: #fff; box-shadow: var(--t-shadow); }
+  [data-look="c"] .c2-signhero .c2-sh-mark svg { width: 40px; height: 40px; }
+  [data-look="c"] .c2-signhero h1 { font-size: 30px; margin-bottom: 8px; }
+  [data-look="c"] .c2-signhero p { font-size: 14.5px; color: rgba(246,239,224,0.8); max-width: 300px; margin: 0 auto; }
+  [data-look="c"] .c2-signcard { background: var(--t-bg); border-radius: 28px 28px 0 0; padding: 28px 22px 40px; min-height: 40vh; }
+  [data-look="c"] .c2-signcard .signwrap { margin: 0; max-width: 420px; }
 </style>
 </head>
 <body>
@@ -779,11 +788,7 @@ function renderDemoChrome() {
    ======================================================================= */
 function renderSignIn() {
   var r = root();
-  r.innerHTML =
-    '<div class="signwrap">' +
-      '<svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="var(--t-btn-bg, #0e3b2e)"/><path d="M50 22 L78 50 L50 78 L22 50 Z" fill="var(--t-bg, #f4f1e8)"/><path d="M50 34 L66 50 L50 66 L34 50 Z" fill="var(--t-accent, #c96f2f)"/></svg>' +
-      '<h1>Field Command' + (DEMO ? ' <span class="demotag">Demo</span>' : '') + '</h1>' +
-      '<p class="lede">Book your practice field in two taps. Enter the email your league has on file.</p>' +
+  var formFieldsHtml =
       '<label class="flabel" for="siEmail">Your email</label>' +
       '<input id="siEmail" class="finput" type="email" placeholder="you@example.com" autocomplete="email" />' +
       '<div id="siPinWrap" class="hidden">' +
@@ -793,8 +798,22 @@ function renderSignIn() {
       '<div class="btnrow"><button class="btn clay" id="siGo" style="margin-top:14px;">Continue</button></div>' +
       '<div id="siErr" class="err hidden"></div>' +
       '<div id="siOk" class="ok hidden"></div>' +
-      '<p style="text-align:center;margin-top:14px;"><a href="/fields/" class="linkbtn">Open the full coach hub instead</a></p>' +
-    '</div>';
+      '<p style="text-align:center;margin-top:14px;"><a href="/fields/" class="linkbtn">Open the full coach hub instead</a></p>';
+  if (LOOK === "c") {
+    r.innerHTML =
+      '<div class="c2-signhero"><div class="c2-sh-mark">' + c2DiamondIcon(40) + '</div>' +
+      '<h1>Field Command' + (DEMO ? ' <span class="demotag">Demo</span>' : '') + '</h1>' +
+      '<p>Book your practice field in two taps. Enter the email your league has on file.</p></div>' +
+      '<div class="c2-signcard"><div class="signwrap">' + formFieldsHtml + '</div></div>';
+  } else {
+    r.innerHTML =
+      '<div class="signwrap">' +
+        '<svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="var(--t-btn-bg, #0e3b2e)"/><path d="M50 22 L78 50 L50 78 L22 50 Z" fill="var(--t-bg, #f4f1e8)"/><path d="M50 34 L66 50 L50 66 L34 50 Z" fill="var(--t-accent, #c96f2f)"/></svg>' +
+        '<h1>Field Command' + (DEMO ? ' <span class="demotag">Demo</span>' : '') + '</h1>' +
+        '<p class="lede">Book your practice field in two taps. Enter the email your league has on file.</p>' +
+        formFieldsHtml +
+      '</div>';
+  }
   var em = document.getElementById("siEmail");
   var pinWrap = document.getElementById("siPinWrap");
   var pn = document.getElementById("siPin");
