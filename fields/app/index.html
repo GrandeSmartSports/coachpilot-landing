@@ -406,10 +406,19 @@ function renderShell() {
    ======================================================================= */
 function myDivision() { var t = myTeam(); return t ? t.division : null; }
 function divisionFields() {
+  // The guided Book screen only shows fields the league has explicitly
+  // tagged for this division (flm_fields.divisions non-empty). Untagged
+  // fields stay off this screen on purpose: the live /fields/ grid still
+  // treats "no tags" as "any division" (unchanged there), but a brand-new
+  // coach's first screen here should be a short, curated list, not every
+  // field in the league. If nothing is tagged yet, bookScreenHtml shows a
+  // friendly "ask the league to tag a field" message instead of a wall of
+  // choices.
   var div = myDivision();
   return (P.fields || []).filter(function (f) {
     if (!f.is_active) return false;
-    return !f.divisions || !f.divisions.length || !div || f.divisions.indexOf(div) >= 0;
+    if (!f.divisions || !f.divisions.length) return false;
+    return !div || f.divisions.indexOf(div) >= 0;
   });
 }
 function bookingWindowMessage() {

@@ -58,6 +58,26 @@
   table.list th { text-align: left; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 5px 8px; border-bottom: 1px solid var(--line); }
   table.list td { padding: 6px 8px; border-bottom: 1px solid #efede4; }
   .scroll { max-height: 380px; overflow-y: auto; }
+
+  /* FMX cancel list: compact cards on phone, a tighter inline row on desktop
+     (same markup both ways, no JS layout branching, just a media query). */
+  .fmxlist { display: flex; flex-direction: column; gap: 7px; }
+  .fmxrow { background: var(--white); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; font-size: 13px; }
+  .fmxrow.done { opacity: 0.5; }
+  .fmxhead { display: flex; align-items: center; gap: 9px; }
+  .fmxhead input { width: auto; flex: 0 0 auto; }
+  .fmxfield { font-weight: 700; flex: 1; min-width: 0; }
+  .fmxdate { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .fmxmeta { color: var(--muted); font-size: 12px; margin: 4px 0 0 29px; }
+  .fmxreason { color: var(--muted); font-size: 11.5px; margin: 2px 0 0 29px; }
+  @media (min-width: 760px) {
+    .fmxrow { display: flex; align-items: center; gap: 16px; padding: 7px 12px; }
+    .fmxhead { flex: 0 0 300px; }
+    .fmxdate { margin-left: auto; }
+    .fmxmeta { flex: 0 0 240px; margin: 0; }
+    .fmxreason { flex: 1; margin: 0; }
+  }
+  .fmxfold { background: none; border: none; color: var(--grass); text-decoration: underline; font-size: 13px; padding: 8px 2px; }
   .chip { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-radius: 12px; padding: 2px 9px; }
   .chip.on { background: #dcefe2; color: #21622f; }
   .chip.off { background: #eceadf; color: var(--muted); }
@@ -2539,20 +2559,45 @@ document.getElementById("bwSave").addEventListener("click", function () {
 
 /* FMX cancel list */
 var FMX_ROWS = [];
+function fmxRowHtml(r) {
+  var est = r.est_dollars != null ? "$" + r.est_dollars.toFixed(2) : "rate not set";
+  return '<div class="fmxrow' + (r.done ? " done" : "") + '">' +
+    '<label class="fmxhead"><input type="checkbox" class="fmx-chk" data-field="' + r.field_id + '" data-date="' + r.date + '"' + (r.done ? " checked" : "") + ' />' +
+    '<span class="fmxfield">' + esc(r.field_name) + '</span><span class="fmxdate">' + esc(r.date) + '</span></label>' +
+    '<div class="fmxmeta">' + r.hours + 'h &middot; ' + est + ' &middot; deadline ' + esc(r.deadline) + '</div>' +
+    '<div class="fmxreason">' + esc(r.reason) + '</div></div>';
+}
 function renderFmx() {
   admin("admin_fmx_cancel_list", {}).then(function (j) {
     FMX_ROWS = j.rows || [];
     var openCount = FMX_ROWS.filter(function (r) { return !r.done; }).length;
     el("fmxTotal").textContent = openCount + " to cancel" + (j.total_est_saved ? " · est. $" + j.total_est_saved.toFixed(2) + " saved once cancelled" : "");
-    el("fmxList").innerHTML = FMX_ROWS.length ? '<table class="list"><thead><tr><th></th><th>Field</th><th>Date</th><th>Hours</th><th>$ est.</th><th>Deadline</th><th>Why</th></tr></thead><tbody>' +
-      FMX_ROWS.map(function (r) {
-        return "<tr" + (r.done ? ' style="opacity:0.5;"' : "") + "><td><input type=\"checkbox\" class=\"fmx-chk\" data-field=\"" + r.field_id + "\" data-date=\"" + r.date + "\"" + (r.done ? " checked" : "") + " /></td>" +
-          "<td style=\"font-weight:600;\">" + esc(r.field_name) + "</td><td>" + esc(r.date) + "</td><td>" + r.hours + "</td><td>" + (r.est_dollars != null ? "$" + r.est_dollars.toFixed(2) : "?") + "</td><td>" + esc(r.deadline) + "</td><td style=\"color:var(--muted);font-size:12.5px;\">" + esc(r.reason) + "</td></tr>";
-      }).join("") + "</tbody></table>" : '<p class="hint">Nothing released yet. Not using it, Rained out, and field closures all land here.</p>';
+    if (!FMX_ROWS.length) {
+      el("fmxList").innerHTML = '<p class="hint">Nothing released yet. Not using it, Rained out, and field closures all land here.</p>';
+      return;
+    }
+    var today = bdToday();
+    // Past-deadline rows are no longer actionable in FMX, so fold them out of
+    // the default view so what's left is only what still needs cancelling.
+    var upcoming = FMX_ROWS.filter(function (r) { return r.deadline >= today; });
+    var past = FMX_ROWS.filter(function (r) { return r.deadline < today; });
+    var html = '<div class="fmxlist">' + upcoming.map(fmxRowHtml).join("") + '</div>';
+    if (!upcoming.length) html = '<p class="hint">No actionable rows right now.</p>';
+    if (past.length) {
+      html += '<button class="fmxfold" id="fmxFoldBtn">Past deadline (' + past.length + ') &#9662;</button>' +
+        '<div class="fmxlist hidden" id="fmxPastList">' + past.map(fmxRowHtml).join("") + '</div>';
+    }
+    el("fmxList").innerHTML = html;
     el("fmxList").querySelectorAll(".fmx-chk").forEach(function (cb) {
       cb.addEventListener("change", function () {
         admin("admin_fmx_mark_done", { field_id: cb.getAttribute("data-field"), cancel_date: cb.getAttribute("data-date"), done: cb.checked }).then(renderFmx).catch(function (e) { alert(e.message); });
       });
+    });
+    var foldBtn = el("fmxFoldBtn");
+    if (foldBtn) foldBtn.addEventListener("click", function () {
+      var list = el("fmxPastList");
+      var nowHidden = list.classList.toggle("hidden");
+      foldBtn.innerHTML = "Past deadline (" + past.length + ") " + (nowHidden ? "&#9662;" : "&#9652;");
     });
   }).catch(function () { el("fmxList").innerHTML = '<p class="hint">Could not load the cancel list.</p>'; });
 }
@@ -3222,7 +3267,9 @@ function fmtDateTimeShort(iso) {
 
 /* ---------- COACHES roster ---------- */
 function loadCoaches() {
-  return fetch(API + "?action=admin_coaches", { headers: { "x-admin-pin": PIN } })
+  // Every admin_* gateway action requires POST (plain GET is rejected 405);
+  // this call was GET-only and silently failing. Fixed 2026-11-06.
+  return fetch(API + "?action=admin_coaches", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: "{}" })
     .then(function (r) { return r.json(); })
     .then(function (j) { if (j.ok) { COACHES_LIST = j.coaches || []; HUB_COACHES = COACHES_LIST.filter(function (c) { return c.active; }).length; } });
 }
@@ -3450,7 +3497,8 @@ function wireCtBulk() {
 
 /* ---------- CONTACTS (board directory) ---------- */
 function loadContacts() {
-  return fetch(API + "?action=admin_contacts", { headers: { "x-admin-pin": PIN } })
+  // Same GET-vs-POST fix as loadCoaches() above (2026-11-06).
+  return fetch(API + "?action=admin_contacts", { method: "POST", headers: { "Content-Type": "application/json", "x-admin-pin": PIN }, body: "{}" })
     .then(function (r) { return r.json(); })
     .then(function (j) { if (j.ok) CONTACTS_LIST = j.contacts || []; });
 }
