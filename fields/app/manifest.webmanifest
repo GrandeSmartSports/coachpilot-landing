@@ -1,0 +1,16 @@
+{
+  "name": "Field Command Coach",
+  "short_name": "FC Coach",
+  "description": "Book your practice field, get rained-out alerts, and reach your league — built for coaches.",
+  "start_url": "/fields/app/",
+  "scope": "/fields/app/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0e3b2e",
+  "theme_color": "#0e3b2e",
+  "icons": [
+    { "src": "/fields/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/fields/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/fields/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" }
+  ]
+}

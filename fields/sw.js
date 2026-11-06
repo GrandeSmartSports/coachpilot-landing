@@ -31,7 +31,11 @@ self.addEventListener("push", (event) => {
       icon: "/fields/icon-192.png",
       badge: "/fields/icon-192.png",
       tag: payload.tag || "flm-msg",
-      data: { url: payload.url || "/fields/" },
+      // skip_url (v21, practice check-ins): the one-tap "Not using it" action
+      // below opens this instead of the default url. Absent on every other
+      // notification kind, so their tap behavior is unchanged.
+      data: { url: payload.url || "/fields/", skip_url: payload.skip_url || "" },
+      actions: Array.isArray(payload.actions) ? payload.actions : [],
       requireInteraction: false,
     })
   );
@@ -39,7 +43,12 @@ self.addEventListener("push", (event) => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "/fields/";
+  const data = event.notification.data || {};
+  // v21: a check-in notification carries two actions, "yes" (do nothing,
+  // same as no answer) and "notusing" (open the one-tap release link).
+  // Every other notification has no actions, so event.action is always ""
+  // for them and this falls through to the original default-url behavior.
+  const target = (event.action === "notusing" && data.skip_url) ? data.skip_url : (data.url || "/fields/");
   event.waitUntil((async () => {
     const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const c of clients) {

@@ -1,4 +1,4 @@
-// Field Command gateway (v17). Deployed to the CoachPilot Supabase project
+// Field Command gateway (v21). Deployed to the CoachPilot Supabase project
 // (geigvuysptjvvqanumld) via Supabase MCP deploy_edge_function, verify_jwt off.
 // This repo copy is the source of truth since Phase 3; keep it in sync with
 // every deploy.
@@ -35,6 +35,20 @@
 // fields) are visible in one shot. Archived seasons are excluded, matching
 // the admin practice grid's activeSeasons() filter. Cancelled/draft/postponed
 // games render for context but never count toward occupancy or conflicts.
+// v21 (2026-11-06): Field Command v3 coach app (preview at /fields/app/,
+// live /fields/ unchanged). Additive only:
+//  - Division booking windows (flm_settings.booking_windows): claim and
+//    coach_edit_slot refuse a move before the coach's division opens.
+//  - Field closures (flm_field_closures): admin_field_closure releases every
+//    slot booked on a field+date the same way a coach's own slot_skip_date
+//    does, and pushes/emails the affected coaches.
+//  - FMX cancel list (admin_fmx_cancel_list / admin_fmx_mark_done): every
+//    released field-date (coach skips, coach cancels, closures) in one list
+//    with an estimated $ saved from flm_fields.hourly_rate.
+//  - Setup tracker (admin_setup_tracker): per-team install + booked status.
+//  - Practice check-ins (slot_skipdate_token): a new one-tap "Not using it"
+//    token purpose, gated entirely by flm_settings.checkins_enabled (default
+//    false) in flm-reminders; nothing here sends anything on its own.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const CORS: Record<string, string> = {
@@ -162,6 +176,34 @@ function timesOverlap(a1: unknown, a2: unknown, b1: unknown, b2: unknown): boole
 async function emailOn(): Promise<boolean> {
   const { data } = await db.from("flm_settings").select("value").eq("key", "email_enabled").maybeSingle();
   return data?.value === "true";
+}
+// v21: division booking windows. { "<division>": "<ISO open time>" }. A
+// division with no entry has always been open (the default, unchanged).
+async function bookingWindows(): Promise<Record<string, string>> {
+  const { data } = await db.from("flm_settings").select("value").eq("key", "booking_windows").maybeSingle();
+  try {
+    const o = data?.value ? JSON.parse(data.value) : {};
+    return o && typeof o === "object" && !Array.isArray(o) ? o : {};
+  } catch (_e) {
+    return {};
+  }
+}
+function fmtOpenTime(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+  } catch (_e) {
+    return iso;
+  }
+}
+async function bookingWindowError(division: string): Promise<string | null> {
+  if (!division) return null;
+  const windows = await bookingWindows();
+  const openAt = windows[division];
+  if (!openAt) return null;
+  if (new Date(openAt).getTime() > Date.now()) {
+    return `Booking for ${division} opens ${fmtOpenTime(openAt)}.`;
+  }
+  return null;
 }
 async function umpDefaults(): Promise<Record<string, number>> {
   const { data } = await db.from("flm_settings").select("value").eq("key", "ump_defaults").maybeSingle();
@@ -573,6 +615,27 @@ function coachRequestResolvedEmailHtml(leagueName: string, r: { subject: string;
 </body></html>`;
 }
 
+// v21: generic Coaches Hub notice (field closures today; reusable for future
+// one-off coach notices that aren't a request reply or an invite).
+function coachNoticeEmailHtml(leagueName: string, heading: string, lines: string[]): string {
+  const body = lines.map((l) => `<p style="margin:0 0 10px;font-size:15px;line-height:1.55;color:#3c463f;">${escHtml(l)}</p>`).join("");
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f4f1e8;font-family:Arial,Helvetica,sans-serif;">
+<div style="max-width:560px;margin:0 auto;padding:18px 12px;">
+  <div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;">
+    <div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div>
+    <div style="color:#b7cfc2;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-top:2px;">${escHtml(leagueName)} Coaches Hub</div>
+  </div>
+  <div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div>
+  <div style="background:#ffffff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:22px;">
+    <h1 style="margin:0 0 10px;font-size:20px;color:#1c2420;">${escHtml(heading)}</h1>
+    ${body}
+    <p style="margin:18px 0 0;font-size:13px;color:#6d7a72;">See your schedule any time at <a href="https://go.blslittleleague.org/fields/" style="color:#2d6a4f;">go.blslittleleague.org/fields</a>.</p>
+  </div>
+  <p style="text-align:center;font-size:11px;color:#6d7a72;margin-top:14px;">Sent by ${escHtml(leagueName)} Field Command. Reply to this email to reach the league.</p>
+</div>
+</body></html>`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
   const url = new URL(req.url);
@@ -652,6 +715,11 @@ Deno.serve(async (req: Request) => {
       if (!(coach.team_ids || []).includes(String(team_id))) {
         return json({ ok: false, error: "you can only claim time for your own team" }, 403);
       }
+      // v21: division booking windows; refuse a claim before the coach's
+      // division opens (set by admin_booking_windows / "Open now").
+      const { data: claimTeam } = await db.from("flm_teams").select("division").eq("id", team_id).maybeSingle();
+      const bwErr = await bookingWindowError(claimTeam?.division ?? "");
+      if (bwErr) return json({ ok: false, error: bwErr }, 403);
       // 9/10: recurring-vs-single-week claims. Absent single_date = recurring
       // (day_key template, every week — the original/default behavior, unchanged).
       // A YYYY-MM-DD single_date scopes the claim to just that one week; the
@@ -968,6 +1036,36 @@ Deno.serve(async (req: Request) => {
       return shell("You're set", "#2d6a4f", `<p style="font-size:15px;color:#3c463f;line-height:1.55;">Your ${escHtml(moveDate)} practice is now at <b>${escHtml(targetField?.name ?? "the new field")}</b> (field opens ${startLbl}). Your regular field stays skipped that date only; the rest of your schedule is unchanged.</p>`, 200);
     }
 
+    // ---------- v21: practice check-in "Not using it" one-tap ----------
+    // Minted by flm-reminders (only when flm_settings.checkins_enabled is
+    // "true") as a flm_action_tokens row with purpose "checkin_skip" and
+    // move_date = the one date to release. Unlike slot_release_token this
+    // never deletes the recurring slot; it only skips the single date,
+    // same effect as the coach tapping slot_skip_date themselves.
+    if (action === "slot_skipdate_token" && req.method === "GET") {
+      const shell = (title: string, color: string, inner: string, status: number) =>
+        new Response(`<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;max-width:480px;margin:40px auto;padding:20px;background:#f4f1e8;"><div style="background:#0e3b2e;border-radius:12px 12px 0 0;padding:18px 22px;"><div style="color:#f4f1e8;font-size:22px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;">Field Command</div></div><div style="height:5px;background:repeating-linear-gradient(90deg,#c96f2f 0 40px,#f4f1e8 40px 50px);"></div><div style="background:#fff;border:1px solid #dcd8ca;border-top:none;border-radius:0 0 12px 12px;padding:24px;"><h2 style="color:${color};margin:0 0 12px;">${title}</h2>${inner}</div></body></html>`, { status, headers: { "Content-Type": "text/html; charset=utf-8", ...CORS } });
+      const token = url.searchParams.get("token") ?? "";
+      if (!token) return shell("Missing link", "#b3432b", `<p>This link is missing its token.</p>`, 400);
+      const { data: tok } = await db.from("flm_action_tokens").select("id,slot_id,purpose,expires_at,used_at,move_date").eq("token", token).maybeSingle();
+      if (!tok || tok.purpose !== "checkin_skip" || !tok.move_date) return shell("Link not found", "#b3432b", `<p>This link is not valid or has expired.</p>`, 404);
+      if (new Date(tok.expires_at).getTime() < Date.now()) return shell("Link expired", "#a8571d", `<p>This check-in link has expired. If your plans changed, release the date from the app instead.</p>`, 410);
+      if (tok.used_at) return shell("Already done", "#2d6a4f", `<p>That date is already marked as released. Nothing more to do.</p>`, 200);
+      const { data: slot } = await db.from("flm_slots").select("id,label,day_key,skip_dates,single_date").eq("id", tok.slot_id).maybeSingle();
+      if (!slot || slot.single_date) {
+        await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
+        return shell("Already done", "#2d6a4f", `<p>That practice is already off the schedule for that date.</p>`, 200);
+      }
+      const skipDate = String(tok.move_date);
+      const current: string[] = Array.isArray(slot.skip_dates) ? slot.skip_dates : [];
+      if (!current.includes(skipDate)) {
+        await db.from("flm_slots").update({ skip_dates: [...current, skipDate].sort() }).eq("id", slot.id);
+      }
+      await db.from("flm_action_tokens").update({ used_at: new Date().toISOString() }).eq("id", tok.id);
+      await log("slot_skipdate_token", `${slot.label} released ${skipDate} on ${slot.day_key} via check-in reply`, slot.label);
+      return shell("Got it", "#2d6a4f", `<p style="font-size:15px;color:#3c463f;line-height:1.55;">Your ${escHtml(skipDate)} practice is marked as released. The field is open for that date.</p>`, 200);
+    }
+
     // ---------- umpires (per-ump PIN, never the admin PIN) ----------
     if (action === "ump_list") {
       // Login picker only: names, no contact info, ever.
@@ -1243,6 +1341,20 @@ Deno.serve(async (req: Request) => {
       const profileMissing: string[] = [];
       if (!c.email) profileMissing.push("email");
       if (!phone) profileMissing.push("phone");
+      // v21: the coach app's book-first flow needs this division's booking
+      // window (null = already open, the default) and any field closures that
+      // touch a field this coach's team(s) actually use.
+      const bwMap = await bookingWindows();
+      const myDivision = team.data ? team.data.division : null;
+      const bookingWindowOpenAt = myDivision && bwMap[myDivision] ? bwMap[myDivision] : null;
+      const myTeamIds = coach.team_ids && coach.team_ids.length ? coach.team_ids : (c.team_id ? [c.team_id] : []);
+      const { data: myFieldSlots } = myTeamIds.length
+        ? await db.from("flm_slots").select("field_id").in("team_id", myTeamIds).is("cancelled_at", null)
+        : { data: [] as { field_id: string }[] };
+      const myFieldIds = Array.from(new Set((myFieldSlots ?? []).map((r: { field_id: string }) => r.field_id)));
+      const { data: closures } = myFieldIds.length
+        ? await db.from("flm_field_closures").select("id,field_id,closure_date,reason").in("field_id", myFieldIds).gte("closure_date", pacificToday()).order("closure_date")
+        : { data: [] as Record<string, unknown>[] };
       return json({
         ok: true,
         league_name: settingsMap.league_name || "Field Command",
@@ -1268,6 +1380,8 @@ Deno.serve(async (req: Request) => {
         joins_to_me: joinsIn.data || [],
         joins_from_me: joinsOut.data || [],
         schedule_confirmed_at: c.schedule_confirmed_at ?? null,
+        booking_window_open_at: bookingWindowOpenAt,
+        closures: closures || [],
         // Hold feature: slot IDs the signed-in coach is allowed to claim.
         // The portal uses this to render the held slot as "Open — tap to claim"
         // instead of "Pending..." for the target coach only.
@@ -1551,6 +1665,11 @@ Deno.serve(async (req: Request) => {
         const newField = patch.field_id ?? slot.field_id;
         const moved = newDay !== slot.day_key || String(newField) !== String(slot.field_id);
         if (moved) {
+          // v21: booking windows apply to moves too (a move is still claiming
+          // new field time), checked against the owning team's division.
+          const { data: editTeam } = await db.from("flm_teams").select("division").eq("id", slot.team_id).maybeSingle();
+          const bwErr = await bookingWindowError(editTeam?.division ?? "");
+          if (bwErr) return json({ ok: false, error: bwErr }, 403);
           const { data: clash } = await db.from("flm_slots").select("id,team_id,single_date").eq("season_id", slot.season_id).eq("day_key", newDay).eq("field_id", newField).neq("id", slot_id).is("cancelled_at", null);
           // A real conflict is another TEAM whose dates can actually overlap:
           // two different single-date bookings never clash with each other.
@@ -2026,6 +2145,44 @@ Deno.serve(async (req: Request) => {
         await db.from("flm_settings").upsert({ key: "email_enabled", value: b.email_enabled }, { onConflict: "key" });
         await log("settings", b.email_enabled === "true" ? "Email sending turned ON" : "Email sending turned OFF. Reminders and offers are logged, not sent.", "admin");
       }
+      // v21: practice check-ins kill switch, same true/false pattern as email.
+      // Default is "false" (no row at all reads as off); flipping this on
+      // starts flm-reminders pushing "still using it?" check-ins.
+      if (typeof b.checkins_enabled === "string") {
+        if (b.checkins_enabled !== "true" && b.checkins_enabled !== "false") {
+          return json({ ok: false, error: "checkins_enabled must be true or false" }, 400);
+        }
+        await db.from("flm_settings").upsert({ key: "checkins_enabled", value: b.checkins_enabled }, { onConflict: "key" });
+        await log("settings", b.checkins_enabled === "true" ? "Practice check-ins turned ON" : "Practice check-ins turned OFF", "admin");
+      }
+      if (typeof b.fmx_cancel_rule === "string") {
+        try {
+          const r = JSON.parse(b.fmx_cancel_rule);
+          if (!r || typeof r.days_after !== "number" || r.days_after < 0 || r.days_after > 30) {
+            return json({ ok: false, error: "fmx_cancel_rule needs a numeric days_after (0-30)" }, 400);
+          }
+        } catch (_e) {
+          return json({ ok: false, error: "fmx_cancel_rule must be valid JSON" }, 400);
+        }
+        await db.from("flm_settings").upsert({ key: "fmx_cancel_rule", value: b.fmx_cancel_rule }, { onConflict: "key" });
+      }
+      // v21: division booking windows, { "<division>": "<ISO open time>" | null }.
+      // A division absent from the map (or cleared with null) has always been
+      // open; the unchanged default for every existing division.
+      if (b.booking_windows !== undefined && b.booking_windows !== null) {
+        if (typeof b.booking_windows !== "object" || Array.isArray(b.booking_windows)) {
+          return json({ ok: false, error: "booking_windows must be an object of division -> ISO time or null" }, 400);
+        }
+        const current = await bookingWindows();
+        for (const [div, val] of Object.entries(b.booking_windows as Record<string, unknown>)) {
+          if (val === null || val === "") { delete current[div]; continue; }
+          const d = new Date(String(val));
+          if (Number.isNaN(d.getTime())) return json({ ok: false, error: `bad open time for ${div}` }, 400);
+          current[div] = d.toISOString();
+        }
+        await db.from("flm_settings").upsert({ key: "booking_windows", value: JSON.stringify(current) }, { onConflict: "key" });
+        await log("settings", `Booking windows updated: ${JSON.stringify(current)}`, "admin");
+      }
       if (typeof b.ump_defaults === "string") {
         try {
           const o = JSON.parse(b.ump_defaults);
@@ -2209,6 +2366,12 @@ Deno.serve(async (req: Request) => {
       if (b.divisions !== undefined) {
         if (!Array.isArray(b.divisions)) return json({ ok: false, error: "divisions must be a list" }, 400);
         row.divisions = b.divisions.map((d: unknown) => String(d).trim()).filter((d: string) => d).slice(0, 20);
+      }
+      // v21: optional hourly rate, used only to estimate $ saved on the FMX cancel list.
+      if (b.hourly_rate !== undefined) {
+        const hr = b.hourly_rate === null || b.hourly_rate === "" ? null : Number(b.hourly_rate);
+        if (hr !== null && (Number.isNaN(hr) || hr < 0)) return json({ ok: false, error: "hourly_rate must be a positive number" }, 400);
+        row.hourly_rate = hr;
       }
       let res;
       if (b.id) res = await db.from("flm_fields").update(row).eq("id", b.id).select().single();
@@ -2923,6 +3086,200 @@ Deno.serve(async (req: Request) => {
       }
       await log("admin_request", `request ${id} → ${JSON.stringify(patch).slice(0, 120)}`, "admin");
       return json({ ok: true, request: updated });
+    }
+
+    // ==================== v21: coach app v3 - admin actions ====================
+
+    if (action === "admin_field_closures") {
+      const { data } = await db.from("flm_field_closures").select("*").order("closure_date", { ascending: false }).limit(200);
+      return json({ ok: true, closures: data || [] });
+    }
+
+    if (action === "admin_field_closure") {
+      if (b.delete_id) {
+        const { data: c } = await db.from("flm_field_closures").select("field_id,closure_date,reason").eq("id", b.delete_id).maybeSingle();
+        await db.from("flm_field_closures").delete().eq("id", b.delete_id);
+        if (c) {
+          const { data: f } = await db.from("flm_fields").select("name").eq("id", c.field_id).maybeSingle();
+          await log("field_closure", `Removed the closure on ${f?.name ?? c.field_id} for ${c.closure_date}. Slots already skipped for that date are NOT automatically restored.`, "admin");
+        }
+        return json({ ok: true });
+      }
+      const field_id = String(b.field_id ?? "").trim();
+      const closure_date = String(b.closure_date ?? "").slice(0, 10);
+      if (!field_id || !/^\d{4}-\d{2}-\d{2}$/.test(closure_date)) return json({ ok: false, error: "field_id and YYYY-MM-DD closure_date required" }, 400);
+      const reason = String(b.reason ?? "").trim().slice(0, 200) || "Field closed";
+      const { data: field } = await db.from("flm_fields").select("name").eq("id", field_id).maybeSingle();
+      if (!field) return json({ ok: false, error: "field not found" }, 404);
+      const { data: closure, error: closErr } = await db.from("flm_field_closures").insert({ field_id, closure_date, reason, created_by: "admin" }).select().single();
+      if (closErr) return json({ ok: false, error: closErr.message }, 500);
+
+      // Release every slot booked on this field for this date, the same way a
+      // coach releases their own: recurring slots gain the date in skip_dates,
+      // single-date slots on that exact date are soft-cancelled.
+      const dow = dateDow(closure_date);
+      const dayKeysThatDate = DAY_KEYS.filter((k) => DOW_FOR_DAY_KEY[k] === dow);
+      const { data: slotsRaw } = dayKeysThatDate.length
+        ? await db.from("flm_slots").select("id,team_id,label,day_key,skip_dates,single_date,cancelled_at").eq("field_id", field_id).in("day_key", dayKeysThatDate)
+        : { data: [] as Record<string, unknown>[] };
+      const affectedTeamIds = new Set<string>();
+      // deno-lint-ignore no-explicit-any
+      for (const s of (slotsRaw ?? []) as any[]) {
+        if (s.cancelled_at) continue;
+        if (s.single_date) {
+          if (s.single_date !== closure_date) continue;
+          await db.from("flm_slots").update({ cancelled_at: new Date().toISOString(), cancel_reason: `Field closed: ${reason}` }).eq("id", s.id);
+          if (s.team_id) affectedTeamIds.add(s.team_id);
+        } else {
+          const current: string[] = Array.isArray(s.skip_dates) ? s.skip_dates : [];
+          if (!current.includes(closure_date)) {
+            await db.from("flm_slots").update({ skip_dates: [...current, closure_date].sort() }).eq("id", s.id);
+          }
+          if (s.team_id) affectedTeamIds.add(s.team_id);
+        }
+      }
+      await log("field_closure", `Closed ${field.name} on ${closure_date} (${reason}). ${affectedTeamIds.size} team(s) affected.`, "admin");
+
+      // Notify affected coaches: push always (if they're set up), email only
+      // when the league's email kill switch is on.
+      let notified = 0;
+      if (affectedTeamIds.size) {
+        const { data: coaches } = await db.from("flm_coaches").select("id,name,email").in("team_id", Array.from(affectedTeamIds)).eq("active", true);
+        const league = await leagueName();
+        const emailIsOn = await emailOn();
+        for (const co of (coaches ?? [])) {
+          await sendPushToCoach(co.id, { title: `${field.name} closed ${closure_date}`, body: `${reason}. Your practice that day is marked skipped.`, url: "/fields/app/", tag: "flm-closure" });
+          notified++;
+          if (emailIsOn && isEmail(co.email)) {
+            await resendSend({
+              from: "Field Command <noreply@coachpilot.org>",
+              to: [co.email],
+              subject: `${league}: ${field.name} closed ${closure_date}`,
+              html: coachNoticeEmailHtml(league, `${field.name} is closed ${closure_date}`, [`${reason}. Your practice booked there that day is marked skipped; no action needed.`]),
+            }).catch(() => ({ ok: false }));
+          }
+        }
+      }
+      return json({ ok: true, closure, affected_teams: affectedTeamIds.size, notified });
+    }
+
+    if (action === "admin_fmx_cancel_list") {
+      const today = pacificToday();
+      const since = (() => { const d = new Date(today + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() - 14); return d.toISOString().slice(0, 10); })();
+      const cutoff = (() => { const d = new Date(today + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + 120); return d.toISOString().slice(0, 10); })();
+      const [fieldsRes, slotsRes, closuresRes, doneRes, ruleRes] = await Promise.all([
+        db.from("flm_fields").select("id,name,default_start,hourly_rate"),
+        db.from("flm_slots").select("id,field_id,day_key,team_id,label,skip_dates,single_date,cancelled_at,cancel_reason"),
+        db.from("flm_field_closures").select("id,field_id,closure_date,reason"),
+        db.from("flm_fmx_cancellations").select("*"),
+        db.from("flm_settings").select("value").eq("key", "fmx_cancel_rule").maybeSingle(),
+      ]);
+      let rule: { days_after: number } = { days_after: 3 };
+      try {
+        const r = ruleRes.data?.value ? JSON.parse(ruleRes.data.value) : null;
+        if (r && typeof r.days_after === "number") rule = r;
+      } catch (_e) { /* keep default */ }
+      const fields = fieldsRes.data ?? [];
+      // deno-lint-ignore no-explicit-any
+      const fieldById = (id: string) => (fields as any[]).find((f) => f.id === id);
+      const doneKey = (fid: string, d: string) => `${fid}|${d}`;
+      const doneMap = new Map((doneRes.data ?? []).map((r: { field_id: string; cancel_date: string; done_at: string | null; done_by: string | null }) => [doneKey(r.field_id, r.cancel_date), r]));
+      function hoursFor(dayKey: string, field: { default_start?: string | null } | undefined): number {
+        const [s, e] = slotWindow(dayKey, field?.default_start ?? null);
+        return Math.round(((e - s) / 60) * 100) / 100;
+      }
+      // Keyed by field+date so a closure and the skip_dates it caused on a
+      // coach's slot never double-count as two separate rows (and so two
+      // different teams releasing the same field+date only cancel it once
+      // in FMX). Closures are added FIRST so their reason wins as the most
+      // specific cause; a plain coach release only fills a key still open.
+      const rowMap = new Map<string, Record<string, unknown>>();
+      function addRow(type: string, field_id: string, date: string, reason: string, dayKeyForHours: string) {
+        if (date < since) return;
+        const key = doneKey(field_id, date);
+        if (rowMap.has(key)) return;
+        const field = fieldById(field_id);
+        const hours = hoursFor(dayKeyForHours, field);
+        const rate = field && typeof field.hourly_rate === "number" ? field.hourly_rate as number : null;
+        const dl = new Date(date + "T12:00:00Z"); dl.setUTCDate(dl.getUTCDate() + rule.days_after);
+        const d = doneMap.get(key);
+        rowMap.set(key, {
+          id: key, type, field_id, field_name: field?.name ?? "?", date, hours,
+          est_dollars: rate !== null ? Math.round(hours * rate * 100) / 100 : null,
+          reason, deadline: dl.toISOString().slice(0, 10),
+          done: !!(d && d.done_at), done_at: d?.done_at ?? null,
+        });
+      }
+      // deno-lint-ignore no-explicit-any
+      for (const c of (closuresRes.data ?? []) as any[]) {
+        const dow3 = dateDow(c.closure_date);
+        const dk = DAY_KEYS.find((k) => DOW_FOR_DAY_KEY[k] === dow3) ?? "mon";
+        addRow("closure", c.field_id, c.closure_date, c.reason || "Field closed", dk);
+      }
+      // deno-lint-ignore no-explicit-any
+      for (const s of (slotsRes.data ?? []) as any[]) {
+        if (s.single_date) {
+          if (s.cancelled_at) addRow("cancelled", s.field_id, s.single_date, s.cancel_reason || "Practice cancelled", s.day_key);
+          continue;
+        }
+        if (s.cancelled_at) {
+          // Whole recurring slot cancelled: every occurrence of its weekday
+          // from the window start forward counts as released field time.
+          const dow2 = DOW_FOR_DAY_KEY[s.day_key];
+          if (dow2 !== undefined) {
+            const cursor = new Date(since + "T12:00:00Z");
+            while (cursor.getUTCDay() !== dow2) cursor.setUTCDate(cursor.getUTCDate() + 1);
+            for (let i = 0; i < 200; i++) {
+              const ds = cursor.toISOString().slice(0, 10);
+              if (ds > cutoff) break;
+              addRow("cancelled", s.field_id, ds, s.cancel_reason || "Practice cancelled", s.day_key);
+              cursor.setUTCDate(cursor.getUTCDate() + 7);
+            }
+          }
+        }
+        for (const d of (Array.isArray(s.skip_dates) ? s.skip_dates : [])) {
+          addRow("skipped", s.field_id, d, "Coach released this date", s.day_key);
+        }
+      }
+      const rows = Array.from(rowMap.values());
+      rows.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const totalSaved = rows.filter((r) => !r.done && typeof r.est_dollars === "number").reduce((sum, r) => sum + (r.est_dollars as number), 0);
+      return json({ ok: true, rows, total_est_saved: Math.round(totalSaved * 100) / 100, rule });
+    }
+
+    if (action === "admin_fmx_mark_done") {
+      const field_id = String(b.field_id ?? "").trim();
+      const cancel_date = String(b.cancel_date ?? "").slice(0, 10);
+      if (!field_id || !/^\d{4}-\d{2}-\d{2}$/.test(cancel_date)) return json({ ok: false, error: "field_id and cancel_date required" }, 400);
+      const markDone = b.done !== false;
+      const { error } = await db.from("flm_fmx_cancellations").upsert({
+        field_id, cancel_date, done_at: markDone ? new Date().toISOString() : null, done_by: markDone ? "admin" : null,
+      }, { onConflict: "field_id,cancel_date" });
+      if (error) return json({ ok: false, error: error.message }, 500);
+      await log("fmx_cancel", `${markDone ? "Marked done" : "Unmarked"}: cancel field time for ${cancel_date}`, "admin");
+      return json({ ok: true });
+    }
+
+    if (action === "admin_setup_tracker") {
+      const [teamsRes, coachesRes, subsRes, slotsRes] = await Promise.all([
+        db.from("flm_teams").select("id,name,division").eq("is_active", true).order("name"),
+        db.from("flm_coaches").select("id,name,email,team_id").eq("active", true),
+        db.from("flm_push_subscriptions").select("coach_id").eq("active", true),
+        db.from("flm_slots").select("team_id").is("cancelled_at", null),
+      ]);
+      const subbedCoachIds = new Set((subsRes.data ?? []).map((s: { coach_id: string }) => s.coach_id));
+      const bookedTeamIds = new Set((slotsRes.data ?? []).map((s: { team_id: string }) => s.team_id));
+      const rows = (teamsRes.data ?? []).map((t: { id: string; name: string; division: string }) => {
+        const co = (coachesRes.data ?? []).find((c: { team_id: string }) => c.team_id === t.id);
+        return {
+          team_id: t.id, team_name: t.name, division: t.division,
+          coach_name: co?.name ?? null, coach_email: co?.email ?? null,
+          has_coach: !!co,
+          installed: !!(co && subbedCoachIds.has(co.id)),
+          booked: bookedTeamIds.has(t.id),
+        };
+      });
+      return json({ ok: true, teams: rows });
     }
 
     return json({ ok: false, error: "unknown action" }, 404);

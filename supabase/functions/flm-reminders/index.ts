@@ -11,6 +11,22 @@
 // email is always cc'd; that rule lives in reminders-core.mjs.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { addDays, targetsFor, recipientsFor, plan, reminderLine, fmtTime } from "./reminders-core.mjs";
+import { sendWebPush } from "../_shared/webpush.ts";
+
+// v21 (2026-11-06): practice check-ins. Gated entirely by
+// flm_settings.checkins_enabled (default off); see the block near the
+// bottom of this handler. DAY_KEYS/DOW_FOR_DAY_KEY mirror flm-gateway's.
+const DAY_KEYS_CI = ["mon", "tue", "wed", "thu", "fri", "sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"];
+const DOW_FOR_DAY_KEY_CI: Record<string, number> = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
+const SAT_TIME_LABEL_CI: Record<string, string> = { sat_9_11: "9:00 AM", sat_11_1: "11:00 AM", sat_1_3: "1:00 PM", sat_3_5: "3:00 PM" };
+const WEEKDAY_LABEL_CI: Record<string, string> = { mon: "Monday", tue: "Tuesday", wed: "Wednesday", thu: "Thursday", fri: "Friday" };
+function randomToken(): string {
+  return crypto.randomUUID().replace(/-/g, "");
+}
+function dowOf(ds: string): number {
+  const p = ds.split("-");
+  return new Date(Date.UTC(+p[0] || 1970, (+p[1] || 1) - 1, +p[2] || 1)).getUTCDay();
+}
 
 const CORS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -180,7 +196,76 @@ Deno.serve(async (req: Request) => {
       if (sendList.length > 1) await new Promise((r) => setTimeout(r, 550));
     }
 
-    return json({ ok: true, date: today, email_enabled: emailEnabled, considered: targets.length, sent, logged, test: !!testTo, results });
+    // ---------- v21: practice check-ins ("Still using it?") ----------
+    // Mints a short-lived flm_action_tokens row (purpose "checkin_skip") per
+    // coach per practice happening tomorrow and pushes a Yes / Not using it
+    // notification. No answer counts as using it; nothing here ever
+    // auto-releases a slot on its own, only the coach's own tap does.
+    const checkinsEnabled = (await setting("checkins_enabled")) === "true";
+    let checkinsSent = 0, checkinsConsidered = 0;
+    if (checkinsEnabled && !testTo) {
+      const tomorrowDow = dowOf(tomorrow);
+      const dayKeysTomorrow = DAY_KEYS_CI.filter((k) => DOW_FOR_DAY_KEY_CI[k] === tomorrowDow);
+      if (dayKeysTomorrow.length) {
+        const { data: slotsTomorrow } = await db.from("flm_slots")
+          .select("id,team_id,label,day_key,field_id,skip_dates,single_date,cancelled_at")
+          .in("day_key", dayKeysTomorrow);
+        // deno-lint-ignore no-explicit-any
+        const activeSlots = (slotsTomorrow ?? []).filter((s: any) => {
+          if (s.cancelled_at || !s.team_id) return false;
+          if (s.single_date) return s.single_date === tomorrow;
+          return !(Array.isArray(s.skip_dates) && s.skip_dates.includes(tomorrow));
+        });
+        checkinsConsidered = activeSlots.length;
+        if (activeSlots.length) {
+          // deno-lint-ignore no-explicit-any
+          const teamIds = Array.from(new Set(activeSlots.map((s: any) => s.team_id)));
+          // deno-lint-ignore no-explicit-any
+          const fieldIds = Array.from(new Set(activeSlots.map((s: any) => s.field_id)));
+          const [coachesRes, fieldsRes] = await Promise.all([
+            db.from("flm_coaches").select("id,team_id").in("team_id", teamIds).eq("active", true),
+            db.from("flm_fields").select("id,name,default_start").in("id", fieldIds),
+          ]);
+          // deno-lint-ignore no-explicit-any
+          const fieldById = (id: string) => (fieldsRes.data ?? []).find((f: any) => f.id === id);
+          const expiresAt = new Date(`${tomorrow}T23:59:59-08:00`).toISOString();
+          // deno-lint-ignore no-explicit-any
+          for (const s of activeSlots as any[]) {
+            // deno-lint-ignore no-explicit-any
+            const coachesHere = (coachesRes.data ?? []).filter((c: any) => c.team_id === s.team_id);
+            if (!coachesHere.length) continue;
+            const field = fieldById(s.field_id);
+            const timeLabel = s.day_key.startsWith("sat_") ? (SAT_TIME_LABEL_CI[s.day_key] || "") : (field?.default_start === "18:00" ? "6:00 PM" : "5:00 PM");
+            const dayLabel = s.day_key.startsWith("sat_") ? "Saturday" : (WEEKDAY_LABEL_CI[s.day_key] || s.day_key);
+            for (const co of coachesHere) {
+              const { data: subs } = await db.from("flm_push_subscriptions").select("id,endpoint,p256dh,auth").eq("coach_id", co.id).eq("active", true);
+              if (!subs || !subs.length) continue;
+              const tok = randomToken();
+              const { error: tokErr } = await db.from("flm_action_tokens").insert({ token: tok, slot_id: s.id, purpose: "checkin_skip", move_date: tomorrow, expires_at: expiresAt });
+              if (tokErr) continue;
+              const payload = {
+                title: `Practice ${dayLabel} at ${field?.name ?? "your field"}`,
+                body: `${timeLabel}. Still using it?`,
+                url: "/fields/app/",
+                tag: `flm-checkin-${s.id}-${tomorrow}`,
+                skip_url: `https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway?action=slot_skipdate_token&token=${tok}`,
+                actions: [{ action: "yes", title: "Yes" }, { action: "notusing", title: "Not using it" }],
+              };
+              for (const sub of subs) {
+                const r = await sendWebPush(sub, payload).catch(() => ({ ok: false }));
+                if (r && (r as { ok?: boolean }).ok) checkinsSent++;
+              }
+            }
+          }
+          await log("checkin", `Sent ${checkinsSent} check-in push(es) for ${checkinsConsidered} practice(s) tomorrow (${tomorrow}).`);
+        }
+      }
+    }
+
+    return json({
+      ok: true, date: today, email_enabled: emailEnabled, considered: targets.length, sent, logged, test: !!testTo, results,
+      checkins: { enabled: checkinsEnabled, considered: checkinsConsidered, sent: checkinsSent },
+    });
   } catch (e) {
     return json({ ok: false, error: String(e).slice(0, 300) }, 500);
   }

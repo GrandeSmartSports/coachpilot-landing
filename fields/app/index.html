@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Field Command - Coach</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230e3b2e'/><path d='M50 22 L78 50 L50 78 L22 50 Z' fill='%23f4f1e8'/><path d='M50 34 L66 50 L50 66 L34 50 Z' fill='%23c96f2f'/></svg>" />
+<link rel="manifest" href="/fields/app/manifest.webmanifest" />
+<meta name="theme-color" content="#0e3b2e" />
+<link rel="apple-touch-icon" href="/fields/icon-192.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="/fields/flm-rules.js"></script>
+<style>
+  :root {
+    --pine: #0e3b2e; --pine-2: #14523f; --grass: #2d6a4f; --chalk: #f4f1e8; --chalk-2: #ece8db;
+    --clay: #c96f2f; --clay-dark: #a8571d;
+    --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #ffffff;
+    --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
+    --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { background: var(--chalk); color: var(--ink); height: 100%; }
+  body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; }
+  h1, h2, h3 { font-family: var(--disp); text-transform: uppercase; }
+
+  header.top { background: linear-gradient(160deg, var(--pine) 0%, var(--pine-2) 100%); color: var(--chalk); padding: 16px 16px 12px; position: sticky; top: 0; z-index: 10; }
+  header.top .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  header.top h1 { font-weight: 700; font-size: 22px; letter-spacing: 0.03em; }
+  header.top .sub { font-family: var(--disp); font-weight: 500; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #b7cfc2; }
+  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 36px, var(--chalk) 36px 46px); }
+  .signout { background: rgba(244,241,232,0.14); border: 1px solid rgba(244,241,232,0.3); color: var(--chalk); border-radius: 18px; padding: 7px 13px; font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  main { max-width: 640px; margin: 0 auto; padding: 16px 14px 100px; min-height: calc(100vh - 160px); }
+
+  /* ---------- buttons ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--pine); color: var(--chalk); border: none; border-radius: 12px; padding: 14px 18px; width: 100%; box-shadow: var(--shadow); }
+  .btn.clay { background: var(--clay); }
+  .btn.ghost { background: var(--white); color: var(--pine); border: 2px solid var(--pine); }
+  .btn.quiet { background: transparent; color: var(--muted); box-shadow: none; border: 1px solid var(--line); }
+  .btn.sm { font-size: 14px; padding: 10px 14px; width: auto; }
+  .btn[disabled] { opacity: 0.55; }
+  .btnrow { display: flex; gap: 10px; margin-top: 10px; }
+  .btnrow .btn { flex: 1; }
+  .linkbtn { background: none; border: none; color: var(--grass); text-decoration: underline; font-size: 14px; padding: 6px 0; }
+
+  /* ---------- cards ---------- */
+  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 19px; letter-spacing: 0.03em; margin-bottom: 8px; }
+  .card .hint { font-size: 13.5px; color: var(--muted); margin-bottom: 10px; }
+  .err { background: #fdefe9; border: 1px solid #f2c9b4; color: #a8571d; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 8px 0; }
+  .ok { background: #ecf5ef; border: 1px solid #bfdccb; color: #1e5138; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 8px 0; }
+  .hidden { display: none !important; }
+
+  /* ---------- sign-in ---------- */
+  .signwrap { max-width: 420px; margin: 40px auto 0; padding: 0 6px; }
+  .signwrap .diamond { width: 52px; height: 52px; margin: 0 auto 14px; display: block; }
+  .signwrap h1 { text-align: center; font-size: 26px; margin-bottom: 4px; }
+  .signwrap .lede { text-align: center; color: var(--muted); font-size: 14.5px; margin-bottom: 18px; }
+  label.flabel { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin: 10px 0 5px; }
+  input.finput { width: 100%; font-size: 17px; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 12px; }
+  input.finput:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201,111,47,0.18); }
+  input.pin { letter-spacing: 0.5em; text-align: center; font-weight: 700; }
+
+  /* ---------- booking windows (day/time pills) ---------- */
+  .fieldblock { margin-bottom: 14px; }
+  .fieldblock .fname { font-family: var(--disp); font-weight: 700; font-size: 16.5px; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 7px; }
+  .pillgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .pill { border-radius: 11px; padding: 12px 10px; font-size: 14px; font-weight: 600; text-align: center; border: 1.5px dashed #cfcaba; color: var(--muted); }
+  .pill.open { border-style: solid; border-color: var(--grass); color: var(--grass); background: #ecf5ef; }
+  .pill.mine { border-style: solid; border-color: var(--clay); background: #fdf3ea; color: var(--clay-dark); }
+  .pill.taken { background: #f4f2eb; color: #a39d8c; border-color: #e2ded0; }
+  .pill.pending { background: #f4f2eb; color: #a39d8c; border-color: #e2ded0; font-style: italic; }
+  .pill small { display: block; font-weight: 500; font-size: 11px; margin-top: 2px; }
+
+  /* ---------- week / alerts rows ---------- */
+  .weekrow { border-top: 1px solid var(--chalk-2); padding: 12px 0; }
+  .weekrow:first-child { border-top: none; padding-top: 0; }
+  .weekrow .wr-when { font-family: var(--disp); font-weight: 700; font-size: 15.5px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .weekrow .wr-what { font-size: 13.5px; color: var(--muted); margin-top: 1px; }
+  .weekrow .wr-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .weekrow .wr-actions .btn { font-size: 12.5px; padding: 8px 10px; }
+  .badge { display: inline-block; font-family: var(--disp); font-weight: 700; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 10px; padding: 2px 9px; margin-left: 6px; vertical-align: middle; }
+  .badge.game { background: #e7edff; color: #3a5fb8; }
+  .badge.released { background: #f4f2eb; color: #a39d8c; }
+
+  .alertrow { border-left: 5px solid var(--grass); background: #fbfaf5; border-radius: 10px; padding: 10px 13px; margin-bottom: 8px; }
+  .alertrow.warning { border-left-color: var(--clay); background: #fdf6ec; }
+  .alertrow.urgent, .alertrow.closure { border-left-color: #b3432b; background: #fdefe9; }
+  .alertrow h4 { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .alertrow p { font-size: 13.5px; color: #3c463f; margin-top: 2px; }
+
+  /* ---------- setup ---------- */
+  .setupbanner { background: var(--clay); color: #fff; border-radius: 12px; padding: 11px 14px; margin-bottom: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .setupbanner button { background: rgba(255,255,255,0.22); border: none; color: #fff; border-radius: 8px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+  .stepicon { width: 34px; height: 34px; color: var(--pine); }
+  .stepnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 700; font-size: 14px; margin-right: 8px; }
+  ol.steps { margin: 10px 0 14px 0; list-style: none; }
+  ol.steps li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--chalk-2); font-size: 14.5px; }
+  ol.steps li:last-child { border-bottom: none; }
+  ol.steps .stepnum2 { font-family: var(--disp); font-weight: 700; color: var(--clay-dark); min-width: 20px; }
+
+  /* ---------- my people ---------- */
+  .person { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
+  .person .role { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .person .nm { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.02em; }
+  .person .pcontact { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .person .pcontact a { background: var(--chalk-2); color: var(--pine); border-radius: 9px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+
+  /* ---------- bottom tab bar ---------- */
+  nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 16px rgba(14,59,46,0.08); z-index: 20; }
+  nav.tabbar button { flex: 1; background: none; border: none; padding: 10px 4px 9px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); font-family: var(--disp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+  nav.tabbar button.on { color: var(--pine); }
+  nav.tabbar svg { width: 22px; height: 22px; }
+
+  .loading { text-align: center; color: var(--muted); padding: 60px 10px; font-size: 15px; }
+  .centerwrap { max-width: 440px; margin: 10px auto 0; text-align: center; }
+  .instrow { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
+  .instrow .ic { width: 30px; height: 30px; flex: 0 0 30px; color: var(--pine); }
+  .instrow .tx { font-size: 14.5px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* =======================================================================
+   Field Command v3, the coach app (preview). /fields/app/
+   Reuses the SAME gateway, SAME localStorage keys, and SAME auth as the
+   live /fields/ hub (fields/index.html) so a coach signed in on one is
+   signed in on the other. This file never modifies fields/index.html.
+   ======================================================================= */
+var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
+var VAPID_PUBLIC_KEY = "BDvNJFl3B89RD88uFJRJy01SQeZ2CLLZdPlKaPjQEtOilQng__xQoZ2tdQ0DXseF-7rsem9sfm45O0joeQ6Nn8s";
+
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+var CRED_C = {
+  id: lsGet("flm_coach_id") || "",
+  pin: lsGet("flm_coach_pin") || "",
+  email: lsGet("flm_coach_email") || "",
+  name: lsGet("flm_coach_name") || ""
+};
+function isCoachSignedIn() { return !!(CRED_C.id && CRED_C.pin); }
+function coachApi(action, extra) {
+  var body = extra || {};
+  body.coach_id = CRED_C.id;
+  body.coach_pin = CRED_C.pin;
+  return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
+}
+function publicApi(action, body) {
+  return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) })
+    .then(function (r) { return r.json(); });
+}
+
+var DAYS = [
+  { k: "mon", label: "Monday", sat: false }, { k: "tue", label: "Tuesday", sat: false },
+  { k: "wed", label: "Wednesday", sat: false }, { k: "thu", label: "Thursday", sat: false },
+  { k: "fri", label: "Friday", sat: false },
+  { k: "sat_9_11", label: "Sat 9–11am", sat: true }, { k: "sat_11_1", label: "Sat 11–1pm", sat: true },
+  { k: "sat_1_3", label: "Sat 1–3pm", sat: true }, { k: "sat_3_5", label: "Sat 3–5pm", sat: true }
+];
+var DOW_INDEX = { mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat_9_11: 6, sat_11_1: 6, sat_1_3: 6, sat_3_5: 6 };
+var DOW_DAYKEYS = { 1: ["mon"], 2: ["tue"], 3: ["wed"], 4: ["thu"], 5: ["fri"], 6: ["sat_9_11", "sat_11_1", "sat_1_3", "sat_3_5"] };
+
+function todayStr() {
+  var d = new Date();
+  function p(n) { return (n < 10 ? "0" : "") + n; }
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function ymd(d) {
+  function p(n) { return (n < 10 ? "0" : "") + n; }
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate());
+}
+function mondayOf(d) {
+  var day = d.getDay();
+  var diff = day === 0 ? -6 : 1 - day;
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + diff);
+}
+function dateForDayThisWeek(dayK) {
+  var idx = DOW_INDEX[dayK];
+  if (!idx) return null;
+  var mon = mondayOf(new Date());
+  var target = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + (idx - 1));
+  return ymd(target);
+}
+function fmtDateShort(str) {
+  var p = String(str || "").split("-");
+  return new Date(+p[0], (+p[1] || 1) - 1, +p[2] || 1).toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+}
+function fieldStartLabel(f) { return f && f.default_start === "18:00" ? "6:00 PM" : "5:00 PM"; }
+function fieldById(id) { return (P.fields || []).filter(function (f) { return f.id === id; })[0] || null; }
+function teamById(id) { return (P.teams || []).filter(function (t) { return t.id === id; })[0] || null; }
+/* Is this slot "live" on this specific calendar date? Mirrors fields/index.html's
+   slotsOnDate, generalized off the public season/day/field filter already applied
+   by the caller. */
+function slotLiveOnDate(s, dateStr) {
+  if (s.cancelled_at) return false;
+  if (s.held && !s.team_id) return false;
+  if (s.single_date) return s.single_date === dateStr;
+  if (Array.isArray(s.skip_dates) && s.skip_dates.indexOf(dateStr) >= 0) return false;
+  return true;
+}
+
+/* =======================================================================
+   App state
+   ======================================================================= */
+var P = { fields: [], teams: [], slots: [], games: [], settings: {}, seasons: [], announcements: [] };
+var H = null;          // coach_state payload
+var SEASON = null;     // chosen open season id
+var S = { screen: "loading", err: "" };
+var DEFERRED_INSTALL = null;
+window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); DEFERRED_INSTALL = e; });
+
+function openSeason() {
+  var remembered = lsGet("flm_season");
+  var open = (P.seasons || []).filter(function (s) { return !s.locked; });
+  var rememberedOk = open.filter(function (s) { return s.id === remembered; })[0];
+  return (rememberedOk || open[0] || P.seasons[0] || null);
+}
+function myTeam() { return H && H.coach && H.coach.team_id ? teamById(H.coach.team_id) : null; }
+function myTeamIds() { return (H && H.coach && H.coach.team_ids) || []; }
+function mySlots() {
+  if (!SEASON) return [];
+  var ids = myTeamIds();
+  return (P.slots || []).filter(function (s) { return s.season_id === SEASON.id && ids.indexOf(s.team_id) >= 0; });
+}
+function hasBookedAnything() { return mySlots().some(function (s) { return !s.cancelled_at; }); }
+
+function root() { return document.getElementById("root"); }
+
+/* =======================================================================
+   Boot: load public state, then coach_state if signed in.
+   ======================================================================= */
+function boot() {
+  render();
+  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+    if (!d.ok) { S.screen = "error"; S.err = d.error || "Could not load the schedule."; render(); return; }
+    P = d;
+    SEASON = openSeason();
+    if (SEASON) lsSet("flm_season", SEASON.id);
+    if (!isCoachSignedIn()) { S.screen = "signin"; render(); return; }
+    loadCoachState(function (ok) {
+      S.screen = ok ? (hasBookedAnything() ? "home" : "book") : "signin";
+      render();
+    });
+  }).catch(function () {
+    S.screen = "error"; S.err = "Could not reach the server. Check your connection and reload.";
+    render();
+  });
+}
+function loadCoachState(cb) {
+  coachApi("coach_state", {}).then(function (j) {
+    if (!j.ok) {
+      if (j._status === 401 || j._status === 403) { signOut(true); }
+      if (cb) cb(false);
+      return;
+    }
+    H = j;
+    if (cb) cb(true);
+  }).catch(function () { if (cb) cb(false); });
+}
+function signOut(quiet) {
+  CRED_C = { id: "", pin: "", email: "", name: "" };
+  lsDel("flm_coach_id"); lsDel("flm_coach_pin"); lsDel("flm_coach_email"); lsDel("flm_coach_name");
+  H = null;
+  S.screen = "signin";
+  if (!quiet) render();
+}
+
+/* =======================================================================
+   Render dispatcher
+   ======================================================================= */
+function render() {
+  var r = root();
+  if (S.screen === "loading") { r.innerHTML = '<div class="loading">Loading Field Command&hellip;</div>'; return; }
+  if (S.screen === "error") {
+    r.innerHTML = '<div class="centerwrap" style="margin-top:60px;"><div class="card"><h2>Something went wrong</h2><p class="hint">' + esc(S.err) + '</p><button class="btn" id="eReload">Reload</button></div></div>';
+    document.getElementById("eReload").addEventListener("click", function () { location.reload(); });
+    return;
+  }
+  if (S.screen === "signin") { renderSignIn(); return; }
+  renderShell();
+}
+
+/* =======================================================================
+   Sign-in (email -> PIN, same accounts as the live coach hub)
+   ======================================================================= */
+function renderSignIn() {
+  var r = root();
+  r.innerHTML =
+    '<div class="signwrap">' +
+      '<svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0e3b2e"/><path d="M50 22 L78 50 L50 78 L22 50 Z" fill="#f4f1e8"/><path d="M50 34 L66 50 L50 66 L34 50 Z" fill="#c96f2f"/></svg>' +
+      '<h1>Field Command</h1>' +
+      '<p class="lede">Book your practice field in two taps. Enter the email your league has on file.</p>' +
+      '<label class="flabel" for="siEmail">Your email</label>' +
+      '<input id="siEmail" class="finput" type="email" placeholder="you@example.com" autocomplete="email" />' +
+      '<div id="siPinWrap" class="hidden">' +
+        '<label class="flabel" for="siPin">Your 4 digit PIN</label>' +
+        '<input id="siPin" class="finput pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="current-password" />' +
+      '</div>' +
+      '<div class="btnrow"><button class="btn clay" id="siGo" style="margin-top:14px;">Continue</button></div>' +
+      '<div id="siErr" class="err hidden"></div>' +
+      '<div id="siOk" class="ok hidden"></div>' +
+      '<p style="text-align:center;margin-top:14px;"><a href="/fields/" class="linkbtn">Open the full coach hub instead</a></p>' +
+    '</div>';
+  var em = document.getElementById("siEmail");
+  var pinWrap = document.getElementById("siPinWrap");
+  var pn = document.getElementById("siPin");
+  var go = document.getElementById("siGo");
+  var err = document.getElementById("siErr");
+  var ok = document.getElementById("siOk");
+  var stage = "email";
+  if (CRED_C.email) em.value = CRED_C.email;
+  function showErr(t) { err.textContent = t; err.classList.remove("hidden"); ok.classList.add("hidden"); }
+  function showOk(t) { ok.innerHTML = t; ok.classList.remove("hidden"); err.classList.add("hidden"); }
+  function checkEmail() {
+    var email = em.value.trim();
+    err.classList.add("hidden"); ok.classList.add("hidden");
+    if (!email || email.indexOf("@") < 1) { showErr("Enter your email address."); return; }
+    go.disabled = true; go.textContent = "Checking…";
+    publicApi("coach_request_access", { email: email }).then(function (j) {
+      go.disabled = false; go.textContent = "Continue";
+      if (!j.ok) { showErr(j.error || "That did not work."); return; }
+      if (!j.found) { showErr("That email is not on the coach list. Ask your league admin to add you, or open the full coach hub for support."); return; }
+      if (j.has_pin) {
+        stage = "pin"; pinWrap.classList.remove("hidden"); go.textContent = "Sign in";
+        setTimeout(function () { pn.focus(); }, 20);
+      } else {
+        showOk("You're on the list. We just emailed you a link to set your PIN. Open it on this phone, then come back here and sign in.");
+      }
+    }).catch(function () { go.disabled = false; go.textContent = "Continue"; showErr("Could not reach the server. Try again."); });
+  }
+  function doLogin() {
+    var email = em.value.trim(), pin = pn.value.trim();
+    err.classList.add("hidden");
+    if (!/^\d{4}$/.test(pin)) { showErr("Enter your 4 digit PIN."); return; }
+    go.disabled = true; go.textContent = "Signing in…";
+    publicApi("coach_login", { email: email, pin: pin }).then(function (j) {
+      if (!j.ok) { showErr(j.error || "That did not work."); go.disabled = false; go.textContent = "Sign in"; return; }
+      CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
+      lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin); lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
+      loadCoachState(function (okLoad) {
+        if (!okLoad) { showErr("Signed in, but could not load your hub. Pull to reload."); go.disabled = false; go.textContent = "Sign in"; return; }
+        S.screen = hasBookedAnything() ? "home" : "book";
+        render();
+      });
+    }).catch(function () { showErr("Could not reach the server."); go.disabled = false; go.textContent = "Sign in"; });
+  }
+  go.addEventListener("click", function () { if (stage === "pin") doLogin(); else checkEmail(); });
+  pn.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
+  em.addEventListener("keydown", function (e) { if (e.key === "Enter" && stage === "email") checkEmail(); });
+  setTimeout(function () { em.focus(); }, 20);
+}
+
+/* =======================================================================
+   App shell: header + screen body + bottom tab bar
+   ======================================================================= */
+var TABS = [
+  { k: "home", label: "Home", icon: '<path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>' },
+  { k: "book", label: "Book", icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>' },
+  { k: "people", label: "People", icon: '<circle cx="9" cy="7" r="4"/><path d="M17 11a3 3 0 100-6"/><path d="M3 21c0-3.5 3-6 6-6s6 2.5 6 6"/><path d="M21 21c0-2.5-1.5-4.5-4-5"/>' }
+];
+function renderShell() {
+  var r = root();
+  var leagueName = (H && H.league_name) || "Field Command";
+  var screen = S.screen;
+  var showTabs = ["home", "book", "people"].indexOf(screen) >= 0;
+  var body = "";
+  if (screen === "book") body = bookScreenHtml();
+  else if (screen === "setup") body = setupScreenHtml();
+  else if (screen === "people") body = peopleScreenHtml();
+  else body = homeScreenHtml();
+
+  r.innerHTML =
+    '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + '</h1><div class="sub">Coach App</div></div>' +
+    '<button class="signout" id="shSignOut">Sign out</button></div></header>' +
+    '<div class="chalkline"></div>' +
+    '<main id="mainBody">' + body + '</main>' +
+    (showTabs ? '<nav class="tabbar">' + TABS.map(function (t) {
+      return '<button data-tab="' + t.k + '" class="' + (screen === t.k ? "on" : "") + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg>' + t.label + '</button>';
+    }).join("") + '</nav>' : '');
+
+  document.getElementById("shSignOut").addEventListener("click", function () {
+    if (!confirm("Sign out of Field Command?")) return;
+    signOut();
+    render();
+  });
+  document.querySelectorAll("nav.tabbar [data-tab]").forEach(function (b) {
+    b.addEventListener("click", function () { S.screen = b.getAttribute("data-tab"); render(); window.scrollTo(0, 0); });
+  });
+  wireScreen(screen);
+}
+
+/* =======================================================================
+   BOOK screen: book-first flow for the coach's division
+   ======================================================================= */
+function myDivision() { var t = myTeam(); return t ? t.division : null; }
+function divisionFields() {
+  var div = myDivision();
+  return (P.fields || []).filter(function (f) {
+    if (!f.is_active) return false;
+    return !f.divisions || !f.divisions.length || !div || f.divisions.indexOf(div) >= 0;
+  });
+}
+function bookingWindowMessage() {
+  if (!H || !H.booking_window_open_at) return null;
+  var t = new Date(H.booking_window_open_at);
+  if (t.getTime() <= Date.now()) return null;
+  return "Booking for " + esc(myDivision() || "your division") + " opens " + t.toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + ".";
+}
+function slotsForDayField(dayK, fieldId) {
+  if (!SEASON) return [];
+  return (P.slots || []).filter(function (s) { return s.season_id === SEASON.id && s.day_key === dayK && s.field_id === fieldId && !s.cancelled_at; });
+}
+function bookScreenHtml() {
+  if (!SEASON) return '<div class="card"><h2>No season set up yet</h2><p class="hint">Ask the league to open a season window.</p></div>';
+  var winMsg = bookingWindowMessage();
+  var t = myTeam();
+  var rules = (typeof FLM_RULES !== "undefined") ? FLM_RULES.parse(P.settings.practice_rules) : null;
+  var ruleLine = rules ? FLM_RULES.describe(rules) : "";
+  var satAllowed = !rules || rules.max_weekend > 0;
+  var fields = divisionFields();
+  var alreadyBooked = hasBookedAnything();
+
+  var head = '<div class="card">' +
+    '<h2>Book your practice</h2>' +
+    (t ? '<p class="hint">' + esc(t.name) + ' &middot; ' + esc(t.division || "") + '</p>' : "") +
+    (ruleLine ? '<p class="hint">' + esc(ruleLine) + '</p>' : "") +
+    '</div>';
+  if (winMsg) {
+    return head + '<div class="card"><p class="err" style="margin:0;">' + winMsg + '</p><button class="btn ghost" id="bkRecheck" style="margin-top:10px;">Check again</button></div>';
+  }
+  if (!t) {
+    return head + '<div class="card"><p class="hint" style="margin:0;">Your team is still being linked by the league. Check back soon, or use <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
+  }
+  if (!fields.length) {
+    return head + '<div class="card"><p class="hint" style="margin:0;">No fields are tagged for your division yet. Ask the league to tag a field, or book from <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
+  }
+
+  var blocks = fields.map(function (f) {
+    var pills = DAYS.filter(function (d) { return !d.sat || satAllowed; }).map(function (d) {
+      var existing = slotsForDayField(d.k, f.id);
+      var mine = existing.filter(function (s) { return s.team_id === t.id; })[0];
+      var heldForMe = existing.filter(function (s) { return s.held && !s.team_id && (H.claimable_hold_slot_ids || []).indexOf(s.id) >= 0; })[0];
+      var pendingHold = existing.some(function (s) { return s.held && !s.team_id; }) && !heldForMe;
+      var takenByOther = existing.filter(function (s) { return s.team_id && s.team_id !== t.id; })[0];
+      var cls = "pill", sub = "Open", tag = "open";
+      if (mine) { cls += " mine"; sub = "Your team"; tag = "mine"; }
+      else if (heldForMe) { cls += " open"; sub = "Reserved for you"; tag = "open"; }
+      else if (pendingHold) { cls += " pending"; sub = "Pending"; tag = "pending"; }
+      else if (takenByOther) { cls += " taken"; sub = esc(teamById(takenByOther.team_id) ? teamById(takenByOther.team_id).name : "Taken"); tag = "taken"; }
+      else { cls += " open"; tag = "open"; }
+      return '<button type="button" class="' + cls + '" data-daypill data-day="' + d.k + '" data-field="' + f.id + '" data-tag="' + tag + '"' + (tag === "taken" ? " disabled" : "") + '>' + esc(d.label) + '<small>' + sub + '</small></button>';
+    }).join("");
+    return '<div class="fieldblock"><div class="fname">' + esc(f.name) + ' <span style="font-weight:500;color:var(--muted);font-size:12.5px;">opens ' + fieldStartLabel(f) + '</span></div><div class="pillgrid">' + pills + '</div></div>';
+  }).join("");
+
+  return head + '<div class="card">' + blocks + '</div>' +
+    (alreadyBooked ? '<button class="btn ghost" id="bkDoneBtn">Done booking, take me home</button>' : '');
+}
+function openClaimConfirm(dayK, fieldId) {
+  var t = myTeam(), f = fieldById(fieldId);
+  var d = DAYS.filter(function (x) { return x.k === dayK; })[0];
+  var html = '<div class="card"><h2>Claim this slot?</h2>' +
+    '<p class="hint">' + esc(t.name) + ' &rarr; ' + esc(d ? d.label : dayK) + ' at <b>' + esc(f ? f.name : "") + '</b> (opens ' + fieldStartLabel(f) + ')</p>' +
+    '<div id="ccErr" class="err hidden"></div>' +
+    '<div class="btnrow"><button class="btn quiet" id="ccCancel">Cancel</button><button class="btn clay" id="ccGo">Claim it</button></div></div>';
+  var overlay = openOverlay(html);
+  overlay.querySelector("#ccCancel").addEventListener("click", function () { closeOverlay(overlay); });
+  overlay.querySelector("#ccGo").addEventListener("click", function () {
+    var btn = overlay.querySelector("#ccGo"), err = overlay.querySelector("#ccErr");
+    btn.disabled = true; btn.textContent = "Saving…";
+    coachApi("claim", { season_id: SEASON.id, day_key: dayK, field_id: fieldId, team_id: t.id, note: "" }).then(function (j) {
+      if (!j.ok) { err.textContent = j.error || "Could not claim that slot."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Claim it"; return; }
+      closeOverlay(overlay);
+      refreshAfterClaim();
+    }).catch(function () { err.textContent = "Could not reach the server."; err.classList.remove("hidden"); btn.disabled = false; btn.textContent = "Claim it"; });
+  });
+}
+function refreshAfterClaim() {
+  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+    if (d.ok) P = d;
+    loadCoachState(function () {
+      maybeConfirmSchedule();
+      var firstTime = !lsGet("flm_app_booked_once");
+      lsSet("flm_app_booked_once", "1");
+      if (firstTime && !setupIsDone()) { S.screen = "setup"; S.setupStep = "a"; }
+      else { S.screen = "book"; }
+      render();
+      toast("Booked. You're on the schedule.");
+    });
+  });
+}
+/* Silent compliance confirm. Coach's rule: never warn the coach, the claim
+   stands and the board quietly gets a review item if they're over guideline. */
+function maybeConfirmSchedule() {
+  if (!H || !H.coach || !SEASON) return;
+  var rules = (typeof FLM_RULES !== "undefined") ? FLM_RULES.parse(P.settings.practice_rules) : null;
+  if (!rules) return;
+  var ev = FLM_RULES.evaluate(rules, mySlots());
+  var alreadyOpenApproval = H.schedule_approval && H.schedule_approval.status === "open";
+  if (ev.status === "over" && !alreadyOpenApproval) {
+    coachApi("coach_confirm_schedule", { over: true, auto: true, summary: "Claimed via the coach app. " + ev.message }).catch(function () {});
+  } else if (!H.schedule_confirmed_at) {
+    coachApi("coach_confirm_schedule", { over: false, summary: "Confirmed via the coach app." }).catch(function () {});
+  }
+}
+
+/* =======================================================================
+   SETUP screen: Add to Home Screen, then notifications. Skippable.
+   ======================================================================= */
+function isStandalone() { return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
+function isIOS() { return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+function stepADone() { return isStandalone() || lsGet("flm_app_setup_a_done") === "1" || lsGet("flm_app_setup_a_skipped") === "1"; }
+function stepBDone() { return lsGet("flm_app_setup_b_skipped") === "1"; } // real "done" is checked live via push subscription
+function setupIsDone() { return stepADone() && (lsGet("flm_app_setup_b_skipped") === "1" || lsGet("flm_app_setup_b_done") === "1"); }
+function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+function ensureServiceWorker() {
+  if (!pushSupported()) return Promise.reject(new Error("This device does not support notifications."));
+  return navigator.serviceWorker.getRegistration("/fields/app/").then(function (reg) {
+    return reg || navigator.serviceWorker.register("/fields/sw.js", { scope: "/fields/app/" });
+  });
+}
+function getCurrentSubscription() {
+  if (!pushSupported()) return Promise.resolve(null);
+  return ensureServiceWorker().then(function (reg) { return reg.pushManager.getSubscription(); });
+}
+function urlBase64ToUint8Array(s) {
+  s = (s + "===".slice((s.length + 3) % 4)).replace(/-/g, "+").replace(/_/g, "/");
+  var raw = atob(s); var out = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+function setupScreenHtml() {
+  var step = S.setupStep || "a";
+  if (step === "a") {
+    if (isStandalone()) { S.setupStep = "b"; return setupScreenHtml(); }
+    var androidBtn = DEFERRED_INSTALL ? '<button class="btn clay" id="supInstall" style="margin-top:12px;">Add to Home Screen</button>' : "";
+    var iosSteps = isIOS()
+      ? '<ol class="steps">' +
+          '<li><span class="stepnum2">1</span><div><svg class="stepicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="M7 7l5-5 5 5"/><rect x="4" y="13" width="16" height="8" rx="2"/></svg> Tap the <b>Share</b> button in Safari\'s toolbar.</div></li>' +
+          '<li><span class="stepnum2">2</span><div><svg class="stepicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg> Scroll down and tap <b>Add to Home Screen</b>.</div></li>' +
+          '<li><span class="stepnum2">3</span><div><svg class="stepicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg> Tap <b>Add</b>, then open Field Command from your Home Screen icon.</div></li>' +
+        '</ol>'
+      : '<p class="hint">Use your browser\'s menu and choose "Add to Home Screen" or "Install app".</p>' + androidBtn;
+    return '<div class="card"><h2>Step 1 of 2</h2><p class="hint">Add Field Command to your Home Screen so it opens like an app and can reach you with alerts.</p>' + iosSteps +
+      '<div class="btnrow"><button class="btn quiet" id="supSkipA">Skip for now</button><button class="btn ghost" id="supDoneA">I added it</button></div></div>';
+  }
+  // Step B: notifications
+  var needsInstallFirst = isIOS() && !isStandalone();
+  return '<div class="card"><h2>Step 2 of 2</h2><p class="hint">Turn on notifications so you hear about field closures and rainouts right away.</p>' +
+    (needsInstallFirst ? '<p class="err">Finish Step 1 first. iPhone only allows notifications from the Home Screen app.</p><button class="btn ghost" id="supBackA">Back to Step 1</button>' :
+    '<button class="btn clay" id="supEnablePush">Turn on notifications</button>') +
+    '<div class="btnrow"><button class="btn quiet" id="supSkipB">Skip for now</button><button class="btn ghost" id="supFinish">Done, take me home</button></div></div>';
+}
+function wireSetup() {
+  var a = document.getElementById("supSkipA");
+  if (a) a.addEventListener("click", function () { lsSet("flm_app_setup_a_skipped", "1"); S.setupStep = "b"; render(); });
+  var da = document.getElementById("supDoneA");
+  if (da) da.addEventListener("click", function () { lsSet("flm_app_setup_a_done", "1"); S.setupStep = "b"; render(); });
+  var inst = document.getElementById("supInstall");
+  if (inst) inst.addEventListener("click", function () {
+    if (!DEFERRED_INSTALL) return;
+    DEFERRED_INSTALL.prompt();
+    DEFERRED_INSTALL.userChoice.then(function () { DEFERRED_INSTALL = null; lsSet("flm_app_setup_a_done", "1"); S.setupStep = "b"; render(); });
+  });
+  var backA = document.getElementById("supBackA");
+  if (backA) backA.addEventListener("click", function () { S.setupStep = "a"; render(); });
+  var b = document.getElementById("supSkipB");
+  if (b) b.addEventListener("click", function () { lsSet("flm_app_setup_b_skipped", "1"); S.screen = "home"; render(); });
+  var fin = document.getElementById("supFinish");
+  if (fin) fin.addEventListener("click", function () { S.screen = "home"; render(); });
+  var push = document.getElementById("supEnablePush");
+  if (push) push.addEventListener("click", function () {
+    push.disabled = true; push.textContent = "Working…";
+    Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") { toast("Notifications not enabled."); push.disabled = false; push.textContent = "Turn on notifications"; return; }
+      ensureServiceWorker().then(function (reg) {
+        return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
+      }).then(function (sub) {
+        var raw = sub.toJSON();
+        return coachApi("coach_push_subscribe", { subscription: { endpoint: raw.endpoint, keys: raw.keys }, user_agent: navigator.userAgent });
+      }).then(function (j) {
+        if (!j.ok) { toast("Could not save: " + (j.error || "error")); push.disabled = false; push.textContent = "Turn on notifications"; return; }
+        lsSet("flm_app_setup_b_done", "1");
+        toast("Notifications on.");
+        S.screen = "home"; render();
+      }).catch(function (e) { toast("Could not enable: " + (e.message || "error")); push.disabled = false; push.textContent = "Turn on notifications"; });
+    });
+  });
+}
+
+/* =======================================================================
+   HOME screen: This week, Alerts, Book or change
+   ======================================================================= */
+function thisWeekRows() {
+  if (!SEASON || !H) return [];
+  var ids = myTeamIds();
+  var out = [];
+  var mon = mondayOf(new Date());
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+    var ds = ymd(d);
+    if (ds < todayStr()) continue;
+    var dow = d.getDay();
+    (DOW_DAYKEYS[dow] || []).forEach(function (dk) {
+      (P.slots || []).filter(function (s) { return s.season_id === SEASON.id && s.day_key === dk && ids.indexOf(s.team_id) >= 0; }).forEach(function (s) {
+        if (!slotLiveOnDate(s, ds)) return;
+        var f = fieldById(s.field_id);
+        out.push({ date: ds, kind: "practice", slot: s, field: f, label: (f ? f.name : "?") + " &middot; " + fieldStartLabel(f) });
+      });
+    });
+    (P.games || []).filter(function (g) { return g.game_date === ds && g.status === "scheduled" && (ids.indexOf(g.home_team_id) >= 0 || ids.indexOf(g.away_team_id) >= 0); }).forEach(function (g) {
+      var f = fieldById(g.field_id);
+      out.push({ date: ds, kind: "game", game: g, label: (f ? f.name : g.venue_text || "?") });
+    });
+  }
+  out.sort(function (a, b) { return a.date.localeCompare(b.date); });
+  return out;
+}
+function homeScreenHtml() {
+  var banner = "";
+  if (!setupIsDone()) {
+    banner = '<div class="setupbanner"><span>Finish setup so you never miss a closure or rainout alert.</span><button id="hmSetup">Finish</button></div>';
+  }
+  var rows = thisWeekRows();
+  var weekHtml = rows.length ? rows.map(function (r, i) {
+    if (r.kind === "game") {
+      return '<div class="weekrow"><div class="wr-when">' + fmtDateShort(r.date) + ' <span class="badge game">Game</span></div><div class="wr-what">' + esc(r.label) + '</div></div>';
+    }
+    return '<div class="weekrow"><div class="wr-when">' + fmtDateShort(r.date) + '</div><div class="wr-what">' + r.label + '</div>' +
+      '<div class="wr-actions"><button class="btn sm ghost" data-release data-slot="' + r.slot.id + '" data-date="' + r.date + '" data-singledate="' + (r.slot.single_date ? "1" : "0") + '">Not using it</button>' +
+      '<button class="btn sm quiet" data-release data-reason="rainout" data-slot="' + r.slot.id + '" data-date="' + r.date + '" data-singledate="' + (r.slot.single_date ? "1" : "0") + '">Rained out</button></div></div>';
+  }).join("") : '<p class="hint" style="margin:0;">Nothing on the schedule this week.</p>';
+
+  var alerts = (P.announcements || []).filter(function (a) { return a.active !== false; }).map(function (a) {
+    return '<div class="alertrow ' + (a.severity === "warning" || a.severity === "urgent" ? esc(a.severity) : "") + '"><h4>' + esc(a.title) + '</h4>' + (a.body ? '<p>' + esc(a.body) + '</p>' : "") + '</div>';
+  }).join("");
+  var closures = ((H && H.closures) || []).map(function (c) {
+    var f = fieldById(c.field_id);
+    return '<div class="alertrow closure"><h4>' + esc(f ? f.name : "Field") + ' closed ' + fmtDateShort(c.closure_date) + '</h4><p>' + esc(c.reason || "") + '</p></div>';
+  }).join("");
+  var alertsHtml = (alerts + closures) || '<p class="hint" style="margin:0;">No alerts right now.</p>';
+
+  return banner +
+    '<div class="card"><h2>This week</h2>' + weekHtml + '</div>' +
+    '<div class="card"><h2>Alerts</h2>' + alertsHtml + '</div>' +
+    '<div class="card"><h2>Book or change</h2><p class="hint">Grab more open field time, or change what you already have.</p><button class="btn clay" id="hmBook">Open booking</button></div>';
+}
+function wireHome() {
+  var setup = document.getElementById("hmSetup");
+  if (setup) setup.addEventListener("click", function () { S.screen = "setup"; S.setupStep = stepADone() ? "b" : "a"; render(); });
+  var book = document.getElementById("hmBook");
+  if (book) book.addEventListener("click", function () { S.screen = "book"; render(); });
+  document.querySelectorAll("[data-release]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var slotId = b.getAttribute("data-slot"), date = b.getAttribute("data-date"), single = b.getAttribute("data-singledate") === "1";
+      var label = b.getAttribute("data-reason") === "rainout" ? "Mark this practice rained out?" : "Release this practice?";
+      if (!confirm(label + " The field opens up for " + fmtDateShort(date) + ".")) return;
+      b.disabled = true;
+      var call = single ? coachApi("release", { slot_id: slotId }) : coachApi("slot_skip_date", { slot_id: slotId, skip_date: date });
+      call.then(function (j) {
+        if (!j.ok) { toast(j.error || "Could not update that."); b.disabled = false; return; }
+        toast("Done. The field is open for " + fmtDateShort(date) + ".");
+        refreshQuiet();
+      }).catch(function () { toast("Could not reach the server."); b.disabled = false; });
+    });
+  });
+}
+function refreshQuiet() {
+  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) { if (d.ok) P = d; loadCoachState(render); });
+}
+
+/* =======================================================================
+   PEOPLE screen: player agent, other division coaches, board contacts
+   ======================================================================= */
+function peopleScreenHtml() {
+  var div = myDivision();
+  var contacts = (H && H.contacts) || [];
+  function matchesDivision(role) {
+    if (!div) return false;
+    return role.toLowerCase().indexOf(div.toLowerCase()) >= 0;
+  }
+  var playerAgents = contacts.filter(function (c) { return /player agent/i.test(c.role) && matchesDivision(c.role); });
+  if (!playerAgents.length) playerAgents = contacts.filter(function (c) { return /league player agent/i.test(c.role); });
+  var board = contacts.filter(function (c) { return playerAgents.indexOf(c) < 0; });
+  var otherCoaches = (P.teams || []).filter(function (t) { return t.division === div && t.id !== (H.coach && H.coach.team_id) && t.is_active && (t.coach_name || t.coach_phone); });
+
+  function personCard(name, role, phone, email) {
+    var cx = [];
+    if (phone) cx.push('<a href="tel:' + esc(phone) + '">Call</a>', '<a href="sms:' + esc(phone) + '">Text</a>');
+    if (email) cx.push('<a href="mailto:' + esc(email) + '">Email</a>');
+    return '<div class="person"><div class="role">' + esc(role) + '</div><div class="nm">' + esc(name) + '</div>' + (cx.length ? '<div class="pcontact">' + cx.join("") + '</div>' : "") + '</div>';
+  }
+  var paHtml = playerAgents.length ? playerAgents.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No player agent on file yet.</p>';
+  var coachHtml = otherCoaches.length ? otherCoaches.map(function (t) { return personCard(t.coach_name || t.name, t.name + " coach", t.coach_phone, ""); }).join("") : '<p class="hint">No other coaches listed in your division yet.</p>';
+  var boardHtml = board.length ? board.map(function (c) { return personCard(c.name, c.role, c.phone, c.email); }).join("") : '<p class="hint">No board contacts posted yet.</p>';
+
+  return '<div class="card"><h2>Your player agent</h2>' + paHtml + '</div>' +
+    '<div class="card"><h2>Coaches in ' + esc(div || "your division") + '</h2>' + coachHtml + '</div>' +
+    '<div class="card"><h2>League board</h2>' + boardHtml + '</div>';
+}
+
+/* =======================================================================
+   Small overlay + toast helpers
+   ======================================================================= */
+function openOverlay(innerHtml) {
+  var d = document.createElement("div");
+  d.style.cssText = "position:fixed;inset:0;background:rgba(14,59,46,0.45);display:flex;align-items:flex-end;justify-content:center;z-index:60;padding:0;";
+  d.innerHTML = '<div style="background:transparent;width:100%;max-width:640px;padding:14px;">' + innerHtml + '</div>';
+  document.body.appendChild(d);
+  d.addEventListener("click", function (e) { if (e.target === d) closeOverlay(d); });
+  return d;
+}
+function closeOverlay(d) { if (d && d.parentNode) d.parentNode.removeChild(d); }
+function toast(msg) {
+  var t = document.createElement("div");
+  t.textContent = msg;
+  t.style.cssText = "position:fixed;left:14px;right:14px;bottom:86px;background:#0e3b2e;color:#f4f1e8;padding:12px 16px;border-radius:12px;font-size:14px;z-index:70;box-shadow:0 8px 26px rgba(14,59,46,0.3);text-align:center;";
+  document.body.appendChild(t);
+  setTimeout(function () { t.remove(); }, 3200);
+}
+
+function wireScreen(screen) {
+  if (screen === "book") {
+    var recheck = document.getElementById("bkRecheck");
+    if (recheck) recheck.addEventListener("click", function () { loadCoachState(render); });
+    var done = document.getElementById("bkDoneBtn");
+    if (done) done.addEventListener("click", function () { S.screen = "home"; render(); });
+    document.querySelectorAll("[data-daypill]").forEach(function (b) {
+      if (b.getAttribute("data-tag") === "taken") return;
+      b.addEventListener("click", function () { openClaimConfirm(b.getAttribute("data-day"), b.getAttribute("data-field")); });
+    });
+  } else if (screen === "setup") {
+    wireSetup();
+  } else if (screen === "home") {
+    wireHome();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

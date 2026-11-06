@@ -309,6 +309,19 @@
             <div id="fieldList"></div>
           </div>
         </div>
+        <div class="panel span2" id="panelClosures">
+          <div class="bar"><h2>Field closures</h2></div>
+          <div class="body">
+            <p class="hint">Close a field for a date (rain, maintenance, a tournament). Every practice booked there that date is marked skipped automatically, and the coach gets a push notification (and an email, if email is on).</p>
+            <div class="row" style="margin-bottom:10px;">
+              <select id="clField"><option value="">Field</option></select>
+              <input id="clDate" type="date" />
+              <input id="clReason" placeholder="Reason, e.g. Rain, Maintenance" style="flex:1;min-width:150px;" />
+              <button class="btn sm clay" id="clAdd">Close field</button>
+            </div>
+            <div id="clList"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -408,6 +421,25 @@
             </div>
           </div>
         </div>
+        <div class="panel span2" id="panelBookWin">
+          <div class="bar"><h2>Booking windows</h2></div>
+          <div class="body">
+            <p class="hint">When a division's link goes out, its field time should open at the same moment. Set a time ahead of the text, or tap Open now the moment you send it. Leave a division blank and it stays always open (the default, unchanged for every division today).</p>
+            <div id="bwList"></div>
+            <div class="row" style="margin-top:8px;">
+              <button class="btn sm" id="bwSave">Save booking windows</button>
+              <span id="bwMsg" class="ok hidden" style="font-size:13px;">Saved</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelFmx">
+          <div class="bar"><h2>FMX cancel list</h2><button class="btn sm ghost" id="fmxCsv">Export CSV</button></div>
+          <div class="body">
+            <p class="hint">Every released or closed field-date (coach releases, cancellations, and closures) so you can cancel it in FMX before the district counts it against you. Check a row off once it's cancelled.</p>
+            <div id="fmxTotal" style="margin-bottom:8px;font-weight:600;"></div>
+            <div id="fmxList"></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -491,6 +523,13 @@
               </select>
             </div>
             <div id="requestList"></div>
+          </div>
+        </div>
+        <div class="panel span2" id="panelSetupTracker">
+          <div class="bar"><h2>Coach app setup</h2></div>
+          <div class="body">
+            <p class="hint">Who has notifications on (the best signal we have for "installed the app") and who has booked their field time yet.</p>
+            <div id="setupTrackerList"></div>
           </div>
         </div>
       </div>
@@ -703,11 +742,11 @@ function isArchivedSeason(id) { var s = seasonById(id); return !!(s && s.archive
 var VIEW_TITLES = { home: "", divisions: "Divisions", fields: "Fields", games: "Game schedule", practices: "Practices", umpires: "Umpires", hub: "Coaches Hub", announcements: "Announcements", tools: "Season tools", reports: "Reports" };
 var PANEL_VIEW = {
   panelDivList: "divisions", panelTeams: "divisions",
-  panelFields: "fields",
+  panelFields: "fields", panelClosures: "fields",
   panelGames: "games", panelBoard: "games", panelStand: "games",
-  panelPractice: "practices", panelComp: "practices", panelWindows: "practices",
+  panelPractice: "practices", panelComp: "practices", panelWindows: "practices", panelBookWin: "practices", panelFmx: "practices",
   panelUmps: "umpires",
-  panelCoaches: "hub", panelContacts: "hub", panelRequests: "hub",
+  panelCoaches: "hub", panelContacts: "hub", panelRequests: "hub", panelSetupTracker: "hub",
   panelAnnounce: "announcements",
   panelWizard: "tools", panelExt: "tools", panelGen: "tools", panelImport: "tools", panelNext: "tools", panelSettings: "tools",
   panelStats: "reports", panelLog: "reports"
@@ -847,6 +886,7 @@ function refresh() {
     D = d;
     renderTiles(); renderSeasons(); renderFields(); renderTeams(); renderExtTeams(); renderCompliance(); renderGames(); renderSeasonGen(); renderBoard(); renderUmps(); renderStandings(); renderAttention();
     renderPracticeGrid(); renderHome();
+    renderClosures(); renderBookingWindows(); renderFmx(); renderSetupTracker();
     /* Coaches Hub — fetch coaches/contacts/requests in parallel so tile counts + panels populate together. */
     if (typeof loadCoaches === "function") {
       Promise.all([loadCoaches(), loadContacts(), loadRequests()]).then(function () {
@@ -2405,18 +2445,140 @@ function fieldModal(f) {
     ctx: isNew ? "A field is any place teams practice or play." : esc(f.name),
     fields: [
       { key: "name", label: "Field name", value: f ? f.name : "", placeholder: "e.g. AY#6 or VICTOR FALLS SOUTH" },
-      { key: "divisions", label: "Divisions that may use this field", type: "checks", options: divOpts, value: f ? (f.divisions || []) : [], hint: "Check none and any division may use it. Checking boxes reserves it for those divisions in the schedule tools." }
+      { key: "divisions", label: "Divisions that may use this field", type: "checks", options: divOpts, value: f ? (f.divisions || []) : [], hint: "Check none and any division may use it. Checking boxes reserves it for those divisions in the schedule tools." },
+      { key: "hourly_rate", label: "Hourly rate ($, optional)", value: f && f.hourly_rate != null ? String(f.hourly_rate) : "", placeholder: "e.g. 35", hint: "Used only to estimate $ saved on the FMX cancel list. Leave blank if unknown." }
     ],
     saveLabel: isNew ? "Add field" : "Save field",
     onSave: function (v) {
       if (!v.name.trim()) throw new Error("Give the field a name first.");
-      var body = { name: v.name.trim(), divisions: v.divisions };
+      var hr = v.hourly_rate != null ? String(v.hourly_rate).trim() : "";
+      if (hr && (isNaN(+hr) || +hr < 0)) throw new Error("Hourly rate must be a positive number.");
+      var body = { name: v.name.trim(), divisions: v.divisions, hourly_rate: hr ? +hr : null };
       if (isNew) body.sort = D.fields.length; else body.id = f.id;
       return admin("admin_upsert_field", body).then(refresh);
     }
   });
 }
 document.getElementById("fAdd").addEventListener("click", function () { fieldModal(null); });
+
+/* ---------- v21 (2026-11-06): coach app v3 admin panels ---------- */
+
+/* Field closures */
+function renderClosures() {
+  var sel = el("clField");
+  sel.innerHTML = '<option value="">Field</option>' + D.fields.filter(function (f) { return f.is_active; }).map(function (f) {
+    return '<option value="' + esc(f.id) + '">' + esc(f.name) + '</option>';
+  }).join("");
+  admin("admin_field_closures", {}).then(function (j) {
+    var today = bdToday();
+    var rows = (j.closures || []).filter(function (c) { return c.closure_date >= today; }).sort(function (a, b) { return a.closure_date.localeCompare(b.closure_date); });
+    el("clList").innerHTML = rows.length ? '<table class="list"><tbody>' + rows.map(function (c) {
+      var f = D.fields.filter(function (x) { return x.id === c.field_id; })[0];
+      return "<tr><td style=\"font-weight:600;\">" + esc(f ? f.name : c.field_id) + "<br /><span style=\"color:var(--muted);font-size:11.5px;\">" + esc(c.closure_date) + (c.reason ? " &middot; " + esc(c.reason) : "") + "</span></td>" +
+        '<td style="text-align:right;"><button class="btn sm ghost" data-cldel="' + c.id + '">Remove</button></td></tr>';
+    }).join("") + "</tbody></table>" : '<p class="hint">No upcoming closures.</p>';
+    el("clList").querySelectorAll("[data-cldel]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Remove this closure? Practices already marked skipped for that date are not automatically restored.")) return;
+        admin("admin_field_closure", { delete_id: b.getAttribute("data-cldel") }).then(renderClosures).catch(function (e) { alert(e.message); });
+      });
+    });
+  }).catch(function () { el("clList").innerHTML = '<p class="hint">Could not load closures.</p>'; });
+}
+document.getElementById("clAdd").addEventListener("click", function () {
+  var field_id = el("clField").value, closure_date = el("clDate").value, reason = el("clReason").value.trim();
+  if (!field_id || !closure_date) { alert("Pick a field and a date."); return; }
+  admin("admin_field_closure", { field_id: field_id, closure_date: closure_date, reason: reason }).then(function (j) {
+    el("clReason").value = ""; el("clDate").value = "";
+    renderClosures();
+    alert("Closed. " + (j.affected_teams || 0) + " team(s) affected, " + (j.notified || 0) + " coach(es) notified.");
+  }).catch(function (e) { alert(e.message); });
+});
+
+/* Booking windows */
+function bookingWindowsMap() {
+  try { return JSON.parse((D.settings || {}).booking_windows || "{}"); } catch (e) { return {}; }
+}
+function renderBookingWindows() {
+  var bw = bookingWindowsMap();
+  el("bwList").innerHTML = divisionList().map(function (div) {
+    var v = bw[div] || "";
+    var localVal = v ? new Date(v).toISOString().slice(0, 16) : "";
+    return '<div class="row" style="margin-bottom:8px;align-items:center;">' +
+      '<span style="min-width:170px;font-size:13.5px;font-weight:600;">' + esc(div) + '</span>' +
+      '<input type="datetime-local" class="bw-input" data-div="' + esc(div) + '" value="' + localVal + '" style="min-width:210px;" />' +
+      (v ? '<span class="chip on">opens ' + esc(new Date(v).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })) + '</span>' : '<span class="chip off">always open</span>') +
+      '<button class="btn sm clay" data-bwnow="' + esc(div) + '">Open now</button>' +
+      '<button class="btn sm ghost" data-bwclear="' + esc(div) + '">Clear</button>' +
+      '</div>';
+  }).join("") || '<p class="hint">Add teams with divisions first.</p>';
+  el("bwList").querySelectorAll("[data-bwnow]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var patch = {}; patch[b.getAttribute("data-bwnow")] = new Date().toISOString();
+      admin("admin_settings", { booking_windows: patch }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+  el("bwList").querySelectorAll("[data-bwclear]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var patch = {}; patch[b.getAttribute("data-bwclear")] = null;
+      admin("admin_settings", { booking_windows: patch }).then(refresh).catch(function (e) { alert(e.message); });
+    });
+  });
+}
+document.getElementById("bwSave").addEventListener("click", function () {
+  var patch = {};
+  document.querySelectorAll(".bw-input").forEach(function (inp) {
+    patch[inp.getAttribute("data-div")] = inp.value ? new Date(inp.value).toISOString() : null;
+  });
+  admin("admin_settings", { booking_windows: patch }).then(function () {
+    refresh();
+    el("bwMsg").classList.remove("hidden");
+    setTimeout(function () { el("bwMsg").classList.add("hidden"); }, 2000);
+  }).catch(function (e) { alert(e.message); });
+});
+
+/* FMX cancel list */
+var FMX_ROWS = [];
+function renderFmx() {
+  admin("admin_fmx_cancel_list", {}).then(function (j) {
+    FMX_ROWS = j.rows || [];
+    var openCount = FMX_ROWS.filter(function (r) { return !r.done; }).length;
+    el("fmxTotal").textContent = openCount + " to cancel" + (j.total_est_saved ? " · est. $" + j.total_est_saved.toFixed(2) + " saved once cancelled" : "");
+    el("fmxList").innerHTML = FMX_ROWS.length ? '<table class="list"><thead><tr><th></th><th>Field</th><th>Date</th><th>Hours</th><th>$ est.</th><th>Deadline</th><th>Why</th></tr></thead><tbody>' +
+      FMX_ROWS.map(function (r) {
+        return "<tr" + (r.done ? ' style="opacity:0.5;"' : "") + "><td><input type=\"checkbox\" class=\"fmx-chk\" data-field=\"" + r.field_id + "\" data-date=\"" + r.date + "\"" + (r.done ? " checked" : "") + " /></td>" +
+          "<td style=\"font-weight:600;\">" + esc(r.field_name) + "</td><td>" + esc(r.date) + "</td><td>" + r.hours + "</td><td>" + (r.est_dollars != null ? "$" + r.est_dollars.toFixed(2) : "?") + "</td><td>" + esc(r.deadline) + "</td><td style=\"color:var(--muted);font-size:12.5px;\">" + esc(r.reason) + "</td></tr>";
+      }).join("") + "</tbody></table>" : '<p class="hint">Nothing released yet. Not using it, Rained out, and field closures all land here.</p>';
+    el("fmxList").querySelectorAll(".fmx-chk").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        admin("admin_fmx_mark_done", { field_id: cb.getAttribute("data-field"), cancel_date: cb.getAttribute("data-date"), done: cb.checked }).then(renderFmx).catch(function (e) { alert(e.message); });
+      });
+    });
+  }).catch(function () { el("fmxList").innerHTML = '<p class="hint">Could not load the cancel list.</p>'; });
+}
+document.getElementById("fmxCsv").addEventListener("click", function () {
+  var lines = ["Field,Date,Hours,Est $,Deadline,Reason,Done"];
+  FMX_ROWS.forEach(function (r) {
+    lines.push([r.field_name, r.date, r.hours, r.est_dollars != null ? r.est_dollars : "", r.deadline, '"' + String(r.reason || "").replace(/"/g, '""') + '"', r.done ? "yes" : "no"].join(","));
+  });
+  var blob = new Blob([lines.join("\n")], { type: "text/csv" });
+  var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "fmx-cancel-list.csv";
+  document.body.appendChild(a); a.click(); a.remove();
+});
+
+/* Setup tracker */
+function renderSetupTracker() {
+  admin("admin_setup_tracker", {}).then(function (j) {
+    var rows = j.teams || [];
+    el("setupTrackerList").innerHTML = rows.length ? '<table class="list"><thead><tr><th>Team</th><th>Coach</th><th>Notifications</th><th>Booked</th></tr></thead><tbody>' +
+      rows.map(function (t) {
+        return "<tr><td style=\"font-weight:600;\">" + esc(t.team_name) + "<br /><span style=\"color:var(--muted);font-size:11.5px;\">" + esc(t.division) + "</span></td>" +
+          "<td>" + (t.has_coach ? esc(t.coach_name) : '<span class="chip lock">no coach</span>') + "</td>" +
+          '<td><span class="chip ' + (t.installed ? "on" : "off") + '">' + (t.installed ? "On" : "Off") + "</span></td>" +
+          '<td><span class="chip ' + (t.booked ? "on" : "off") + '">' + (t.booked ? "Booked" : "Not yet") + "</span></td></tr>";
+      }).join("") + "</tbody></table>" : '<p class="hint">No active teams yet.</p>';
+  }).catch(function () { el("setupTrackerList").innerHTML = '<p class="hint">Could not load setup status.</p>'; });
+}
 
 function renderTeams() {
   var box = document.getElementById("teamList");
