@@ -29,8 +29,7 @@ const STATUS_LABEL: Record<string, string> = { open: "Reopened", resolved: "Reso
 const EMAIL_KINDS = ["comment", "concern", "suggestion", "private", "help"]; // Coach 11/5: every piece of board feedback emails him right away (approvals too, see toggleApproval)
 const ADMIN_NAME = "Daniel (Website)";
 const ADMIN_ROLE = "Website";
-const NOTIFY_TO = "danielgrande0326@gmail.com";
-const FROM = "BLS Website Build <noreply@coachpilot.org>";
+const NOTIFY_TO = "website@blslittleleague.org";
 const SITE = "https://go.blslittleleague.org/bls/preview/";
 const LOGO = "https://go.blslittleleague.org/bls/assets/bls-logo.png";
 const TZ = "America/Los_Angeles";
@@ -247,8 +246,6 @@ const pageLabel = (p: { title: string } | null) => (p ? p.title : "Board discuss
 
 // ---------- email (Resend) ----------
 async function sendEmail(subject: string, heading: string, lines: { label?: string; text: string }[], link: string): Promise<boolean> {
-  const key = Deno.env.get("RESEND_API_KEY") || "";
-  if (!key) return false;
   const text = [heading, "", ...lines.map((l) => (l.label ? `${l.label}: ${l.text}` : l.text)), "", `Open the board: ${link}`].join("\n");
   const rows = lines.map((l) => (l.label
     ? `<p style="margin:16px 0 0;font:700 12px/1.3 -apple-system,Helvetica,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#6b7279">${esc(l.label)}</p><p style="margin:4px 0 0;font:400 16px/1.5 -apple-system,Helvetica,Arial,sans-serif;color:#1f2326;white-space:pre-wrap">${esc(l.text)}</p>`
@@ -263,16 +260,7 @@ async function sendEmail(subject: string, heading: string, lines: { label?: stri
   ${rows}
   <p style="margin:22px 0 0"><a href="${esc(link)}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#1452a0;color:#fff;text-decoration:none;font:700 15px/1.2 -apple-system,Helvetica,Arial,sans-serif">Open the board</a></p>
 </div></div></body></html>`;
-  try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ from: FROM, to: [NOTIFY_TO], subject, text, html }),
-    });
-    return res.ok;
-  } catch (_e) {
-    return false;
-  }
+  return await sendTo(NOTIFY_TO, subject, text, html);
 }
 // ---------- replies to a board member (Coach 11/5: "I need a way to respond... let them know I saw it and it's fixed") ----------
 // Goes out as website@blslittleleague.org through the league's own Gmail API project when the BLS_GMAIL_* secrets are
@@ -302,11 +290,7 @@ async function sendTo(to: string, subject: string, text: string, html: string): 
     const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw }) }).catch(() => null);
     if (res && res.ok) return true;
   }
-  const key = Deno.env.get("RESEND_API_KEY") || "";
-  if (!key) return false;
-  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "BLS Little League <noreply@coachpilot.org>", reply_to: GM.user, to: [to], subject, text, html }) }).catch(() => null);
-  return !!(res && res.ok);
+  return false; // BLS mail only leaves through website@ (Coach 11/5): no outside-domain fallback
 }
 async function memberEmail(name: string | null): Promise<string | null> {
   if (!name) return null;

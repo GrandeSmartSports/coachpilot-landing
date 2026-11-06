@@ -11,7 +11,7 @@ const REVIEWS: Record<string, { title: string; items: number; url: string; names
 };
 const ACCT_KEYS = ["instagram", "youtube", "twitter", "flickr"];
 const DECISIONS = ["", "approve", "discuss"];
-const NOTIFY_TO = "Daniel.Grande@ymail.com";
+const NOTIFY_TO = "website@blslittleleague.org";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -43,8 +43,6 @@ function clean(raw: any, count: number) {
 const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 async function emailCoach(review: string, name: string, data: any): Promise<boolean> {
-  const key = Deno.env.get("RESEND_API_KEY") || "";
-  if (!key) return false;
   const meta = REVIEWS[review];
   const vals = Object.values(data.items) as any[];
   const approved = vals.filter((x) => x.d === "approve").length;
@@ -85,12 +83,7 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   ${extra.join("")}
   <p style="margin:22px 0 0;font:400 13px/1.4 -apple-system,Helvetica,Arial,sans-serif;color:#6b7279">Sent from <a href="${meta.url}" style="color:#1452a0">${meta.url.replace("https://", "")}</a></p>
 </div></div></body></html>`;
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: "BLS Board Tools <noreply@coachpilot.org>", to: [NOTIFY_TO], subject: `BLS website review from ${name}: ${summary}`, text: text.join("\n"), html }),
-  }).catch(() => null);
-  return !!(res && res.ok);
+  return (await resendSend({ to: [NOTIFY_TO], subject: `BLS website review from ${name}: ${summary}`, text: text.join("\n"), html })).ok;
 }
 
 // ---------- Registration-day reminders (table bls_reg_reminders) ----------
@@ -100,7 +93,6 @@ const GW = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
 const REMIND_PAGE = "https://go.blslittleleague.org/bls/remind/";
 const REGISTER_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716844";
 const REG_INFO_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716841";
-const BLS_FROM = Deno.env.get("BLS_FROM") || "BLS Little League <noreply@coachpilot.org>";
 const BLS_REPLY_TO = "website@blslittleleague.org";
 const OPEN_DAY = "Friday, November 27";
 const SIGNUP_IP_HOURLY = 6;
@@ -163,16 +155,8 @@ async function gmailSend(msg: Record<string, unknown>): Promise<{ ok: boolean; i
   return { ok: true, id: j?.id };
 }
 async function resendSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
-  if (GM.id && GM.secret && GM.refresh) { const g = await gmailSend(msg); if (g.ok) return g; }
-  const key = Deno.env.get("RESEND_API_KEY") || "";
-  if (!key) return { ok: false };
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: BLS_FROM, reply_to: BLS_REPLY_TO, ...msg }),
-  }).catch(() => null);
-  if (!res || !res.ok) return { ok: false };
-  const j = await res.json().catch(() => ({}));
-  return { ok: true, id: j?.id };
+  // BLS mail only leaves through website@ (Coach 11/5): no outside-domain fallback
+  return await gmailSend(msg);
 }
 function unsubUrl(token: string) { return `${GW}?action=remind_unsub&t=${encodeURIComponent(token)}`; }
 function confirmMsg(to: string, token: string) {
