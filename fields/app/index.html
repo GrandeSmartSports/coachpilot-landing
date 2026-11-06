@@ -114,7 +114,7 @@
     --t-radius: 14px; --t-radius-sm: 11px;
     --t-shadow: 0 12px 28px rgba(0, 1, 58, 0.10);
     --t-font-disp: "Fraunces", Georgia, serif; --t-font-body: "Figtree", system-ui, sans-serif;
-    --t-header-bg: #00013a; --t-header-ink: #f6efe0; --t-header-sub-ink: #cd163f;
+    --t-header-bg: #00013a; --t-header-ink: #f6efe0; --t-header-sub-ink: rgba(246, 239, 224, 0.75);
     --t-header-border: none;
     --t-chalkline: repeating-linear-gradient(90deg, #fbf3e0 0 10px, var(--t-clay) 10px 22px);
     --t-tabbar-bg: #fffdf7; --t-tabbar-active: #cd163f;
@@ -264,6 +264,7 @@
   /* ---- compact header: team identity front and center ---- */
   [data-look="c"] header.top { padding: 12px 16px; }
   [data-look="c"] .c2-head { display: flex; align-items: center; gap: 10px; }
+  [data-look="c"] .c2-head > .signout { flex: 0 0 auto; }
   [data-look="c"] .c2-mark { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 9px; background: var(--t-accent); display: flex; align-items: center; justify-content: center; color: #fff; }
   [data-look="c"] .c2-mark svg { width: 20px; height: 20px; }
   [data-look="c"] .c2-head-id { flex: 1; min-width: 0; }
@@ -413,14 +414,16 @@ var VAPID_PUBLIC_KEY = "BDvNJFl3B89RD88uFJRJy01SQeZ2CLLZdPlKaPjQEtOilQng__xQoZ2t
        signed-in coach's session even if this page and /fields/ share an origin)
      - makes ZERO calls to the flm-gateway; coachApi/publicApi and every
        direct state fetch are intercepted and answered from fake local data
-     - is the ONLY thing that ever sets data-look on <html>, so a real coach
-       (no ?demo=1) always renders the unchanged default look */
+     - DEMO never changes what look renders; LOOK (below) is independent of
+       it, so a demo link and a real coach's link show the exact same look */
 var QP = new URLSearchParams(location.search);
 var DEMO = QP.get("demo") === "1";
-// Coach picked look C as the direction to invest in; it's the default the
-// instant you open demo mode with no &look= at all. The switcher can still
-// jump to the original look ("Og"), A, or B.
-var LOOK = DEMO ? (["a", "b", "c"].indexOf(QP.get("look")) >= 0 ? QP.get("look") : "c") : null;
+// Coach approved look C (11/6): it's now the default everywhere, demo AND
+// real mode alike, with no &look= needed. ?look=a/b still work for a quick
+// side-by-side; ?look=og explicitly opts back into the original look (real
+// coaches keep this as an escape hatch until look C is fully trusted).
+var LOOK_PARAM = QP.get("look");
+var LOOK = ["a", "b", "c"].indexOf(LOOK_PARAM) >= 0 ? LOOK_PARAM : (LOOK_PARAM === "og" ? null : "c");
 var DEMO_STORE = {};
 
 function lsGet(k) { if (DEMO) return Object.prototype.hasOwnProperty.call(DEMO_STORE, k) ? DEMO_STORE[k] : null; try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -517,7 +520,9 @@ function demoCoachState() {
   };
 }
 function demoPublicApi(action, body) {
-  if (action === "coach_request_access") return Promise.resolve({ ok: true, found: true, has_pin: true });
+  // Demo always plays the brand-new-coach experience: no PIN set yet, so
+  // sign-in walks through Create your PIN, never Enter your PIN.
+  if (action === "coach_request_access") return Promise.resolve({ ok: true, found: true, has_pin: false });
   if (action === "coach_login") return Promise.resolve({ ok: true, coach: { id: DEMO_COACH_ID, name: "Demo Coach", email: body.email || "demo@example.com" } });
   if (action === "support_request") return Promise.resolve({ ok: true, sent: true });
   return Promise.resolve({ ok: false, error: "not available in demo" });
@@ -688,7 +693,7 @@ function hasBookedAnything() { return mySlots().some(function (s) { return !s.ca
 
 function root() { return document.getElementById("root"); }
 
-/* ---------- demo look: data-look attribute + Google Fonts, demo-only ---------- */
+/* ---------- look: data-look attribute + Google Fonts, demo and real alike ---------- */
 var LOOK_FONTS = {
   a: "Inter:wght@400;500;600;700;800",
   b: "Archivo+Black&family=Manrope:wght@400;500;600;700;800",
@@ -703,7 +708,6 @@ function ensureLookFonts(look) {
   document.head.appendChild(link);
 }
 function applyLook() {
-  if (!DEMO) return; // real coaches never get a data-look attribute, ever
   if (LOOK) { document.documentElement.setAttribute("data-look", LOOK); ensureLookFonts(LOOK); }
   else document.documentElement.removeAttribute("data-look");
 }
@@ -822,8 +826,10 @@ function renderSignIn() {
       '<label class="flabel" for="siEmail">Your email</label>' +
       '<input id="siEmail" class="finput" type="email" placeholder="you@example.com" autocomplete="email" />' +
       '<div id="siPinWrap" class="hidden">' +
-        '<label class="flabel" for="siPin">Your 4 digit PIN</label>' +
+        '<div id="siPinHead" class="hidden"><label class="flabel" id="siPinLabel" for="siPin" style="margin-top:14px;">Enter your PIN</label><p class="hint" id="siPinSub" style="margin:-2px 0 2px;"></p></div>' +
         '<input id="siPin" class="finput pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="current-password" />' +
+        '<div id="siPinConfirmWrap" class="hidden"><label class="flabel" for="siPinConfirm">Confirm your PIN</label><input id="siPinConfirm" class="finput pin" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="new-password" /></div>' +
+        '<p class="fine" id="siForgot" style="display:none;margin-top:8px;"><a href="#" id="siForgotLink" style="color:var(--t-accent-2);text-decoration:underline;font-size:13px;">Forgot your PIN? Email me a reset link</a></p>' +
       '</div>' +
       '<div class="btnrow"><button class="btn clay" id="siGo" style="margin-top:14px;">Continue</button></div>' +
       '<div id="siErr" class="err hidden"></div>' +
@@ -846,11 +852,17 @@ function renderSignIn() {
   }
   var em = document.getElementById("siEmail");
   var pinWrap = document.getElementById("siPinWrap");
+  var pinHead = document.getElementById("siPinHead");
+  var pinLabel = document.getElementById("siPinLabel");
+  var pinSub = document.getElementById("siPinSub");
+  var confirmWrap = document.getElementById("siPinConfirmWrap");
   var pn = document.getElementById("siPin");
+  var pnConfirm = document.getElementById("siPinConfirm");
+  var forgotWrap = document.getElementById("siForgot");
   var go = document.getElementById("siGo");
   var err = document.getElementById("siErr");
   var ok = document.getElementById("siOk");
-  var stage = "email";
+  var stage = "email"; // email -> pin (has a PIN already) | create (no PIN yet)
   if (CRED_C.email) em.value = CRED_C.email;
   function showErr(t) { err.textContent = t; err.classList.remove("hidden"); ok.classList.add("hidden"); }
   function showOk(t) { ok.innerHTML = t; ok.classList.remove("hidden"); err.classList.add("hidden"); }
@@ -860,24 +872,40 @@ function renderSignIn() {
     if (!email || email.indexOf("@") < 1) { showErr("Enter your email address."); return; }
     go.disabled = true; go.textContent = "Checking…";
     publicApi("coach_request_access", { email: email }).then(function (j) {
-      go.disabled = false; go.textContent = "Continue";
-      if (!j.ok) { showErr(j.error || "That did not work."); return; }
-      if (!j.found) { showErr("That email is not on the coach list. Ask your league admin to add you, or open the full coach hub for support."); return; }
+      go.disabled = false;
+      if (!j.ok) { go.textContent = "Continue"; showErr(j.error || "That did not work."); return; }
+      if (!j.found) { go.textContent = "Continue"; showErr("That email is not on the coach list. Ask your league admin to add you, or open the full coach hub for support."); return; }
       if (j.has_pin) {
-        stage = "pin"; pinWrap.classList.remove("hidden"); go.textContent = "Sign in";
+        // Returning coach: a real PIN is already on file.
+        stage = "pin";
+        pinWrap.classList.remove("hidden"); pinHead.classList.remove("hidden");
+        pinLabel.textContent = "Enter your PIN"; pinSub.textContent = "";
+        confirmWrap.classList.add("hidden"); forgotWrap.style.display = "";
+        go.textContent = "Sign in";
+        setTimeout(function () { pn.focus(); }, 20);
+      } else if (DEMO) {
+        // Demo always plays a brand-new coach: create a PIN right here, no
+        // email round trip (there's no real inbox to verify in demo).
+        stage = "create";
+        pinWrap.classList.remove("hidden"); pinHead.classList.remove("hidden");
+        pinLabel.textContent = "Create your PIN"; pinSub.textContent = "Pick 4 digits you'll remember. You'll use it to sign in this season.";
+        confirmWrap.classList.remove("hidden"); forgotWrap.style.display = "none";
+        go.textContent = "Create PIN and sign in";
         setTimeout(function () { pn.focus(); }, 20);
       } else {
-        showOk("You're on the list. We just emailed you a link to set your PIN. Open it on this phone, then come back here and sign in.");
+        // Real coach with no PIN yet: setting one requires proving they own
+        // that inbox, so this stays an emailed link, not an inline form --
+        // same safe mechanism as the live hub, just worded to match.
+        showOk("<b>Create your PIN</b><br>You're on the list. We just emailed you a link to set your 4 digit PIN. Open it on this phone, then come back here and sign in.");
+        go.textContent = "Continue";
       }
     }).catch(function () { go.disabled = false; go.textContent = "Continue"; showErr("Could not reach the server. Try again."); });
   }
-  function doLogin() {
-    var email = em.value.trim(), pin = pn.value.trim();
+  function doLogin(pin) {
+    var email = em.value.trim();
     err.classList.add("hidden");
-    if (!/^\d{4}$/.test(pin)) { showErr("Enter your 4 digit PIN."); return; }
-    go.disabled = true; go.textContent = "Signing in…";
     publicApi("coach_login", { email: email, pin: pin }).then(function (j) {
-      if (!j.ok) { showErr(j.error || "That did not work."); go.disabled = false; go.textContent = "Sign in"; return; }
+      if (!j.ok) { showErr(j.error || "That did not work."); go.disabled = false; go.textContent = stage === "create" ? "Create PIN and sign in" : "Sign in"; return; }
       CRED_C.id = j.coach.id; CRED_C.pin = pin; CRED_C.email = j.coach.email; CRED_C.name = j.coach.name;
       lsSet("flm_coach_id", CRED_C.id); lsSet("flm_coach_pin", CRED_C.pin); lsSet("flm_coach_email", CRED_C.email); lsSet("flm_coach_name", CRED_C.name);
       lsSet("flm_coach_session_at", new Date().toISOString());
@@ -888,9 +916,32 @@ function renderSignIn() {
       });
     }).catch(function () { showErr("Could not reach the server."); go.disabled = false; go.textContent = "Sign in"; });
   }
-  go.addEventListener("click", function () { if (stage === "pin") doLogin(); else checkEmail(); });
-  pn.addEventListener("keydown", function (e) { if (e.key === "Enter") doLogin(); });
+  function submitPin() {
+    var pin = pn.value.trim();
+    err.classList.add("hidden");
+    if (!/^\d{4}$/.test(pin)) { showErr("Enter your 4 digit PIN."); return; }
+    if (stage === "create") {
+      var confirmPin = pnConfirm.value.trim();
+      if (!/^\d{4}$/.test(confirmPin)) { showErr("Confirm your 4 digit PIN."); return; }
+      if (pin !== confirmPin) { showErr("Those two PINs don't match. Try again."); return; }
+    }
+    go.disabled = true; go.textContent = stage === "create" ? "Saving…" : "Signing in…";
+    doLogin(pin);
+  }
+  go.addEventListener("click", function () { if (stage === "pin" || stage === "create") submitPin(); else checkEmail(); });
+  pn.addEventListener("keydown", function (e) { if (e.key === "Enter") { if (stage === "create") pnConfirm.focus(); else submitPin(); } });
+  if (pnConfirm) pnConfirm.addEventListener("keydown", function (e) { if (e.key === "Enter") submitPin(); });
   em.addEventListener("keydown", function (e) { if (e.key === "Enter" && stage === "email") checkEmail(); });
+  var forgotLink = document.getElementById("siForgotLink");
+  if (forgotLink) forgotLink.addEventListener("click", function (e) {
+    e.preventDefault();
+    var email = em.value.trim();
+    if (!email) { showErr("Enter your email first."); return; }
+    publicApi("coach_request_access", { email: email, reset: true }).then(function (j) {
+      if (j.ok && j.found) showOk("Reset link sent. Check your email, tap the link, and pick a new PIN.");
+      else showErr("Could not send the reset. Tap Contact support below.");
+    }).catch(function () { showErr("Could not reach the server."); });
+  });
   setTimeout(function () { em.focus(); }, 20);
 }
 
@@ -913,11 +964,14 @@ function headerHtml(leagueName) {
     var t = myTeam();
     var teamLabel = (t ? t.name : (H && H.coach ? H.coach.team_name : null) || "Field Command").replace(/\s*\(Demo\)\s*$/i, "");
     var div = myDivision();
+    // Start over lives in the demo switcher bar (DEMO only); a real coach has
+    // no switcher bar at all, so their header keeps a compact Sign out here.
+    var c2Signout = DEMO ? "" : '<button class="signout" id="shSignOut">Sign out</button>';
     return '<header class="top"><div class="c2-head">' +
       '<div class="c2-mark">' + c2MarkIcon() + '</div>' +
       '<div class="c2-head-id"><div class="c2-team"><span class="c2-team-name">' + esc(teamLabel) + '</span>' + (div ? '<span class="c2-divchip">' + esc(div) + '</span>' : '') + '</div>' +
       '<div class="c2-league">' + esc(leagueName) + '</div></div>' +
-      '</div></header>';
+      c2Signout + '</div></header>';
   }
   return '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + (DEMO ? '<span class="demotag">Demo</span>' : '') + '</h1><div class="sub">Coach App</div></div>' +
     signoutBtn + '</div></header>';
