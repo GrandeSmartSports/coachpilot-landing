@@ -154,6 +154,7 @@
   .lookswitch .lbl { color: #cfd2d8; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--t-font-disp); }
   .lookswitch button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; background: #fff; color: #111; font-family: var(--t-font-disp); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
   .lookswitch button.on { border-color: var(--t-accent); }
+  .lookswitch .lookstart { width: auto; height: auto; border-radius: 14px; padding: 6px 12px; margin-left: auto; font-size: 11px; letter-spacing: 0.03em; }
 
   /* ---------- buttons ---------- */
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--t-font-disp); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--t-btn-bg); color: var(--t-btn-ink); border: none; border-radius: var(--t-radius-sm); padding: 14px 18px; width: 100%; box-shadow: var(--t-shadow); transition: var(--t-transition); }
@@ -266,8 +267,9 @@
   [data-look="c"] .c2-mark { width: 34px; height: 34px; flex: 0 0 34px; border-radius: 9px; background: var(--t-accent); display: flex; align-items: center; justify-content: center; color: #fff; }
   [data-look="c"] .c2-mark svg { width: 20px; height: 20px; }
   [data-look="c"] .c2-head-id { flex: 1; min-width: 0; }
-  [data-look="c"] .c2-team { font-family: var(--t-font-disp); font-weight: 700; font-size: 19px; line-height: 1.15; display: flex; align-items: center; gap: 7px; }
-  [data-look="c"] .c2-divchip { font-family: var(--t-font-body); font-weight: 700; font-size: 10px; letter-spacing: 0.04em; background: var(--t-accent); color: #fff; border-radius: 6px; padding: 2px 7px; }
+  [data-look="c"] .c2-team { font-family: var(--t-font-disp); font-weight: 700; font-size: 19px; line-height: 1.15; display: flex; align-items: center; gap: 7px; min-width: 0; }
+  [data-look="c"] .c2-team-name { min-width: 0; flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  [data-look="c"] .c2-divchip { flex: 0 0 auto; font-family: var(--t-font-body); font-weight: 700; font-size: 10px; letter-spacing: 0.04em; background: var(--t-accent); color: #fff; border-radius: 6px; padding: 2px 7px; }
   [data-look="c"] .c2-league { font-size: 11px; color: var(--t-header-sub-ink); opacity: 0.85; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   [data-look="c"] header.top .demotag { margin-left: 6px; }
 
@@ -321,15 +323,16 @@
   [data-look="c"] .c2-fc-tags { display: flex; gap: 5px; margin-top: 4px; }
   [data-look="c"] .c2-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; background: var(--t-taken-bg); color: var(--t-muted); border-radius: 6px; padding: 2px 7px; }
   [data-look="c"] .c2-daychips { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
-  [data-look="c"] .c2-daychip { flex: 0 0 auto; min-width: 66px; border-radius: 12px; padding: 9px 10px; text-align: center; border: 1.5px solid var(--t-line); background: var(--t-bg); }
+  [data-look="c"] .c2-daychip { flex: 0 0 auto; min-width: 84px; border-radius: 12px; padding: 9px 10px; text-align: center; border: 1.5px solid var(--t-line); background: var(--t-bg); }
   [data-look="c"] .c2-daychip .c2-dc-day { font-weight: 700; font-size: 12.5px; }
-  [data-look="c"] .c2-daychip .c2-dc-sub { font-size: 10px; color: var(--t-muted); margin-top: 2px; }
+  [data-look="c"] .c2-daychip .c2-dc-time { font-size: 10px; color: var(--t-muted); margin-top: 1px; white-space: nowrap; }
+  [data-look="c"] .c2-daychip .c2-dc-sub { font-size: 10px; color: var(--t-muted); margin-top: 3px; padding-top: 3px; border-top: 1px dashed var(--t-line); }
   [data-look="c"] .c2-daychip.open { border-color: var(--t-accent-2); background: var(--t-open-bg); }
-  [data-look="c"] .c2-daychip.open .c2-dc-sub { color: var(--t-accent-2); font-weight: 700; }
+  [data-look="c"] .c2-daychip.open .c2-dc-sub { color: var(--t-accent-2); font-weight: 700; border-top-color: rgba(0,1,58,0.12); }
   [data-look="c"] .c2-daychip.mine { border-color: var(--t-accent); background: var(--t-mine-bg); }
-  [data-look="c"] .c2-daychip.mine .c2-dc-sub { color: var(--t-accent); font-weight: 700; }
+  [data-look="c"] .c2-daychip.mine .c2-dc-sub { color: var(--t-accent); font-weight: 700; border-top-color: rgba(205,22,63,0.18); }
   [data-look="c"] .c2-daychip.taken { opacity: 0.6; }
-  [data-look="c"] .c2-daychip.taken .c2-dc-sub { max-width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  [data-look="c"] .c2-daychip.taken .c2-dc-sub { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   /* ---- Book: bottom sheet confirm ---- */
   [data-look="c"] .c2-sheet { background: var(--t-card); border-radius: 20px 20px 0 0; padding: 10px 20px 22px; box-shadow: 0 -10px 30px rgba(0,0,0,0.2); transform: translateY(100%); transition: transform 0.26s cubic-bezier(.2,.8,.3,1); }
@@ -357,16 +360,20 @@
   [data-look="c"] .c2-pa-role { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-accent); font-weight: 700; }
   [data-look="c"] .c2-pa-name { font-family: var(--t-font-disp); font-weight: 700; font-size: 18px; margin-top: 1px; }
   [data-look="c"] .c2-pa-actions { display: flex; gap: 6px; }
-  [data-look="c"] .c2-pa-actions a { background: rgba(246,239,224,0.16); color: var(--t-header-ink); border: 1px solid rgba(246,239,224,0.3); border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; }
+  [data-look="c"] .c2-pa-actions a { display: inline-block; text-decoration: none; background: rgba(246,239,224,0.16); color: var(--t-header-ink); border: 1px solid rgba(246,239,224,0.3); border-radius: 8px; padding: 7px 10px; font-size: 12px; font-weight: 700; }
   [data-look="c"] .c2-personrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--t-line); }
   [data-look="c"] .c2-personrow:first-child { border-top: none; }
   [data-look="c"] .c2-personrow .c2-avatar { width: 34px; height: 34px; flex: 0 0 34px; font-size: 12px; background: var(--t-open-bg); color: var(--t-accent-2); }
   [data-look="c"] .c2-pr-name { font-weight: 700; font-size: 14px; }
   [data-look="c"] .c2-pr-role { font-size: 11.5px; color: var(--t-muted); }
   [data-look="c"] .c2-pr-actions { margin-left: auto; display: flex; gap: 5px; }
-  [data-look="c"] .c2-pr-actions a { font-size: 11px; font-weight: 700; color: var(--t-accent-2); border: 1px solid var(--t-line); border-radius: 7px; padding: 5px 8px; }
+  [data-look="c"] .c2-pr-actions a { display: inline-block; text-decoration: none; font-size: 11px; font-weight: 700; color: var(--t-accent-2); border: 1px solid var(--t-line); border-radius: 7px; padding: 5px 8px; background: var(--t-open-bg); }
 
   /* ---- booking-success checkmark (replaces the plain toast for look C) ---- */
+  /* Sits above the tab bar (not over it) with safe-area spacing, so it never
+     covers content or the nav. */
+  [data-look="c"] .c2-toastwrap { position: fixed; left: 14px; right: 14px; bottom: calc(78px + env(safe-area-inset-bottom)); z-index: 65; animation: c2fade 0.18s ease; }
+  [data-look="c"] .c2-toast { background: var(--t-btn-bg); color: var(--t-btn-ink); padding: 12px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600; text-align: center; box-shadow: var(--t-shadow); }
   [data-look="c"] .c2-successwrap { position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; background: rgba(0,1,58,0.35); animation: c2fade 0.15s ease; }
   [data-look="c"] .c2-success { background: var(--t-card); border-radius: 20px; padding: 26px 30px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
   [data-look="c"] .c2-checkcircle { width: 56px; height: 56px; border-radius: 50%; background: var(--t-accent-2); color: #fff; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
@@ -589,6 +596,21 @@ function fieldTags(f) {
   if (f.default_start === "18:00") tags.push("Lights");
   return tags;
 }
+// "5:00 to 6:30" / "9 to 11" for a day chip. Weekday length (90 min) mirrors
+// WEEKDAY_PRACTICE_MINUTES in the gateway; Saturday windows mirror SAT_WINDOWS
+// there too (same four blocks the gateway itself enforces).
+var C2_SAT_RANGE = { sat_9_11: "9 to 11", sat_11_1: "11 to 1", sat_1_3: "1 to 3", sat_3_5: "3 to 5" };
+function dayTimeRange(d, f) {
+  if (d.sat) return C2_SAT_RANGE[d.k] || "";
+  var startMin = (f && f.default_start === "18:00") ? 18 * 60 : 17 * 60;
+  var endMin = startMin + 90;
+  function fmt(m) {
+    var h = Math.floor(m / 60), mm = m % 60;
+    var h12 = h % 12 || 12;
+    return h12 + (mm ? ":" + (mm < 10 ? "0" : "") + mm : ":00");
+  }
+  return fmt(startMin) + " to " + fmt(endMin);
+}
 
 /* ---------- look C icon set: small inline SVGs, currentColor-driven ---------- */
 function c2DiamondIcon(size) {
@@ -750,6 +772,7 @@ function enforceSessionEpoch(settings) {
    Render dispatcher
    ======================================================================= */
 function render() {
+  clearToasts();
   var r = root();
   if (S.screen === "loading") { r.innerHTML = '<div class="loading">Loading Field Command&hellip;</div>'; renderDemoChrome(); return; }
   if (S.screen === "error") {
@@ -774,13 +797,20 @@ function renderDemoChrome() {
   var el = document.createElement("div");
   el.id = "demoChrome";
   var looks = [["", "Og"], ["a", "A"], ["b", "B"], ["c", "C"]];
+  // Look C's own header has no room for a signout/start-over button (team
+  // name needs that space), so its "Start over" moves here instead. A/B/Og
+  // keep their own inline header button, so this stays C-only to avoid a
+  // confusing second control on those looks.
+  var startOverBtn = LOOK === "c" ? '<button id="demoStartOver" class="lookstart">Start over</button>' : '';
   el.innerHTML = '<div class="lookswitch"><span class="lbl">Look</span>' + looks.map(function (pair) {
     return '<button data-look="' + pair[0] + '" class="' + ((LOOK || "") === pair[0] ? "on" : "") + '">' + pair[1] + '</button>';
-  }).join("") + '</div>';
+  }).join("") + startOverBtn + '</div>';
   document.body.insertBefore(el, document.body.firstChild);
   el.querySelectorAll("[data-look]").forEach(function (b) {
     b.addEventListener("click", function () { setLook(b.getAttribute("data-look") || null); });
   });
+  var startOver = document.getElementById("demoStartOver");
+  if (startOver) startOver.addEventListener("click", function () { location.reload(); });
 }
 
 /* =======================================================================
@@ -875,14 +905,19 @@ var TABS = [
 function headerHtml(leagueName) {
   var signoutBtn = DEMO ? '<button class="signout" id="shSignOut">Start over</button>' : '<button class="signout" id="shSignOut">Sign out</button>';
   if (LOOK === "c") {
+    // Look C's compact header: team name must fit one line at 390px, so it
+    // gets its own truncating span (division chip never shrinks), "(Demo)"
+    // is dropped from the name itself (the look switcher bar already makes
+    // demo mode obvious), and Start over lives in that bar too -- not here,
+    // so it never crowds the team name.
     var t = myTeam();
-    var teamLabel = t ? t.name : (H && H.coach ? H.coach.team_name : null) || "Field Command";
+    var teamLabel = (t ? t.name : (H && H.coach ? H.coach.team_name : null) || "Field Command").replace(/\s*\(Demo\)\s*$/i, "");
     var div = myDivision();
     return '<header class="top"><div class="c2-head">' +
       '<div class="c2-mark">' + c2MarkIcon() + '</div>' +
-      '<div class="c2-head-id"><div class="c2-team">' + esc(teamLabel) + (div ? ' <span class="c2-divchip">' + esc(div) + '</span>' : '') + '</div>' +
+      '<div class="c2-head-id"><div class="c2-team"><span class="c2-team-name">' + esc(teamLabel) + '</span>' + (div ? '<span class="c2-divchip">' + esc(div) + '</span>' : '') + '</div>' +
       '<div class="c2-league">' + esc(leagueName) + '</div></div>' +
-      signoutBtn + '</div></header>';
+      '</div></header>';
   }
   return '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + (DEMO ? '<span class="demotag">Demo</span>' : '') + '</h1><div class="sub">Coach App</div></div>' +
     signoutBtn + '</div></header>';
@@ -906,7 +941,8 @@ function renderShell() {
       return '<button data-tab="' + t.k + '" class="' + (screen === t.k ? "on" : "") + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + t.icon + '</svg>' + t.label + '</button>';
     }).join("") + '</nav>' : '');
 
-  document.getElementById("shSignOut").addEventListener("click", function () {
+  var signOutBtn = document.getElementById("shSignOut");
+  if (signOutBtn) signOutBtn.addEventListener("click", function () {
     if (DEMO) { location.reload(); return; }
     if (!confirm("Sign out of Field Command?")) return;
     signOut();
@@ -953,17 +989,15 @@ function bookScreenHtmlC() {
   var winMsg = bookingWindowMessage();
   var t = myTeam();
   var rules = (typeof FLM_RULES !== "undefined") ? FLM_RULES.parse(P.settings.practice_rules) : null;
+  var ruleLine = rules ? FLM_RULES.describe(rules) : "";
   var satAllowed = !rules || rules.max_weekend > 0;
   var fields = divisionFields();
   var alreadyBooked = hasBookedAnything();
 
-  var head = '<div class="card"><h2>Book your practice</h2>' + (t ? '<p class="hint">' + esc(t.name) + '</p>' : '') + '</div>';
-  if (winMsg) return head + '<div class="card"><p class="err" style="margin:0;">' + winMsg + '</p><button class="btn ghost" id="bkRecheck" style="margin-top:10px;">Check again</button></div>';
-  if (!t) return head + '<div class="card"><p class="hint" style="margin:0;">Your team is still being linked by the league. Check back soon, or use <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
-  if (!fields.length) return head + '<div class="card"><p class="hint" style="margin:0;">No fields are tagged for your division yet. Ask the league to tag a field, or book from <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
-
-  var progressHtml = "";
-  if (rules) {
+  // Title, the one-line division rule, and the progress bars all live in a
+  // single card now -- no more near-empty "Book your practice" card above it.
+  var progressBars = "";
+  if (rules && t) {
     var ev = FLM_RULES.evaluate(rules, mySlots());
     function bar(label, have, max) {
       var pct = max > 0 ? Math.min(100, Math.round((have / max) * 100)) : 0;
@@ -971,8 +1005,13 @@ function bookScreenHtmlC() {
     }
     var bars = bar("Weekday", ev.weekdays.length, rules.max_weekdays);
     if (satAllowed) bars += bar("Saturday", ev.satCount, rules.max_weekend);
-    progressHtml = '<div class="card"><div class="c2-progress-row">' + bars + '</div></div>';
+    progressBars = '<div class="c2-progress-row">' + bars + '</div>';
   }
+  var head = '<div class="card"><h2>Book your practice</h2>' + (ruleLine ? '<p class="hint" style="margin-bottom:' + (progressBars ? "12px" : "0") + ';">' + esc(ruleLine) + '</p>' : '') + progressBars + '</div>';
+
+  if (winMsg) return head + '<div class="card"><p class="err" style="margin:0;">' + winMsg + '</p><button class="btn ghost" id="bkRecheck" style="margin-top:10px;">Check again</button></div>';
+  if (!t) return head + '<div class="card"><p class="hint" style="margin:0;">Your team is still being linked by the league. Check back soon, or use <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
+  if (!fields.length) return head + '<div class="card"><p class="hint" style="margin:0;">No fields are tagged for your division yet. Ask the league to tag a field, or book from <a href="/fields/" class="linkbtn">the full coach hub</a>.</p></div>';
 
   var cards = fields.map(function (f) {
     var tags = fieldTags(f);
@@ -989,14 +1028,16 @@ function bookScreenHtmlC() {
       else if (pendingHold) { cls += " taken"; sub = "Pending"; tag = "pending"; }
       else if (takenByOther) { cls += " taken"; sub = esc(teamById(takenByOther.team_id) ? teamById(takenByOther.team_id).name : "Taken"); tag = "taken"; }
       else { cls += " open"; tag = "open"; }
-      return '<button type="button" class="' + cls + '" data-daypill data-day="' + d.k + '" data-field="' + f.id + '" data-tag="' + tag + '"' + (tag === "taken" ? " disabled" : "") + '><div class="c2-dc-day">' + esc(d.label.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri").replace("Saturday", "Sat")) + '</div><div class="c2-dc-sub">' + sub + '</div></button>';
+      var dayAbbr = d.sat ? "Sat" : d.label.replace("Monday", "Mon").replace("Tuesday", "Tue").replace("Wednesday", "Wed").replace("Thursday", "Thu").replace("Friday", "Fri");
+      return '<button type="button" class="' + cls + '" data-daypill data-day="' + d.k + '" data-field="' + f.id + '" data-tag="' + tag + '"' + (tag === "taken" ? " disabled" : "") + '>' +
+        '<div class="c2-dc-day">' + esc(dayAbbr) + '</div><div class="c2-dc-time">' + esc(dayTimeRange(d, f)) + '</div><div class="c2-dc-sub">' + sub + '</div></button>';
     }).join("");
     return '<div class="c2-fieldcard"><div class="c2-fc-top"><div class="c2-fc-icon">' + c2DiamondIcon(22) + '</div>' +
       '<div><div class="c2-fc-name">' + esc(f.name) + '</div><div class="c2-fc-tags">' + tagsHtml + '</div></div></div>' +
       '<div class="c2-daychips">' + chips + '</div></div>';
   }).join("");
 
-  return head + progressHtml + cards +
+  return head + cards +
     (alreadyBooked ? '<button class="btn ghost" id="bkDoneBtn">Done booking, take me home</button>' : '');
 }
 function bookScreenHtml() {
@@ -1336,14 +1377,18 @@ function wireHome() {
       var call = single ? coachApi("release", { slot_id: slotId }) : coachApi("slot_skip_date", { slot_id: slotId, skip_date: date });
       call.then(function (j) {
         if (!j.ok) { toast(j.error || "Could not update that."); b.disabled = false; return; }
-        toast("Done. The field is open for " + fmtDateShort(date) + ".");
-        refreshQuiet();
+        refreshQuiet(function () { toast("Done. The field is open for " + fmtDateShort(date) + "."); });
       }).catch(function () { toast("Could not reach the server."); b.disabled = false; });
     });
   });
 }
-function refreshQuiet() {
-  gwPublicState().then(function (d) { if (d.ok) P = d; loadCoachState(render); });
+function refreshQuiet(cb) {
+  // cb (optional) runs AFTER render(), not before -- so a toast fired from
+  // cb isn't immediately wiped by render()'s own clearToasts() call.
+  gwPublicState().then(function (d) {
+    if (d.ok) P = d;
+    loadCoachState(function () { render(); if (cb) cb(); });
+  });
 }
 
 /* =======================================================================
@@ -1414,14 +1459,29 @@ function openOverlay(innerHtml) {
   return d;
 }
 function closeOverlay(d) { if (d && d.parentNode) d.parentNode.removeChild(d); }
+// Removes any look-C toast/success bubble still on screen from a previous
+// action. Called at the top of every render() so switching screens (tabs,
+// Book -> Setup, etc.) never carries a stale "Done..." message onto the
+// next screen. Scoped to look C's own classes only -- a no-op elsewhere.
+function clearToasts() {
+  document.querySelectorAll(".c2-toastwrap, .c2-successwrap").forEach(function (el) { el.remove(); });
+}
 function toast(msg, isSuccess) {
-  if (isSuccess && LOOK === "c") {
+  if (LOOK === "c") {
+    clearToasts();
     var wrap = document.createElement("div");
-    wrap.className = "c2-successwrap";
-    wrap.innerHTML = '<div class="c2-success"><div class="c2-checkcircle">' + c2CheckIcon() + '</div><p>' + esc(msg) + '</p></div>';
-    document.body.appendChild(wrap);
-    wrap.addEventListener("click", function () { wrap.remove(); });
-    setTimeout(function () { wrap.remove(); }, 1600);
+    if (isSuccess) {
+      wrap.className = "c2-successwrap";
+      wrap.innerHTML = '<div class="c2-success"><div class="c2-checkcircle">' + c2CheckIcon() + '</div><p>' + esc(msg) + '</p></div>';
+      document.body.appendChild(wrap);
+      wrap.addEventListener("click", function () { wrap.remove(); });
+      setTimeout(function () { wrap.remove(); }, 1600);
+    } else {
+      wrap.className = "c2-toastwrap";
+      wrap.innerHTML = '<div class="c2-toast">' + esc(msg) + '</div>';
+      document.body.appendChild(wrap);
+      setTimeout(function () { wrap.remove(); }, 2500);
+    }
     return;
   }
   var t = document.createElement("div");
