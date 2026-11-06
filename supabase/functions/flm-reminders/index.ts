@@ -166,7 +166,7 @@ Deno.serve(async (req: Request) => {
       const heading = t.kind === "morning_of" ? "Game day reminder" : "You umpire tomorrow";
       const body: Record<string, unknown> = {
         from: "Field Command <noreply@cueops.io>",
-        reply_to: "danielgrande0326@gmail.com",
+        reply_to: "scheduler@blslittleleague.org",
         to: [to],
         subject: `${league}: you umpire ${t.kind === "morning_of" ? "today" : "tomorrow"} (${g.game_date})`,
         html: emailHtml(league, heading, [line, "If you can no longer make it, open the umpire page and turn the game back so the league can cover it."]),

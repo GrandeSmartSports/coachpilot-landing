@@ -107,7 +107,7 @@ const SEVERITIES = ["info", "warning", "urgent"];
 const GAME_STATUSES = ["draft", "scheduled", "postponed", "cancelled", "completed"];
 const UMP_ROLES = ["plate", "base"];
 const UMP_DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
-const ADMIN_ALERT_EMAIL = "danielgrande0326@gmail.com";
+const ADMIN_ALERT_EMAIL = "scheduler@blslittleleague.org";
 const PUBLIC_TEAM_COLS = "id,name,coach_name,coach_phone,division,is_active,created_at";
 const PUBLIC_EXT_COLS = "id,league_name,team_name,division";
 
@@ -1288,7 +1288,7 @@ Deno.serve(async (req: Request) => {
       const send = await resendSend({
         from: "Field Command <noreply@coachpilot.org>",
         reply_to: isEmail(email) ? email : undefined,
-        to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "danielgrande0326@gmail.com"],
+        to: [Deno.env.get("ADMIN_ALERT_EMAIL") || "scheduler@blslittleleague.org"],
         subject: `[Field Command SUPPORT] ${name}: ${message.replace(/\s+/g, " ").slice(0, 60)}`,
         html,
       }).catch(() => ({ ok: false } as { ok: boolean }));
@@ -2314,7 +2314,7 @@ Deno.serve(async (req: Request) => {
         // A repeated call within 24h for the same announcement, coach and send time is a no-op at Resend.
         const headers: Record<string, string> = { "Authorization": `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" };
         if (!testTo) headers["Idempotency-Key"] = `flm-ann:${b.id}:${to}:${scheduledAt || "now"}`.slice(0, 256);
-        const payload = JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "danielgrande0326@gmail.com", to: [to], subject, html, ...(scheduledAt ? { scheduled_at: scheduledAt } : {}) });
+        const payload = JSON.stringify({ from: "Field Command <noreply@coachpilot.org>", reply_to: "scheduler@blslittleleague.org", to: [to], subject, html, ...(scheduledAt ? { scheduled_at: scheduledAt } : {}) });
         let res = await fetch("https://api.resend.com/emails", { method: "POST", headers, body: payload });
         if (res.status === 429) {
           await new Promise((r) => setTimeout(r, 1500));
@@ -2963,7 +2963,7 @@ Deno.serve(async (req: Request) => {
       if (!isEmail(to) || !subject || (!html && !text)) return json({ ok: false, error: "to, subject, and body required" }, 400);
       const send = await resendSend({
         from: String(b.from ?? "Daniel Grande <noreply@coachpilot.org>"),
-        reply_to: String(b.reply_to ?? "danielgrande0326@gmail.com"),
+        reply_to: String(b.reply_to ?? "scheduler@blslittleleague.org"),
         to: [to],
         subject,
         html: html || `<pre style="font-family:Arial;white-space:pre-wrap;">${escHtml(text)}</pre>`,
