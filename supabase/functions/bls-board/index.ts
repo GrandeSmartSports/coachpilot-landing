@@ -1145,7 +1145,45 @@ async function tick(req: Request, b: Record<string, unknown>) {
   if (!cronOk) await requireAdmin(req);
   const expired = await expire();
   const dg = b.no_digest === true ? "skipped_by_request" : await digest();
-  return { ok: true, expired, digest: dg };
+  const links = await watchShortLinks(b.force_links === true);
+  return { ok: true, expired, digest: dg, links };
+}
+
+// Printed flyers carry QR codes for these short links, so they must keep working for years.
+// Checked hourly from the cron tick; website@ gets one email when a link breaks and one when it recovers.
+const SHORT_LINKS: { path: string; expect: string }[] = [
+  { path: "/register", expect: "https://www.blslittleleague.org/Default.aspx?tabid=716841" },
+  { path: "/challenger", expect: "https://www.blslittleleague.org/Default.aspx?tabid=716841" },
+];
+async function watchShortLinks(force: boolean): Promise<string> {
+  const s = await settings();
+  const last = Number(s.links_checked_at || "0");
+  if (!force && Date.now() - last < 55 * 60 * 1000) return "not_due";
+  await setSetting("links_checked_at", String(Date.now()));
+  const prev: Record<string, string> = JSON.parse(s.links_state || "{}");
+  const now: Record<string, string> = {};
+  const changes: string[] = [];
+  for (const l of SHORT_LINKS) {
+    let err = "";
+    try {
+      const r = await fetch("https://go.blslittleleague.org" + l.path, { redirect: "manual" });
+      const loc = r.headers.get("location") || "";
+      if (r.status < 300 || r.status > 399) err = `HTTP ${r.status}, expected a redirect`;
+      else if (loc !== l.expect) err = `goes to ${loc || "(nothing)"} instead of ${l.expect}`;
+      else {
+        const t = await fetch(l.expect, { redirect: "follow" });
+        if (t.status !== 200) err = `destination answered HTTP ${t.status}`;
+      }
+    } catch (e) { err = `could not reach it: ${String((e as Error)?.message ?? e).slice(0, 120)}`; }
+    now[l.path] = err ? "down" : "up";
+    if ((prev[l.path] || "up") !== now[l.path]) changes.push(err ? `BROKEN go.blslittleleague.org${l.path}: ${err}` : `FIXED go.blslittleleague.org${l.path} works again`);
+  }
+  await setSetting("links_state", JSON.stringify(now));
+  if (changes.length) {
+    const text = ["BLS flyer QR link check", "", ...changes, "", "These short links are printed on flyers as QR codes. Where they live and how to fix them: coachpilot-landing repo, vercel.json redirects (host go.blslittleleague.org), and DNS for go.blslittleleague.org at Hover."].join("\n");
+    await sendTo("website@blslittleleague.org", changes.some((c) => c.startsWith("BROKEN")) ? "BLS QR link broken" : "BLS QR link fixed", text, `<pre style="font:14px/1.5 -apple-system,Helvetica,Arial,sans-serif;white-space:pre-wrap">${esc(text)}</pre>`);
+  }
+  return Object.entries(now).map(([k, v]) => `${k}:${v}`).join(",");
 }
 
 // ---------- router ----------
