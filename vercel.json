@@ -34,6 +34,17 @@
       "permanent": false
     },
     {
+      "source": "/register",
+      "has": [
+        {
+          "type": "host",
+          "value": "go.blslittleleague.org"
+        }
+      ],
+      "destination": "https://www.blslittleleague.org/Default.aspx?tabid=716841",
+      "permanent": false
+    },
+    {
       "source": "/:path((?!fields|bls/|bls-south-hill/|website-updates/|south-hill/|favicon\\.ico$|robots\\.txt$).*)",
       "has": [
         {
@@ -67,17 +78,6 @@
     {
       "source": "/bls/remind",
       "destination": "/bls/remind/",
-      "permanent": false
-    },
-    {
-      "source": "/register",
-      "has": [
-        {
-          "type": "host",
-          "value": "go.blslittleleague.org"
-        }
-      ],
-      "destination": "https://www.blslittleleague.org/Default.aspx?tabid=716841",
       "permanent": false
     }
   ],
