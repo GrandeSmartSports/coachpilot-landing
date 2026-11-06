@@ -20,39 +20,153 @@
     --ink: #1c2420; --muted: #6d7a72; --line: #dcd8ca; --white: #ffffff;
     --shadow: 0 8px 26px rgba(14, 59, 46, 0.10);
     --disp: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+
+    /* ---------- generic theme tokens (default = the look above, byte for
+       byte). Demo mode is the ONLY thing that ever sets data-look on <html>,
+       so a real coach (no ?demo=1) always gets these defaults -- nothing
+       below this point changes anything for them. ---------- */
+    --t-bg: var(--chalk);
+    --t-card: var(--white);
+    --t-ink: var(--ink);
+    --t-muted: var(--muted);
+    --t-line: var(--line);
+    --t-accent: var(--clay);
+    --t-accent-ink: #ffffff;
+    --t-accent-2: var(--grass);
+    --t-radius: 16px;
+    --t-radius-sm: 12px;
+    --t-shadow: var(--shadow);
+    --t-font-disp: var(--disp);
+    --t-font-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --t-header-bg: linear-gradient(160deg, var(--pine) 0%, var(--pine-2) 100%);
+    --t-header-ink: var(--chalk);
+    --t-header-sub-ink: #b7cfc2;
+    --t-header-border: none;
+    --t-chalkline: repeating-linear-gradient(90deg, var(--clay) 0 36px, var(--chalk) 36px 46px);
+    --t-tabbar-bg: var(--white);
+    --t-tabbar-active: var(--pine);
+    --t-numeral-size: 15.5px;
+    --t-transition: none;
+    --t-open-bg: #ecf5ef;
+    --t-mine-bg: #fdf3ea;
+    --t-badge-game-bg: #e7edff; --t-badge-game-ink: #3a5fb8;
+    --t-alert-bg: #fbfaf5;
+    --t-alert-warn-bg: #fdf6ec;
+    --t-accent-shadow: rgba(201, 111, 47, 0.18);
+    --t-taken-bg: #f4f2eb;
+    --t-btn-bg: var(--pine); --t-btn-ink: var(--chalk);
   }
+
+  /* ---------- look A: clean iOS-native (crisp light cards, one confident blue accent) ---------- */
+  [data-look="a"] {
+    --t-bg: #f4f5f8; --t-card: #ffffff; --t-ink: #13151a; --t-muted: #6c7280; --t-line: #e7e9ef;
+    --t-accent: #2f6fed; --t-accent-ink: #ffffff; --t-accent-2: #0ea5a0;
+    --t-radius: 20px; --t-radius-sm: 14px;
+    --t-shadow: 0 10px 28px rgba(20, 24, 40, 0.08);
+    --t-font-disp: "Inter", system-ui, sans-serif; --t-font-body: "Inter", system-ui, sans-serif;
+    --t-header-bg: #ffffff; --t-header-ink: #13151a; --t-header-sub-ink: #6c7280;
+    --t-header-border: 1px solid #e7e9ef;
+    --t-chalkline: linear-gradient(90deg, #2f6fed, #0ea5a0);
+    --t-tabbar-bg: #ffffff; --t-tabbar-active: #2f6fed;
+    --t-numeral-size: 15.5px;
+    --t-transition: all 0.16s ease;
+    --t-open-bg: #eaf1ff;
+    --t-mine-bg: #e6f9f7;
+    --t-badge-game-bg: #eaf1ff; --t-badge-game-ink: #2f6fed;
+    --t-alert-bg: #f4f5f8;
+    --t-alert-warn-bg: #fff4ed;
+    --t-accent-shadow: rgba(47, 111, 237, 0.18);
+    --t-taken-bg: #eef0f3;
+    --t-btn-bg: #13151a; --t-btn-ink: #ffffff;
+  }
+  /* ---------- look B: bold sporty dark mode (big numerals, electric accent) ---------- */
+  [data-look="b"] {
+    --t-bg: #0a0b10; --t-card: #15171f; --t-ink: #f3f5f8; --t-muted: #9aa0b0; --t-line: #262a36;
+    --t-accent: #ff4d2e; --t-accent-ink: #0a0b10; --t-accent-2: #c6ff33;
+    --t-radius: 24px; --t-radius-sm: 16px;
+    --t-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+    --t-font-disp: "Archivo Black", system-ui, sans-serif; --t-font-body: "Manrope", system-ui, sans-serif;
+    --t-header-bg: #0a0b10; --t-header-ink: #f3f5f8; --t-header-sub-ink: #ff4d2e;
+    --t-header-border: 1px solid #1d2029;
+    --t-chalkline: linear-gradient(90deg, #ff4d2e, #c6ff33);
+    --t-tabbar-bg: #11131a; --t-tabbar-active: #ff4d2e;
+    --t-numeral-size: 30px;
+    --t-transition: all 0.16s ease;
+    --t-open-bg: #1c2e13;
+    --t-mine-bg: #33190f;
+    --t-badge-game-bg: #26324a; --t-badge-game-ink: #8fb4ff;
+    --t-alert-bg: #15171f;
+    --t-alert-warn-bg: #2a1a10;
+    --t-accent-shadow: rgba(255, 77, 46, 0.3);
+    --t-taken-bg: #1a1c24;
+    --t-btn-bg: #21242e; --t-btn-ink: #f3f5f8;
+  }
+  /* ---------- look C: warm field-day, BLS navy + red, serif/sans pairing ---------- */
+  [data-look="c"] {
+    --t-bg: #f6efe0; --t-card: #fffdf7; --t-ink: #00013a; --t-muted: #746d59; --t-line: #e8dec4;
+    --t-accent: #cd163f; --t-accent-ink: #ffffff; --t-accent-2: #00013a;
+    --t-radius: 14px; --t-radius-sm: 11px;
+    --t-shadow: 0 12px 28px rgba(0, 1, 58, 0.10);
+    --t-font-disp: "Fraunces", Georgia, serif; --t-font-body: "Figtree", system-ui, sans-serif;
+    --t-header-bg: #00013a; --t-header-ink: #f6efe0; --t-header-sub-ink: #cd163f;
+    --t-header-border: none;
+    --t-chalkline: linear-gradient(90deg, #cd163f, #00013a);
+    --t-tabbar-bg: #fffdf7; --t-tabbar-active: #cd163f;
+    --t-numeral-size: 15.5px;
+    --t-transition: all 0.2s ease;
+    --t-open-bg: #eef0ea;
+    --t-mine-bg: #fbe6ea;
+    --t-badge-game-bg: #e3e4ef; --t-badge-game-ink: #00013a;
+    --t-alert-bg: #fbf6ea;
+    --t-alert-warn-bg: #fbe6ea;
+    --t-accent-shadow: rgba(205, 22, 63, 0.2);
+    --t-taken-bg: #efe8d6;
+    --t-btn-bg: #00013a; --t-btn-ink: #f6efe0;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body { background: var(--chalk); color: var(--ink); height: 100%; }
-  body { font-family: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+  html, body { background: var(--t-bg); color: var(--t-ink); height: 100%; }
+  body { font-family: var(--t-font-body); line-height: 1.45; -webkit-font-smoothing: antialiased; transition: var(--t-transition); }
   a { color: inherit; }
   button { font-family: inherit; cursor: pointer; }
   input, select, textarea { font-family: inherit; }
-  h1, h2, h3 { font-family: var(--disp); text-transform: uppercase; }
+  h1, h2, h3 { font-family: var(--t-font-disp); text-transform: uppercase; }
+  [data-look="c"] h1, [data-look="c"] h2, [data-look="c"] h3 { text-transform: none; letter-spacing: 0; }
 
-  header.top { background: linear-gradient(160deg, var(--pine) 0%, var(--pine-2) 100%); color: var(--chalk); padding: 16px 16px 12px; position: sticky; top: 0; z-index: 10; }
+  header.top { background: var(--t-header-bg); color: var(--t-header-ink); border-bottom: var(--t-header-border); padding: 16px 16px 12px; position: sticky; top: 0; z-index: 10; transition: var(--t-transition); }
   header.top .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   header.top h1 { font-weight: 700; font-size: 22px; letter-spacing: 0.03em; }
-  header.top .sub { font-family: var(--disp); font-weight: 500; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: #b7cfc2; }
-  .chalkline { height: 5px; background: repeating-linear-gradient(90deg, var(--clay) 0 36px, var(--chalk) 36px 46px); }
-  .signout { background: rgba(244,241,232,0.14); border: 1px solid rgba(244,241,232,0.3); color: var(--chalk); border-radius: 18px; padding: 7px 13px; font-family: var(--disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+  header.top .sub { font-family: var(--t-font-disp); font-weight: 500; font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--t-header-sub-ink); }
+  .demotag { display: inline-block; background: var(--t-accent); color: var(--t-accent-ink); font-family: var(--t-font-disp); font-weight: 700; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 7px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; }
+  .chalkline { height: 4px; background: var(--t-chalkline); }
+  .signout { background: rgba(127,127,127,0.16); border: 1px solid rgba(127,127,127,0.28); color: var(--t-header-ink); border-radius: 18px; padding: 7px 13px; font-family: var(--t-font-disp); font-weight: 600; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; }
 
   main { max-width: 640px; margin: 0 auto; padding: 16px 14px 100px; min-height: calc(100vh - 160px); }
 
+  /* ---------- demo look switcher ---------- */
+  .lookswitch { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 8px 10px; background: rgba(0,0,0,0.85); position: relative; z-index: 15; }
+  .lookswitch .lbl { color: #cfd2d8; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; font-family: var(--t-font-disp); }
+  .lookswitch button { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; background: #fff; color: #111; font-family: var(--t-font-disp); font-weight: 700; font-size: 12px; flex: 0 0 auto; }
+  .lookswitch button.on { border-color: var(--t-accent); }
+
   /* ---------- buttons ---------- */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--pine); color: var(--chalk); border: none; border-radius: 12px; padding: 14px 18px; width: 100%; box-shadow: var(--shadow); }
-  .btn.clay { background: var(--clay); }
-  .btn.ghost { background: var(--white); color: var(--pine); border: 2px solid var(--pine); }
-  .btn.quiet { background: transparent; color: var(--muted); box-shadow: none; border: 1px solid var(--line); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--t-font-disp); font-weight: 700; font-size: 17px; letter-spacing: 0.04em; text-transform: uppercase; background: var(--t-btn-bg); color: var(--t-btn-ink); border: none; border-radius: var(--t-radius-sm); padding: 14px 18px; width: 100%; box-shadow: var(--t-shadow); transition: var(--t-transition); }
+  [data-look="c"] .btn { text-transform: none; letter-spacing: 0; font-weight: 700; }
+  .btn.clay { background: var(--t-accent); color: var(--t-accent-ink); }
+  .btn.ghost { background: var(--t-card); color: var(--t-ink); border: 2px solid var(--t-line); }
+  .btn.quiet { background: transparent; color: var(--t-muted); box-shadow: none; border: 1px solid var(--t-line); }
   .btn.sm { font-size: 14px; padding: 10px 14px; width: auto; }
   .btn[disabled] { opacity: 0.55; }
+  .btn:active { transform: scale(0.98); }
   .btnrow { display: flex; gap: 10px; margin-top: 10px; }
   .btnrow .btn { flex: 1; }
-  .linkbtn { background: none; border: none; color: var(--grass); text-decoration: underline; font-size: 14px; padding: 6px 0; }
+  .linkbtn { background: none; border: none; color: var(--t-accent-2); text-decoration: underline; font-size: 14px; padding: 6px 0; }
 
   /* ---------- cards ---------- */
-  .card { background: var(--white); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px; }
+  .card { background: var(--t-card); border: 1px solid var(--t-line); border-radius: var(--t-radius); box-shadow: var(--t-shadow); padding: 16px; margin-bottom: 14px; color: var(--t-ink); transition: var(--t-transition); }
   .card h2 { font-size: 19px; letter-spacing: 0.03em; margin-bottom: 8px; }
-  .card .hint { font-size: 13.5px; color: var(--muted); margin-bottom: 10px; }
+  [data-look="c"] .card h2 { font-size: 21px; }
+  .card .hint { font-size: 13.5px; color: var(--t-muted); margin-bottom: 10px; }
   .err { background: #fdefe9; border: 1px solid #f2c9b4; color: #a8571d; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 8px 0; }
   .ok { background: #ecf5ef; border: 1px solid #bfdccb; color: #1e5138; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; margin: 8px 0; }
   .hidden { display: none !important; }
@@ -60,69 +174,73 @@
   /* ---------- sign-in ---------- */
   .signwrap { max-width: 420px; margin: 40px auto 0; padding: 0 6px; }
   .signwrap .diamond { width: 52px; height: 52px; margin: 0 auto 14px; display: block; }
-  .signwrap h1 { text-align: center; font-size: 26px; margin-bottom: 4px; }
-  .signwrap .lede { text-align: center; color: var(--muted); font-size: 14.5px; margin-bottom: 18px; }
-  label.flabel { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin: 10px 0 5px; }
-  input.finput { width: 100%; font-size: 17px; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 12px; }
-  input.finput:focus { outline: none; border-color: var(--clay); box-shadow: 0 0 0 3px rgba(201,111,47,0.18); }
+  .signwrap h1 { text-align: center; font-size: 26px; margin-bottom: 4px; color: var(--t-ink); }
+  .signwrap .lede { text-align: center; color: var(--t-muted); font-size: 14.5px; margin-bottom: 18px; }
+  label.flabel { display: block; font-size: 13px; font-weight: 600; color: var(--t-ink); margin: 10px 0 5px; }
+  input.finput { width: 100%; font-size: 17px; padding: 13px 14px; border: 1.5px solid var(--t-line); border-radius: var(--t-radius-sm); background: var(--t-card); color: var(--t-ink); }
+  input.finput:focus { outline: none; border-color: var(--t-accent); box-shadow: 0 0 0 3px var(--t-accent-shadow); }
   input.pin { letter-spacing: 0.5em; text-align: center; font-weight: 700; }
 
   /* ---------- booking windows (day/time pills) ---------- */
   .fieldblock { margin-bottom: 14px; }
-  .fieldblock .fname { font-family: var(--disp); font-weight: 700; font-size: 16.5px; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 7px; }
+  .fieldblock .fname { font-family: var(--t-font-disp); font-weight: 700; font-size: 16.5px; letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: 7px; color: var(--t-ink); }
+  [data-look="c"] .fieldblock .fname { text-transform: none; letter-spacing: 0; }
   .pillgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .pill { border-radius: 11px; padding: 12px 10px; font-size: 14px; font-weight: 600; text-align: center; border: 1.5px dashed #cfcaba; color: var(--muted); }
-  .pill.open { border-style: solid; border-color: var(--grass); color: var(--grass); background: #ecf5ef; }
-  .pill.mine { border-style: solid; border-color: var(--clay); background: #fdf3ea; color: var(--clay-dark); }
-  .pill.taken { background: #f4f2eb; color: #a39d8c; border-color: #e2ded0; }
-  .pill.pending { background: #f4f2eb; color: #a39d8c; border-color: #e2ded0; font-style: italic; }
+  .pill { border-radius: var(--t-radius-sm); padding: 12px 10px; font-size: 14px; font-weight: 600; text-align: center; border: 1.5px dashed var(--t-line); color: var(--t-muted); background: var(--t-card); transition: var(--t-transition); }
+  .pill.open { border-style: solid; border-color: var(--t-accent-2); color: var(--t-accent-2); background: var(--t-open-bg); }
+  .pill.mine { border-style: solid; border-color: var(--t-accent); background: var(--t-mine-bg); color: var(--t-accent); }
+  .pill.taken { background: var(--t-taken-bg); color: var(--t-muted); border-color: var(--t-line); }
+  .pill.pending { background: var(--t-taken-bg); color: var(--t-muted); border-color: var(--t-line); font-style: italic; }
   .pill small { display: block; font-weight: 500; font-size: 11px; margin-top: 2px; }
 
   /* ---------- week / alerts rows ---------- */
-  .weekrow { border-top: 1px solid var(--chalk-2); padding: 12px 0; }
+  .weekrow { border-top: 1px solid var(--t-line); padding: 12px 0; }
   .weekrow:first-child { border-top: none; padding-top: 0; }
-  .weekrow .wr-when { font-family: var(--disp); font-weight: 700; font-size: 15.5px; letter-spacing: 0.02em; text-transform: uppercase; }
-  .weekrow .wr-what { font-size: 13.5px; color: var(--muted); margin-top: 1px; }
+  .weekrow .wr-when { font-family: var(--t-font-disp); font-weight: 700; font-size: var(--t-numeral-size); letter-spacing: 0.02em; text-transform: uppercase; color: var(--t-ink); }
+  [data-look="c"] .weekrow .wr-when { text-transform: none; }
+  .weekrow .wr-what { font-size: 13.5px; color: var(--t-muted); margin-top: 1px; }
   .weekrow .wr-actions { display: flex; gap: 8px; margin-top: 8px; }
   .weekrow .wr-actions .btn { font-size: 12.5px; padding: 8px 10px; }
-  .badge { display: inline-block; font-family: var(--disp); font-weight: 700; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 10px; padding: 2px 9px; margin-left: 6px; vertical-align: middle; }
-  .badge.game { background: #e7edff; color: #3a5fb8; }
-  .badge.released { background: #f4f2eb; color: #a39d8c; }
+  .badge { display: inline-block; font-family: var(--t-font-disp); font-weight: 700; font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 10px; padding: 2px 9px; margin-left: 6px; vertical-align: middle; }
+  .badge.game { background: var(--t-badge-game-bg); color: var(--t-badge-game-ink); }
+  .badge.released { background: var(--t-line); color: var(--t-muted); }
 
-  .alertrow { border-left: 5px solid var(--grass); background: #fbfaf5; border-radius: 10px; padding: 10px 13px; margin-bottom: 8px; }
-  .alertrow.warning { border-left-color: var(--clay); background: #fdf6ec; }
+  .alertrow { border-left: 5px solid var(--t-accent-2); background: var(--t-alert-bg); border-radius: var(--t-radius-sm); padding: 10px 13px; margin-bottom: 8px; }
+  .alertrow.warning { border-left-color: var(--t-accent); background: var(--t-alert-warn-bg); }
   .alertrow.urgent, .alertrow.closure { border-left-color: #b3432b; background: #fdefe9; }
-  .alertrow h4 { font-family: var(--disp); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-transform: uppercase; }
-  .alertrow p { font-size: 13.5px; color: #3c463f; margin-top: 2px; }
+  .alertrow h4 { font-family: var(--t-font-disp); font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--t-ink); }
+  [data-look="c"] .alertrow h4 { text-transform: none; }
+  .alertrow p { font-size: 13.5px; color: var(--t-muted); margin-top: 2px; }
 
   /* ---------- setup ---------- */
-  .setupbanner { background: var(--clay); color: #fff; border-radius: 12px; padding: 11px 14px; margin-bottom: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .setupbanner button { background: rgba(255,255,255,0.22); border: none; color: #fff; border-radius: 8px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
-  .stepicon { width: 34px; height: 34px; color: var(--pine); }
-  .stepnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--pine); color: var(--chalk); font-family: var(--disp); font-weight: 700; font-size: 14px; margin-right: 8px; }
+  .setupbanner { background: var(--t-accent); color: var(--t-accent-ink); border-radius: var(--t-radius-sm); padding: 11px 14px; margin-bottom: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .setupbanner button { background: rgba(255,255,255,0.22); border: none; color: inherit; border-radius: 8px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+  .stepicon { width: 34px; height: 34px; color: var(--t-accent); }
+  .stepnum { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--t-accent); color: var(--t-accent-ink); font-family: var(--t-font-disp); font-weight: 700; font-size: 14px; margin-right: 8px; }
   ol.steps { margin: 10px 0 14px 0; list-style: none; }
-  ol.steps li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--chalk-2); font-size: 14.5px; }
+  ol.steps li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--t-line); font-size: 14.5px; color: var(--t-ink); }
   ol.steps li:last-child { border-bottom: none; }
-  ol.steps .stepnum2 { font-family: var(--disp); font-weight: 700; color: var(--clay-dark); min-width: 20px; }
+  ol.steps .stepnum2 { font-family: var(--t-font-disp); font-weight: 700; color: var(--t-accent); min-width: 20px; }
 
   /* ---------- my people ---------- */
-  .person { background: var(--white); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--shadow); }
-  .person .role { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  .person .nm { font-family: var(--disp); font-weight: 700; font-size: 17px; letter-spacing: 0.02em; }
+  .person { background: var(--t-card); border: 1px solid var(--t-line); border-radius: var(--t-radius-sm); padding: 12px 14px; margin-bottom: 10px; box-shadow: var(--t-shadow); }
+  .person .role { font-size: 11.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t-muted); font-weight: 600; }
+  .person .nm { font-family: var(--t-font-disp); font-weight: 700; font-size: 17px; letter-spacing: 0.02em; color: var(--t-ink); }
+  [data-look="c"] .person .nm { text-transform: none; }
   .person .pcontact { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-  .person .pcontact a { background: var(--chalk-2); color: var(--pine); border-radius: 9px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
+  .person .pcontact a { background: var(--t-line); color: var(--t-ink); border-radius: 9px; padding: 7px 12px; font-size: 13px; font-weight: 600; }
 
   /* ---------- bottom tab bar ---------- */
-  nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--white); border-top: 1px solid var(--line); display: flex; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 16px rgba(14,59,46,0.08); z-index: 20; }
-  nav.tabbar button { flex: 1; background: none; border: none; padding: 10px 4px 9px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); font-family: var(--disp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; }
-  nav.tabbar button.on { color: var(--pine); }
+  nav.tabbar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--t-tabbar-bg); border-top: 1px solid var(--t-line); display: flex; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -4px 16px rgba(14,59,46,0.08); z-index: 20; transition: var(--t-transition); }
+  nav.tabbar button { flex: 1; background: none; border: none; padding: 10px 4px 9px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--t-muted); font-family: var(--t-font-disp); font-weight: 600; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+  nav.tabbar button.on { color: var(--t-tabbar-active); }
   nav.tabbar svg { width: 22px; height: 22px; }
 
-  .loading { text-align: center; color: var(--muted); padding: 60px 10px; font-size: 15px; }
+  .loading { text-align: center; color: var(--t-muted); padding: 60px 10px; font-size: 15px; }
   .centerwrap { max-width: 440px; margin: 10px auto 0; text-align: center; }
   .instrow { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; }
-  .instrow .ic { width: 30px; height: 30px; flex: 0 0 30px; color: var(--pine); }
-  .instrow .tx { font-size: 14.5px; }
+  .instrow .ic { width: 30px; height: 30px; flex: 0 0 30px; color: var(--t-accent); }
+  .instrow .tx { font-size: 14.5px; color: var(--t-ink); }
 </style>
 </head>
 <body>
@@ -138,9 +256,25 @@
 var API = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/flm-gateway";
 var VAPID_PUBLIC_KEY = "BDvNJFl3B89RD88uFJRJy01SQeZ2CLLZdPlKaPjQEtOilQng__xQoZ2tdQ0DXseF-7rsem9sfm45O0joeQ6Nn8s";
 
-function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
-function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+/* ---------- demo mode: ?demo=1 (+ optional &look=a|b|c) ----------
+   Coach walked the real app and wants to see a fresh first-run plus three
+   restyled looks without touching any real coach data. Demo mode:
+     - never reads or writes the real flm_coach_* / flm_app_* localStorage
+       keys (lsGet/lsSet/lsDel below redirect to an in-memory object instead,
+       so every reload is a true fresh start, and it never touches a real
+       signed-in coach's session even if this page and /fields/ share an origin)
+     - makes ZERO calls to the flm-gateway; coachApi/publicApi and every
+       direct state fetch are intercepted and answered from fake local data
+     - is the ONLY thing that ever sets data-look on <html>, so a real coach
+       (no ?demo=1) always renders the unchanged default look */
+var QP = new URLSearchParams(location.search);
+var DEMO = QP.get("demo") === "1";
+var LOOK = DEMO && ["a", "b", "c"].indexOf(QP.get("look")) >= 0 ? QP.get("look") : null;
+var DEMO_STORE = {};
+
+function lsGet(k) { if (DEMO) return Object.prototype.hasOwnProperty.call(DEMO_STORE, k) ? DEMO_STORE[k] : null; try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { if (DEMO) { DEMO_STORE[k] = v; return; } try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { if (DEMO) { delete DEMO_STORE[k]; return; } try { localStorage.removeItem(k); } catch (e) {} }
 function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
 
 var CRED_C = {
@@ -154,12 +288,111 @@ function coachApi(action, extra) {
   var body = extra || {};
   body.coach_id = CRED_C.id;
   body.coach_pin = CRED_C.pin;
+  if (DEMO) return demoCoachApi(action, body);
   return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
     .then(function (r) { return r.json().then(function (j) { j._status = r.status; return j; }); });
 }
 function publicApi(action, body) {
+  if (DEMO) return demoPublicApi(action, body || {});
   return fetch(API + "?action=" + action, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) })
     .then(function (r) { return r.json(); });
+}
+/* The 3 places that fetch public state directly (boot, after a claim, after
+   a release) go through this instead of a raw fetch, so demo mode can hand
+   back the fake board with zero network calls. */
+function gwPublicState() {
+  if (DEMO) return Promise.resolve(demoState());
+  return fetch(API + "?action=state").then(function (r) { return r.json(); });
+}
+
+/* =======================================================================
+   Demo mode: fake league, entirely client-side, memory-only, reset every
+   page load. Shapes mirror the real `state` / `coach_state` gateway
+   responses exactly so every render function above works unmodified.
+   ======================================================================= */
+var DEMO_SEASON_ID = "demo-season", DEMO_TEAM_ID = "demo-team-mariners", DEMO_COACH_ID = "demo-coach";
+var DEMO_FIELDS = [
+  { id: "demo-field-1", name: "Bonney Lake Elementary North", is_active: true, default_start: null, divisions: ["AA"], sort: 1 },
+  { id: "demo-field-2", name: "Liberty Ridge North", is_active: true, default_start: null, divisions: ["AA"], sort: 2 },
+  { id: "demo-field-3", name: "Tehaleh Heights 60'", is_active: true, default_start: "18:00", divisions: ["AA"], sort: 3 },
+  { id: "demo-field-4", name: "Donald Eismann Turf 1", is_active: true, default_start: "18:00", divisions: ["AA"], sort: 4 }
+];
+var DEMO_TEAMS = [
+  { id: DEMO_TEAM_ID, name: "AA Mariners (Demo)", division: "AA", coach_name: "Demo Coach", coach_phone: "", is_active: true },
+  { id: "demo-team-2", name: "AA Rockies (Demo)", division: "AA", coach_name: "Priya Shah", coach_phone: "253-555-0142", is_active: true },
+  { id: "demo-team-3", name: "AA Pelicans (Demo)", division: "AA", coach_name: "Marcus Webb", coach_phone: "253-555-0187", is_active: true },
+  { id: "demo-team-4", name: "AA Foxes (Demo)", division: "AA", coach_name: "Dana Ruiz", coach_phone: "253-555-0163", is_active: true },
+  { id: "demo-team-5", name: "AA Badgers (Demo)", division: "AA", coach_name: "Theo Park", coach_phone: "253-555-0129", is_active: true }
+];
+// One slot pre-claimed by another team, so the Book screen shows real contention.
+var DEMO_SLOTS = [
+  { id: "demo-slot-taken", season_id: DEMO_SEASON_ID, day_key: "tue", field_id: "demo-field-1", team_id: "demo-team-2", label: "AA Rockies (Demo)", note: "", cancelled_at: null, single_date: null, skip_dates: [], held: false }
+];
+var DEMO_CONTACTS = [
+  { id: "demo-c1", name: "Jordan Hale", role: "Player Agent, AA", email: "demo-agent@example.com", phone: "253-555-0101", notes: null },
+  { id: "demo-c2", name: "Sam Rivera", role: "President", email: "demo-president@example.com", phone: null, notes: null },
+  { id: "demo-c3", name: "Taylor Brooks", role: "Vice President of Baseball", email: "demo-vp@example.com", phone: null, notes: null },
+  { id: "demo-c4", name: "Casey Nguyen", role: "Treasurer", email: "demo-treasurer@example.com", phone: null, notes: null }
+];
+function demoClosureDate() {
+  var d = new Date(); d.setDate(d.getDate() + 6);
+  return ymd(d);
+}
+var DEMO_ANNOUNCEMENTS = [
+  { id: "demo-a1", title: "Welcome to the season", body: "Fields are open for booking now. Reach out to your player agent with any questions.", severity: "info", active: true, created_at: new Date().toISOString() }
+];
+function demoState() {
+  return {
+    ok: true,
+    settings: { league_name: "Bonney Lake Sumner Little League", practice_rules: JSON.stringify({ max_weekdays: 1, max_weekend: 1, expected_total: 2, alternatives: [] }) },
+    seasons: [{ id: DEMO_SEASON_ID, label: "Demo Season", locked: false, start_date: "2026-09-01", end_date: "2027-06-30" }],
+    fields: DEMO_FIELDS, teams: DEMO_TEAMS, slots: DEMO_SLOTS, announcements: DEMO_ANNOUNCEMENTS, games: []
+  };
+}
+function demoCoachState() {
+  return {
+    ok: true, _status: 200,
+    league_name: "Bonney Lake Sumner Little League",
+    coach: { id: DEMO_COACH_ID, name: "Demo Coach", email: "demo@example.com", phone: "253-555-0100", team_id: DEMO_TEAM_ID, team_ids: [DEMO_TEAM_ID], team_name: "AA Mariners (Demo)", division: "AA", team_nickname: "Mariners" },
+    profile_missing: [],
+    announcements: DEMO_ANNOUNCEMENTS,
+    contacts: DEMO_CONTACTS,
+    my_requests: [], messages: [], coach_picker: [], joins_to_me: [], joins_from_me: [],
+    schedule_confirmed_at: new Date().toISOString(),
+    booking_window_open_at: null,
+    closures: [{ id: "demo-closure-1", field_id: "demo-field-1", closure_date: demoClosureDate(), reason: "Field maintenance, new infield mix" }],
+    claimable_hold_slot_ids: [],
+    schedule_approval: null
+  };
+}
+function demoPublicApi(action, body) {
+  if (action === "coach_request_access") return Promise.resolve({ ok: true, found: true, has_pin: true });
+  if (action === "coach_login") return Promise.resolve({ ok: true, coach: { id: DEMO_COACH_ID, name: "Demo Coach", email: body.email || "demo@example.com" } });
+  if (action === "support_request") return Promise.resolve({ ok: true, sent: true });
+  return Promise.resolve({ ok: false, error: "not available in demo" });
+}
+function demoCoachApi(action, body) {
+  if (action === "coach_state") return Promise.resolve(demoCoachState());
+  if (action === "claim") {
+    var existing = DEMO_SLOTS.filter(function (s) { return s.season_id === body.season_id && s.day_key === body.day_key && s.field_id === body.field_id && !s.cancelled_at; });
+    if (existing.some(function (s) { return s.team_id === body.team_id; })) return Promise.resolve({ ok: false, error: "Your team already holds this slot.", _status: 409 });
+    if (existing.length && !body.allow_share) return Promise.resolve({ ok: false, error: "taken", taken: true, existing: existing, _status: 409 });
+    var team = DEMO_TEAMS.filter(function (t) { return t.id === body.team_id; })[0];
+    var slot = { id: "demo-slot-" + Date.now(), season_id: body.season_id, day_key: body.day_key, field_id: body.field_id, team_id: body.team_id, label: team ? team.name : "", note: body.note || "", cancelled_at: null, single_date: null, skip_dates: [], held: false };
+    DEMO_SLOTS.push(slot);
+    return Promise.resolve({ ok: true, slot: slot, _status: 200 });
+  }
+  if (action === "release") {
+    DEMO_SLOTS = DEMO_SLOTS.filter(function (s) { return s.id !== body.slot_id; });
+    return Promise.resolve({ ok: true, _status: 200 });
+  }
+  if (action === "slot_skip_date") {
+    var s = DEMO_SLOTS.filter(function (x) { return x.id === body.slot_id; })[0];
+    if (s && s.skip_dates.indexOf(body.skip_date) < 0) s.skip_dates.push(body.skip_date);
+    return Promise.resolve({ ok: true, slot: s, _status: 200 });
+  }
+  if (action === "coach_confirm_schedule") return Promise.resolve({ ok: true, approved: true, _status: 200 });
+  return Promise.resolve({ ok: false, error: "not available in demo", _status: 404 });
 }
 
 var DAYS = [
@@ -238,12 +471,42 @@ function hasBookedAnything() { return mySlots().some(function (s) { return !s.ca
 
 function root() { return document.getElementById("root"); }
 
+/* ---------- demo look: data-look attribute + Google Fonts, demo-only ---------- */
+var LOOK_FONTS = {
+  a: "Inter:wght@400;500;600;700;800",
+  b: "Archivo+Black&family=Manrope:wght@400;500;600;700;800",
+  c: "Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Figtree:wght@400;500;600;700"
+};
+function ensureLookFonts(look) {
+  if (!look || !LOOK_FONTS[look] || document.getElementById("lookFont-" + look)) return;
+  var link = document.createElement("link");
+  link.id = "lookFont-" + look;
+  link.rel = "stylesheet";
+  link.href = "https://fonts.googleapis.com/css2?family=" + LOOK_FONTS[look] + "&display=swap";
+  document.head.appendChild(link);
+}
+function applyLook() {
+  if (!DEMO) return; // real coaches never get a data-look attribute, ever
+  if (LOOK) { document.documentElement.setAttribute("data-look", LOOK); ensureLookFonts(LOOK); }
+  else document.documentElement.removeAttribute("data-look");
+}
+function setLook(look) {
+  LOOK = look;
+  var url = new URL(location.href);
+  url.searchParams.set("demo", "1");
+  if (look) url.searchParams.set("look", look); else url.searchParams.delete("look");
+  history.replaceState(null, "", url);
+  applyLook();
+  render();
+}
+
 /* =======================================================================
    Boot: load public state, then coach_state if signed in.
    ======================================================================= */
 function boot() {
+  applyLook();
   render();
-  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+  gwPublicState().then(function (d) {
     if (!d.ok) { S.screen = "error"; S.err = d.error || "Could not load the schedule."; render(); return; }
     P = d;
     SEASON = openSeason();
@@ -282,14 +545,36 @@ function signOut(quiet) {
    ======================================================================= */
 function render() {
   var r = root();
-  if (S.screen === "loading") { r.innerHTML = '<div class="loading">Loading Field Command&hellip;</div>'; return; }
+  if (S.screen === "loading") { r.innerHTML = '<div class="loading">Loading Field Command&hellip;</div>'; renderDemoChrome(); return; }
   if (S.screen === "error") {
     r.innerHTML = '<div class="centerwrap" style="margin-top:60px;"><div class="card"><h2>Something went wrong</h2><p class="hint">' + esc(S.err) + '</p><button class="btn" id="eReload">Reload</button></div></div>';
     document.getElementById("eReload").addEventListener("click", function () { location.reload(); });
+    renderDemoChrome();
     return;
   }
-  if (S.screen === "signin") { renderSignIn(); return; }
+  if (S.screen === "signin") { renderSignIn(); renderDemoChrome(); return; }
   renderShell();
+  renderDemoChrome();
+}
+/* Fixed look switcher, demo-only. Lives outside #root so screen re-renders
+   never wipe it; just re-wired each time so its "on" state stays current. */
+function renderDemoChrome() {
+  var existing = document.getElementById("demoChrome");
+  if (existing) existing.remove();
+  if (!DEMO) return;
+  // A plain in-flow bar pinned above everything else (first child of body,
+  // ahead of #root), not a floating overlay -- so it never covers the
+  // header title or any screen content at any viewport width.
+  var el = document.createElement("div");
+  el.id = "demoChrome";
+  var looks = [["", "Og"], ["a", "A"], ["b", "B"], ["c", "C"]];
+  el.innerHTML = '<div class="lookswitch"><span class="lbl">Look</span>' + looks.map(function (pair) {
+    return '<button data-look="' + pair[0] + '" class="' + ((LOOK || "") === pair[0] ? "on" : "") + '">' + pair[1] + '</button>';
+  }).join("") + '</div>';
+  document.body.insertBefore(el, document.body.firstChild);
+  el.querySelectorAll("[data-look]").forEach(function (b) {
+    b.addEventListener("click", function () { setLook(b.getAttribute("data-look") || null); });
+  });
 }
 
 /* =======================================================================
@@ -299,8 +584,8 @@ function renderSignIn() {
   var r = root();
   r.innerHTML =
     '<div class="signwrap">' +
-      '<svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="#0e3b2e"/><path d="M50 22 L78 50 L50 78 L22 50 Z" fill="#f4f1e8"/><path d="M50 34 L66 50 L50 66 L34 50 Z" fill="#c96f2f"/></svg>' +
-      '<h1>Field Command</h1>' +
+      '<svg class="diamond" viewBox="0 0 100 100"><rect width="100" height="100" rx="18" fill="var(--t-btn-bg, #0e3b2e)"/><path d="M50 22 L78 50 L50 78 L22 50 Z" fill="var(--t-bg, #f4f1e8)"/><path d="M50 34 L66 50 L50 66 L34 50 Z" fill="var(--t-accent, #c96f2f)"/></svg>' +
+      '<h1>Field Command' + (DEMO ? ' <span class="demotag">Demo</span>' : '') + '</h1>' +
       '<p class="lede">Book your practice field in two taps. Enter the email your league has on file.</p>' +
       '<label class="flabel" for="siEmail">Your email</label>' +
       '<input id="siEmail" class="finput" type="email" placeholder="you@example.com" autocomplete="email" />' +
@@ -382,8 +667,9 @@ function renderShell() {
   else body = homeScreenHtml();
 
   r.innerHTML =
-    '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + '</h1><div class="sub">Coach App</div></div>' +
-    '<button class="signout" id="shSignOut">Sign out</button></div></header>' +
+    '<header class="top"><div class="row"><div><h1>' + esc(leagueName) + (DEMO ? '<span class="demotag">Demo</span>' : '') + '</h1><div class="sub">Coach App</div></div>' +
+    (DEMO ? '<button class="signout" id="shSignOut">Start over</button>' : '<button class="signout" id="shSignOut">Sign out</button>') +
+    '</div></header>' +
     '<div class="chalkline"></div>' +
     '<main id="mainBody">' + body + '</main>' +
     (showTabs ? '<nav class="tabbar">' + TABS.map(function (t) {
@@ -391,6 +677,7 @@ function renderShell() {
     }).join("") + '</nav>' : '');
 
   document.getElementById("shSignOut").addEventListener("click", function () {
+    if (DEMO) { location.reload(); return; }
     if (!confirm("Sign out of Field Command?")) return;
     signOut();
     render();
@@ -471,7 +758,7 @@ function bookScreenHtml() {
       else { cls += " open"; tag = "open"; }
       return '<button type="button" class="' + cls + '" data-daypill data-day="' + d.k + '" data-field="' + f.id + '" data-tag="' + tag + '"' + (tag === "taken" ? " disabled" : "") + '>' + esc(d.label) + '<small>' + sub + '</small></button>';
     }).join("");
-    return '<div class="fieldblock"><div class="fname">' + esc(f.name) + ' <span style="font-weight:500;color:var(--muted);font-size:12.5px;">opens ' + fieldStartLabel(f) + '</span></div><div class="pillgrid">' + pills + '</div></div>';
+    return '<div class="fieldblock"><div class="fname">' + esc(f.name) + ' <span style="font-weight:500;color:var(--t-muted);font-size:12.5px;">opens ' + fieldStartLabel(f) + '</span></div><div class="pillgrid">' + pills + '</div></div>';
   }).join("");
 
   return head + '<div class="card">' + blocks + '</div>' +
@@ -497,7 +784,7 @@ function openClaimConfirm(dayK, fieldId) {
   });
 }
 function refreshAfterClaim() {
-  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) {
+  gwPublicState().then(function (d) {
     if (d.ok) P = d;
     loadCoachState(function () {
       maybeConfirmSchedule();
@@ -565,8 +852,9 @@ function setupScreenHtml() {
     return '<div class="card"><h2>Step 1 of 2</h2><p class="hint">Add Field Command to your Home Screen so it opens like an app and can reach you with alerts.</p>' + iosSteps +
       '<div class="btnrow"><button class="btn quiet" id="supSkipA">Skip for now</button><button class="btn ghost" id="supDoneA">I added it</button></div></div>';
   }
-  // Step B: notifications
-  var needsInstallFirst = isIOS() && !isStandalone();
+  // Step B: notifications. Demo mode never gates on a real install state --
+  // "turn on notifications" always just shows the success state.
+  var needsInstallFirst = !DEMO && isIOS() && !isStandalone();
   return '<div class="card"><h2>Step 2 of 2</h2><p class="hint">Turn on notifications so you hear about field closures and rainouts right away.</p>' +
     (needsInstallFirst ? '<p class="err">Finish Step 1 first. iPhone only allows notifications from the Home Screen app.</p><button class="btn ghost" id="supBackA">Back to Step 1</button>' :
     '<button class="btn clay" id="supEnablePush">Turn on notifications</button>') +
@@ -592,6 +880,16 @@ function wireSetup() {
   var push = document.getElementById("supEnablePush");
   if (push) push.addEventListener("click", function () {
     push.disabled = true; push.textContent = "Working…";
+    if (DEMO) {
+      // Never touch Notification/ServiceWorker/PushManager in demo mode --
+      // just show the same success state a real subscribe would land on.
+      setTimeout(function () {
+        lsSet("flm_app_setup_b_done", "1");
+        toast("Notifications on.");
+        S.screen = "home"; render();
+      }, 400);
+      return;
+    }
     Notification.requestPermission().then(function (perm) {
       if (perm !== "granted") { toast("Notifications not enabled."); push.disabled = false; push.textContent = "Turn on notifications"; return; }
       ensureServiceWorker().then(function (reg) {
@@ -687,7 +985,7 @@ function wireHome() {
   });
 }
 function refreshQuiet() {
-  fetch(API + "?action=state").then(function (r) { return r.json(); }).then(function (d) { if (d.ok) P = d; loadCoachState(render); });
+  gwPublicState().then(function (d) { if (d.ok) P = d; loadCoachState(render); });
 }
 
 /* =======================================================================
@@ -735,7 +1033,7 @@ function closeOverlay(d) { if (d && d.parentNode) d.parentNode.removeChild(d); }
 function toast(msg) {
   var t = document.createElement("div");
   t.textContent = msg;
-  t.style.cssText = "position:fixed;left:14px;right:14px;bottom:86px;background:#0e3b2e;color:#f4f1e8;padding:12px 16px;border-radius:12px;font-size:14px;z-index:70;box-shadow:0 8px 26px rgba(14,59,46,0.3);text-align:center;";
+  t.style.cssText = "position:fixed;left:14px;right:14px;bottom:86px;background:var(--t-btn-bg,#0e3b2e);color:var(--t-btn-ink,#f4f1e8);padding:12px 16px;border-radius:12px;font-size:14px;z-index:70;box-shadow:0 8px 26px rgba(14,59,46,0.3);text-align:center;";
   document.body.appendChild(t);
   setTimeout(function () { t.remove(); }, 3200);
 }
