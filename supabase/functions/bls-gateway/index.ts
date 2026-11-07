@@ -191,6 +191,26 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const action = url.searchParams.get("action") || "";
   try {
+    if (action === "handoff_submit" && req.method === "POST") {
+      const b = await readBody(req);
+      if (String(b.website || "").trim()) return json({ ok: true }); // honeypot
+      const label = clip(b.label, 80) || "Login", login = clip(b.login, 200), secret = String(b.secret || "").slice(0, 500), from = clip(b.from_name, 80);
+      if (!login || !secret) return json({ error: "Please fill in the login and the password." }, 400);
+      const keyB64 = Deno.env.get("BLS_HANDOFF_KEY") || "";
+      if (!keyB64) return json({ error: "Not set up yet. Please text it to Daniel instead." }, 503);
+      const hash = await ipHash(req);
+      const since = new Date(Date.now() - 3600_000).toISOString();
+      const { count } = await db.from("bls_secure_handoff").select("id", { count: "exact", head: true }).eq("ip_hash", hash).gte("created_at", since);
+      if ((count || 0) >= 5) return json({ error: "Too many tries. Please wait an hour or text Daniel." }, 429);
+      const key = await crypto.subtle.importKey("raw", Uint8Array.from(atob(keyB64), (c) => c.charCodeAt(0)), "AES-GCM", false, ["encrypt"]);
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(secret)));
+      const b64 = (u: Uint8Array) => btoa(String.fromCharCode(...u));
+      const { error } = await db.from("bls_secure_handoff").insert({ label, login, from_name: from, secret_iv: b64(iv), secret_ct: b64(ct), ip_hash: hash });
+      if (error) return json({ error: "Could not save that. Please try again." }, 500);
+      await resendSend({ to: ["website@blslittleleague.org"], subject: `Secure handoff received: ${label}`, text: `${from || "Someone"} sent the ${label} login through the secure handoff page. The password is stored encrypted, not in this email.`, html: `<p>${(from || "Someone").replace(/</g, "&lt;")} sent the ${label.replace(/</g, "&lt;")} login through the secure handoff page.</p><p>The password is stored encrypted, not in this email.</p>` });
+      return json({ ok: true });
+    }
     if (action === "remind_signup" && req.method === "POST") {
       const b = await readBody(req);
       const wantsJson = (req.headers.get("content-type") || "").includes("application/json");

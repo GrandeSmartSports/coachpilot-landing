@@ -90,6 +90,11 @@
       "source": "/bls/remind",
       "destination": "/bls/remind/",
       "permanent": false
+    },
+    {
+      "source": "/bls/handoff",
+      "destination": "/bls/handoff/",
+      "permanent": false
     }
   ],
   "rewrites": [

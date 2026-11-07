@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Send a league login | Bonney Lake Sumner Little League</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="https://go.blslittleleague.org/bls/assets/bls-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--ink:#1f2326;--mute:#5f6b7a;--line:#c9d2de;--bg:#eef2f6;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.5 Poppins,-apple-system,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:480px;margin:0 auto;padding:28px 16px 48px;}
+  .card{background:#fff;border-radius:18px;border-top:6px solid var(--red);box-shadow:0 10px 30px rgba(0,1,58,.08);padding:24px 20px 26px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand img{width:52px;height:52px;display:block;}
+  .brand span{font:700 11px/1.3 Poppins,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--red);}
+  h1{margin:14px 0 0;font:800 36px/1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--navy);}
+  .lead{margin:10px 0 0;}
+  form{margin:20px 0 0;display:grid;gap:14px;}
+  label{display:block;font:600 13px/1.3 Poppins,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:6px;}
+  input,select{width:100%;height:52px;border:2px solid var(--line);border-radius:12px;padding:0 14px;font:500 17px Poppins,sans-serif;color:var(--ink);background:#fff;}
+  input:focus,select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(20,82,160,.15);}
+  .pw{display:flex;gap:8px}.pw input{flex:1}
+  .pw button{height:52px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:0 14px;font:600 14px Poppins,sans-serif;color:var(--ink)}
+  .go{height:54px;border:0;border-radius:999px;background:var(--red);color:#fff;font:700 17px Poppins,sans-serif;cursor:pointer;}
+  .go[disabled]{opacity:.6}
+  .hp{position:absolute;left:-9999px;top:-9999px;height:1px;width:1px;overflow:hidden;}
+  .msg{margin:16px 0 0;padding:14px 16px;border-radius:14px;font-weight:500;}
+  .ok{background:#e7f4ea;color:#185c2e;border:1px solid #bfe0c8;}
+  .err{background:#fdecef;color:#8a0f2a;border:1px solid #f5c4ce;}
+  .note{margin:16px 0 0;font-size:14px;color:var(--mute);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="brand"><img src="https://go.blslittleleague.org/bls/assets/bls-logo.png" alt=""><span>Bonney Lake Sumner Little League</span></div>
+    <h1>Send a league login</h1>
+    <p class="lead">For Daniel, the league scheduler and website manager. The password is encrypted the moment you send it and never goes into an email or text.</p>
+    <div id="msg" hidden></div>
+    <form id="f" autocomplete="off">
+      <div><label for="label">Which login</label>
+        <select id="label"><option>Little League Data Center</option><option>Google Workspace admin</option><option>FMX</option><option>Sports Connect</option><option>Other</option></select></div>
+      <div><label for="login">Username or email</label><input id="login" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" required></div>
+      <div><label for="secret">Password</label><div class="pw"><input id="secret" type="password" autocomplete="off" required><button type="button" id="show">Show</button></div></div>
+      <div><label for="from">Your name</label><input id="from" type="text" autocomplete="name"></div>
+      <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="go" id="go" type="submit">Send securely</button>
+    </form>
+    <p class="note">You can send more than one. Pick the login, fill it in, send, repeat.</p>
+  </div>
+</div>
+<script>
+const f = document.getElementById("f"), msg = document.getElementById("msg"), go = document.getElementById("go");
+document.getElementById("show").onclick = e => { const s = document.getElementById("secret"); s.type = s.type === "password" ? "text" : "password"; e.target.textContent = s.type === "password" ? "Show" : "Hide"; };
+function say(t, ok){ msg.hidden = false; msg.className = "msg " + (ok ? "ok" : "err"); msg.textContent = t; }
+f.addEventListener("submit", async e => {
+  e.preventDefault(); go.disabled = true;
+  const body = { label: document.getElementById("label").value, login: document.getElementById("login").value.trim(), secret: document.getElementById("secret").value, from_name: document.getElementById("from").value.trim(), website: document.getElementById("website").value };
+  try {
+    const r = await fetch("https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway?action=handoff_submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (r.ok && j.ok) { say("Sent. Daniel has it. Thank you!", true); document.getElementById("login").value = ""; document.getElementById("secret").value = ""; }
+    else say(j.error || "That didn't go through. Please try again.");
+  } catch (_) { say("That didn't go through. Please check your connection and try again."); }
+  go.disabled = false;
+});
+</script>
+</body>
+</html>
