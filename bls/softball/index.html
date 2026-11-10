@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Softball Run Book | Bonney Lake Sumner Little League</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="https://go.blslittleleague.org/bls/assets/bls-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#00013a;--red:#cd163f;--blue:#1452a0;--ink:#1f2326;--mute:#5f6b7a;--line:#c9d2de;--bg:#eef2f6;--gold:#f2b632;--goldbg:#fff6dc;--green:#1f7a3d;--greenbg:#e7f4ea;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font:16px/1.55 Poppins,-apple-system,Helvetica,Arial,sans-serif;}
+  .draft{background:var(--gold);color:var(--navy);text-align:center;font:600 13px/1.4 Poppins,sans-serif;padding:8px 16px;}
+  .hero{background:var(--navy);color:#fff;padding:28px 16px 26px;}
+  .in,.wrap{max-width:720px;margin:0 auto;}
+  .kick{font:700 12px/1.3 Poppins,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#ffb8c6;}
+  h1{margin:10px 0 0;font:800 clamp(40px,11vw,58px)/.95 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;}
+  .hero p{margin:12px 0 0;color:#dbe2f4;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .chips span{border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;}
+  .wrap{padding:0 16px 48px;}
+  .sheet{background:#fff;border-radius:0 0 18px 18px;box-shadow:0 8px 24px rgba(0,1,58,.07);padding:4px 22px 10px;}
+  .card{padding:22px 0;border-top:1px solid #e3e8ef;}
+  .card:first-child{border-top:0;}
+  h2{margin:0 0 10px;font:800 26px/1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--navy);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .tag{font:700 11px/1 Poppins,sans-serif;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:4px 9px;}
+  .rule{background:#e8eef9;color:var(--blue);} .prop{background:var(--goldbg);color:#8a5a00;}
+  p{margin:0 0 10px;} p:last-child{margin-bottom:0;}
+  ul,ol{margin:0;padding-left:20px;display:grid;gap:6px;}
+  li b{color:var(--navy);}
+  .phase{display:grid;gap:0;border-left:3px solid var(--red);margin-left:4px;}
+  .phase div{padding:4px 0 12px 16px;}
+  .phase b{display:block;font:800 18px/1.1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--red);}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media (max-width:560px){.two{grid-template-columns:1fr;}}
+  .box{border-radius:12px;padding:12px 14px;}
+  .low{background:#fdecef;} .high{background:#e8eef9;}
+  .box h3{margin:0 0 6px;font:800 18px/1.1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;}
+  .low h3{color:var(--red);} .high h3{color:var(--blue);}
+  .bar{display:flex;border-radius:10px;overflow:hidden;margin:6px 0 10px;font:600 12px/1.2 Poppins,sans-serif;color:#fff;}
+  .bar span{padding:8px 6px;text-align:center;}
+  .q li{background:var(--goldbg);border-radius:10px;padding:8px 10px;list-style:none;}
+  .q{padding-left:0;}
+  .src{font-size:13px;color:var(--mute);}
+  .bar-edit{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:10px;padding:10px 16px calc(10px + env(safe-area-inset-bottom, 0px));background:rgba(0,1,58,.92);z-index:5;}
+  .bar-edit button{height:44px;padding:0 22px;border-radius:999px;border:2px solid #fff;background:transparent;color:#fff;font:700 15px Poppins,sans-serif;cursor:pointer;}
+  .bar-edit button.main{background:var(--red);border-color:var(--red);}
+  .bar-edit button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .bar-edit .note{color:#dbe2f4;font:500 13px/44px Poppins,sans-serif;}
+  body.editing #doc [contenteditable="true"]{outline:2px dashed #9fb4d8;outline-offset:6px;border-radius:6px;}
+  body{padding-bottom:72px;background:var(--bg);}
+  .tabs{position:sticky;top:env(safe-area-inset-top, 0px);z-index:4;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.18);}
+  .tabs .in{display:flex;gap:6px;overflow-x:auto;padding:8px 16px;}
+  .tabs button{flex:0 0 auto;height:40px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font:600 14px Poppins,sans-serif;cursor:pointer;white-space:nowrap;}
+  .tabs button[aria-selected="true"]{background:#fff;color:var(--navy);border-color:#fff;}
+  .tabs button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .bar-edit a{display:inline-flex;align-items:center;height:44px;padding:0 22px;border-radius:999px;background:var(--red);color:#fff;font:700 15px Poppins,sans-serif;text-decoration:none;}
+  .bar-edit a:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+</style>
+</head>
+<body>
+<div id="doc">
+<div class="draft">Draft for the softball committee. Gold = proposal to discuss. Blue = rule.</div>
+<nav class="tabs" role="tablist" aria-label="Division"><div class="in"><button type="button" role="tab" data-d="minor-b" aria-selected="true">Minor B</button><button type="button" role="tab" data-d="aa" aria-selected="false">AA</button><button type="button" role="tab" data-d="minor-a" aria-selected="false">Minor A</button><button type="button" role="tab" data-d="majors" aria-selected="false">Majors</button><button type="button" role="tab" data-d="juniors" aria-selected="false">Juniors</button></div></nav>
+<div class="division" id="minor-b">
+<header class="hero"><div class="in">
+  <div class="kick">BLS Softball Run Book</div>
+  <h1>Minor B</h1>
+  <p>The first year after T-Ball. A coach pitches, every girl bats every inning, and every girl learns to throw, catch, hit and run the bases.</p>
+  <div class="chips"><span>League age 6 to 8</span><span>10" safety ball</span><span>Coach pitches from 30 to 35 ft</span><span>Up to 10 fielders</span></div>
+</div></header>
+
+<main class="wrap"><div class="sheet">
+  <section class="card">
+    <h2>Purpose <span class="tag prop">Proposal</span></h2>
+    <p>Minor B is where girls fall in love with softball. By the end of the season, every girl can throw to a teammate, catch a soft throw, hit a ball pitched by a coach, and run the bases the right way.</p><p>Scores are not reported in Minor B. The win is a girl who wants to come back next year.</p>
+  </section>
+  <section class="card">
+    <h2>How a Minor B game works <span class="tag rule">District 10 rule</span></h2>
+    <ul><li>A coach from the batting team pitches underhand from 30 to 35 ft. The coach can't field the ball.</li><li>A girl plays the pitcher spot, within 5 ft of the coach, and fields like an infielder.</li><li>Each batter gets 7 pitches. No walks, no strikeouts, no hit by pitch. If she fouls off the 7th pitch, she keeps batting.</li><li>The half inning ends at 3 outs, 5 runs, or when every girl has batted.</li><li>Runners stop when the defense stops the ball. No stealing and no bunting.</li><li>Up to 10 fielders: no more than 6 in the infield, and outfielders at least 10 ft behind the infielders.</li><li>No girl sits on the bench more than one inning in a row. No on-deck batter.</li><li>No new inning after 1 hour 30 minutes. Games run Mar 30 to Jun 1.</li></ul><p class="src" style="margin-top:10px">2025 District 10 Softball Interlock Rules, Minor B. 2027 dates follow when District 10 publishes them.</p>
+  </section>
+  <section class="card">
+    <h2>What Little League says <span class="tag rule">Little League</span></h2>
+    <ul><li>Little League runs one Minor League Softball division for ages 5 to 11. Each local league splits it into levels by age and ability, such as coach pitch and player pitch. Minor B is the BLS coach pitch level.</li><li>The Minors field: 60 ft bases and a 35 ft pitching distance.</li><li>Coach training at this level centers on basic ball handling and batting skills.</li><li>Practices should be short enough to keep players attentive and engaged.</li><li>Little League's stated aim is growing well-rounded kids, not building elite ballplayers.</li></ul><p class="src" style="margin-top:10px">Sources: littleleague.org softball divisions page, field specifications, Regulation VI (softball pitching) and Little League University.</p>
+  </section>
+  <section class="card">
+    <h2>Focus skills <span class="tag prop">Proposal</span></h2>
+    <ol><li><b>Throwing.</b> Grip across the seams, point the glove at the target, step and throw overhand.</li><li><b>Catching a throw.</b> Two hands, glove open, thumbs together above the waist, pinkies together below it.</li><li><b>Fielding a ground ball.</b> Get in front of it, glove down on the ground, then throw.</li><li><b>Hitting.</b> Feet apart, eyes on the ball, a level swing. Off a tee, a soft toss, then a coach pitching.</li><li><b>Running the bases.</b> Drop the bat, run through first, touch every base, and stop when the ball is stopped.</li></ol>
+  </section>
+  <section class="card">
+    <h2>By the end of the season <span class="tag prop">Proposal</span></h2>
+    <ul><li>Every girl can catch a soft throw with two hands.</li><li>Every girl can field a ground ball and throw it to first base.</li><li>Every girl hits the ball on most at-bats against a coach pitching.</li><li>Every girl runs through first base and knows which base comes next.</li><li>Every girl has played both infield and outfield in a game.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Not enough, too much <span class="tag prop">Proposal</span></h2>
+    <div class="two"><div class="box low"><h3>Not enough</h3><ul><li>Girls stand in long lines and touch the ball a few times a practice.</li><li>The same girls play infield every game.</li><li>Practice is mostly batting practice.</li><li>Nobody shows the girls how to hold a glove or where to throw.</li></ul></div><div class="box high"><h3>Too much</h3><ul><li>Teaching game situations the way a Majors team would.</li><li>Long talks while the girls stand still.</li><li>More than 2 team practices a week.</li><li>Fixing every part of a swing at once. Pick one thing.</li></ul></div></div>
+  </section>
+  <section class="card">
+    <h2>A 75-minute practice <span class="tag prop">Proposal</span></h2>
+    <div class="bar"><span style="background:var(--navy);flex:15">Warm up + throw 15</span><span style="background:var(--red);flex:35">Stations 35</span><span style="background:var(--blue);flex:15">Game play 15</span><span style="background:var(--green);flex:10">Fun finish 10</span></div><ul><li><b>Stations:</b> catching, ground balls, hitting off a tee and soft toss. Groups of 3 or 4. Rotate every 11 or 12 minutes.</li><li><b>Game play:</b> running the bases, where to throw after a ground ball.</li><li><b>Fun finish:</b> a relay race or a short scrimmage, so every girl leaves smiling.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Coach's role <span class="tag prop">Proposal</span></h2>
+    <ul><li>Keep every girl moving. Small groups, lots of turns with the ball.</li><li>Praise effort and hustle out loud, by name.</li><li>Tell parents at the first meeting that Minor B is about learning the game and having fun. Scores are not kept for standings.</li></ul>
+  </section>
+  <section class="card">
+    <h2>For the committee to decide </h2>
+    <ul class="q"><li>Practice length and a cap on team practices per week?</li><li>Should every girl play infield at least once per game?</li><li>Should older Minor B girls try the pitching motion at practice to get ready for AA?</li><li>How do we place 8-year-olds between Minor B and AA?</li></ul>
+  </section>
+</div></main>
+</div>
+<div class="division" id="aa" hidden>
+<header class="hero"><div class="in">
+  <div class="kick">BLS Softball Run Book</div>
+  <h1>AA</h1>
+  <p>The bridge from coach pitch to girls pitching. Girls take their first turns at pitcher and catcher, and a coach steps in so every batter still gets pitches to hit.</p>
+  <div class="chips"><span>League age 8 to 10</span><span>Coach pitch to girls pitching</span><span>BLS division</span></div>
+</div></header>
+
+<main class="wrap"><div class="sheet">
+  <section class="card">
+    <h2>Purpose <span class="tag prop">Proposal</span></h2>
+    <p>AA gets a girl ready for Minor A. It is the first time most girls play pitcher and catcher, with a coach there as a safety net. By the end of the season, every girl has batted against a girl pitching and every team has a handful of girls who can pitch to a batter.</p><p>AA is a learning division. Development and playing time come first.</p>
+  </section>
+  <section class="card">
+    <h2>Game rules <span class="tag prop">Proposal</span></h2>
+    <p>BLS has no written softball AA rules yet. The proposal: use the same three phases as BLS baseball AA, so the coach steps out of pitching as the season goes on.</p><ol><li><b>Weeks 1 to 3.</b> No walks. At ball 4, a coach from the batting team finishes the count. No stealing while a coach pitches.</li><li><b>Weeks 4 to 6.</b> Walks count, except with the bases loaded. Then the coach finishes the count.</li><li><b>Week 7 on.</b> No coach pitching. Walks count.</li></ol><ul><li>When a coach pitches, it is at game speed for this age, not lobbed. The girl in the pitcher spot stays near the circle and can field.</li><li>Every girl plays at least 4 defensive innings, at least 1 inning in the infield and 1 in the outfield.</li><li>No girl plays catcher more than 2 innings a game.</li><li>5 runs max per inning, except the last inning. No new inning after 1 hour 45 minutes.</li></ul><p class="src" style="margin-top:10px">Modeled on the 2025 BLS Kid Pitch (AA) baseball rules. Softball pitching distance and ball size for AA are open questions below.</p>
+  </section>
+  <section class="card">
+    <h2>What Little League says <span class="tag rule">Little League</span></h2>
+    <ul><li>Little League runs one Minor League Softball division for ages 5 to 11. Each local league splits it into levels by age and ability, such as coach pitch and player pitch. AA is the BLS step between coach pitch and player pitch.</li><li>By local choice, some 8-year-olds can play up and some 9-year-olds can play down.</li><li>The Minors field: 60 ft bases and a 35 ft pitching distance.</li><li>Little League's own 8 to 10 tournament division uses an 11 inch ball, keeps runners on base until the pitch reaches the batter, and has no dropped third strike.</li><li>Pitching limit for Minors and Majors: a girl can pitch in up to 12 innings a day. One pitch counts as an inning. If she pitches in 7 or more, she rests the next day.</li><li>A pitcher who is taken out can't come back to pitch in the same game.</li><li>Little League's stated aim is growing well-rounded kids, not building elite ballplayers.</li></ul><p class="src" style="margin-top:10px">Sources: littleleague.org softball divisions page, field specifications, Regulation VI (softball pitching) and Little League University. 8 to 10 rules from the 2026 Softball Tournament Playing Rules.</p>
+  </section>
+  <section class="card">
+    <h2>Focus skills <span class="tag prop">Proposal</span></h2>
+    <ol><li><b>Pitcher (first time).</b> The windmill motion: grip, stride, arm circle, follow-through. The only goal is throwing strikes.</li><li><b>Catcher (first time).</b> Putting the gear on, getting set behind the plate, catching pitches, throwing the ball back to the pitcher.</li><li><b>Throwing and fielding (every girl).</b> Ground balls, an overhand throw to first, and knowing where the force out is.</li><li><b>Hitting.</b> Swinging at strikes, first against a coach and then against a girl pitching.</li><li><b>Running the bases.</b> Running through first, knowing when to run and when to stop.</li></ol>
+  </section>
+  <section class="card">
+    <h2>By the end of the season <span class="tag prop">Proposal</span></h2>
+    <ul><li>Every girl has tried the pitching motion at practice.</li><li>Every team has at least 4 girls who can pitch to a batter in a game.</li><li>Every team has at least 3 girls who have played catcher in a game.</li><li>Every girl can field a ground ball and throw it to first.</li><li>Every girl has batted against a girl pitching.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Not enough, too much <span class="tag prop">Proposal</span></h2>
+    <div class="two"><div class="box low"><h3>Not enough</h3><ul><li>Only one girl ever tries pitcher.</li><li>Catchers never practice catching pitches with their gear on.</li><li>Practice is mostly batting practice.</li><li>Coaches lob the ball when they pitch in games.</li></ul></div><div class="box high"><h3>Too much</h3><ul><li>Asking a pitcher for speed before she can throw strikes.</li><li>One girl pitching for most of a practice.</li><li>More than 3 team practices a week.</li><li>Coaching every pitch from the dugout during games.</li></ul></div></div>
+  </section>
+  <section class="card">
+    <h2>A 90-minute practice <span class="tag prop">Proposal</span></h2>
+    <div class="bar"><span style="background:var(--navy);flex:15">Warm up + throw 15</span><span style="background:var(--red);flex:40">Stations 40</span><span style="background:var(--blue);flex:20">Team defense 20</span><span style="background:var(--green);flex:15">Run 15</span></div><ul><li><b>Stations:</b> pitchers and catchers working together (any girl who wants a turn), ground balls, hitting off a coach or a machine.</li><li><b>Team defense:</b> force outs and throws to first.</li><li><b>Running:</b> running through first, rounding a base, stopping.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Coach's role <span class="tag prop">Proposal</span></h2>
+    <ul><li>Give every girl who wants it a turn at pitcher and catcher in practice.</li><li>Plan who plays pitcher and catcher each game, and tell each girl why she plays where she plays.</li><li>Tell parents at the first meeting that walks and errors are part of AA, and the season gets harder in steps on purpose.</li></ul>
+  </section>
+  <section class="card">
+    <h2>For the committee to decide </h2>
+    <ul class="q"><li>Adopt written softball AA rules, using the three phases above?</li><li>Pitching distance: Little League's Minors distance is 35 ft. Use it all season in AA, or start shorter?</li><li>Ball size: Little League uses an 11 inch ball for ages 8 to 10. Confirm it for AA?</li><li>Standings and playoffs, or developmental only like baseball AA?</li><li>Should every girl try pitcher at least once in practice?</li></ul>
+  </section>
+</div></main>
+</div>
+<div class="division" id="minor-a" hidden>
+<header class="hero"><div class="in">
+  <div class="kick">BLS Softball Run Book</div>
+  <h1>Minor A</h1>
+  <p>The first year the girls pitch to each other. Every girl learns to play the game the way it is played from here up.</p>
+  <div class="chips"><span>Mostly league age 9 and 10</span><span>11" ball</span><span>35 ft pitching</span><span>60 ft bases</span></div>
+</div></header>
+
+<main class="wrap"><div class="sheet">
+  <section class="card">
+    <h2>Purpose <span class="tag prop">Proposal</span></h2>
+    <p>Minor A is where a girl becomes a softball player. By the end of the season, every girl can throw, catch, field and hit in a game where a girl is pitching. Every team also finishes with more girls who can play pitcher and catcher than it started with.</p>
+    <p>Winning matters because the girls care about it. It never comes ahead of development or playing time.</p>
+  </section>
+
+  <section class="card">
+    <h2>Pitching phases <span class="tag rule">District 10 rule</span></h2>
+    <p>The season runs in phases to help pitchers develop. In each phase, the coach steps in to pitch a little less.</p>
+    <div class="phase">
+      <div><b>Start of season to Apr 13</b>No walks. At ball 4 the coach steps in and finishes the count. Focus: pitchers throwing strikes without fear, batters swinging.</div>
+      <div><b>Apr 15 to May 5</b>Walks count. The coach steps in only when the bases are loaded and the pitcher throws ball 4. Focus: pitchers working out of trouble, batters learning the strike zone.</div>
+      <div><b>From May 6</b>No coach pitch. Real softball. Focus: everything together.</div>
+    </div>
+    <p class="src" style="margin-top:10px">2025 District 10 Softball Interlock Rules, Minor A. 2027 dates follow when District 10 publishes them.</p>
+  </section>
+
+  <section class="card">
+    <h2>What Little League says <span class="tag rule">Little League</span></h2>
+    <ul><li>Little League runs one Minor League Softball division for ages 5 to 11. Each local league splits it into levels by age and ability, such as coach pitch and player pitch. Minor A is the top BLS level of Minors, where the girls pitch.</li><li>The Minors field: 60 ft bases and a 35 ft pitching distance.</li><li>Pitching limit for Minors and Majors: a girl can pitch in up to 12 innings a day. One pitch counts as an inning. If she pitches in 7 or more, she rests the next day.</li><li>A pitcher who is taken out can't come back to pitch in the same game.</li><li>A league age 12 player can't pitch in Minors.</li><li>Little League's regular season minimum is 6 defensive outs and 1 at-bat for every player, every game.</li><li>Little League's stated aim is growing well-rounded kids, not building elite ballplayers.</li></ul><p class="src" style="margin-top:10px">Sources: littleleague.org softball divisions page, field specifications, Regulation VI (softball pitching) and Little League University.</p>
+  </section>
+  <section class="card">
+    <h2>Focus skills <span class="tag prop">Proposal</span></h2>
+    <ol>
+      <li><b>Pitcher.</b> The windmill motion: grip, stride, arm circle, follow-through. The only goal is throwing strikes.</li>
+      <li><b>Catcher.</b> Getting set behind the plate, catching pitches, blocking balls in the dirt, throwing the ball back to the pitcher.</li>
+      <li><b>Throwing and fielding (every girl).</b> Ready position, ground balls, an overhand throw to first, knowing where the force out is.</li>
+      <li><b>Hitting against a girl pitching.</b> Stance, load, level swing, watching the ball, and knowing when to take a walk.</li>
+      <li><b>Running the bases.</b> Leave when the ball reaches the batter, steal second, run through first.</li>
+    </ol>
+  </section>
+
+  <section class="card">
+    <h2>By the end of the season <span class="tag prop">Proposal</span></h2>
+    <ul>
+      <li>Every girl can make a routine throw from shortstop to first.</li>
+      <li>Every girl knows where the force out is before the pitch.</li>
+      <li>Every girl has batted against a girl pitching, not just a coach.</li>
+      <li>Every team has at least 3 girls who can play pitcher for a full inning.</li>
+      <li>Every team has at least 2 girls who can play catcher for a full inning.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Not enough, too much <span class="tag prop">Proposal</span></h2>
+    <div class="two">
+      <div class="box low"><h3>Not enough</h3><ul>
+        <li>The same 1 or 2 girls pitch every inning of every game.</li>
+        <li>A girl who wants to try pitcher or catcher never gets the chance.</li>
+        <li>Practice is mostly batting practice.</li>
+        <li>No time spent on throwing to first.</li>
+        <li>Girls stand in the outfield all season.</li>
+      </ul></div>
+      <div class="box high"><h3>Too much</h3><ul>
+        <li>Asking a pitcher for speed before she can throw strikes.</li>
+        <li>Fixing everything in a pitcher's motion at once. Pick one thing.</li>
+        <li>More than 3 team practices a week.</li>
+        <li>Coaching every pitch from the dugout during games.</li>
+        <li>A girl pitching more innings than the rules allow.</li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>A 90-minute practice <span class="tag prop">Proposal</span></h2>
+    <div class="bar"><span style="background:var(--navy);flex:15">Warm up + throw 15</span><span style="background:var(--red);flex:40">Stations 40</span><span style="background:var(--blue);flex:20">Team defense 20</span><span style="background:var(--green);flex:15">Run 15</span></div>
+    <ul>
+      <li><b>Stations:</b> pitchers and catchers working together, infield ground balls, hitting off a pitcher or a machine. Rotate every 13 minutes.</li>
+      <li><b>Team defense:</b> force outs, cutoffs, covering bases.</li>
+      <li><b>Running:</b> leaving on the pitch, stealing second, rundowns.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Game rules that change coaching <span class="tag rule">Rule</span></h2>
+    <ul>
+      <li>3 outs or 10 batters per inning, 5 runs max, including the last inning.</li>
+      <li>Continuous batting order. Every girl plays at least 6 defensive outs.</li>
+      <li>No new inning after 1 hour 45 minutes.</li>
+      <li>No dropped third strike. No stealing while the coach is pitching.</li>
+      <li>Runners leave only when the pitch reaches the batter.</li>
+      <li>Pitching is limited by innings: 12 per day max, and 7 or more needs a day of rest.</li>
+    </ul>
+    <p class="src" style="margin-top:10px">District 10 Softball Interlock Rules (2025) and the Little League Softball rule book.</p>
+  </section>
+
+  <section class="card">
+    <h2>Coach's role <span class="tag prop">Proposal</span></h2>
+    <ul>
+      <li>Teach one thing at a time and let the girls play the game.</li>
+      <li>Plan who plays pitcher and catcher each game, and tell each girl why she plays where she plays.</li>
+      <li>Tell parents at the first meeting: walks and errors are part of Minor A, and the coach steps out of pitching in phases on purpose.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>For the committee to decide</h2>
+    <ul class="q">
+      <li>Do we want a minimum number of pitchers per team (3?) and catchers (2?)</li>
+      <li>Should every girl try playing catcher at least once, or only volunteers?</li>
+      <li>Playing time beyond the 6-out minimum. BLS baseball AA requires an inning in the infield and outfield. Do we want the same?</li>
+      <li>A cap on team practices per week?</li>
+      <li>Do we keep standings and playoffs in Minor A, or call it developmental like baseball AA?</li>
+      <li>Pitching at home: do we recommend a weekly pitch limit for practice?</li>
+    </ul>
+  </section>
+</div></main>
+</div>
+<div class="division" id="majors" hidden>
+<header class="hero"><div class="in">
+  <div class="kick">BLS Softball Run Book</div>
+  <h1>Majors</h1>
+  <p>The full game of Little League softball. Girls pitch from 40 feet, runners can leave when the pitch is released, and the dropped third strike is in play.</p>
+  <div class="chips"><span>League age 11 and 12</span><span>12" ball</span><span>40 ft pitching</span><span>All-Stars age</span></div>
+</div></header>
+
+<main class="wrap"><div class="sheet">
+  <section class="card">
+    <h2>Purpose <span class="tag prop">Proposal</span></h2>
+    <p>Majors is where girls play the full game and learn to play as a team: knowing the situation, talking on defense, and sharing the pitching. Every girl should finish the season better at a position she can play in Juniors.</p><p>Winning is part of Majors. Every girl still plays, and no girl's arm is risked to win a game.</p>
+  </section>
+  <section class="card">
+    <h2>Game rules that change coaching <span class="tag rule">Rule</span></h2>
+    <ul><li>Every girl plays at least 6 defensive outs. Continuous batting order.</li><li>Runners can leave the base when the pitcher releases the ball.</li><li>The dropped third strike is in play.</li><li>Courtesy runner for the pitcher or catcher when there are 2 outs.</li><li>A girl can pitch in up to 12 innings a day. One pitch counts as an inning. 7 or more innings means a day of rest.</li><li>Up to 3 coaches on the field. A team can play with 8, but the 9th spot in the order is an out.</li><li>No new inning after 2 hours 30 minutes. Weekday games start at 6:00 pm.</li></ul><p class="src" style="margin-top:10px">2025 District 10 Softball Interlock Rules, Majors, and the Little League Softball rule book.</p>
+  </section>
+  <section class="card">
+    <h2>What Little League says <span class="tag rule">Little League</span></h2>
+    <ul><li>Little League Softball (the Major Division) is for ages 9 to 12. A local league may limit it to 11 and 12, as BLS does. A league has only one Major Division.</li><li>All-Stars for ages 10 to 12 come from this age group and can enter the Little League International Tournament.</li><li>60 ft bases, 40 ft pitching distance, 12 inch ball.</li><li>Games are 6 innings. A game ends early at a 15 run lead after 3 innings or a 10 run lead after 4.</li><li>Pitching limit for Minors and Majors: a girl can pitch in up to 12 innings a day. One pitch counts as an inning. If she pitches in 7 or more, she rests the next day.</li><li>A pitcher who is taken out can't come back to pitch in the same game.</li><li>Runners can leave on the release of the pitch, and the dropped third strike is in play.</li><li>Little League's regular season minimum is 6 defensive outs and 1 at-bat for every player, every game.</li><li>No head-first slides while advancing, no metal cleats, and no on-deck batter.</li></ul><p class="src" style="margin-top:10px">Sources: littleleague.org softball divisions page, field specifications, Regulation VI (softball pitching) and Little League University. Game rules from the 2026 Little League Softball rules comparison.</p>
+  </section>
+  <section class="card">
+    <h2>Focus skills <span class="tag prop">Proposal</span></h2>
+    <ol><li><b>Pitcher.</b> Strikes with the fastball first, then a change-up as the second pitch.</li><li><b>Catcher.</b> Blocking balls in the dirt, throwing to second on a steal, covering home.</li><li><b>Team defense.</b> Bunt coverage, covering bases on a steal, cutoffs and relays, the dropped third strike.</li><li><b>Hitting.</b> A plan for each count, and a sacrifice bunt.</li><li><b>Running the bases.</b> Leaving on the release, stealing, running on a dropped third strike.</li></ol>
+  </section>
+  <section class="card">
+    <h2>By the end of the season <span class="tag prop">Proposal</span></h2>
+    <ul><li>Every team has at least 3 girls who can pitch 2 innings for strikes.</li><li>Every girl knows her job on a bunt and on a steal.</li><li>Every girl can put down a sacrifice bunt.</li><li>Every catcher can throw to second base.</li><li>Every girl has played a position she could play in Juniors.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Not enough, too much <span class="tag prop">Proposal</span></h2>
+    <div class="two"><div class="box low"><h3>Not enough</h3><ul><li>One girl pitches most of the innings all season.</li><li>No practice time on bunt coverage or steals.</li><li>Girls play the same single position all season.</li><li>The strongest 9 play all game and the rest get the bare minimum every time.</li></ul></div><div class="box high"><h3>Too much</h3><ul><li>Pitching a girl right up to the daily innings limit.</li><li>Adding pitches before her fastball and change-up are strikes.</li><li>More than 3 team practices a week.</li><li>Coaching every pitch from the dugout during games.</li></ul></div></div>
+  </section>
+  <section class="card">
+    <h2>A 90-minute practice <span class="tag prop">Proposal</span></h2>
+    <div class="bar"><span style="background:var(--navy);flex:15">Warm up + throw 15</span><span style="background:var(--red);flex:30">Positions 30</span><span style="background:var(--blue);flex:25">Team defense 25</span><span style="background:var(--green);flex:20">Live hitting 20</span></div><ul><li><b>Positions:</b> pitchers and catchers together, infield and outfield work.</li><li><b>Team defense:</b> bunts, steals, cutoffs, the dropped third strike.</li><li><b>Live hitting:</b> against your own pitchers, with runners on base.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Coach's role <span class="tag prop">Proposal</span></h2>
+    <ul><li>Track every girl's innings pitched and build at least 3 pitchers.</li><li>Teach the why behind each play so girls make their own decisions.</li><li>Tell parents at the first meeting how playing time and pitching will work, before the first close game.</li></ul>
+  </section>
+  <section class="card">
+    <h2>For the committee to decide </h2>
+    <ul class="q"><li>A BLS limit on innings per game for a pitcher, below the rule book?</li><li>Playing time beyond the 6-out minimum?</li><li>A cap on team practices per week?</li><li>How many pitchers should each team have by season's end?</li></ul>
+  </section>
+</div></main>
+</div>
+<div class="division" id="juniors" hidden>
+<header class="hero"><div class="in">
+  <div class="kick">BLS Softball Run Book</div>
+  <h1>Juniors</h1>
+  <p>The step to middle school and high school softball. Girls pitch from 43 feet and play the full game against teams from across the district.</p>
+  <div class="chips"><span>League age 13 and 14</span><span>12" ball</span><span>43 ft pitching</span></div>
+</div></header>
+
+<main class="wrap"><div class="sheet">
+  <section class="card">
+    <h2>Purpose <span class="tag prop">Proposal</span></h2>
+    <p>Juniors keeps girls playing softball through middle school and gets them ready for high school softball. BLS had 26 Juniors players on 2 teams last spring, so keeping every girl coming back matters as much as winning.</p><p>These girls are the role models for every younger division.</p>
+  </section>
+  <section class="card">
+    <h2>Game rules that change coaching <span class="tag rule">Rule</span></h2>
+    <ul><li>Every girl plays at least 6 defensive outs. Continuous batting order.</li><li>Courtesy runner for the pitcher or catcher when there are 2 outs.</li><li>Little League sets no pitching limit in Juniors. The coach manages each pitcher's innings.</li><li>Up to 3 coaches on the field. A team can play with 8, but the 9th spot in the order is an out.</li><li>No new inning after 2 hours 30 minutes. Weekday games start at 6:00 pm.</li></ul><p class="src" style="margin-top:10px">2025 District 10 Softball Interlock Rules, Juniors, and the Little League Softball rule book.</p>
+  </section>
+  <section class="card">
+    <h2>What Little League says <span class="tag rule">Little League</span></h2>
+    <ul><li>Junior League Softball is for ages 12 to 14.</li><li>60 ft bases, 43 ft pitching distance, 12 inch ball.</li><li>Games are 7 innings. A game ends early at a 15 run lead after 4 innings or a 10 run lead after 5.</li><li>Little League sets no pitching limit in Juniors. A local league or district may add its own.</li><li>Runners can leave on the release of the pitch, and the dropped third strike is in play.</li><li>Head-first slides, metal cleats and an on-deck batter are all allowed.</li><li>A pitcher who is taken out can come back to pitch later in the game.</li><li>Little League's regular season minimum is 6 defensive outs and 1 at-bat for every player, every game.</li></ul><p class="src" style="margin-top:10px">Sources: littleleague.org softball divisions page, field specifications, Regulation VI (softball pitching) and Little League University. Game rules from the 2026 Little League Softball rules comparison.</p>
+  </section>
+  <section class="card">
+    <h2>Focus skills <span class="tag prop">Proposal</span></h2>
+    <ol><li><b>Pitcher.</b> Command of 2 pitches from 43 ft, and pitching to a plan.</li><li><b>Catcher.</b> Blocking, throwing out runners, and leading the defense.</li><li><b>Team defense.</b> Every situation: bunts, first-and-third, relays, pickoffs.</li><li><b>Hitting.</b> Adjusting to faster pitching, hitting behind runners, bunting and slapping.</li><li><b>Playing more than one position.</b> High school coaches value girls who can play two.</li></ol>
+  </section>
+  <section class="card">
+    <h2>By the end of the season <span class="tag prop">Proposal</span></h2>
+    <ul><li>Every girl can play at least 2 positions.</li><li>Every team has at least 3 girls who can pitch from 43 ft for strikes.</li><li>Every girl knows her job in every common situation.</li><li>Every girl wants to play again next year.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Not enough, too much <span class="tag prop">Proposal</span></h2>
+    <div class="two"><div class="box low"><h3>Not enough</h3><ul><li>Girls play only one position.</li><li>Practices have no plan, just batting practice.</li><li>Older girls are never asked to lead.</li></ul></div><div class="box high"><h3>Too much</h3><ul><li>Pitching a girl in league games the same weekend as travel ball without checking her total innings.</li><li>More than 3 team practices a week.</li><li>Coaching every pitch from the dugout during games.</li></ul></div></div>
+  </section>
+  <section class="card">
+    <h2>A 90-minute practice <span class="tag prop">Proposal</span></h2>
+    <div class="bar"><span style="background:var(--navy);flex:15">Warm up + throw 15</span><span style="background:var(--red);flex:25">Positions 25</span><span style="background:var(--blue);flex:30">Team defense 30</span><span style="background:var(--green);flex:20">Live hitting 20</span></div><ul><li><b>Positions:</b> each girl works a second position.</li><li><b>Team defense:</b> situations at game speed.</li><li><b>Live hitting:</b> against your own pitchers, with a count and runners on base.</li></ul>
+  </section>
+  <section class="card">
+    <h2>Coach's role <span class="tag prop">Proposal</span></h2>
+    <ul><li>Treat the girls like the older players they are. Ask for their input.</li><li>Check in with families about travel ball and school schedules, so no girl is overused.</li><li>Tell parents at the first meeting how playing time and pitching will work.</li></ul>
+  </section>
+  <section class="card">
+    <h2>For the committee to decide </h2>
+    <ul class="q"><li>How do we keep enough girls for Juniors teams next spring?</li><li>Should Juniors girls help at a Minor B or AA practice once a season?</li><li>A cap on team practices per week?</li><li>Little League sets no pitching limit in Juniors. Should BLS set one, especially for girls who also play travel ball?</li></ul>
+  </section>
+</div></main>
+</div>
+</div>
+<div class="bar-edit"><a id="pdf" href="sheets/minor-b.pdf" target="_blank" rel="noopener">Coach sheet PDF</a></div>
+<script>
+(() => {
+  const doc = document.getElementById("doc"), pdf = document.getElementById("pdf");
+  const show = key => {
+    if (!doc.querySelector('.division[id="' + key + '"]')) return;
+    doc.querySelectorAll(".division").forEach(d => { d.hidden = d.id !== key; });
+    doc.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.d === key)));
+    pdf.href = "sheets/" + key + ".pdf";
+  };
+  doc.addEventListener("click", e => {
+    const b = e.target.closest(".tabs button");
+    if (!b) return;
+    show(b.dataset.d); window.scrollTo(0, 0);
+    try { history.replaceState(null, "", "#" + b.dataset.d); } catch (err) {}
+  });
+  const fromHash = () => { const k = location.hash.slice(1); if (k) show(k); };
+  window.addEventListener("hashchange", fromHash); fromHash();
+})();
+</script>
+</body>
+</html>
