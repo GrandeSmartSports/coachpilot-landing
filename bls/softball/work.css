@@ -1,0 +1,27 @@
+/* Working copy of the run book: loaded only from the working link. */
+.wk-top{background:var(--goldbg);color:var(--navy);font:600 13px/1.4 Poppins,sans-serif;padding:8px 16px;display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;text-align:center;}
+.wk-top button,.wk button{font:600 13px Poppins,sans-serif;color:var(--blue);background:none;border:0;padding:6px 2px;text-decoration:underline;cursor:pointer;}
+.wk-last{font:500 12px/1.4 Poppins,sans-serif;color:#dbe2f4;margin-top:12px;}
+.wk{font:400 14px/1.45 Poppins,sans-serif;margin-top:12px;}
+.wk-note{background:var(--goldbg);border-left:4px solid var(--gold);border-radius:8px;padding:8px 12px;margin:0 0 8px;}
+.wk-note .who{font-weight:600;color:var(--navy);font-size:12px;}
+.wk-note .txt{white-space:pre-wrap;overflow-wrap:anywhere;}
+.wk-note.done{background:#f1f3f6;border-left-color:var(--line);color:var(--mute);}
+.wk details{margin:0 0 8px;} .wk summary{cursor:pointer;color:var(--mute);font-size:13px;}
+.wk textarea,.wk-name input{width:100%;font:400 16px/1.4 Poppins,sans-serif;border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink);background:#fff;}
+.wk textarea{min-height:84px;display:block;}
+.wk .row{display:flex;gap:14px;align-items:center;margin-top:4px;}
+.wk .go,.wk-name .go{height:40px;padding:0 18px;border-radius:999px;border:0;background:var(--navy);color:#fff;font:700 14px Poppins,sans-serif;text-decoration:none;cursor:pointer;}
+.wk-general{padding:18px 0 4px;}
+.wk-general h3{margin:0 0 8px;font:800 18px/1.1 'Barlow Condensed','Arial Narrow',Arial,sans-serif;text-transform:uppercase;color:var(--navy);}
+.wk-name{position:fixed;inset:0;background:rgba(0,1,58,.6);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;}
+.wk-name form{background:#fff;border-radius:16px;padding:20px;width:100%;max-width:360px;display:grid;gap:12px;font:600 16px Poppins,sans-serif;color:var(--navy);}
+body.editing .wk,body.editing .tabs{display:none;}
+body.editing [contenteditable="true"]{outline:2px dashed #9fb4d8;outline-offset:6px;border-radius:6px;}
+.bar-edit{flex-wrap:wrap;}
+.bar-edit button{padding:0 16px;}
+.bar-edit .msg{flex-basis:100%;text-align:center;color:#fff;font:500 13px/1.4 Poppins,sans-serif;}
+mark,.hl{background:#fff3a3;}
+.bar-edit a[hidden]{display:none;}
+body.editing .bar-edit{gap:5px;padding-left:8px;padding-right:8px;}
+body.editing .bar-edit button{height:40px;padding:0 10px;font-size:13px;border-width:1.5px;}
