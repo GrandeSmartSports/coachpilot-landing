@@ -154,9 +154,22 @@ async function gmailSend(msg: Record<string, unknown>): Promise<{ ok: boolean; i
   const j = await res.json().catch(() => ({}));
   return { ok: true, id: j?.id };
 }
+// Coach 11/11: league mail goes out from CoachPilot (noreply@coachpilot.org via Resend) until the league domain has
+// SPF and DKIM. Replies still land in the league inbox through Reply-To. Gmail as website@ stays only as a fallback.
+const RESEND_KEY = Deno.env.get("RESEND_API_KEY") || "";
+const CP_FROM = "BLS Little League <noreply@coachpilot.org>";
+async function cpSend(to: string[], subject: string, text: string, html: string, headers?: Record<string, string>): Promise<{ ok: boolean; id?: string }> {
+  if (!RESEND_KEY) return { ok: false };
+  const body: Record<string, unknown> = { from: CP_FROM, to, reply_to: BLS_REPLY_TO, subject, text, html };
+  if (headers && Object.keys(headers).length) body.headers = headers;
+  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${RESEND_KEY}` }, body: JSON.stringify(body) }).catch(() => null);
+  if (!res || !res.ok) return { ok: false };
+  const j = await res.json().catch(() => ({}));
+  return { ok: true, id: j?.id };
+}
 async function resendSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
-  // BLS mail only leaves through website@ (Coach 11/5): no outside-domain fallback
-  return await gmailSend(msg);
+  const r = await cpSend(msg.to as string[], String(msg.subject || ""), String(msg.text || ""), String(msg.html || ""), msg.headers as Record<string, string> | undefined);
+  return r.ok ? r : await gmailSend(msg);
 }
 function unsubUrl(token: string) { return `${GW}?action=remind_unsub&t=${encodeURIComponent(token)}`; }
 function confirmMsg(to: string, token: string) {
