@@ -15,6 +15,8 @@ ok(/Friday, November 27/.test(text) && /Registration windows/.test(text) && (bod
 ok(/href="https:\/\/www\.blslittleleague\.org\/Default\.aspx\?tabid=716841">Registration info/.test(body), "Registration info link kept");
 ok(!/nothing else/i.test(text) && !/remove link/i.test(text) && !/Questions\?/i.test(text), "no fine print under the form");
 ok(!/class="foot"/.test(body) && !/mailto:/.test(body), "footer note and its email link are gone");
+ok(!/one message|one email|one-time|one reminder/i.test(html), "no wording that limits the list to a single email");
+ok(/we'll email you that morning/.test(text), "intro says we will email that morning");
 ok(/noindex/.test(html), "page stays out of search results");
 
 console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

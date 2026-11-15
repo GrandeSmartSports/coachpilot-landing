@@ -185,9 +185,9 @@ function reminderMsg(to: string, token: string) {
   const u = unsubUrl(token);
   return {
     to: [to], subject: "BLS registration is open today", headers: { "List-Unsubscribe": `<${u}>` },
-    text: `Spring 2027 registration for Bonney Lake Sumner Little League opens today.\n\nBlack Friday sale through Sunday, Nov 29: $50 off per family.\n\nRegister: ${REGISTER_URL}\nRegistration info: ${REG_INFO_URL}\n\nYou asked for this one-time reminder. Remove your email: ${u}`,
+    text: `Spring 2027 registration for Bonney Lake Sumner Little League opens today.\n\nBlack Friday sale through Sunday, Nov 29: $50 off per family.\n\nRegister: ${REGISTER_URL}\nRegistration info: ${REG_INFO_URL}\n\nYou asked for this reminder. Remove your email: ${u}`,
     html: blsEmail("Registration is open today", `Spring 2027 registration for Bonney Lake Sumner Little League opens today.<br><br><b>Black Friday sale through Sunday, Nov 29: $50 off per family.</b>`,
-      "Register now", REGISTER_URL, `You asked for this one-time reminder. <a href="${REG_INFO_URL}" style="color:#1452a0">Registration info</a> &middot; <a href="${u}" style="color:#1452a0">Remove your email</a>`),
+      "Register now", REGISTER_URL, `You asked for this reminder. <a href="${REG_INFO_URL}" style="color:#1452a0">Registration info</a> &middot; <a href="${u}" style="color:#1452a0">Remove your email</a>`),
   };
 }
 async function readBody(req: Request): Promise<Record<string, string>> {
