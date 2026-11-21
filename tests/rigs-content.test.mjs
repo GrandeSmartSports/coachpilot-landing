@@ -155,5 +155,33 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   }
 }
 
+// --- the rod course (Layer 1) --------------------------------------------
+// Coach asked to be taught what the numbers mean, not just told what to buy.
+// These five are the course, and they live in Fundamentals because they are
+// true of every rod on every shelf. The "no fundamentals card names a
+// species" check above is what keeps them that way.
+{
+  const ids = ["rod-length", "rod-power", "rod-action", "rod-line-rating", "rod-reading-the-blank"];
+  for (const id of ids) {
+    const c = byId.get(id);
+    ok(!!c, `${id} exists`);
+    if (c) ok(c.group === "fundamental", `${id} is a fundamental`, c.group);
+  }
+  const power = byId.get("rod-power");
+  if (power) ok(/ultra\s*light|medium heavy/i.test(power.body),
+    "rod-power names the actual rating words found on a blank");
+  const action = byId.get("rod-action");
+  if (action) ok(/where/i.test(action.body),
+    "rod-action explains that action is WHERE the rod bends, not how much");
+  const blank = byId.get("rod-reading-the-blank");
+  if (blank) ok(/above the handle|handle/i.test(blank.body),
+    "rod-reading-the-blank says where on the rod to look");
+
+  // The gear card must point at the course rather than restating it.
+  const gear = byId.get("squid-gear");
+  if (gear) ok(ids.some((id) => gear.body.includes(id)),
+    "squid-gear links into the rod course instead of repeating it");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

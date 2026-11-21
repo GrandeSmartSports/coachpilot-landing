@@ -87,6 +87,23 @@ try {
   ok(await page.locator('[data-card="redondo-access"]').count() === 1,
     "a deep link restores straight to the species view");
 
+  // --- the rod course -----------------------------------------------------
+  // Fundamentals live on the home screen under Learn, and a species card
+  // links into them rather than restating what power or action mean.
+  await page.goto(base, { waitUntil: "load" });
+  const learn = await page.locator('[data-group="fundamental"] [data-card]').evaluateAll((els) =>
+    els.map((e) => e.dataset.card));
+  ok(learn.includes("rod-power") && learn.includes("rod-action"),
+    "the rod course renders under Learn on the home screen", JSON.stringify(learn));
+
+  await page.goto(base + "#/learn/rod-action", { waitUntil: "load" });
+  await page.waitForSelector('[data-card="rod-action"]');
+  const onScreen = await page.locator('[data-card="rod-action"]').evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return r.top >= -4 && r.top < window.innerHeight;
+  });
+  ok(onScreen, "a #/learn/ link scrolls that course card into view");
+
   // --- back to the picker -------------------------------------------------
   await page.goto(base, { waitUntil: "load" });
   ok(await page.locator("[data-view=home]").isVisible(), "the bare url lands on the species picker");

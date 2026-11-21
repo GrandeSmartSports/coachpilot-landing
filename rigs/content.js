@@ -24,7 +24,100 @@
   var RIG = (window.RIG = window.RIG || {});
 
   RIG.content = {
-    fundamentals: [],
+    // Layer 1. True of every rod on every shelf, which is why none of these
+    // may name a fish. A species card links in here rather than restating it.
+    fundamentals: [
+      {
+        id: "rod-length",
+        group: "fundamental",
+        title: "Length: what it actually buys",
+        body:
+          '<p class="when">Measured butt to tip, in feet. The first number on the blank.</p>' +
+          '<div class="box"><b>longer gets you</b>' +
+            "<strong>Line control.</strong> More rod above the water means you can hold line off the surface, steer it around an obstacle, and keep a straight line to whatever is on the end. This is the big one and almost nobody mentions it.<br><br>" +
+            "<strong>Reach.</strong> Over a rail, around a piling, past the rocks at your feet.<br><br>" +
+            "<strong>Distance.</strong> A longer lever throws further for the same effort.</div>" +
+          '<div class="box"><b>longer costs you</b>' +
+            "Weight in your hand over a long session, accuracy on a short precise cast, and a lot of awkwardness anywhere with branches, a low ceiling, or people standing close.</div>" +
+          '<div class="box tip"><b>the mistake to avoid</b>' +
+            "Buying length for casting distance when you actually need it for line control. If you are fishing straight down off a structure you are not casting anywhere, and the length is still the right call. Work out which one you are buying.</div>"
+      },
+      {
+        id: "rod-power",
+        group: "fundamental",
+        title: "Power: how hard it is to bend",
+        body:
+          '<p class="when">Printed as a word. From softest to stiffest, the usual ladder runs Ultra Light, Light, Medium Light, Medium, Medium Heavy, Heavy.</p>' +
+          '<div class="box"><b>what it means</b>' +
+            "How much force it takes to put a bend in the blank. Nothing else. A Heavy rod is not stronger in some general sense, it just takes more pull before it gives.</div>" +
+          '<div class="box red"><b>the thing people get wrong</b>' +
+            "Power is matched to the <strong>line and lure weight printed beside it</strong>, not to how big the fish is. " +
+            "Pick power above what the job needs and a soft take never reaches your hand, because the blank absorbs it before you do. " +
+            "That is a rod doing its job correctly and still being the wrong rod.</div>" +
+          '<div class="box tip"><b>how to feel it in a shop</b>' +
+            "Hold the rod horizontal and press the tip down against the floor with one finger. Note how far down the blank the bend travels and how hard you had to push. Then do it with the one next to it. Two rods, thirty seconds, and the word on the blank stops being abstract.</div>"
+      },
+      {
+        id: "rod-action",
+        group: "fundamental",
+        title: "Action: where it bends",
+        body:
+          '<p class="when">Printed as Fast, Moderate or Slow. This is the one most people confuse with power.</p>' +
+          '<div class="box"><b>power is how much, action is where</b>' +
+            "Two rods can take exactly the same force to bend and bend in completely different places. " +
+            "<strong>Action is where along the blank the bend starts.</strong></div>" +
+          '<div class="box"><b>fast</b>' +
+            "Bends in the top quarter or third only. The rest stays stiff. " +
+            "You feel more, because a small movement at the tip is not swallowed by the rest of the rod, and you move the hook quickly when you lift.</div>" +
+          '<div class="box"><b>moderate</b>' +
+            "Bends through the upper half. A middle ground. Casts light things better than a fast rod and still has some feel.</div>" +
+          '<div class="box"><b>slow</b>' +
+            "Bends through nearly the whole blank. Great cushion, so light line does not snap and a thrashing fish stays on. " +
+            "Poor at telling you what is happening down there.</div>" +
+          '<div class="box tip"><b>if you want to feel a soft take</b>' +
+            "You want <strong>fast</strong>. A moderate rod in the same power rating will cost you bites you never knew you had.</div>"
+      },
+      {
+        id: "rod-line-rating",
+        group: "fundamental",
+        title: "Line rating: the numbers in pounds",
+        body:
+          '<p class="when">Printed as a range, like 6 to 12 lb. Usually with a lure weight range beside it, like 1/8 to 3/8 oz.</p>' +
+          '<div class="box"><b>what it is</b>' +
+            "The band of line strength this blank was designed around. Inside it, the rod bends the way the builder intended and the line gives out before the rod does, which is the correct order for things to fail in.</div>" +
+          '<div class="box"><b>too heavy for the rating</b>' +
+            "The line is now stronger than the rod. Snag up and pull hard and you break the blank instead of the line. You also lose feel: heavy line has mass and stiffness of its own that deadens everything.</div>" +
+          '<div class="box"><b>too light for the rating</b>' +
+            "You snap off on the lift, because a stiff blank transmits the whole jolt straight to the line instead of cushioning it.</div>" +
+          '<div class="box law"><b>braid changes the maths</b>' +
+            "These ratings were written for monofilament, which stretches. Braid does not stretch at all and is far thinner for the same strength. " +
+            "So braid at the top of the stated range behaves much harsher than mono at the top of it. " +
+            "A common rule is to stay at or below the stated range when running braid, not above it.</div>" +
+          '<div class="box tip"><b>the lure weight range matters too</b>' +
+            "Below the range the rod never loads and you cannot cast. Above it you overload the tip. " +
+            "Light presentations are the ones most often outside the printed range, so check it rather than assuming.</div>"
+      },
+      {
+        id: "rod-reading-the-blank",
+        group: "fundamental",
+        title: "Reading any rod in a shop",
+        body:
+          '<p class="when">Every rod on the rack tells you all four numbers. You just have to know where to look.</p>' +
+          '<div class="box"><b>where it is printed</b>' +
+            "On the blank itself, <strong>just above the handle</strong>, usually within a few inches of the reel seat. Small text, often dark on dark. Tilt it to the light.</div>" +
+          '<div class="box"><b>what you will see</b>' +
+            "A model code, then the length, then the power word, then the action word, then a line range in pounds and a lure range in ounces. " +
+            "Something like <strong>9&#39;0&quot; Light Fast, 6 to 12 lb, 1/8 to 3/8 oz</strong>.</div>" +
+          '<div class="box"><b>reading a model code</b>' +
+            "Codes vary by maker and are not a standard, but a very common pattern packs length and power into digits: " +
+            "<strong>862ML</strong> reads as 8 feet 6 inches, 2 pieces, Medium Light. " +
+            "Use it as a hint and then confirm against the printed words, never instead of them.</div>" +
+          '<div class="box tip"><b>the sixty second shop test</b>' +
+            "Read the blank. Hold it. Press the tip to the floor and watch where the bend starts. " +
+            "Then do the same with the rod beside it. You are not judging quality, you are learning what the words feel like, " +
+            "and after four or five rods you can shop without anyone&#39;s help.</div>"
+      }
+    ],
 
     species: [
       {
@@ -58,6 +151,7 @@
                 "It is wrong on three axes at once. <strong>Too short</strong> to clear the pilings or keep a tight line as the jig swings back under the pier. " +
                 "<strong>Too much backbone</strong>: a blank built for 30 lb braid and a hooked steelhead absorbs a squid's take before it reaches your hand. " +
                 "<strong>Line far too heavy</strong>: 30 lb braid has mass and stiffness that deaden the exact signal you are reading for.</div>" +
+              '<a class="klink" href="#/learn/rod-power">What power, action and line rating actually mean <span>the rod course</span></a>' +
               '<div class="box tip"><b>sensitivity lives in the rod</b>' +
                 "You are fishing straight down at a half pound animal and the reel never fights anything. Put the money in the blank and run a basic reel. " +
                 "Do not let anyone sell you a reel for this.</div>" +
