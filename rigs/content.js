@@ -301,6 +301,79 @@
               "</ol>" +
               '<div class="box tip"><b>point the business end away</b>' +
                 "A squid coming over the rail will fire ink, usually at the first thing it sees. Turn it away from you and away from your neighbour.</div>"
+          },
+          {
+            id: "squid-clean",
+            group: "after",
+            title: "Cleaning and gutting",
+            body:
+              '<p class="when">Twenty squid is about forty minutes the first time and fifteen once you have the motion. Do it the morning after, not at midnight.</p>' +
+              '<div class="box red"><b>free the guts before you pull</b>' +
+                "This is the step everyone misses, and missing it is exactly why the head tears off while the insides stay in the tube. " +
+                "<strong>Slide a finger inside the tube and sweep it once around the inner wall.</strong> " +
+                "The guts are anchored to the top of the mantle and that sweep breaks them loose. Then pull.</div>" +
+              '<ol class="steps">' +
+                "<li><b>Sweep the inside.</b> One finger, once around. See above.</li>" +
+                "<li><b>Pull slow and steady.</b> Body in one hand, head in the other. Head, tentacles and guts come away together in one piece.</li>" +
+                "<li><b>Pull the quill.</b> A clear plastic looking strip inside the tube. It slides straight out. Check by feel that none snapped off.</li>" +
+                "<li><b>Rinse the tube.</b> Run a thumb down the inside under cold water. It does not need to be surgical. Anything you can feel, get out; anything you cannot, leave.</li>" +
+                "<li><b>Cut the tentacles off below the eyes.</b> One cut, just under the eye line. Everything above it goes in the bin.</li>" +
+                "<li><b>Pop the beak out.</b> In the middle of the tentacle cluster is a hard black parrot beak. Squeeze the base and it pushes out like a pit. " +
+                "<strong>That is the only thing you must remove from the tentacles.</strong></li>" +
+                "<li><b>Skin the tubes.</b> The purple membrane peels with a thumbnail under cold water. " +
+                "Skinned squid fries white and gold instead of dingy grey, and the dredge grips instead of sliding off in the oil.</li>" +
+              "</ol>" +
+              '<div class="box tip"><b>keep the tentacles</b>' +
+                "They are the best part and they fry crispier than the rings. <strong>Skin stays on the tentacles</strong>, you cannot peel them and you do not need to.</div>" +
+              '<div class="box tip"><b>first few times, split the tube</b>' +
+                "Cut it open lengthwise and lay it flat instead of working blind inside a tube. You can see everything, " +
+                "and flat pieces cut into strips fry just as well as rings.</div>" +
+              '<div class="box"><b>freezing</b>' +
+                "Clean first, then freeze. Squid takes freezing better than almost any seafood and comes out slightly more tender than it went in. " +
+                "Three months easy. Bag it with a little water to keep air off.</div>"
+          },
+          {
+            id: "squid-cook",
+            group: "after",
+            title: "Fried calamari",
+            body:
+              '<p class="when">About a pound of cleaned squid, which is roughly nine market squid. Appetizer for two or three. Twenty minutes start to finish.</p>' +
+              '<div class="box red"><b>the only rule</b>' +
+                "Squid cooks in <strong>60 to 90 seconds</strong>. Under two minutes, or braised for forty five. Anything between is a rubber band. " +
+                "Pull it at pale gold, never brown.</div>" +
+              '<div class="box tip"><b>out of the freezer</b>' +
+                "Thaw in the fridge overnight, or sealed in a bag in cold water for 20 to 30 minutes, changing the water once. Never on the counter. " +
+                "<strong>Then pat it very dry.</strong> Wet squid will not hold the dredge and it spits in hot oil.</div>" +
+              '<div class="box"><b>the soak</b>' +
+                "1 cup <strong>buttermilk</strong>, 30 minutes in the fridge. " +
+                "Season the soak: 3/4 tsp fine sea salt, a tablespoon of hot sauce, two smashed garlic cloves, a few cracks of pepper. " +
+                "Salting here is what seasons the squid itself rather than just the crust, and most people skip it.<br><br>" +
+                "<strong>No lemon in the soak.</strong> Buttermilk is acidic enough; more acid starts to ceviche it and turns it chalky.</div>" +
+              '<div class="box"><b>the dredge</b>' +
+                "3/4 cup flour, 1/4 cup <strong>cornstarch</strong>, 1/2 tsp fine sea salt, 1/2 tsp pepper, 1/2 tsp garlic powder, 1/4 tsp paprika. " +
+                "The cornstarch is what makes it crisp instead of bready. Whisk a full 30 seconds: unmixed pockets mean one piece is a salt bomb and the next tastes like nothing.<br><br>" +
+                "Mixed right it looks faintly tan and evenly speckled, not white.</div>" +
+              '<div class="box tip"><b>for crunchy craggy bits</b>' +
+                "<strong>Drizzle two tablespoons of the buttermilk into the dry dredge and rake it with your fingers.</strong> " +
+                "You get pea sized shaggy crumbs through the flour, and those are the bits that stick to the squid and fry into the best part. " +
+                "Add a little at a time. Crumbs through dry flour, not paste.</div>" +
+              '<ol class="steps">' +
+                "<li><b>Heat the oil to 375.</b> One inch deep in a heavy skillet, cast iron is ideal. Canola or peanut. " +
+                "No thermometer: a pinch of the dredge should hit the surface, sizzle hard, float at once and brown in about 30 seconds.</li>" +
+                "<li><b>Dredge one batch at a time.</b> Lift out of the buttermilk with a slotted spoon, drip a few seconds, straight into the flour, " +
+                "press rather than toss, then shake off the loose flour in a strainer. Loose flour burns and turns the oil gritty.</li>" +
+                "<li><b>Straight into the oil.</b> Dredged squid that sits five minutes goes gummy and the coating slides off in the pan.</li>" +
+                "<li><b>Fry in a single layer, 45 to 60 seconds a side.</b> Never crowded. Pull the whole batch the moment the first piece hits gold.</li>" +
+                "<li><b>Onto a wire rack, then salt.</b> Not paper towel, which steams the bottom soft. Salt while it is still glossy, " +
+                "sprinkled from a foot up so it scatters.</li>" +
+                "<li><b>Let the oil climb back to 375 before the next batch.</b> This is where most people lose it. " +
+                "Batch two goes in at 330, comes out pale and greasy, and everybody blames the recipe.</li>" +
+              "</ol>" +
+              '<div class="box"><b>tools that matter</b>' +
+                "An instant read thermometer, and something <strong>metal</strong> to lift with. " +
+                "A plastic strainer softens around 320 and your oil is at 375. Plastic is fine for shaking off flour, never for the pan.</div>" +
+              '<div class="box tip"><b>serving</b>' +
+                "Lemon at the table, never before. Marinara, cocktail sauce, or sixty second aioli: half a cup of mayo, one clove grated fine, squeeze of lemon, pinch of salt.</div>"
           }
         ],
         locations: [

@@ -204,5 +204,32 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
     "squid-rig agrees with the one line, four lure rule");
 }
 
+// --- squid, After ---------------------------------------------------------
+{
+  for (const id of ["squid-clean", "squid-cook"]) {
+    const c = byId.get(id);
+    ok(!!c, `${id} exists`);
+    if (c) ok(c.group === "after", `${id} is in the After group`, c.group);
+  }
+  // The specific failure from the first cleaning, 2026-11-18: pulling the head
+  // without freeing the guts first tears the head off and leaves the insides.
+  const clean = byId.get("squid-clean");
+  if (clean) {
+    ok(/sweep|finger/i.test(clean.body), "squid-clean covers freeing the guts before pulling");
+    ok(/tentacle/i.test(clean.body), "squid-clean covers the tentacles, which were thrown out the first time");
+    ok(/beak/i.test(clean.body), "squid-clean covers the beak");
+  }
+  // Everything learned actually cooking it on 2026-11-20.
+  const cook = byId.get("squid-cook");
+  if (cook) {
+    ok(/375/.test(cook.body), "squid-cook states the oil temperature");
+    ok(/60 to 90|90 second/i.test(cook.body), "squid-cook states the 60 to 90 second rule");
+    ok(/buttermilk/i.test(cook.body), "squid-cook uses the buttermilk soak");
+    ok(/cornstarch/i.test(cook.body), "squid-cook keeps the cornstarch in the dredge");
+    ok(/drizzle|rake|crumb/i.test(cook.body), "squid-cook carries the dredge clumping trick");
+    ok(/back to 375|climb back|recover/i.test(cook.body), "squid-cook covers letting the oil recover between batches");
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
