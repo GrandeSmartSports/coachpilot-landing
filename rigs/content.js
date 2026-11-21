@@ -206,6 +206,101 @@
               '<div class="box tip"><b>how to read a night</b>' +
                 "Pull the tide for the Des Moines station and the moon phase, then look for a night where the high slack sits near full dark and the moon is thin or down. " +
                 "Nov 17 2026 was almost dead water, a 1.56 ft swing, and the fishing matched.</div>"
+          },
+          {
+            id: "squid-rig",
+            group: "water",
+            title: "The rig",
+            diagram: "squid-vertical",
+            body:
+              '<p class="when">You fish straight down, not out. The whole rig hangs under the rod tip and the only job is to keep it vertical and keep it in the light edge.</p>' +
+              '<div class="box law"><b>one line, up to four jigs</b>' +
+                "The 2026 rule is <strong>one line per person</strong>. On that line you may run up to <strong>four</strong> lures. " +
+                "Two is the sane number: enough to cover depth, few enough to untangle in the dark.</div>" +
+              '<ol class="steps">' +
+                "<li><b>Braid to a small swivel.</b> Squid jigs spin on the drop and the swivel is what stops that twist working back up your main line.</li>" +
+                "<li><b>Lower jig tied in line</b> about two to three feet below the swivel.</li>" +
+                "<li><b>Upper jig on a short dropper</b>, eight to twelve inches, tied a foot or two above the lower one. " +
+                "The gap is how you find which depth they are sitting at tonight.</li>" +
+                "<li><b>Weight only if you need it.</b> Enough to hang straight down in whatever current there is, and not one bit more. " +
+                "Every extra ounce is weight you have to feel a quarter ounce animal through.</li>" +
+              "</ol>" +
+              '<div class="box tip"><b>fish the edge, not the glare</b>' +
+                "Drop it where the lit water stops and the black water starts. Squid sit just outside the light and come into it to hunt.</div>"
+          },
+          {
+            id: "squid-lures",
+            group: "water",
+            title: "Jigs: size, colour and glow",
+            body:
+              '<div class="box"><b>it is not a hook</b>' +
+                "A squid jig ends in a crown of fine upturned pins with no barbs. Squid grab the jig and the pins hold the arms. " +
+                "<strong>Nothing is set and nothing is pierced</strong>, so a slack line lets them simply let go and swim off. " +
+                "That single fact drives everything on the feel card.</div>" +
+              '<div class="box"><b>size follows the season</b>' +
+                "<strong>2.0 to 2.5</strong> early, October into December, while they are small. " +
+                "<strong>3.0 to 3.5</strong> later as they grow. Running a jig too big early is a common way to blank on a night when they are clearly there.</div>" +
+              '<div class="box"><b>colour</b>' +
+                "Start with glow or a light green and pink. Under a pier light, contrast matters more than any exact colour. " +
+                "If nothing happens for twenty minutes, change the one thing you can change fastest.</div>" +
+              '<div class="box tip"><b>charge the glow</b>' +
+                "Hit a glow jig with your UV light for ten seconds before every few drops. " +
+                "It fades faster than you think and a dead glow jig looks like nothing at all down there.</div>"
+          },
+          {
+            id: "squid-casting",
+            group: "water",
+            title: "Getting it out there",
+            body:
+              '<p class="when">There is barely any casting in this. Twenty to thirty feet is a long cast off a pier.</p>' +
+              '<ol class="steps">' +
+                "<li><b>Lob it, do not launch it.</b> An underhand swing to the edge of the light. A hard cast just tangles two jigs together in the air.</li>" +
+                "<li><b>Let it sink on a tight line.</b> Thumb or finger lightly on the spool, rod tip low. " +
+                "A free spool drops the jig with a bow in the line and you will miss anything that happens on the way down.</li>" +
+                "<li><b>Count it down.</b> Count seconds as it sinks and remember the number when something grabs it. " +
+                "That count is the depth they are at, and it is the single most useful thing you learn in the first hour.</li>" +
+                "<li><b>Work back up.</b> If nothing happens at the bottom, lift and hold at shallower counts on the way in.</li>" +
+              "</ol>" +
+              '<div class="box tip"><b>the drop is the bite</b>' +
+                "A good share of takes happen while the jig is sinking, not while you are working it. " +
+                "If you are not paying attention during the sink you are fishing half the time.</div>"
+          },
+          {
+            id: "squid-bite",
+            group: "water",
+            title: "What the take feels like",
+            body:
+              '<div class="box red"><b>it is weight, not a strike</b>' +
+                "There is no tap, no thump, no pull. The jig simply <strong>gets heavier</strong>, or it stops sinking a second before it should. " +
+                "That is it. That is the whole signal. " +
+                "It is <strong>not a strike</strong> and waiting to feel one is how you stand on a pier all night and catch nothing.</div>" +
+              '<div class="box"><b>the three ways it shows up</b>' +
+                "<strong>Heavier.</strong> The most common. Everything feels the same, just more of it.<br><br>" +
+                "<strong>Stopped short.</strong> You counted to eight last drop, and this time the line went slack at six. Something is holding it.<br><br>" +
+                "<strong>Lighter or drifting.</strong> Rarer. A squid lifting with the jig takes the weight off, and the line goes soft for no reason.</div>" +
+              '<div class="box tip"><b>when in doubt, lift</b>' +
+                "A slow steady lift costs you nothing and answers the question. There is no hookset to blow, because there is no hook. " +
+                "Lift whenever anything feels different and you will be right more often than you expect.</div>"
+          },
+          {
+            id: "squid-feel",
+            group: "water",
+            title: "The lift, and keeping it tight",
+            body:
+              '<p class="when">The pins have no barbs, so the only thing holding a squid on is unbroken tension. This card is the one that loses or lands them.</p>' +
+              '<div class="box red"><b>the line can never go slack</b>' +
+                "Not for a moment. Not while you reposition your hands, not while you reach for the net, not while you look at someone. " +
+                "<strong>Slack and they let go.</strong> There is nothing stuck in them to stop it.</div>" +
+              '<ol class="steps">' +
+                "<li><b>Lift slow and long.</b> A smooth sweep, not a jerk. You are drawing the squid up, not setting anything.</li>" +
+                "<li><b>Reel as you drop the tip.</b> Never lower the rod without taking up the line you just gained. " +
+                "This is where most of them come off and it happens so smoothly that it feels like they were never there.</li>" +
+                "<li><b>Keep it moving.</b> Steady and continuous beats fast. There is no fight to win, only tension to hold.</li>" +
+                "<li><b>Swing it in, do not hoist it.</b> Coming over the rail the weight doubles as it leaves the water. " +
+                "Keep the rod loaded and swing it to your hand in one motion.</li>" +
+              "</ol>" +
+              '<div class="box tip"><b>point the business end away</b>' +
+                "A squid coming over the rail will fire ink, usually at the first thing it sees. Turn it away from you and away from your neighbour.</div>"
           }
         ],
         locations: [

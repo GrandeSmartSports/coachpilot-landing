@@ -183,5 +183,26 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
     "squid-gear links into the rod course instead of repeating it");
 }
 
+// --- squid, At the water --------------------------------------------------
+{
+  const ids = ["squid-rig", "squid-lures", "squid-casting", "squid-bite", "squid-feel"];
+  for (const id of ids) {
+    const c = byId.get(id);
+    ok(!!c, `${id} exists`);
+    if (c) ok(c.group === "water", `${id} is in the At the water group`, c.group);
+  }
+  // The two cards that exist because of what went wrong on 2026-11-17.
+  const bite = byId.get("squid-bite");
+  if (bite) ok(/weight/i.test(bite.body) && /not a (strike|tap|bite)/i.test(bite.body),
+    "squid-bite says the take is a weight change, not a strike");
+  const feel = byId.get("squid-feel");
+  if (feel) ok(/slack/i.test(feel.body),
+    "squid-feel covers never letting the line go slack");
+  // The rig must agree with the regs card: one line, up to four lures.
+  const rig = byId.get("squid-rig");
+  if (rig) ok(/four|4\b/i.test(rig.body) && /one line|single line/i.test(rig.body),
+    "squid-rig agrees with the one line, four lure rule");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
