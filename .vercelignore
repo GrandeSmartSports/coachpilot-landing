@@ -1,2 +1,8 @@
 tests/
 supabase/
+# Screenshot work files from bls/preview/shots.js. No page links them; only the -thumb.jpg files and rotator slides are served. (2026-11-21, Vercel storage cap)
+bls/preview/img/*-full.jpg
+bls/preview/img/*-today-phone.jpg
+bls/preview/img/*-today-desk.jpg
+bls/preview/img/*-proposed-phone.jpg
+bls/preview/img/*-proposed-desk.jpg
