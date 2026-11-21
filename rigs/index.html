@@ -225,6 +225,58 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 }
 .back:hover{color:var(--accent)}
 
+/* ---- add to trip ---- */
+.addtrip{
+  display:block;width:100%;margin:14px 0 0;padding:10px;cursor:pointer;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;font-size:13.5px;
+  background:var(--panel2);color:var(--dim);
+  border:1px dashed var(--line2);border-radius:10px;transition:all .15s;
+}
+.addtrip:hover{color:var(--ink2);border-color:var(--accent)}
+.addtrip[aria-pressed="true"]{
+  background:color-mix(in srgb,var(--go) 14%,var(--panel));
+  color:var(--go);border-style:solid;border-color:color-mix(in srgb,var(--go) 45%,var(--line));
+}
+
+/* ---- trip bar ---- */
+.tripbar{
+  position:sticky;bottom:0;z-index:40;margin:22px -16px 0;padding:12px 16px;
+  padding-bottom:calc(12px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:12px;
+  background:color-mix(in srgb,var(--bg) 88%, transparent);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-top:1px solid var(--line);
+}
+.tripbar span{flex:1;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;font-size:14px;color:var(--dim)}
+.tripgo{
+  flex:0 0 auto;padding:10px 18px;border-radius:999px;cursor:pointer;border:0;
+  background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;font-size:14px;
+  box-shadow:0 2px 12px -2px color-mix(in srgb,var(--accent) 60%,transparent);
+}
+
+/* ---- field mode ---- */
+/* Bigger everything. Cold hands, head lamp, one eye on the rod. */
+.fieldtop{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.fieldtop .back{margin:0;flex:1}
+.tripdate{
+  font:inherit;font-size:14px;color:var(--ink2);
+  background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;
+}
+.fieldmode h1{font-size:40px}
+.fieldmode .card{padding:18px 18px;border-radius:18px;margin-bottom:16px}
+.fieldmode .card > h3{font-size:21px;margin-bottom:11px}
+.fieldmode .card p,.fieldmode .box{font-size:17px;line-height:1.5}
+.fieldmode .box{padding:15px 17px;border-radius:15px}
+.fieldmode .box b{font-size:15.5px}
+.fieldmode ol.steps li{font-size:17px;padding-left:44px}
+.fieldmode .sp .v{font-size:15px}
+.fieldmode .sp .have{font-size:12px}
+.fieldmode .stamp{font-size:12.5px}
+
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
   .pickcard:hover{transform:none}
@@ -245,9 +297,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   RIG.version = "1";
 
   var app = document.getElementById("app");
+  var KEY = "rig.trip.v1";
 
-  // Group keys map to when Coach actually reads them, which is why the
-  // library is organised this way rather than by rig type.
   var GROUPS = [
     { key: "before", label: "Before you go" },
     { key: "water", label: "At the water" },
@@ -259,107 +310,210 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
-
   function species() { return (RIG.content && RIG.content.species) || []; }
   function fundamentals() { return (RIG.content && RIG.content.fundamentals) || []; }
-
   function findSpecies(id) {
-    var all = species();
-    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    var a = species();
+    for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i];
     return null;
   }
   function findLocation(sp, id) {
-    var locs = (sp && sp.locations) || [];
-    for (var i = 0; i < locs.length; i++) if (locs[i].id === id) return locs[i];
-    return locs[0] || null;
+    var l = (sp && sp.locations) || [];
+    for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i];
+    return l[0] || null;
   }
+  function cardsFor(sp, loc) { return (sp.cards || []).concat((loc && loc.cards) || []); }
 
-  // Layer 2 and Layer 3 cards land in the same groups. Location is a thin
-  // modifier on top of the species, never a separate page, so a location
-  // never restates how to clean the fish.
-  function cardsFor(sp, loc) {
-    return (sp.cards || []).concat((loc && loc.cards) || []);
-  }
-
-  function cardHtml(c) {
-    var dia = c.diagram && RIG.diagrams && RIG.diagrams[c.diagram]
-      ? '<div class="dia">' + RIG.diagrams[c.diagram] + "</div>" : "";
-    var stamp = c.dated ? '<p class="stamp">Good as of ' + esc(c.dated) + "</p>" : "";
-    return '<article class="card" data-card="' + esc(c.id) + '">' +
-      "<h3>" + esc(c.title) + "</h3>" + dia + c.body + stamp + "</article>";
-  }
-
-  // An empty group renders nothing at all. A heading over no cards is noise.
-  function groupsHtml(cards) {
-    var out = "";
-    GROUPS.forEach(function (g) {
-      var mine = cards.filter(function (c) { return c.group === g.key; });
-      if (!mine.length) return;
-      out += '<section class="grp" data-group="' + g.key + '">' +
-        "<h2>" + esc(g.label) + "</h2>" + mine.map(cardHtml).join("") + "</section>";
+  // Every card in the library, flat, so Field mode can resolve a saved id
+  // without knowing which species or location it came from.
+  function allCards() {
+    var out = fundamentals().slice();
+    species().forEach(function (sp) {
+      out = out.concat(sp.cards || []);
+      (sp.locations || []).forEach(function (l) { out = out.concat(l.cards || []); });
     });
     return out;
   }
 
+  // ---- trip state -------------------------------------------------------
+  // Storage can throw: iOS private browsing rejects setItem outright. Losing
+  // the saved trip is survivable, a blank page is not, so every access is
+  // guarded and a failure degrades to in-memory with a visible notice.
+  var storageBroken = false;
+  var state = { cards: [], date: "", mode: "" };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var p = JSON.parse(raw);
+      state.cards = Array.isArray(p.cards) ? p.cards.slice() : [];
+      state.date = typeof p.date === "string" ? p.date : "";
+      state.mode = p.mode === "field" || p.mode === "library" ? p.mode : "";
+    } catch (e) { storageBroken = true; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { storageBroken = true; }
+  }
+
+  RIG.trip = {
+    list: function () { return state.cards.slice(); },
+    has: function (id) { return state.cards.indexOf(id) !== -1; },
+    add: function (id) { if (!this.has(id)) { state.cards.push(id); save(); render(); } },
+    remove: function (id) {
+      var i = state.cards.indexOf(id);
+      if (i !== -1) { state.cards.splice(i, 1); save(); render(); }
+    },
+    toggle: function (id) { this.has(id) ? this.remove(id) : this.add(id); },
+    date: function () { return state.date; },
+    setDate: function (iso) { state.date = iso || ""; save(); render(); },
+    clear: function () { state.cards = []; state.date = ""; state.mode = ""; save(); render(); }
+  };
+
+  // Mode is whatever Coach last chose, and nothing else. It persists, so
+  // the pier case is zero taps: he switched to field mode when he got there
+  // last time and that is where it opens.
+  //
+  // An earlier version inferred field mode from "a saved trip has cards in
+  // it". That guesses wrong in both directions: adding the first card while
+  // planning threw him out of the library he was working in, and a trip
+  // planned over several evenings reopened into field mode every time. The
+  // app cannot know where he is standing, so it stops pretending to.
+  var activeMode = "library";
+  function resolveMode() {
+    activeMode = state.mode || "library";
+  }
+  function mode() { return activeMode; }
+  function setMode(m) { activeMode = m; state.mode = m; save(); render(); }
+
+  // ---- staleness --------------------------------------------------------
+  // Only content that actually decays gets a warning, and each kind decays at
+  // its own rate. `dated` alone is just a "last checked" stamp: a rod spec
+  // does not go off in three weeks, so warning about it trains Coach to
+  // ignore the banner that matters. A card opts in with shelfDays.
+  //   regs       ~180 days, limits move season to season
+  //   tide/moon  ~2 days, those are numbers for one specific night
+  function staleFor(card) {
+    if (!card.dated || !card.shelfDays || !state.date) return null;
+    var d = Date.parse(card.dated), t = Date.parse(state.date);
+    if (isNaN(d) || isNaN(t)) return null;
+    return t - d > card.shelfDays * 86400000 ? card.dated : null;
+  }
+
+  // ---- rendering --------------------------------------------------------
+  function cardHtml(c, opts) {
+    opts = opts || {};
+    var dia = c.diagram && RIG.diagrams && RIG.diagrams[c.diagram]
+      ? '<div class="dia">' + RIG.diagrams[c.diagram] + "</div>" : "";
+    var stale = staleFor(c);
+    var warn = stale
+      ? '<div class="box red" data-stale><b>this is out of date</b>' +
+        "These numbers were good as of <strong>" + esc(stale) + "</strong>, and your trip is set for " +
+        esc(state.date) + ". Pull them again before you rely on them.</div>"
+      : "";
+    var stamp = c.dated ? '<p class="stamp">Good as of ' + esc(c.dated) + "</p>" : "";
+    var add = opts.addable
+      ? '<button class="addtrip" type="button" data-addtrip="' + esc(c.id) + '" aria-pressed="' +
+        (RIG.trip.has(c.id) ? "true" : "false") + '">' +
+        (RIG.trip.has(c.id) ? "In this trip" : "Add to trip") + "</button>"
+      : "";
+    return '<article class="card" data-card="' + esc(c.id) + '">' +
+      "<h3>" + esc(c.title) + "</h3>" + warn + dia + c.body + stamp + add + "</article>";
+  }
+
+  function groupsHtml(cards, opts) {
+    var out = "";
+    GROUPS.forEach(function (g) {
+      var mine = cards.filter(function (c) { return c.group === g.key; });
+      if (!mine.length) return;
+      out += '<section class="grp" data-group="' + g.key + '"><h2>' + esc(g.label) + "</h2>" +
+        mine.map(function (c) { return cardHtml(c, opts); }).join("") + "</section>";
+    });
+    return out;
+  }
+
+  function noticeHtml() {
+    return storageBroken
+      ? '<div class="box red" data-trip-notice><b>this trip will not be saved</b>' +
+        "Your browser is refusing to store it, which private browsing does. " +
+        "It works for now and it will be gone when you close the tab.</div>"
+      : "";
+  }
+
+  function tripBarHtml() {
+    var n = state.cards.length;
+    if (!n) return "";
+    return '<div class="tripbar">' +
+      '<span data-trip-count>' + n + (n === 1 ? " card" : " cards") + " in this trip</span>" +
+      '<button class="tripgo" type="button" data-mode-field>Field mode</button></div>';
+  }
+
   function renderHome() {
     var picks = species().map(function (sp) {
-      var n = cardsFor(sp, (sp.locations || [])[0]).length;
       return '<button class="pickcard" type="button" data-species="' + esc(sp.id) + '">' +
         '<span class="nm">' + esc(sp.name) + "</span>" +
         '<span class="sub">' + esc(sp.hint || "") + "</span></button>";
     }).join("");
-
     var learn = fundamentals().length
       ? '<section class="grp" data-group="fundamental"><h2>Learn</h2>' +
-        fundamentals().map(cardHtml).join("") + "</section>"
+        fundamentals().map(function (c) { return cardHtml(c, { addable: true }); }).join("") + "</section>"
       : "";
-
     app.innerHTML =
       '<div data-view="home">' +
-        '<div class="shead">' +
-          '<p class="eyebrow">Fishing library</p>' +
-          "<h1>Rig Card</h1>" +
-          '<p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p>' +
-        "</div>" +
-        '<div class="pick">' + picks + "</div>" +
-        learn +
-      "</div>";
+        '<div class="shead"><p class="eyebrow">Fishing library</p><h1>Rig Card</h1>' +
+          '<p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p></div>' +
+        noticeHtml() +
+        '<div class="pick">' + picks + "</div>" + learn +
+      "</div>" + tripBarHtml();
   }
 
   function renderSpecies(sp, loc) {
     var locs = sp.locations || [];
     var place = loc ? esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "") : "";
-
-    // The page is the SPECIES. Where you are is a modifier on it, so the spot
-    // sits above the name rather than becoming the title, and it is never
-    // printed twice.
     var eyebrow = locs.length > 1
       ? '<p class="eyebrow">' + esc(sp.name) + "</p>"
       : '<p class="eyebrow" data-locations>' + place + "</p>";
-
-    // One location is not a menu. Making Coach tap to choose from a list of
-    // one is a tap that buys nothing.
     var chips = locs.length > 1
       ? '<div class="locs" data-locations>' + locs.map(function (l) {
           return '<button class="loc" type="button" data-loc="' + esc(l.id) + '" aria-pressed="' +
             (l === loc ? "true" : "false") + '">' + esc(l.name) + "</button>";
         }).join("") + "</div>"
       : "";
-
     app.innerHTML =
       '<div data-view="species">' +
         '<button class="back" type="button" data-back>&larr; All species</button>' +
         '<div class="shead">' + eyebrow + "<h1>" + esc(sp.name) + "</h1>" +
-          (sp.blurb ? '<p class="when">' + esc(sp.blurb) + "</p>" : "") +
-        "</div>" +
-        chips +
+          (sp.blurb ? '<p class="when">' + esc(sp.blurb) + "</p>" : "") + "</div>" +
+        noticeHtml() + chips +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
-        groupsHtml(cardsFor(sp, loc)) +
+        groupsHtml(cardsFor(sp, loc), { addable: true }) +
+      "</div>" + tripBarHtml();
+  }
+
+  // Field mode is deliberately thin: this trip's cards, bigger type, and a
+  // way back. Nothing to navigate, nothing to scroll past.
+  function renderField() {
+    var byId = {};
+    allCards().forEach(function (c) { byId[c.id] = c; });
+    // A content edit can delete a card a saved trip still points at. Drop it
+    // quietly rather than rendering a hole or throwing.
+    var cards = state.cards.map(function (id) { return byId[id]; }).filter(Boolean);
+    app.innerHTML =
+      '<div data-view="field" class="fieldmode">' +
+        '<div class="fieldtop">' +
+          '<button class="back" type="button" data-mode-library>&larr; Library</button>' +
+          '<input class="tripdate" type="date" data-trip-date value="' + esc(state.date) + '" aria-label="Trip date">' +
+        "</div>" +
+        '<div class="shead"><p class="eyebrow" data-trip-count>' + cards.length +
+          (cards.length === 1 ? " card" : " cards") + '</p><h1>This trip</h1></div>' +
+        noticeHtml() +
+        (cards.length
+          ? cards.map(function (c) { return cardHtml(c, { addable: false }); }).join("")
+          : '<p class="when">Nothing in this trip yet. Go back to the library and add cards.</p>') +
       "</div>";
   }
 
-  // Navigation is a hash route so a card can be linked to directly and the
-  // back button behaves. Signature is (speciesId, locationId?, cardId?).
   RIG.go = function (speciesId, locationId, cardId) {
     var h = speciesId ? "#/" + speciesId + (locationId ? "/" + locationId : "") +
       (cardId ? "/" + cardId : "") : "#/";
@@ -368,6 +522,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   };
 
   function render() {
+    if (mode() === "field") { renderField(); return; }
     var parts = (location.hash || "").replace(/^#\/?/, "").split("/").filter(Boolean);
     var sp = parts[0] ? findSpecies(parts[0]) : null;
     if (!sp) { renderHome(); return; }
@@ -380,22 +535,32 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   }
 
   app.addEventListener("click", function (e) {
-    var pick = e.target.closest("[data-species]");
+    var t = e.target;
+    var addBtn = t.closest("[data-addtrip]");
+    if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
+    if (t.closest("[data-mode-field]")) { setMode("field"); return; }
+    if (t.closest("[data-mode-library]")) { setMode("library"); return; }
+    var pick = t.closest("[data-species]");
     if (pick) { RIG.go(pick.dataset.species); return; }
-    var loc = e.target.closest("[data-loc]");
+    var loc = t.closest("[data-loc]");
     if (loc) {
-      var cur = (location.hash || "").replace(/^#\/?/, "").split("/")[0];
-      RIG.go(cur, loc.dataset.loc);
+      RIG.go((location.hash || "").replace(/^#\/?/, "").split("/")[0], loc.dataset.loc);
       return;
     }
-    if (e.target.closest("[data-back]")) RIG.go(null);
+    if (t.closest("[data-back]")) RIG.go(null);
   });
 
-  window.addEventListener("hashchange", render);
+  app.addEventListener("change", function (e) {
+    var d = e.target.closest("[data-trip-date]");
+    if (d) RIG.trip.setDate(d.value);
+  });
+
+  window.addEventListener("hashchange", function () { if (mode() !== "field") render(); });
+
+  load();
+  resolveMode();
   render();
 
-  // Offline is why this page lives on coachpilot.org instead of staying an
-  // artifact. A failed registration is not fatal, it just will not open cold.
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("/rigs/sw.js", { scope: "/rigs/" })

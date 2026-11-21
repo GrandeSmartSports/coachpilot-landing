@@ -70,6 +70,8 @@
             group: "before",
             title: "Rules and limits",
             dated: "2026-11-21",
+            // Limits move season to season, so this one goes off.
+            shelfDays: 180,
             body:
               '<div class="box law"><b>daily limit</b>' +
                 "<strong>10 pounds or 5 quarts, whichever you hit first.</strong> That is all squid species together. " +
