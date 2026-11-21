@@ -13,11 +13,13 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v1";
+const CACHE = "rigs-v2";
 
 const PRECACHE = [
   "/rigs/",
   "/rigs/index.html",
+  "/rigs/diagrams.js",
+  "/rigs/content.js",
   "/rigs/manifest.webmanifest",
   "/rigs/fonts/inter.woff2",
   "/rigs/fonts/barlow-condensed-600.woff2",
