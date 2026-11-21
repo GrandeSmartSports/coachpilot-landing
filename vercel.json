@@ -72,6 +72,11 @@
       "permanent": false
     },
     {
+      "source": "/rigs",
+      "destination": "/rigs/",
+      "permanent": false
+    },
+    {
       "source": "/sophie",
       "destination": "/sophie/",
       "permanent": false

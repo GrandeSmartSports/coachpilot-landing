@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d10">
+<title>Rig Card</title>
+<link rel="manifest" href="/rigs/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/rigs/icon-192.png">
+<style>
+/* Self-hosted so the page opens at a pier with no cell signal.
+   Inter ships as a variable font: one file covers 400 through 700. */
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;
+  src:url(/rigs/fonts/inter.woff2) format('woff2')}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;
+  src:url(/rigs/fonts/barlow-condensed-600.woff2) format('woff2')}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;
+  src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
+:root{
+  --bg:#0a0d10; --bg2:#0e1318;
+  --panel:#141a20; --panel2:#1a222a; --panel3:#212b34;
+  --line:#26313a; --line2:#334049;
+  --ink:#f4f7f9; --ink2:#c3cfd8; --dim:#8899a5;
+  --accent:#ff6a2b; --accent2:#ffa066;
+  --go:#8fe85f; --warn:#ffc53d; --no:#ff5a4e;
+  --water:#123243; --rope:#f0f4f7;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#eceff2; --bg2:#f6f8f9;
+    --panel:#ffffff; --panel2:#f4f7f9; --panel3:#e9eef2;
+    --line:#dbe2e8; --line2:#c4cfd8;
+    --ink:#0b1116; --ink2:#2f3d47; --dim:#5c6c78;
+    --accent:#c33f08; --accent2:#e2600f;
+    --go:#2f7512; --warn:#8a6000; --no:#bd2114;
+    --water:#d2e6f1; --rope:#1d2a33;
+    --sh:0 1px 2px rgba(16,30,40,.07),0 10px 28px -14px rgba(16,30,40,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(1200px 520px at 50% -10%, var(--bg2), transparent 70%);
+  color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.55;
+  padding-top:env(safe-area-inset-top);
+}
+.wrap{max-width:640px;margin:0 auto;padding:18px 16px 80px}
+
+/* tabs */
+.tabs{
+  position:sticky;top:0;z-index:30;margin:0 -16px 22px;padding:11px 16px;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line);
+  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;font-size:14px;
+  background:var(--panel);color:var(--dim);border:1px solid var(--line);
+  border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap;
+  transition:all .16s cubic-bezier(.4,0,.2,1);
+}
+.tab:hover{color:var(--ink2);border-color:var(--line2)}
+.tab[aria-selected="true"]{
+  background:linear-gradient(180deg,var(--accent2),var(--accent));
+  color:#fff;border-color:transparent;
+  box-shadow:0 2px 10px -2px color-mix(in srgb,var(--accent) 60%,transparent);
+}
+
+.sheet[hidden]{display:none}
+.shead{margin-bottom:18px}
+.eyebrow{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.18em;
+  text-transform:uppercase;font-size:11.5px;color:var(--accent);margin:0 0 6px
+}
+h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:44px;
+  line-height:.96;margin:0 0 10px;letter-spacing:-.015em}
+.when{font-size:15px;color:var(--ink2);margin:0;max-width:52ch}
+
+/* specs */
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:20px 0}
+.sp{background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;box-shadow:var(--sh)}
+.sp .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.sp .v{font-family:var(--mono);font-size:13.5px;font-weight:600;margin-top:4px;line-height:1.3;color:var(--ink)}
+.sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font-size:10.5px;font-family:var(--mono);color:var(--dim);line-height:1.3}
+
+/* diagram */
+.dia{background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-radius:16px;padding:8px;margin:0 0 18px;
+  box-shadow:var(--sh);overflow:hidden}
+.dia svg{display:block;width:100%;height:auto;border-radius:10px}
+
+h2{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;font-size:20px;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+ol.steps{list-style:none;counter-reset:s;padding:0;margin:0}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 15px 40px;font-size:15px;color:var(--ink2)}
+ol.steps li::before{
+  content:counter(s);position:absolute;left:0;top:0;
+  width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(180deg,var(--panel3),var(--panel2));
+  border:1px solid var(--line2);color:var(--accent);
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;
+  display:grid;place-items:center
+}
+ol.steps b{font-weight:650;color:var(--ink)}
+ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-weight:600;
+  background:color-mix(in srgb,var(--accent) 12%,transparent);padding:2px 7px;border-radius:5px;white-space:nowrap}
+
+.box{border-radius:14px;padding:13px 15px;font-size:14.5px;margin:16px 0 0;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink2);box-shadow:var(--sh)}
+.box strong{font-weight:680;color:var(--ink)}
+.box b{display:block;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;
+  letter-spacing:.09em;font-size:14px;margin-bottom:5px;color:var(--ink)}
+.box.law{border-color:color-mix(in srgb,var(--warn) 45%,var(--line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--warn) 9%,var(--panel)),var(--panel))}
+.box.law b{color:var(--warn)}
+.box.tip{border-color:color-mix(in srgb,var(--go) 35%,var(--line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--go) 8%,var(--panel)),var(--panel))}
+.box.tip b{color:var(--go)}
+.box.red{border-color:color-mix(in srgb,var(--no) 50%,var(--line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--no) 10%,var(--panel)),var(--panel))}
+.box.red b{color:var(--no)}
+
+.chk{display:grid;gap:7px;margin:12px 0 0}
+.chk label{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border-radius:11px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);cursor:pointer;transition:border-color .15s,opacity .15s}
+.chk label:has(input:checked){opacity:.42}
+.chk input{appearance:none;-webkit-appearance:none;flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;border-radius:6px;border:2px solid var(--line2);background:transparent;position:relative;cursor:pointer}
+.chk input:checked{background:var(--accent);border-color:var(--accent)}
+.chk input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #120704;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.chk .t{min-width:0}
+.chk .t b{display:block;font-weight:650;font-size:14.5px;line-height:1.3;color:var(--ink)}
+.chk .t i{display:block;font-style:normal;font-size:12.5px;line-height:1.4;color:var(--dim);margin-top:2px}
+
+/* ---- knot tyer ---- */
+.tyer{margin:0 0 6px;background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
+.tyer .stage{background:var(--panel2);position:relative}
+.tyer svg{display:block;width:100%;height:auto}
+.tyer .bar{display:flex;align-items:center;gap:8px;padding:11px 13px;border-top:1px solid var(--line)}
+.rail{display:flex;gap:5px;flex:1}
+.rail button{
+  flex:1;height:30px;border-radius:8px;cursor:pointer;
+  background:var(--panel3);border:1px solid var(--line);color:var(--dim);
+  font-family:var(--mono);font-size:12.5px;font-weight:600;transition:all .15s;
+}
+.rail button:hover{border-color:var(--line2);color:var(--ink2)}
+.rail button[aria-current="true"]{
+  background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;border-color:transparent}
+.rail button.done{color:var(--go);border-color:color-mix(in srgb,var(--go) 35%,var(--line))}
+.play{
+  flex:0 0 auto;height:30px;padding:0 14px;border-radius:8px;cursor:pointer;
+  background:var(--panel3);border:1px solid var(--line2);color:var(--ink);
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;font-size:13px;transition:all .15s;
+}
+.play:hover{background:var(--line);border-color:var(--accent)}
+.tyer .cap{padding:0 15px 15px;font-size:14.5px;color:var(--ink2);min-height:52px}
+.tyer .cap b{color:var(--ink);font-weight:650}
+.kstep{opacity:0;transition:opacity .18s}
+.kstep.on{opacity:1}
+.kstep .draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.kstep.on .draw{stroke-dashoffset:0;transition:stroke-dashoffset .55s cubic-bezier(.4,0,.2,1)}
+.klink{display:inline-flex;align-items:center;gap:7px;margin:12px 0 0;font-size:14px;
+  color:var(--accent);text-decoration:none;font-weight:600;
+  border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:var(--panel)}
+.klink:hover{border-color:var(--accent)}
+.klink span{color:var(--dim);font-weight:400;font-size:13px}
+
+@media (prefers-reduced-motion:reduce){
+  .kstep.on .draw{transition:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="shead">
+    <p class="eyebrow">Fishing library</p>
+    <h1>Rig Card</h1>
+    <p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p>
+  </div>
+  <div id="app"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // Namespace every later module hangs off. content.js, diagrams.js and the
+  // app code all attach here rather than leaking globals.
+  var RIG = window.RIG = window.RIG || {};
+  RIG.version = "1";
+
+  // Offline is the whole point of this page living on coachpilot.org instead
+  // of staying an artifact. Registration failing is not fatal: the page still
+  // works online, it just will not open at the rail.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("/rigs/sw.js", { scope: "/rigs/" })
+        .catch(function(e){ console.warn("rigs: service worker did not register", e); });
+    });
+  }
+})();
+</script>
+</body>
+</html>
