@@ -277,6 +277,14 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .fieldmode .sp .have{font-size:12px}
 .fieldmode .stamp{font-size:12.5px}
 
+/* Four spec columns is too tight on a phone. The original card had this and
+   the new spec strip needs it just as much. */
+@media (max-width:420px){
+  .specs{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:38px}
+  .fieldmode h1{font-size:34px}
+}
+
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
   .pickcard:hover{transform:none}
