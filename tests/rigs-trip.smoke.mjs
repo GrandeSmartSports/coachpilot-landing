@@ -97,6 +97,50 @@ try {
     await ctx.close();
   }
 
+  // ------------------------------- a library link tapped FROM field mode
+  // squid-gear ships a link into the rod course, and squid-gear is exactly
+  // the card that goes in a trip. In field mode the hash changed and nothing
+  // rendered, so the link just looked broken.
+  {
+    const ctx = await browser.newContext();
+    await ctx.addInitScript(([k, v]) => localStorage.setItem(k, v), [KEY,
+      JSON.stringify({ cards: ["squid-gear"], date: "", mode: "field" })]);
+    const page = await ctx.newPage();
+    await page.goto(BASE, { waitUntil: "load" });
+    await page.waitForSelector("[data-view=field]", { state: "visible" });
+
+    await page.locator('[data-card="squid-gear"] a.klink').click();
+    await page.waitForSelector('[data-card="rod-power"]', { timeout: 5000 });
+    ok(await page.locator('[data-card="rod-power"]').count() === 1,
+      "a course link tapped from field mode actually goes to the course");
+
+    // Leaving field mode to read something must not cost him the pier
+    // default: the saved mode is untouched, so the next open is field again.
+    await page.reload({ waitUntil: "load" });
+    ok(await page.locator("[data-view=field]").isVisible(),
+      "reading a course card does not change which mode it opens in");
+    await ctx.close();
+  }
+
+  // ------------------------------------- stale with NO trip date set
+  // The default path. Staleness used to require a trip date, so a trip with
+  // no date showed month old numbers under a quiet "good as of" stamp and no
+  // warning at all. Age is now measured against today when no date is set.
+  {
+    const ctx = await browser.newContext();
+    await ctx.addInitScript(([k, v]) => localStorage.setItem(k, v), [KEY,
+      JSON.stringify({ cards: ["squid-regs"], date: "", mode: "field" })]);
+    const page = await ctx.newPage();
+    // squid-regs is dated 2026-11-21 with a 180 day shelf life, so it has
+    // gone off well before this.
+    await ctx.clock.setFixedTime(new Date("2027-09-01T12:00:00Z"));
+    await page.goto(BASE, { waitUntil: "load" });
+    await page.waitForSelector("[data-view=field]", { state: "visible" });
+    ok(await page.locator("[data-stale]").count() === 1,
+      "content past its shelf life warns even with no trip date set");
+    await ctx.close();
+  }
+
   // ------------------------------------------------ a card that no longer exists
   {
     const ctx = await browser.newContext();

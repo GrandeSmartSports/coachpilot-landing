@@ -131,6 +131,9 @@
             group: "before",
             title: "Rod, line and jigs",
             dated: "2026-11-21",
+            // The spec itself does not move. The "you have" rows do, whenever
+            // the garage inventory changes.
+            shelfDays: 365,
             body:
               '<p class="when">A squid take is a change in weight, not a strike. Every choice below exists to let you feel that change.</p>' +
               '<div class="specs">' +
@@ -183,13 +186,17 @@
                 "The season that matters is biological, not legal: squid are in south Puget Sound roughly October through February.</div>" +
               '<div class="box red"><b>check before you go</b>' +
                 "These numbers come from WDFW and were read on 2026-11-21. Limits move. " +
-                "The one line rule is new enough that printed guides and older posts still say otherwise.</div>"
+                "The one line rule is new enough that printed guides and older posts still say otherwise.</div>" +
+              '<a class="klink" href="https://wdfw.wa.gov/fishing/basics/squid" target="_blank" rel="noopener">Check the current rules <span>wdfw.wa.gov</span></a>'
           },
           {
             id: "squid-conditions",
             group: "before",
             title: "What makes a good night",
             dated: "2026-11-21",
+            // Carries seasonal numbers: sunset around 4:30, full dark by 5:05.
+            // Those drift within weeks, so this is the short fuse.
+            shelfDays: 30,
             body:
               '<p class="when">Four things decide whether a night is worth driving to. In rough order of how much they matter.</p>' +
               '<div class="box"><b>1. full dark</b>' +
@@ -390,6 +397,7 @@
                 group: "before",
                 title: "Getting on the pier",
                 dated: "2026-11-21",
+                shelfDays: 365,
                 body:
                   '<p class="when">A lit public fishing pier on the east side of Poverty Bay. The lights are the whole reason this spot works for squid.</p>' +
                   '<div class="box"><b>tides come from Des Moines</b>' +

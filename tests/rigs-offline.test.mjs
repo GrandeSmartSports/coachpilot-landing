@@ -86,8 +86,43 @@ ok(/skipWaiting/.test(sw) && /clients\.claim/.test(sw),
   "sw.js calls skipWaiting and clients.claim so a new version takes over");
 
 // --- 5. fallback stack so a missing font degrades, never breaks ------------
-ok(/font-family\s*:[^;]*,[^;]*(sans-serif|system-ui|-apple-system)/i.test(index),
-  "font-family declarations carry a system fallback after the custom family");
+// EVERY declaration, not "at least one somewhere in the file". The earlier
+// version was a single .test() over the whole document, so `body{font-family:
+// Inter,system-ui,...}` satisfied it alone and every "Barlow Condensed"
+// declaration could lose its fallback without the suite noticing.
+const GENERIC = /(sans-serif|serif|monospace|system-ui|cursive|fantasy|ui-monospace|ui-sans-serif)\s*$/i;
+// Inside @font-face, font-family NAMES the font being defined. A fallback
+// there would be meaningless, so those blocks are excluded and only real
+// usages are checked.
+const usageCss = index.replace(/@font-face\s*\{[^}]*\}/gi, "");
+const fontDecls = [...usageCss.matchAll(/font-family\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim());
+const varFonts = [...index.matchAll(/--mono\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim());
+const noFallback = fontDecls.filter((d) => {
+  if (/^var\(\s*--mono\s*\)$/i.test(d)) return !varFonts.every((v) => GENERIC.test(v));
+  return !GENERIC.test(d);
+});
+ok(fontDecls.length > 3, "index.html declares font families", `found ${fontDecls.length}`);
+ok(noFallback.length === 0,
+  "EVERY font-family declaration ends in a generic family", noFallback.join(" | "));
+
+// --- 6. the service worker cannot half install or half activate ------------
+// A partial install that still resolves, followed by an unconditional delete
+// of the previous cache, leaves no working copy at all.
+ok(/addAll\(\s*SHELL\s*\)/.test(sw),
+  "sw.js addAll()s the shell so a partial shell fails the install");
+ok(/hasShell[\s\S]{0,200}caches\.delete|if\s*\(\s*hasShell\s*\)/.test(sw),
+  "sw.js only deletes the old cache once the new one holds the shell");
+
+// --- 7. only the shell may ever replace the cached shell -------------------
+// A 404 or a 5xx during a deploy must not become the page the app falls back
+// to, because it then stays dead until the next successful online navigation.
+ok(/function\s+isShellPath/.test(sw), "sw.js gates which paths may overwrite the cached shell");
+ok(/res\.ok/.test(sw) && /res\.status\s*===\s*200/.test(sw),
+  "sw.js checks response status before caching");
+
+// --- 8. navigations must not wait on the network ---------------------------
+ok(/navigate[\s\S]{0,400}caches\.match/.test(sw),
+  "sw.js serves navigations from cache before touching the network");
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

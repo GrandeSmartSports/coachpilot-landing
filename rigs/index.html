@@ -24,6 +24,7 @@
   --accent:#ff6a2b; --accent2:#ffa066;
   --go:#8fe85f; --warn:#ffc53d; --no:#ff5a4e;
   --water:#123243; --rope:#f0f4f7;
+  --steel:#8c99a3;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
 }
@@ -36,6 +37,7 @@
     --accent:#c33f08; --accent2:#e2600f;
     --go:#2f7512; --warn:#8a6000; --no:#bd2114;
     --water:#d2e6f1; --rope:#1d2a33;
+    --steel:#5f6d78;
     --sh:0 1px 2px rgba(16,30,40,.07),0 10px 28px -14px rgba(16,30,40,.3);
   }
 }
@@ -403,8 +405,13 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   //   regs       ~180 days, limits move season to season
   //   tide/moon  ~2 days, those are numbers for one specific night
   function staleFor(card) {
-    if (!card.dated || !card.shelfDays || !state.date) return null;
-    var d = Date.parse(card.dated), t = Date.parse(state.date);
+    if (!card.dated || !card.shelfDays) return null;
+    var d = Date.parse(card.dated);
+    // With no trip date set, measure against TODAY. Requiring a trip date
+    // meant the default path showed month old numbers with nothing but a
+    // quiet "good as of" stamp, which is the exact thing the warning exists
+    // to prevent.
+    var t = state.date ? Date.parse(state.date) : Date.now();
     if (isNaN(d) || isNaN(t)) return null;
     return t - d > card.shelfDays * 86400000 ? card.dated : null;
   }
@@ -575,7 +582,16 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     if (d) RIG.trip.setDate(d.value);
   });
 
-  window.addEventListener("hashchange", function () { if (mode() !== "field") render(); });
+  window.addEventListener("hashchange", function () {
+    // A card in a trip can link into the library, and squid-gear links into
+    // the rod course. In field mode the hash changed and nothing rendered, so
+    // the link read as broken. Follow it, but do NOT persist the switch:
+    // leaving field mode to read something must not cost the pier default,
+    // and the trip bar is already the way back.
+    var h = (location.hash || "").replace(/^#\/?/, "");
+    if (activeMode === "field" && h) activeMode = "library";
+    render();
+  });
 
   load();
   resolveMode();

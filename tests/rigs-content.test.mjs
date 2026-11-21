@@ -116,6 +116,13 @@ const badDates = cards.filter((c) => c.dated && !/^\d{4}-\d{2}-\d{2}$/.test(c.da
   .map((c) => `${c.id}:${c.dated}`);
 ok(badDates.length === 0, "every dated card carries an ISO yyyy-mm-dd date", badDates.join(", "));
 
+// Staleness is opt in via shelfDays, which means a card that forgets it is
+// silently exempt from the warning forever. Requiring the field on every
+// dated card forces the author to decide how fast that content goes off
+// rather than defaulting to "never" by omission.
+const noShelf = cards.filter((c) => c.dated && typeof c.shelfDays !== "number").map((c) => c.id);
+ok(noShelf.length === 0, "every dated card declares how fast it goes off (shelfDays)", noShelf.join(", "));
+
 const byId = new Map(cards.map((c) => [c.id, c]));
 
 // --- squid, Before you go -------------------------------------------------
@@ -151,6 +158,10 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
     ok(/one line|single line|1 line/i.test(regs.body),
       "squid-regs carries the 2026 one-line-per-harvester rule");
     ok(/\bwdfw\b/i.test(regs.body), "squid-regs names its source");
+    // The card tells Coach to check before he goes. It has to give him a
+    // route to, not just a name.
+    ok(/href="https:\/\/wdfw\.wa\.gov/.test(regs.body),
+      "squid-regs links to WDFW, not just names it");
     ok(!!regs.dated, "squid-regs is dated");
   }
 }
@@ -229,6 +240,18 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
     ok(/drizzle|rake|crumb/i.test(cook.body), "squid-cook carries the dredge clumping trick");
     ok(/back to 375|climb back|recover/i.test(cook.body), "squid-cook covers letting the oil recover between batches");
   }
+}
+
+// --- diagrams must survive a theme flip -----------------------------------
+// The page carries a full light palette and iOS defaults to light in daylight.
+// A diagram drawn in hardcoded dark-theme hex loses its labels entirely on a
+// white panel: near-white text on near-white background. Every colour comes
+// from a custom property so it flips with everything else.
+{
+  const dias = readFileSync(join(RIGS, "diagrams.js"), "utf8");
+  const rawHex = [...dias.matchAll(/(?:fill|stroke|stop-color)\s*=\s*"(#[0-9a-f]{3,8})"/gi)].map((m) => m[1]);
+  ok(rawHex.length === 0,
+    "diagrams use theme variables, never hardcoded hex", [...new Set(rawHex)].join(", "));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

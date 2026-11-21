@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node tests/rigs-content.test.mjs && node tests/rigs-offline.test.mjs && node tests/rigs-offline.smoke.mjs && node tests/rigs-nav.smoke.mjs && node tests/rigs-trip.smoke.mjs",
+    "test:rigs": "node tests/rigs-content.test.mjs && node tests/rigs-offline.test.mjs && node tests/rigs-offline.smoke.mjs && node tests/rigs-nav.smoke.mjs && node tests/rigs-trip.smoke.mjs"
   },
   "keywords": [],
   "author": "",
