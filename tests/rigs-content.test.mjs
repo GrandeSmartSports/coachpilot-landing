@@ -109,5 +109,51 @@ const leaky = (RIG.content?.fundamentals || [])
   .map((c) => c.id);
 ok(leaky.length === 0, "no fundamentals card names a species", leaky.join(", "));
 
+// --- dated content must carry a real date --------------------------------
+// Anything with a shelf life is stamped so Field mode can warn when it has
+// gone off. A malformed date silently disables that warning.
+const badDates = cards.filter((c) => c.dated && !/^\d{4}-\d{2}-\d{2}$/.test(c.dated))
+  .map((c) => `${c.id}:${c.dated}`);
+ok(badDates.length === 0, "every dated card carries an ISO yyyy-mm-dd date", badDates.join(", "));
+
+const byId = new Map(cards.map((c) => [c.id, c]));
+
+// --- squid, Before you go -------------------------------------------------
+for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
+  const c = byId.get(id);
+  ok(!!c, `${id} exists`);
+  if (c) ok(c.group === "before", `${id} is in the Before you go group`, c.group);
+}
+
+// The spec strip states what the JOB needs first, and what Coach owns second.
+// Reversed, the card recommends the rod that already failed at Redondo.
+{
+  const gear = byId.get("squid-gear");
+  if (gear) {
+    const needs = gear.body.indexOf("sp-needs");
+    const have = gear.body.indexOf("have");
+    ok(needs >= 0, "squid-gear marks the needed spec");
+    ok(have >= 0, "squid-gear marks what is owned");
+    ok(needs >= 0 && have >= 0 && needs < have,
+      "squid-gear states what the job needs BEFORE what Coach owns", `needs@${needs} have@${have}`);
+    ok(/9\s*(ft|foot|')/i.test(gear.body) && /light/i.test(gear.body) && /fast/i.test(gear.body),
+      "squid-gear carries the settled rod spec: 9 ft, light, fast");
+  }
+}
+
+// A regs card that only links out is useless at a rail with no signal, which
+// is the condition this whole page is built for.
+{
+  const regs = byId.get("squid-regs");
+  if (regs) {
+    ok(/10\s*(lb|pound)/i.test(regs.body) && /5\s*quart/i.test(regs.body),
+      "squid-regs states the actual daily limit, not just a link");
+    ok(/one line|single line|1 line/i.test(regs.body),
+      "squid-regs carries the 2026 one-line-per-harvester rule");
+    ok(/\bwdfw\b/i.test(regs.body), "squid-regs names its source");
+    ok(!!regs.dated, "squid-regs is dated");
+  }
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
