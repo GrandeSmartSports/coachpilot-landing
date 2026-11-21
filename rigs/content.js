@@ -30,6 +30,7 @@
       {
         id: "squid",
         name: "Squid",
+        hint: "Lit piers after dark, October to February",
         blurb: "Market squid, off a lit pier after dark. A season that runs roughly October through February in south Puget Sound.",
         cards: [],
         locations: [

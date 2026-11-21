@@ -176,38 +176,230 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .klink:hover{border-color:var(--accent)}
 .klink span{color:var(--dim);font-weight:400;font-size:13px}
 
+/* ---- species picker ---- */
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 0}
+.pickcard{
+  display:block;width:100%;text-align:left;cursor:pointer;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:14px;
+  box-shadow:var(--sh);transition:border-color .15s,transform .15s;
+  font:inherit;color:inherit;
+}
+.pickcard:hover{border-color:var(--accent);transform:translateY(-1px)}
+.pickcard .nm{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;font-size:19px;color:var(--ink);line-height:1.1}
+.pickcard .sub{display:block;font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.4}
+
+/* ---- where ---- */
+.locs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 4px}
+.loc{
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;font-size:13.5px;cursor:pointer;
+  background:var(--panel);color:var(--dim);border:1px solid var(--line);
+  border-radius:999px;padding:7px 14px;transition:all .15s;
+}
+.loc[aria-pressed="true"]{background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;border-color:transparent}
+.locone{font-size:13px;color:var(--dim);margin:0 0 4px}
+.locone strong{color:var(--ink2);font-weight:600}
+
+/* ---- card groups ---- */
+.grp{margin:26px 0 0}
+.grp > h2{margin-top:0}
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 12px;
+  box-shadow:var(--sh);
+}
+.card > h3{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;font-size:17px;margin:0 0 8px;color:var(--ink)}
+.card .when{margin-bottom:2px}
+.card p{font-size:14.5px;color:var(--ink2);margin:0 0 10px}
+.card :last-child{margin-bottom:0}
+.stamp{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px;
+  padding-top:8px;border-top:1px solid var(--line)}
+.back{
+  display:inline-flex;align-items:center;gap:7px;margin:0 0 14px;cursor:pointer;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;font-size:13px;color:var(--dim);
+  background:none;border:0;padding:4px 0;
+}
+.back:hover{color:var(--accent)}
+
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
+  .pickcard:hover{transform:none}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="shead">
-    <p class="eyebrow">Fishing library</p>
-    <h1>Rig Card</h1>
-    <p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p>
-  </div>
   <div id="app"></div>
 </div>
 
 <script src="/rigs/diagrams.js"></script>
 <script src="/rigs/content.js"></script>
 <script>
-(function(){
+(function () {
   "use strict";
-  // Namespace every later module hangs off. content.js, diagrams.js and the
-  // app code all attach here rather than leaking globals.
-  var RIG = window.RIG = window.RIG || {};
+  var RIG = (window.RIG = window.RIG || {});
   RIG.version = "1";
 
-  // Offline is the whole point of this page living on coachpilot.org instead
-  // of staying an artifact. Registration failing is not fatal: the page still
-  // works online, it just will not open at the rail.
+  var app = document.getElementById("app");
+
+  // Group keys map to when Coach actually reads them, which is why the
+  // library is organised this way rather than by rig type.
+  var GROUPS = [
+    { key: "before", label: "Before you go" },
+    { key: "water", label: "At the water" },
+    { key: "after", label: "After" }
+  ];
+
+  function esc(t) {
+    return String(t).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function species() { return (RIG.content && RIG.content.species) || []; }
+  function fundamentals() { return (RIG.content && RIG.content.fundamentals) || []; }
+
+  function findSpecies(id) {
+    var all = species();
+    for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
+    return null;
+  }
+  function findLocation(sp, id) {
+    var locs = (sp && sp.locations) || [];
+    for (var i = 0; i < locs.length; i++) if (locs[i].id === id) return locs[i];
+    return locs[0] || null;
+  }
+
+  // Layer 2 and Layer 3 cards land in the same groups. Location is a thin
+  // modifier on top of the species, never a separate page, so a location
+  // never restates how to clean the fish.
+  function cardsFor(sp, loc) {
+    return (sp.cards || []).concat((loc && loc.cards) || []);
+  }
+
+  function cardHtml(c) {
+    var dia = c.diagram && RIG.diagrams && RIG.diagrams[c.diagram]
+      ? '<div class="dia">' + RIG.diagrams[c.diagram] + "</div>" : "";
+    var stamp = c.dated ? '<p class="stamp">Good as of ' + esc(c.dated) + "</p>" : "";
+    return '<article class="card" data-card="' + esc(c.id) + '">' +
+      "<h3>" + esc(c.title) + "</h3>" + dia + c.body + stamp + "</article>";
+  }
+
+  // An empty group renders nothing at all. A heading over no cards is noise.
+  function groupsHtml(cards) {
+    var out = "";
+    GROUPS.forEach(function (g) {
+      var mine = cards.filter(function (c) { return c.group === g.key; });
+      if (!mine.length) return;
+      out += '<section class="grp" data-group="' + g.key + '">' +
+        "<h2>" + esc(g.label) + "</h2>" + mine.map(cardHtml).join("") + "</section>";
+    });
+    return out;
+  }
+
+  function renderHome() {
+    var picks = species().map(function (sp) {
+      var n = cardsFor(sp, (sp.locations || [])[0]).length;
+      return '<button class="pickcard" type="button" data-species="' + esc(sp.id) + '">' +
+        '<span class="nm">' + esc(sp.name) + "</span>" +
+        '<span class="sub">' + esc(sp.hint || "") + "</span></button>";
+    }).join("");
+
+    var learn = fundamentals().length
+      ? '<section class="grp" data-group="fundamental"><h2>Learn</h2>' +
+        fundamentals().map(cardHtml).join("") + "</section>"
+      : "";
+
+    app.innerHTML =
+      '<div data-view="home">' +
+        '<div class="shead">' +
+          '<p class="eyebrow">Fishing library</p>' +
+          "<h1>Rig Card</h1>" +
+          '<p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p>' +
+        "</div>" +
+        '<div class="pick">' + picks + "</div>" +
+        learn +
+      "</div>";
+  }
+
+  function renderSpecies(sp, loc) {
+    var locs = sp.locations || [];
+    var place = loc ? esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "") : "";
+
+    // The page is the SPECIES. Where you are is a modifier on it, so the spot
+    // sits above the name rather than becoming the title, and it is never
+    // printed twice.
+    var eyebrow = locs.length > 1
+      ? '<p class="eyebrow">' + esc(sp.name) + "</p>"
+      : '<p class="eyebrow" data-locations>' + place + "</p>";
+
+    // One location is not a menu. Making Coach tap to choose from a list of
+    // one is a tap that buys nothing.
+    var chips = locs.length > 1
+      ? '<div class="locs" data-locations>' + locs.map(function (l) {
+          return '<button class="loc" type="button" data-loc="' + esc(l.id) + '" aria-pressed="' +
+            (l === loc ? "true" : "false") + '">' + esc(l.name) + "</button>";
+        }).join("") + "</div>"
+      : "";
+
+    app.innerHTML =
+      '<div data-view="species">' +
+        '<button class="back" type="button" data-back>&larr; All species</button>' +
+        '<div class="shead">' + eyebrow + "<h1>" + esc(sp.name) + "</h1>" +
+          (sp.blurb ? '<p class="when">' + esc(sp.blurb) + "</p>" : "") +
+        "</div>" +
+        chips +
+        '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
+        groupsHtml(cardsFor(sp, loc)) +
+      "</div>";
+  }
+
+  // Navigation is a hash route so a card can be linked to directly and the
+  // back button behaves. Signature is (speciesId, locationId?, cardId?).
+  RIG.go = function (speciesId, locationId, cardId) {
+    var h = speciesId ? "#/" + speciesId + (locationId ? "/" + locationId : "") +
+      (cardId ? "/" + cardId : "") : "#/";
+    if (location.hash === h) render();
+    else location.hash = h;
+  };
+
+  function render() {
+    var parts = (location.hash || "").replace(/^#\/?/, "").split("/").filter(Boolean);
+    var sp = parts[0] ? findSpecies(parts[0]) : null;
+    if (!sp) { renderHome(); return; }
+    var loc = findLocation(sp, parts[1]);
+    renderSpecies(sp, loc);
+    if (parts[2]) {
+      var el = app.querySelector('[data-card="' + parts[2].replace(/"/g, "") + '"]');
+      if (el) el.scrollIntoView({ block: "start" });
+    }
+  }
+
+  app.addEventListener("click", function (e) {
+    var pick = e.target.closest("[data-species]");
+    if (pick) { RIG.go(pick.dataset.species); return; }
+    var loc = e.target.closest("[data-loc]");
+    if (loc) {
+      var cur = (location.hash || "").replace(/^#\/?/, "").split("/")[0];
+      RIG.go(cur, loc.dataset.loc);
+      return;
+    }
+    if (e.target.closest("[data-back]")) RIG.go(null);
+  });
+
+  window.addEventListener("hashchange", render);
+  render();
+
+  // Offline is why this page lives on coachpilot.org instead of staying an
+  // artifact. A failed registration is not fatal, it just will not open cold.
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function(){
+    window.addEventListener("load", function () {
       navigator.serviceWorker.register("/rigs/sw.js", { scope: "/rigs/" })
-        .catch(function(e){ console.warn("rigs: service worker did not register", e); });
+        .catch(function (e) { console.warn("rigs: service worker did not register", e); });
     });
   }
 })();
