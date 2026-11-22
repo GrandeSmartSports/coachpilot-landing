@@ -1205,3 +1205,144 @@
     ]
   });
 })();
+
+// Salmon split into its kinds, plus steelhead. Coach, 2026-11-21: kings are
+// nothing like coho on the Sound, but in the river the same corky setup works
+// for both. So rigs that are true for every kind on a water are SHARED cards,
+// written once in RIG.content.shared, and a species or location lists them
+// by id (a string in a cards list is a reference to a shared card).
+(function () {
+  "use strict";
+  var R = window.RIG.content;
+  function vid(id, title, by, why, len, yr) {
+    return '<a class="vid" href="https://www.youtube.com/watch?v=' + id + '" target="_blank" rel="noopener">' +
+      '<span class="play" aria-hidden="true"></span><span class="vt"><b>' + title + '</b><span class="by">' + by +
+      '</span><span class="why">' + why + '</span></span><span class="len">' + len + ' min<br>' + yr + '</span></a>';
+  }
+  function vids() { return '<div class="vids">' + [].slice.call(arguments).join("") + "</div>"; }
+  function when(t) { return '<p class="when">' + t + "</p>"; }
+  function box(kind, head, t) { return '<div class="box' + (kind ? " " + kind : "") + '"><b>' + head + "</b>" + t + "</div>"; }
+  function steps() { return '<ol class="steps">' + [].slice.call(arguments).map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol>"; }
+  var EMERG = '<a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>';
+
+  var at = R.species.map(function (s) { return s.id; }).indexOf("salmon");
+  var sal = R.species[at];
+  var green = sal.locations.filter(function (l) { return l.id === "green-river"; })[0];
+  var dash = sal.locations.filter(function (l) { return l.id === "dash-point"; })[0];
+  function pick(list, ids) { return list.filter(function (c) { return ids.indexOf(c.id) !== -1; }); }
+  var SOUND = ["dash-season", "dash-law", "dash-where", "dash-timing"];
+  var RIVER = green.cards.map(function (c) { return c.id; });
+  R.shared = [].concat(sal.cards, green.cards, pick(dash.cards, SOUND));
+  var cohoSalt = pick(dash.cards, ["dash-watch-jig", "dash-watch-kayak", "dash-coho"]);
+
+  function river(extra) { return { id: "green-river", name: green.name, where: green.where, cards: RIVER.concat(extra || []) }; }
+  function sound(extra) {
+    return { id: "dash-point", name: dash.name, where: dash.where, tideStation: dash.tideStation, cards: (extra || []).concat(SOUND) };
+  }
+
+  var king = {
+    id: "king", name: "King", family: "salmon", hint: "Chinook. Deep on the drop, mooched herring",
+    cards: ["salmon-license",
+      { id: "king-watch", tab: "Watch", group: "technique", title: "Mooching, watched",
+        body: when("Kings get a slow spinning herring on the drop, not a fast rip.") +
+          vids(vid("9SE1CgzIFYw", "Mooching for kings", "Shawn Honeyager", "A Puget Sound mooching trip with a local captain.", 7, 2019),
+            vid("B185ldIyDDk", "Plug cut herring for Puget Sound salmon", "WA Fish Quest", "Cut, brine and rig the herring.", 12, 2022),
+            vid("tlW_YrT9lF0", "How to rig a cut plug herring", "Baranof Fishing Excursions", "Two hooks, step by step, in two minutes.", 2, 2021),
+            vid("FzjeRoVVFYA", "Cut plug herring on a mooching rig", "Fishing Weekend Warrior", "Getting the spin right on the rig.", 14, 2015)) },
+      { id: "king-vs-coho", tab: "Not a coho", group: "before", title: "Kings are not coho",
+        body: when("Separate the two in your head and both get simpler.") +
+          steps("<b>Kings</b> run deeper and farther out, over the drop.",
+            "<b>Coho</b> run the shallow lane along the shoreline.",
+            "<b>Kings</b> take a slow spinning herring. <b>Coho</b> chase a fast rip.") +
+          box("tip", "your first king", "Mid August off Dash Point, anchored on the 35 to 40 ft band of the pier drop.") },
+      { id: "king-mooch-build", tab: "Mooching rig", group: "before", title: "Mooching rig: build it",
+        body: when("The banana sinker has a bead chain at both ends. That is the anti twist, so no extra swivel.") +
+          steps("Main line to a snap swivel.",
+            "Snap to the top bead chain of a <b>1/2 to 1 oz</b> banana sinker.",
+            "Bottom bead chain to the leader: <b>5 to 8 ft</b> of 20 to 30 lb fluorocarbon.",
+            "Two hooks in tandem, a hand's width apart, sized to the herring.") +
+          box("law", "salt water", "Barbless, and no more than two hooks on the line.") },
+      { id: "king-cutplug", tab: "Cut plug", group: "before", title: "Cut plug herring",
+        body: when("Two angles on one cut. That is what makes it roll.") +
+          steps("Cut the head off at an angle, top to bottom.",
+            "Angle the same cut side to side, so one flank is longer than the other.",
+            "Hook goes up through the body cavity and out the top of the cut.",
+            "Pull it through the water. A tight even roll is right. Wobbling or flat means the cut is off.") },
+      { id: "king-mooch-fish", tab: "Fish it", group: "water", title: "Mooch it",
+        body: when("Drop it to the band, then let the bait do the work.") +
+          steps("Free spool down to the depth the kings are on. Count the marks.",
+            "Hold, or lift slowly a few feet and let it flutter back down.",
+            "A bite is often a tap, then the line goes slack or heavy.",
+            "Reel down until you feel weight, then lift. Do not jerk.") }],
+    locations: [sound(), river([{ id: "king-river", tab: "On the river", group: "before", title: "Kings in the river",
+      body: when("Same rigs as coho: the corky and the float. Your Puyallup day in August was kings and coho together.") +
+        box("law", "check the stretch", "King seasons on a river are short and stretch by stretch. Read the " + EMERG + " for that river before you go.") }])]
+  };
+
+  var coho = {
+    id: "coho", name: "Coho", family: "salmon", hint: "Silvers. Shallow and fast on the Sound, corkies on the river",
+    cards: ["salmon-license"],
+    locations: [sound(cohoSalt), river([{ id: "coho-river", tab: "River coho", group: "water", title: "River coho",
+      body: when("They move in pulses. Rain is the trigger.") +
+        steps("Low clear water: fish move at night and first light, and hold tight to cover in the day.",
+          "The first real fall rain pushes a fresh wave up from the salt. That is the best day to be there.",
+          "Peg soft eggs with a toothpick: bottom egg 2 inches above the hook, the next a couple inches up.",
+          "Hoochies stay home. They are salt water only.") }])]
+  };
+
+  var chum = {
+    id: "chum", name: "Chum", family: "salmon", hint: "Dogs. October and November, the hardest fighter",
+    cards: ["salmon-license",
+      { id: "chum-watch", tab: "Watch", group: "technique", title: "Chum, watched",
+        body: when("A jig under a float, in pink or purple.") +
+          vids(vid("GeDi1H0j8kE", "The 30 second chum jig", "Holy Moly Outdoors", "A jig you can tie at the river that chum eat.", 6, 2025),
+            vid("zIKb6VwbrN0", "Chum on a jig under a float", "BC Fishing Journal", "What the take and the fight look like.", 1, 2024),
+            vid("tMudqfNOAAA", "Nisqually River chum in December", "Mark Arlen Ratcliffe", "Pink corky and yarn, shoulder to shoulder.", 1, 2012)) },
+      { id: "chum-river", tab: "On the river", group: "water", title: "Chum on the river",
+        body: when("They come in behind the coho, October into November.") +
+          steps("Float and jig, the same rig as coho. Pink, purple or chartreuse.",
+            "Corky and yarn in pink.",
+            "Fish the softer water off the main push. Chum stack in slower slots.") +
+          box("tip", "the fight", "The hardest fighting salmon in the Sound. Bring the heavier rod.") },
+      { id: "chum-salt", tab: "In the salt", group: "before", title: "Chum in the salt",
+        body: when("Marine Area 11 has had chum as release only.") +
+          box("law", "release in the water", "From the kayak a chum you cannot keep stays in the water alongside. Never inside the gunwale. Check the " + EMERG + " for this year.") }],
+    locations: [river()]
+  };
+
+  var steel = {
+    id: "steelhead", name: "Steelhead", family: "salmon", hint: "Winter fish, December to March, river rigs scaled down",
+    cards: ["salmon-license",
+      { id: "steel-watch", tab: "Watch", group: "technique", title: "Steelhead, watched",
+        body: when("Float and jig first, then beads.") +
+          vids(vid("-nJIBJ6wadM", "Float and jig rigging for winter steelhead", "The Outdoor Line", "Rob Endsley builds the rig most bank anglers fish.", 3, 2016),
+            vid("pYzNmAEqI0c", "Fishing jigs for winter steelhead", "The Outdoor Line", "The spinning rod set up for jigs in western Washington rivers.", 2, 2011),
+            vid("PsKn9ZgPVLg", "3 ways to set up soft beads", "Angling Addicts PNW", "Pegging a bead for a float or a drift rig.", 6, 2023),
+            vid("ypkHRKsTa5g", "Bank fishing for Washington winter steelhead", "Boyko Outdoors", "Spoons and floating jigs from the bank.", 9, 2024)) },
+      { id: "steel-season", tab: "Is it open?", group: "before", title: "Is it open?", dated: "2026-11-21", shelfDays: 21,
+        body: when("Winter steelhead run December to March.") +
+          box("law", "not confirmed for this winter", "WDFW sets the 2026-2027 steelhead seasons in December, and most runs have been below goal. The Green River rules for this winter are not pulled in yet. Check the " + EMERG + ".") +
+          box("", "always", "Wild steelhead, adipose fin still on, go back in the water. Record any kept steelhead on your catch card.") },
+      { id: "steel-river", tab: "The rigs", group: "water", title: "Your river rigs, scaled down",
+        body: when("The salmon rigs work. Go smaller and lighter.") +
+          steps("<b>Float and jig</b> is the first rig to tie on.",
+            "<b>Pegged bead</b> under a float or on the corky drift rig.",
+            "Leader around <b>10 to 12 lb</b>, lighter than for salmon.",
+            "Fish walking speed water, about 3 to 6 ft deep: tailouts and soft seams.") }],
+    locations: [river()]
+  };
+
+  R.species.splice(at, 1, king, coho, chum, steel);
+
+  // Fish tab sections, in this order.
+  R.families = [
+    { id: "salmon", label: "Salmon and steelhead" },
+    { id: "salt", label: "Salt water" },
+    { id: "lake", label: "Lakes" },
+    { id: "shellfish", label: "Shellfish" }
+  ];
+  var fam = { squid: "salt", surfperch: "salt", cutthroat: "salt", bass: "lake", perch: "lake", crab: "shellfish", clams: "shellfish" };
+  R.species.forEach(function (s) { if (!s.family) s.family = fam[s.id] || "salt"; });
+  var order = R.families.map(function (f) { return f.id; });
+  R.species.sort(function (a, b) { return order.indexOf(a.family) - order.indexOf(b.family); });
+})();

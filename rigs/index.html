@@ -445,15 +445,25 @@ a.back{text-decoration:none}
     for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i];
     return l[0] || null;
   }
-  function cardsFor(sp, loc) { return (sp.cards || []).concat((loc && loc.cards) || []); }
+  // A string in a cards list points at a shared card, written once and used
+  // by every fish it is true for (the river rigs serve king, coho, chum and
+  // steelhead alike).
+  function shared() { return (RIG.content && RIG.content.shared) || []; }
+  function resolve(list) {
+    return (list || []).map(function (c) {
+      return typeof c === "string" ? shared().filter(function (x) { return x.id === c; })[0] : c;
+    }).filter(Boolean);
+  }
+  function cardsFor(sp, loc) { return resolve(sp.cards).concat(resolve(loc && loc.cards)); }
 
   // Every card in the library, flat, so Field mode can resolve a saved id
   // without knowing which species or location it came from.
   function allCards() {
-    var out = fundamentals().slice();
+    var out = fundamentals().concat(shared());
+    function own(list) { return (list || []).filter(function (c) { return typeof c !== "string"; }); }
     species().forEach(function (sp) {
-      out = out.concat(sp.cards || []);
-      (sp.locations || []).forEach(function (l) { out = out.concat(l.cards || []); });
+      out = out.concat(own(sp.cards));
+      (sp.locations || []).forEach(function (l) { out = out.concat(own(l.cards)); });
     });
     return out;
   }
@@ -715,7 +725,7 @@ a.back{text-decoration:none}
   }
 
   function renderFish() {
-    var picks = species().map(function (sp) {
+    function pick(sp) {
       var n = (sp.cards || []).length;
       (sp.locations || []).forEach(function (l) { n += (l.cards || []).length; });
       var spotsN = (sp.locations || []).length;
@@ -724,10 +734,17 @@ a.back{text-decoration:none}
         '<span class="sub">' + esc(sp.hint || "") + "</span>" +
         '<span class="meta">' + n + " cards" + (spotsN ? " · " + spotsN + (spotsN === 1 ? " spot" : " spots") : "") +
         "</span></button>";
+    }
+    var fams = (RIG.content && RIG.content.families) || [];
+    var body = fams.map(function (f) {
+      var mine = species().filter(function (sp) { return sp.family === f.id; });
+      return mine.length ? '<section class="grp" data-family="' + esc(f.id) + '"><h2>' + esc(f.label) + "</h2>" +
+        '<div class="pick">' + mine.map(pick).join("") + "</div></section>" : "";
     }).join("");
+    var loose = species().filter(function (sp) { return !fams.some(function (f) { return f.id === sp.family; }); });
+    if (loose.length) body += '<div class="pick">' + loose.map(pick).join("") + "</div>";
     app.innerHTML = topHtml("fish") +
-      '<div data-view="fish">' + headHtml("By fish", "What are you after?", "") +
-        '<div class="pick">' + picks + "</div></div>" + tripBarHtml();
+      '<div data-view="fish">' + headHtml("By fish", "What are you after?", "") + body + "</div>" + tripBarHtml();
   }
 
   function groupRows(cards, hrefFor) {
@@ -912,6 +929,8 @@ a.back{text-decoration:none}
       return;
     }
 
+    // Old links from when salmon was one tab land on coho, its closest heir.
+    if (parts[0] === "salmon") { location.replace("#/" + ["coho"].concat(parts.slice(1)).join("/")); return; }
     var sp = parts[0] ? findSpecies(parts[0]) : null;
     if (!sp) { renderHome(); return; }
     var loc = findLocation(sp, parts[1]);

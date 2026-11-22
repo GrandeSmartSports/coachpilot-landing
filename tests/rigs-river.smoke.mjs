@@ -32,17 +32,23 @@ try {
   page.on("pageerror", (e) => errors.push(e.message));
   const base = `http://127.0.0.1:${PORT}/rigs/`;
 
+  // Old salmon links still land somewhere real.
+  await page.goto(base + "#/salmon/green-river/salmon-bait", { waitUntil: "load" });
+  await page.waitForSelector('[data-card="salmon-bait"]');
+  ok(/#\/coho\/green-river\/salmon-bait$/.test(page.url()), "an old #/salmon link lands on coho", page.url());
   await page.goto(base + "#/fish", { waitUntil: "load" });
   const species = await page.locator(".pickcard[data-species]").allInnerTexts();
-  ok(species.some((t) => /salmon/i.test(t)), "species picker lists the river species", species.join(" | "));
+  ok(species.some((t) => /coho/i.test(t)), "species picker lists the river species", species.join(" | "));
 
-  await page.locator('.pickcard[data-species="salmon"]').click();
+  await page.locator('.pickcard[data-species="coho"]').click();
   await page.waitForSelector("[data-view=species]", { state: "visible" });
+  await page.locator('[data-loc="green-river"]').click();
+  await page.waitForSelector('[data-row="salmon-corky-build"]');
   const ids = await page.locator("[data-row]").evaluateAll((els) => els.map((e) => e.dataset.row));
   ok(ids.includes("salmon-float-eggs-build") && ids.includes("salmon-blue-fox-fish"),
     "river rig cards are listed as headlines", ids.join(", "));
 
-  await page.goto(base + "#/salmon/green-river/salmon-float-eggs-build", { waitUntil: "load" });
+  await page.goto(base + "#/coho/green-river/salmon-float-eggs-build", { waitUntil: "load" });
   await page.waitForSelector('[data-card="salmon-float-eggs-build"]');
   // A <use href="#hook"> with no matching symbol draws a zero size box.
   const hookBox = await page.evaluate(() => {
@@ -54,7 +60,7 @@ try {
   ok(hookBox && hookBox.w > 0 && hookBox.h > 0, "shared hook part actually draws in the rig diagram", JSON.stringify(hookBox));
 
   // Knot players: a rail of numbered buttons, a caption, and Play steps on.
-  await page.goto(base + "#/salmon/green-river/salmon-bait", { waitUntil: "load" });
+  await page.goto(base + "#/coho/green-river/salmon-bait", { waitUntil: "load" });
   await page.waitForSelector('[data-card="salmon-bait"] .tyer');
   const bait = page.locator('[data-card="salmon-bait"] .tyer').first();
   const rail = await bait.locator(".rail button").count();
@@ -73,7 +79,7 @@ try {
 
   // Re-rendering (navigating away and back) must not stack a second rail.
   await page.goto(base, { waitUntil: "load" });
-  await page.goto(base + "#/salmon/green-river/salmon-bait", { waitUntil: "load" });
+  await page.goto(base + "#/coho/green-river/salmon-bait", { waitUntil: "load" });
   await page.waitForSelector('[data-card="salmon-bait"] .tyer .rail button');
   const rail2 = await page.locator('[data-card="salmon-bait"] .tyer').first().locator(".rail button").count();
   ok(rail2 === 5, "a re-render does not double the rail", rail2);
@@ -85,19 +91,19 @@ try {
     "improved clinch player works from the Learn shelf");
 
   // Green River location.
-  await page.goto(base + "#/salmon/green-river", { waitUntil: "load" });
+  await page.goto(base + "#/coho/green-river", { waitUntil: "load" });
   await page.waitForSelector('[data-row="green-river-rules"]');
   ok(true, "Green River location shows its rules card");
 
   // Nothing in a card may run past its right edge on a phone.
   await page.setViewportSize({ width: 390, height: 844 });
   const rowIds = await page.evaluate(() => {
-    const sp = window.RIG.content.species.find((x) => x.id === "salmon");
-    return sp.cards.concat(sp.locations.find((l) => l.id === "green-river").cards).map((c) => c.id);
+    const sp = window.RIG.content.species.find((x) => x.id === "coho");
+    return sp.cards.concat(sp.locations.find((l) => l.id === "green-river").cards).map((c) => (typeof c === "string" ? c : c.id));
   });
   const over = [];
   for (const id of rowIds) {
-    await page.goto(base + "#/salmon/green-river/" + id, { waitUntil: "load" });
+    await page.goto(base + "#/coho/green-river/" + id, { waitUntil: "load" });
     await page.waitForSelector(`[data-card="${id}"]`);
     over.push(...await page.evaluate(() => [...document.querySelectorAll(".card")].flatMap((c) => {
       const r = c.getBoundingClientRect().right;
@@ -108,7 +114,7 @@ try {
   ok(over.length === 0, "step notes wrap inside the card at phone width", over.join(" | "));
 
   // Field mode: a knot added to a trip must still step.
-  await page.goto(base + "#/salmon/green-river/salmon-egg-loop", { waitUntil: "load" });
+  await page.goto(base + "#/coho/green-river/salmon-egg-loop", { waitUntil: "load" });
   await page.locator('[data-addtrip="salmon-egg-loop"]').click();
   await page.locator("[data-mode-field]").first().click();
   await page.waitForSelector('.fieldmode [data-card="salmon-egg-loop"] .rail button');

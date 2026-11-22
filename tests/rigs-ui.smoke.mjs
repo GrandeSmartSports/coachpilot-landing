@@ -49,6 +49,8 @@ try {
 
   await page.locator('.top [data-tab="fish"]').click();
   await page.waitForSelector('[data-view="fish"]');
+  const fams = await page.locator("[data-family]").evaluateAll((els) => els.map((e) => e.dataset.family));
+  ok(fams[0] === "salmon" && fams.includes("shellfish"), "the Fish tab is split into sections, salmon first", fams.join(","));
   const nSpecies = await page.evaluate(() => window.RIG.content.species.length);
   ok(await page.locator(".top .jump [data-species]").count() === nSpecies, "every species is one tap away under Fish");
   await page.locator('.top .jump [data-species="squid"]').click();

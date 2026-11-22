@@ -53,13 +53,23 @@ ok(RIG.diagrams && typeof RIG.diagrams === "object", "RIG.diagrams exists");
 // --- collect every card, remembering where it came from -------------------
 const cards = [];
 for (const c of RIG.content?.fundamentals || []) cards.push({ ...c, _layer: "fundamentals" });
+// Shared cards are written once and referenced by id from every fish they
+// are true for. A string in a cards list is that reference.
+for (const c of RIG.content?.shared || []) cards.push({ ...c, _layer: "shared" });
+const refs = [];
 for (const sp of RIG.content?.species || []) {
-  for (const c of sp.cards || []) cards.push({ ...c, _layer: `species:${sp.id}` });
+  for (const c of sp.cards || []) typeof c === "string" ? refs.push(c) : cards.push({ ...c, _layer: `species:${sp.id}` });
   for (const loc of sp.locations || []) {
-    for (const c of loc.cards || []) cards.push({ ...c, _layer: `location:${sp.id}/${loc.id}` });
+    for (const c of loc.cards || []) typeof c === "string" ? refs.push(c) : cards.push({ ...c, _layer: `location:${sp.id}/${loc.id}` });
   }
 }
+// Every card a species can show, own and shared, resolved.
+const sharedById = new Map((RIG.content?.shared || []).map((c) => [c.id, c]));
+const cardsOf = (sp) => [...(sp.cards || []), ...(sp.locations || []).flatMap((l) => l.cards || [])]
+  .map((c) => (typeof c === "string" ? sharedById.get(c) : c)).filter(Boolean);
 ok(cards.length > 0, "at least one card is defined", `found ${cards.length}`);
+const dangling = refs.filter((id) => !sharedById.has(id));
+ok(dangling.length === 0, "every shared card reference points at a shared card", dangling.join(", "));
 
 // --- species shape --------------------------------------------------------
 const badSpecies = (RIG.content?.species || []).filter(
@@ -256,9 +266,9 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 
 // --- river salmon, ported from the old Rig Card ----------------------------
 {
-  const river = (RIG.content?.species || []).find((s) => s.id === "salmon");
-  ok(!!river, "the river species (salmon) is in the picker");
-  const riverCards = cards.filter((c) => c._layer.endsWith(":salmon") || c._layer.startsWith("location:salmon/"));
+  const river = (RIG.content?.species || []).find((s) => s.id === "coho");
+  ok(!!river, "a river species (coho) is in the picker");
+  const riverCards = cardsOf(river).map((c) => cards.find((x) => x.id === c.id));
   ok(riverCards.length >= 10, "the river species has its full set of cards, not a stub", riverCards.length);
   for (const rig of ["float-eggs", "float-jig", "corky", "blue-fox"]) {
     const b = byId.get(`salmon-${rig}-build`), f = byId.get(`salmon-${rig}-fish`);
@@ -282,12 +292,12 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   const green = river?.locations?.find((l) => l.id === "green-river");
   ok(!!green, "Green River is a location under the river species");
   const rules = byId.get("green-river-rules");
-  ok(rules && rules._layer === "location:salmon/green-river", "green-river-rules is a location card");
+  ok(rules && rules._layer === "shared", "green-river-rules is written once and shared by every river fish");
   ok(rules && rules.dated && typeof rules.shelfDays === "number", "green-river-rules is dated and goes off");
   ok(/href="https:\/\/wdfw\.wa\.gov/.test(rules?.body || ""), "green-river-rules links to WDFW");
   ok(/single point hook/i.test(rules?.body || "") && /12 inches/.test(rules?.body || ""),
     "green-river-rules states the hook and weight rules");
-  const leaked = riverCards.filter((c) => c._layer === "species:salmon" && /Legal check, Green River/.test(c.body)).map((c) => c.id);
+  const leaked = riverCards.filter((c) => c._layer.startsWith("species:") && /Legal check, Green River/.test(c.body)).map((c) => c.id);
   ok(leaked.length === 0, "river-specific legal checks are not copied into species cards", leaked.join(", "));
   // The old card was one page of tabs. Leftover "sheet" and "this card"
   // wording points at a page that no longer exists.
@@ -314,22 +324,27 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 // --- species on top: everything Coach actually fishes --------------------
 {
   const sp = (id) => (RIG.content?.species || []).find((s) => s.id === id);
-  for (const id of ["squid", "salmon", "bass", "perch"]) ok(!!sp(id), `species tab: ${id}`);
-  ok(sp("salmon")?.name === "Salmon", "salmon is one species, river and Sound are places", sp("salmon")?.name);
-  const locs = (sp("salmon")?.locations || []).map((l) => l.id);
-  ok(locs.includes("green-river") && locs.includes("dash-point"), "salmon has the Green River and Dash Point", locs.join(", "));
-  // River rigs are bank rigs for moving water. They belong to the river, not
-  // to every salmon trip, or Dash Point would show float-and-eggs.
-  const green = sp("salmon")?.locations?.find((l) => l.id === "green-river");
-  ok((green?.cards || []).some((c) => c.id === "salmon-float-eggs-build"), "river rigs live under the Green River");
-  const dash = sp("salmon")?.locations?.find((l) => l.id === "dash-point");
-  const dashBody = (dash?.cards || []).map((c) => c.body).join(" ");
+  for (const id of ["squid", "king", "coho", "chum", "steelhead", "bass", "perch"]) ok(!!sp(id), `species tab: ${id}`);
+  ok(!sp("salmon"), "salmon is split into its kinds, not one tab");
+  const ids = (id, loc) => ((sp(id)?.locations || []).find((l) => l.id === loc)?.cards || []).map((c) => (typeof c === "string" ? c : c.id));
+  // The river rigs are shared: the same corky and float serve every kind.
+  for (const id of ["king", "coho", "chum", "steelhead"]) ok(ids(id, "green-river").includes("salmon-corky-build"), `${id} gets the shared river rigs`);
+  ok(ids("coho", "dash-point").includes("dash-coho") && !ids("king", "dash-point").includes("dash-coho"), "the coho hoochie program is coho only");
+  const kingBody = cardsOf(sp("king")).map((c) => c.body).join(" ");
+  ok(/mooch/i.test(kingBody) && /cut plug/i.test(kingBody) && /bead chain/i.test(kingBody), "kings carry the mooching rig and cut plug herring");
+  ok(/deeper/i.test(kingBody) && /shallow/i.test(kingBody), "kings say how they differ from coho");
+  const dash = sp("coho")?.locations?.find((l) => l.id === "dash-point");
+  const green = sp("coho")?.locations?.find((l) => l.id === "green-river");
+  const body = (loc) => (loc?.cards || []).map((c) => (typeof c === "string" ? sharedById.get(c) : c)).filter(Boolean).map((c) => c.body).join(" ");
+  const dashBody = body(dash);
   ok(/barbless/i.test(dashBody) && /siwash/i.test(dashBody), "Dash Point says swap trebles for barbless single siwash");
   ok(/gunwale/i.test(dashBody), "Dash Point covers releasing in the water, never inside the gunwale");
   ok(/hoochie/i.test(dashBody) && /buzz bomb/i.test(dashBody), "Dash Point carries the coho hoochie and Buzz Bomb program");
   ok(dash?.tideStation?.id === "9446705", "Dash Point tides come from station 9446705");
-  ok((dash?.cards || []).some((c) => c.dated && c.shelfDays && /Nov(ember)? 16/.test(c.body)), "Dash Point season card is dated and states the winter closure");
-  ok(!/hoochie/i.test((green?.cards || []).map((c) => c.body).join(" ")), "no hoochies on the river (saltwater only)");
+  ok(/Nov(ember)? 16/.test(sharedById.get("dash-season")?.body || "") && sharedById.get("dash-season")?.shelfDays, "Dash Point season card is dated and states the winter closure");
+  ok(!/hoochie/i.test(RIVER_BODY(green)), "no hoochies in the river rigs (saltwater only)");
+  function RIVER_BODY(loc) { return (loc?.cards || []).filter((c) => typeof c === "string").map((id) => sharedById.get(id)?.body || "").join(" "); }
+  ok(/not confirmed|not pulled in/i.test(cardsOf(sp("steelhead")).map((c) => c.body).join(" ")), "steelhead says plainly its season is not confirmed");
   const bassBody = (sp("bass")?.cards || []).concat(...(sp("bass")?.locations || []).map((l) => l.cards || [])).map((c) => c.body).join(" ");
   ok(/rooster tail/i.test(bassBody) && /1\/8 oz/i.test(bassBody), "bass carries the 1/8 oz chartreuse Rooster Tail");
   ok(/texas/i.test(bassBody) && /wacky/i.test(bassBody), "bass carries the Texas rig and the wacky rig");
@@ -375,15 +390,15 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 {
   const all = [];
   for (const sp of RIG.content?.species || []) {
-    const mine = cards.filter((c) => (c._layer === `species:${sp.id}` || c._layer.startsWith(`location:${sp.id}/`)) && c.group === "technique");
+    const mine = cardsOf(sp).filter((c) => c.group === "technique");
     const ids = [...mine.map((c) => c.body).join(" ").matchAll(/<a class="vid" href="https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})"/g)].map((m) => m[1]);
     ok(ids.length >= 5, `${sp.id} has a Technique section with at least 5 videos`, ids.length);
-    all.push(...ids);
   }
+  for (const c of cards.filter((c) => c.group === "technique")) all.push(...[...c.body.matchAll(/<a class="vid" href="https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})"/g)].map((m) => m[1]));
   ok(new Set(all).size === all.length, "no video appears twice anywhere in the library");
   const tiles = cards.filter((c) => c.group === "technique").flatMap((c) => [...c.body.matchAll(/<a class="vid"[\s\S]*?<\/a>/g)].map((m) => m[0]));
   ok(tiles.every((t) => /class="by"/.test(t) && /class="len"/.test(t) && /class="why"/.test(t)), "every video tile in the library is complete");
-  const salt = cards.filter((c) => c._layer === "location:salmon/dash-point" && c.group === "technique").map((c) => c.body).join(" ");
+  const salt = cards.filter((c) => c._layer === "location:coho/dash-point" && c.group === "technique").map((c) => c.body).join(" ");
   ok(/barbless/i.test(salt), "salt water videos come with the barbless warning");
 }
 
