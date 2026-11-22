@@ -210,6 +210,11 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .jump .jsep{flex:0 0 auto;align-self:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;
   text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--accent);padding:0 2px 0 6px}
 .card{scroll-margin-top:var(--toph,130px)}
+.card p a,.card .box a,.card li a{color:var(--accent);font-weight:600;text-underline-offset:2px}
+.top .tab{padding:8px 12px;font-size:13.5px;letter-spacing:.05em}
+.top .tabs{gap:5px}
+.card .box + ol.steps,.card .box + .box{margin-top:14px}
+.card ol.steps + .box{margin-top:6px}
 
 /* ---- species picker ---- */
 .pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 0}
@@ -533,9 +538,11 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     if (cards && cards.length) {
       var last = null;
       jump = '<nav class="jump" aria-label="Jump to a card">' + cards.map(function (c) {
+        var key = c.section || c.group;
         var g = GROUPS.filter(function (x) { return x.key === c.group; })[0];
-        var sep = g && c.group !== last ? '<span class="jsep">' + esc(g.short) + "</span>" : "";
-        last = c.group;
+        var name = c.section || (g && g.short);
+        var sep = name && key !== last ? '<span class="jsep">' + esc(name) + "</span>" : "";
+        last = key;
         return sep + '<button class="jp" type="button" data-jump="' + esc(c.id) + '">' + esc(label(c)) + "</button>";
       }).join("") + "</nav>";
     }
@@ -570,14 +577,23 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       "</div>" + tripBarHtml();
   }
 
+  function sectionsHtml(cards) {
+    var names = [];
+    cards.forEach(function (c) { if (names.indexOf(c.section) === -1) names.push(c.section); });
+    return names.map(function (n) {
+      return '<section class="grp" data-group="fundamental" data-section="' + esc(n || "") + '"><h2>' + esc(n || "Learn") + "</h2>" +
+        cards.filter(function (c) { return c.section === n; })
+          .map(function (c) { return cardHtml(c, { addable: true }); }).join("") + "</section>";
+    }).join("");
+  }
+
   function renderLearn() {
     var cards = fundamentals();
     app.innerHTML = topHtml("learn", cards) +
       '<div data-view="learn">' +
-        '<div class="shead"><p class="eyebrow">Learn</p><h1>Rods and knots</h1>' +
+        '<div class="shead"><p class="eyebrow">Learn</p><h1>Rods, knots, kayak</h1>' +
           '<p class="when">True for any fish, anywhere. Species cards link here instead of repeating it.</p></div>' +
-        '<section class="grp" data-group="fundamental">' +
-          cards.map(function (c) { return cardHtml(c, { addable: true }); }).join("") + "</section>" +
+        sectionsHtml(cards) +
       "</div>" + tripBarHtml();
   }
 
@@ -585,7 +601,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var locs = sp.locations || [];
     var place = loc ? esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "") : "";
     var eyebrow = locs.length > 1
-      ? '<p class="eyebrow">' + esc(sp.name) + "</p>"
+      ? '<p class="eyebrow">' + place + "</p>"
       : '<p class="eyebrow" data-locations>' + place + "</p>";
     var chips = locs.length > 1
       ? '<div class="locs" data-locations>' + locs.map(function (l) {

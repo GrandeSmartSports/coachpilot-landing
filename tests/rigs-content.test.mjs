@@ -311,5 +311,51 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   ok(missing.length === 0, "every <use> points at a part that is defined", missing.join(", "));
 }
 
+// --- species on top: everything Coach actually fishes --------------------
+{
+  const sp = (id) => (RIG.content?.species || []).find((s) => s.id === id);
+  for (const id of ["squid", "salmon", "bass", "perch"]) ok(!!sp(id), `species tab: ${id}`);
+  ok(sp("salmon")?.name === "Salmon", "salmon is one species, river and Sound are places", sp("salmon")?.name);
+  const locs = (sp("salmon")?.locations || []).map((l) => l.id);
+  ok(locs.includes("green-river") && locs.includes("dash-point"), "salmon has the Green River and Dash Point", locs.join(", "));
+  // River rigs are bank rigs for moving water. They belong to the river, not
+  // to every salmon trip, or Dash Point would show float-and-eggs.
+  const green = sp("salmon")?.locations?.find((l) => l.id === "green-river");
+  ok((green?.cards || []).some((c) => c.id === "salmon-float-eggs-build"), "river rigs live under the Green River");
+  const dash = sp("salmon")?.locations?.find((l) => l.id === "dash-point");
+  const dashBody = (dash?.cards || []).map((c) => c.body).join(" ");
+  ok(/barbless/i.test(dashBody) && /siwash/i.test(dashBody), "Dash Point says swap trebles for barbless single siwash");
+  ok(/gunwale/i.test(dashBody), "Dash Point covers releasing in the water, never inside the gunwale");
+  ok(/hoochie/i.test(dashBody) && /buzz bomb/i.test(dashBody), "Dash Point carries the coho hoochie and Buzz Bomb program");
+  ok(dash?.tideStation?.id === "9446705", "Dash Point tides come from station 9446705");
+  ok((dash?.cards || []).some((c) => c.dated && c.shelfDays && /Nov(ember)? 16/.test(c.body)), "Dash Point season card is dated and states the winter closure");
+  ok(!/hoochie/i.test((green?.cards || []).map((c) => c.body).join(" ")), "no hoochies on the river (saltwater only)");
+  const bassBody = (sp("bass")?.cards || []).concat(...(sp("bass")?.locations || []).map((l) => l.cards || [])).map((c) => c.body).join(" ");
+  ok(/rooster tail/i.test(bassBody) && /1\/8 oz/i.test(bassBody), "bass carries the 1/8 oz chartreuse Rooster Tail");
+  ok(/texas/i.test(bassBody) && /wacky/i.test(bassBody), "bass carries the Texas rig and the wacky rig");
+  ok((sp("bass")?.locations || []).some((l) => l.id === "lake-fenwick"), "bass has Lake Fenwick");
+  const perchLocs = (sp("perch")?.locations || []).map((l) => l.id);
+  ok(perchLocs.length >= 2, "perch and trout list the year-round lakes", perchLocs.join(", "));
+}
+
+// --- kayak lives in Learn, because it is true for any fish ----------------
+{
+  const kayak = (RIG.content?.fundamentals || []).filter((c) => c.section === "Kayak").map((c) => c.id);
+  for (const id of ["kayak-load", "kayak-pack", "kayak-anchor", "kayak-pfd", "kayak-gonogo", "kayak-reentry"])
+    ok(kayak.includes(id), `Learn has kayak card ${id}`);
+  const anchor = byId.get("kayak-anchor");
+  ok(/3x|3 times|three times/i.test(anchor?.body || "") && /25 ft/.test(anchor?.body || ""), "anchor card carries the scope drill and the 25 ft marks");
+  ok(/10 kt|10 knots/i.test(byId.get("kayak-gonogo")?.body || ""), "go/no-go states the wind limit");
+  ok(/manual/i.test(byId.get("kayak-pfd")?.body || "") && /auto/i.test(byId.get("kayak-pfd")?.body || ""), "PFD card says manual on lakes, auto on the Sound");
+  const secs = new Set((RIG.content?.fundamentals || []).map((c) => c.section));
+  ok(secs.has("Rods") && secs.has("Knots") && secs.has("Kayak"), "Learn is split into Rods, Knots and Kayak", [...secs].join(", "));
+}
+
+// --- every card fits the jump bar ------------------------------------------
+{
+  const long = cards.filter((c) => !c.tab || c.tab.length > 16).map((c) => c.id);
+  ok(long.length === 0, "every card has a short jump bar label", long.join(", "));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
