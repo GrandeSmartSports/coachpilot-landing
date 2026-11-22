@@ -371,5 +371,21 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   ok(/one line/i.test(body), "technique warns that older videos predate the one line rule");
 }
 
+// --- every species teaches with video --------------------------------------
+{
+  const all = [];
+  for (const sp of RIG.content?.species || []) {
+    const mine = cards.filter((c) => (c._layer === `species:${sp.id}` || c._layer.startsWith(`location:${sp.id}/`)) && c.group === "technique");
+    const ids = [...mine.map((c) => c.body).join(" ").matchAll(/<a class="vid" href="https:\/\/www\.youtube\.com\/watch\?v=([\w-]{11})"/g)].map((m) => m[1]);
+    ok(ids.length >= 5, `${sp.id} has a Technique section with at least 5 videos`, ids.length);
+    all.push(...ids);
+  }
+  ok(new Set(all).size === all.length, "no video appears twice anywhere in the library");
+  const tiles = cards.filter((c) => c.group === "technique").flatMap((c) => [...c.body.matchAll(/<a class="vid"[\s\S]*?<\/a>/g)].map((m) => m[0]));
+  ok(tiles.every((t) => /class="by"/.test(t) && /class="len"/.test(t) && /class="why"/.test(t)), "every video tile in the library is complete");
+  const salt = cards.filter((c) => c._layer === "location:salmon/dash-point" && c.group === "technique").map((c) => c.body).join(" ");
+  ok(/barbless/i.test(salt), "salt water videos come with the barbless warning");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

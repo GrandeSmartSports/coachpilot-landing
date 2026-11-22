@@ -834,4 +834,102 @@
       }
     ].concat(sq.cards);
   })();
+
+  // Technique videos for every species, each checked to exist on 2026-11-21.
+  (function () {
+    var add = [
+      {
+        "sp": "salmon",
+        "loc": "green-river",
+        "cards": [
+          {
+            "id": "river-watch-float",
+            "tab": "Float videos",
+            "group": "technique",
+            "title": "Float fishing, watched",
+            "body": "<p class=\"when\">Your main river rig. Start with the first one: it is a full lesson filmed on the water.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=AK2ZHCYv1rE\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to float fish for steelhead and salmon</b><span class=\"by\">Fish and Forage</span><span class=\"why\">An in depth beginner's guide, taught on the water while fishing.</span></span><span class=\"len\">16 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=Kwh6YqjTfAc\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to float fish roe for river coho</b><span class=\"by\">The Fishing Doctors Adventures</span><span class=\"why\">Float and roe for coho, start to finish.</span></span><span class=\"len\">35 min<br>2024</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=s87YXbhwtxc\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to fish bobber and eggs for coho and Chinook</b><span class=\"by\">Addicted Fishing</span><span class=\"why\">The short version: how to work the drift once you are rigged.</span></span><span class=\"len\">3 min<br>2018</span></a></div>"
+          },
+          {
+            "id": "river-watch-jig",
+            "tab": "Jig + spinner",
+            "group": "technique",
+            "title": "Jigs and spinners, watched",
+            "body": "<p class=\"when\">For when fish are not eating eggs, and for covering water.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=6uS6475qxnU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Twitching jigs for coho</b><span class=\"by\">Spilt Milt Productions</span><span class=\"why\">Hand tied twitching jigs for river coho, explained in detail.</span></span><span class=\"len\">15 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=alXfpmV9M5c\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to twitch jigs for salmon</b><span class=\"by\">Addicted Fishing</span><span class=\"why\">The twitch itself. There is no one right rhythm.</span></span><span class=\"len\">5 min<br>2018</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=zf_NdiPpFIk\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to fish the Blue Fox Vibrax</b><span class=\"by\">Rapala</span><span class=\"why\">The maker of the Blue Fox on running depth, the countdown, and changing speed.</span></span><span class=\"len\">6 min<br>2023</span></a></div><div class=\"box law\"><b>hooks on the Green</b>Spinners in videos come with trebles. On the Green you swap to one single point hook. See the Blue Fox build card.</div>"
+          },
+          {
+            "id": "river-watch-drift",
+            "tab": "Drift videos",
+            "group": "technique",
+            "title": "Corky and yarn, watched",
+            "body": "<p class=\"when\">Drift fishing for faster water where a float will not track.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=xmYJ61asNsk\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Corky drifting setup</b><span class=\"by\">In And On The Net Fishing</span><span class=\"why\">How to tie the corky drift rig, in one minute.</span></span><span class=\"len\">1 min<br>2023</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=nD4J8W8ea0k\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Yarnies 101</b><span class=\"by\">Northwest Fishing</span><span class=\"why\">Making and rigging yarn for drifting.</span></span><span class=\"len\">6 min<br>2014</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=6U0CqUeu6no\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to peg a corky with a yarnie</b><span class=\"by\">Fishing The Odds</span><span class=\"why\">A corky pegged like a bead, for clear water.</span></span><span class=\"len\">10 min<br>2019</span></a></div>"
+          }
+        ]
+      },
+      {
+        "sp": "salmon",
+        "loc": "dash-point",
+        "cards": [
+          {
+            "id": "dash-watch-jig",
+            "tab": "Buzz Bomb",
+            "group": "technique",
+            "title": "Buzz Bombs and jigs, watched",
+            "body": "<p class=\"when\">How to cast and work the jigs you own.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=tFYDY9wdY8A\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Buzz Bomb and Zzinger lures for coho</b><span class=\"by\">Buzzbomb Tackle</span><span class=\"why\">From the company that makes them: casting for coho from shore and a small boat.</span></span><span class=\"len\">7 min<br>2022</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=ejvKusmAtXw\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Buzz Bomb and Point Wilson Dart rigs</b><span class=\"by\">Steve Perdue</span><span class=\"why\">How to rig both jigs for kings, coho and pinks.</span></span><span class=\"len\">7 min<br>2024</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=Qy7bWZabPDs\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Coho chasing a Buzz Bomb</b><span class=\"by\">Westcoast Condition</span><span class=\"why\">One minute. A coho follows the jig to the surface over a bait ball at 45 ft.</span></span><span class=\"len\">1 min<br>2026</span></a></div><div class=\"box law\"><b>barbless here</b>These videos show the jigs with trebles. At Dash Point that is illegal for salmon. Single siwash, barb pinched, before you launch.</div>"
+          },
+          {
+            "id": "dash-watch-kayak",
+            "tab": "Shore + kayak",
+            "group": "technique",
+            "title": "From shore and from a kayak",
+            "body": "<p class=\"when\">Coho in Puget Sound without a big boat.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=En9bgvweNKM\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Coho in Puget Sound: jigging from shore</b><span class=\"by\">ReelBlue Custom Rods</span><span class=\"why\">Jigging coho from the beach in Marine Area 13.</span></span><span class=\"len\">8 min<br>2021</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=BL6h6NJqBUs\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Resident coho from a kayak in winter</b><span class=\"by\">SeaWolf Fishing</span><span class=\"why\">Kayaks on Puget Sound in winter, after resident coho.</span></span><span class=\"len\">5 min<br>2021</span></a></div>"
+          }
+        ]
+      },
+      {
+        "sp": "bass",
+        "loc": null,
+        "cards": [
+          {
+            "id": "bass-watch-wacky",
+            "tab": "Wacky videos",
+            "group": "technique",
+            "title": "Wacky rig, watched",
+            "body": "<p class=\"when\">Start here. The easiest way to catch bass on a soft plastic.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=Tv0CezMdfhU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to catch bass on a wacky worm in 10 minutes</b><span class=\"by\">Wendell Fishing</span><span class=\"why\">How to rig, cast and fish it, for beginners.</span></span><span class=\"len\">11 min<br>2026</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=zG2xIq1qd3o\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to fish a wacky rig</b><span class=\"by\">Flukemaster</span><span class=\"why\">Several ways to fish a wacky Senko, from one of the best known bass teachers on YouTube.</span></span><span class=\"len\">16 min<br>2021</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=oXltsbQxCKM\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Wacky or Texas rig: when to use which</b><span class=\"by\">Bass University</span><span class=\"why\">Picking between your two rigs.</span></span><span class=\"len\">4 min<br>2020</span></a></div>"
+          },
+          {
+            "id": "bass-watch-texas",
+            "tab": "Texas videos",
+            "group": "technique",
+            "title": "Texas rig, watched",
+            "body": "<p class=\"when\">For the wood and stumps.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=aCpi3zzlLIk\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Texas Rig 101</b><span class=\"by\">Realistic Fishing</span><span class=\"why\">The class version: how to rig it and how to fish it. Over half a million views.</span></span><span class=\"len\">15 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=XszLJnons_0\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Texas rig fishing made easy</b><span class=\"by\">Wendell Fishing</span><span class=\"why\">Rigging and fishing it, for people new to bass.</span></span><span class=\"len\">6 min<br>2025</span></a></div>"
+          }
+        ]
+      },
+      {
+        "sp": "perch",
+        "loc": null,
+        "cards": [
+          {
+            "id": "perch-watch",
+            "tab": "Perch videos",
+            "group": "technique",
+            "title": "Perch, watched",
+            "body": "<p class=\"when\">Jigging for perch. Most of this is from other lakes, but the jigging is the same.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=N_pxTEzzpqM\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to jig for perch</b><span class=\"by\">Westin Fishing</span><span class=\"why\">Jorgen Larsson's simple jigging motion, in two minutes.</span></span><span class=\"len\">2 min<br>2018</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=LMAF3NWW-ns\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Using artificial lures for perch</b><span class=\"by\">Getfishing</span><span class=\"why\">When perch want a jig and soft plastic instead of bait.</span></span><span class=\"len\">6 min<br>2020</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=CYCU2wkhdP8\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>2 jigging techniques for perch</b><span class=\"by\">Thundermist Lure Company</span><span class=\"why\">Two ways to work a jig for perch.</span></span><span class=\"len\">15 min<br>2025</span></a></div>"
+          },
+          {
+            "id": "trout-watch",
+            "tab": "Trout videos",
+            "group": "technique",
+            "title": "Stocked trout, watched",
+            "body": "<p class=\"when\">For the days after a plant.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=92Y737Czy0M\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to set up PowerBait for trout</b><span class=\"by\">Oregon Life</span><span class=\"why\">The bait rig for stocked trout, off the bottom.</span></span><span class=\"len\">17 min<br>2022</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=nIIag42aJxs\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Best PowerBait and setup for stocked trout</b><span class=\"by\">ReelBlue Custom Rods</span><span class=\"why\">Which PowerBait and how to rig it for lake trout plants.</span></span><span class=\"len\">24 min<br>2025</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=jC_VrRdo0fQ\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Trout fishing with Rooster Tail spinners</b><span class=\"by\">Fish Hawk</span><span class=\"why\">Your Rooster Tail on trout. Filmed on a creek, same retrieve.</span></span><span class=\"len\">8 min<br>2024</span></a></div>"
+          }
+        ]
+      }
+    ];
+    add.forEach(function (a) {
+      var sp = RIG.content.species.filter(function (s) { return s.id === a.sp; })[0];
+      var home = a.loc ? sp.locations.filter(function (l) { return l.id === a.loc; })[0] : sp;
+      home.cards = a.cards.concat(home.cards);
+    });
+  })();
 })();
