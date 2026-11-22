@@ -30,19 +30,6 @@
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
 }
-@media (prefers-color-scheme: light){
-  :root:not([data-theme="dark"]){
-    --bg:#eceff2; --bg2:#f6f8f9;
-    --panel:#ffffff; --panel2:#f4f7f9; --panel3:#e9eef2;
-    --line:#dbe2e8; --line2:#c4cfd8;
-    --ink:#0b1116; --ink2:#2f3d47; --dim:#5c6c78;
-    --accent:#c33f08; --accent2:#e2600f;
-    --go:#2f7512; --warn:#8a6000; --no:#bd2114;
-    --water:#d2e6f1; --rope:#1d2a33;
-    --steel:#5f6d78; --steel2:#44525c;
-    --sh:0 1px 2px rgba(16,30,40,.07),0 10px 28px -14px rgba(16,30,40,.3);
-  }
-}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
@@ -207,18 +194,36 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .buy .p{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
 .buy .go{color:var(--line2);font-size:17px;line-height:1;flex:0 0 auto}
 
+/* ---- pinned header: species tabs + jump bar ---- */
+.top{position:sticky;top:0;z-index:30;margin:calc(-18px - env(safe-area-inset-top)) -16px 18px;
+  padding-top:env(safe-area-inset-top);
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line)}
+.top .tabs{position:static;margin:0;border:0;background:none;backdrop-filter:none;padding:11px 16px 9px}
+.jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px}
+.jump::-webkit-scrollbar{display:none}
+.jump .jp{flex:0 0 auto;font:600 13px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;
+  color:var(--ink2);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:7px 11px}
+.jump .jp:hover,.jump .jp[aria-current="true"]{color:var(--ink);border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 16%,var(--panel2))}
+.jump .jsep{flex:0 0 auto;align-self:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--accent);padding:0 2px 0 6px}
+.card{scroll-margin-top:var(--toph,130px)}
+
 /* ---- species picker ---- */
 .pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 0}
 .pickcard{
   display:block;width:100%;text-align:left;cursor:pointer;
   background:linear-gradient(180deg,var(--panel2),var(--panel));
-  border:1px solid var(--line);border-radius:14px;padding:14px;
+  border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;padding:16px 14px;
   box-shadow:var(--sh);transition:border-color .15s,transform .15s;
   font:inherit;color:inherit;
 }
+.pickcard .meta{display:block;margin-top:10px;font-family:var(--mono);font-size:11.5px;color:var(--accent);font-weight:600}
 .pickcard:hover{border-color:var(--accent);transform:translateY(-1px)}
 .pickcard .nm{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;font-size:19px;color:var(--ink);line-height:1.1}
+  letter-spacing:.04em;font-size:26px;color:var(--ink);line-height:1}
 .pickcard .sub{display:block;font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.4}
 
 /* ---- where ---- */
@@ -358,9 +363,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   var KEY = "rig.trip.v1";
 
   var GROUPS = [
-    { key: "before", label: "Before you go" },
-    { key: "water", label: "At the water" },
-    { key: "after", label: "After" }
+    { key: "before", label: "Before you go", short: "Plan" },
+    { key: "water", label: "At the water", short: "Fish" },
+    { key: "after", label: "After", short: "After" }
   ];
 
   function esc(t) {
@@ -512,22 +517,67 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       '<button class="tripgo" type="button" data-mode-field>Field mode</button></div>';
   }
 
+  // Short name for a card on the jump bar.
+  function label(c) { return c.tab || String(c.title).split(":")[0]; }
+
+  // The pinned header: every species as a tab, Learn last, and a jump bar
+  // with one pill per card on the screen below it.
+  function topHtml(active, cards) {
+    var tabs = species().map(function (sp) {
+      return '<button class="tab" type="button" role="tab" data-species="' + esc(sp.id) + '" aria-selected="' +
+        (sp.id === active ? "true" : "false") + '">' + esc(sp.name) + "</button>";
+    }).join("") +
+      '<button class="tab" type="button" role="tab" data-learn aria-selected="' +
+      (active === "learn" ? "true" : "false") + '">Learn</button>';
+    var jump = "";
+    if (cards && cards.length) {
+      var last = null;
+      jump = '<nav class="jump" aria-label="Jump to a card">' + cards.map(function (c) {
+        var g = GROUPS.filter(function (x) { return x.key === c.group; })[0];
+        var sep = g && c.group !== last ? '<span class="jsep">' + esc(g.short) + "</span>" : "";
+        last = c.group;
+        return sep + '<button class="jp" type="button" data-jump="' + esc(c.id) + '">' + esc(label(c)) + "</button>";
+      }).join("") + "</nav>";
+    }
+    return '<header class="top"><nav class="tabs" role="tablist">' + tabs + "</nav>" + jump + "</header>";
+  }
+
+  // Cards in the order the groups render them, so the jump bar reads in the
+  // same order as the page.
+  function ordered(cards) {
+    var out = [];
+    GROUPS.forEach(function (g) { out = out.concat(cards.filter(function (c) { return c.group === g.key; })); });
+    return out;
+  }
+
   function renderHome() {
     var picks = species().map(function (sp) {
+      var n = (sp.cards || []).length;
+      (sp.locations || []).forEach(function (l) { n += (l.cards || []).length; });
+      var spots = (sp.locations || []).length;
       return '<button class="pickcard" type="button" data-species="' + esc(sp.id) + '">' +
         '<span class="nm">' + esc(sp.name) + "</span>" +
-        '<span class="sub">' + esc(sp.hint || "") + "</span></button>";
+        '<span class="sub">' + esc(sp.hint || "") + "</span>" +
+        '<span class="meta">' + n + " cards" + (spots ? " · " + spots + (spots === 1 ? " spot" : " spots") : "") +
+        "</span></button>";
     }).join("");
-    var learn = fundamentals().length
-      ? '<section class="grp" data-group="fundamental"><h2>Learn</h2>' +
-        fundamentals().map(function (c) { return cardHtml(c, { addable: true }); }).join("") + "</section>"
-      : "";
-    app.innerHTML =
+    app.innerHTML = topHtml(null) +
       '<div data-view="home">' +
         '<div class="shead"><p class="eyebrow">Fishing library</p><h1>Rig Card</h1>' +
-          '<p class="when">Pick what you are after, then where. Plan a trip here, carry it to the water.</p></div>' +
+          '<p class="when">Pick what you are after. Plan the trip here, carry it to the water.</p></div>' +
         noticeHtml() +
-        '<div class="pick">' + picks + "</div>" + learn +
+        '<div class="pick">' + picks + "</div>" +
+      "</div>" + tripBarHtml();
+  }
+
+  function renderLearn() {
+    var cards = fundamentals();
+    app.innerHTML = topHtml("learn", cards) +
+      '<div data-view="learn">' +
+        '<div class="shead"><p class="eyebrow">Learn</p><h1>Rods and knots</h1>' +
+          '<p class="when">True for any fish, anywhere. Species cards link here instead of repeating it.</p></div>' +
+        '<section class="grp" data-group="fundamental">' +
+          cards.map(function (c) { return cardHtml(c, { addable: true }); }).join("") + "</section>" +
       "</div>" + tripBarHtml();
   }
 
@@ -543,14 +593,14 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
             (l === loc ? "true" : "false") + '">' + esc(l.name) + "</button>";
         }).join("") + "</div>"
       : "";
-    app.innerHTML =
+    var cards = ordered(cardsFor(sp, loc));
+    app.innerHTML = topHtml(sp.id, cards) +
       '<div data-view="species">' +
-        '<button class="back" type="button" data-back>&larr; All species</button>' +
         '<div class="shead">' + eyebrow + "<h1>" + esc(sp.name) + "</h1>" +
           (sp.blurb ? '<p class="when">' + esc(sp.blurb) + "</p>" : "") + "</div>" +
         noticeHtml() + chips +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
-        groupsHtml(cardsFor(sp, loc), { addable: true }) +
+        groupsHtml(cards, { addable: true }) +
       "</div>" + tripBarHtml();
   }
 
@@ -635,6 +685,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   function render() {
     renderView();
     initTyers(app);
+    var top = app.querySelector(".top");
+    if (top) document.documentElement.style.setProperty("--toph", (top.offsetHeight + 8) + "px");
   }
 
   function renderView() {
@@ -644,7 +696,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     // #/learn/<cardId> deep links into the Fundamentals course on the home
     // screen, so a species card can point at it instead of restating it.
     if (parts[0] === "learn") {
-      renderHome();
+      renderLearn();
       if (parts[1]) {
         var lc = app.querySelector('[data-card="' + parts[1].replace(/"/g, "") + '"]');
         if (lc) lc.scrollIntoView({ block: "start" });
@@ -668,6 +720,13 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
     if (t.closest("[data-mode-library]")) { setMode("library"); return; }
+    if (t.closest("[data-learn]")) { location.hash = "#/learn"; return; }
+    var jp = t.closest("[data-jump]");
+    if (jp) {
+      var target = app.querySelector('[data-card="' + jp.dataset.jump.replace(/"/g, "") + '"]');
+      if (target) target.scrollIntoView({ block: "start" });
+      return;
+    }
     var pick = t.closest("[data-species]");
     if (pick) { RIG.go(pick.dataset.species); return; }
     var loc = t.closest("[data-loc]");

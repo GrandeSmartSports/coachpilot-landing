@@ -36,7 +36,7 @@ try {
   const species = await page.locator("[data-species]").allInnerTexts();
   ok(species.some((t) => /salmon/i.test(t)), "species picker lists the river species", species.join(" | "));
 
-  await page.locator('[data-species="salmon"]').click();
+  await page.locator('.pickcard[data-species="salmon"]').click();
   await page.waitForSelector("[data-view=species]", { state: "visible" });
   const ids = await page.locator("[data-card]").evaluateAll((els) => els.map((e) => e.dataset.card));
   ok(ids.includes("salmon-float-eggs-build") && ids.includes("salmon-blue-fox-fish"),

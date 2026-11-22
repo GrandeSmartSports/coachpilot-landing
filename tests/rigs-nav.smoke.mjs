@@ -55,7 +55,7 @@ try {
     "pick card name and hint are block level, not run together", JSON.stringify(stacked));
 
   // --- pick a species -----------------------------------------------------
-  await page.locator('[data-species="squid"]').click();
+  await page.locator('.pickcard[data-species="squid"]').click();
   await page.waitForSelector("[data-view=species]", { state: "visible" });
 
   const locText = await page.locator("[data-locations]").innerText();
@@ -90,11 +90,11 @@ try {
   // --- the rod course -----------------------------------------------------
   // Fundamentals live on the home screen under Learn, and a species card
   // links into them rather than restating what power or action mean.
-  await page.goto(base, { waitUntil: "load" });
+  await page.goto(base + "#/learn", { waitUntil: "load" });
   const learn = await page.locator('[data-group="fundamental"] [data-card]').evaluateAll((els) =>
     els.map((e) => e.dataset.card));
   ok(learn.includes("rod-power") && learn.includes("rod-action"),
-    "the rod course renders under Learn on the home screen", JSON.stringify(learn));
+    "the rod course renders on the Learn tab", JSON.stringify(learn));
 
   await page.goto(base + "#/learn/rod-action", { waitUntil: "load" });
   await page.waitForSelector('[data-card="rod-action"]');
