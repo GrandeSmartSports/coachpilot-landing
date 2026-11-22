@@ -254,5 +254,62 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
     "diagrams use theme variables, never hardcoded hex", [...new Set(rawHex)].join(", "));
 }
 
+// --- river salmon, ported from the old Rig Card ----------------------------
+{
+  const river = (RIG.content?.species || []).find((s) => s.id === "salmon");
+  ok(!!river, "the river species (salmon) is in the picker");
+  const riverCards = cards.filter((c) => c._layer.endsWith(":salmon") || c._layer.startsWith("location:salmon/"));
+  ok(riverCards.length >= 10, "the river species has its full set of cards, not a stub", riverCards.length);
+  for (const rig of ["float-eggs", "float-jig", "corky", "blue-fox"]) {
+    const b = byId.get(`salmon-${rig}-build`), f = byId.get(`salmon-${rig}-fish`);
+    ok(b && b.group === "before", `salmon-${rig}-build exists under Before you go`);
+    ok(f && f.group === "water", `salmon-${rig}-fish exists under At the water`);
+    ok(b && b.diagram && RIG.diagrams[b.diagram], `salmon-${rig}-build carries its rig diagram`);
+  }
+  ok(byId.get("salmon-bait") && /bait thread/i.test(byId.get("salmon-bait").body),
+    "salmon-bait carries the bait thread method");
+  ok(/spawn sack/i.test(byId.get("salmon-bait")?.body || ""), "salmon-bait carries spawn sacks");
+  const tyerCount = (b) => (b.match(/class="tyer"/g) || []).length;
+  ok(tyerCount(byId.get("salmon-bait")?.body || "") === 2, "salmon-bait keeps both step players");
+  ok(byId.get("salmon-egg-loop") && tyerCount(byId.get("salmon-egg-loop").body) === 1,
+    "the egg loop knot player lives in the river species");
+  for (const id of ["knot-improved-clinch", "knot-non-slip-loop"]) {
+    const k = byId.get(id);
+    ok(k && k._layer === "fundamentals" && tyerCount(k.body) === 1, `${id} is a Learn card with its step player`);
+  }
+  // Legal rules are true only on that river, so they are a location card and
+  // they go off: regs move season to season.
+  const green = river?.locations?.find((l) => l.id === "green-river");
+  ok(!!green, "Green River is a location under the river species");
+  const rules = byId.get("green-river-rules");
+  ok(rules && rules._layer === "location:salmon/green-river", "green-river-rules is a location card");
+  ok(rules && rules.dated && typeof rules.shelfDays === "number", "green-river-rules is dated and goes off");
+  ok(/href="https:\/\/wdfw\.wa\.gov/.test(rules?.body || ""), "green-river-rules links to WDFW");
+  ok(/single point hook/i.test(rules?.body || "") && /12 inches/.test(rules?.body || ""),
+    "green-river-rules states the hook and weight rules");
+  const leaked = riverCards.filter((c) => c._layer === "species:salmon" && /Legal check, Green River/.test(c.body)).map((c) => c.id);
+  ok(leaked.length === 0, "river-specific legal checks are not copied into species cards", leaked.join(", "));
+  // The old card was one page of tabs. Leftover "sheet" and "this card"
+  // wording points at a page that no longer exists.
+  const stale = riverCards.concat(cards.filter((c) => c.id.startsWith("knot-")))
+    .filter((c) => /\b(?:knots|eggs|jig|corky|fox) sheet\b|on this card|this whole card/i.test(c.body)).map((c) => c.id);
+  ok(stale.length === 0, "no card refers to the old tabbed sheets", stale.join(", "));
+}
+
+// --- no raw colour anywhere a card draws -----------------------------------
+{
+  const bodyHex = cards.filter((c) => /(?:fill|stroke|stop-color)\s*=\s*"#[0-9a-f]{3,8}"/i.test(c.body)).map((c) => c.id);
+  ok(bodyHex.length === 0, "card bodies use theme variables, never hardcoded hex", bodyHex.join(", "));
+  // Shared parts are drawn once as <symbol>s in index.html. A <use> that
+  // points at a missing symbol draws nothing and fails silently.
+  const index = readFileSync(join(RIGS, "index.html"), "utf8");
+  const dias = readFileSync(join(RIGS, "diagrams.js"), "utf8");
+  const all = index + dias + cards.map((c) => c.body).join("");
+  const defined = new Set([...all.matchAll(/<[a-zA-Z]+ [^>]*\bid="([^"]+)"/g)].map((m) => m[1]));
+  const used = new Set([...all.matchAll(/<use [^>]*href="#([^"]+)"/g)].map((m) => m[1]));
+  const missing = [...used].filter((u) => !defined.has(u));
+  ok(missing.length === 0, "every <use> points at a part that is defined", missing.join(", "));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
