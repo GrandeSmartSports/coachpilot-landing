@@ -21,7 +21,7 @@ const ok = (c, m, extra) => {
   else { fail++; console.log("FAIL", m, extra === undefined ? "" : String(extra).slice(0, 400)); }
 };
 
-const GROUPS = ["before", "water", "after", "fundamental"];
+const GROUPS = ["technique", "before", "water", "after", "fundamental"];
 
 // --- load the data files in a browser-ish sandbox -------------------------
 function load() {
@@ -355,6 +355,20 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 {
   const long = cards.filter((c) => !c.tab || c.tab.length > 16).map((c) => c.id);
   ok(long.length === 0, "every card has a short jump bar label", long.join(", "));
+}
+
+// --- technique: learn from people who are good at it ---------------------
+{
+  const tech = cards.filter((c) => c._layer === "species:squid" && c.group === "technique");
+  ok(tech.length >= 2, "squid has a Technique section", tech.length);
+  const body = tech.map((c) => c.body).join(" ");
+  const vids = [...body.matchAll(/<a class="vid" href="(https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11})"/g)].map((m) => m[1]);
+  ok(vids.length >= 8, "squid technique carries at least 8 videos", vids.length);
+  ok(new Set(vids).size === vids.length, "no video listed twice");
+  const tiles = [...body.matchAll(/<a class="vid"[\s\S]*?<\/a>/g)].map((m) => m[0]);
+  ok(tiles.every((t) => /class="by"/.test(t) && /class="len"/.test(t) && /class="why"/.test(t)),
+    "every video says who made it, how long it is, and what to watch for");
+  ok(/one line/i.test(body), "technique warns that older videos predate the one line rule");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

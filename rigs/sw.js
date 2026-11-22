@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v6";
+const CACHE = "rigs-v7";
 
 // Without these three the page cannot render at all, so a failure to cache
 // any of them must fail the whole install and leave the previous worker and

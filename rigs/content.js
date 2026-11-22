@@ -805,4 +805,33 @@
   RIG.content.fundamentals.forEach(function (c) {
     if (!c.section) c.section = /^knot-/.test(c.id) ? "Knots" : "Rods";
   });
+
+  // Technique: real videos, each checked to exist on 2026-11-21. They go first,
+  // because learning how the good anglers do it is what this tab is for.
+  (function () {
+    var sq = RIG.content.species.filter(function (s) { return s.id === "squid"; })[0];
+    sq.cards = [
+      {
+        "id": "squid-watch-start",
+        "tab": "Start here",
+        "group": "technique",
+        "title": "Start here: how it is done",
+        "body": "<p class=\"when\">Watch these three in order. Then read the cards below, which are the same ideas cut down for the pier.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=pNq_W2CkACU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Beginner's guide to jigs and pier etiquette</b><span class=\"by\">Anglers Unlimited</span><span class=\"why\">The newest and most complete. Gear, jigs and how to fish a crowded Puget Sound pier.</span></span><span class=\"len\">44 min<br>2025</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=mWihYbDc530\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>5 tips for catching more squid</b><span class=\"by\">Bashi Fishing</span><span class=\"why\">Timing, jig, rod, depth, and the jigging motion itself.</span></span><span class=\"len\">12 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=v2TGVkpvM_A\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Puget Sound pier squid fishing</b><span class=\"by\">Holy Moly Outdoors</span><span class=\"why\">Which jigs to use and how to find squid at different piers.</span></span><span class=\"len\">14 min<br>2024</span></a></div><div class=\"box law\"><b>one line now</b>Most of these were filmed before 2026. The rule now is <strong>one line per person</strong>, up to 4 jigs on it. If a video shows two rods each, that is no longer legal.</div>"
+      },
+      {
+        "id": "squid-watch-rig",
+        "tab": "Rig videos",
+        "group": "technique",
+        "title": "Rigging, watched",
+        "body": "<p class=\"when\">See the rig built before you build yours.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=s-oLfq_fUfw\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>How to set up for squid jigging</b><span class=\"by\">Sound Fishing</span><span class=\"why\">The exact Puget Sound setup, start to finish, in two minutes.</span></span><span class=\"len\">2 min<br>2018</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=OMR2eML1HHY\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Puget Sound squid rigging</b><span class=\"by\">Holy Moly Outdoors</span><span class=\"why\">Rigging in detail, from what to buy to tying it up.</span></span><span class=\"len\">13 min<br>2017</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=OCt2rA4ZOSU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Jig types and rigging options</b><span class=\"by\">Holy Moly Outdoors</span><span class=\"why\">The different kinds of jigs and a few ways to rig them.</span></span><span class=\"len\">8 min<br>2014</span></a></div>"
+      },
+      {
+        "id": "squid-watch-more",
+        "tab": "Boat + Redondo",
+        "group": "technique",
+        "title": "From a boat, and at your pier",
+        "body": "<p class=\"when\">For later: squid from a boat, and a night at Redondo, your spot.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=PgDUDgqxgQ0\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Winter squid jigging in downtown Seattle</b><span class=\"by\">Capt. Paul Kim, Fish PNW Guide Service</span><span class=\"why\">A licensed guide's tips for catching market squid from a boat.</span></span><span class=\"len\">6 min<br>2024</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=19-9JPmqPec\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Squid jigging at Redondo Beach, Des Moines</b><span class=\"by\">Tri Nguyen</span><span class=\"why\">A first night at Redondo, from a boat after dark.</span></span><span class=\"len\">7 min<br>2021</span></a></div>"
+      }
+    ].concat(sq.cards);
+  })();
 })();
