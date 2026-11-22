@@ -47,7 +47,10 @@ try {
     ok(await page.evaluate(() => typeof window.RIG?.trip?.add === "function"), "RIG.trip.add exists");
     ok(await page.evaluate(() => typeof window.RIG?.trip?.setDate === "function"), "RIG.trip.setDate exists");
 
+    // Cards open one at a time now, so each is added from its own screen.
+    await page.goto(BASE + "#/squid/redondo/squid-gear", { waitUntil: "load" });
     await page.locator('[data-addtrip="squid-gear"]').click();
+    await page.goto(BASE + "#/squid/redondo/squid-regs", { waitUntil: "load" });
     await page.locator('[data-addtrip="squid-regs"]').click();
     ok((await page.evaluate(() => window.RIG.trip.list())).length === 2, "two cards added to the trip");
     ok(/2/.test(await page.locator("[data-trip-count]").innerText()), "the trip count shows 2");
@@ -166,8 +169,8 @@ try {
     });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    await page.goto(BASE + "#/squid/redondo", { waitUntil: "load" });
-    ok(await page.locator("[data-view=species]").isVisible(), "the page still renders when storage throws");
+    await page.goto(BASE + "#/squid/redondo/squid-gear", { waitUntil: "load" });
+    ok(await page.locator("[data-view=card]").isVisible(), "the page still renders when storage throws");
 
     await page.locator('[data-addtrip="squid-gear"]').click();
     ok((await page.evaluate(() => window.RIG.trip.list())).length === 1,

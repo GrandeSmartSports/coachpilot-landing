@@ -816,7 +816,7 @@
         "tab": "Start here",
         "group": "technique",
         "title": "Start here: how it is done",
-        "body": "<p class=\"when\">Watch these three in order. Then read the cards below, which are the same ideas cut down for the pier.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=pNq_W2CkACU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Beginner's guide to jigs and pier etiquette</b><span class=\"by\">Anglers Unlimited</span><span class=\"why\">The newest and most complete. Gear, jigs and how to fish a crowded Puget Sound pier.</span></span><span class=\"len\">44 min<br>2025</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=mWihYbDc530\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>5 tips for catching more squid</b><span class=\"by\">Bashi Fishing</span><span class=\"why\">Timing, jig, rod, depth, and the jigging motion itself.</span></span><span class=\"len\">12 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=v2TGVkpvM_A\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Puget Sound pier squid fishing</b><span class=\"by\">Holy Moly Outdoors</span><span class=\"why\">Which jigs to use and how to find squid at different piers.</span></span><span class=\"len\">14 min<br>2024</span></a></div><div class=\"box law\"><b>one line now</b>Most of these were filmed before 2026. The rule now is <strong>one line per person</strong>, up to 4 jigs on it. If a video shows two rods each, that is no longer legal.</div>"
+        "body": "<p class=\"when\">Watch these three in order. Then read the other squid cards, which are the same ideas cut down for the pier.</p><div class=\"vids\"><a class=\"vid\" href=\"https://www.youtube.com/watch?v=pNq_W2CkACU\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Beginner's guide to jigs and pier etiquette</b><span class=\"by\">Anglers Unlimited</span><span class=\"why\">The newest and most complete. Gear, jigs and how to fish a crowded Puget Sound pier.</span></span><span class=\"len\">44 min<br>2025</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=mWihYbDc530\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>5 tips for catching more squid</b><span class=\"by\">Bashi Fishing</span><span class=\"why\">Timing, jig, rod, depth, and the jigging motion itself.</span></span><span class=\"len\">12 min<br>2019</span></a><a class=\"vid\" href=\"https://www.youtube.com/watch?v=v2TGVkpvM_A\" target=\"_blank\" rel=\"noopener\"><span class=\"play\" aria-hidden=\"true\"></span><span class=\"vt\"><b>Puget Sound pier squid fishing</b><span class=\"by\">Holy Moly Outdoors</span><span class=\"why\">Which jigs to use and how to find squid at different piers.</span></span><span class=\"len\">14 min<br>2024</span></a></div><div class=\"box law\"><b>one line now</b>Most of these were filmed before 2026. The rule now is <strong>one line per person</strong>, up to 4 jigs on it. If a video shows two rods each, that is no longer legal.</div>"
       },
       {
         "id": "squid-watch-rig",
@@ -932,4 +932,29 @@
       home.cards = a.cards.concat(home.cards);
     });
   })();
+})();
+
+// Spots: one entry per place, shared by every species fished there. Plain
+// data with stable ids so it can move into CastAI as is. `types` drive the
+// Water tab. A spot id matches the location id under each species.
+(function () {
+  "use strict";
+  var RIG = window.RIG;
+  RIG.content.types = [
+    { id: "river", label: "River" },
+    { id: "beach", label: "Beach" },
+    { id: "lake", label: "Lake" },
+    { id: "pier", label: "Pier" },
+    { id: "kayak-lake", label: "Kayak lake" },
+    { id: "kayak-sound", label: "Kayak sound" }
+  ];
+  RIG.content.spots = [
+    { id: "redondo", name: "Redondo Pier", where: "Des Moines, WA", types: ["pier"] },
+    { id: "green-river", name: "Green River", where: "Auburn to Kent, WA", types: ["river"] },
+    // The Dash Point pier is closed, so this spot is fished from the kayak.
+    { id: "dash-point", name: "Dash Point", where: "Tacoma, WA", types: ["kayak-sound"] },
+    { id: "lake-fenwick", name: "Lake Fenwick", where: "Kent, WA", types: ["lake"] },
+    { id: "american-lake", name: "American Lake", where: "Lakewood, WA", types: ["kayak-lake"] },
+    { id: "lake-tapps", name: "Lake Tapps", where: "Bonney Lake, WA", types: ["kayak-lake"] }
+  ];
 })();

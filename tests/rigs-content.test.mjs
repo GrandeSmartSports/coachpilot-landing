@@ -354,7 +354,7 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 // --- every card fits the jump bar ------------------------------------------
 {
   const long = cards.filter((c) => !c.tab || c.tab.length > 16).map((c) => c.id);
-  ok(long.length === 0, "every card has a short jump bar label", long.join(", "));
+  ok(long.length === 0, "every card has a short label for next and back", long.join(", "));
 }
 
 // --- technique: learn from people who are good at it ---------------------

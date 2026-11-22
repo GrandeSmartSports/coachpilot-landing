@@ -69,7 +69,7 @@ try {
     ok((await page.locator("h1").innerText()).trim() === "Rig Card", "renders with the network cut");
     ok(await page.evaluate(() => document.fonts.check('700 44px "Barlow Condensed"')),
       "self-hosted heading font available offline");
-    ok(await page.locator("[data-species]").count() > 0, "content.js executed offline");
+    ok(await page.locator("[data-type-tile]").count() > 0, "content.js executed offline");
     await ctx.close();
   }
 

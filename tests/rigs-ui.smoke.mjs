@@ -1,5 +1,5 @@
 // The page has to pop and navigate like the old Rig Card: dark always,
-// species tabs pinned on top, and a jump bar so any card is one tap away.
+// Water, Fish and Learn pinned on top, filters one tap away, headlines first.
 // Run: node tests/rigs-ui.smoke.mjs
 import { chromium } from "@playwright/test";
 import { dirname, resolve } from "node:path";
@@ -33,41 +33,35 @@ try {
   });
   ok(lum < 0.15, "page is dark even when the phone asks for light", lum.toFixed(2));
 
-  const nSpecies = await page.evaluate(() => window.RIG.content.species.length);
-  const tabs = await page.locator(".top .tabs [data-species]").count();
-  ok(tabs === nSpecies, "every species is a tab on top of the home screen", `${tabs} of ${nSpecies}`);
-  ok(await page.locator(".top .tabs [data-learn]").count() === 1, "Learn is its own tab");
+  const tabs = await page.locator(".top .tabs [data-tab]").allInnerTexts();
+  ok(tabs.map((t) => t.trim().toLowerCase()).join(",") === "water,fish,learn", "three ways in: Water, Fish, Learn", tabs.join(","));
   ok(await page.locator('[data-view="home"] [data-group="fundamental"]').count() === 0,
     "the rod course is not dumped on the home screen");
 
-  await page.locator('.top .tabs [data-species="squid"]').click();
+  // Screen one is tiles, not reading. Few words is a rule, so it is counted.
+  const words = await page.evaluate(() => document.querySelector('[data-view="home"]').innerText.split(/\s+/).filter(Boolean).length);
+  ok(words <= 40, "home screen is under 40 words", words);
+  const wide = await page.evaluate(() => document.documentElement.scrollWidth);
+  ok(wide <= 390, "nothing runs off the side at phone width", wide);
+
+  await page.locator('.top [data-tab="fish"]').click();
+  await page.waitForSelector('[data-view="fish"]');
+  const nSpecies = await page.evaluate(() => window.RIG.content.species.length);
+  ok(await page.locator(".top .jump [data-species]").count() === nSpecies, "every species is one tap away under Fish");
+  await page.locator('.top .jump [data-species="squid"]').click();
   await page.waitForSelector('[data-view="species"]');
-  ok(await page.locator('.top .tabs [data-species="squid"][aria-selected="true"]').count() === 1,
-    "the open species tab is lit");
+  ok(await page.locator('.top .jump [data-species="squid"][aria-current="true"]').count() === 1, "the open species is lit");
 
-  const cards = await page.locator("[data-view=species] [data-card]").count();
-  const pills = await page.locator(".top .jump [data-jump]").count();
-  ok(cards > 0 && pills === cards, "a jump pill for every card", `${pills} pills, ${cards} cards`);
-  const long = await page.locator(".top .jump [data-jump]").allInnerTexts();
-  ok(long.every((t) => t.trim().length <= 16), "jump pills are short labels", long.filter((t) => t.length > 16).join(" | "));
+  // A long card scrolled to the bottom keeps the header pinned.
+  await page.goto(base + "#/squid/redondo/squid-watch-start", { waitUntil: "load" });
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(200);
+  const hdr = await page.evaluate(() => document.querySelector(".top").getBoundingClientRect().top);
+  ok(hdr >= -1 && hdr < 5, "the header stays pinned after scrolling", hdr);
 
-  // Tap the last pill: that card lands just under the pinned header.
-  const last = page.locator(".top .jump [data-jump]").last();
-  const id = await last.getAttribute("data-jump");
-  await last.click();
-  await page.waitForTimeout(700);
-  const pos = await page.evaluate((id) => {
-    const top = document.querySelector(".top").getBoundingClientRect();
-    const c = document.querySelector(`[data-view=species] [data-card="${id}"]`).getBoundingClientRect();
-    return { header: top.top, headerBottom: top.bottom, card: c.top };
-  }, id);
-  ok(pos.header >= -1 && pos.header < 5, "the header stays pinned after scrolling", JSON.stringify(pos));
-  ok(pos.card >= pos.headerBottom - 2 && pos.card < pos.headerBottom + 80,
-    "a jump pill lands its card right under the header, not behind it", JSON.stringify(pos));
-
-  await page.locator(".top .tabs [data-learn]").click();
-  await page.waitForSelector('[data-view="learn"] [data-card="rod-power"]');
-  ok(await page.locator(".top .jump [data-jump]").count() > 0, "Learn has its jump bar too");
+  await page.locator('.top [data-tab="water"]').click();
+  await page.waitForSelector('[data-view="home"]');
+  ok(true, "Water goes back to the tiles");
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 } catch (e) {
   fail++; console.log("FAIL threw:", e.message.split("\n")[0]);
