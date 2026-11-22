@@ -1290,6 +1290,42 @@
           "Hoochies stay home. They are salt water only.") }])]
   };
 
+  var pink = {
+    id: "pink", name: "Pink", family: "salmon", hint: "Humpies. Odd years only, next run summer 2027",
+    cards: ["salmon-license",
+      { id: "pink-watch", tab: "Watch", group: "technique", title: "Pinks, watched",
+        body: when("Small, pink, slow. That is the whole program.") +
+          vids(vid("qOp0EplIGUw", "Puget Sound pink salmon fishing basics", "WDFW", "When, where and how, salt and river.", 5, 2015),
+            vid("UPf947TlUGk", "What to use for pinks from shore", "Steve Perdue", "Tacoma shore fishing, the lures that work.", 6, 2025),
+            vid("v8ruDuLZZko", "Pink salmon setup for beginners", "Cody Outdoor", "First pinks of the run in Marine Area 11, then cooked.", 30, 2025),
+            vid("tUDrLwShusw", "Jigging and trolling for pinks", "Northwest Fishing", "Jig when they bite, troll when they do not.", 14, 2021),
+            vid("8YLZDbl-9AE", "How to catch Puget Sound humpies", "John's Sporting Goods", "A tackle shop walks the gear, start to finish.", 22, 2023),
+            vid("F2_81vF4Dy0", "Pink salmon float jig, tied", "Sea-Run Fly and Tackle", "Tie the river jig yourself.", 7, 2025)) },
+      { id: "pink-when", tab: "When", group: "before", title: "Odd years only", dated: "2026-11-22", shelfDays: 240,
+        body: when("Puget Sound pinks come back in odd years. 2026 had none. Next run: summer 2027.") +
+          steps("<b>Salt:</b> mid July to mid August, peak in early August.",
+            "<b>Green River:</b> late August into October.",
+            "2025 forecast was about 1.8 million pinks to the Green alone.") +
+          box("law", "2027 rules not set", "WDFW sets the 2027 seasons in the spring. Read the " + EMERG + " before the first trip.") },
+      { id: "pink-soft", tab: "Soft mouth", group: "water", title: "Easy on the hookset",
+        body: when("Pinks have a soft mouth. Hooks tear out if you horse them.") +
+          steps("Drag set lighter than for coho.",
+            "Steady lift, no hard jerk.",
+            "Keep the rod bent and let them run.",
+            "Keep the bright ones. They turn dark and soft fast once in the river.") }],
+    locations: [sound([{ id: "pink-salt", tab: "Pink rig", group: "before", title: "Pinks off Dash Point",
+      body: when("They swim shallow along the beach. Small and pink beats big and flashy.") +
+        steps("<b>Humpy jig or Buzz Bomb</b>, 1/4 to 1/2 oz, pink. Cast, let it sink, slow retrieve.",
+          "<b>Pink mini squid</b> 18 to 24 in behind a small dodger, pulled slowly from the kayak.",
+          "<b>Small pink spoon</b> from the beach, reeled slower than for coho.") +
+        box("tip", "slow down", "Pinks grab, they do not chase. If you are fishing coho speed, you are too fast.") }]),
+      river([{ id: "pink-river", tab: "On the river", group: "water", title: "Pinks on the Green",
+        body: when("Same float and jig rig as coho. Go smaller and pink.") +
+          steps("Small pink marabou jig under the float.",
+            "Fish the softer slots off the main push, where they stack.",
+            "Sight fish when the water is clear: drift it right past their nose.") }])]
+  };
+
   var chum = {
     id: "chum", name: "Chum", family: "salmon", hint: "Dogs. October and November, the hardest fighter",
     cards: ["salmon-license",
@@ -1332,7 +1368,7 @@
     locations: [river()]
   };
 
-  R.species.splice(at, 1, king, coho, chum, steel);
+  R.species.splice(at, 1, king, coho, pink, chum, steel);
 
   // Fish tab sections, in this order.
   R.families = [

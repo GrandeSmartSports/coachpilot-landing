@@ -324,11 +324,11 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
 // --- species on top: everything Coach actually fishes --------------------
 {
   const sp = (id) => (RIG.content?.species || []).find((s) => s.id === id);
-  for (const id of ["squid", "king", "coho", "chum", "steelhead", "bass", "perch"]) ok(!!sp(id), `species tab: ${id}`);
+  for (const id of ["squid", "king", "coho", "pink", "chum", "steelhead", "bass", "perch"]) ok(!!sp(id), `species tab: ${id}`);
   ok(!sp("salmon"), "salmon is split into its kinds, not one tab");
   const ids = (id, loc) => ((sp(id)?.locations || []).find((l) => l.id === loc)?.cards || []).map((c) => (typeof c === "string" ? c : c.id));
   // The river rigs are shared: the same corky and float serve every kind.
-  for (const id of ["king", "coho", "chum", "steelhead"]) ok(ids(id, "green-river").includes("salmon-corky-build"), `${id} gets the shared river rigs`);
+  for (const id of ["king", "coho", "pink", "chum", "steelhead"]) ok(ids(id, "green-river").includes("salmon-corky-build"), `${id} gets the shared river rigs`);
   ok(ids("coho", "dash-point").includes("dash-coho") && !ids("king", "dash-point").includes("dash-coho"), "the coho hoochie program is coho only");
   const kingBody = cardsOf(sp("king")).map((c) => c.body).join(" ");
   ok(/mooch/i.test(kingBody) && /cut plug/i.test(kingBody) && /bead chain/i.test(kingBody), "kings carry the mooching rig and cut plug herring");
@@ -344,6 +344,11 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   ok(/Nov(ember)? 16/.test(sharedById.get("dash-season")?.body || "") && sharedById.get("dash-season")?.shelfDays, "Dash Point season card is dated and states the winter closure");
   ok(!/hoochie/i.test(RIVER_BODY(green)), "no hoochies in the river rigs (saltwater only)");
   function RIVER_BODY(loc) { return (loc?.cards || []).filter((c) => typeof c === "string").map((id) => sharedById.get(id)?.body || "").join(" "); }
+  const pinkBody = cardsOf(sp("pink")).map((c) => c.body).join(" ");
+  ok(sp("pink")?.family === "salmon", "pink sits in the salmon family");
+  ok(/odd/i.test(pinkBody) && /2027/.test(pinkBody), "pink says it runs odd years, next run 2027");
+  ok(ids("pink", "dash-point").includes("dash-law") && !ids("pink", "dash-point").includes("dash-coho"), "pink gets Dash Point gear law, not the coho program");
+  ok(/soft mouth|tears|lift/i.test(pinkBody) && /pink/i.test(pinkBody), "pink covers small pink lures and the soft mouth");
   ok(/not confirmed|not pulled in/i.test(cardsOf(sp("steelhead")).map((c) => c.body).join(" ")), "steelhead says plainly its season is not confirmed");
   const bassBody = (sp("bass")?.cards || []).concat(...(sp("bass")?.locations || []).map((l) => l.cards || [])).map((c) => c.body).join(" ");
   ok(/rooster tail/i.test(bassBody) && /1\/8 oz/i.test(bassBody), "bass carries the 1/8 oz chartreuse Rooster Tail");
