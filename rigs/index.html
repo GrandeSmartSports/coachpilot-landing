@@ -590,6 +590,7 @@ a.back{text-decoration:none}
     lake: '<ellipse cx="20" cy="27" rx="16" ry="7"/><path d="M11 21V7"/><path d="M15 20V11"/><path d="M8 22v-9"/>',
     pier: '<path d="M2 14h36"/><path d="M8 14v19M18 14v19M28 14v19"/><path d="M2 27c4-3 7 3 11 0s7 3 11 0 7 3 11 0"/>',
     "kayak-lake": '<path d="M3 24c8 4 26 4 34 0-8-3-26-3-34 0z"/><path d="M10 9l20 26"/><ellipse cx="20" cy="33" rx="15" ry="3"/>',
+    fly: '<path d="M24 6v20c0 7-10 7-10 0v-3"/><path d="M14 23l3 3"/><path d="M24 10c-8-2-14 2-16 8 6 0 12-2 16-6"/><path d="M24 14c6-3 11-1 13 3-5 1-10 0-13-2"/>',
     "kayak-sound": '<path d="M3 21c8 4 26 4 34 0-8-3-26-3-34 0z"/><path d="M10 6l20 26"/><path d="M2 33c4-3 7 3 11 0s7 3 11 0 7 3 11 0"/>'
   };
   function icon(id) {
@@ -683,12 +684,16 @@ a.back{text-decoration:none}
         '<span class="rt"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + "</span></span>" +
         '<span class="rm">' + esc(names) + '</span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
     }).join("");
-    // Kayak water also gets the boat itself: go/no-go, packing, re-entry.
-    var kayak = /^kayak/.test(t.id) && fundamentals().some(function (c) { return c.section === "Kayak"; })
-      ? '<section class="grp" data-kayak><h2>The kayak</h2><div class="rows"><a class="row" href="#/learn/kayak">' +
-        '<span class="rt"><b>Kayak safety and gear</b><span>Go or no go, packing, anchor, getting back in</span></span>' +
-        '<span class="chev" aria-hidden="true">&rsaquo;</span></a></div></section>'
-      : "";
+    // Kayak water also gets the boat itself, and Fly gets the casting course.
+    function learnLink(attr, sec, head, title, sub) {
+      return fundamentals().some(function (c) { return c.section === sec; })
+        ? '<section class="grp" ' + attr + '><h2>' + head + '</h2><div class="rows"><a class="row" href="#/learn/' + sec.toLowerCase() + '">' +
+          '<span class="rt"><b>' + title + "</b><span>" + sub + "</span></span>" +
+          '<span class="chev" aria-hidden="true">&rsaquo;</span></a></div></section>'
+        : "";
+    }
+    var kayak = /^kayak/.test(t.id) ? learnLink("data-kayak", "Kayak", "The kayak", "Kayak safety and gear", "Go or no go, packing, anchor, getting back in")
+      : t.id === "fly" ? learnLink("data-flylearn", "Fly", "Learn it", "Fly casting course", "Rig, cast, roll cast, flies, yard practice") : "";
     app.innerHTML = topHtml("water", t.id) +
       '<div data-view="water">' + headHtml(icon(t.id), t.label, "") +
         '<div class="rows">' + rows + "</div>" + kayak + "</div>" + tripBarHtml();
@@ -766,7 +771,7 @@ a.back{text-decoration:none}
         mine.map(function (c) { return rowHtml(c, "#/learn/" + c.id); }).join("") + "</div></section>";
     }).join("");
     app.innerHTML = topHtml("learn", sec) +
-      '<div data-view="learn">' + headHtml("Learn", "Rods, knots, kayak", "True for any fish, anywhere.") +
+      '<div data-view="learn">' + headHtml("Learn", "Rods, knots, kayak, fly", "True for any fish, anywhere.") +
         body + "</div>" + tripBarHtml();
   }
 

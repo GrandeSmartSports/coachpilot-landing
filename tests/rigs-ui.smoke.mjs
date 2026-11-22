@@ -41,6 +41,9 @@ try {
   // Screen one is tiles, not reading. Few words is a rule, so it is counted.
   const words = await page.evaluate(() => document.querySelector('[data-view="home"]').innerText.split(/\s+/).filter(Boolean).length);
   ok(words <= 40, "home screen is under 40 words", words);
+  const blank = await page.evaluate(() => [...document.querySelectorAll("[data-type-tile]")]
+    .filter((t) => !t.querySelector(".ic path, .ic circle, .ic ellipse")).map((t) => t.dataset.typeTile));
+  ok(blank.length === 0, "every tile draws its icon", blank.join(","));
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   ok(wide <= 390, "nothing runs off the side at phone width", wide);
 

@@ -946,15 +946,262 @@
     { id: "lake", label: "Lake" },
     { id: "pier", label: "Pier" },
     { id: "kayak-lake", label: "Kayak lake" },
-    { id: "kayak-sound", label: "Kayak sound" }
+    { id: "kayak-sound", label: "Kayak sound" },
+    { id: "fly", label: "Fly" }
   ];
   RIG.content.spots = [
     { id: "redondo", name: "Redondo Pier", where: "Des Moines, WA", types: ["pier"] },
     { id: "green-river", name: "Green River", where: "Auburn to Kent, WA", types: ["river"] },
     // The Dash Point pier is closed, so this spot is fished from the kayak.
-    { id: "dash-point", name: "Dash Point", where: "Tacoma, WA", types: ["kayak-sound"] },
+    { id: "dash-point", name: "Dash Point", where: "Tacoma, WA", types: ["kayak-sound", "beach", "fly"] },
     { id: "lake-fenwick", name: "Lake Fenwick", where: "Kent, WA", types: ["lake"] },
     { id: "american-lake", name: "American Lake", where: "Lakewood, WA", types: ["kayak-lake"] },
-    { id: "lake-tapps", name: "Lake Tapps", where: "Bonney Lake, WA", types: ["kayak-lake"] }
+    { id: "lake-tapps", name: "Lake Tapps", where: "Bonney Lake, WA", types: ["kayak-lake"] },
+    { id: "westport", name: "Westport", where: "Westport, WA", types: ["pier", "beach"] },
+    { id: "ocean-shores", name: "Ocean Shores beaches", where: "Copalis and Mocrocks, WA", types: ["beach"] }
   ];
+})();
+
+// Fly, crab, clams, surf perch and sea-run cutthroat. Added 2026-11-21.
+// Rules come straight from WDFW pages read that day, and every video was
+// checked to exist with YouTube's oEmbed before it went in.
+(function () {
+  "use strict";
+  var RIG = window.RIG;
+  function vid(id, title, by, why, len, yr) {
+    return '<a class="vid" href="https://www.youtube.com/watch?v=' + id + '" target="_blank" rel="noopener">' +
+      '<span class="play" aria-hidden="true"></span><span class="vt"><b>' + title + '</b><span class="by">' + by +
+      '</span><span class="why">' + why + '</span></span><span class="len">' + len + ' min<br>' + yr + '</span></a>';
+  }
+  function vids() { return '<div class="vids">' + [].slice.call(arguments).join("") + "</div>"; }
+  function when(t) { return '<p class="when">' + t + "</p>"; }
+  function box(kind, head, t) { return '<div class="box' + (kind ? " " + kind : "") + '"><b>' + head + "</b>" + t + "</div>"; }
+  function steps() { return '<ol class="steps">' + [].slice.call(arguments).map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol>"; }
+  var WDFW_CRAB = '<a href="https://wdfw.wa.gov/fishing/shellfishing-regulations/crab" target="_blank" rel="noopener">WDFW crab seasons</a>';
+  var WDFW_RAZOR = '<a href="https://wdfw.wa.gov/fishing/shellfish/razorclams/seasons_set.html" target="_blank" rel="noopener">WDFW razor clam page</a>';
+  var WDFW_REGS = '<a href="https://wdfw.wa.gov/fishing/regulations" target="_blank" rel="noopener">wdfw.wa.gov/fishing/regulations</a>';
+
+  // ---- Learn: Fly. From the July crash course for Coach and his dad. ----
+  // Fundamentals may not name a fish, so this says "fish", never a species.
+  var fly = [
+    { id: "fly-idea", tab: "The big idea", title: "The line is the weight",
+      body: when("A fly weighs nothing. The thick colored line is what you throw, and the fly goes wherever the line takes it.") +
+        box("tip", "spin guy translation", "Casting with no lure at all, and a long whip of soft lead for line. That is why the cast goes back <strong>and</strong> forward: the line has to straighten behind you before it can load the rod.") },
+    { id: "fly-gear", tab: "Your rod", title: "Your rod: 8 ft, 4 weight",
+      body: when("Your combo: 8 foot, 4 weight, 4 piece, large arbor reel, floating line and a leader.") +
+        box("", "4 weight", "The power class of the whole system. Rod, line and reel share the number and must match. A 4 is a small water rod: creeks, lakes, fish up to a couple of pounds.") +
+        box("", "the reel", "Mostly a line holder. You strip line in by hand. The drag only matters on a bigger fish.") },
+    { id: "fly-line", tab: "Line chain", title: "The line chain",
+      body: when("Thick to thin, loud to invisible.") +
+        steps("<b>Backing.</b> Thin braid under everything. Fills the spool.",
+          "<b>Fly line.</b> Yours is WF4F: weight forward, 4 weight, floating. This is what you cast.",
+          "<b>Leader.</b> About 9 ft of clear mono that tapers fine so the fly lands soft.",
+          "<b>Tippet.</b> Fine line you add as the leader shortens. Bigger X number = thinner. One spool of <span class=\"k\">5X</span> covers a 4 weight.") +
+        box("tip", "never cut the leader short", "The thick line landing near a fish is a garden hose on its head. The long clear leader is the buffer.") },
+    { id: "fly-setup", tab: "Rig it", title: "Rig it up",
+      body: when("Box to ready in five minutes.") +
+        steps("Assemble: line up the dots, seat each joint with a gentle quarter twist.",
+          "Reel on, handle on your cranking side, lock the rings.",
+          "Double the fly line into a loop and push the <b>loop</b> through the guides. If you slip, it catches.",
+          "Stretch the leader gently to pull out the coils.",
+          "Tie the fly on with an improved clinch, same as always.") +
+        vids(vid("CCONVJb8-SE", "How to set up a fly rod", "Orvis, Pete Kutzer", "Every step of rigging a first fly rod, start to finish.", 4, 2017)) },
+    { id: "fly-cast", tab: "The cast", title: "The cast: stop at 10 and 2",
+      body: when("The stops make the cast, not the swing. Thumb on top of the grip.") +
+        steps("25 ft of line out in front of you, rod tip low.",
+          "Lift, speed up, <b>stop</b> hard at 2 o'clock.",
+          "Wait one beat. Say \"one Mississippi\". The line straightens behind you.",
+          "Forward, speed up, <b>stop</b> at 10. Let the tip drift down as the line lands.") +
+        vids(vid("oDJJ6W23gHw", "The basic fly cast", "Orvis, Pete Kutzer", "The three keys of the cast. Start here.", 4, 2012),
+          vid("uNrFoFx2MMI", "The basic back cast", "Orvis, Pete Kutzer", "Why you watch your back cast, and where it should stop.", 3, 2012),
+          vid("90kfmkxaOGs", "How to make your first cast", "Orvis, Pete Kutzer", "Getting line on the water so you have something to cast.", 1, 2017)) +
+        box("tip", "false casts", "Two at most, then put it down. The fish are in the water, not the air.") },
+    { id: "fly-roll", tab: "Roll cast", title: "Roll cast: no room behind you",
+      body: when("Trees or a bank behind you. Washington makes you learn this one.") +
+        steps("Draw the rod up and slightly back until the line hangs beside you in a \"D\".",
+          "Pause.",
+          "Crisp forward stroke, stop at 10. The line rolls out like a wheel.") +
+        vids(vid("vHMfCJINGJM", "Making an accurate roll cast", "Orvis, Pete Kutzer", "Proper form, and how to aim it.", 3, 2017)) },
+    { id: "fly-faults", tab: "Fix the cast", title: "When the cast goes wrong",
+      body: when("Five faults, five fixes.") +
+        steps("<b>Whip crack, fly gone.</b> You went forward too soon. Longer pause at 2.",
+          "<b>Line piles up.</b> Wide lazy arc. Shrink the stroke, stop hard at 10 and 2.",
+          "<b>Line slaps the water.</b> You aimed at it. Aim 3 ft above the water.",
+          "<b>Line hits you.</b> Back cast dropping low. Stop at 2, tip high.",
+          "<b>Little knots in the leader.</b> Rushing. Slow everything down a fifth.") },
+    { id: "fly-water", tab: "On the water", title: "Strip, drift, mend, set",
+      body: when("Your line hand now does what the reel used to do.") +
+        steps("<b>Strip.</b> Line runs over the rod hand's pointer finger. Pull it in through that finger.",
+          "<b>Dead drift.</b> Cast up and across at 45 degrees. The fly should float at the speed of the current, no wake.",
+          "<b>Mend.</b> A lazy flip that throws the belly of the line upstream. Cast, mend once.",
+          "<b>Set.</b> Lift the tip smoothly while pinching the line. Never a bass slam, fine tippet snaps.") +
+        box("", "bigger fish", "Get the slack onto the reel, keep the tip up, and let the drag work.") },
+    { id: "fly-flies", tab: "Flies", title: "Flies: three kinds",
+      body: when("Start with these and you are covered.") +
+        steps("<b>Dry fly.</b> Adult bug on top. Dead drift. Parachute Adams or Elk Hair Caddis, size 14 to 16.",
+          "<b>Nymph.</b> Larva under the surface, most of what fish eat. Pheasant Tail, Hare's Ear, 14 to 16.",
+          "<b>Streamer.</b> Minnow or leech. Cast and strip back, the closest thing to a lure. Woolly Bugger, 8 to 10, olive or black.") +
+        box("tip", "first trip rig: dry dropper", "Elk Hair Caddis on top. Tie 18 inches of 5X off its hook bend and hang a Pheasant Tail under it. Two kinds of food at once.") },
+    { id: "fly-practice", tab: "Yard practice", title: "Practice in the yard first",
+      body: when("Twenty minutes a day. A tuft of yarn where the fly goes, no hook.") +
+        steps("<b>Days 1 and 2.</b> 25 ft out, pick up and lay down, 50 reps. Say it: lift, stop, Mississippi, forward, stop.",
+          "<b>Last 5 minutes.</b> Bucket lid at 25 ft. Land the yarn in it 5 times.",
+          "<b>Day 3.</b> Two false casts, then shoot a little line on the last stop.") }
+  ];
+  fly.forEach(function (c) { c.group = "fundamental"; c.section = "Fly"; });
+  RIG.content.fundamentals = RIG.content.fundamentals.concat(fly);
+
+  // ---- Crab --------------------------------------------------------------
+  RIG.content.species.push({
+    id: "crab", name: "Crab", hint: "Dungeness and red rock, docks and pots",
+    cards: [
+      { id: "crab-watch", tab: "Watch", group: "technique", title: "How it is done",
+        body: when("Pots, measuring, and the Westport docks.") +
+          vids(vid("NKqVkicO75Q", "How to catch crabs: Dungeness and red rock", "Sound Fishing", "Setting a pot, then measuring and sexing what comes up.", 7, 2017),
+            vid("z1qRIiQBQII", "How to measure your Dungeness crab", "PNW Salmon Center", "Where the gauge goes, so a short crab goes back.", 1, 2014),
+            vid("697V55yBUAQ", "Measure with a crab gauge", "Fish Tacos Angling", "Gauge and male or female, in one minute.", 1, 2015),
+            vid("kjIVfdd2t7I", "Westport Marina crabbing", "Every Bit Outdoors", "How and where to crab the Westport docks.", 11, 2022),
+            vid("rFKfVu-wlAE", "Casting crab traps from a pier at Westport", "Peeling Line", "Snare traps on surf rods off Pier 20, and the best bait.", 21, 2023)) },
+      { id: "crab-license", tab: "License", group: "before", title: "License and catch card", dated: "2026-11-21", shelfDays: 180,
+        body: when("A shellfish license (or a combination license) for everyone crabbing.") +
+          box("law", "puget sound adds two things", "A <strong>Puget Sound crab endorsement</strong> and a Dungeness <strong>catch record card</strong>, any age. After Labor Day it is the <strong>winter</strong> card, and you report it Jan 1 to Feb 1 even if you caught nothing.") +
+          box("", "the coast", "No crab catch card at Westport or Ocean Shores. Red rock crab never needs one.") },
+      { id: "crab-keep", tab: "Keep or not", group: "water", title: "Keep or throw back",
+        body: when("Measure across the back, straight, in front of the points.") +
+          steps("<b>Females:</b> always back. Wide round apron underneath.",
+            "<b>Soft shell:</b> always back. It flexes when you squeeze.",
+            "<b>Dungeness, Puget Sound:</b> males, 6 1/4 inches, 5 a day.",
+            "<b>Dungeness, Westport:</b> males, 6 inches, 6 a day.",
+            "<b>Red rock:</b> either sex, 5 inches, 6 a day.") +
+          box("law", "keep the back shell", "Every kept crab keeps its back shell until you leave the water. Nothing may pierce the shell.") +
+          '<p class="stamp">From the ' + WDFW_CRAB + ' area pages, 2026-11-21.</p>' },
+      { id: "crab-gear", tab: "Gear rules", group: "before", title: "Pots, ring nets and buoys",
+        body: when("Two units of crab gear per person. A pot, a ring net or a snare is one unit.") +
+          steps("Unattended gear gets its own buoy: <b>half red, half white</b>, your first and last name and permanent address. No bleach or soda bottles.",
+            "Every pot needs <b>rot cord</b>, plain cotton, so a lost pot lets crab out.",
+            "From a boat or kayak, no setting or pulling from <b>1 hour after sunset to 1 hour before sunrise</b>.",
+            "All gear out of the water by 1 hour after sunset on the last open day.") +
+          box("tip", "from a dock", "A ring net or a snare on a rod is the light way in. You tend it, so it needs no buoy.") }
+    ],
+    locations: [
+      { id: "westport", name: "Westport", where: "Westport, WA",
+        cards: [{ id: "westport-crab", tab: "Open now", group: "before", title: "Westport: open every day", dated: "2026-11-21", shelfDays: 30,
+          body: when("Marine Area 2. The marina docks are the classic spot.") +
+            box("tip", "open", "Ring nets and snares: <strong>all year</strong>. Pots: <strong>Dec 1 to Sept 15</strong>.") +
+            box("", "pair it", "The same drive covers razor clams and surf perch. Check the clam dig dates first.") +
+            '<p class="stamp">' + WDFW_CRAB + "</p>" }] },
+      { id: "dash-point", name: "Dash Point", where: "Tacoma, by kayak",
+        cards: [{ id: "dash-crab", tab: "Status", group: "before", title: "Tacoma waters: closed", dated: "2026-11-21", shelfDays: 14,
+          body: when("Marine Area 11, Tacoma and Vashon.") +
+            box("red", "closed", "WDFW has not announced a winter season and says it may stay closed. Seattle (Area 10) is the same. Nothing goes in the water here until it opens.") +
+            box("", "open nearby", "North Hood Canal (Area 12, north of Ayock Point) and Admiralty Inlet (Area 9) are open daily through Dec 31.") +
+            '<p class="stamp">' + WDFW_CRAB + "</p>" }] }
+    ]
+  });
+
+  // ---- Clams -------------------------------------------------------------
+  RIG.content.species.push({
+    id: "clams", name: "Clams", hint: "Razor clams on the coast, by the tide",
+    cards: [
+      { id: "clam-watch", tab: "Watch", group: "technique", title: "How it is done",
+        body: when("Find the show, then dig fast. Razors pull down quickly.") +
+          vids(vid("X7WqhresgTM", "Razor clams: getting started", "WDFW", "The whole kit: gun or shovel, container, license.", 1, 2023),
+            vid("npJSGNmME1k", "The best way to find and dig razor clams", "SeaWolf Fishing", "Reading the sand, then the clam gun.", 10, 2021),
+            vid("nK0rK1BVRpk", "How to dig razor clams in Washington", "Bad Ash Outdoors", "The shovel method, step by step.", 14, 2021),
+            vid("_Vz33syzoVI", "Washington coast razor clamming in 2 minutes", "Northwest Fishing Life", "The short version. Angle the gun toward the ocean.", 2, 2025),
+            vid("otGl8aPEClI", "Surf perch and razor clam digging", "Addicted Fishing", "One coast day doing both, the way you would.", 27, 2019)) },
+      { id: "clam-rules", tab: "Rules", group: "before", title: "Razor clam rules", dated: "2026-11-21", shelfDays: 180,
+        body: when("Everyone 16 and over needs a 2026-2027 license that covers razor clams.") +
+          steps("<b>15 clams</b> a person a day.",
+            "Keep the <b>first 15</b> you dig, any size, broken or not.",
+            "Each digger uses <b>their own container</b>.",
+            "Dig only on announced days and beaches. Evening digs run noon to midnight.") +
+          '<p class="stamp">From the ' + WDFW_RAZOR + ", 2026-11-21.</p>" },
+      { id: "clam-gear", tab: "Gear", group: "before", title: "What to bring",
+        body: when("Nothing for this is in the garage yet.") +
+          steps("Clam gun or clam shovel.",
+            "A container for each person.",
+            "Headlamp. Fall and winter digs are after dark.",
+            "Waders or boots, and a rain shell.") +
+          box("law", "surf", "Check the ocean forecast before you leave. WDFW warns about swells over 11 ft.") },
+      { id: "clam-dig", tab: "The dig", group: "water", title: "Dig it",
+        body: when("Best from 1 to 2 hours before low tide.") +
+          steps("Walk the wet sand near the water. Look for a <b>show</b>: a dimple or keyhole.",
+            "No shows? Pound the sand with the gun or shovel handle and watch.",
+            "Gun: center it on the show, tilt it a little <b>toward the ocean</b>, work it down, thumb over the vent, pull.",
+            "Shovel: blade on the ocean side of the show, straight down, pry back, reach in fast.") },
+      { id: "clam-sound", tab: "Puget Sound", group: "before", title: "Puget Sound beaches", dated: "2026-11-21", shelfDays: 60,
+        body: when("Steamers and butter clams on inland beaches have their own seasons, and many urban beaches are closed for pollution.") +
+          box("red", "penrose point is closed", "Closed until further notice under a 2026 WDFW emergency rule.") +
+          box("law", "two checks before any beach", 'The <a href="https://fortress.wa.gov/doh/biotoxin/biotoxin.html" target="_blank" rel="noopener">Department of Health shellfish safety map</a> for toxins and pollution, then the beach page on ' + WDFW_REGS + ".") }
+    ],
+    locations: [
+      { id: "ocean-shores", name: "Copalis and Mocrocks", where: "Ocean Shores, WA",
+        cards: [{ id: "razor-dates", tab: "Dig dates", group: "before", title: "Next digs", dated: "2026-11-21", shelfDays: 7,
+          body: when("Low tide times. Dig the hour or two before.") +
+            steps("<b>Tue Nov 24</b>, 6:02 pm, -1.7 ft, Mocrocks",
+              "<b>Wed Nov 25</b>, 6:48 pm, -1.9 ft, Copalis",
+              "<b>Thu Nov 26</b>, 7:35 pm, -1.8 ft, Copalis",
+              "<b>Fri Nov 27</b>, 8:25 pm, -1.4 ft, Mocrocks",
+              "<b>Sat Nov 28</b>, 9:18 pm, -0.8 ft, Mocrocks") +
+            box("red", "long beach and twin harbors closed", "Toxin levels are too high. Closed until further notice.") +
+            box("", "thin year", "WDFW counted fewer clams here this summer. Expect to move around and pound for shows.") +
+            '<p class="stamp">' + WDFW_RAZOR + "</p>" }] }
+    ]
+  });
+
+  // ---- Surf perch --------------------------------------------------------
+  RIG.content.species.push({
+    id: "surfperch", name: "Surf perch", hint: "Coast beaches with the surf rods",
+    cards: [
+      { id: "surf-watch", tab: "Watch", group: "technique", title: "How it is done",
+        body: when("High low rig, bait in the trough, wait for the rap.") +
+          vids(vid("Os5T50NSN1g", "Red tailed surf perch on shrimp", "ReelBlue Custom Rods", "A full Westport day, with the tips as he goes.", 21, 2022),
+            vid("AfXe7-2HzmI", "Surf perch fishing, Ocean Shores", "Set The Hook Fishing", "First timers on the high low rig with 1 to 2 oz.", 7, 2025),
+            vid("B_7eMH7P7S0", "Fall surf perch, Ocean Shores", "Yakfish Taco", "November, razor clam bait, a limit.", 7, 2024),
+            vid("6f4CiHIUf3s", "Gulp sandworm vs clam necks", "Set The Hook Fishing", "Which bait got bit at Ocean Shores.", 8, 2026),
+            vid("bPuICtBUwMQ", "Best surf perch spots, Westport", "ShanePingStyle", "Spots and a big redtail on the Westport coast.", 16, 2020)) },
+      { id: "surf-rig", tab: "The rig", group: "before", title: "Rig: high low",
+        body: when("Your two heavy surf rods are the right tool.") +
+          steps("Sinker on the bottom, <b>1 to 2 oz</b> pyramid.",
+            "Two dropper loops above it, a small hook on each.",
+            "Bait: razor clam, shrimp, or Gulp sandworm.") +
+          box("tip", "where", "Cast into the trough, the darker band of water between the waves.") },
+      { id: "surf-rules", tab: "Rules", group: "before", title: "Rules", dated: "2026-11-21", shelfDays: 180,
+        body: when("A saltwater or combination license.") +
+          box("law", "not confirmed with wdfw yet", "The regulation listing for Marine Area 2 shows <strong>12 surf perch a day</strong>, open all year from the beach. Check " + WDFW_REGS + " before you keep one.") }
+    ],
+    locations: [
+      { id: "ocean-shores", name: "Ocean Shores", where: "Ocean Shores, WA", cards: [] },
+      { id: "westport", name: "Westport", where: "Westport, WA", cards: [] }
+    ]
+  });
+
+  // ---- Sea-run cutthroat -------------------------------------------------
+  RIG.content.species.push({
+    id: "cutthroat", name: "Cutthroat", hint: "Sea-run, Puget Sound beaches, fly or spin",
+    cards: [
+      { id: "src-watch", tab: "Watch", group: "technique", title: "How it is done",
+        body: when("Walk the beach, cast to moving water, strip a small fly.") +
+          vids(vid("DrdmO6TneA0", "Puget Sound fly fishing: sea run cutthroat", "TightLines NW", "A favorite Sound beach, start to finish.", 10, 2026),
+            vid("KcAyA5dlEOk", "Sea run cutthroat, Puget Sound", "Fungi On The Fly", "Fishing the strong outgoing tide.", 8, 2023),
+            vid("djOQncYto5g", "Fly fishing the beaches of Puget Sound", "Nick Clayton", "A full beach day for cutthroat and resident coho.", 14, 2017),
+            vid("sBzco9NsA5I", "6 must have flies for sea run cutthroat", "Gig Harbor Fly Shop", "The short list to buy.", 6, 2022),
+            vid("dSiPfj3jZIU", "Leaders in the salt", "Nick Clayton", "How he builds his beach leader.", 12, 2017),
+            vid("UbXCduvKzpw", "Rods for Puget Sound beach fishing", "Gig Harbor Fly Shop", "Rod and line weights for the beach and the kayak.", 3, 2018)) },
+      { id: "src-rules", tab: "Rules", group: "before", title: "Catch and release", dated: "2026-11-21", shelfDays: 180,
+        body: when("Every cutthroat goes back. That is how you fish anyway.") +
+          box("law", "check the pamphlet", "The Marine Area 11 listing shows trout as catch and release, year round. Confirm in " + WDFW_REGS + ".") +
+          box("tip", "handle", "Wet hands, keep it in the water, out quickly.") },
+      { id: "src-gear", tab: "Your rod", group: "before", title: "Will the 4 weight do?",
+        body: when("Yes on a calm day with small flies. Wind is the problem.") +
+          box("", "what beach anglers use", "Mostly 5 to 7 weight rods, per the rod video. A floating line is fine to start.") }
+    ],
+    locations: [
+      { id: "dash-point", name: "Dash Point beach", where: "Tacoma, WA",
+        cards: [{ id: "dash-src", tab: "The beach", group: "before", title: "Your nearest Sound beach",
+          body: when("Dash Point State Park has public beach. You know the water from the kayak.") +
+            box("law", "not fished yet", "Nobody has fished cutthroat here for this card. Treat it as a first look.") }] }
+    ]
+  });
 })();

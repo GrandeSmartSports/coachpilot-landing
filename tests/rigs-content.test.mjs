@@ -387,5 +387,29 @@ for (const id of ["squid-gear", "squid-regs", "squid-conditions"]) {
   ok(/barbless/i.test(salt), "salt water videos come with the barbless warning");
 }
 
+// --- fly, crab, clams, surf perch, cutthroat (2026-11-21) -------------------
+{
+  const sp = (id) => (RIG.content?.species || []).find((s) => s.id === id);
+  for (const id of ["crab", "clams", "surfperch", "cutthroat"]) ok(!!sp(id), `species tab: ${id}`);
+  const flyCards = cards.filter((c) => c.section === "Fly");
+  ok(flyCards.length >= 8, "Learn has a Fly section", flyCards.length);
+  const keep = byId.get("crab-keep")?.body || "";
+  ok(/6 1\/4/.test(keep) && /5 a day/.test(keep) && /6 inches/.test(keep), "crab keep card carries Puget Sound and coast sizes and limits");
+  ok(/females/i.test(keep) && /soft shell/i.test(keep), "crab keep card says females and soft shells go back");
+  ok(/sunset/.test(byId.get("crab-gear")?.body || "") && /half red/i.test(byId.get("crab-gear")?.body || ""), "crab gear card carries the hours and buoy rules");
+  const clam = byId.get("clam-rules")?.body || "";
+  ok(/15 clams/.test(clam) && /first 15/.test(clam) && /own container/.test(clam), "razor clam rules: 15, first 15, own container");
+  for (const id of ["crab-license", "dash-crab", "westport-crab", "clam-rules", "razor-dates", "clam-sound", "surf-rules", "src-rules"]) {
+    const c = byId.get(id);
+    ok(c && c.dated && c.shelfDays, `${id} is dated and goes off`);
+  }
+  ok(byId.get("razor-dates")?.shelfDays <= 7, "dig dates go off within a week");
+  const spots = RIG.content?.spots || [];
+  ok(spots.some((s) => s.types.includes("beach")) && spots.some((s) => s.types.includes("fly")), "there are beach and fly spots");
+  const known = new Set(spots.map((s) => s.id));
+  const orphan = (RIG.content?.species || []).flatMap((s) => (s.locations || []).map((l) => l.id)).filter((id) => !known.has(id));
+  ok(orphan.length === 0, "every species location is a registered spot", orphan.join(", "));
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

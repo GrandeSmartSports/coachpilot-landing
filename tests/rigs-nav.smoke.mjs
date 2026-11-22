@@ -39,9 +39,19 @@ try {
 
   // --- the front door: how do you want to fish? ----------------------------
   const tiles = await page.locator("[data-type-tile]").evaluateAll((els) => els.map((e) => e.dataset.typeTile));
-  ok(["river", "lake", "pier", "kayak-lake", "kayak-sound"].every((t) => tiles.includes(t)),
-    "home has a tile for every kind of water with spots", tiles.join(","));
-  ok(!tiles.includes("beach"), "a kind of water with no spots yet is hidden, not an empty tile", tiles.join(","));
+  ok(["river", "beach", "lake", "pier", "kayak-lake", "kayak-sound", "fly"].every((t) => tiles.includes(t)),
+    "home has a tile for every way to fish", tiles.join(","));
+  // A way to fish with no spots behind it must not render an empty tile.
+  const withEmpty = await page.evaluate(() => {
+    window.RIG.content.types.push({ id: "ice", label: "Ice" });
+    location.hash = "#/fish"; location.hash = "#/";
+    return new Promise((r) => setTimeout(() => r([...document.querySelectorAll("[data-type-tile]")].map((e) => e.dataset.typeTile)), 100));
+  });
+  ok(withEmpty.length === tiles.length && !withEmpty.includes("ice"), "a way to fish with no spots is hidden, not an empty tile", withEmpty.join(","));
+  await page.goto(base + "#/water/fly", { waitUntil: "load" });
+  ok(await page.locator('[data-flylearn] a[href="#/learn/fly"]').count() === 1, "Fly links the casting course");
+  ok(await page.locator('[data-spot="dash-point"]').count() === 1, "Fly lists a spot to fish it");
+  await page.goto(base, { waitUntil: "load" });
 
   // Pier -> Redondo -> straight into squid, since squid is all Redondo has.
   await page.locator('[data-type-tile="pier"]').click();
