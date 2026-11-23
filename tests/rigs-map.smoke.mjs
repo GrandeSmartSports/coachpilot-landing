@@ -38,6 +38,8 @@ const tides = { predictions: DAYS.flatMap((d) => [
 
 async function fake(ctx, { down = false } = {}) {
   let calls = 0;
+  await ctx.route(/castai-rules/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
+    body: JSON.stringify({ checked: new Date().toISOString(), rules: [] }) }));
   await ctx.route(/api\.open-meteo\.com|marine-api\.open-meteo\.com|api\.tidesandcurrents\.noaa\.gov/, (route) => {
     calls++;
     if (down) return route.abort();

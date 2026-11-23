@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { startServer } from "./helpers/rigs-server.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const PORT = 8791;
+const PORT = 8796;
 
 let pass = 0, fail = 0;
 const ok = (c, m, extra) => {

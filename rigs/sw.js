@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v15";
+const CACHE = "rigs-v16";
 
 // Without these three the page cannot render at all, so a failure to cache
 // any of them must fail the whole install and leave the previous worker and
@@ -23,7 +23,8 @@ const SHELL = [
   "/rigs/diagrams.js",
   "/rigs/content.js",
   "/rigs/trips.js",
-  "/rigs/runs.js"
+  "/rigs/runs.js",
+  "/rigs/rules.js"
 ];
 
 // Nice to have. One of these failing should not cost the offline story.

@@ -305,6 +305,12 @@ a.back{text-decoration:none}
 .mapbox.leaflet-container a.leaflet-popup-close-button{color:var(--dim)}
 .mapbox .leaflet-control-attribution{background:rgba(11,15,20,.75) !important;color:var(--dim) !important}
 .mapbox .leaflet-control-attribution a{color:var(--ink2) !important}
+.heat.rule{color:var(--no);border-color:color-mix(in srgb,var(--no) 55%,var(--line));margin-right:6px}
+.heat.rule[hidden]{display:none}
+.ruleacts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.ruleacts a{color:var(--ink);font-weight:600}
+.ack{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.rulestamp{margin:14px 0 0;font-size:12.5px;color:var(--dim)}
 .quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
 .quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
@@ -464,6 +470,7 @@ a.back{text-decoration:none}
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
 <script src="/rigs/runs.js"></script>
+<script src="/rigs/rules.js"></script>
 <script>
 (function () {
   "use strict";
@@ -812,6 +819,12 @@ a.back{text-decoration:none}
 
   function speciesBase(sp, loc) { return "#/" + sp.id + "/" + (loc ? loc.id : "-"); }
 
+  // The oldest "good as of" date on a spot's rule cards: anything WDFW posted
+  // after it may not be in them yet.
+  function oldestDated(cards) {
+    var d = cards.map(function (c) { return c.dated; }).filter(Boolean).sort()[0];
+    return d || RULES_BASE;
+  }
   function renderSpecies(sp, loc) {
     var locs = sp.locations || [];
     var place = loc ? esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "") : "";
@@ -825,7 +838,7 @@ a.back{text-decoration:none}
     var base = speciesBase(sp, loc);
     app.innerHTML = topHtml("fish", sp.id) +
       '<div data-view="species">' + headHtml(eyebrow, sp.name, "") +
-        noticeHtml() + chips +
+        noticeHtml() + chips + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
         groupRows(cardsFor(sp, loc), function (c) { return base + "/" + c.id; }) +
       "</div>" + tripBarHtml();
@@ -856,11 +869,60 @@ a.back{text-decoration:none}
     app.innerHTML = topHtml(o.tab, o.active) +
       '<div data-view="card">' +
         '<a class="back" href="' + esc(o.upHref) + '" data-up>&larr; ' + esc(o.upText) + "</a>" +
-        noticeHtml() + cardHtml(o.card, { addable: o.addable !== false }) +
+        noticeHtml() + (o.rules ? '<div data-rules-slot' + slotAttrs(o.rules.spot, o.rules.species, o.rules.since) + "></div>" : "") +
+        cardHtml(o.card, { addable: o.addable !== false }) +
         '<nav class="pn">' + step(prev, "prev", "Back") +
           '<span class="pos">' + (i + 1) + " of " + o.list.length + "</span>" + step(next, "next", "Next") + "</nav>" +
       "</div>" + tripBarHtml();
     window.scrollTo(0, 0);
+  }
+
+  // ---- WDFW rule flags ----------------------------------------------------
+  // rigs/rules.js pulls WDFW's emergency rules in the background on every
+  // load. Views leave empty slots ([data-rules-slot], [data-rule-badge],
+  // [data-rules-status]) and fillRules() fills them, now and again when the
+  // background check lands, so nothing re-renders under your thumb.
+  var RULES_BASE = "2026-11-23"; // the day every run card was checked against WDFW
+  function rulesReady() { return !!(RIG.rules && RIG.rules.newFor); }
+  function slotAttrs(spot, species, since) {
+    return ' data-spot="' + esc(spot) + '" data-species="' + esc(species) + '" data-since="' + esc(since || RULES_BASE) + '"';
+  }
+  function fmtDay(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
+  function ruleBoxes(list) {
+    return list.map(function (r) {
+      return '<div class="box red" data-newrule><b>new WDFW rule since this was checked</b><strong>' + esc(r.title) + "</strong><br>" +
+        "Posted " + esc(fmtDay(r.published)) + (r.effective ? ". In effect: " + esc(r.effective) : "") + "." +
+        '<span class="ruleacts"><a href="' + esc(r.link) + '" target="_blank" rel="noopener">Read it on WDFW</a>' +
+        '<button type="button" class="ack" data-ack="' + esc(r.link) + '">Got it</button></span></div>';
+    }).join("");
+  }
+  function statusHtml() {
+    var st = RIG.rules.status();
+    var link = '<a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>';
+    if (st.never) return '<div class="box law" data-rules-state="never"><b>rules not checked yet</b>This phone has not reached the rule check. Read the ' + link + " before you fish.</div>";
+    var when = new Date(st.at).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    if (st.stale) return '<div class="box law" data-rules-state="stale"><b>rules not updated</b>Last checked ' + esc(when) +
+      ". You may be offline. Read the " + link + " before you fish.</div>";
+    return '<p class="rulestamp" data-rules-state="fresh">WDFW rules checked ' + esc(when) + "</p>";
+  }
+  function fillRules() {
+    if (!rulesReady()) return;
+    [].forEach.call(app.querySelectorAll("[data-rules-slot]"), function (el) {
+      el.innerHTML = ruleBoxes(RIG.rules.newFor(el.dataset.spot, el.dataset.species, el.dataset.since));
+    });
+    [].forEach.call(app.querySelectorAll("[data-rule-badge]"), function (el) {
+      var n = RIG.rules.newFor(el.dataset.spot, el.dataset.species, el.dataset.since).length;
+      el.hidden = !n;
+      el.textContent = "New rule";
+    });
+    [].forEach.call(app.querySelectorAll("[data-rules-status]"), function (el) { el.innerHTML = statusHtml(); });
+  }
+  function checkRules() {
+    if (!rulesReady()) return;
+    RIG.rules.load().then(fillRules, fillRules);
   }
 
   // ---- Hot Trips ----------------------------------------------------------
@@ -887,6 +949,7 @@ a.back{text-decoration:none}
       var rows = day.trips.map(function (t) {
         return '<a class="row" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
           '<span class="rt"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span></span>" +
+          '<span class="heat rule" data-rule-badge hidden' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></span>" +
           '<span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span>" +
           '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
       }).join("");
@@ -900,10 +963,12 @@ a.back{text-decoration:none}
       : "";
     var host = app.querySelector('[data-view="trips"] [data-week]');
     if (host) host.innerHTML = body + nl + asOf(p);
+    fillRules();
   }
   function renderTrips(force) {
     app.innerHTML = topHtml("trips") +
       '<div data-view="trips">' + headHtml("Next 7 days", "Hot Trips", "Picked from tides, wind and season.") +
+      '<div data-rules-status></div>' +
       '<div data-week><p class="quiet">Loading the forecast…</p></div></div>' + tripBarHtml();
     if (!plannerReady()) return;
     var c = RIG.trips.cached();
@@ -1039,6 +1104,10 @@ a.back{text-decoration:none}
   // The overview is headlines (the plan, gear, bait...), each one a normal
   // card with Back and Next, built from rigs/runs.js plus this trip's own
   // tides, weather and times.
+  function runSince(planId) {
+    var run = RIG.trips && RIG.trips.runs && RIG.trips.runs[planId];
+    return (run && run.checked) || RULES_BASE;
+  }
   function findTrip(key) {
     var c = plannerReady() && RIG.trips.cached();
     var p = lastPlan || (c && planFrom(c));
@@ -1103,7 +1172,8 @@ a.back{text-decoration:none}
       { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
         (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
       { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
-      { id: "rules", tab: "Rules", title: "Rules", body: stepsHtml(run.rules) +
+      { id: "rules", tab: "Rules", title: "Rules", body:
+        '<div data-rules-slot' + slotAttrs(t.spot, t.species, run.checked) + '></div><div data-rules-status></div>' + stepsHtml(run.rules) +
         boxHtml("law", "check before you go", 'Limits change. <a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>.') }
     );
     out.forEach(function (c) { c.group = "before"; });
@@ -1157,6 +1227,7 @@ a.back{text-decoration:none}
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' +
         '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
         headHtml(esc(day.label + " · " + t.slot), t.name, t.when + " · " + t.drive + " min drive") +
+        '<div data-rules-slot' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></div>" +
         '<section class="grp"><h2>Run card <span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span></h2><div class=\"rows\">" +
           secs.map(function (c) {
             return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
@@ -1250,6 +1321,7 @@ a.back{text-decoration:none}
 
   function render() {
     renderView();
+    fillRules();
     initTyers(app);
     var top = app.querySelector(".top");
     if (top) document.documentElement.style.setProperty("--toph", (top.offsetHeight + 8) + "px");
@@ -1300,6 +1372,7 @@ a.back{text-decoration:none}
     if (card) {
       var base = speciesBase(sp, loc);
       renderCard({ tab: "fish", active: sp.id, card: card, list: list,
+        rules: card.dated && loc ? { spot: loc.id, species: sp.id, since: card.dated } : null,
         hrefFor: function (c) { return base + "/" + c.id; },
         upHref: base, upText: sp.name + (loc ? " \u00b7 " + loc.name : "") });
       return;
@@ -1312,7 +1385,9 @@ a.back{text-decoration:none}
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
-    if (t.closest("[data-refresh]")) { renderTrips(true); return; }
+    if (t.closest("[data-refresh]")) { renderTrips(true); checkRules(); return; }
+    var ak = t.closest("[data-ack]");
+    if (ak) { RIG.rules.ack(ak.dataset.ack); fillRules(); return; }
     if (t.closest("[data-mode-library]")) { setMode("library"); return; }
     var tab = t.closest("[data-tab]");
     if (tab) { location.hash = { trips: "#/trips", water: "#/water", fish: "#/fish", learn: "#/learn" }[tab.dataset.tab]; return; }
@@ -1353,6 +1428,8 @@ a.back{text-decoration:none}
   load();
   resolveMode();
   render();
+  // Background rule check on every load. The page never waits for it.
+  checkRules();
 
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
