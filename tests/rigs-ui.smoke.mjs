@@ -34,7 +34,7 @@ try {
   ok(lum < 0.15, "page is dark even when the phone asks for light", lum.toFixed(2));
 
   const tabs = await page.locator(".top .tabs [data-tab]").allInnerTexts();
-  ok(tabs.map((t) => t.trim().toLowerCase()).join(",") === "water,fish,learn", "three ways in: Water, Fish, Learn", tabs.join(","));
+  ok(tabs.map((t) => t.trim().toLowerCase()).join(",") === "trips,water,fish,learn", "four ways in: Trips, Water, Fish, Learn", tabs.join(","));
   ok(await page.locator('[data-view="home"] [data-group="fundamental"]').count() === 0,
     "the rod course is not dumped on the home screen");
 

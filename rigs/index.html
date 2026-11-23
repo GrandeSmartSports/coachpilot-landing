@@ -259,6 +259,14 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .row .chev{flex:0 0 auto;font-size:24px;line-height:1;color:var(--steel2)}
 .grp > h2 .n{font-family:var(--mono);font-size:12px;letter-spacing:0;color:var(--dim);font-weight:600}
 a.back{text-decoration:none}
+/* ---- hot trips ---- */
+.heat{display:inline-block;padding:3px 9px;border-radius:999px;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line))}
+.heat.hot{background:var(--accent);color:#1a0d05;border-color:var(--accent)}
+.quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
+.quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
+.asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
 .pn{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:8px;margin:14px 0 0}
 .pnb{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:58px;padding:9px 13px;text-decoration:none;
   background:var(--panel2);border:1px solid var(--line2);border-radius:12px;color:var(--ink);min-width:0}
@@ -412,6 +420,7 @@ a.back{text-decoration:none}
 
 <script src="/rigs/diagrams.js"></script>
 <script src="/rigs/content.js"></script>
+<script src="/rigs/trips.js"></script>
 <script>
 (function () {
   "use strict";
@@ -653,7 +662,7 @@ a.back{text-decoration:none}
   // Pinned header: three ways in (Water, Fish, Learn), and under them one
   // tap filters for whichever way is open.
   function topHtml(tab, active) {
-    var tabs = [["water", "Water"], ["fish", "Fish"], ["learn", "Learn"]].map(function (t) {
+    var tabs = [["trips", "Trips"], ["water", "Water"], ["fish", "Fish"], ["learn", "Learn"]].map(function (t) {
       return '<button class="tab" type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' +
         (t[0] === tab ? "true" : "false") + '">' + t[1] + "</button>";
     }).join("");
@@ -810,6 +819,82 @@ a.back{text-decoration:none}
     window.scrollTo(0, 0);
   }
 
+  // ---- Hot Trips ----------------------------------------------------------
+  // The week ahead from live tides and weather (rigs/trips.js does the
+  // thinking). Headlines first: one row per trip, tap for the why.
+  var lastPlan = null;
+  function hotKey(day, t) { return day.iso + "~" + t.planId; }
+  function plannerReady() { return !!(RIG.trips && RIG.trips.plan); }
+  function planFrom(data) {
+    var now = new Date();
+    var today = now.getFullYear() + "-" + ("0" + (now.getMonth() + 1)).slice(-2) + "-" + ("0" + now.getDate()).slice(-2);
+    var p = RIG.trips.plan({ today: today, wx: data.wx, tides: data.tides });
+    p.at = data.at; p.stale = !!data.stale;
+    return p;
+  }
+  function asOf(p) {
+    var d = new Date(p.at);
+    var t = d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" });
+    return '<div class="asof"><span data-asof>' + (p.stale ? "Offline. Forecast from " : "Forecast from ") + esc(t) + "</span>" +
+      '<button type="button" data-refresh>Refresh</button></div>';
+  }
+  function drawTrips(p) {
+    var body = p.days.map(function (day) {
+      var rows = day.trips.map(function (t) {
+        return '<a class="row" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
+          '<span class="rt"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span></span>" +
+          '<span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span>" +
+          '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+      }).join("");
+      var inner = rows ? '<div class="rows">' + rows + "</div>"
+        : '<p class="quiet' + (day.note ? " no" : "") + '" data-quiet>' + esc(day.note || "Nothing good") + "</p>";
+      return '<section class="grp" data-day="' + esc(day.iso) + '"><h2>' + esc(day.label) + "</h2>" + inner + "</section>";
+    }).join("");
+    var nl = p.notListed.length
+      ? '<section class="grp" data-notlisted><h2>Not listed yet</h2><div class="box law"><b>rules first</b>' +
+        p.notListed.map(function (n) { return esc(n.name) + ": " + esc(n.why) + "."; }).join("<br>") + "</div></section>"
+      : "";
+    var host = app.querySelector('[data-view="trips"] [data-week]');
+    if (host) host.innerHTML = body + nl + asOf(p);
+  }
+  function renderTrips(force) {
+    app.innerHTML = topHtml("trips") +
+      '<div data-view="trips">' + headHtml("Next 7 days", "Hot Trips", "Picked from tides, wind and season.") +
+      '<div data-week><p class="quiet">Loading the forecast…</p></div></div>' + tripBarHtml();
+    if (!plannerReady()) return;
+    var c = RIG.trips.cached();
+    if (c && !force) { lastPlan = planFrom(c); drawTrips(lastPlan); }
+    RIG.trips.load(force).then(function (data) {
+      if (!/^#\/trips\/?$/.test(location.hash)) return;
+      lastPlan = planFrom(data); drawTrips(lastPlan);
+    }).catch(function () {
+      var host = app.querySelector("[data-week]");
+      if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal and it will keep the last one for the pier.</p>';
+    });
+  }
+  function renderHot(key) {
+    var c = plannerReady() && RIG.trips.cached();
+    var p = lastPlan || (c && planFrom(c));
+    var bits = key.split("~"), day = p && p.days.filter(function (d) { return d.iso === bits[0]; })[0];
+    var t = day && day.trips.filter(function (x) { return x.planId === bits[1]; })[0];
+    if (!t) { location.replace("#/trips"); return; }
+    var sp = findSpecies(t.species);
+    var open = sp ? '<div class="rows" style="margin-top:16px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards>' +
+      '<span class="rt"><b>Open the ' + esc(sp.name) + " cards</b><span>Rigs, rules and videos for this spot</span></span>" +
+      '<span class="chev" aria-hidden="true">&rsaquo;</span></a></div>' : "";
+    app.innerHTML = topHtml("trips") +
+      '<div data-view="hot">' +
+        '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
+        headHtml(esc(day.label + " · " + t.slot), t.name, t.when + " · " + t.drive + " min drive") +
+        '<div class="box' + (t.heat === "Hot" ? " tip" : "") + '"><b>why it is ' + esc(t.heat.toLowerCase()) + "</b>" +
+          '<ol class="steps">' + t.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ol></div>" +
+        '<div class="box"><b>weather in the window</b>Wind to ' + t.wx.wind + " mph, gusts " + t.wx.gust + " mph, low of " + t.wx.temp + "°F.</div>" +
+        (t.gear ? '<div class="box law"><b>gear</b>' + esc(t.gear) + ".</div>" : "") +
+        open +
+      "</div>" + tripBarHtml();
+    window.scrollTo(0, 0);
+  }
+
   // Short name for a card in next and back.
   function label(c) { return c.tab || String(c.title).split(":")[0]; }
 
@@ -913,6 +998,7 @@ a.back{text-decoration:none}
       } else renderLearn(parts[1]);
       return;
     }
+    if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1])); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
     if (parts[0] === "water") {
       var t = findType(parts[1]);
@@ -951,9 +1037,10 @@ a.back{text-decoration:none}
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
+    if (t.closest("[data-refresh]")) { renderTrips(true); return; }
     if (t.closest("[data-mode-library]")) { setMode("library"); return; }
     var tab = t.closest("[data-tab]");
-    if (tab) { location.hash = { water: "#/", fish: "#/fish", learn: "#/learn" }[tab.dataset.tab]; return; }
+    if (tab) { location.hash = { trips: "#/trips", water: "#/", fish: "#/fish", learn: "#/learn" }[tab.dataset.tab]; return; }
     var ty = t.closest("[data-type]");
     if (ty) { location.hash = "#/water/" + ty.dataset.type; return; }
     var sc = t.closest("[data-sec]");
