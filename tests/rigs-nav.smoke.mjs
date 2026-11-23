@@ -33,7 +33,7 @@ try {
   browser = await chromium.launch();
   const page = await (await browser.newContext()).newPage();
   const base = `http://127.0.0.1:${PORT}/rigs/`;
-  await page.goto(base, { waitUntil: "load" });
+  await page.goto(base + "#/water", { waitUntil: "load" });
 
   ok(await page.evaluate(() => typeof window.RIG?.go === "function"), "RIG.go is exposed");
 
@@ -44,14 +44,14 @@ try {
   // A way to fish with no spots behind it must not render an empty tile.
   const withEmpty = await page.evaluate(() => {
     window.RIG.content.types.push({ id: "ice", label: "Ice" });
-    location.hash = "#/fish"; location.hash = "#/";
+    location.hash = "#/fish"; location.hash = "#/water";
     return new Promise((r) => setTimeout(() => r([...document.querySelectorAll("[data-type-tile]")].map((e) => e.dataset.typeTile)), 100));
   });
   ok(withEmpty.length === tiles.length && !withEmpty.includes("ice"), "a way to fish with no spots is hidden, not an empty tile", withEmpty.join(","));
   await page.goto(base + "#/water/fly", { waitUntil: "load" });
   ok(await page.locator('[data-flylearn] a[href="#/learn/fly"]').count() === 1, "Fly links the casting course");
   ok(await page.locator('[data-spot="dash-point"]').count() === 1, "Fly lists a spot to fish it");
-  await page.goto(base, { waitUntil: "load" });
+  await page.goto(base + "#/water", { waitUntil: "load" });
 
   // Pier -> Redondo -> straight into squid, since squid is all Redondo has.
   await page.locator('[data-type-tile="pier"]').click();
@@ -129,7 +129,7 @@ try {
   ok(stacked && stacked.nm === "block" && stacked.sub === "block", "pick card name and hint stack", JSON.stringify(stacked));
 
   await page.goto(base, { waitUntil: "load" });
-  ok(await page.locator("[data-view=home]").isVisible(), "the bare url lands on the home tiles");
+  ok(await page.locator("[data-view=trips]").isVisible(), "the bare url lands on Hot Trips");
 } catch (e) {
   fail++;
   console.log("FAIL threw:", e.message.split("\n")[0]);

@@ -53,7 +53,7 @@ try {
   {
     const ctx = await browser.newContext();
     const page = await warmed(ctx);
-    ok((await page.locator("h1").innerText()).trim() === "Rig Card", "page renders online");
+    ok((await page.locator("h1").innerText()).trim() === "Hot Trips", "page renders online");
     ok(await page.evaluate(() => !!navigator.serviceWorker.controller), "service worker controls the page");
 
     const cached = await page.evaluate(async () => {
@@ -66,10 +66,10 @@ try {
 
     await ctx.setOffline(true);
     await page.reload({ waitUntil: "load" });
-    ok((await page.locator("h1").innerText()).trim() === "Rig Card", "renders with the network cut");
+    ok((await page.locator("h1").innerText()).trim() === "Hot Trips", "renders with the network cut");
     ok(await page.evaluate(() => document.fonts.check('700 44px "Barlow Condensed"')),
       "self-hosted heading font available offline");
-    ok(await page.locator("[data-type-tile]").count() > 0, "content.js executed offline");
+    ok(await page.evaluate(() => (window.RIG.content.species || []).length > 0 && !!window.RIG.trips), "content.js and trips.js executed offline");
     await ctx.close();
   }
 
@@ -85,7 +85,7 @@ try {
     await page.goto(BASE, { waitUntil: "load" }).catch(() => {});
     const body = await page.evaluate(() => document.body.innerText).catch(() => "");
     ok(!/404/.test(body), "a 404 navigation does not poison the cached shell", body.slice(0, 120));
-    ok(/Rig Card/.test(body), "the shell still renders after a 404 was visited", body.slice(0, 120));
+    ok(/Hot Trips/.test(body), "the shell still renders after a 404 was visited", body.slice(0, 120));
     await ctx.close();
   }
 
@@ -105,7 +105,7 @@ try {
     let rendered = false;
     try {
       await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 15000 });
-      rendered = (await page.locator("h1").innerText()).trim() === "Rig Card";
+      rendered = (await page.locator("h1").innerText()).trim() === "Hot Trips";
     } catch (_e) { rendered = false; }
     const took = Date.now() - t0;
     ok(rendered, "a slow network still renders", `rendered=${rendered} took=${took}ms`);

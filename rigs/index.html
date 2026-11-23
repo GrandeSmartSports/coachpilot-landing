@@ -865,7 +865,7 @@ a.back{text-decoration:none}
     var c = RIG.trips.cached();
     if (c && !force) { lastPlan = planFrom(c); drawTrips(lastPlan); }
     RIG.trips.load(force).then(function (data) {
-      if (!/^#\/trips\/?$/.test(location.hash)) return;
+      if (!/^(#\/?)?(trips\/?)?$/.test(location.hash)) return;
       lastPlan = planFrom(data); drawTrips(lastPlan);
     }).catch(function () {
       var host = app.querySelector("[data-week]");
@@ -998,6 +998,8 @@ a.back{text-decoration:none}
       } else renderLearn(parts[1]);
       return;
     }
+    // The bare url opens on Hot Trips: the week first, the library a tap away.
+    if (!parts.length) { renderTrips(); return; }
     if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1])); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
     if (parts[0] === "water") {
@@ -1040,7 +1042,7 @@ a.back{text-decoration:none}
     if (t.closest("[data-refresh]")) { renderTrips(true); return; }
     if (t.closest("[data-mode-library]")) { setMode("library"); return; }
     var tab = t.closest("[data-tab]");
-    if (tab) { location.hash = { trips: "#/trips", water: "#/", fish: "#/fish", learn: "#/learn" }[tab.dataset.tab]; return; }
+    if (tab) { location.hash = { trips: "#/trips", water: "#/water", fish: "#/fish", learn: "#/learn" }[tab.dataset.tab]; return; }
     var ty = t.closest("[data-type]");
     if (ty) { location.hash = "#/water/" + ty.dataset.type; return; }
     var sc = t.closest("[data-sec]");

@@ -25,7 +25,7 @@ try {
   const page = await ctx.newPage();
   const errors = []; page.on("pageerror", (e) => errors.push(e.message));
   const base = `http://127.0.0.1:${PORT}/rigs/`;
-  await page.goto(base, { waitUntil: "load" });
+  await page.goto(base + "#/water", { waitUntil: "load" });
 
   const lum = await page.evaluate(() => {
     const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number);
