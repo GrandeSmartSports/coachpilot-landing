@@ -263,6 +263,19 @@ a.back{text-decoration:none}
 .heat{display:inline-block;padding:3px 9px;border-radius:999px;font-family:"Barlow Condensed",sans-serif;font-weight:700;
   font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line))}
 .heat.hot{background:var(--accent);color:#1a0d05;border-color:var(--accent)}
+.gear{list-style:none;margin:14px 0 0;padding:0}
+.gear li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
+.gear li:first-child{border-top:0}
+.gear li span:last-child{flex:1;min-width:0}
+.gear li small{display:block;color:var(--dim);font-size:13px;margin-top:2px}
+.tag{flex:0 0 auto;min-width:52px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim)}
+.tag.have{color:var(--go);border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
+.tag.need{color:var(--accent2);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.hrs{width:100%;border-collapse:collapse;margin:12px 0 0;font-size:13.5px;color:var(--ink2)}
+.hrs td{padding:7px 4px;border-top:1px solid var(--line)}
+.hrs td:first-child{font-family:var(--mono);color:var(--accent2);white-space:nowrap}
+.grp > h2 .heat{margin-left:8px;vertical-align:middle}
 .quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
 .quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
@@ -421,6 +434,7 @@ a.back{text-decoration:none}
 <script src="/rigs/diagrams.js"></script>
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
+<script src="/rigs/runs.js"></script>
 <script>
 (function () {
   "use strict";
@@ -812,7 +826,7 @@ a.back{text-decoration:none}
     app.innerHTML = topHtml(o.tab, o.active) +
       '<div data-view="card">' +
         '<a class="back" href="' + esc(o.upHref) + '" data-up>&larr; ' + esc(o.upText) + "</a>" +
-        noticeHtml() + cardHtml(o.card, { addable: true }) +
+        noticeHtml() + cardHtml(o.card, { addable: o.addable !== false }) +
         '<nav class="pn">' + step(prev, "prev", "Back") +
           '<span class="pos">' + (i + 1) + " of " + o.list.length + "</span>" + step(next, "next", "Next") + "</nav>" +
       "</div>" + tripBarHtml();
@@ -872,25 +886,134 @@ a.back{text-decoration:none}
       if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal and it will keep the last one for the pier.</p>';
     });
   }
-  function renderHot(key) {
+  // ---- run cards: a trip, explained ------------------------------------
+  // The overview is headlines (the plan, gear, bait...), each one a normal
+  // card with Back and Next, built from rigs/runs.js plus this trip's own
+  // tides, weather and times.
+  function findTrip(key) {
     var c = plannerReady() && RIG.trips.cached();
     var p = lastPlan || (c && planFrom(c));
     var bits = key.split("~"), day = p && p.days.filter(function (d) { return d.iso === bits[0]; })[0];
     var t = day && day.trips.filter(function (x) { return x.planId === bits[1]; })[0];
-    if (!t) { location.replace("#/trips"); return; }
+    return t ? { day: day, t: t } : null;
+  }
+  function li(a) { return (a || []).map(function (x) { return "<li>" + esc(x) + "</li>"; }).join(""); }
+  function stepsHtml(a) { return a && a.length ? '<ol class="steps">' + li(a) + "</ol>" : ""; }
+  function boxHtml(kind, head, inner) { return inner ? '<div class="box' + (kind ? " " + kind : "") + '"><b>' + esc(head) + "</b>" + inner + "</div>" : ""; }
+  function whenP(t) { return '<p class="when">' + esc(t) + "</p>"; }
+  function clk(h) { return RIG.trips.clock(((h % 24) + 24) % 24); }
+  function runSections(t, run) {
+    var drive = t.drive / 60;
+    var tl = [{ h: t.from - drive - 0.25, x: "Leave Bonney Lake (" + t.drive + " min drive)" },
+      { h: t.from - 0.25, x: "Arrive and set up" },
+      { h: t.from, x: (Math.abs(t.from - t.dark) < 0.05 ? "Full dark. " : "") + (t.beach ? "Start digging at " + t.beach : "Start fishing") }];
+    t.tides.forEach(function (x) {
+      if (x.h > t.from && x.h < t.to) tl.push({ h: x.h, x: (x.type === "H" ? "High tide, " : "Low tide, ") + x.v.toFixed(1) + " ft" });
+    });
+    if (t.sun.set > t.from && t.sun.set < t.to) tl.push({ h: t.sun.set, x: "Sunset" });
+    if (t.dark > t.from && t.dark < t.to) tl.push({ h: t.dark, x: "Full dark" });
+    tl.push({ h: t.to, x: "Pack up" }, { h: t.to + drive, x: "Home" });
+    tl.sort(function (a, b) { return a.h - b.h; });
+    var plan = whenP(t.slot + ", " + t.when + ".") +
+      '<ol class="steps">' + tl.map(function (e) { return '<li><span class="k">' + esc(clk(e.h)) + "</span> " + esc(e.x) + "</li>"; }).join("") + "</ol>" +
+      boxHtml("", "when you get there", stepsHtml(run.setup)) + boxHtml("tip", "while you fish", stepsHtml(run.during)) +
+      boxHtml("", "after", stepsHtml(run.wrap));
+
+    var need = run.gear.filter(function (g) { return g.s === "need"; }).length;
+    var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
+    var gear = whenP((need ? need + " to get, " : "") + check + " to check, the rest you own.") +
+      '<ul class="gear">' + run.gear.map(function (g) {
+        return '<li><span class="tag ' + g.s + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
+          esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
+      }).join("") + "</ul>";
+
+    var rows = t.hours.map(function (h) {
+      return "<tr><td>" + esc(clk(h.h)) + "</td><td>" + h.wind + " mph, gusts " + h.gust + "</td><td>" + h.temp + "°F</td><td>" +
+        (h.rain >= 0.02 ? "rain" : "dry") + (h.wave != null ? ", " + Math.round(h.wave) + " ft surf" : "") + "</td></tr>";
+    }).join("");
+    var tides = t.tides.map(function (x) {
+      var inside = x.h >= t.from && x.h <= t.to;
+      return (inside ? "<strong>" : "") + esc(clk(x.h)) + " " + (x.type === "H" ? "high" : "low") + " " + x.v.toFixed(1) + " ft" + (inside ? "</strong>" : "");
+    }).join("<br>");
+    var wx = whenP("Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", low of " + t.wx.temp + "°F.") +
+      '<table class="hrs">' + rows + "</table>" +
+      boxHtml("", "tides today", tides || "No tide station for this water.") +
+      boxHtml("", "light", esc("Sunrise " + clk(t.sun.rise) + ". Sunset " + clk(t.sun.set) + ". Moon " + t.moon + "% lit."));
+
+    var out = [
+      { id: "plan", tab: "The plan", title: "The plan", body: plan },
+      { id: "what", tab: "What it is", title: "What it is", body: whenP(run.what) + boxHtml("tip", "why this day", stepsHtml(t.why)) },
+      { id: "gear", tab: "Gear", title: "Gear", body: gear }
+    ];
+    if (run.bait) out.push({ id: "bait", tab: "Bait + lures", title: "Bait and lures",
+      body: whenP("Tie on first: " + run.bait.first) + boxHtml("", "if that is not working", stepsHtml(run.bait.backup)) +
+        (run.bait.note ? boxHtml("tip", "tip", esc(run.bait.note)) : "") });
+    out.push(
+      { id: "how", tab: "How", title: run.bait ? "How to fish it" : "How to dig it", body: stepsHtml(run.how) },
+      { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx },
+      { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
+        (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
+      { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
+      { id: "rules", tab: "Rules", title: "Rules", body: stepsHtml(run.rules) +
+        boxHtml("law", "check before you go", 'Limits change. <a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>.') }
+    );
+    out.forEach(function (c) { c.group = "before"; });
+    return out;
+  }
+  function moreRows(run) {
+    return (run.more || []).map(function (m) {
+      var href, c;
+      if (m[0] === "learn") { c = fundamentals().filter(function (x) { return x.id === m[2]; })[0]; href = "#/learn/" + m[2]; }
+      else {
+        var sp = findSpecies(m[0]), loc = sp && findLocation(sp, m[1]);
+        c = sp && cardsFor(sp, loc).filter(function (x) { return x.id === m[2]; })[0];
+        href = "#/" + m[0] + "/" + m[1] + "/" + m[2];
+      }
+      return c ? rowHtml(c, href) : "";
+    }).join("");
+  }
+  function secLine(c, t, run) {
+    if (c.id === "plan") return "Leave by " + clk(t.from - t.drive / 60 - 0.25) + ", fish " + t.when;
+    if (c.id === "what") return run.what;
+    if (c.id === "wx") return "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
+    var s = snippet(c);
+    if (s) return s;
+    scratch.innerHTML = c.body;
+    var txt = scratch.textContent.trim();
+    return txt.length > 90 ? txt.slice(0, 88).replace(/\s+\S*$/, "") + "…" : txt;
+  }
+  function renderHot(key, sec) {
+    var f = findTrip(key);
+    if (!f) { location.replace("#/trips"); return; }
+    var t = f.t, day = f.day, run = RIG.trips.runs && RIG.trips.runs[t.planId];
+    var base = "#/trips/" + encodeURIComponent(key);
     var sp = findSpecies(t.species);
-    var open = sp ? '<div class="rows" style="margin-top:16px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards>' +
-      '<span class="rt"><b>Open the ' + esc(sp.name) + " cards</b><span>Rigs, rules and videos for this spot</span></span>" +
-      '<span class="chev" aria-hidden="true">&rsaquo;</span></a></div>' : "";
+    if (!run) {
+      app.innerHTML = topHtml("trips") + '<div data-view="hot"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
+        headHtml(esc(day.label + " · " + t.slot), t.name, t.when) + boxHtml("tip", "why", stepsHtml(t.why)) +
+        (sp ? '<div class="rows" style="margin-top:16px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards><span class="rt"><b>Open the ' +
+          esc(sp.name) + ' cards</b></span><span class="chev" aria-hidden="true">&rsaquo;</span></a></div>' : "") + "</div>" + tripBarHtml();
+      return;
+    }
+    var secs = runSections(t, run);
+    var card = sec && secs.filter(function (c) { return c.id === sec; })[0];
+    if (card) {
+      renderCard({ tab: "trips", card: card, list: secs, addable: false,
+        hrefFor: function (c) { return base + "/" + c.id; }, upHref: base, upText: t.name });
+      app.querySelector('[data-view="card"]').setAttribute("data-run", t.planId);
+      return;
+    }
+    var more = moreRows(run);
     app.innerHTML = topHtml("trips") +
-      '<div data-view="hot">' +
+      '<div data-view="hot" data-run="' + esc(t.planId) + '">' +
         '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
         headHtml(esc(day.label + " · " + t.slot), t.name, t.when + " · " + t.drive + " min drive") +
-        '<div class="box' + (t.heat === "Hot" ? " tip" : "") + '"><b>why it is ' + esc(t.heat.toLowerCase()) + "</b>" +
-          '<ol class="steps">' + t.why.map(function (w) { return "<li>" + esc(w) + "</li>"; }).join("") + "</ol></div>" +
-        '<div class="box"><b>weather in the window</b>Wind to ' + t.wx.wind + " mph, gusts " + t.wx.gust + " mph, low of " + t.wx.temp + "°F.</div>" +
-        (t.gear ? '<div class="box law"><b>gear</b>' + esc(t.gear) + ".</div>" : "") +
-        open +
+        '<section class="grp"><h2>Run card <span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span></h2><div class=\"rows\">" +
+          secs.map(function (c) {
+            return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
+              "</b><span>" + esc(secLine(c, t, run)) + '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+          }).join("") + "</div></section>" +
+        (more ? '<section class="grp"><h2>Go deeper</h2><div class="rows" data-more>' + more + "</div></section>" : "") +
       "</div>" + tripBarHtml();
     window.scrollTo(0, 0);
   }
@@ -1000,7 +1123,7 @@ a.back{text-decoration:none}
     }
     // The bare url opens on Hot Trips: the week first, the library a tap away.
     if (!parts.length) { renderTrips(); return; }
-    if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1])); else renderTrips(); return; }
+    if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1]), parts[2]); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
     if (parts[0] === "water") {
       var t = findType(parts[1]);

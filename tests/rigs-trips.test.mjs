@@ -9,7 +9,10 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ctx = { console };
 ctx.globalThis = ctx;
 vm.createContext(ctx);
+ctx.window = ctx;
+vm.runInContext(readFileSync(resolve(ROOT, "rigs/content.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/trips.js"), "utf8"), ctx);
+vm.runInContext(readFileSync(resolve(ROOT, "rigs/runs.js"), "utf8"), ctx);
 const T = ctx.RIG.trips;
 
 let pass = 0, fail = 0;
@@ -74,7 +77,8 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   // Thanksgiving plans like a weekend, so the clam dig can show.
   ok(ids(r, "2026-11-26").includes("clams-ocean-shores"), "Thanksgiving gets an adventure day: razor clams", ids(r, "2026-11-26").join(","));
   const cl = tripsOn(r, "2026-11-26").find((t) => t.planId === "clams-ocean-shores");
-  ok(cl && /9:00 PM low/.test(cl.why.join(" ")), "the dig is built around the low tide", cl && cl.why.join(" | "));
+  ok(cl && /Copalis, low 7:35 PM/.test(cl.why.join(" ")), "the dig uses WDFW's own beach and low tide", cl && cl.why.join(" | "));
+  ok(cl && Math.abs(cl.from - (19.58 - 2)) < 0.01, "and starts digging 2 hours before the low", cl && cl.from);
   ok(cl && cl.gear, "the clam trip says the gear is missing");
   ok(!ids(r, "2026-11-29").includes("clams-ocean-shores"), "no clam trip on a day with no dig");
   ok(r.days.every((d) => d.trips.length <= 4), "a day lists four trips at most");
@@ -96,7 +100,12 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
     { t: "2026-11-27 13:36", v: 8.0, type: "L" }, { t: "2026-11-27 18:13", v: 12.9, type: "H" }] };
   const r = T.plan({ today, wx: week(today), tides, days: 1 });
   const c = tripsOn(r, today).find((t) => t.planId === "cutthroat-dash-point");
-  ok(c && /6\.7 ft swing/.test(c.why.join(" ")), "a 7:30 AM trip reads the 6.7 ft ebb, not the 18 ft overnight flood", c && c.why.join(" | "));
+  ok(!c, "a day that ebbs through every daylight slot lists no cutthroat trip", c && c.when);
+  const flood = { "9446705": [{ t: "2026-11-27 05:30", v: 2.0, type: "L" }, { t: "2026-11-27 11:45", v: 13.5, type: "H" }] };
+  const r2 = T.plan({ today, wx: week(today), tides: flood, days: 1 });
+  const c2 = tripsOn(r2, today).find((t) => t.planId === "cutthroat-dash-point");
+  ok(c2 && /Incoming tide/.test(c2.why.join(" ")), "a morning flood up to high is the cutthroat window", c2 && c2.why.join(" | "));
+  ok(c2 && c2.from >= 8 && c2.to <= 12.25 + 0.01, "the trip is fitted to the flood: from the park opening to just past high", c2 && c2.when);
 }
 
 // --- a blown-out coast is not a no-fishing day -----------------------------
@@ -127,7 +136,9 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(!sat.includes("trout-tapps") && !sat.includes("trout-american"), "13 mph keeps the kayak home", sat.join(","));
   ok(sat.includes("trout-fenwick"), "the same wind still fishes from the bank at Fenwick", sat.join(","));
   const calm = T.plan({ today, wx: week(today), tides: tidesFor(today) });
-  ok(ids(calm, today).includes("trout-tapps"), "a calm Saturday puts the kayak on Lake Tapps", ids(calm, today).join(","));
+  ok(ids(calm, today).includes("trout-american"), "a calm Saturday puts the kayak on American Lake", ids(calm, today).join(","));
+  ok(!ids(calm, today).includes("trout-tapps") && calm.notListed.some((n) => /Tapps/.test(n.name) && /ramp closed/.test(n.why)),
+    "Lake Tapps stays off while the ramp is closed, and says so");
 }
 
 // --- surf cancels the ocean ----------------------------------------------
@@ -135,6 +146,23 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   const today = "2026-11-28";
   const r = T.plan({ today, wx: week(today, (s) => (s === "ocean-shores" || s === "westport" ? { wave: 12 } : {})), tides: tidesFor(today) });
   ok(!ids(r, today).includes("clams-ocean-shores"), "12 ft surf cancels the clam dig");
+}
+
+// --- the beach park opens at 8 -------------------------------------------
+{
+  const today = "2026-11-28";
+  const r = T.plan({ today, wx: week(today), tides: tidesFor(today), days: 1 });
+  const c = tripsOn(r, today).find((t) => t.planId === "cutthroat-dash-point");
+  ok(!c || c.from >= 8, "no cutthroat trip before the state park opens at 8 AM", c && c.from);
+}
+
+// --- a trip carries what its run card needs --------------------------------
+{
+  const today = "2026-11-24";
+  const r = T.plan({ today, wx: week(today), tides: tidesFor(today), days: 1 });
+  const sq = tripsOn(r, today).find((t) => t.planId === "squid-redondo");
+  ok(sq && sq.hours.length >= 3 && sq.hours.every((h) => h.h >= Math.floor(sq.from) && h.h < sq.to), "hour by hour weather for the window");
+  ok(sq && sq.tides.length === 4 && typeof sq.moon === "number" && sq.sun.set === 16.4, "the day's tides, sun and moon ride along");
 }
 
 // --- seasons ---------------------------------------------------------------
@@ -156,6 +184,36 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(T.plans.every((p) => spotIds.includes(p.spot)), "every plan's spot has weather coordinates");
   ok(new Set(T.plans.map((p) => p.id)).size === T.plans.length, "plan ids are unique");
   ok(T.plans.every((p) => p.rules), "every plan states its rules status");
+}
+
+// --- every trip that can be listed has a full run card ---------------------
+{
+  const C = ctx.RIG.content;
+  const listable = T.plans.filter((p) => p.rules === "confirmed" && !p.access);
+  const missing = listable.filter((p) => !T.runs[p.id]).map((p) => p.id);
+  ok(missing.length === 0, "every listable trip has a run card", missing.join(","));
+  const bad = [];
+  for (const [id, r] of Object.entries(T.runs)) {
+    if (!T.plans.some((p) => p.id === id)) bad.push(id + ": no such plan");
+    for (const k of ["what", "setup", "during", "gear", "how", "spot", "expect", "rules"]) if (!r[k] || (Array.isArray(r[k]) && !r[k].length)) bad.push(id + ": no " + k);
+    if (!r.gear.every((g) => ["have", "need", "check"].includes(g.s))) bad.push(id + ": gear status");
+    const all = JSON.stringify(r);
+    if (/\u2014|—/.test(all)) bad.push(id + ": em dash");
+    for (const [sp, loc, card] of r.more || []) {
+      let found;
+      if (sp === "learn") found = C.fundamentals.some((c) => c.id === card);
+      else {
+        const s = C.species.find((x) => x.id === sp);
+        const l = s && s.locations.find((x) => x.id === loc);
+        const ids = s && [...s.cards, ...(l ? l.cards : [])].map((c) => (typeof c === "string" ? c : c.id));
+        found = !!l && ids.includes(card);
+      }
+      if (!found) bad.push(`${id}: Go deeper link ${sp}/${loc}/${card} is not a real card`);
+    }
+  }
+  ok(bad.length === 0, "run cards are complete and every Go deeper link is real", bad.join(" | "));
+  ok(T.runs["cutthroat-dash-point"].spot.lines.some((l) => /8 AM/.test(l)) && T.runs["cutthroat-dash-point"].gear.some((g) => /Discover Pass/.test(g.i)),
+    "Dash Point says the park opens at 8 and needs a Discover Pass");
 }
 
 // --- the API shapes become planner input -----------------------------------

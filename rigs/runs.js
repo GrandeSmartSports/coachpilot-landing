@@ -1,0 +1,297 @@
+// Run cards: everything a Hot Trip needs, per plan id in rigs/trips.js.
+// Plain data, plain text, so it moves into CastAI as is.
+//
+// Every fact here comes from a Rig Card, Coach's garage list
+// (~/Workspace/ops/FISHING-INVENTORY.md) or a source checked 2026-11-23.
+// Anything not confirmed is put in `unknown`, never guessed into a fact.
+//
+// gear status: have = Coach owns it (stated), need = known missing,
+// check = not confirmed either way.
+(function (root) {
+  "use strict";
+  var RIG = (root.RIG = root.RIG || {});
+  RIG.trips = RIG.trips || {};
+
+  RIG.trips.runs = {
+    "squid-redondo": {
+      what: "Market squid under the pier lights after dark. You jig straight down at the edge of the lit water. A good night fills a bucket for calamari.",
+      setup: ["Get there in the last light and take rail space where the lit water meets the dark.",
+        "Hang the light off the rail, aimed out and down, with its own safety tether.",
+        "Rig one line with two jigs to start."],
+      during: ["Fish the edge of the light, not the middle of the bright patch.",
+        "Lob it underhand 20 to 30 ft, let it sink on a tight line, count, then lift slowly.",
+        "The take is weight, not a strike. Lift steady and never let the line go slack.",
+        "Swing the squid over the rail and straight into the bucket. They ink."],
+      wrap: ["Squid on ice for the drive home.", "Rinse the light with fresh water.",
+        "Clean them in the morning, not at midnight."],
+      gear: [
+        { i: "Rod: 9 ft, light power, fast action", s: "need", n: "On the Black Friday list. Until then the 7.5 ft river rod works, you just feel less." },
+        { i: "Reel with 10 to 15 lb braid", s: "need", n: "Your river reels carry 30 lb braid. Too heavy to feel the weight change." },
+        { i: "Squid jigs, size 2.0 to 2.5", s: "need" },
+        { i: "White work light (Ryobi PCL633B), tool only", s: "need" },
+        { i: "Ryobi 18V packs: one 4.0Ah, three 1.5Ah", s: "have", n: "About 5 hours on high with swaps. Spares in an inside pocket." },
+        { i: "Carabiner and a second safety tether for the light", s: "check" },
+        { i: "Bucket, plus a cooler with ice", s: "check" },
+        { i: "Headlamp", s: "check" },
+        { i: "Rag for ink, warm layers, rain shell", s: "check" },
+        { i: "Fishing license", s: "check", n: "Read the Rules card for squid." }
+      ],
+      bait: { first: "Two squid jigs, 2.0 to 2.5, early in the season.",
+        backup: ["Move up to 3.0 and 3.5 later in the season as the squid grow."],
+        note: "Colour changes night to night. Ask the rail what is working." },
+      how: ["Stand where you can drop straight down into the light edge.",
+        "Underhand lob, 20 to 30 ft. A hard cast tangles the two jigs.",
+        "Let it sink on a tight line. Count, so you know your depth.",
+        "Slow lift, pause, let it fall. Feel for the jig getting heavier or stopping early.",
+        "Feel weight: lift smooth and keep reeling. Slack line means a lost squid."],
+      spot: { lines: ["Redondo Pier, Des Moines. A lit public fishing pier on the east side of Poverty Bay.",
+        "Tides come from Des Moines, East Passage (NOAA 9446248), 3.5 miles north. Checked against a real night on Nov 17."],
+        unknown: ["Parking layout and fees", "How late the lot stays open", "Which stretch of rail fishes best"] },
+      expect: ["A crowded rail on good nights. On Nov 17 everyone hung white work lights off the rail.",
+        "Squid come in waves. Long quiet stretches are normal.",
+        "Cold and damp. You stand still for hours.",
+        "Bright moon nights are slower. Dark moon nights beat full."],
+      rules: ["10 pounds or 5 quarts a day, whichever you hit first.", "One line per person, up to four jigs on it.",
+        "Read the Rules card before the first trip. Limits change."],
+      more: [["squid", "redondo", "squid-watch-start"], ["squid", "redondo", "squid-rig"], ["squid", "redondo", "squid-bite"],
+        ["squid", "redondo", "squid-feel"], ["squid", "redondo", "squid-regs"], ["squid", "redondo", "squid-clean"], ["squid", "redondo", "squid-cook"]]
+    },
+
+    "clams-ocean-shores": {
+      what: "Razor clams on an announced WDFW evening dig. 15 a person. It is a 2.5 hour drive each way, so it is an adventure night.",
+      setup: ["Check the WDFW page the day of the dig. Digs get cancelled for toxins or surf.",
+        "Park at a beach approach for that night's beach.",
+        "Walk down to the wet sand near the water."],
+      during: ["Start 2 hours before the low. That is when the digging is best.",
+        "Look for a show: a dimple or a keyhole in the sand.",
+        "No shows? Pound the sand with the gun handle and watch.",
+        "Gun centred on the show, tilted a little toward the ocean. Work it down, thumb over the vent, pull.",
+        "Keep the first 15 you dig, any size, broken or not."],
+      wrap: ["Clams on ice for the drive home.", "Dry clothes in the car. You will be wet.",
+        "Clean them the same night or first thing in the morning."],
+      gear: [
+        { i: "Clam gun or clam shovel", s: "need" },
+        { i: "A container for each digger", s: "need" },
+        { i: "Headlamp, plus a spare", s: "check", n: "Fall and winter digs are after dark." },
+        { i: "Waders or tall boots, rain shell", s: "check" },
+        { i: "Cooler with ice", s: "check" },
+        { i: "2026-2027 license that covers razor clams", s: "check" }
+      ],
+      bait: null,
+      how: ["Walk slow along the wet sand near the water's edge.",
+        "Shows look like a dimple, a keyhole, or a little ring.",
+        "Razors pull down fast. Get the gun on it and dig without stopping.",
+        "If the gun comes up empty, dig again in the same hole. The clam went down, not away."],
+      spot: { lines: ["The beach changes by night: Mocrocks or Copalis. The trip shows which.",
+          "Do not dig in the Copalis reserve, just south of the Ocean City approach. It is marked by 10 ft poles with signs.",
+          "Long Beach and Twin Harbors are closed for toxins."],
+        unknown: ["Which approach parks closest to the clams", "Restrooms at the approaches"] },
+      expect: ["A thin year. WDFW counted fewer clams this summer. Expect to move around and pound for shows.",
+        "Dark, wet, windy. The cold hits on the walk back.",
+        "WDFW warns about swells over 11 ft. Never turn your back on the waves."],
+      rules: ["15 razor clams a person a day. Keep the first 15.", "Each digger uses their own container.",
+        "Everyone 16 and over needs a license that covers razor clams.", "Dig only on announced days and beaches."],
+      more: [["clams", "ocean-shores", "clam-watch"], ["clams", "ocean-shores", "clam-dig"], ["clams", "ocean-shores", "clam-gear"],
+        ["clams", "ocean-shores", "clam-rules"], ["clams", "ocean-shores", "razor-dates"]]
+    },
+
+    "crab-westport": {
+      what: "Dungeness and red rock crab with ring nets off the Westport marina docks. Open every day. A slow, sit-and-soak day on the coast.",
+      setup: ["Bait the ring nets before you walk out the dock.",
+        "Pick a float with room. A local guide says Float 20, near the marina entrance, often has no boats."],
+      during: ["Drop each ring flat to the bottom.",
+        "Soak 15 to 30 minutes, per WDFW.",
+        "Pull brisk and steady, so the crabs stay in the ring.",
+        "Measure every male. Females and soft shells go straight back."],
+      wrap: ["Crabs on ice, or keep them cool and damp.", "Rinse the rings and rope with fresh water at home."],
+      gear: [
+        { i: "Two ring nets or snares", s: "need", n: "Two units of crab gear per person." },
+        { i: "Rope long enough to reach bottom, plus extra", s: "need" },
+        { i: "Bait clip or bait cage", s: "need" },
+        { i: "Crab gauge", s: "need" },
+        { i: "Bait", s: "need" },
+        { i: "Cooler with ice, gloves, bucket", s: "check" },
+        { i: "Shellfish license (or a combination license)", s: "check" }
+      ],
+      bait: { first: "Bait in a cage or clip, tied in the middle of the ring.", backup: [],
+        note: "What bait works best at Westport is not confirmed for this card." },
+      how: ["Lower the ring until the rope goes slack, then take up the slack.",
+        "Set a timer for 15 minutes.",
+        "Pull hand over hand, fast and steady. Do not stop halfway.",
+        "Measure straight across the back, in front of the points."],
+      spot: { lines: ["Westport marina docks, Marine Area 2.",
+          "A local guide says Float 20 is often boat-free and close to the entrance. Another says Floats 6 and 10 fish well late summer through winter."],
+        unknown: ["Parking near the floats", "Whether the docks allow crabbing at night"] },
+      expect: ["A lot of waiting between pulls.", "Wind on the docks. Dress for the coast, not Bonney Lake.",
+        "Pair it with a razor clam dig if one lands the same day."],
+      rules: ["Dungeness: males only, 6 inches, 6 a day.", "Ring nets and snares: all year. Pots: Dec 1 to Sept 15.",
+        "Two units of gear per person.", "Shellfish license for everyone crabbing."],
+      more: [["crab", "westport", "crab-watch"], ["crab", "westport", "crab-keep"], ["crab", "westport", "crab-gear"],
+        ["crab", "westport", "crab-license"], ["crab", "westport", "westport-crab"]]
+    },
+
+    "cutthroat-dash-point": {
+      what: "Sea-run cutthroat cruising the beach. WDFW says South Sound beaches fish well all winter. Catch and release only, so this is about the catch.",
+      setup: ["Park at Dash Point State Park. Put the Discover Pass on the dash.",
+        "The park opens at 8 AM.",
+        "Walk down to the beach and rig on the sand."],
+      during: ["Start a few feet from the waterline. Wade out only as the fish move.",
+        "Fish come up about 20 ft out. Cast at an angle along the beach, not straight out.",
+        "Best on the incoming tide, the hour or two before high.",
+        "No fish in 15 minutes? Walk the beach and try new water.",
+        "When the tide slows and weed starts fouling the fly, the window is over."],
+      wrap: ["Rinse the reel and line with fresh water.", "Write down where the fish were. This beach has not been fished for the card yet."],
+      gear: [
+        { i: "Fly rod, your 4 weight", s: "have", n: "Fine on a calm day with small flies. A 6 weight is ideal." },
+        { i: "Floating fly line", s: "check" },
+        { i: "Leader: 24 in of 15 lb, 24 in of 10 lb, 36 in of 6 lb", s: "need" },
+        { i: "Clouser minnows, olive and white", s: "need" },
+        { i: "Mack's Smile Blade Fly, pink sparkle", s: "need" },
+        { i: "Spin option: your micro rod", s: "have", n: "Line weight on it is not confirmed." },
+        { i: "Spin option: 1/2 oz spoon, silver (Mack's Hum Dinger)", s: "need" },
+        { i: "Forceps, and pliers to pinch barbs", s: "check" },
+        { i: "Waders or knee boots", s: "check" },
+        { i: "Discover Pass", s: "check", n: "$99 ticket without one." },
+        { i: "Saltwater fishing license", s: "check" }
+      ],
+      bait: { first: "Clouser minnow, olive and white.",
+        backup: ["Smile Blade Fly in pink sparkle. It looks like a shrimp.", "On spin gear: a 1/2 oz silver spoon."],
+        note: "Brighter colours when the water is murky." },
+      how: ["Reach back, pause, then push the cast forward and land the line soft.",
+        "Let the fly sit until the rings on the water settle.",
+        "Strip at an even pace. Steady beats fast.",
+        "Spoon: cast along the beach, count it down, steady retrieve.",
+        "Fish on: keep it in the water, wet hands, hook out fast."],
+      spot: { lines: ["Dash Point State Park, Tacoma. Open 8 AM to dusk.",
+          "Discover Pass required to park.",
+          "Mack's Lure says to fish the bank near the pier."],
+        unknown: ["Which stretch of beach holds fish", "Restrooms in winter", "How busy weekend mornings get"] },
+      expect: ["A first look. Nobody has fished cutthroat here for this card.",
+        "Zero fish on a first trip is normal. You are learning the beach.",
+        "Wind is the enemy of the 4 weight. Under 10 mph is easy."],
+      rules: ["All cutthroat in Puget Sound go back.", "Barbless hooks in all Puget Sound marine waters.",
+        "Saltwater license.", "Discover Pass to park."],
+      more: [["cutthroat", "dash-point", "src-watch"], ["cutthroat", "dash-point", "src-gear"], ["cutthroat", "dash-point", "src-rules"],
+        ["cutthroat", "dash-point", "dash-src"], ["learn", "", "fly-cast"], ["learn", "", "fly-setup"]]
+    },
+
+    "coho-dash-point": {
+      what: "Coho from the kayak off Dash Point. They run the shallow lane along the shore and chase a fast lure.",
+      setup: ["Launch at Dash Point Park and Pier on Beach Dr NE, not the state park.",
+        "Do the gear law in the garage: single siwash, barbs pinched.",
+        "Anchor on the drop off the pier end. Use the 150 ft rode."],
+      during: ["Cast the Buzz Bomb, let it flutter down, rip it up, let it fall. Most bites come on the fall.",
+        "Or a hoochie on a jig head, worked fast.",
+        "Fish you cannot keep stay in the water alongside. Never inside the gunwale."],
+      wrap: ["Fill in the catch record card before you leave the beach.", "Rinse the boat and reels."],
+      gear: [
+        { i: "Kayak, PFD, anchor with 150 ft rode", s: "have" },
+        { i: "Spinning rod: Valor 7 ft medium heavy", s: "have" },
+        { i: "Buzz Bombs, trebles swapped for single siwash", s: "check" },
+        { i: "Hoochies and jig heads", s: "check" },
+        { i: "Net", s: "check" },
+        { i: "License and salmon catch record card", s: "check" }
+      ],
+      bait: { first: "Buzz Bomb on a single barbless siwash.", backup: ["Hoochie threaded on the leader over a jig head."], note: "" },
+      how: ["Cast, let it sink to the depth you want.", "Sharp lift, then let it flutter back down on a tight line.",
+        "Coho hit the flutter. Watch the line."],
+      spot: { lines: ["Dash Point Park and Pier, Beach Dr NE. The pier is closed, so the kayak is how you reach the drop.",
+          "Off the pier end: 30 ft, then 51 ft at 25 yards out, 74 ft at 50 yards. It drops fast."],
+        unknown: [] },
+      expect: ["Mid August to the end of September, peak in September.", "Fish near high water after work."],
+      rules: ["Marine Area 11 salmon is closed Nov 16 to Mar 30.", "Barbless, single siwash hooks.",
+        "Check the WDFW emergency rules before every trip."],
+      more: [["coho", "dash-point", "dash-coho"], ["coho", "dash-point", "dash-watch-jig"], ["coho", "dash-point", "dash-law"],
+        ["coho", "dash-point", "dash-where"], ["coho", "dash-point", "dash-timing"], ["coho", "dash-point", "dash-season"]]
+    },
+
+    "king-dash-point": {
+      what: "Kings mooching from the kayak off Dash Point. Deeper and farther out than coho, on a slow spinning herring.",
+      setup: ["Launch at Dash Point Park and Pier on Beach Dr NE.",
+        "Cut plug herring brined and ready before you launch.",
+        "Anchor on the 35 to 40 ft band of the pier drop. That is where your first king came from."],
+      during: ["Free spool down to the depth the kings are on.", "Hold, or lift slowly a few feet and let it flutter back.",
+        "A tap, then slack or weight. Reel down until you feel it, then lift. Do not jerk."],
+      wrap: ["Catch record card before you leave the beach.", "Rinse the boat and reels."],
+      gear: [
+        { i: "Kayak, PFD, anchor with 150 ft rode", s: "have" },
+        { i: "Mooching rod and reel", s: "check" },
+        { i: "Banana sinkers, 1/2 to 1 oz, bead chain both ends", s: "check" },
+        { i: "Leader: 5 to 8 ft of 20 to 30 lb fluorocarbon, two hooks", s: "check" },
+        { i: "Herring for cut plugs, plus brine", s: "need" },
+        { i: "License and salmon catch record card", s: "check" }
+      ],
+      bait: { first: "Cut plug herring on a two hook mooching leader.", backup: [], note: "A tight even roll is right. A wobble means the cut is off." },
+      how: ["Cut the head off at an angle, both ways.", "Hook up through the cavity and out the top of the cut.",
+        "Drop to the band, hold, slow lift, flutter back."],
+      spot: { lines: ["Dash Point Park and Pier, Beach Dr NE.", "The 35 to 40 ft band off the pier end."], unknown: [] },
+      expect: ["Kings are July and August here.", "Long quiet stretches, then one bite."],
+      rules: ["No more than 1 Chinook in the daily limit when open.", "Barbless, no more than two hooks.",
+        "Check the WDFW emergency rules before every trip."],
+      more: [["king", "dash-point", "king-vs-coho"], ["king", "dash-point", "king-mooch-build"], ["king", "dash-point", "king-cutplug"],
+        ["king", "dash-point", "king-mooch-fish"], ["king", "dash-point", "king-watch"]]
+    },
+
+    "trout-fenwick": {
+      what: "Perch and stocked trout from shore at Lake Fenwick in Kent. Close, easy, and good after a trout plant.",
+      setup: ["Check the WDFW stocking report first. A fresh plant changes the day."],
+      during: ["Perch: small jig near the bottom, short lifts.", "Trout: PowerBait floating just off the bottom.",
+        "Find one perch and there are more. Stay on that spot."],
+      wrap: [],
+      gear: [
+        { i: "Micro rod or a light spinning rod", s: "have" },
+        { i: "Light line, 4 to 6 lb", s: "check" },
+        { i: "Small perch jigs", s: "need" },
+        { i: "PowerBait, sliding sinkers, small hooks", s: "need" },
+        { i: "Freshwater fishing license", s: "check" }
+      ],
+      bait: { first: "Small jig for perch.", backup: ["PowerBait off the bottom for stocked trout."], note: "" },
+      how: ["Perch: drop to the bottom, lift a few inches, let it fall.", "Trout: cast out, let the sinker settle, tighten up, wait."],
+      spot: { lines: ["Lake Fenwick, Kent. You have fished it: 8 to 10 inch perch."], unknown: ["Best shore spot for winter perch"] },
+      expect: ["Winter perch school deep, 20 to 40 ft. From shore you may not reach them.", "Trout depend on the plants."],
+      rules: ["Lowland lakes are open all year, except a listed few.", "Perch and trout limits are not pulled in yet. Check before you keep any."],
+      more: [["perch", "lake-fenwick", "perch-winter"], ["perch", "lake-fenwick", "trout-plants"], ["perch", "lake-fenwick", "trout-watch"],
+        ["perch", "lake-fenwick", "perch-regs"]]
+    },
+
+    "bass-fenwick": {
+      what: "Largemouth at Lake Fenwick. Where your chartreuse Rooster Tail caught one from the kayak.",
+      setup: ["Evening, overcast and glassy is how the good day went."],
+      during: ["Rooster Tail along the edges first.", "Wacky Dinger on the open edges.", "Texas rig into the wood and stumps."],
+      wrap: [],
+      gear: [
+        { i: "Valor 7 ft medium heavy spinning, 15 lb mono", s: "have" },
+        { i: "Abu Garcia Black Max baitcaster", s: "have", n: "Spooled with 20 lb mono for salmon since September." },
+        { i: "Rooster Tail, chartreuse, 1/8 oz", s: "check", n: "The 1/4 oz ones you own are too big." },
+        { i: "Dingers and 3/0 EWG hooks, 1/8 oz bullet weights", s: "check" },
+        { i: "Fishing license", s: "check" }
+      ],
+      bait: { first: "Worden's Rooster Tail, chartreuse, 1/8 oz.", backup: ["Wacky rigged Dinger.", "Texas rigged worm."], note: "" },
+      how: ["Wacky: hook once through the middle, cast to the edge, let it sink on slack line.", "Most bites come on the fall. Watch the line."],
+      spot: { lines: ["Lake Fenwick, Kent."], unknown: ["Where you launched and parked last time"] },
+      expect: ["Summer and early fall. Cold water shuts it down."],
+      rules: ["Bass limits are not pulled in yet. Check before you keep any."],
+      more: [["bass", "lake-fenwick", "bass-roostertail"], ["bass", "lake-fenwick", "bass-wacky"], ["bass", "lake-fenwick", "bass-texas"],
+        ["bass", "lake-fenwick", "bass-gear"], ["bass", "lake-fenwick", "fenwick-notes"]]
+    },
+
+    "trout-american": {
+      what: "Perch and trout from the kayak on American Lake in Lakewood. Big water, so it is a calm day pick.",
+      setup: ["Launch at the paved two lane ramp.", "Anchor over 20 to 40 ft for winter perch."],
+      during: ["Drop a small jig to the bottom.", "Find one and there are dozens. Stay put."],
+      wrap: ["Rinse the kayak and anchor line."],
+      gear: [
+        { i: "Kayak, PFD, anchor and rode", s: "have" },
+        { i: "Micro rod or light spinning rod", s: "have" },
+        { i: "Small perch jigs", s: "need" },
+        { i: "Freshwater fishing license", s: "check" }
+      ],
+      bait: { first: "Small jig for perch.", backup: ["PowerBait for stocked trout."], note: "" },
+      how: ["Anchor, drop to the bottom, short lifts.", "Use the anchor scope drill in Learn: 3 times the depth."],
+      spot: { lines: ["American Lake, Lakewood. Paved two lane ramp."], unknown: ["Parking fee at the ramp"] },
+      expect: ["Wind builds fast on big water. The trip is off over 10 mph."],
+      rules: ["Lowland lakes are open all year, except a listed few.", "Limits are not pulled in yet. Check before you keep any."],
+      more: [["perch", "american-lake", "american-launch"], ["perch", "american-lake", "perch-winter"], ["perch", "american-lake", "trout-plants"]]
+    }
+  };
+})(typeof window !== "undefined" ? window : globalThis);

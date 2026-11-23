@@ -46,8 +46,15 @@
       peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed",
       gear: "Squid rod is on the Black Friday list" },
     { id: "clams-ocean-shores", species: "clams", spot: "ocean-shores", name: "Razor clams, Copalis and Mocrocks",
-      dates: ["2026-11-24", "2026-11-25", "2026-11-26", "2026-11-27", "2026-11-28"], how: "surf", tide: "low",
-      dark: true, rules: "confirmed", gear: "Needs a clam gun or shovel" },
+      // Official WDFW dig days, with WDFW's own low tide times and beach.
+      digs: {
+        "2026-11-24": { low: 18.03, ft: -1.7, beach: "Mocrocks" },
+        "2026-11-25": { low: 18.8, ft: -1.9, beach: "Copalis" },
+        "2026-11-26": { low: 19.58, ft: -1.8, beach: "Copalis" },
+        "2026-11-27": { low: 20.42, ft: -1.4, beach: "Mocrocks" },
+        "2026-11-28": { low: 21.3, ft: -0.8, beach: "Mocrocks" }
+      },
+      how: "surf", wave: 11, tide: "low", dark: true, rules: "confirmed", gear: "Needs a clam gun or shovel" },
     { id: "crab-westport", species: "crab", spot: "westport", name: "Crab off the Westport docks",
       ok: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], how: "shore", tide: "slack", rules: "confirmed",
       gear: "Needs a ring net or snare" },
@@ -56,7 +63,9 @@
     { id: "surfperch-westport", species: "surfperch", spot: "westport", name: "Surf perch, Westport",
       peak: [4, 5, 6], ok: [3, 7, 8, 9, 10], how: "surf", tide: "flood", rules: "Daily limit not confirmed" },
     { id: "cutthroat-dash-point", species: "cutthroat", spot: "dash-point", name: "Sea-run cutthroat, Dash Point beach",
-      peak: [3, 4, 5, 9, 10], ok: [6, 7, 8, 11], how: "shore", tide: "moving", rules: "confirmed" },
+      // WDFW: South Sound beaches fish well all winter. Mack's: best on the
+      // incoming, the hour or two before high. The state park is 8 AM to dusk.
+      peak: [10, 11, 12, 1, 2, 3, 4], ok: [5, 6, 9], how: "shore", tide: "flood", opens: 8, rules: "confirmed" },
     { id: "coho-dash-point", species: "coho", spot: "dash-point", name: "Coho from the kayak, Dash Point",
       peak: [8, 9], ok: [10], closed: [["11-16", "03-30"]], how: "kayak", tide: "moving", rules: "confirmed" },
     { id: "king-dash-point", species: "king", spot: "dash-point", name: "Kings mooching, Dash Point",
@@ -77,7 +86,8 @@
     { id: "bass-fenwick", species: "bass", spot: "lake-fenwick", name: "Bass, Lake Fenwick",
       peak: [5, 6, 7, 8, 9], ok: [4, 10], how: "shore", rules: "confirmed" },
     { id: "trout-tapps", species: "perch", spot: "lake-tapps", name: "Trout from the kayak, Lake Tapps",
-      peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed" },
+      peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed",
+      access: "Allan Yorke ramp closed since Jul 27, no reopen date" },
     { id: "trout-american", species: "perch", spot: "american-lake", name: "Trout from the kayak, American Lake",
       peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed" }
   ];
@@ -130,7 +140,7 @@
 
   // Is this plan in season on this day? Returns "peak", "ok" or null.
   function season(p, day) {
-    if (p.dates) return p.dates.indexOf(day.iso) !== -1 ? "peak" : null;
+    if (p.digs) return p.digs[day.iso] ? "peak" : null;
     if (p.odd && day.y % 2 === 0) return null;
     var md = mmdd(day);
     if ((p.closed || []).some(function (r) { return inRange(md, r); })) return null;
@@ -166,6 +176,7 @@
           var s = season(p, day);
           if (!s) return;
           if (p.rules !== "confirmed") { notListed[p.id] = { name: p.name, why: p.rules }; return; }
+          if (p.access) { notListed[p.id] = { name: p.name, why: p.access }; return; }
           var t = scoreTrip(p, spot, slot, day, s, wx[spot.id], tides[spot.tide]);
           if (t.score === 0 && !t.blocked) return;
           tried++;
@@ -195,15 +206,23 @@
     var from = slot.from, to = slot.to;
     // Daylight fishing ends at sunset. Dark fishing starts at full dark.
     if (p.dark) from = Math.max(from, sun.set + 0.6);
-    else { from = Math.max(from, sun.rise); to = Math.min(to, sun.set); }
-    var low = null;
-    if (p.tide === "low") {
-      // A dig is built around the low tide, so the window is the low itself.
-      low = (tideList || []).filter(function (x) { return x.type === "L" && x.t.slice(0, 10) === day.iso; })
-        .sort(function (a, b) { return a.v - b.v; })[0];
-      if (!low) return { score: 0 };
-      var lh = hourOf(low.t);
-      from = Math.max(slot.from, lh - 1.5); to = Math.min(slot.to, lh + 1);
+    else { from = Math.max(from, sun.rise, p.opens || 0); to = Math.min(to, sun.set); }
+    var dig = p.digs && p.digs[day.iso];
+    if (dig) {
+      // WDFW: the best digging is 1 to 2 hours before the low.
+      from = Math.max(slot.from, dig.low - 2); to = Math.min(slot.to, dig.low + 0.5);
+    }
+    // An incoming-tide fish gets the incoming tide, or no trip. The window
+    // shrinks to the stretch of flood that fits inside the slot and daylight.
+    if (p.tide === "flood") {
+      var fl = (tideList || []).filter(function (x) { return x.t.slice(0, 10) === day.iso; }), best = null;
+      for (var q = 1; q < fl.length; q++) {
+        if (fl[q].type !== "H") continue;
+        var a0 = Math.max(from, hourOf(fl[q - 1].t)), b0 = Math.min(to, hourOf(fl[q].t) + 0.5);
+        if (b0 - a0 > (best ? best[1] - best[0] : 0)) best = [a0, b0];
+      }
+      if (!best || best[1] - best[0] < 1.5) return { score: 0 };
+      from = best[0]; to = best[1];
     }
     if (to - from < 1.5) return { score: 0 };
 
@@ -218,7 +237,8 @@
     var temp = Math.min.apply(null, hrs.map(function (h) { return h.temp; }));
     if (wind > L.wind || gust > L.gust) return { blocked: { why: "gusts to " + Math.round(gust) + " mph", v: gust } };
     if (rain > L.rain) return { blocked: { why: "heavy rain", v: 30 + rain } };
-    if (L.wave && wave > L.wave) return { blocked: { why: Math.round(wave) + " ft surf", v: 40 + wave } };
+    var waveMax = p.wave || L.wave;
+    if (waveMax && wave > waveMax) return { blocked: { why: Math.round(wave) + " ft surf", v: 40 + wave } };
 
     var why = [], score = s === "peak" ? 4 : 2;
     why.push(s === "peak" ? "Peak season" : "In season");
@@ -234,8 +254,8 @@
       if (lit < 0.3) { score += 2; why.push("Dark moon"); }
       else if (lit < 0.6) { score += 1; why.push("Half moon"); }
       else why.push("Bright moon works against you");
-    } else if (p.tide === "low") {
-      score += 4; why.push("Dig on the " + clock(hourOf(low.t)) + " low, " + low.v.toFixed(1) + " ft");
+    } else if (dig) {
+      score += 4; why.push("WDFW dig at " + dig.beach + ", low " + clock(dig.low) + ", " + dig.ft.toFixed(1) + " ft");
     } else if (p.tide === "slack") {
       var sl = inWin[0];
       if (sl) { score += 2; why.push((sl.type === "H" ? "High" : "Low") + " slack " + clock(hourOf(sl.t))); }
@@ -258,10 +278,15 @@
     if (temp < 30) { score -= 1; why.push("Cold, " + Math.round(temp) + "°F"); }
 
     return {
-      planId: p.id, species: p.species, spot: p.spot, how: p.how, name: p.name, slot: slot.label,
+      planId: p.id, species: p.species, spot: p.spot, how: p.how, name: p.name,
+      slot: slot.id === "long" && to - from <= 4 ? "Quick trip" : slot.label,
       from: from, to: to, when: clock(from) + " to " + clock(to),
       drive: spot.drive, score: score, heat: score >= 8 ? "Hot" : "Good", why: why, gear: p.gear || "",
-      wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) }
+      wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) },
+      hours: hrs.map(function (h) { return { h: hourOf(h.t), wind: Math.round(h.wind), gust: Math.round(h.gust), temp: Math.round(h.temp), rain: h.rain, wave: h.wave }; }),
+      tides: dayT.map(function (x) { return { h: hourOf(x.t), v: x.v, type: x.type }; }),
+      sun: sun, dark: sun.set + 0.6, beach: dig ? dig.beach : "",
+      moon: Math.round(moonLit(Date.UTC(day.y, day.m - 1, day.d, 8 + Math.round(sun.set + 0.6))) * 100)
     };
   }
 

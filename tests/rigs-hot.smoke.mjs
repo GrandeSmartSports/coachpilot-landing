@@ -78,13 +78,41 @@ try {
   ok(firstScreen >= 2, "screen one shows at least two days", firstScreen);
 
   await page.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').click();
-  await page.waitForSelector('[data-view="hot"]');
-  const detail = await page.locator('[data-view="hot"]').innerText();
-  ok(/High slack 5:15 PM, right at dark/.test(detail), "the trip says why it is hot", detail.slice(0, 200));
-  ok(/35 min drive/.test(detail), "the trip says the drive");
-  await page.locator("[data-open-cards]").click();
-  await page.waitForSelector('[data-view="species"]');
-  ok(/#\/squid\/redondo$/.test(page.url()), "one tap opens the squid cards for that spot", page.url());
+  await page.waitForSelector('[data-view="hot"][data-run="squid-redondo"]');
+  const head = await page.locator('[data-view="hot"] .shead').innerText();
+  ok(/35 min drive/.test(head), "the run card says the drive", head);
+  const secs = await page.locator("[data-sec-row]").evaluateAll((els) => els.map((e) => e.dataset.secRow));
+  ok(secs.join(",") === "plan,what,gear,bait,how,wx,spot,expect,rules", "run card headlines: plan, what, gear, bait, how, weather, spot, expect, rules", secs.join(","));
+  ok(/Leave by 4:10 PM/.test(await page.locator('[data-sec-row="plan"]').innerText()), "the plan headline says when to leave");
+  const words = await page.evaluate(() => document.querySelector('[data-view="hot"]').innerText.split(/\s+/).length);
+  ok(words < 340, "the run card overview is headlines, not an essay", words);
+
+  await page.locator('[data-sec-row="plan"]').click();
+  await page.waitForSelector('[data-view="card"][data-run="squid-redondo"]');
+  const plan = await page.locator(".card").innerText();
+  ok(/4:10 PM\s*Leave Bonney Lake/.test(plan) && /Full dark/.test(plan) && /Home/.test(plan), "the plan is a timeline from leaving home to getting back", plan.slice(0, 300));
+  ok(/when you get there/i.test(plan) && /while you fish/i.test(plan), "the plan says what to do on arrival and while fishing");
+  ok(await page.locator(".addtrip").count() === 0, "run card sections have no add-to-trip button");
+  await page.locator(".pnb.next").click();
+  await page.waitForSelector('[data-card="what"]');
+  const whatTxt = await page.locator(".card").innerText();
+  ok(/High slack 5:15 PM, right at dark/.test(whatTxt), "What it is says why this day", page.url() + " " + whatTxt.slice(0, 200));
+  await page.locator(".pnb.next").click();
+  await page.waitForSelector('[data-card="gear"]');
+  const tags = await page.locator(".gear .tag").allInnerTexts();
+  ok(tags.length >= 8 && tags.some((x) => /get/i.test(x)) && tags.some((x) => /have/i.test(x)), "gear is a checklist marked have, get, check", tags.join(","));
+  for (const sec of ["bait", "how", "wx", "spot", "expect", "rules"]) {
+    await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo") + "/" + sec, { waitUntil: "load" });
+    await page.waitForSelector('[data-view="card"]');
+    const w = await page.evaluate(() => document.documentElement.scrollWidth);
+    ok(w <= 390, `run card ${sec} fits the phone`, w);
+  }
+  await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo") + "/wx", { waitUntil: "load" });
+  ok(await page.locator(".hrs tr").count() >= 3, "weather is hour by hour for the window");
+  await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo"), { waitUntil: "load" });
+  await page.locator("[data-more] a.row").first().click();
+  await page.waitForSelector('[data-view="card"]');
+  ok(/#\/squid\/redondo\/squid-watch-start$/.test(page.url()), "Go deeper opens the library cards", page.url());
 
   // Coming back uses the saved forecast, no new calls.
   const before = calls();
