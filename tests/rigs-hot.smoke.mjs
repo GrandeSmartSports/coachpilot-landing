@@ -70,7 +70,7 @@ try {
   ok(await page.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').count() === 1, "Tuesday after work: squid at Redondo");
   ok(/No fishing: gusts to 42 mph/.test(await page.locator('[data-day="2026-11-25"]').innerText()), "the 42 mph day says no fishing and why");
   ok(await page.locator('[data-day="2026-11-26"] [data-hot="clams-ocean-shores"]').count() === 1, "Thanksgiving: the razor clam dig");
-  ok(/Green River/.test(await page.locator("[data-notlisted]").innerText()), "unconfirmed Green River rules are named, not hidden");
+  ok(/Lake Tapps/.test(await page.locator("[data-notlisted]").innerText()), "a held trip (Lake Tapps, ramp closed) is named, not hidden");
   ok(/Forecast from/.test(await page.locator("[data-asof]").innerText()), "the forecast says how old it is");
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   ok(wide <= 390, "nothing runs off the side at phone width", wide);
