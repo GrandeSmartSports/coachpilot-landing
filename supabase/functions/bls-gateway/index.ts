@@ -1,6 +1,7 @@
 // bls-gateway: BLS Little League board tools. Website review form: no sign-in, reviewer types a name and clicks Send.
 // Table: bls_review_responses (CoachPilot project, bls_ prefix). Admin report behind the BLS board admin code (stored in the database).
 import { createClient } from "jsr:@supabase/supabase-js@2";
+import { BATCH_MS, BATCH_SIZE, confirmMsg, LEAGUE_ADDR, LEAGUE_FROM, reminderMsg, SEND_TIMEOUT_MS, sendInBatches, sendLeagueFirst } from "./remind.ts";
 
 const REVIEWS: Record<string, { title: string; items: number; url: string; names: string[] }> = {
   "website-updates-2026": {
@@ -86,15 +87,11 @@ async function emailCoach(review: string, name: string, data: any): Promise<bool
   return (await resendSend({ to: [NOTIFY_TO], subject: `BLS website review from ${name}: ${summary}`, text: text.join("\n"), html })).ok;
 }
 
-// ---------- Registration-day reminders (table bls_reg_reminders) ----------
-// A family leaves an email on the Registration page (or go.blslittleleague.org/bls/remind/), gets one confirmation
-// now and one email the morning registration opens. pg_cron calls remind_send on Nov 27 with x-cron-key.
-const GW = "https://geigvuysptjvvqanumld.supabase.co/functions/v1/bls-gateway";
+// ---------- Registration reminders (table bls_reg_reminders) ----------
+// A family leaves an email on the Registration page (or go.blslittleleague.org/bls/remind/) and gets a confirmation
+// now. pg_cron calls remind_send on Nov 27 with x-cron-key. Copy, date switches and send order live in remind.ts.
 const REMIND_PAGE = "https://go.blslittleleague.org/bls/remind/";
-const REGISTER_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716844";
-const REG_INFO_URL = "https://www.blslittleleague.org/Default.aspx?tabid=716841";
-const BLS_REPLY_TO = "website@blslittleleague.org";
-const OPEN_DAY = "Friday, November 27";
+const BLS_REPLY_TO = LEAGUE_ADDR;
 const SIGNUP_IP_HOURLY = 6;
 
 const emailOk = (e: string) => e.length <= 254 && /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(e);
@@ -108,26 +105,16 @@ async function ipHash(req: Request): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + "|" + salt));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
 }
-const F = "-apple-system,Helvetica,Arial,sans-serif";
-function blsEmail(title: string, lead: string, ctaText: string, ctaUrl: string, foot: string): string {
-  return `<!doctype html><html><body style="margin:0;padding:0;background:#eef2f6"><div style="max-width:560px;margin:0 auto;padding:16px">
-<div style="background:#fff;border-radius:14px;border-top:5px solid #cd163f;padding:22px 22px 24px">
-  <img src="https://coachpilot.org/bls/assets/bls-logo.png" width="64" height="64" border="0" alt="BLS Little League" style="display:block;width:64px;height:64px;margin:0 0 10px">
-  <div style="font:700 11px/1.3 ${F};letter-spacing:.2em;text-transform:uppercase;color:#cd163f">Bonney Lake Sumner Little League</div>
-  <div style="margin-top:6px;font:800 24px/1.15 ${F};color:#00013a">${title}</div>
-  <p style="margin:12px 0 0;font:400 16px/1.5 ${F};color:#1f2326">${lead}</p>
-  <p style="margin:20px 0 0"><a href="${ctaUrl}" style="display:inline-block;background:#cd163f;color:#fff;text-decoration:none;font:700 16px/1 ${F};padding:14px 22px;border-radius:999px">${ctaText}</a></p>
-  <p style="margin:22px 0 0;font:400 13px/1.5 ${F};color:#6b7279">${foot}</p>
-</div></div></body></html>`;
-}
-// Preferred path (Coach 11/5: league email must outlive any one person): Gmail API as website@blslittleleague.org,
-// via a refresh token from the league's own Google Cloud project (bls-website-email). Falls back to Resend if unset.
+// League sender (Coach 11/5: league email must outlive any one person): Gmail API as website@blslittleleague.org,
+// via a refresh token from the league's own Google Cloud project (bls-website-email). Since 11/23 this is the FIRST
+// path for reminder and confirmation mail (leagueSend below); Resend is the per-message backup.
 const GM = { id: Deno.env.get("BLS_GMAIL_CLIENT_ID") || "", secret: Deno.env.get("BLS_GMAIL_CLIENT_SECRET") || "", refresh: Deno.env.get("BLS_GMAIL_REFRESH_TOKEN") || "", user: Deno.env.get("BLS_GMAIL_USER") || "website@blslittleleague.org" };
 let gmTok: { token: string; exp: number } | null = null;
 async function gmailToken(): Promise<string | null> {
   if (gmTok && gmTok.exp > Date.now() + 60_000) return gmTok.token;
+  if (!GM.id || !GM.secret || !GM.refresh) return null;
   const res = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: GM.id, client_secret: GM.secret, refresh_token: GM.refresh, grant_type: "refresh_token" }) }).catch(() => null);
+    body: new URLSearchParams({ client_id: GM.id, client_secret: GM.secret, refresh_token: GM.refresh, grant_type: "refresh_token" }), signal: AbortSignal.timeout(SEND_TIMEOUT_MS) }).catch(() => null);
   if (!res || !res.ok) return null;
   const j = await res.json().catch(() => ({}));
   if (!j.access_token) return null;
@@ -136,34 +123,36 @@ async function gmailToken(): Promise<string | null> {
 }
 const b64url = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const encWord = (s: string) => /^[\x20-\x7e]*$/.test(s) ? s : `=?UTF-8?B?${btoa(unescape(encodeURIComponent(s)))}?=`;
-async function gmailSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string }> {
+const b64lines = (s: string) => (btoa(unescape(encodeURIComponent(s))).match(/.{1,76}/g) || [""]).join("\r\n"); // MIME lines stay under 998 chars
+async function gmailSend(msg: Record<string, unknown>): Promise<{ ok: boolean; id?: string; status?: number }> {
   const tok = await gmailToken();
   if (!tok) return { ok: false };
   const to = (msg.to as string[]).join(", ");
   const bnd = "b" + crypto.randomUUID().replace(/-/g, "");
   const extra = Object.entries((msg.headers as Record<string, string>) || {}).map(([k, v]) => `${k}: ${v}`);
   const mime = [
-    `From: BLS Little League <${GM.user}>`, `To: ${to}`, `Reply-To: ${BLS_REPLY_TO}`, `Subject: ${encWord(String(msg.subject || ""))}`, "MIME-Version: 1.0", ...extra,
+    `From: ${LEAGUE_FROM}`, `To: ${to}`, `Reply-To: ${BLS_REPLY_TO}`, `Subject: ${encWord(String(msg.subject || ""))}`, "MIME-Version: 1.0", ...extra,
     `Content-Type: multipart/alternative; boundary="${bnd}"`, "",
-    `--${bnd}`, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", btoa(unescape(encodeURIComponent(String(msg.text || "")))),
-    `--${bnd}`, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", btoa(unescape(encodeURIComponent(String(msg.html || "")))),
+    `--${bnd}`, "Content-Type: text/plain; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64lines(String(msg.text || "")),
+    `--${bnd}`, "Content-Type: text/html; charset=UTF-8", "Content-Transfer-Encoding: base64", "", b64lines(String(msg.html || "")),
     `--${bnd}--`, "",
   ].join("\r\n");
-  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw: b64url(mime) }) }).catch(() => null);
-  if (!res || !res.ok) return { ok: false };
+  const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", { method: "POST", headers: { Authorization: `Bearer ${tok}`, "Content-Type": "application/json" }, body: JSON.stringify({ raw: b64url(mime) }), signal: AbortSignal.timeout(SEND_TIMEOUT_MS) }).catch(() => null);
+  if (!res || !res.ok) { if (res?.status === 401) gmTok = null; return { ok: false, status: res?.status }; }
   const j = await res.json().catch(() => ({}));
   return { ok: true, id: j?.id };
 }
-// Coach 11/11: league mail goes out from CoachPilot (noreply@coachpilot.org via Resend) until the league domain has
-// SPF and DKIM. Replies still land in the league inbox through Reply-To. Gmail as website@ stays only as a fallback.
+// Backup sender: CoachPilot's Resend account (noreply@coachpilot.org), Reply-To the league inbox. For reminder and
+// confirmation mail it is used only when Gmail did not take that message (leagueSend). The internal notices to
+// website@ (review form, secure handoff) still use resendSend: Resend first, Gmail as their fallback.
 const RESEND_KEY = Deno.env.get("RESEND_API_KEY") || "";
 const CP_FROM = "BLS Little League <noreply@coachpilot.org>";
-async function cpSend(to: string[], subject: string, text: string, html: string, headers?: Record<string, string>): Promise<{ ok: boolean; id?: string }> {
+async function cpSend(to: string[], subject: string, text: string, html: string, headers?: Record<string, string>): Promise<{ ok: boolean; id?: string; status?: number }> {
   if (!RESEND_KEY) return { ok: false };
   const body: Record<string, unknown> = { from: CP_FROM, to, reply_to: BLS_REPLY_TO, subject, text, html };
   if (headers && Object.keys(headers).length) body.headers = headers;
-  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${RESEND_KEY}` }, body: JSON.stringify(body) }).catch(() => null);
-  if (!res || !res.ok) return { ok: false };
+  const res = await fetch("https://api.resend.com/emails", { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${RESEND_KEY}` }, body: JSON.stringify(body), signal: AbortSignal.timeout(SEND_TIMEOUT_MS) }).catch(() => null);
+  if (!res || !res.ok) return { ok: false, status: res?.status };
   const j = await res.json().catch(() => ({}));
   return { ok: true, id: j?.id };
 }
@@ -171,25 +160,9 @@ async function resendSend(msg: Record<string, unknown>): Promise<{ ok: boolean; 
   const r = await cpSend(msg.to as string[], String(msg.subject || ""), String(msg.text || ""), String(msg.html || ""), msg.headers as Record<string, string> | undefined);
   return r.ok ? r : await gmailSend(msg);
 }
-function unsubUrl(token: string) { return `${GW}?action=remind_unsub&t=${encodeURIComponent(token)}`; }
-function confirmMsg(to: string, token: string) {
-  const u = unsubUrl(token);
-  return {
-    to: [to], subject: "You're on the list for BLS registration day", headers: { "List-Unsubscribe": `<${u}>` },
-    text: `Spring 2027 registration opens ${OPEN_DAY}. We'll email you that morning.\n\nBlack Friday sale Nov 27 to 29: $50 off per family. Early Bird Nov 30 to Dec 31: $25 off per family.\n\nRegistration info: ${REG_INFO_URL}\n\nDidn't sign up for this? Ignore it, or remove your email here: ${u}`,
-    html: blsEmail("You're on the list", `Spring 2027 registration opens <b>${OPEN_DAY}</b>. We'll email you that morning.<br><br>Black Friday sale Nov 27 to 29: $50 off per family. Early Bird Nov 30 to Dec 31: $25 off per family.`,
-      "Registration info", REG_INFO_URL, `Didn't sign up for this? Ignore it, or <a href="${u}" style="color:#1452a0">remove your email</a>.`),
-  };
-}
-function reminderMsg(to: string, token: string) {
-  const u = unsubUrl(token);
-  return {
-    to: [to], subject: "BLS registration is open today", headers: { "List-Unsubscribe": `<${u}>` },
-    text: `Spring 2027 registration for Bonney Lake Sumner Little League opens today.\n\nBlack Friday sale through Sunday, Nov 29: $50 off per family.\n\nRegister: ${REGISTER_URL}\nRegistration info: ${REG_INFO_URL}\n\nYou asked for this reminder. Remove your email: ${u}`,
-    html: blsEmail("Registration is open today", `Spring 2027 registration for Bonney Lake Sumner Little League opens today.<br><br><b>Black Friday sale through Sunday, Nov 29: $50 off per family.</b>`,
-      "Register now", REGISTER_URL, `You asked for this reminder. <a href="${REG_INFO_URL}" style="color:#1452a0">Registration info</a> &middot; <a href="${u}" style="color:#1452a0">Remove your email</a>`),
-  };
-}
+// Reminder and confirmation mail: league Gmail first, Resend only for a message Gmail did not take (remind.ts).
+const leagueSend = (msg: Record<string, unknown>, tag: string) =>
+  sendLeagueFirst(msg as any, gmailSend, (m) => cpSend(m.to, m.subject, m.text, m.html, m.headers), { tag });
 async function readBody(req: Request): Promise<Record<string, string>> {
   const ct = req.headers.get("content-type") || "";
   if (ct.includes("application/json")) { const j = await req.json().catch(() => ({})); return Object.fromEntries(Object.entries(j || {}).map(([k, v]) => [k, String(v ?? "")])); }
@@ -246,7 +219,7 @@ Deno.serve(async (req) => {
         await db.from("bls_reg_reminders").update({ unsubscribed_at: null, confirm_sent_at: null, reminder_sent_at: null, source: clip(b.source, 40) || "page" }).eq("id", existing.id);
       }
       if (!existing || existing.unsubscribed_at || !existing.confirm_sent_at) {
-        const sent = await resendSend(confirmMsg(email, token!));
+        const sent = await leagueSend(confirmMsg(email, token!), "remind_signup confirm");
         if (sent.ok) await db.from("bls_reg_reminders").update({ confirm_sent_at: new Date().toISOString() }).eq("email_key", email);
       }
       return wantsJson ? json({ ok: true }) : redirect(`${next}?ok=1`);
@@ -262,19 +235,23 @@ Deno.serve(async (req) => {
       const isAdmin = !!code && pin === code, isCron = !!cronKey && ck === cronKey;
       if (!isAdmin && !isCron) return json({ error: "Not allowed" }, 401);
       const b = await readBody(req);
-      if (isAdmin && b.test_to) { // sample to one inbox, rows untouched
+      if (isAdmin && b.test_to) { // sample to one inbox; returns before any list row is read or written
         if (!emailOk(String(b.test_to))) return json({ error: "Bad test_to" }, 400);
-        const r = await resendSend(reminderMsg(String(b.test_to).toLowerCase(), "test"));
-        return json({ ok: r.ok, id: r.id, test: true });
+        const t0 = Date.now();
+        const r = await leagueSend(reminderMsg(String(b.test_to).toLowerCase(), "test"), "remind_send test");
+        const ms = Date.now() - t0;
+        return json({ ok: r.ok, id: r.id, test: true, path: r.path, ms, batch_size: BATCH_SIZE, batch_ms: BATCH_MS, est_130_rows_ms: Math.ceil(130 / BATCH_SIZE) * Math.max(BATCH_MS, ms) });
       }
       const { data: rows } = await db.from("bls_reg_reminders").select("id, email, unsub_token").is("reminder_sent_at", null).is("unsubscribed_at", null).order("created_at").limit(500);
-      let sent = 0, failed = 0;
-      for (const r of rows || []) {
-        const res = await resendSend(reminderMsg(r.email, r.unsub_token));
-        if (res.ok) { sent++; await db.from("bls_reg_reminders").update({ reminder_sent_at: new Date().toISOString() }).eq("id", r.id); } else failed++;
-        await new Promise((ok) => setTimeout(ok, 550)); // Resend default rate: 2 requests per second
-      }
-      return json({ ok: true, sent, failed, remaining: Math.max(0, (rows || []).length - sent - failed) });
+      const paths = { gmail: 0, resend: 0, none: 0 };
+      const out = await sendInBatches(rows || [],
+        async (r) => { const res = await leagueSend(reminderMsg(r.email, r.unsub_token), `remind_send row=${r.id}`); paths[res.path]++; return res.ok; },
+        async (went) => {
+          const { error } = await db.from("bls_reg_reminders").update({ reminder_sent_at: new Date().toISOString() }).in("id", went.map((r) => r.id));
+          if (error) console.log(`[bls-mail] remind_send mark_sent_failed rows=${went.length}`);
+        });
+      console.log(`[bls-mail] remind_send done sent=${out.sent} failed=${out.failed} not_tried=${out.not_tried} gmail=${paths.gmail} resend=${paths.resend} ms=${out.ms}`);
+      return json({ ok: true, sent: out.sent, failed: out.failed, remaining: out.failed + out.not_tried, not_tried: out.not_tried, paths, ms: out.ms });
     }
     if (action === "remind_delete" && req.method === "POST") { // admin: honor a removal request, or clear a test row
       const pin = req.headers.get("x-admin-pin") || "";

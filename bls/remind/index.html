@@ -6,6 +6,14 @@
 <title>Registration day reminder | Bonney Lake Sumner Little League</title>
 <meta name="description" content="Get an email the morning Spring 2027 registration opens.">
 <meta name="robots" content="noindex">
+<script>
+// Date switches, midnight Pacific written in UTC, so nothing is deployed on the night. ?asof=<ISO time> forces the date (previews only).
+(function () {
+  var m = /[?&]asof=([^&#]*)/.exec(location.search), t = m ? Date.parse(decodeURIComponent(m[1])) : NaN, now = isNaN(t) ? Date.now() : t;
+  var c = now >= Date.parse('2027-01-01T08:00:00Z') ? 'is-open is-full' : now >= Date.parse('2026-11-30T08:00:00Z') ? 'is-open is-early' : now >= Date.parse('2026-11-27T08:00:00Z') ? 'is-open is-bf' : '';
+  if (c) { document.documentElement.className = c; document.title = 'Spring 2027 registration is open | Bonney Lake Sumner Little League'; }
+})();
+</script>
 <link rel="icon" href="https://go.blslittleleague.org/bls/assets/bls-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -43,14 +51,35 @@
   .foot{margin:22px 0 0;font-size:14px;color:var(--mute);}
   .foot a{color:var(--blue);font-weight:600;}
   .back{display:inline-block;margin-top:18px;color:var(--blue);font-weight:600;}
+  /* From Nov 27: registration open. Before that the page is unchanged. */
+  html:not(.is-open) .open{display:none;}
+  .is-open .pre{display:none;}
+  .sale{display:inline-block;margin:14px 0 0;padding:8px 14px;border-radius:12px;background:#fdecef;border:1px solid #f5c4ce;color:#8a0f2a;font:700 15px/1.3 Poppins,sans-serif;}
+  .sale .early,.is-early .sale .bf{display:none;}
+  .is-early .sale .early{display:inline;}
+  .is-full .sale{display:none;}
+  .go{display:block;margin:20px 0 0;height:64px;line-height:64px;border-radius:999px;background:var(--red);color:#fff;text-align:center;text-decoration:none;font:800 26px/64px 'Barlow Condensed','Arial Narrow',Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 8px 20px rgba(205,22,63,.28);}
+  .go:hover{background:#b01236;}
+  .is-open form{margin:26px 0 0;padding:16px;border:1px solid var(--line);border-radius:14px;background:#f6f8fb;}
+  .is-open label{letter-spacing:0;text-transform:none;font:600 15px/1.3 Poppins,sans-serif;color:var(--navy);margin-bottom:10px;}
+  .is-open input[type=email]{flex-basis:140px;height:46px;padding:0 12px;font-size:16px;border-radius:12px;}
+  .is-open button{height:46px;padding:0 20px;font-size:15px;background:var(--navy);}
+  .is-open button:hover{background:#1b1d5c;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="card">
     <div class="brand"><img src="https://go.blslittleleague.org/bls/assets/bls-logo.png" alt=""><span>Bonney Lake Sumner Little League</span></div>
+    <div class="pre">
     <h1>Registration day reminder</h1>
     <p class="lead">Spring 2027 registration opens <b>Friday, November 27</b>. Leave your email and we'll email you that morning so you don't miss the Black Friday sale.</p>
+    </div>
+    <div class="open">
+      <h1>Spring 2027 registration is open</h1>
+      <p class="sale"><span class="bf">Black Friday sale through Sun, Nov 29: $50 off per family</span><span class="early">Early Bird: $25 off per family through Dec 31</span></p>
+      <a class="go" href="https://www.blslittleleague.org/Default.aspx?tabid=716844">Register now</a>
+    </div>
 
     <div id="msg" hidden></div>
 
@@ -58,14 +87,14 @@
       <input type="hidden" name="next" value="https://go.blslittleleague.org/bls/remind/">
       <input type="hidden" name="source" value="remind-page">
       <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-      <label for="email">Your email</label>
+      <label for="email"><span class="pre">Your email</span><span class="open">Get future BLS league reminders</span></label>
       <div class="row">
         <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" required>
-        <button type="submit">Remind me</button>
+        <button type="submit"><span class="pre">Remind me</span><span class="open">Sign up</span></button>
       </div>
     </form>
 
-    <div class="windows">
+    <div class="windows pre">
       <span class="k">Registration windows</span>
       <ol>
         <li><b>Nov 27 to 29</b><i>Black Friday sale: $50 off per family</i></li>
@@ -80,18 +109,20 @@
 <script>
 (function () {
   var q = new URLSearchParams(location.search), msg = document.getElementById('msg'), f = document.getElementById('f');
+  var open = /\bis-open\b/.test(document.documentElement.className), asof = q.get('asof');
+  var okText = open ? "You're on the list for future BLS league reminders." : "You're on the list. Watch for an email from us the morning of Friday, November 27.";
   function show(kind, text) { msg.className = 'msg ' + kind; msg.textContent = text; msg.hidden = false; }
-  if (q.get('ok')) { show('ok', "You're on the list. Watch for an email from us the morning of Friday, November 27."); f.hidden = true; }
-  else if (q.get('gone')) { show('ok', 'Your email has been removed. You will not get the reminder.'); }
+  if (q.get('ok')) { show('ok', okText); f.hidden = true; }
+  else if (q.get('gone')) { show('ok', open ? 'Your email has been removed.' : 'Your email has been removed. You will not get the reminder.'); }
   else if (q.get('err')) { show('err', q.get('err')); }
-  if (q.toString()) history.replaceState(null, '', location.pathname);
+  if (q.toString()) history.replaceState(null, '', location.pathname + (asof ? '?asof=' + encodeURIComponent(asof) : ''));
   f.addEventListener('submit', function (e) {
     if (!window.fetch) return; // plain post still works
     e.preventDefault();
     var btn = f.querySelector('button'); btn.disabled = true;
     fetch(f.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: f.email.value, website: f.website.value, source: 'remind-page' }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) { if (x.ok && x.j.ok) { show('ok', "You're on the list. Watch for an email from us the morning of Friday, November 27."); f.hidden = true; } else { show('err', (x.j && x.j.error) || 'Could not save that. Please try again.'); btn.disabled = false; } })
+      .then(function (x) { if (x.ok && x.j.ok) { show('ok', okText); f.hidden = true; } else { show('err', (x.j && x.j.error) || 'Could not save that. Please try again.'); btn.disabled = false; } })
       .catch(function () { btn.disabled = false; f.submit(); });
   });
 })();
