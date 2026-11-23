@@ -74,9 +74,12 @@
       peak: [8], ok: [7, 9], odd: true, closed: [["11-16", "03-30"]], how: "kayak", tide: "moving",
       rules: "2027 seasons not set yet" },
     { id: "coho-green-river", species: "coho", spot: "green-river", name: "Coho on the Green",
-      peak: [10], ok: [9, 11], how: "shore", rules: "Green River season dates not confirmed" },
+      // WAC 220-312-040 (WSR 26-13-052, effective 2026-07-12): S 212th St to
+      // the Hwy 18 EB bridge is open Sept 16 to Dec 31. Daylight only (night
+      // closure), which the planner already does for non-dark plans.
+      peak: [10], ok: [9, 11], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed" },
     { id: "chum-green-river", species: "chum", spot: "green-river", name: "Chum on the Green",
-      peak: [11], ok: [12], how: "shore", rules: "Green River season dates not confirmed" },
+      peak: [11], ok: [12], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed" },
     { id: "steelhead-green-river", species: "steelhead", spot: "green-river", name: "Winter steelhead on the Green",
       peak: [1, 2], ok: [12, 3], how: "shore", rules: "WDFW sets steelhead seasons in December" },
     { id: "pink-green-river", species: "pink", spot: "green-river", name: "Pinks on the Green",

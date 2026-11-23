@@ -69,9 +69,10 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(sq && sq.why.some((w) => /High slack 5:15 PM, right at dark/.test(w)), "squid says why: high slack at dark", sq && sq.why.join(" | "));
   ok(sq && sq.slot === "After work" && sq.drive <= 45, "a weeknight trip is close to home");
   ok(!r.days.some((d) => d.trips.some((t) => t.planId === "coho-dash-point")), "Dash Point coho is closed Nov 16 to Mar 30, never listed");
-  ok(!r.days.some((d) => d.trips.some((t) => t.spot === "green-river")), "Green River is not listed while its rules are unconfirmed");
-  ok(r.notListed.some((n) => /Green/.test(n.name) && /not confirmed/.test(n.why)), "the not-listed note names the Green River and why",
-    JSON.stringify(r.notListed));
+  ok(!r.days.some((d) => d.trips.some((t) => t.planId === "steelhead-green-river")), "Green River steelhead waits for WDFW's December seasons");
+  ok(!r.notListed.some((n) => /Coho on the Green|Chum on the Green/.test(n.name)), "Green River coho and chum rules are confirmed (WSR 26-13-052)");
+  const chum = T.plans.find((p) => p.id === "chum-green-river");
+  ok(T.season(chum, { y: 2026, m: 9, d: 10, iso: "2026-09-10" }) === null, "the Green is closed for salmon before Sept 16");
   ok(!r.days.some((d) => d.trips.some((t) => t.planId === "bass-fenwick")), "no bass in November");
   ok(!tripsOn(r, "2026-11-24").some((t) => t.spot === "westport" || t.spot === "ocean-shores"), "no 2 hour drives on a weeknight");
   // Thanksgiving plans like a weekend, so the clam dig can show.
