@@ -276,6 +276,35 @@ a.back{text-decoration:none}
 .hrs td{padding:7px 4px;border-top:1px solid var(--line)}
 .hrs td:first-child{font-family:var(--mono);color:var(--accent2);white-space:nowrap}
 .grp > h2 .heat{margin-left:8px;vertical-align:middle}
+.mapbox{height:calc(100dvh - var(--toph,130px) - 150px);min-height:380px;margin:12px 0 0;border-radius:16px;overflow:hidden;
+  border:1px solid var(--line);background:#0d1218;box-shadow:var(--sh)}
+.mapbox .quiet{margin:16px}
+.tiles-dark{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.92) saturate(.6)}
+.days{margin:14px 0 0}
+.mk{display:flex !important;align-items:center;gap:6px;white-space:nowrap;background:none;border:0}
+.mk i{flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:3px solid var(--accent);background:#0b0f14}
+.mk b{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000}
+.mk b{pointer-events:none}
+.mk.group i{width:26px;height:26px;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
+.mk.group.hot i{color:#1a0d05}
+.leaflet-popup-content .pg + .pg{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.mk.hot i{background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}
+.mk.dim i{border-color:var(--steel2);opacity:.55}
+.mk.dim b{opacity:.55;font-weight:600}
+.mk.home i{border-radius:5px;border-color:#fff;background:#fff}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 2px 0;font-size:12.5px;color:var(--dim)}
+.legend .mk{font-size:12.5px}
+.legend .mk i{width:13px;height:13px;border-width:2px}
+.mapbox .leaflet-popup-content-wrapper,.mapbox .leaflet-popup-tip{background:var(--panel);color:var(--ink);box-shadow:var(--sh)}
+.mapbox .leaflet-popup-content{margin:14px 16px;font:14px/1.4 Inter,sans-serif}
+.mapbox .leaflet-popup-content small{color:var(--dim)}
+.mapbox .leaflet-popup-content a.pt{color:var(--ink)}
+.mapbox .leaflet-popup-content .pt{display:block;margin-top:10px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600}
+.mapbox .leaflet-popup-content .pt span{display:block;font-family:var(--mono);font-size:11px;color:var(--accent2);font-weight:600}
+.mapbox .leaflet-popup-content .pq{margin:8px 0 0;color:var(--dim)}
+.mapbox.leaflet-container a.leaflet-popup-close-button{color:var(--dim)}
+.mapbox .leaflet-control-attribution{background:rgba(11,15,20,.75) !important;color:var(--dim) !important}
+.mapbox .leaflet-control-attribution a{color:var(--ink2) !important}
 .quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
 .quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
@@ -669,6 +698,7 @@ a.back{text-decoration:none}
     if (tab === "water") return types().filter(function (t) { return spotsOfType(t.id).length; })
       .map(function (t) { return chip("data-type", t.id, t.label, active); }).join("");
     if (tab === "fish") return species().map(function (sp) { return chip("data-species", sp.id, sp.name, active); }).join("");
+    if (tab === "trips") return chip("data-tmode", "list", "List", active || "list") + chip("data-tmode", "map", "Map", active || "list");
     if (tab === "learn") return learnSections().map(function (n) { return chip("data-sec", n.toLowerCase(), n, active); }).join("");
     return "";
   }
@@ -886,6 +916,125 @@ a.back{text-decoration:none}
       if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal and it will keep the last one for the pier.</p>';
     });
   }
+  // ---- Hot Trips map ------------------------------------------------------
+  // Same trips as the list, as pins. Leaflet is loaded only when the map is
+  // opened, from our own copy. Map tiles are OpenStreetMap and need a signal;
+  // the list does not, so the map says so instead of going blank.
+  var HOME = [47.177, -122.186]; // Bonney Lake, city centre
+  var leafletP = null, mapObj = null, mapDay = "all";
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletP) return leafletP;
+    leafletP = new Promise(function (ok, no) {
+      var css = document.createElement("link");
+      css.rel = "stylesheet"; css.href = "/rigs/vendor/leaflet.css";
+      document.head.appendChild(css);
+      var s = document.createElement("script");
+      s.src = "/rigs/vendor/leaflet.js";
+      s.onload = function () { ok(window.L); };
+      s.onerror = function () { leafletP = null; no(new Error("leaflet did not load")); };
+      document.head.appendChild(s);
+    });
+    return leafletP;
+  }
+  function shortDay(day) { return day.label.replace(/ [A-Z][a-z]{2} (\d+)$/, " $1"); }
+  function renderMap() {
+    app.innerHTML = topHtml("trips", "map") +
+      '<div data-view="map"><nav class="jump days" data-days aria-label="Day"></nav>' +
+      '<div class="mapbox" id="tripmap"><p class="quiet">Loading the map…</p></div>' +
+      '<p class="legend"><span class="mk hot"><i></i>Hot</span><span class="mk good"><i></i>Good</span>' +
+      '<span class="mk dim"><i></i>Nothing good</span><span class="mk home"><i></i>Home</span></p></div>' + tripBarHtml();
+    if (!plannerReady()) return;
+    RIG.trips.load().then(function (data) {
+      if (!/^#\/trips\/map/.test(location.hash)) return;
+      lastPlan = planFrom(data);
+      drawMap(lastPlan);
+    }).catch(function () {
+      var box = document.getElementById("tripmap");
+      if (box) box.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal.</p>';
+    });
+  }
+  function drawMap(p) {
+    var days = app.querySelector("[data-days]"), box = document.getElementById("tripmap");
+    if (!days || !box) return;
+    if (mapDay !== "all" && !p.days.some(function (d) { return d.iso === mapDay; })) mapDay = "all";
+    days.innerHTML = chip("data-mapday", "all", "All week", mapDay) +
+      p.days.map(function (d) { return chip("data-mapday", d.iso, shortDay(d) + (d.trips.length ? " · " + d.trips.length : ""), mapDay); }).join("");
+    var bySpot = {};
+    p.days.forEach(function (d) {
+      if (mapDay !== "all" && d.iso !== mapDay) return;
+      d.trips.forEach(function (t) { (bySpot[t.spot] = bySpot[t.spot] || []).push({ day: d, t: t }); });
+    });
+    loadLeaflet().then(function (L) {
+      if (!box.isConnected) return;
+      if (mapObj) { try { mapObj.remove(); } catch (e) { /* container already gone */ } }
+      box.innerHTML = "";
+      mapObj = L.map(box, { zoomControl: false, attributionControl: true });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 17, className: "tiles-dark",
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      }).addTo(mapObj);
+      var pts = [HOME];
+      RIG.trips.spots.forEach(function (s) { if (bySpot[s.id]) pts.push([s.lat, s.lon]); });
+      if (pts.length === 1) RIG.trips.spots.forEach(function (s) { pts.push([s.lat, s.lon]); });
+      // The view has to exist before markers are added, or Leaflet holds
+      // them back and they have no element to label yet.
+      mapObj.fitBounds(pts, { padding: [36, 36], maxZoom: 11 });
+      function pin(cls, label, count) {
+        // Spots with nothing good are a bare dot: their names are in the
+        // popup, and labels on every pin pile up when the map zooms out.
+        return L.divIcon({ className: "mk " + cls + (count ? " group" : ""), iconSize: null, iconAnchor: [count ? 13 : 9, count ? 13 : 9],
+          html: "<i>" + (count || "") + "</i>" + (cls === "dim" ? "" : "<b>" + esc(label) + "</b>") });
+      }
+      var RANK = { hot: 2, good: 1, dim: 0 };
+      var spots = RIG.trips.spots.map(function (s) {
+        var info = findSpot(s.id), name = info ? info.name : s.id, list = bySpot[s.id] || [];
+        var cls = list.some(function (x) { return x.t.heat === "Hot"; }) ? "hot" : list.length ? "good" : "dim";
+        var html = "<b>" + esc(name) + "</b><br><small>" + s.drive + " min drive</small>" +
+          (list.length
+            ? list.map(function (x) {
+                return '<a class="pt" href="#/trips/' + encodeURIComponent(x.day.iso + "~" + x.t.planId) + '" data-pin-trip="' + esc(x.t.planId) + '">' +
+                  "<span>" + esc(shortDay(x.day) + " \u00b7 " + x.t.slot) + "</span>" + esc(x.t.name) + " \u00b7 " + esc(x.t.heat) + "</a>";
+              }).join("")
+            : '<p class="pq">Nothing good ' + (mapDay === "all" ? "this week" : "this day") + '.</p><a class="pt" href="#/spot/' + esc(s.id) + '">Open the spot cards</a>');
+        return { s: s, name: name, cls: cls, html: html };
+      }).sort(function (a, b) { return RANK[b.cls] - RANK[a.cls]; });
+      var layer = L.layerGroup().addTo(mapObj);
+      L.marker(HOME, { icon: pin("home", ""), keyboard: false, interactive: false, zIndexOffset: -500 }).addTo(mapObj);
+      // Pins closer than a fingertip merge into one, with a count; the popup
+      // lists every trip in the group. Zoom in and they split again.
+      function drawPins() {
+        layer.clearLayers();
+        var groups = [];
+        spots.forEach(function (x) {
+          var pt = mapObj.latLngToContainerPoint([x.s.lat, x.s.lon]);
+          var g = groups.filter(function (g) { return g.pt.distanceTo(pt) < 30; })[0];
+          if (g) g.items.push(x); else groups.push({ pt: pt, items: [x] });
+        });
+        groups.forEach(function (g) {
+          var top = g.items[0], n = g.items.length;
+          var ll = n === 1 ? [top.s.lat, top.s.lon] : [
+            g.items.reduce(function (a, x) { return a + x.s.lat; }, 0) / n,
+            g.items.reduce(function (a, x) { return a + x.s.lon; }, 0) / n];
+          var label = n === 1 ? top.name : n + " spots";
+          var m = L.marker(ll, { icon: pin(top.cls, label, n > 1 ? n : 0), title: n === 1 ? top.name : g.items.map(function (x) { return x.name; }).join(", "),
+            zIndexOffset: RANK[top.cls] * 1000 }).addTo(layer);
+          // One spot: its trips. A group: zoom in until it splits.
+          if (n === 1) m.bindPopup(top.html, { maxWidth: 250, autoPanPadding: [16, 16] });
+          else m.on("click", function () {
+            mapObj.fitBounds(g.items.map(function (x) { return [x.s.lat, x.s.lon]; }), { padding: [70, 70], maxZoom: 13 });
+          });
+          var el = m.getElement();
+          if (el) el.setAttribute("data-pin", g.items.map(function (x) { return x.s.id; }).join(" "));
+        });
+      }
+      mapObj.on("zoomend", drawPins);
+      drawPins();
+    }).catch(function () {
+      box.innerHTML = '<p class="quiet no" data-quiet>The map needs a signal. The trip list works offline.</p>';
+    });
+  }
+
   // ---- run cards: a trip, explained ------------------------------------
   // The overview is headlines (the plan, gear, bait...), each one a normal
   // card with Back and Next, built from rigs/runs.js plus this trip's own
@@ -1123,6 +1272,7 @@ a.back{text-decoration:none}
     }
     // The bare url opens on Hot Trips: the week first, the library a tap away.
     if (!parts.length) { renderTrips(); return; }
+    if (parts[0] === "trips" && parts[1] === "map") { renderMap(); return; }
     if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1]), parts[2]); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
     if (parts[0] === "water") {
@@ -1170,6 +1320,10 @@ a.back{text-decoration:none}
     if (ty) { location.hash = "#/water/" + ty.dataset.type; return; }
     var sc = t.closest("[data-sec]");
     if (sc) { location.hash = "#/learn/" + sc.dataset.sec; return; }
+    var tm = t.closest("[data-tmode]");
+    if (tm) { location.hash = tm.dataset.tmode === "map" ? "#/trips/map" : "#/trips"; return; }
+    var md = t.closest("[data-mapday]");
+    if (md) { mapDay = md.dataset.mapday; if (lastPlan) drawMap(lastPlan); return; }
     var pick = t.closest("[data-species]");
     if (pick) { RIG.go(pick.dataset.species); return; }
     var loc = t.closest("[data-loc]");
