@@ -89,6 +89,10 @@
     return inflight;
   }
 
-  RIG.rules = { url: URL, places: PLACES, matches: matches, newFor: newFor, status: status,
+  // Every rule WDFW posted before this day is already worked into the cards.
+  // A run card can carry its own later `checked` date in rigs/runs.js.
+  var BASE = "2026-11-23";
+
+  RIG.rules = { base: BASE, url: URL, places: PLACES, matches: matches, newFor: newFor, status: status,
     load: load, cached: cached, ack: ack, acked: acked, staleMs: STALE_MS };
 })(typeof window !== "undefined" ? window : globalThis);

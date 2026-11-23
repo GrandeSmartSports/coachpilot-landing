@@ -882,7 +882,7 @@ a.back{text-decoration:none}
   // load. Views leave empty slots ([data-rules-slot], [data-rule-badge],
   // [data-rules-status]) and fillRules() fills them, now and again when the
   // background check lands, so nothing re-renders under your thumb.
-  var RULES_BASE = "2026-11-23"; // the day every run card was checked against WDFW
+  var RULES_BASE = (RIG.rules && RIG.rules.base) || "2026-11-23"; // see rigs/rules.js
   function rulesReady() { return !!(RIG.rules && RIG.rules.newFor); }
   function slotAttrs(spot, species, since) {
     return ' data-spot="' + esc(spot) + '" data-species="' + esc(species) + '" data-since="' + esc(since || RULES_BASE) + '"';
