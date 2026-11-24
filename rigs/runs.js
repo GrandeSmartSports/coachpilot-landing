@@ -532,6 +532,34 @@
       };
     }
   };
+  KINDS["river-steelhead"] = function (p, site) {
+    var gear = [
+      { i: "Your 7.5 ft river rod", s: "have", n: "Works. A 9 to 10.5 ft steelhead rod drifts a float better." },
+      { i: "Slip floats, 1/8 to 1/4 oz steelhead jigs (pink, black and pink)", s: "need" },
+      { i: "Leader 8 to 10 lb, small swivels, split shot", s: "check" },
+      { i: "Pink worms, 4 in, on a jig head", s: "need" },
+      { i: "Waders with grip soles", s: "check" },
+      { i: "Freshwater or combination license, catch record card", s: "check" }
+    ];
+    if (p.endorsement) gear.push({ i: "Columbia River Salmon and Steelhead Endorsement", s: "check", n: "Needed on the Cowlitz. Not part of a regular license." });
+    return {
+      what: "Winter hatchery steelhead from the bank on " + site.name + ". Steelhead are the hardest fish here: a fish or two in a day is a win. A hatchery fish (clipped fin) is yours to keep.",
+      setup: ["Check the river flow card first. Dropping and clearing is the day.", "Rig a slip float and a jig before you walk in."],
+      during: ["Drift the float through the softer seams beside fast water, 3 to 6 ft deep.",
+        "Set the float so the jig rides just off the bottom.", "Float dips or stops: set the hook.",
+        "Ten good drifts and nothing? Take a few steps downstream and repeat."],
+      wrap: ["Check the fin: no adipose fin means hatchery. Wild fish go back in the water, gently.",
+        "Mark the catch record card right away."],
+      gear: gear,
+      bait: { first: "Pink jig or pink worm under a slip float.", backup: ["Cured eggs under the float.", "Small spinner swung through the tailout."], note: "" },
+      how: ["Cast slightly upstream, mend so the float leads the line, let it ride the seam.",
+        "Adjust depth until the jig ticks bottom now and then, then shorten a little.", "Fight from the bank downstream of the fish. Do not horse it."],
+      spot: { lines: site.lines, unknown: site.unknown || [] },
+      expect: ["Cold, wet hands. Bring dry gloves for the drive home.", "Long quiet stretches. That is steelhead fishing.", "Crowds near the hatchery on weekends."],
+      rules: (site.rules || []).concat(["Freshwater or combination license, plus a catch record card."]),
+      more: [["steelhead", "green-river", "steel-watch"], ["steelhead", "green-river", "river-watch-float"], ["steelhead", "green-river", "salmon-float-jig-build"]]
+    };
+  };
   RIG.trips.kinds = KINDS;
   (RIG.trips.plans || []).forEach(function (p) {
     if (p.kind && KINDS[p.kind] && !R[p.id]) R[p.id] = KINDS[p.kind](p, p.site || {});

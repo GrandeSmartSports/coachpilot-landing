@@ -307,6 +307,31 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(T.runs["trout-fenwick"].rules.some((x) => /5 a day/.test(x)), "Fenwick now carries the confirmed trout limit");
 }
 
+// --- more water: batch 2 (winter steelhead rivers) ------------------------
+{
+  const today = "2026-12-05"; // Saturday
+  const wx = week(today);
+  const flow = {};
+  for (const sp of T.spots.filter((x) => x.river)) {
+    const days = {}; for (let i = 0; i < 7; i++) days[isoAdd(today, i)] = { min: sp.river.good * 0.6, max: sp.river.good * 0.7 };
+    flow[sp.id] = { days, now: { cfs: sp.river.good * 0.6, at: "2026-12-05T18:00:00Z" } };
+  }
+  const r = T.plan({ today, wx, tides: tidesFor(today), flow });
+  for (const id of ["steelhead-tokul", "steelhead-cowlitz"]) {
+    const p = T.plans.find((x) => x.id === id);
+    ok(p && p.rules === "confirmed" && T.runs[id], `${id} is in, rules confirmed, with a run card`);
+  }
+  const all = r.days.flatMap((d) => d.trips).concat(r.days.flatMap((d) => d.trips));
+  const tok = r.days.flatMap((d) => d.trips).filter((t) => t.planId === "steelhead-tokul" || (t.alts || []).includes("steelhead-tokul"));
+  ok(tok.length > 0, "Tokul Creek steelhead shows on a December weekend", r.days.map((d) => d.trips.map((t) => t.planId).join("+")).join(" / "));
+  const tk = r.days.flatMap((d) => d.trips).find((t) => t.planId === "steelhead-tokul");
+  ok(!tk || (tk.from >= 7 && tk.to <= 17), "Tokul trips stay inside 7 AM to 5 PM", tk && tk.when);
+  ok(T.season(T.plans.find((x) => x.id === "steelhead-tokul"), { y: 2027, m: 2, d: 20, iso: "2027-02-20" }) === null, "Tokul closes after Feb 15");
+  ok(T.runs["steelhead-cowlitz"].rules.some((x) => /Endorsement/i.test(x)) && T.runs["steelhead-cowlitz"].gear.some((g) => /Endorsement/.test(g.i)), "Cowlitz says it needs the Columbia River endorsement");
+  ok(T.spots.find((x) => x.id === "cowlitz").drive >= 90, "the Cowlitz is an adventure day drive");
+  ok(T.runs["steelhead-tokul"].rules.some((x) => /5 PM to 7 AM/.test(x)), "Tokul carries the night closure");
+}
+
 // --- the API shapes become planner input -----------------------------------
 {
   const n = T.spots.length;

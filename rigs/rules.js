@@ -34,7 +34,9 @@
     "kapowsin": { re: /Kapowsin/i, named: true },
     "tanwax": { re: /Tanwax/i, named: true },
     "black-lake": { re: /Black Lake[^.\n]{0,20}Thurston/i, named: true },
-    "lawrence-lake": { re: /Lawrence Lake/i, named: true }
+    "lawrence-lake": { re: /Lawrence Lake/i, named: true },
+    "tokul": { re: /Tokul|Snoqualmie/i, named: true },
+    "cowlitz": { re: /Cowlitz/i, named: true }
   };
   var SALMON = /salmon|coho|chinook|\bkings?\b|chum|pinks?\b|steelhead|all species/i;
   var FISH = {

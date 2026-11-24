@@ -45,7 +45,14 @@
     { id: "kapowsin", lat: 46.995, lon: -122.222, drive: 30 },
     { id: "tanwax", lat: 46.958, lon: -122.267, drive: 40 },
     { id: "black-lake", lat: 46.990, lon: -122.968, drive: 60 },
-    { id: "lawrence-lake", lat: 46.852, lon: -122.590, drive: 55 }
+    { id: "lawrence-lake", lat: 46.852, lon: -122.590, drive: 55 },
+    // Batch 2 rivers. Flow numbers: good = about 1.5x and no-go = about 3x
+    // the USGS daily median for December at the gauge (Snoqualmie 2,400 cfs,
+    // Mayfield 8,500 cfs); flood = NWS action flow. Guide numbers.
+    { id: "tokul", lat: 47.556, lon: -121.886, drive: 75,
+      river: { gauge: "SQUW1", usgs: "12144500", name: "Snoqualmie River at Snoqualmie Falls", good: 3500, high: 7000, flood: 15000 } },
+    { id: "cowlitz", lat: 46.497, lon: -122.646, drive: 105,
+      river: { gauge: "MAYW1", usgs: "14238000", name: "Cowlitz River below Mayfield Dam", good: 12000, high: 16000, flood: 17000 } }
   ];
 
   // One plan = one fish, one spot, one way of fishing it.
@@ -173,7 +180,27 @@
     { id: "trout-lawrence-lake", species: "perch", spot: "lawrence-lake", name: "Trout at Lawrence Lake",
       ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
       site: { name: "Lawrence Lake", county: "Thurston", access: true, lines: ["Lawrence Lake, near Yelm. On WDFW's list of year-round lakes with an access area and boat launch."],
-        unknown: ["Shore spots", "Parking"] } }
+        unknown: ["Shore spots", "Parking"] } },
+
+    // ---- Batch 2: winter steelhead rivers (2026-27 pamphlet, read 11-23).
+    { id: "steelhead-tokul", species: "steelhead", spot: "tokul", name: "Hatchery steelhead, Tokul Creek and the Snoqualmie",
+      peak: [12, 1], ok: [2], closed: [["02-16", "11-30"]], opens: 7, closes: 17, how: "shore", rules: "confirmed", kind: "river-steelhead",
+      site: { name: "Tokul Creek and the Snoqualmie at Fall City", lines: ["Tokul Creek, where it meets the Snoqualmie below Snoqualmie Falls. The hatchery on Tokul Creek draws the winter run.",
+        "The Snoqualmie from the Plum access boat ramp up to Snoqualmie Falls is open the same dates."],
+        rules: ["Tokul Creek, mouth to the Fish Hatchery Rd bridge: Dec 1 to Feb 15. Closed every day 5 PM to 7 AM. Anti-snagging rule.",
+          "Snoqualmie, Plum access ramp to Snoqualmie Falls: Dec 1 to Feb 15. No fishing from a boat or float tube between the Plum ramp and Tokul Creek.",
+          "Steelhead: statewide rule. Release all wild steelhead. Hatchery steelhead 20 in minimum, 2 a day.",
+          "Cutthroat and wild rainbow: 14 in minimum."],
+        unknown: ["Parking at Tokul Creek", "How crowded the hatchery hole gets on a weekend"] } },
+    { id: "steelhead-cowlitz", species: "steelhead", spot: "cowlitz", name: "Hatchery steelhead on the Cowlitz",
+      peak: [12, 1, 2], ok: [3], how: "shore", rules: "confirmed", kind: "river-steelhead", endorsement: true,
+      site: { name: "the Cowlitz below the Barrier Dam (Blue Creek area, Salkum)", lines: ["The lower Cowlitz from Mill Creek up to the Barrier Dam, near Salkum. Blue Creek and the trout hatchery outlet are the famous bank spots.",
+        "Big, dam-fed river. One of the most heavily planted steelhead rivers in the state."],
+        rules: ["Hatchery steelhead: open all year, 20 in minimum, 3 a day.",
+          "Columbia River Salmon and Steelhead Endorsement required for salmon and steelhead (age 15 and up). New for 2026.",
+          "Mill Creek to the Barrier Dam: no fishing from any floating device. Two-pole allowed with the endorsement.",
+          "Trout: 8 in minimum, 5 a day, release wild cutthroat and wild rainbow."],
+        unknown: ["Which bank access is best right now", "Crowds at Blue Creek"] } }
   ];
 
   // Wind in mph, rain in inches per hour, waves in feet.
@@ -321,7 +348,7 @@
     var from = slot.from, to = slot.to;
     // Daylight fishing ends at sunset. Dark fishing starts at full dark.
     if (p.dark) from = Math.max(from, sun.set + 0.6);
-    else { from = Math.max(from, sun.rise, p.opens || 0); to = Math.min(to, sun.set); }
+    else { from = Math.max(from, sun.rise, p.opens || 0); to = Math.min(to, sun.set, p.closes || 24); }
     var dig = p.digs && p.digs[day.iso];
     if (dig) {
       // WDFW: the best digging is 1 to 2 hours before the low.
