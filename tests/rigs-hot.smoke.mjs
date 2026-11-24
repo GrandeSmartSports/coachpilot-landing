@@ -137,6 +137,20 @@ try {
   ok(calls() === before, "a second open inside 3 hours reuses the saved forecast", `${before} -> ${calls()}`);
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 
+  // A forecast server that never answers: give up, say so, offer a retry.
+  const ctx3 = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await ctx3.addInitScript(() => { window.RIG = { fetchTimeout: 1500 }; });
+  await ctx3.route(/castai-rules|api\.water\.noaa\.gov|marine-api|tidesandcurrents/, (r) => r.abort());
+  await ctx3.route(/api\.open-meteo\.com/, () => { /* never answers */ });
+  const p3 = await ctx3.newPage();
+  await p3.goto(base + "#/trips", { waitUntil: "load" });
+  const t0 = Date.now();
+  await p3.waitForSelector("[data-quiet]", { timeout: 8000 }).catch(() => {});
+  const hung = await p3.locator("[data-week]").innerText();
+  ok(/No forecast yet/.test(hung) && Date.now() - t0 < 8000, "a server that never answers times out instead of loading forever", hung.slice(0, 120));
+  ok(await p3.locator("[data-week] [data-refresh]").count() === 1, "the stuck screen has a Try again button");
+  await ctx3.close();
+
   // No signal and nothing saved: say so plainly.
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await fake(ctx2, { down: true });

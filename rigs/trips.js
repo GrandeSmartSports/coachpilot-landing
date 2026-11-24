@@ -431,7 +431,14 @@
     if (!force && c && Date.now() - c.at < 3 * 3600e3 && c.today === localIso(now)) return Promise.resolve(c);
     var today = localIso(now), end = localIso(new Date(now.getTime() + 7 * 864e5));
     var u = urls(today, end);
-    function j(url) { return root.fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+    // Every call gives up after 12 seconds. One stalled server on a weak
+    // signal must not leave the screen on "Loading" forever.
+    function j(url) {
+      var ms = RIG.fetchTimeout || 12000, ctl = root.AbortController ? new root.AbortController() : null, timer;
+      var stop = new Promise(function (_, no) { timer = setTimeout(function () { if (ctl) ctl.abort(); no(new Error("timeout")); }, ms); });
+      return Promise.race([root.fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }), stop])
+        .finally(function () { clearTimeout(timer); });
+    }
     var nt = u.tides.length;
     return Promise.all([j(u.wx), j(u.marine).catch(function () { return null; })].concat(u.tides.map(function (t) {
       return j(t.url).catch(function () { return null; });

@@ -982,7 +982,8 @@ a.back{text-decoration:none}
       lastPlan = planFrom(data); drawTrips(lastPlan);
     }).catch(function () {
       var host = app.querySelector("[data-week]");
-      if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal and it will keep the last one for the pier.</p>';
+      if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. The weather servers did not answer. Open this once with a signal and it will keep the last one for the pier.</p>' +
+        '<div class="asof"><button type="button" data-refresh>Try again</button></div>';
     });
   }
   // ---- Hot Trips map ------------------------------------------------------
@@ -1020,7 +1021,7 @@ a.back{text-decoration:none}
       drawMap(lastPlan);
     }).catch(function () {
       var box = document.getElementById("tripmap");
-      if (box) box.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. Open this once with a signal.</p>';
+      if (box) box.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. The weather servers did not answer. Open this once with a signal.</p>';
     });
   }
   function drawMap(p) {
