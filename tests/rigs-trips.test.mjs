@@ -14,6 +14,7 @@ vm.runInContext(readFileSync(resolve(ROOT, "rigs/content.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/trips.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/runs.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/rules.js"), "utf8"), ctx);
+vm.runInContext(readFileSync(resolve(ROOT, "rigs/waters.js"), "utf8"), ctx);
 const T = ctx.RIG.trips;
 
 let pass = 0, fail = 0;
@@ -289,15 +290,33 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(squid.length === 1, "one squid trip a night, the best pier", tue.map((t) => t.planId).join(","));
   ok(squid[0] && squid[0].why.some((w) => /^Also good: /.test(w)), "the other squid piers are named as backups", squid[0] && squid[0].why.join(" | "));
   for (const id of ["squid-les-davis", "squid-point-defiance", "squid-des-moines", "salmon-les-davis", "salmon-point-defiance",
-    "salmon-des-moines", "salmon-redondo", "salmon-fox-island", "trout-bonney-lake", "trout-kapowsin", "trout-tanwax", "trout-black-lake", "trout-lawrence-lake"]) {
+    "salmon-des-moines", "salmon-redondo", "salmon-fox-island"]) {
     const p = T.plans.find((x) => x.id === id);
     ok(p && p.rules === "confirmed" && T.runs[id], `${id} is in, rules confirmed, with a run card`);
   }
-  const sat = tripsOn(r, "2026-11-28");
-  const lake = sat.find((t) => t.species === "perch" && t.how === "shore");
-  ok(lake && lake.why.some((w) => /Stocked Nov 23/.test(w)), "a lake stocked this week is a reason to go", lake && lake.why.join(" | "));
-  ok(T.season(T.plans.find((x) => x.id === "trout-kapowsin"), { y: 2027, m: 1, d: 30, iso: "2027-01-30" }) === "ok", "a lake is still in season weeks after the plant, just not peak");
-  ok(T.runs["trout-tanwax"].rules.some((x) => /one pole/i.test(x)), "Tanwax says one pole only");
+  // Stocked lakes now come from CastAI's waters feed (rigs/waters.js), not hand typing.
+  const W = ctx.RIG.watersSnapshot;
+  ok(W && W.waters.length >= 10, "the CastAI waters snapshot carries the stocked lakes", W && W.waters.length);
+  ok(W.waters.every((w) => w.plants.every((p) => p.fpp <= 6)), "only catchable-size plants count, never fry");
+  const gen = T.plans.filter((p) => p.gen);
+  ok(gen.length === W.waters.length, "every stocked water became a trip plan", gen.length + " vs " + W.waters.length);
+  ok(gen.filter((p) => p.rules === "confirmed").every((p) => T.runs[p.id] && T.runs[p.id].rules.some((x) => /5 a day/.test(x))), "every listable lake has a run card with the trout limit");
+  ok(gen.filter((p) => /gear rule|East of the mountains/.test(p.rules)).length >= 2, "lakes with gear rules or unread rules are held back, not listed");
+  const cady = gen.find((p) => /Cady/.test(p.name));
+  ok(!cady || cady.rules !== "confirmed", "Cady Lake (fly fishing only) is never sent out with a PowerBait card");
+  // A plant 10 days ago is peak with the real numbers; 45 days is in season; 90 days is not.
+  const fake = { waters: [{ geo: "LTEST", name: "Test Lake", county: "Pierce", lat: 47.2, lon: -122.2, km: 5,
+    plants: [{ d: "2026-11-13", sp: "Rainbow", n: 600, fpp: 0.5 }], rule: { status: "ok", open: "all", lines: [] } }] };
+  T.addWaters(fake);
+  const tp = T.plans.find((p) => p.id === "trout-w-ltest");
+  ok(tp && T.season(tp, { y: 2026, m: 11, d: 23, iso: "2026-11-23" }) === "peak", "10 days after a plant is peak");
+  ok(T.season(tp, { y: 2026, m: 12, d: 28, iso: "2026-12-28" }) === "ok" && T.season(tp, { y: 2027, m: 2, d: 11, iso: "2027-02-11" }) === null, "45 days is in season, 90 days is not");
+  const r2 = T.plan({ today, wx: week(today), tides: tidesFor(today), waters: fake });
+  const tl = tripsOn(r2, "2026-11-28").find((t) => t.planId === "trout-w-ltest");
+  ok(tl && tl.why.some((w) => /Stocked Nov 13: 600 rainbow, about 2 lb each/.test(w)), "the trip says when, how many and how big", tl && tl.why.join(" | "));
+  ok(ctx.RIG.rules.places["w-ltest"] && ctx.RIG.rules.places["w-ltest"].re.test("Test Lake closure"), "every generated lake is watched by the WDFW rule check");
+  T.addWaters(W);
+  ok(!T.plans.some((p) => p.id === "trout-w-ltest"), "a new feed replaces the old generated lakes");
   ok(T.runs["salmon-fox-island"].rules.some((x) => /release chum/i.test(x)), "Fox Island pier says release chum");
   ok(T.runs["squid-les-davis"].rules.some((x) => /one line/i.test(x)) && T.runs["squid-les-davis"].rules.some((x) => /5 quarts/.test(x)), "squid piers carry the one-line rule and the limit");
   const pierSalmon = T.plans.find((x) => x.id === "salmon-les-davis");

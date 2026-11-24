@@ -561,7 +561,12 @@
     };
   };
   RIG.trips.kinds = KINDS;
-  (RIG.trips.plans || []).forEach(function (p) {
-    if (p.kind && KINDS[p.kind] && !R[p.id]) R[p.id] = KINDS[p.kind](p, p.site || {});
-  });
+  // Generated plans (CastAI waters) are rebuilt each time the feed lands.
+  RIG.trips.buildRuns = function () {
+    Object.keys(R).forEach(function (k) { if (R[k] && R[k].gen) delete R[k]; });
+    (RIG.trips.plans || []).forEach(function (p) {
+      if (p.kind && KINDS[p.kind] && !R[p.id]) { R[p.id] = KINDS[p.kind](p, p.site || {}); if (p.gen) R[p.id].gen = true; }
+    });
+  };
+  RIG.trips.buildRuns();
 })(typeof window !== "undefined" ? window : globalThis);

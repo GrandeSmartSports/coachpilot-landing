@@ -37,21 +37,16 @@
     { id: "westport", lat: 46.905, lon: -124.105, drive: 140, tide: "9441102", marine: true },
     { id: "ocean-shores", lat: 47.110, lon: -124.180, drive: 150, tide: "9441102", marine: true },
     // Batch 1, added 2026-11-23. Drive minutes are estimates from Bonney Lake.
-    { id: "les-davis", lat: 47.287, lon: -122.481, drive: 45, tide: "9446484" },
-    { id: "point-defiance", lat: 47.307, lon: -122.515, drive: 50, tide: "9446484" },
-    { id: "des-moines-pier", lat: 47.402, lon: -122.330, drive: 40, tide: "9446248" },
-    { id: "fox-island", lat: 47.251, lon: -122.600, drive: 55, tide: "9446491" },
-    { id: "bonney-lake", lat: 47.183, lon: -122.170, drive: 10 },
-    { id: "kapowsin", lat: 46.995, lon: -122.222, drive: 30 },
-    { id: "tanwax", lat: 46.958, lon: -122.267, drive: 40 },
-    { id: "black-lake", lat: 46.990, lon: -122.968, drive: 60 },
-    { id: "lawrence-lake", lat: 46.852, lon: -122.590, drive: 55 },
+    { id: "les-davis", name: "Les Davis Pier", lat: 47.287, lon: -122.481, drive: 45, tide: "9446484" },
+    { id: "point-defiance", name: "Point Defiance boathouse dock", lat: 47.307, lon: -122.515, drive: 50, tide: "9446484" },
+    { id: "des-moines-pier", name: "Des Moines Pier", lat: 47.402, lon: -122.330, drive: 40, tide: "9446248" },
+    { id: "fox-island", name: "Fox Island pier", lat: 47.251, lon: -122.600, drive: 55, tide: "9446491" },
     // Batch 2 rivers. Flow numbers: good = about 1.5x and no-go = about 3x
     // the USGS daily median for December at the gauge (Snoqualmie 2,400 cfs,
     // Mayfield 8,500 cfs); flood = NWS action flow. Guide numbers.
-    { id: "tokul", lat: 47.556, lon: -121.886, drive: 75,
+    { id: "tokul", name: "Tokul Creek", lat: 47.556, lon: -121.886, drive: 75,
       river: { gauge: "SQUW1", usgs: "12144500", name: "Snoqualmie River at Snoqualmie Falls", good: 3500, high: 7000, flood: 15000 } },
-    { id: "cowlitz", lat: 46.497, lon: -122.646, drive: 105,
+    { id: "cowlitz", name: "Cowlitz River", lat: 46.497, lon: -122.646, drive: 105,
       river: { gauge: "MAYW1", usgs: "14238000", name: "Cowlitz River below Mayfield Dam", good: 12000, high: 16000, flood: 17000 } }
   ];
 
@@ -159,29 +154,6 @@
       site: { name: "Fox Island public fishing pier", area: 13, chum: true, lines: ["Fox Island public fishing pier, South Sound (Marine Area 13)."],
         unknown: ["Exact parking", "Hours"] } },
 
-    // Stocked lakes. stocked = WDFW trout plant dates (catchable rainbows).
-    // Peak for 3 weeks after a plant; otherwise in season, not peak.
-    { id: "trout-bonney-lake", species: "perch", spot: "bonney-lake", name: "Trout at Bonney Lake",
-      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
-      site: { name: "Bonney Lake", county: "Pierce", access: true, lines: ["Bonney Lake, Pierce County. On WDFW's list of year-round lakes with an access area and boat launch."],
-        unknown: ["Where to stand on shore", "Parking at the access"] } },
-    { id: "trout-kapowsin", species: "perch", spot: "kapowsin", name: "Trout at Lake Kapowsin",
-      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
-      site: { name: "Lake Kapowsin", county: "Pierce", lines: ["Lake Kapowsin, south of Orting. A big, stumpy lake. Bass and crappie too, in summer."],
-        extra: ["Bass: 15 smallmouth a day (1 over 14 in), 10 largemouth a day (under 12 in, plus 1 over 17 in)."], unknown: ["Shore spots", "Parking at the access"] } },
-    { id: "trout-tanwax", species: "perch", spot: "tanwax", name: "Trout at Tanwax Lake",
-      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
-      site: { name: "Tanwax Lake", county: "Pierce", lines: ["Tanwax Lake, near Eatonville."],
-        extra: ["One pole only. The two-pole endorsement does not apply here.", "Crappie: 9 in minimum, 10 a day."], unknown: ["Shore spots", "Parking"] } },
-    { id: "trout-black-lake", species: "perch", spot: "black-lake", name: "Trout at Black Lake",
-      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
-      site: { name: "Black Lake", county: "Thurston", lines: ["Black Lake, just southwest of Olympia."],
-        extra: ["Crappie: 9 in minimum, 10 a day."], unknown: ["Shore spots", "Parking"] } },
-    { id: "trout-lawrence-lake", species: "perch", spot: "lawrence-lake", name: "Trout at Lawrence Lake",
-      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
-      site: { name: "Lawrence Lake", county: "Thurston", access: true, lines: ["Lawrence Lake, near Yelm. On WDFW's list of year-round lakes with an access area and boat launch."],
-        unknown: ["Shore spots", "Parking"] } },
-
     // ---- Batch 2: winter steelhead rivers (2026-27 pamphlet, read 11-23).
     { id: "steelhead-tokul", species: "steelhead", spot: "tokul", name: "Hatchery steelhead, Tokul Creek and the Snoqualmie",
       peak: [12, 1], ok: [2], closed: [["02-16", "11-30"]], opens: 7, closes: 17, how: "shore", rules: "confirmed", kind: "river-steelhead",
@@ -256,20 +228,66 @@
     var md = mmdd(day);
     if ((p.closed || []).some(function (r) { return inRange(md, r); })) return null;
     if (stockedRecent(p, day)) return "peak";
+    if (p.stockedOnly) { var lp = lastPlant(p, day); return lp && lp.age <= 60 ? "ok" : null; }
     if ((p.peak || []).indexOf(day.m) !== -1) return "peak";
     if ((p.ok || []).indexOf(day.m) !== -1) return "ok";
     return null;
   }
 
-  // A trout plant in the last 3 weeks (WDFW stocking report).
-  function stockedRecent(p, day) {
+  // The latest trout plant on or before this day (WDFW stocking, via the
+  // CastAI feed), with its age in days. Plants are {d, sp, n, fpp} or "YYYY-MM-DD".
+  function lastPlant(p, day) {
     if (!p.stocked) return null;
-    var t = Date.UTC(day.y, day.m - 1, day.d), hit = null;
-    p.stocked.forEach(function (iso) {
-      var a = iso.split("-").map(Number), d = (t - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5;
-      if (d >= 0 && d <= 21) hit = iso;
+    var t = Date.UTC(day.y, day.m - 1, day.d), best = null;
+    p.stocked.forEach(function (x) {
+      var iso = typeof x === "string" ? x : x.d, a = iso.split("-").map(Number);
+      var age = (t - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5;
+      if (age >= 0 && (!best || age < best.age)) best = { age: age, iso: iso, plant: typeof x === "string" ? null : x };
     });
-    return hit;
+    return best;
+  }
+  function stockedRecent(p, day) { var l = lastPlant(p, day); return l && l.age <= 21 ? l.iso : null; }
+
+  function plantLine(lp) {
+    var x = lp.plant, when = "Stocked " + MONTHS[+lp.iso.slice(5, 7) - 1] + " " + (+lp.iso.slice(8, 10));
+    if (!x) return when + " (WDFW plant)";
+    var size = x.fpp && x.fpp <= 1.5 ? "about " + (Math.round(10 / x.fpp) / 10) + " lb each" : "catchable size";
+    return when + ": " + x.n + " " + String(x.sp || "trout").toLowerCase() + ", " + size;
+  }
+
+  // ---- CastAI waters: stocked lakes from the shared feed -------------------
+  // RIG.watersSnapshot (rigs/waters.js, built by scripts/build-waters.mjs)
+  // carries each water's WDFW lake rule. A live feed refreshes the plants;
+  // a water the snapshot has not checked is held back, never guessed.
+  var ruleByGeo = {};
+  function addWaters(data) {
+    if (!data || !data.waters || !data.waters.length) return 0;
+    data.waters.forEach(function (w) { if (w.rule) ruleByGeo[w.geo] = w.rule; });
+    var keepSpots = spots.filter(function (x) { return !x.gen; }), keepPlans = plans.filter(function (x) { return !x.gen; });
+    spots.length = 0; plans.length = 0;
+    keepSpots.forEach(function (x) { spots.push(x); }); keepPlans.forEach(function (x) { plans.push(x); });
+    var n = 0;
+    data.waters.forEach(function (w) {
+      var stocked = (w.plants || []).filter(function (x) { return x.fpp != null && x.fpp <= 6; });
+      if (!stocked.length || w.lat == null) return;
+      var r = w.rule || ruleByGeo[w.geo] || { status: "check", why: "Lake rules not checked yet" };
+      var id = "w-" + String(w.geo).toLowerCase();
+      spots.push({ id: id, name: w.name, lat: w.lat, lon: w.lon, drive: Math.round(w.km * 1.05 + 8), gen: true, county: w.county });
+      plans.push({ id: "trout-" + id, gen: true, species: "perch", spot: id, name: "Trout at " + w.name,
+        stockedOnly: true, stocked: stocked, closed: r.closed || [], how: "shore", kind: "lake-trout",
+        rules: r.status === "ok" ? "confirmed" : (r.why || "Lake rules not checked yet"),
+        site: { name: w.name, county: w.county, geo: w.geo,
+          lines: [w.name + ", " + w.county + " County.", "Trout plants come from WDFW's stocking records, through CastAI, refreshed nightly."],
+          extra: (r.lines || []).filter(function (l) { return !/^Open all year/.test(l); }),
+          unknown: ["Shore access and parking at this lake", "Drive time is an estimate from the map"] } });
+      if (root.RIG.rules && root.RIG.rules.places) {
+        var nm = w.name.replace(/\s*\(.*?\)/g, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        root.RIG.rules.places[id] = { re: new RegExp(nm, "i"), named: true };
+      }
+      n++;
+    });
+    if (RIG.trips.buildRuns) RIG.trips.buildRuns();
+    return n;
   }
 
   // ---- the planner ---------------------------------------------------------
@@ -281,6 +299,7 @@
   // output: { days: [{iso, label, trips: [...], note?}], notListed: [{name, why}] }
   function plan(input) {
     var wx = input.wx || {}, tides = input.tides || {}, flow = input.flow || {};
+    if (input.waters) addWaters(input.waters);
     var start = parseDay(input.today);
     var days = [];
     var nDays = input.days || 7;
@@ -383,8 +402,8 @@
     if (waveMax && wave > waveMax) return { blocked: { why: Math.round(wave) + " ft surf", v: 40 + wave } };
 
     var why = [], score = s === "peak" ? 4 : 2;
-    var st = stockedRecent(p, day);
-    why.push(st ? "Stocked " + MONTHS[+st.slice(5, 7) - 1] + " " + (+st.slice(8, 10)) + " (WDFW plant)" : s === "peak" ? "Peak season" : "In season");
+    var lp = p.stocked ? lastPlant(p, day) : null;
+    why.push(lp && lp.age <= 60 ? plantLine(lp) : s === "peak" ? "Peak season" : "In season");
     var rf = spot.river ? riverCall(spot.river, fl, day) : null;
     if (rf && rf.call === "nogo") return { blocked: { why: "river blown out, " + cfs(rf.cfs) + " cfs", v: 50 + rf.cfs / 1000 } };
     if (rf) { score += rf.score; why = why.concat(rf.why); }
@@ -488,6 +507,7 @@
         "&longitude=" + ms.map(function (s) { return s.lon; }).join(",") +
         "&hourly=wave_height&length_unit=imperial&timezone=America%2FLos_Angeles&forecast_days=7",
       marineSpots: ms.map(function (s) { return s.id; }),
+      waters: "https://geigvuysptjvvqanumld.supabase.co/functions/v1/castai-waters?km=230",
       flow: spots.filter(function (s) { return s.river; }).map(function (s) {
         return { spot: s.id, url: "https://api.water.noaa.gov/nwps/v1/gauges/" + s.river.gauge + "/stageflow" };
       }),
@@ -564,11 +584,17 @@
     var nt = u.tides.length;
     return Promise.all([j(u.wx), j(u.marine).catch(function () { return null; })].concat(u.tides.map(function (t) {
       return j(t.url).catch(function () { return null; });
-    })).concat(u.flow.map(function (f) { return j(f.url).catch(function () { return null; }); }))).then(function (res) {
+    })).concat(u.flow.map(function (f) { return j(f.url).catch(function () { return null; }); }))
+      .concat([j(u.waters).catch(function () { return null; })])).then(function (res) {
       var tj = {}; u.tides.forEach(function (t, i) { tj[t.id] = res[2 + i]; });
       var data = shape(res[0], res[1], u.marineSpots, tj);
       var flow = {}; u.flow.forEach(function (f, i) { var r = res[2 + nt + i]; if (r) flow[f.spot] = shapeFlow(r); });
-      var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides, flow: flow };
+      var wl = res[res.length - 1];
+      var waters = wl && wl.waters ? { at: wl.at, waters: wl.waters.map(function (w) {
+        return { geo: w.geo, name: w.name, county: w.county, lat: w.lat, lon: w.lon, km: w.km,
+          plants: (w.plants || []).filter(function (x) { return x.fpp != null && x.fpp <= 6; }) };
+      }) } : null;
+      var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides, flow: flow, waters: waters };
       try { root.localStorage.setItem(CACHE_KEY, JSON.stringify(out)); } catch (e) { /* full storage: still show it */ }
       return out;
     }).catch(function (e) {
@@ -578,5 +604,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, plan: plan, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, plan: plan, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);

@@ -30,11 +30,6 @@
     "point-defiance": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Point Defiance/i },
     "des-moines-pier": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Des Moines/i },
     "fox-island": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])13(?![-.\d])|Fox Island/i },
-    "bonney-lake": { re: /Bonney Lake \(|Lake Bonney/i, named: true },
-    "kapowsin": { re: /Kapowsin/i, named: true },
-    "tanwax": { re: /Tanwax/i, named: true },
-    "black-lake": { re: /Black Lake[^.\n]{0,20}Thurston/i, named: true },
-    "lawrence-lake": { re: /Lawrence Lake/i, named: true },
     "tokul": { re: /Tokul|Snoqualmie/i, named: true },
     "cowlitz": { re: /Cowlitz/i, named: true }
   };

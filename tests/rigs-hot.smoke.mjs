@@ -38,6 +38,7 @@ const tides = { predictions: DAYS.flatMap((d) => [
 
 async function fake(ctx, { down = false } = {}) {
   let calls = 0;
+  await ctx.route(/castai-waters/, (r) => r.abort());
   await ctx.route(/castai-rules/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
     body: JSON.stringify({ checked: new Date().toISOString(), rules: [] }) }));
   await ctx.route(/api\.water\.noaa\.gov/, (r) => down ? r.abort() : r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
