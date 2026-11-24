@@ -72,7 +72,8 @@ try {
   await page.waitForSelector(".leaflet-marker-icon.mk");
   ok(/#\/trips\/map$/.test(page.url()), "Map has its own address", page.url());
   const covered = await page.locator("[data-pin]").evaluateAll((els) => els.flatMap((e) => e.dataset.pin.split(" ")));
-  ok(covered.length === 8 && new Set(covered).size === 8, "every spot is on the map, alone or in a group", covered.join(","));
+  const nSpots = await page.evaluate(() => window.RIG.trips.spots.length);
+  ok(covered.length === nSpots && new Set(covered).size === nSpots, "every spot is on the map, alone or in a group", covered.join(","));
   ok(await page.locator('[data-pin~="redondo"].hot').count() === 1, "Redondo is Hot this week");
   const overlap = await page.evaluate(() => {
     const r = [...document.querySelectorAll("[data-pin] i")].map((e) => e.getBoundingClientRect());
@@ -96,14 +97,15 @@ try {
   await page.waitForSelector('[data-pin~="ocean-shores"]');
   ok(await page.locator('[data-pin~="ocean-shores"]:not(.dim)').count() === 1, "Thanksgiving lights up the razor clam dig");
 
-  await page.locator('[data-pin~="redondo"] i').click();
-  if (await page.locator('[data-pin="redondo"]').count() === 0) {
-    // Redondo was inside a group. The tap zooms in until it splits.
-    await page.waitForSelector('[data-pin="redondo"]');
-    ok(true, "tapping a group zooms in until its spots split");
-    await page.waitForTimeout(400);
-    await page.locator('[data-pin="redondo"] i').click();
+  // Redondo may sit inside a group (Des Moines pier is 3 miles away). Each
+  // tap on a group zooms in to its spots; a few taps always split it.
+  let taps = 0;
+  while (await page.locator('[data-pin="redondo"]').count() === 0 && taps < 5) {
+    await page.locator('[data-pin~="redondo"] i').click(); taps++;
+    await page.waitForTimeout(700);
   }
+  ok(await page.locator('[data-pin="redondo"]').count() === 1, "tapping groups zooms in until Redondo stands alone", taps);
+  await page.locator('[data-pin="redondo"] i').click();
   await page.waitForSelector('.leaflet-popup [data-pin-trip="squid-redondo"]');
   ok(/35 min drive/.test(await page.locator(".leaflet-popup").innerText()), "the pin says the drive");
   await page.locator('.leaflet-popup [data-pin-trip="squid-redondo"]').click();

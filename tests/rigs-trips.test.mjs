@@ -13,6 +13,7 @@ ctx.window = ctx;
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/content.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/trips.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/runs.js"), "utf8"), ctx);
+vm.runInContext(readFileSync(resolve(ROOT, "rigs/rules.js"), "utf8"), ctx);
 const T = ctx.RIG.trips;
 
 let pass = 0, fail = 0;
@@ -82,7 +83,7 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(cl && Math.abs(cl.from - (19.58 - 2)) < 0.01, "and starts digging 2 hours before the low", cl && cl.from);
   ok(cl && cl.gear, "the clam trip says the gear is missing");
   ok(!ids(r, "2026-11-29").includes("clams-ocean-shores"), "no clam trip on a day with no dig");
-  ok(r.days.every((d) => d.trips.length <= 4), "a day lists four trips at most");
+  ok(r.days.every((d) => d.trips.length <= (T.slotsFor(new Date(d.iso + "T12:00:00Z").getUTCDay(), d.iso).length > 1 ? 6 : 4)), "a weeknight lists four trips at most, a weekend or day off six");
   ok(r.days.every((d) => d.trips.every((t) => t.score >= 6)), "only good trips are listed");
 }
 
@@ -135,7 +136,7 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   const r = T.plan({ today, wx: week(today, () => ({ wind: 13, gust: 17 })), tides: tidesFor(today) });
   const sat = ids(r, today);
   ok(!sat.includes("trout-tapps") && !sat.includes("trout-american"), "13 mph keeps the kayak home", sat.join(","));
-  ok(sat.includes("trout-fenwick"), "the same wind still fishes from the bank at Fenwick", sat.join(","));
+  ok(sat.some((x) => /^trout-/.test(x) && T.plans.find((p) => p.id === x).how === "shore"), "the same wind still fishes from the bank at a lake", sat.join(","));
   const calm = T.plan({ today, wx: week(today), tides: tidesFor(today) });
   ok(ids(calm, today).includes("trout-american"), "a calm Saturday puts the kayak on American Lake", ids(calm, today).join(","));
   ok(ids(calm, today).filter((x) => /^surfperch-/.test(x)).length === 1, "one coast surf perch trip a day, the better beach", ids(calm, today).join(","));
@@ -277,6 +278,33 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(f.ends === "2026-11-25", "the forecast says how far out it goes", f.ends);
   const u2 = T.urls("2026-11-23", "2026-11-30");
   ok(u2.flow && u2.flow.some((x) => x.spot === "green-river" && /nwps\/v1\/gauges\/AUBW1\/stageflow/.test(x.url)), "one flow call per river gauge");
+}
+
+// --- more water: batch 1 (squid piers, pier salmon, stocked lakes) --------
+{
+  const today = "2026-11-23";
+  const r = T.plan({ today, wx: week(today), tides: tidesFor(today) });
+  const tue = tripsOn(r, "2026-11-24");
+  const squid = tue.filter((t) => t.species === "squid");
+  ok(squid.length === 1, "one squid trip a night, the best pier", tue.map((t) => t.planId).join(","));
+  ok(squid[0] && squid[0].why.some((w) => /^Also good: /.test(w)), "the other squid piers are named as backups", squid[0] && squid[0].why.join(" | "));
+  for (const id of ["squid-les-davis", "squid-point-defiance", "squid-des-moines", "salmon-les-davis", "salmon-point-defiance",
+    "salmon-des-moines", "salmon-redondo", "salmon-fox-island", "trout-bonney-lake", "trout-kapowsin", "trout-tanwax", "trout-black-lake", "trout-lawrence-lake"]) {
+    const p = T.plans.find((x) => x.id === id);
+    ok(p && p.rules === "confirmed" && T.runs[id], `${id} is in, rules confirmed, with a run card`);
+  }
+  const sat = tripsOn(r, "2026-11-28");
+  const lake = sat.find((t) => t.species === "perch" && t.how === "shore");
+  ok(lake && lake.why.some((w) => /Stocked Nov 23/.test(w)), "a lake stocked this week is a reason to go", lake && lake.why.join(" | "));
+  ok(T.season(T.plans.find((x) => x.id === "trout-kapowsin"), { y: 2027, m: 1, d: 30, iso: "2027-01-30" }) === "ok", "a lake is still in season weeks after the plant, just not peak");
+  ok(T.runs["trout-tanwax"].rules.some((x) => /one pole/i.test(x)), "Tanwax says one pole only");
+  ok(T.runs["salmon-fox-island"].rules.some((x) => /release chum/i.test(x)), "Fox Island pier says release chum");
+  ok(T.runs["squid-les-davis"].rules.some((x) => /one line/i.test(x)) && T.runs["squid-les-davis"].rules.some((x) => /5 quarts/.test(x)), "squid piers carry the one-line rule and the limit");
+  const pierSalmon = T.plans.find((x) => x.id === "salmon-les-davis");
+  ok(T.season(pierSalmon, { y: 2026, m: 6, d: 10, iso: "2026-06-10" }) === null, "pier salmon is a winter trip here (May to Sept is the open-water season)");
+  const missing = T.spots.filter((s) => !ctx.RIG.rules.places[s.id]).map((s) => s.id);
+  ok(missing.length === 0, "every spot is watched by the WDFW rule check", missing.join(","));
+  ok(T.runs["trout-fenwick"].rules.some((x) => /5 a day/.test(x)), "Fenwick now carries the confirmed trout limit");
 }
 
 // --- the API shapes become planner input -----------------------------------

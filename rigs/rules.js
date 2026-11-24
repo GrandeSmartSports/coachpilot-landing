@@ -25,7 +25,16 @@
     "green-river": { re: /Green \(Duwamish\)|Duwamish|Green River \(King/i, named: true },
     "lake-fenwick": { re: /Fenwick/i, named: true },
     "american-lake": { re: /American Lake/i, named: true },
-    "lake-tapps": { re: /Lake Tapps/i, named: true }
+    "lake-tapps": { re: /Lake Tapps/i, named: true },
+    "les-davis": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Les Davis/i },
+    "point-defiance": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Point Defiance/i },
+    "des-moines-pier": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Des Moines/i },
+    "fox-island": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])13(?![-.\d])|Fox Island/i },
+    "bonney-lake": { re: /Bonney Lake \(|Lake Bonney/i, named: true },
+    "kapowsin": { re: /Kapowsin/i, named: true },
+    "tanwax": { re: /Tanwax/i, named: true },
+    "black-lake": { re: /Black Lake[^.\n]{0,20}Thurston/i, named: true },
+    "lawrence-lake": { re: /Lawrence Lake/i, named: true }
   };
   var SALMON = /salmon|coho|chinook|\bkings?\b|chum|pinks?\b|steelhead|all species/i;
   var FISH = {

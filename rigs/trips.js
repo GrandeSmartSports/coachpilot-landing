@@ -35,7 +35,17 @@
     { id: "american-lake", lat: 47.130, lon: -122.560, drive: 45 },
     { id: "lake-tapps", lat: 47.230, lon: -122.180, drive: 10 },
     { id: "westport", lat: 46.905, lon: -124.105, drive: 140, tide: "9441102", marine: true },
-    { id: "ocean-shores", lat: 47.110, lon: -124.180, drive: 150, tide: "9441102", marine: true }
+    { id: "ocean-shores", lat: 47.110, lon: -124.180, drive: 150, tide: "9441102", marine: true },
+    // Batch 1, added 2026-11-23. Drive minutes are estimates from Bonney Lake.
+    { id: "les-davis", lat: 47.287, lon: -122.481, drive: 45, tide: "9446484" },
+    { id: "point-defiance", lat: 47.307, lon: -122.515, drive: 50, tide: "9446484" },
+    { id: "des-moines-pier", lat: 47.402, lon: -122.330, drive: 40, tide: "9446248" },
+    { id: "fox-island", lat: 47.251, lon: -122.600, drive: 55, tide: "9446491" },
+    { id: "bonney-lake", lat: 47.183, lon: -122.170, drive: 10 },
+    { id: "kapowsin", lat: 46.995, lon: -122.222, drive: 30 },
+    { id: "tanwax", lat: 46.958, lon: -122.267, drive: 40 },
+    { id: "black-lake", lat: 46.990, lon: -122.968, drive: 60 },
+    { id: "lawrence-lake", lat: 46.852, lon: -122.590, drive: 55 }
   ];
 
   // One plan = one fish, one spot, one way of fishing it.
@@ -101,7 +111,69 @@
       peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed",
       access: "Allan Yorke ramp closed since Jul 27, no reopen date" },
     { id: "trout-american", species: "perch", spot: "american-lake", name: "Trout from the kayak, American Lake",
-      peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed" }
+      peak: [4, 5, 10], ok: [3, 6, 9, 11], how: "kayak", rules: "confirmed" },
+
+    // ---- Batch 1 (2026-11-23). Rules read from the 2026-27 WDFW pamphlet
+    // (eregulations.com Marine Areas 11 and 13, Westside Lakes, Shellfish).
+    // kind = which run card template in rigs/runs.js; site = what is
+    // specific to this water. Unknowns stay unknowns.
+    { id: "squid-les-davis", species: "squid", spot: "les-davis", name: "Squid at Les Davis Pier",
+      peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed", kind: "squid-pier",
+      site: { name: "Les Davis Pier", where: "Ruston Way, Tacoma", lines: ["Les Davis Pier on Ruston Way, Tacoma. A public fishing pier on Commencement Bay.",
+        "WDFW names it with Des Moines as a pier where squid show up late November and December.",
+        "Waters within 100 yards are closed to food fish and shellfish except from the pier itself."],
+        unknown: ["Parking and hours", "How the pier lights compare to Redondo"] } },
+    { id: "squid-point-defiance", species: "squid", spot: "point-defiance", name: "Squid at the Point Defiance boathouse dock",
+      peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed", kind: "squid-pier",
+      site: { name: "Point Defiance boathouse dock", where: "Point Defiance Park, Tacoma", lines: ["The fishing dock at the Point Defiance boathouse, Tacoma."],
+        unknown: ["Park hours at night", "Whether the dock is lit", "Parking"] } },
+    { id: "squid-des-moines", species: "squid", spot: "des-moines-pier", name: "Squid at Des Moines Pier",
+      peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed", kind: "squid-pier",
+      site: { name: "Des Moines Pier", where: "Des Moines Marina", lines: ["Des Moines public fishing pier at the marina, 3 miles north of Redondo.",
+        "Waters within 100 yards are closed except from the pier. The Des Moines park conservation area next to it is closed to all fishing."],
+        unknown: ["Parking and hours", "Which stretch of rail fishes best"] } },
+
+    // Pier salmon: May to Sept is the open-water season with boats; the
+    // winter pier rule is what makes these worth a trip now.
+    { id: "salmon-les-davis", species: "king", spot: "les-davis", name: "Winter salmon from Les Davis Pier",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      site: { name: "Les Davis Pier", area: 11, lines: ["Les Davis Pier on Ruston Way, Tacoma."], unknown: ["Parking and hours"] } },
+    { id: "salmon-point-defiance", species: "king", spot: "point-defiance", name: "Winter salmon from the Point Defiance dock",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      site: { name: "Point Defiance boathouse dock", area: 11, lines: ["The fishing dock at the Point Defiance boathouse, Tacoma. Fast water off the point."], unknown: ["Park hours", "Parking"] } },
+    { id: "salmon-des-moines", species: "king", spot: "des-moines-pier", name: "Winter salmon from Des Moines Pier",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      site: { name: "Des Moines Pier", area: 11, lines: ["Des Moines public fishing pier at the marina."], unknown: ["Parking and hours"] } },
+    { id: "salmon-redondo", species: "king", spot: "redondo", name: "Winter salmon from Redondo Pier",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      site: { name: "Redondo Pier", area: 11, lines: ["Redondo Pier, Des Moines. The squid pier, by day."], unknown: ["Parking layout and fees"] } },
+    { id: "salmon-fox-island", species: "king", spot: "fox-island", name: "Winter salmon from the Fox Island pier",
+      ok: [10, 11, 12, 1, 2, 3, 4, 5, 6], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      site: { name: "Fox Island public fishing pier", area: 13, chum: true, lines: ["Fox Island public fishing pier, South Sound (Marine Area 13)."],
+        unknown: ["Exact parking", "Hours"] } },
+
+    // Stocked lakes. stocked = WDFW trout plant dates (catchable rainbows).
+    // Peak for 3 weeks after a plant; otherwise in season, not peak.
+    { id: "trout-bonney-lake", species: "perch", spot: "bonney-lake", name: "Trout at Bonney Lake",
+      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
+      site: { name: "Bonney Lake", county: "Pierce", access: true, lines: ["Bonney Lake, Pierce County. On WDFW's list of year-round lakes with an access area and boat launch."],
+        unknown: ["Where to stand on shore", "Parking at the access"] } },
+    { id: "trout-kapowsin", species: "perch", spot: "kapowsin", name: "Trout at Lake Kapowsin",
+      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
+      site: { name: "Lake Kapowsin", county: "Pierce", lines: ["Lake Kapowsin, south of Orting. A big, stumpy lake. Bass and crappie too, in summer."],
+        extra: ["Bass: 15 smallmouth a day (1 over 14 in), 10 largemouth a day (under 12 in, plus 1 over 17 in)."], unknown: ["Shore spots", "Parking at the access"] } },
+    { id: "trout-tanwax", species: "perch", spot: "tanwax", name: "Trout at Tanwax Lake",
+      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
+      site: { name: "Tanwax Lake", county: "Pierce", lines: ["Tanwax Lake, near Eatonville."],
+        extra: ["One pole only. The two-pole endorsement does not apply here.", "Crappie: 9 in minimum, 10 a day."], unknown: ["Shore spots", "Parking"] } },
+    { id: "trout-black-lake", species: "perch", spot: "black-lake", name: "Trout at Black Lake",
+      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
+      site: { name: "Black Lake", county: "Thurston", lines: ["Black Lake, just southwest of Olympia."],
+        extra: ["Crappie: 9 in minimum, 10 a day."], unknown: ["Shore spots", "Parking"] } },
+    { id: "trout-lawrence-lake", species: "perch", spot: "lawrence-lake", name: "Trout at Lawrence Lake",
+      ok: [1, 2, 3, 4, 5, 6, 9, 10, 11, 12], stocked: ["2026-11-23"], how: "shore", rules: "confirmed", kind: "lake-trout",
+      site: { name: "Lawrence Lake", county: "Thurston", access: true, lines: ["Lawrence Lake, near Yelm. On WDFW's list of year-round lakes with an access area and boat launch."],
+        unknown: ["Shore spots", "Parking"] } }
   ];
 
   // Wind in mph, rain in inches per hour, waves in feet.
@@ -156,9 +228,21 @@
     if (p.odd && day.y % 2 === 0) return null;
     var md = mmdd(day);
     if ((p.closed || []).some(function (r) { return inRange(md, r); })) return null;
+    if (stockedRecent(p, day)) return "peak";
     if ((p.peak || []).indexOf(day.m) !== -1) return "peak";
     if ((p.ok || []).indexOf(day.m) !== -1) return "ok";
     return null;
+  }
+
+  // A trout plant in the last 3 weeks (WDFW stocking report).
+  function stockedRecent(p, day) {
+    if (!p.stocked) return null;
+    var t = Date.UTC(day.y, day.m - 1, day.d), hit = null;
+    p.stocked.forEach(function (iso) {
+      var a = iso.split("-").map(Number), d = (t - Date.UTC(a[0], a[1] - 1, a[2])) / 864e5;
+      if (d >= 0 && d <= 21) hit = iso;
+    });
+    return hit;
   }
 
   // ---- the planner ---------------------------------------------------------
@@ -200,17 +284,27 @@
       // quick trip and a long day to the same water do not both show.
       var best = {};
       out.trips.forEach(function (t) { if (!best[t.planId] || t.score > best[t.planId].score) best[t.planId] = t; });
-      // Same fish, two long drives (Westport or Ocean Shores surf perch):
-      // only the better one. One coast trip a day is the real choice.
+      // Same fish, same way of fishing (four squid piers, five stocked
+      // lakes): only the best one is listed, and it names the others as
+      // backups. A tie goes to the shorter drive.
+      var lead = {};
       Object.keys(best).forEach(function (k) {
-        var t = best[k]; if (!t || t.drive < 90) return;
-        Object.keys(best).forEach(function (o) {
-          var u = best[o];
-          if (o !== k && u && u.species === t.species && u.drive >= 90 && (u.score < t.score || (u.score === t.score && o > k))) delete best[o];
-        });
+        var t = best[k], g = t.species + "|" + t.how, l = lead[g];
+        if (!l) { lead[g] = { top: t, alts: [] }; return; }
+        if (t.score > l.top.score || (t.score === l.top.score && t.drive < l.top.drive)) { l.alts.push(l.top); l.top = t; }
+        else l.alts.push(t);
+      });
+      best = {};
+      Object.keys(lead).forEach(function (g) {
+        var l = lead[g], t = l.top;
+        if (l.alts.length) {
+          t.alts = l.alts.sort(function (a, b) { return b.score - a.score || a.drive - b.drive; }).map(function (x) { return x.planId; });
+          t.why = t.why.concat("Also good: " + l.alts.slice(0, 3).map(function (x) { return x.name.replace(/^.* (at|from) (the )?/, ""); }).join(", "));
+        }
+        best[t.planId] = t;
       });
       out.trips = Object.keys(best).map(function (k) { return best[k]; })
-        .sort(function (a, b) { return b.score - a.score || a.from - b.from; }).slice(0, 4);
+        .sort(function (a, b) { return b.score - a.score || a.from - b.from; }).slice(0, slotsFor(day.dow, day.iso).length > 1 ? 6 : 4);
       // "No fishing" only when the weather called off everything in season.
       // A blown-out coast on a day the lakes are just slow is "Nothing good".
       if (!out.trips.length && blocked.length) {
@@ -262,7 +356,8 @@
     if (waveMax && wave > waveMax) return { blocked: { why: Math.round(wave) + " ft surf", v: 40 + wave } };
 
     var why = [], score = s === "peak" ? 4 : 2;
-    why.push(s === "peak" ? "Peak season" : "In season");
+    var st = stockedRecent(p, day);
+    why.push(st ? "Stocked " + MONTHS[+st.slice(5, 7) - 1] + " " + (+st.slice(8, 10)) + " (WDFW plant)" : s === "peak" ? "Peak season" : "In season");
     var rf = spot.river ? riverCall(spot.river, fl, day) : null;
     if (rf && rf.call === "nogo") return { blocked: { why: "river blown out, " + cfs(rf.cfs) + " cfs", v: 50 + rf.cfs / 1000 } };
     if (rf) { score += rf.score; why = why.concat(rf.why); }

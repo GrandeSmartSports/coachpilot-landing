@@ -409,7 +409,7 @@
       how: ["Perch: drop to the bottom, lift a few inches, let it fall.", "Trout: cast out, let the sinker settle, tighten up, wait."],
       spot: { lines: ["Lake Fenwick, Kent. You have fished it: 8 to 10 inch perch."], unknown: ["Best shore spot for winter perch"] },
       expect: ["Winter perch school deep, 20 to 40 ft. From shore you may not reach them.", "Trout depend on the plants."],
-      rules: ["Lowland lakes are open all year, except a listed few.", "Perch and trout limits are not pulled in yet. Check before you keep any."],
+      rules: ["Lake Fenwick is open all year.", "Trout: 5 a day, no minimum size (statewide lake rule).", "Perch limits are not pulled in yet. Check before you keep any."],
       more: [["perch", "lake-fenwick", "perch-winter"], ["perch", "lake-fenwick", "trout-plants"], ["perch", "lake-fenwick", "trout-watch"],
         ["perch", "lake-fenwick", "perch-regs"]]
     },
@@ -450,8 +450,90 @@
       how: ["Anchor, drop to the bottom, short lifts.", "Use the anchor scope drill in Learn: 3 times the depth."],
       spot: { lines: ["American Lake, Lakewood. Paved two lane ramp."], unknown: ["Parking fee at the ramp"] },
       expect: ["Wind builds fast on big water. The trip is off over 10 mph."],
-      rules: ["Lowland lakes are open all year, except a listed few.", "Limits are not pulled in yet. Check before you keep any."],
+      rules: ["American Lake is open all year.", "Trout and kokanee: 5 a day combined, no minimum size.", "Perch limits are not pulled in yet. Check before you keep any."],
       more: [["perch", "american-lake", "american-launch"], ["perch", "american-lake", "perch-winter"], ["perch", "american-lake", "trout-plants"]]
     }
   };
+
+  // ---- Templates: one per kind of trip ---------------------------------
+  // A plan in rigs/trips.js with `kind` and `site` gets its run card built
+  // here, so adding a spot is one data row, not a hand-written card. A
+  // hand-written card above always wins. Rules text is from the 2026-27
+  // WDFW pamphlet, read 2026-11-23.
+  var R = RIG.trips.runs;
+  var KINDS = {
+    "squid-pier": function (p, site) {
+      var base = R["squid-redondo"];
+      return {
+        what: "Market squid under the lights at " + site.name + " after dark. Same game as Redondo: jig the edge of the lit water.",
+        setup: ["Get there in the last light and take rail space where the lit water meets the dark.",
+          "Hang your light off the rail, aimed out and down, with its own safety tether.",
+          "Rig one line with two jigs to start."],
+        during: base.during, wrap: base.wrap, gear: base.gear, bait: base.bait, how: base.how,
+        spot: { lines: site.lines, unknown: site.unknown || [] },
+        expect: ["Squid come in waves. Long quiet stretches are normal.", "Cold and damp. You stand still for hours.",
+          "Bright moon nights are slower. Dark moon nights beat full.", "Crowds at this pier not seen for the card yet."],
+        rules: ["Squid: open all year. 10 pounds or 5 quarts a day, whichever you hit first.",
+          "One line per person (new for 2026), up to four squid lures on it.", "Each person keeps their own container.",
+          "A shellfish license or a combination license."],
+        more: base.more
+      };
+    },
+    "pier-salmon": function (p, site) {
+      return {
+        what: "Winter salmon from " + site.name + ". Resident blackmouth and coho feed along the piers all winter, and the pier rule keeps these open when the rest of the Sound is closed. A long-odds trip: one fish is a good day.",
+        setup: ["Pick rail space on the side the tide is running toward.", "Rig the jig or the herring before you walk out."],
+        during: ["Jig: cast out, let it fall to the bottom, then rip it up and let it flutter back down. Most hits come on the fall.",
+          "Cover water: fan your casts and work different depths.", "Moving tide is the window. Slack water is break time."],
+        wrap: ["Fish bled and on ice.", "Mark the catch record card before you leave the pier."],
+        gear: [
+          { i: "Your 7.5 ft river rod with 30 lb braid", s: "have", n: "Fine for pier jigging." },
+          { i: "Buzz Bomb or Point Wilson Dart jigs, 1 to 2 oz", s: "check" },
+          { i: "Long-handled net for the pier", s: "need", n: "A fish has to come up the side of the pier." },
+          { i: "Cooler with ice, knife to bleed", s: "check" },
+          { i: "Saltwater or combination license, catch record card", s: "check" }
+        ],
+        bait: { first: "Buzz Bomb, 1 to 2 oz, white or glow.", backup: ["Point Wilson Dart.", "Plug-cut herring under a slip float."],
+          note: "What is working at this pier this winter is not confirmed for the card." },
+        how: ["Cast, count it down to the bottom, then lift hard and let it flutter back.",
+          "Keep the line tight on the fall. A bump or a stop is a fish: reel and lift.", "Net it. Do not try to swing a salmon up a pier."],
+        spot: { lines: site.lines, unknown: site.unknown || [] },
+        expect: ["Slow. Plenty of no-fish days.", "Chinook must be 22 in. Many winter blackmouth are shorter.", "Cold wind off the water."],
+        rules: (site.area === 13
+          ? ["Fox Island pier, Oct 1 to June 30: 2 salmon a day, no more than 1 Chinook. Chinook 22 in minimum. Release chum."]
+          : ["Piers (Des Moines, Les Davis, Point Defiance boathouse, Redondo), Oct 1 to Apr 30: 2 salmon a day, no more than 1 Chinook. Chinook 22 in minimum.",
+            "Open water in Marine Area 11 is closed Nov 1 to Apr 30. The pier rule only covers fishing from the pier."]).concat(
+          ["Saltwater or combination license, plus a catch record card."]),
+        more: [["coho", "dash-point", "dash-watch-jig"], ["king", "dash-point", "king-watch"], ["king", "dash-point", "salmon-license"]]
+      };
+    },
+    "lake-trout": function (p, site) {
+      return {
+        what: "Stocked rainbow trout from shore at " + site.name + ". WDFW plants catchable trout here; the first weeks after a plant are the time to go.",
+        setup: ["Check the WDFW stocking report the night before.", "Park at the access and walk the shore to open water you can cast into."],
+        during: ["PowerBait floating just off the bottom on a sliding sinker rig.", "No bites in 20 minutes? Move. Fresh plants cruise in schools.",
+          "Second rod idea: a small spinner or a worm under a bobber near the surface."],
+        wrap: ["Trout on ice right away."],
+        gear: [
+          { i: "Light spinning rod", s: "have" },
+          { i: "4 to 6 lb line", s: "check" },
+          { i: "PowerBait, sliding sinkers, small hooks", s: "need" },
+          { i: "Small spinners (Rooster Tail 1/8 oz)", s: "check" },
+          { i: "Freshwater or combination license", s: "check", n: "Your annual license includes the WDFW Vehicle Access Pass for the access area." }
+        ],
+        bait: { first: "PowerBait, floating, on a small hook 18 in above a sliding sinker.", backup: ["Worm under a bobber.", "Small spinner, slow retrieve."], note: "" },
+        how: ["Cast out, let the sinker settle, reel up the slack, set the rod down and watch the tip.", "Tip taps then pulls: lift and reel. Do not jerk."],
+        spot: { lines: site.lines, unknown: site.unknown || [] },
+        expect: ["Fresh-plant trout are easy. A few weeks later they spread out.", "Other anglers on the bank after a plant."],
+        rules: ["Open all year.", "Trout: 5 a day, no minimum size (statewide lake rule).",
+          "Combined trout limit if you also fish a river that day: 5, no more than 2 from rivers."].concat(site.extra || [],
+          ["Freshwater or combination license."]),
+        more: [["perch", "lake-fenwick", "trout-watch"], ["perch", "lake-fenwick", "trout-plants"]]
+      };
+    }
+  };
+  RIG.trips.kinds = KINDS;
+  (RIG.trips.plans || []).forEach(function (p) {
+    if (p.kind && KINDS[p.kind] && !R[p.id]) R[p.id] = KINDS[p.kind](p, p.site || {});
+  });
 })(typeof window !== "undefined" ? window : globalThis);
