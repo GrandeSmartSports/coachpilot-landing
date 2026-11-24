@@ -297,5 +297,17 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(u.tides.length === new Set(T.spots.map((s) => s.tide).filter(Boolean)).size, "one tide call per station");
 }
 
+// --- the phone app matches the family (gold line-and-dot on dark) ---------
+{
+  const { existsSync } = await import("node:fs");
+  const m = JSON.parse(readFileSync(resolve(ROOT, "rigs/manifest.webmanifest"), "utf8"));
+  ok(m.icons.every((i) => existsSync(resolve(ROOT, i.src.replace(/^\//, "")))), "every manifest icon file exists", m.icons.map((i) => i.src).join(","));
+  const svg = readFileSync(resolve(ROOT, "rigs/icon.svg"), "utf8");
+  ok(/#14171F/.test(svg) && /#D9A94A/.test(svg), "the icon is the family gold on dark");
+  const html = readFileSync(resolve(ROOT, "rigs/index.html"), "utf8");
+  const touch = /rel="apple-touch-icon" href="([^"]+)"/.exec(html);
+  ok(touch && existsSync(resolve(ROOT, touch[1].slice(1))) && /apple-mobile-web-app-title" content="Rig Card"/.test(html), "iPhone home screen gets the icon and the name");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v16";
+const CACHE = "rigs-v17";
 
 // Without these three the page cannot render at all, so a failure to cache
 // any of them must fail the whole install and leave the previous worker and
@@ -34,8 +34,10 @@ const EXTRA = [
   "/rigs/fonts/inter.woff2",
   "/rigs/fonts/barlow-condensed-600.woff2",
   "/rigs/fonts/barlow-condensed-700.woff2",
-  "/rigs/icon-192.png",
-  "/rigs/icon-512.png",
+  "/rigs/icon.svg",
+  "/rigs/icon-v2-180.png",
+  "/rigs/icon-v2-192.png",
+  "/rigs/icon-v2-512.png",
   "/rigs/vendor/leaflet.js",
   "/rigs/vendor/leaflet.css"
 ];
