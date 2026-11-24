@@ -138,6 +138,7 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(sat.includes("trout-fenwick"), "the same wind still fishes from the bank at Fenwick", sat.join(","));
   const calm = T.plan({ today, wx: week(today), tides: tidesFor(today) });
   ok(ids(calm, today).includes("trout-american"), "a calm Saturday puts the kayak on American Lake", ids(calm, today).join(","));
+  ok(ids(calm, today).filter((x) => /^surfperch-/.test(x)).length === 1, "one coast surf perch trip a day, the better beach", ids(calm, today).join(","));
   ok(!ids(calm, today).includes("trout-tapps") && calm.notListed.some((n) => /Tapps/.test(n.name) && /ramp closed/.test(n.why)),
     "Lake Tapps stays off while the ramp is closed, and says so");
 }
@@ -215,6 +216,67 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(bad.length === 0, "run cards are complete and every Go deeper link is real", bad.join(" | "));
   ok(T.runs["cutthroat-dash-point"].spot.lines.some((l) => /8 AM/.test(l)) && T.runs["cutthroat-dash-point"].gear.some((g) => /Discover Pass/.test(g.i)),
     "Dash Point says the park opens at 8 and needs a Discover Pass");
+}
+
+// --- river flow: the go or no-go for every river trip -----------------------
+{
+  const today = "2026-11-23";
+  // flowDays(cfs by day index) -> { "green-river": { days: { iso: {min,max} }, now } }
+  const fl = (arr) => {
+    const days = {};
+    arr.forEach((v, i) => { if (v != null) days[isoAdd(today, i)] = Array.isArray(v) ? { min: v[0], max: v[1] } : { min: v, max: v }; });
+    return { "green-river": { gauge: "AUBW1", days, now: { cfs: arr[0], at: "2026-11-23T20:00:00Z" } } };
+  };
+  const chumOn = (r, iso) => tripsOn(r, iso).find((t) => t.planId === "chum-green-river");
+  const river = T.spots.find((s) => s.id === "green-river");
+  ok(river.river && river.river.gauge === "AUBW1" && river.river.usgs === "12113000", "the Green reads the Auburn gauge (NOAA AUBW1, USGS 12113000)");
+  ok(T.spots.filter((s) => s.river).every((s) => s.river.good > 0 && s.river.high > s.river.good && s.river.flood > s.river.high), "every river spot has good, high (no-go) and flood flows in order");
+  ok(T.plans.filter((p) => T.spots.find((s) => s.id === p.spot).river).length >= 4, "every Green River plan is a river trip");
+
+  const steady = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 400, 400, 400]) });
+  const c1 = chumOn(steady, "2026-11-28");
+  ok(c1 && c1.why.some((w) => /Good flow, 400 cfs/.test(w)), "steady fishable flow is a reason to go", c1 && c1.why.join(" | "));
+  ok(c1 && c1.flow && c1.flow.cfs === 400 && c1.flow.call === "go", "the trip carries the flow for the run card", c1 && JSON.stringify(c1.flow));
+
+  const high = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 400, 1600, 400]) });
+  const c2 = chumOn(high, "2026-11-28");
+  ok(!c2 || c2.score < c1.score, "high water scores lower", c2 && c2.score);
+  ok(!c2 || c2.why.some((w) => /High water, 1,600 cfs/.test(w)), "high water says so", c2 && c2.why.join(" | "));
+
+  const blown = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 400, 3200, 400]) });
+  ok(!chumOn(blown, "2026-11-28"), "a blown-out river is a no-go");
+  ok(!tripsOn(blown, "2026-11-28").some((t) => t.spot === "green-river"), "no river trip that day at all");
+  const bd = blown.days.find((d) => d.iso === "2026-11-28");
+  ok(tripsOn(blown, "2026-11-28").length > 0, "the lakes and the salt still fish when the river blows out");
+  ok(!bd.note || !/No fishing/.test(bd.note), "a blown river alone is not a no-fishing day", bd.note);
+
+  const rising = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 400, [500, 1100], 400]) });
+  const c3 = chumOn(rising, "2026-11-28");
+  ok(!c3 || c3.why.some((w) => /River rising/.test(w)), "a river coming up fast says so", c3 && c3.why.join(" | "));
+  ok(!c3 || c3.score < c1.score, "rising water scores lower than steady", c3 && c3.score);
+
+  const dropping = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 1500, 700, 400]) });
+  const c4 = chumOn(dropping, "2026-11-28");
+  ok(c4 && c4.why.some((w) => /Dropping after a rise/.test(w)), "dropping after a bump is the good day", c4 && c4.why.join(" | "));
+
+  const none = T.plan({ today, wx: week(today), tides: tidesFor(today) });
+  const c5 = chumOn(none, "2026-11-28");
+  ok(c5 && c5.why.some((w) => /No river reading/.test(w)), "no flow data is said out loud, not hidden", c5 && c5.why.join(" | "));
+  ok(c5 && c5.flow && c5.flow.call === "unknown", "no flow data means the call is unknown");
+
+  const sq = tripsOn(steady, "2026-11-24").find((t) => t.planId === "squid-redondo");
+  ok(sq && !sq.flow && !sq.why.some((w) => /cfs|river/i.test(w)), "salt and lake trips ignore river flow");
+
+  // NOAA NWPS stageflow -> days in local time, kcfs -> cfs.
+  const nw = { observed: { data: [{ validTime: "2026-11-23T20:00:00Z", primary: 0.273 }, { validTime: "2026-11-24T02:45:00Z", primary: 0.31 }] },
+    forecast: { data: [{ validTime: "2026-11-24T06:00:00Z", primary: 0.29 }, { validTime: "2026-11-24T12:00:00Z", primary: 0.9 }, { validTime: "2026-11-25T18:00:00Z", primary: 1.2 }] } };
+  const f = T.shapeFlow(nw);
+  ok(f.days["2026-11-23"] && f.days["2026-11-23"].max === 310 && f.days["2026-11-23"].min === 273, "late-evening UTC readings land on the local day", JSON.stringify(f.days));
+  ok(f.days["2026-11-24"] && f.days["2026-11-24"].max === 900, "forecast days carry their peak", JSON.stringify(f.days));
+  ok(f.now && f.now.cfs === 310, "now is the last observed reading", JSON.stringify(f.now));
+  ok(f.ends === "2026-11-25", "the forecast says how far out it goes", f.ends);
+  const u2 = T.urls("2026-11-23", "2026-11-30");
+  ok(u2.flow && u2.flow.some((x) => x.spot === "green-river" && /nwps\/v1\/gauges\/AUBW1\/stageflow/.test(x.url)), "one flow call per river gauge");
 }
 
 // --- the API shapes become planner input -----------------------------------

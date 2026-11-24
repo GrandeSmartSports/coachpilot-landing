@@ -934,7 +934,7 @@ a.back{text-decoration:none}
   function planFrom(data) {
     var now = new Date();
     var today = now.getFullYear() + "-" + ("0" + (now.getMonth() + 1)).slice(-2) + "-" + ("0" + now.getDate()).slice(-2);
-    var p = RIG.trips.plan({ today: today, wx: data.wx, tides: data.tides });
+    var p = RIG.trips.plan({ today: today, wx: data.wx, tides: data.tides, flow: data.flow });
     p.at = data.at; p.stale = !!data.stale;
     return p;
   }
@@ -1168,7 +1168,9 @@ a.back{text-decoration:none}
         (run.bait.note ? boxHtml("tip", "tip", esc(run.bait.note)) : "") });
     out.push(
       { id: "how", tab: "How", title: run.bait ? "How to fish it" : "How to dig it", body: stepsHtml(run.how) },
-      { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx },
+      { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx });
+    if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
+    out.push(
       { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
         (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
       { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
@@ -1178,6 +1180,27 @@ a.back{text-decoration:none}
     );
     out.forEach(function (c) { c.group = "before"; });
     return out;
+  }
+  // The river go or no-go. Numbers are the day's forecast peak at the gauge.
+  function cfsTxt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function riverLine(f) {
+    if (f.call === "unknown") return "No river reading for this day yet";
+    return (f.call === "go" ? "Go" : "High water") + ": " + cfsTxt(f.cfs) + " cfs, " + f.trend;
+  }
+  function riverHtml(f) {
+    var now = f.now ? "Right now: " + cfsTxt(f.now.cfs) + " cfs (" + new Date(f.now.at).toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" }) + ")." : "No reading right now.";
+    var head = f.call === "unknown" ? "No river forecast for this day yet." :
+      f.call === "go" ? "Go. The river should be fishable." : "High and tough. Fishable, but slow and murky.";
+    var lines = [];
+    if (f.cfs != null) lines.push("Forecast peak that day: " + cfsTxt(f.cfs) + " cfs" + (f.prev != null ? ", day before " + cfsTxt(f.prev) + " cfs." : "."));
+    if (f.trend === "rising") lines.push("Rising fast. Rising water muddies up and the fish scatter.");
+    if (f.trend === "dropping") lines.push("Dropping after a rise. Fresh fish move up and the water clears. Often the best day.");
+    lines.push(now);
+    if (f.ends) lines.push("The NOAA river forecast runs to " + f.ends + ".");
+    return whenP(head) + stepsHtml(lines) +
+      boxHtml("tip", "the numbers", stepsHtml(["Up to " + cfsTxt(f.good) + " cfs: fishable.", cfsTxt(f.good) + " to " + cfsTxt(f.high) + " cfs: high, tough.",
+        "Over " + cfsTxt(f.high) + " cfs: blown out, no trip.", "Guide numbers for " + f.gauge + ". They get tuned after real trips."])) +
+      boxHtml("", "check it live", '<a href="https://waterdata.usgs.gov/monitoring-location/' + esc(f.usgs) + '/" target="_blank" rel="noopener">USGS gauge, ' + esc(f.gauge) + '</a>');
   }
   function moreRows(run) {
     return (run.more || []).map(function (m) {
@@ -1194,6 +1217,7 @@ a.back{text-decoration:none}
   function secLine(c, t, run) {
     if (c.id === "plan") return "Leave by " + clk(t.from - t.drive / 60 - 0.25) + ", fish " + t.when;
     if (c.id === "what") return run.what;
+    if (c.id === "river") return riverLine(t.flow);
     if (c.id === "wx") return "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
     var s = snippet(c);
     if (s) return s;

@@ -1167,9 +1167,13 @@
             "Two dropper loops above it, a small hook on each.",
             "Bait: razor clam, shrimp, or Gulp sandworm.") +
           box("tip", "where", "Cast into the trough, the darker band of water between the waves.") },
-      { id: "surf-rules", tab: "Rules", group: "before", title: "Rules", dated: "2026-11-21", shelfDays: 180,
-        body: when("A saltwater or combination license.") +
-          box("law", "not confirmed with wdfw yet", "The regulation listing for Marine Area 2 shows <strong>12 surf perch a day</strong>, open all year from the beach. Check " + WDFW_REGS + " before you keep one.") }
+      { id: "surf-rules", tab: "Rules", group: "before", title: "Rules", dated: "2026-11-23", shelfDays: 180,
+        body: when("Open all year from the beach. 12 a day.") +
+          steps("<b>12 surf perch a day</b>, no minimum size. Shiner perch: 15 a day.",
+            "From the beach: open all year (Marine Area 2). By boat: second Saturday in March to third Saturday in October.",
+            "Surf perch do not count toward the 9 bottomfish limit.",
+            "A saltwater or combination license.") +
+          box("law", "grays harbor is closed", "Inside Grays Harbor (Marine Area 2-2, east of the Buoy 13 line) is closed to all fishing since Oct 24, 2026, except the boat basins. The open ocean beaches are not in the closure. Fish the ocean side.") }
     ],
     locations: [
       { id: "ocean-shores", name: "Ocean Shores", where: "Ocean Shores, WA", cards: [] },

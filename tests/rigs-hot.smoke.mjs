@@ -40,6 +40,9 @@ async function fake(ctx, { down = false } = {}) {
   let calls = 0;
   await ctx.route(/castai-rules/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
     body: JSON.stringify({ checked: new Date().toISOString(), rules: [] }) }));
+  await ctx.route(/api\.water\.noaa\.gov/, (r) => down ? r.abort() : r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" },
+    body: JSON.stringify({ observed: { data: [{ validTime: "2026-11-23T19:00:00Z", primary: 0.41 }] },
+      forecast: { data: DAYS.map((d) => ({ validTime: `${d}T20:00:00Z`, primary: 0.4 })) } }) }));
   await ctx.route(/api\.open-meteo\.com|marine-api\.open-meteo\.com|api\.tidesandcurrents\.noaa\.gov/, (route) => {
     calls++;
     if (down) return route.abort();
@@ -115,6 +118,17 @@ try {
   await page.locator("[data-more] a.row").first().click();
   await page.waitForSelector('[data-view="card"]');
   ok(/#\/squid\/redondo\/squid-watch-start$/.test(page.url()), "Go deeper opens the library cards", page.url());
+
+  // River trips carry the river go or no-go.
+  await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-28~chum-green-river"), { waitUntil: "load" });
+  await page.waitForSelector('[data-view="hot"][data-run="chum-green-river"]');
+  const rsecs = await page.locator("[data-sec-row]").evaluateAll((els) => els.map((e) => e.dataset.secRow));
+  ok(rsecs.includes("river") && rsecs.indexOf("river") === rsecs.indexOf("wx") + 1, "a river trip has a River flow section after the weather", rsecs.join(","));
+  ok(/Go: 400 cfs/.test(await page.locator('[data-sec-row="river"]').innerText()), "the River headline says go and the flow");
+  await page.locator('[data-sec-row="river"]').click();
+  await page.waitForSelector('[data-card="river"]');
+  const riv = await page.locator(".card").innerText();
+  ok(/Right now: 410 cfs/.test(riv) && /Over 2,000 cfs: blown out/.test(riv), "the River card shows the live reading and the no-go line", riv.slice(0, 300));
 
   // Coming back uses the saved forecast, no new calls.
   const before = calls();

@@ -22,7 +22,14 @@
   // navigation. Drive minutes are from Bonney Lake.
   var spots = [
     { id: "redondo", lat: 47.349, lon: -122.324, drive: 35, tide: "9446248" },
-    { id: "green-river", lat: 47.300, lon: -122.210, drive: 25 },
+    // river: the gauge that decides go or no-go, flows in cfs.
+    //   good:  up to here the river fishes.
+    //   high:  above good is high and tough; above high is a no-go.
+    //   flood: NWS "action" flow at the gauge.
+    // Green guide numbers: anglers report it "too high and fast" over 2,000
+    // cfs at Auburn; NWS action flow is 6,000. Tune these after real trips.
+    { id: "green-river", lat: 47.300, lon: -122.210, drive: 25,
+      river: { gauge: "AUBW1", usgs: "12113000", name: "Green River near Auburn", good: 1200, high: 2000, flood: 6000 } },
     { id: "dash-point", lat: 47.320, lon: -122.415, drive: 40, tide: "9446705" },
     { id: "lake-fenwick", lat: 47.360, lon: -122.265, drive: 30 },
     { id: "american-lake", lat: 47.130, lon: -122.560, drive: 45 },
@@ -58,10 +65,10 @@
     { id: "crab-westport", species: "crab", spot: "westport", name: "Crab off the Westport docks",
       ok: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], how: "shore", tide: "slack", rules: "confirmed",
       gear: "Needs a ring net or snare" },
-    { id: "surfperch-ocean-shores", species: "surfperch", spot: "ocean-shores", name: "Surf perch, Ocean Shores",
-      peak: [4, 5, 6], ok: [3, 7, 8, 9, 10], how: "surf", tide: "flood", rules: "Daily limit not confirmed" },
-    { id: "surfperch-westport", species: "surfperch", spot: "westport", name: "Surf perch, Westport",
-      peak: [4, 5, 6], ok: [3, 7, 8, 9, 10], how: "surf", tide: "flood", rules: "Daily limit not confirmed" },
+    { id: "surfperch-ocean-shores", species: "surfperch", spot: "ocean-shores", name: "Surf perch, Ocean Shores beach",
+      peak: [4, 5, 6], ok: [3, 7, 8, 9, 10], how: "surf", tide: "flood", rules: "confirmed" },
+    { id: "surfperch-westport", species: "surfperch", spot: "westport", name: "Surf perch, Westport ocean beach",
+      peak: [4, 5, 6], ok: [3, 7, 8, 9, 10], how: "surf", tide: "flood", rules: "confirmed" },
     { id: "cutthroat-dash-point", species: "cutthroat", spot: "dash-point", name: "Sea-run cutthroat, Dash Point beach",
       // WDFW: South Sound beaches fish well all winter. Mack's: best on the
       // incoming, the hour or two before high. The state park is 8 AM to dusk.
@@ -72,7 +79,7 @@
       peak: [7, 8], ok: [9], closed: [["11-16", "03-30"]], how: "kayak", tide: "moving", rules: "confirmed" },
     { id: "pink-dash-point", species: "pink", spot: "dash-point", name: "Pinks, Dash Point",
       peak: [8], ok: [7, 9], odd: true, closed: [["11-16", "03-30"]], how: "kayak", tide: "moving",
-      rules: "2027 seasons not set yet" },
+      rules: "2027 pink rules set at North of Falcon, usually April" },
     { id: "coho-green-river", species: "coho", spot: "green-river", name: "Coho on the Green",
       // WAC 220-312-040 (WSR 26-13-052, effective 2026-07-12): S 212th St to
       // the Hwy 18 EB bridge is open Sept 16 to Dec 31. Daylight only (night
@@ -81,9 +88,11 @@
     { id: "chum-green-river", species: "chum", spot: "green-river", name: "Chum on the Green",
       peak: [11], ok: [12], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed" },
     { id: "steelhead-green-river", species: "steelhead", spot: "green-river", name: "Winter steelhead on the Green",
-      peak: [1, 2], ok: [12, 3], how: "shore", rules: "WDFW sets steelhead seasons in December" },
+      // WAC 220-312-040: the Green is closed to game fish Jan 1 to the Friday
+      // before Memorial Day, so only December is possible.
+      ok: [12], how: "shore", rules: "December steelhead limit not confirmed. Closed Jan to May" },
     { id: "pink-green-river", species: "pink", spot: "green-river", name: "Pinks on the Green",
-      peak: [9], ok: [8, 10], odd: true, how: "shore", rules: "2027 seasons not set yet" },
+      peak: [9], ok: [8, 10], odd: true, how: "shore", rules: "2027 pink rules set at North of Falcon, usually April" },
     { id: "trout-fenwick", species: "perch", spot: "lake-fenwick", name: "Perch and trout, Lake Fenwick",
       peak: [4, 5, 6, 10], ok: [3, 7, 8, 9, 11], how: "shore", rules: "confirmed" },
     { id: "bass-fenwick", species: "bass", spot: "lake-fenwick", name: "Bass, Lake Fenwick",
@@ -160,7 +169,7 @@
   //   tides: { [stationId]: [{t:"YYYY-MM-DD HH:MM", v: feet, type: "H"|"L"}] }
   // output: { days: [{iso, label, trips: [...], note?}], notListed: [{name, why}] }
   function plan(input) {
-    var wx = input.wx || {}, tides = input.tides || {};
+    var wx = input.wx || {}, tides = input.tides || {}, flow = input.flow || {};
     var start = parseDay(input.today);
     var days = [];
     var nDays = input.days || 7;
@@ -180,7 +189,7 @@
           if (!s) return;
           if (p.rules !== "confirmed") { notListed[p.id] = { name: p.name, why: p.rules }; return; }
           if (p.access) { notListed[p.id] = { name: p.name, why: p.access }; return; }
-          var t = scoreTrip(p, spot, slot, day, s, wx[spot.id], tides[spot.tide]);
+          var t = scoreTrip(p, spot, slot, day, s, wx[spot.id], tides[spot.tide], flow[spot.id]);
           if (t.score === 0 && !t.blocked) return;
           tried++;
           if (t.blocked) { t.blocked.name = p.name; blocked.push(t.blocked); return; }
@@ -191,6 +200,15 @@
       // quick trip and a long day to the same water do not both show.
       var best = {};
       out.trips.forEach(function (t) { if (!best[t.planId] || t.score > best[t.planId].score) best[t.planId] = t; });
+      // Same fish, two long drives (Westport or Ocean Shores surf perch):
+      // only the better one. One coast trip a day is the real choice.
+      Object.keys(best).forEach(function (k) {
+        var t = best[k]; if (!t || t.drive < 90) return;
+        Object.keys(best).forEach(function (o) {
+          var u = best[o];
+          if (o !== k && u && u.species === t.species && u.drive >= 90 && (u.score < t.score || (u.score === t.score && o > k))) delete best[o];
+        });
+      });
       out.trips = Object.keys(best).map(function (k) { return best[k]; })
         .sort(function (a, b) { return b.score - a.score || a.from - b.from; }).slice(0, 4);
       // "No fishing" only when the weather called off everything in season.
@@ -204,7 +222,7 @@
     return { days: days, notListed: Object.keys(notListed).map(function (k) { return notListed[k]; }) };
   }
 
-  function scoreTrip(p, spot, slot, day, s, w, tideList) {
+  function scoreTrip(p, spot, slot, day, s, w, tideList, fl) {
     var sun = (w && w.sun && w.sun[day.iso]) || { rise: 7.5, set: 16.5 };
     var from = slot.from, to = slot.to;
     // Daylight fishing ends at sunset. Dark fishing starts at full dark.
@@ -245,6 +263,9 @@
 
     var why = [], score = s === "peak" ? 4 : 2;
     why.push(s === "peak" ? "Peak season" : "In season");
+    var rf = spot.river ? riverCall(spot.river, fl, day) : null;
+    if (rf && rf.call === "nogo") return { blocked: { why: "river blown out, " + cfs(rf.cfs) + " cfs", v: 50 + rf.cfs / 1000 } };
+    if (rf) { score += rf.score; why = why.concat(rf.why); }
 
     var dayT = (tideList || []).filter(function (x) { return x.t.slice(0, 10) === day.iso; });
     var inWin = dayT.filter(function (x) { var h = hourOf(x.t); return h >= from - 0.5 && h <= to + 0.5; });
@@ -288,9 +309,28 @@
       wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) },
       hours: hrs.map(function (h) { return { h: hourOf(h.t), wind: Math.round(h.wind), gust: Math.round(h.gust), temp: Math.round(h.temp), rain: h.rain, wave: h.wave }; }),
       tides: dayT.map(function (x) { return { h: hourOf(x.t), v: x.v, type: x.type }; }),
-      sun: sun, dark: sun.set + 0.6, beach: dig ? dig.beach : "",
+      sun: sun, dark: sun.set + 0.6, beach: dig ? dig.beach : "", flow: rf ? rf.card : undefined,
       moon: Math.round(moonLit(Date.UTC(day.y, day.m - 1, day.d, 8 + Math.round(sun.set + 0.6))) * 100)
     };
+  }
+
+  // River go or no-go for one day: the day's peak flow against the spot's
+  // numbers, plus which way it is heading against the day before.
+  function cfs(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function riverCall(r, fl, day) {
+    var d = fl && fl.days && fl.days[day.iso];
+    var base = { gauge: r.name, usgs: r.usgs, good: r.good, high: r.high, now: fl && fl.now, ends: fl && fl.ends };
+    if (!d) return { call: "unknown", score: 0, why: ["No river reading" + (fl && fl.ends ? " past " + fl.ends : "")],
+      card: Object.assign({ call: "unknown", cfs: null }, base) };
+    var prev = fl.days[addDays(day, -1).iso], v = d.max, why = [], score = 0, call;
+    if (v > r.high) call = "nogo";
+    else if (v > r.good) { call = "high"; score -= 2; why.push("High water, " + cfs(v) + " cfs"); }
+    else { call = "go"; score += 2; why.push("Good flow, " + cfs(v) + " cfs"); }
+    var trend = "steady";
+    if ((prev && v > prev.max * 1.5) || v > d.min * 1.8) { trend = "rising"; score -= 2; why.push("River rising"); }
+    else if (prev && prev.max >= v * 1.4) { trend = "dropping"; score += 1; why.push("Dropping after a rise"); }
+    return { call: call, cfs: v, score: score, why: why,
+      card: Object.assign({ call: call, cfs: v, min: d.min, trend: trend, prev: prev ? prev.max : null }, base) };
   }
 
   function worst(list) { return list.slice().sort(function (a, b) { return b.v - a.v; })[0]; }
@@ -326,6 +366,9 @@
         "&longitude=" + ms.map(function (s) { return s.lon; }).join(",") +
         "&hourly=wave_height&length_unit=imperial&timezone=America%2FLos_Angeles&forecast_days=7",
       marineSpots: ms.map(function (s) { return s.id; }),
+      flow: spots.filter(function (s) { return s.river; }).map(function (s) {
+        return { spot: s.id, url: "https://api.water.noaa.gov/nwps/v1/gauges/" + s.river.gauge + "/stageflow" };
+      }),
       tides: stations.map(function (id) {
         return { id: id, url: "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=rigcard" +
           "&station=" + id + "&begin_date=" + b + "&end_date=" + e + "&datum=MLLW&interval=hilo&units=english&time_zone=lst_ldt&format=json" };
@@ -356,6 +399,28 @@
     });
     return { wx: wx, tides: tides };
   }
+  // NOAA NWPS stageflow (observed + river forecast, kcfs, UTC) -> local days.
+  var LA = null;
+  function laIso(t) {
+    try {
+      LA = LA || new Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" });
+      return LA.format(new Date(t));
+    } catch (e) { return new Date(new Date(t).getTime() - 8 * 3600e3).toISOString().slice(0, 10); }
+  }
+  function shapeFlow(j) {
+    var days = {}, now = null, ends = null;
+    function add(list, obs) {
+      ((list && list.data) || []).forEach(function (x) {
+        if (x.primary == null || x.primary < 0) return;
+        var v = Math.round(x.primary * 1000), iso = laIso(x.validTime), d = days[iso];
+        days[iso] = d ? { min: Math.min(d.min, v), max: Math.max(d.max, v) } : { min: v, max: v };
+        if (obs) now = { cfs: v, at: x.validTime };
+        else ends = iso;
+      });
+    }
+    add(j && j.observed, true); add(j && j.forecast, false);
+    return { days: days, now: now, ends: ends };
+  }
   function localIso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function cached() {
     try { return JSON.parse(root.localStorage.getItem(CACHE_KEY) || "null"); } catch (e) { return null; }
@@ -367,12 +432,14 @@
     var today = localIso(now), end = localIso(new Date(now.getTime() + 7 * 864e5));
     var u = urls(today, end);
     function j(url) { return root.fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+    var nt = u.tides.length;
     return Promise.all([j(u.wx), j(u.marine).catch(function () { return null; })].concat(u.tides.map(function (t) {
       return j(t.url).catch(function () { return null; });
-    }))).then(function (res) {
+    })).concat(u.flow.map(function (f) { return j(f.url).catch(function () { return null; }); }))).then(function (res) {
       var tj = {}; u.tides.forEach(function (t, i) { tj[t.id] = res[2 + i]; });
       var data = shape(res[0], res[1], u.marineSpots, tj);
-      var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides };
+      var flow = {}; u.flow.forEach(function (f, i) { var r = res[2 + nt + i]; if (r) flow[f.spot] = shapeFlow(r); });
+      var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides, flow: flow };
       try { root.localStorage.setItem(CACHE_KEY, JSON.stringify(out)); } catch (e) { /* full storage: still show it */ }
       return out;
     }).catch(function (e) {
@@ -382,5 +449,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, plan: plan, shape: shape, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, plan: plan, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);
