@@ -1366,7 +1366,23 @@ a.back{text-decoration:none}
     });
   }
 
+  // When the screen was last drawn, and for which day. The installed app is
+  // suspended, not reloaded, when Coach switches away from it, so coming
+  // back the next morning would otherwise leave yesterday's trips on screen.
+  var drawnDay = "", drawnAt = 0;
+  function todayIso() {
+    var n = new Date();
+    return n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2);
+  }
+  function refreshIfStale() {
+    if (document.visibilityState === "hidden") return;
+    if (drawnDay === todayIso() && Date.now() - drawnAt < 3 * 3600e3) return;
+    render();
+    checkRules();
+  }
+
   function render() {
+    drawnDay = todayIso(); drawnAt = Date.now();
     renderView();
     fillRules();
     initTyers(app);
@@ -1460,6 +1476,11 @@ a.back{text-decoration:none}
     var d = e.target.closest("[data-trip-date]");
     if (d) RIG.trip.setDate(d.value);
   });
+
+  // Back from the app switcher, or the phone woke up: redraw if the day
+  // turned or the forecast has aged out. Both events fire on iOS.
+  document.addEventListener("visibilitychange", refreshIfStale);
+  window.addEventListener("pageshow", refreshIfStale);
 
   window.addEventListener("hashchange", function () {
     // A card in a trip can link into the library, and squid-gear links into

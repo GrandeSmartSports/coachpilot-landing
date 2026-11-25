@@ -582,7 +582,14 @@
         .finally(function () { clearTimeout(timer); });
     }
     var nt = u.tides.length;
-    return Promise.all([j(u.wx), j(u.marine).catch(function () { return null; })].concat(u.tides.map(function (t) {
+    // The weather is the one call the week cannot be built without, so a
+    // single hiccup gets one retry before the screen gives up.
+    function jRetry(url) {
+      return j(url).catch(function (e) {
+        return new Promise(function (ok) { setTimeout(ok, 700); }).then(function () { return j(url); });
+      });
+    }
+    return Promise.all([jRetry(u.wx), j(u.marine).catch(function () { return null; })].concat(u.tides.map(function (t) {
       return j(t.url).catch(function () { return null; });
     })).concat(u.flow.map(function (f) { return j(f.url).catch(function () { return null; }); }))
       .concat([j(u.waters).catch(function () { return null; })])).then(function (res) {

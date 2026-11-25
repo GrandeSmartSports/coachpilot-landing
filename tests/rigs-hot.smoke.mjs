@@ -138,6 +138,44 @@ try {
   ok(calls() === before, "a second open inside 3 hours reuses the saved forecast", `${before} -> ${calls()}`);
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 
+  // Coming back to the app the next day must not show yesterday's screen.
+  // The installed app is suspended, not reloaded, so it has to notice.
+  {
+    const c2 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles" });
+    await fake(c2);
+    const pg = await c2.newPage();
+    await pg.clock.install({ time: new Date("2026-11-23T20:00:00-08:00") });
+    await pg.goto(base + "#/trips", { waitUntil: "load" });
+    await pg.waitForSelector("[data-day]");
+    const first = () => pg.locator("[data-day]").first().getAttribute("data-day");
+    ok(await first() === "2026-11-23", "opens on today", await first());
+    await pg.clock.setFixedTime(new Date("2026-11-24T07:00:00-08:00"));
+    await pg.evaluate(() => { Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true }); document.dispatchEvent(new Event("visibilitychange")); });
+    await pg.evaluate(() => { Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true }); document.dispatchEvent(new Event("visibilitychange")); });
+    await pg.waitForFunction(() => document.querySelector("[data-day]")?.dataset.day === "2026-11-24", null, { timeout: 8000 }).catch(() => {});
+    ok(await first() === "2026-11-24", "coming back the next day redraws on today, not yesterday", await first());
+    await c2.close();
+  }
+
+  // One flaky weather call must not wipe the week. It gets one retry.
+  {
+    const c3 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles" });
+    await fake(c3);
+    let wx = 0;
+    await c3.route(/api\.open-meteo\.com\/v1\/forecast/, async (route) => {
+      wx++;
+      if (wx === 1) return route.fulfill({ status: 503, contentType: "text/plain", headers: { "access-control-allow-origin": "*" }, body: "busy" });
+      return route.fallback();
+    }, { times: 10 });
+    const pg = await c3.newPage();
+    await pg.clock.setFixedTime(new Date("2026-11-23T12:00:00-08:00"));
+    await pg.goto(base + "#/trips", { waitUntil: "load" });
+    await pg.waitForSelector("[data-day]", { timeout: 12000 }).catch(() => {});
+    ok(await pg.locator("[data-day]").count() === 7, "a weather server hiccup retries instead of losing the week",
+      (await pg.locator("[data-week]").innerText()).slice(0, 90));
+    await c3.close();
+  }
+
   // A forecast server that never answers: give up, say so, offer a retry.
   const ctx3 = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await ctx3.addInitScript(() => { window.RIG = { fetchTimeout: 1500 }; });
