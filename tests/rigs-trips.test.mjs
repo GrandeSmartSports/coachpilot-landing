@@ -326,6 +326,30 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(T.runs["trout-fenwick"].rules.some((x) => /5 a day/.test(x)), "Fenwick now carries the confirmed trout limit");
 }
 
+// --- a weeknight says why the lakes are not on it -------------------------
+{
+  // December: a lake is stocked and 13 minutes away, but it is dark by
+  // 4:24 PM and the only weeknight window is after work.
+  const today = "2026-12-07"; // Monday
+  const fake = { waters: [{ geo: "LTEST", name: "Test Lake", county: "Pierce", lat: 47.18, lon: -122.17, km: 5,
+    plants: [{ d: "2026-12-05", sp: "Rainbow", n: 600, fpp: 0.5 }], rule: { status: "ok", open: "all", lines: [] } }] };
+  T.addWaters(fake);
+  const r = T.plan({ today, wx: week(today), tides: tidesFor(today), waters: fake });
+  const mon = r.days.find((d) => d.iso === today);
+  ok(/no daylight after work/i.test(mon.note || ""), "a winter weeknight says there is no daylight after work", mon.note);
+  ok(/4:24 PM/.test(mon.note || ""), "it says when the sun goes down", mon.note);
+  ok(/Test Lake/.test(mon.note || ""), "it names what is waiting for the weekend", mon.note);
+  ok(mon.trips.some((t) => t.species === "squid"), "night trips still list on that weeknight", mon.trips.map((t) => t.planId).join(","));
+  const sat = r.days.find((d) => d.iso === "2026-12-12");
+  ok(sat.trips.some((t) => t.planId === "trout-w-ltest"), "the same lake fishes fine on the weekend", sat.trips.map((t) => t.planId).join(","));
+  ok(!/no daylight after work/i.test(sat.note || ""), "a weekend day never blames the dark", sat.note);
+  // A day with nothing on it names the closest miss instead of going quiet.
+  const gale = T.plan({ today, wx: week(today, (sp, iso) => (iso === "2026-12-09" ? { wind: 26, gust: 44 } : {})), tides: tidesFor(today), waters: fake });
+  const wed = gale.days.find((d) => d.iso === "2026-12-09");
+  ok(wed.trips.length === 0 && /No fishing/.test(wed.note || ""), "a blown-out weeknight still says no fishing", wed.note);
+  T.addWaters(ctx.RIG.watersSnapshot);
+}
+
 // --- more water: batch 2 (winter steelhead rivers) ------------------------
 {
   const today = "2026-12-05"; // Saturday

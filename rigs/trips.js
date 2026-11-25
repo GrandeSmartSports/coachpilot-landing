@@ -308,7 +308,7 @@
       var day = addDays(start, i);
       if (!hasWx(wx, day.iso)) break;
       var out = { iso: day.iso, label: (i === 0 ? "Today" : i === 1 ? "Tomorrow" : DAYS[day.dow]) + " " + MONTHS[day.m - 1] + " " + day.d, trips: [] };
-      var blocked = [], tried = 0;
+      var blocked = [], tried = 0, darkCut = [], sunset = 0;
       slotsFor(day.dow, day.iso).forEach(function (slot) {
         plans.forEach(function (p) {
           var spot = spotById(p.spot);
@@ -320,6 +320,10 @@
           if (p.rules !== "confirmed") { notListed[p.id] = { name: p.name, why: p.rules }; return; }
           if (p.access) { notListed[p.id] = { name: p.name, why: p.access }; return; }
           var t = scoreTrip(p, spot, slot, day, s, wx[spot.id], tides[spot.tide], flow[spot.id]);
+          // In season, fine weather, but the sun is down before the slot
+          // opens. Worth saying out loud: it is why a stocked lake 10
+          // minutes away never shows on a December weeknight.
+          if (t.darkCut) { darkCut.push(p); sunset = t.sunset; return; }
           if (t.score === 0 && !t.blocked) return;
           tried++;
           if (t.blocked) { t.blocked.name = p.name; blocked.push(t.blocked); return; }
@@ -357,6 +361,17 @@
         var w = worst(blocked);
         out.note = blocked.length === tried ? "No fishing: " + w.why : "Nothing good. " + w.name + " is off: " + w.why;
       }
+      // One weeknight window, and it starts after sunset: say so, and name
+      // what is sitting there waiting for the weekend.
+      if (darkCut.length && slotsFor(day.dow, day.iso).length === 1) {
+        // Closest first: the 10 minute lake is the one worth knowing about.
+        var waiting = darkCut.sort(function (a, b) {
+          return (spotById(a.spot) || { drive: 999 }).drive - (spotById(b.spot) || { drive: 999 }).drive;
+        }).map(function (p) { return (p.site && p.site.name) || p.name; });
+        waiting = waiting.filter(function (x, i) { return waiting.indexOf(x) === i; }).slice(0, 2);
+        out.dark = "No daylight after work, sunset " + clock(sunset) + ". Waiting for the weekend: " + waiting.join(", ") + ".";
+        out.note = out.note ? out.note + " " + out.dark : out.dark;
+      }
       days.push(out);
     }
     return { days: days, notListed: Object.keys(notListed).map(function (k) { return notListed[k]; }) };
@@ -385,7 +400,7 @@
       if (!best || best[1] - best[0] < 1.5) return { score: 0 };
       from = best[0]; to = best[1];
     }
-    if (to - from < 1.5) return { score: 0 };
+    if (to - from < 1.5) return p.dark || dig ? { score: 0 } : { darkCut: true, sunset: sun.set };
 
     var hrs = ((w && w.hours) || []).filter(function (h) {
       if (h.t.slice(0, 10) !== day.iso) return false;

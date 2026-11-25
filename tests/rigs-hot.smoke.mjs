@@ -75,6 +75,9 @@ try {
   ok(await page.locator("[data-day]").count() === 7, "seven days listed");
   ok(await page.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').count() === 1, "Tuesday after work: squid at Redondo");
   ok(/No fishing: gusts to 42 mph/.test(await page.locator('[data-day="2026-11-25"]').innerText()), "the 42 mph day says no fishing and why");
+  const tue = await page.locator('[data-day="2026-11-24"]').innerText();
+  ok(/No daylight after work/i.test(tue) && /Waiting for the weekend/i.test(tue),
+    "a weeknight that still has a night trip says why the daylight trips are not on it", tue.replace(/\n+/g, " | ").slice(0, 200));
   ok(await page.locator('[data-day="2026-11-26"] [data-hot="clams-ocean-shores"]').count() === 1, "Thanksgiving: the razor clam dig");
   ok(/Lake Tapps/.test(await page.locator("[data-notlisted]").innerText()), "a held trip (Lake Tapps, ramp closed) is named, not hidden");
   ok(/Forecast from/.test(await page.locator("[data-asof]").innerText()), "the forecast says how old it is");
