@@ -139,5 +139,92 @@ ok(/grant execute on function public\.castai_crew_user_by_phone\(text\) to servi
 const fns = [...two.matchAll(/create (?:or replace )?function public\.(\w+)/gi)].map((m) => m[1]);
 ok(fns.every((f) => /^castai_crew_/.test(f)), "every function carries the prefix too", fns.join(","));
 
+// ---- contract v2: alerts, and catches as CastAI catches --------------------
+const threeRaw = read("supabase/migrations/20261126_1500_castai_crew_alerts.sql");
+const three = code(threeRaw);
+const NEW_TABLES = ["castai_crew_catches", "castai_crew_notify_prefs", "castai_crew_push_subs", "castai_crew_outbox"];
+for (const t of NEW_TABLES) locked(three, t);
+ok(JSON.stringify(created(three).sort()) === JSON.stringify([...NEW_TABLES].sort()), "the alerts migration creates exactly its four tables", created(three).join(","));
+ok(!/create policy/i.test(three), "no policies on the alert tables either");
+ok(!/grant [^;]* to (anon|authenticated|public)\b/i.test(three), "nothing is granted to a browser");
+ok(threeRaw.length > 0 && !longDash.test(threeRaw), "no long dashes in the alerts file, comments included");
+const altered3 = [...three.matchAll(/alter table (?:if exists )?(?:only )?([\w.]+)/gi)].map((m) => m[1]);
+ok(altered3.length > 0 && altered3.every((t) => /^public\.castai_crew_/.test(t)), "it alters only its own tables", altered3.filter((t) => !/^public\.castai_crew_/.test(t)).join(","));
+ok(!/on conflict[^;]*do update/i.test(three), "no seed ever overwrites a value");
+
+// catches: a link to CastAI's own catch log, which is never changed
+const dropped = [...three.matchAll(/\bdrop table\s+(?:if exists\s+)?([\w.]+)/gi)].map((m) => m[1]);
+ok(JSON.stringify(dropped) === JSON.stringify(["public.castai_crew_catches"]), "the only table dropped is the first shape of crew catches, which held test rows", dropped.join(","));
+ok(/if exists \(\s*select 1 from information_schema\.columns\s+where table_schema = 'public' and table_name = 'castai_crew_catches' and column_name = 'client_id'\s*\) then\s+drop table public\.castai_crew_catches;/i.test(three),
+  "and only while it still has the old shape, so a second run drops nothing");
+ok(!/\btruncate\b|\bdelete from\b|\bdrop column\b/i.test(three), "nothing else is emptied, deleted or dropped");
+const link = table(three, "castai_crew_catches");
+ok(/catch_id uuid primary key references public\.catch_logs ?\(id\) on delete cascade/i.test(link), "a crew catch is keyed by its CastAI catch, and goes when that catch is deleted");
+ok(/trip_id uuid not null references public\.castai_crew_trips ?\(id\) on delete cascade/i.test(link), "a deleted trip takes its catch links with it");
+ok(/created_at timestamptz not null default now\(\)/i.test(link), "a link knows when it was made");
+ok(!/species|length_in|weight_lb|lure|notes|user_id|client_id/i.test(link), "the link holds no copy of the fish: there is one catch, in CastAI's own log");
+ok(!/(alter table|insert into|update|drop table|create (unique )?index[^;]* on|create trigger[^;]* on|create policy[^;]* on|grant [^;]* on|revoke [^;]* on)\s+(?:only\s+)?public\.catch_logs/i.test(three),
+  "catch_logs itself is never altered, written, indexed, or given a trigger, policy or grant");
+ok((three.match(/catch_logs/g) || []).length === 1, "catch_logs appears once, as the thing a link points at", (three.match(/catch_logs/g) || []).length);
+
+// what a person has switched on
+const prefs = table(three, "castai_crew_notify_prefs");
+ok(/user_id uuid primary key references auth\.users ?\(id\) on delete cascade/i.test(prefs), "one row of prefs per account, gone with the account");
+ok(/texts boolean not null default false/i.test(prefs) && /push boolean not null default false/i.test(prefs), "both channels start off");
+for (const col of ["ev_trips", "ev_status", "ev_notes", "ev_gear_catches"]) {
+  ok(new RegExp(col + " boolean not null default true", "i").test(prefs), `${col} is ready once a channel is on`);
+}
+ok(/quiet_from smallint not null default 21/i.test(prefs) && /quiet_to smallint not null default 6/i.test(prefs), "quiet from 9 at night to 6 unless changed");
+ok(/quiet_from between 0 and 23/i.test(three) && /quiet_to between 0 and 23/i.test(three), "quiet hours stay between 0 and 23");
+ok(/texts_stopped boolean not null default false/i.test(prefs) && /first_text_at timestamptz null/i.test(prefs), "it remembers a STOP, and when the first text went");
+ok(/updated_at timestamptz not null default now\(\)/i.test(prefs), "and when it last changed");
+
+// phones that want alerts
+const subs = table(three, "castai_crew_push_subs");
+ok(/id uuid primary key default gen_random_uuid\(\)/i.test(subs), "a subscription has its own id");
+ok(/user_id uuid not null references auth\.users ?\(id\) on delete cascade/i.test(subs), "a deleted account takes its phones with it");
+ok(/endpoint text not null unique/i.test(subs), "one row per phone: the address is unique");
+ok(/p256dh text not null/i.test(subs) && /auth text not null/i.test(subs) && /ua text null/i.test(subs), "the two keys are needed, the phone's name is optional");
+ok(/last_ok_at timestamptz null/i.test(subs) && /fails integer not null default 0/i.test(subs), "it counts failures and remembers the last alert that landed");
+
+// the outbox
+const outbox = table(three, "castai_crew_outbox");
+ok(/crew_id uuid not null references public\.castai_crew ?\(id\) on delete cascade/i.test(outbox), "a deleted crew takes its outbox with it");
+ok(/trip_id uuid null references public\.castai_crew_trips ?\(id\) on delete cascade/i.test(outbox), "a deleted trip takes the alerts still waiting about it");
+ok(/to_user uuid not null references auth\.users ?\(id\) on delete cascade/i.test(outbox), "a deleted account takes its alerts with it");
+ok(/by_user uuid null,/i.test(outbox), "who did it is kept as a plain id");
+ok(/kind text not null check \(kind in \('trip_new', ?'trip_status', ?'note', ?'gear', ?'catch', ?'test'\)\)/i.test(outbox), "the six kinds of alert, nothing else");
+ok(/title text not null/i.test(outbox) && /body text not null/i.test(outbox) && /url text not null/i.test(outbox), "every alert has a title, a body and a link");
+ok(/send_after timestamptz not null default now\(\)/i.test(outbox) && /sent_at timestamptz null/i.test(outbox), "it goes now unless held, and records when it went");
+ok(/status text not null default 'queued' check \(status in \('queued', ?'sent', ?'skipped', ?'failed'\)\)/i.test(outbox), "queued, sent, skipped or failed");
+ok(/channel text null/i.test(outbox) && /error text null/i.test(outbox), "which channel carried it, or why it did not go");
+ok(!/phone|email/i.test(outbox + subs + prefs), "no table here holds a phone number or an address");
+
+// the cron key, and the job that sends what was held
+ok(/insert into public\.castai_crew_settings \(key, value\)\s+values \('cron_key', encode\(extensions\.gen_random_bytes\(24\), 'hex'\)\)\s+on conflict \(key\) do nothing/i.test(three),
+  "the cron key is made at random in the database, and a second run never replaces it");
+ok(!/'sms'/i.test(three), "the texting switch is left as it is");
+ok(!/[0-9a-f]{32,}/i.test(three), "no key is written into the file");
+ok(/select cron\.schedule\(\s*'castai-crew-deliver',\s*'\*\/5 \* \* \* \*'/i.test(three), "castai-crew-deliver runs every 5 minutes");
+const job = (three.match(/cron\.schedule\(\s*'castai-crew-deliver'[\s\S]*?\$cron\$([\s\S]*?)\$cron\$/i) || [])[1] || "";
+ok(/net\.http_post\(/i.test(job) && job.includes("https://geigvuysptjvvqanumld.supabase.co/functions/v1/castai-crew"), "it posts to the crew function");
+ok(/'x-cron-key', \(select value from public\.castai_crew_settings where key = 'cron_key'\)/i.test(job), "with the key read from the settings table at run time");
+ok(job.includes(`'{"action":"deliver"}'::jsonb`), "and asks it to deliver");
+ok(/where exists \(\s*select 1 from public\.castai_crew_outbox\s+where status = 'queued' and send_after <= now\(\)\s*\)/i.test(job), "only when something is due, so an idle crew costs nothing");
+ok((three.match(/cron\.schedule\(/g) || []).length === 1 && !/cron\.unschedule|cron\.alter_job/i.test(three), "it schedules that one job and touches no other");
+
+// which accounts the invite made, and which have a number: one lookup, service role only
+ok(/create or replace function public\.castai_crew_accounts\(\w+ uuid\[\]\)\s+returns table \(id uuid, invited boolean, has_phone boolean\)/i.test(three),
+  "one lookup says which accounts the invite made and which have a phone");
+ok(/security definer/i.test(three) && /set search_path = ''/i.test(three), "it runs with a pinned search path");
+ok(/raw_app_meta_data -> 'crew_invited' = 'true'::jsonb/i.test(three), "the mark must be exactly true, the same as in the function's own rule");
+ok(!/returns[^;]*\b(phone|email)\b text/i.test(three) && !/select[^;]*\bu\.email\b/i.test(three), "it never hands back a number or an address, only yes or no");
+for (const who of ["public", "anon", "authenticated"]) {
+  ok(new RegExp("revoke all on function public\\.castai_crew_accounts\\(uuid\\[\\]\\) from " + who, "i").test(three), `the accounts lookup is closed to ${who}`);
+}
+ok(/grant execute on function public\.castai_crew_accounts\(uuid\[\]\) to service_role/i.test(three), "only the service role may run it");
+const fns3 = [...three.matchAll(/create (?:or replace )?function public\.(\w+)/gi)].map((m) => m[1]);
+ok(fns3.length === 1 && fns3.every((f) => /^castai_crew_/.test(f)), "every function carries the prefix too", fns3.join(","));
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
