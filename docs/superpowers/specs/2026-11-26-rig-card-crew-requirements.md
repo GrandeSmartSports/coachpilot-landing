@@ -4,6 +4,18 @@ Owner: Cortex, as product owner. Source: Coach's own words, 2026-11-25 and 11-26
 
 Status key: LIVE (shipped and tested), BUILDING, NEXT, NEEDS COACH.
 
+## North star
+
+"The actual guide in your pocket, not the map and tools in your pocket." (Coach, 2026-11-26)
+
+Every other fishing app opens to a map of dots, buries you in detail, and asks thirty questions first. This one makes the call. Five tests every screen has to pass:
+
+1. **Suggestions first.** The front door is the call for this week, never a map, a dashboard or a form.
+2. **One thing at a time.** A headline, then one tap to dig in. Never a wall.
+3. **No interrogation.** Zero questions before first use. "The app should learn the user just like the user is learning the app." At most one question, in the moment, only when the answer changes the advice.
+4. **It talks like a guide.** The call, why, what to bring, how to fish it, and when to stay home.
+5. **It gets better the more you fish with it.**
+
 ## Who it is for
 
 Coach, Russell (who Coach teaches), Coach's dad when he visits, Coach's nephew (12 to 15, own phone). "It's a shared app. I can suggest trips, he can build and suggest trips, he can learn, and sees what I see."
@@ -28,6 +40,16 @@ Coach, Russell (who Coach teaches), Coach's dad when he visits, Coach's nephew (
 | R14 | Nobody is ever forced to sign in to use the app as it is today | design, approved | LIVE |
 | R15 | Built once, in CastAI's own accounts and database, so it moves into CastAI without a rebuild | "everything must connect easily later" | LIVE for accounts; holds for every new piece |
 | R16 | The garage: what Coach owns, so lists can say "Coach has it" and a visitor's list is loaners | "Wait for the photos" | NEEDS COACH: garage photos |
+
+### The guide (added 2026-11-26)
+
+| # | Requirement | Coach's words | Status |
+|---|---|---|---|
+| R17 | The call. The top of the home screen is the one best trip for you this week, said the way a guide would say it, with the reason and the next step | "I want suggestions", "actually help me plan" | NEXT (today, with the new look; the planner already has the data) |
+| R18 | The app learns the person by use: where they start from, when they fish, how far they will drive, shore or kayak or boat, what they chase, what they own, how experienced they are. No setup form | "The app should learn the user just like the user is learning the app" | NEXT (design first; today the week is tuned to Coach by hand) |
+| R19 | One question at a time, in the moment, skippable, only when the answer changes the advice | "asked me about 30 questions before I even got started" | NEXT, with R18 |
+| R20 | After a trip, one tap: how did it go. It feeds what the guide suggests next, and the crew log | "learn the user" | NEXT, with R18 |
+| R21 | The map is a view you can open, never the front door | "It opens to a map with dots... everything wrong" | LIVE (Trips opens to the list; Map is a second tab) |
 
 ## Rules that hold across all of it
 
