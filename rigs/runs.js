@@ -508,6 +508,13 @@
       };
     },
     "lake-trout": function (p, site) {
+      // The season is the first rule. A lake with its own season (spring
+      // only: 4th Saturday in April to Oct 31) leads with that line, and
+      // only a lake with no closed dates says "Open all year."
+      var own = (site.extra || []).filter(function (l) { return /^Open /.test(l); });
+      var rest = (site.extra || []).filter(function (l) { return !/^Open /.test(l); });
+      var seasonal = p.spring || (p.closed && p.closed.length);
+      var opens = own.length ? own : [seasonal ? "Not open all year. Check this lake's season in the WDFW rules." : "Open all year."];
       return {
         what: "Stocked rainbow trout from shore at " + site.name + ". WDFW plants catchable trout here; the first weeks after a plant are the time to go.",
         setup: ["Check the WDFW stocking report the night before.", "Park at the access and walk the shore to open water you can cast into."],
@@ -525,8 +532,8 @@
         how: ["Cast out, let the sinker settle, reel up the slack, set the rod down and watch the tip.", "Tip taps then pulls: lift and reel. Do not jerk."],
         spot: { lines: site.lines, unknown: site.unknown || [] },
         expect: ["Fresh-plant trout are easy. A few weeks later they spread out.", "Other anglers on the bank after a plant."],
-        rules: ["Open all year.", "Trout: 5 a day, no minimum size (statewide lake rule).",
-          "Combined trout limit if you also fish a river that day: 5, no more than 2 from rivers."].concat(site.extra || [],
+        rules: opens.concat(["Trout: 5 a day, no minimum size (statewide lake rule).",
+          "Combined trout limit if you also fish a river that day: 5, no more than 2 from rivers."], rest,
           ["Freshwater or combination license."]),
         more: [["perch", "lake-fenwick", "trout-watch"], ["perch", "lake-fenwick", "trout-plants"]]
       };
