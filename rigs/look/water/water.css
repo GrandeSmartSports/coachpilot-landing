@@ -1,0 +1,467 @@
+/* Rig Card, "On the water".
+
+   IDEA    the top of every screen is the place you are going, under the sky
+           you will have; the page below is the shore you stand on
+   DEPTH   far pale, near dark; every layer overlaps the one behind; cards
+           are lifted by a shadow in the ink colour that falls away from
+           the light; quiet things are pressed in, live things float
+   COLOUR  every shade is mixed from the sky engine's variables, so the
+           whole page repaints with the sky; gold is light and the one
+           main action, never an object
+   TYPE    Barlow Condensed for the things you scan, Inter for the rest */
+
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(/rigs/fonts/barlow-condensed-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format("woff2")}
+
+:root{
+  /* Overcast: the first paint, and the floor if sky.js never loads.
+     RIG.sky.apply replaces every one of these. */
+  --sky1:#B9C4CC;--sky2:#DCE3E8;--water1:#8E9DA7;--water2:#6F7E89;--shore:#223029;
+  --bg:#E8EDF0;--paper:#FFFFFF;--line:#CDD6DC;--ink:#131C24;--ink2:#44525C;--dim:#606F79;
+  --accent:#1A544D;--accent2:#236B62;--gold:#D9A94A;--on-gold:#131C24;
+  --go:#176B43;--warn:#8A6100;--no:#A8291E;
+
+  /* ---- derived: the painting ---- */
+  --lum:var(--paper);                    /* the light tone: paper by day, ink by night */
+  --shade:var(--ink);                    /* the shadow tone: never black */
+  --hz:var(--sky2);                      /* the colour of the air at the horizon */
+  --r0:color-mix(in oklab,var(--shore) 12%,var(--hz));
+  --r1:color-mix(in oklab,var(--shore) 25%,var(--hz));
+  --r2:color-mix(in oklab,var(--shore) 41%,var(--hz));
+  --r3:color-mix(in oklab,var(--shore) 60%,var(--hz));
+  --r4:color-mix(in oklab,var(--shore) 80%,var(--hz));
+  --r5:var(--shore);
+  --mistc:var(--hz);
+  --glowc:var(--paper);
+  --lampc:color-mix(in oklab,var(--gold) 74%,var(--lum));
+  --glintc:color-mix(in oklab,var(--hz) 40%,var(--lum));
+  --roadc:var(--glintc);
+
+  /* ---- derived: the light. One direction per sky. ---- */
+  --lx:262px;--ly:58px;                  /* where the light sits, in scene units */
+  --glow:.5;--glowx:1;--glowy:1;--road:.22;--gl:.5;--gr:.6;
+  --mtn:.34;--stars:0;--lights:0;--lamps:0;--cloud:.9;--mist:.75;--rain:0;
+  --litl:0;--litr:.14;                   /* which edge of a piling catches it */
+  --rimx:0px;--rimy:-.9px;               /* which edge of a fir catches it */
+  --shx:0px;--shy:14px;                  /* which way card shadows fall */
+
+  /* ---- derived: type and surfaces ---- */
+  --t1:var(--ink);--t2:var(--ink2);
+  --t3:color-mix(in srgb,var(--dim) 68%,var(--ink));
+  --pan-a:var(--paper);
+  --pan-b:color-mix(in srgb,var(--paper) 97%,var(--ink));
+  --rim:color-mix(in srgb,var(--paper) 90%,transparent);
+  --edge:color-mix(in srgb,var(--line) 75%,transparent);
+  --well:color-mix(in srgb,var(--bg) 93%,var(--ink));
+  --glass:color-mix(in srgb,var(--paper) 86%,transparent);
+  --e1:0 1px 1.5px color-mix(in srgb,var(--shade) 9%,transparent),
+       var(--shx) 9px 20px -11px color-mix(in srgb,var(--shade) 30%,transparent);
+  --e2:0 1px 2px color-mix(in srgb,var(--shade) 10%,transparent),
+       var(--shx) var(--shy) 30px -12px color-mix(in srgb,var(--shade) 38%,transparent),
+       calc(var(--shx)*2) 30px 60px -30px color-mix(in srgb,var(--shade) 34%,transparent);
+  --sw:min(100vw,430px);
+}
+:root[data-dark="1"]{
+  --lum:var(--ink);--shade:var(--shore);
+  --pan-a:color-mix(in srgb,var(--paper) 93%,var(--ink));
+  --pan-b:var(--paper);
+  --rim:color-mix(in srgb,var(--ink) 13%,transparent);
+  --edge:color-mix(in srgb,var(--line) 85%,transparent);
+  --well:color-mix(in srgb,var(--bg) 55%,var(--shore));
+  --glass:color-mix(in srgb,var(--paper) 80%,transparent);
+  --glintc:color-mix(in oklab,var(--hz) 55%,var(--ink));
+  --e1:0 1px 2px color-mix(in srgb,var(--shore) 80%,transparent),
+       var(--shx) 10px 22px -10px var(--shore);
+  --e2:0 1px 2px color-mix(in srgb,var(--shore) 80%,transparent),
+       var(--shx) var(--shy) 34px -10px var(--shore),
+       0 0 0 1px color-mix(in srgb,var(--ink) 5%,transparent);
+}
+/* Eight skies, eight lights. Geometry and strength only: the colours are
+   still the engine's. */
+:root[data-sky="night"]{--hz:color-mix(in oklab,var(--sky2) 76%,var(--ink2));
+  --lx:292px;--ly:52px;--glow:.2;--glowc:var(--ink2);--road:.1;--gl:.34;--gr:.3;
+  --mtn:.17;--stars:.85;--lights:1;--lamps:1;--cloud:.5;--mist:.6;--litl:0;--litr:.1;--rimx:0px;--rimy:-.8px;--shx:-3px}
+:root[data-sky="firstLight"]{
+  --lx:74px;--ly:176px;--glow:.55;--glowx:1.2;--glowy:.36;--glowc:color-mix(in oklab,var(--sky2) 55%,var(--ink));--road:.2;--gl:.4;--gr:.45;
+  --mtn:.3;--stars:.45;--lights:.85;--lamps:.9;--cloud:.5;--mist:.6;--litl:.07;--litr:.09;--rimx:-1px;--rimy:-.4px;--shx:4px}
+:root[data-sky="dawn"]{
+  --lx:70px;--ly:176px;--glow:.95;--glowx:1.25;--glowy:.4;--glowc:color-mix(in oklab,var(--gold) 38%,var(--paper));--road:.5;--gl:.55;--gr:.9;
+  --roadc:color-mix(in oklab,var(--gold) 45%,var(--paper));
+  --mtn:.8;--lights:.2;--lamps:.25;--cloud:.42;--mist:.85;--litl:.14;--litr:.2;--rimx:-1.2px;--rimy:-.3px;--shx:5px;--shy:16px}
+:root[data-sky="overcast"]{--lx:262px;--ly:58px}
+:root[data-sky="rain"]{
+  --lx:206px;--ly:36px;--glow:.25;--road:.1;--gl:.3;--gr:.3;--mtn:0;--cloud:1;--mist:1;--rain:1;--litr:.06}
+:root[data-sky="bright"]{
+  --lx:318px;--ly:26px;--glow:.7;--road:.34;--gl:.9;--gr:1;--mtn:1;--cloud:.38;--mist:.5;--litl:0;--litr:.34;--rimx:.3px;--rimy:-1px;--shx:-4px;--shy:15px}
+:root[data-sky="golden"]{
+  --lx:228px;--ly:168px;--glow:1;--glowx:1.2;--glowy:.6;--glowc:color-mix(in oklab,var(--gold) 22%,var(--paper));--road:.6;--gl:.6;--gr:1;
+  --roadc:color-mix(in oklab,var(--gold) 30%,var(--paper));
+  --mtn:.9;--cloud:.6;--mist:.8;--litl:0;--litr:.36;--rimx:-1.3px;--rimy:-.3px;--shx:-4px;--shy:17px}
+:root[data-sky="dusk"]{
+  --lx:236px;--ly:176px;--glow:.62;--glowx:1.25;--glowy:.4;--glowc:color-mix(in oklab,var(--gold) 30%,var(--sky2));--road:.26;--gl:.42;--gr:.6;
+  --roadc:color-mix(in oklab,var(--gold) 30%,var(--ink));
+  --mtn:.34;--stars:.4;--lights:.9;--lamps:1;--cloud:.55;--mist:.6;--litl:0;--litr:.16;--rimx:-1px;--rimy:-.3px;--shx:-3px}
+
+*{box-sizing:border-box;min-width:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--t1);font:16px/1.45 Inter,system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+/* a whisper of tooth on the ground, so the page is a surface and not a fill */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--ink);opacity:.026;
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:180px;mask-size:180px}
+:root{--noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.7 -0.5'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
+
+.phone{position:relative;max-width:430px;margin:0 auto;padding:0 16px;isolation:isolate}
+.screen{position:relative;min-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.screen[hidden]{display:none}
+
+/* ================= the scene ================= */
+.scene{position:absolute;left:-16px;right:-16px;top:0;height:calc(var(--sw)*330/390);z-index:-1;overflow:hidden;
+  background:var(--sky1);contain:strict}
+.sc{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* the picture never ends on a cut: its last inch settles into the ground */
+.scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:17%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 70%,transparent) 55%,var(--bg))}
+.sc-gl{will-change:opacity}
+.w-far{fill:var(--r0)}
+.w-l0{fill:var(--r0)}.w-l1{fill:var(--r1)}.w-l2{fill:var(--r2)}.w-l3{fill:var(--r3)}.w-l5{fill:var(--r5)}
+.w-l1-stop{stop-color:var(--r1)}.w-l2-stop{stop-color:var(--r2)}.w-l3-stop{stop-color:var(--r3)}.w-l5-stop{stop-color:var(--r4)}
+.w-lightpos{transform:translate(var(--lx),var(--ly))}
+.w-lightx{transform:translateX(var(--lx))}
+.w-glow{opacity:var(--glow);transform:scale(var(--glowx),var(--glowy))}
+.w-road{opacity:var(--road)}
+.w-stars{fill:var(--lum);opacity:var(--stars)}
+.w-clouds{opacity:var(--cloud)}
+.w-cl-l{fill:color-mix(in oklab,var(--sky1) 66%,var(--hz))}
+.w-cl-d{fill:color-mix(in oklab,var(--sky1) 93%,var(--shore))}
+.w-mtn{opacity:var(--mtn)}
+.w-mtn-b{fill:color-mix(in oklab,var(--hz) 38%,var(--lum))}
+.w-mtn-s{fill:color-mix(in oklab,var(--sky1) 78%,var(--shore));opacity:.36}
+.w-mtn-s2{fill:color-mix(in oklab,var(--sky1) 78%,var(--shore));opacity:.17}
+.w-mtn-l{fill:var(--glowc);opacity:.42}
+.w-trough{fill:var(--water2);opacity:.3}
+.w-crest{fill:none;stroke:var(--glintc);stroke-width:.8;opacity:.3;stroke-linecap:round;stroke-dasharray:23 11 44 16 12 8 31 20}
+.w-gl{stroke:var(--glintc);stroke-linecap:round;fill:none;opacity:var(--gl)}
+.w-gr{stroke:var(--roadc);stroke-linecap:round;fill:none;opacity:var(--gr)}
+.w-mist{fill:var(--mistc);opacity:var(--mist)}
+.w-lights{fill:var(--lampc);stroke:var(--lampc);stroke-linecap:round;opacity:var(--lights)}
+.w-lights path{fill:none}
+.w-beach{fill:none;stroke:color-mix(in oklab,var(--r2) 55%,var(--lum));stroke-width:1.1;stroke-dasharray:14 2 31 3 9 1 22 4;opacity:.75;stroke-linecap:round}
+.w-rim{fill:color-mix(in oklab,var(--r5) 58%,var(--glowc));transform:translate(var(--rimx),var(--rimy))}
+.w-pile{fill:var(--r5)}
+.w-pile2{fill:var(--r3)}
+.w-litl{fill:var(--glowc);opacity:var(--litl)}
+.w-litr{fill:var(--glowc);opacity:var(--litr)}
+.w-wet{fill:color-mix(in oklab,var(--shore) 70%,var(--water1));opacity:.85}
+.w-cap{fill:var(--glowc);opacity:calc(.16 + var(--litl)*.5 + var(--litr)*.5)}
+.w-liteb{fill:none;stroke:var(--glowc);stroke-width:.8;opacity:calc(.12 + var(--litl) + var(--litr));stroke-linecap:round}
+.w-glass{fill:var(--r5)}
+.w-ring{fill:none;stroke:var(--glintc);stroke-width:.7;opacity:.55}
+.w-shore{fill:var(--bg)}
+.w-shorewet{fill:color-mix(in oklab,var(--bg) 50%,var(--water2));opacity:.55}
+.w-foam{fill:none;stroke:var(--lum);stroke-width:1.2;opacity:.5;stroke-dasharray:26 3 48 5 17 2;stroke-linecap:round}
+/* the pier */
+.w-under{fill:var(--shore);opacity:.42}
+.w-lampson{opacity:var(--lamps)}
+.w-pool{opacity:.5}
+.w-poolg{fill:var(--lampc)}
+.w-cone{fill:var(--lampc);opacity:.09}
+.w-braces{fill:none;stroke:var(--r4);stroke-linecap:round}
+.w-rail{fill:none;stroke:var(--r5);stroke-width:1;stroke-linecap:round}
+.w-railf{stroke:var(--r3);stroke-width:.8}
+.w-decktop{fill:color-mix(in oklab,var(--r3) 84%,var(--lum))}
+.w-planks{fill:none;stroke:var(--r5);stroke-width:.5;opacity:.35}
+.w-deckpool{fill:var(--lampc)}
+.w-deckpool ellipse{opacity:.5}
+.w-rock{fill:var(--r4)}
+.w-rock-l{fill:none;stroke:var(--glowc);stroke-width:.8;stroke-linecap:round;opacity:calc(.16 + var(--litl) + var(--litr))}
+.w-cob-sh{fill:var(--shade);opacity:.16}
+/* by night the bar is a rumour: stones and foam drop back to the dark */
+:root[data-dark="1"] .w-st-l{fill:color-mix(in srgb,var(--bg) 86%,var(--ink))}
+:root[data-dark="1"] .w-st-d{fill:color-mix(in srgb,var(--bg) 60%,var(--shore))}
+:root[data-dark="1"] .w-cob{fill:color-mix(in srgb,var(--bg) 88%,var(--ink))}
+:root[data-dark="1"] .w-cob-l{opacity:.22}
+:root[data-dark="1"] .w-foam{opacity:.2}
+:root[data-dark="1"] .w-alder{stroke:color-mix(in oklab,var(--r1) 74%,var(--ink))}
+:root[data-dark="1"] .w-shore{fill:color-mix(in srgb,var(--bg) 92%,var(--ink))}
+.w-pole{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-bulb{fill:color-mix(in oklab,var(--lampc) calc(var(--lamps)*100%),var(--r3))}
+.w-fig{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-figh{fill:var(--r5)}
+.w-rod{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-line{fill:none;stroke:var(--glintc);stroke-width:.4;opacity:.5}
+/* the river */
+.w-alder{fill:none;stroke:color-mix(in oklab,var(--r1) 55%,var(--lum));stroke-linecap:round}
+.w-riffle{fill:none;stroke:var(--glintc);stroke-width:.9;stroke-linecap:round;opacity:calc(.2 + var(--gl)*.8)}
+.w-st-d{fill:color-mix(in srgb,var(--bg) 84%,var(--shade))}
+.w-st-l{fill:color-mix(in srgb,var(--bg) 70%,var(--lum))}
+.w-cob{fill:color-mix(in srgb,var(--bg) 76%,var(--shade))}
+.w-cob-s{fill:var(--shade);opacity:.22}
+.w-cob-l{fill:none;stroke:var(--lum);stroke-width:1.3;stroke-linecap:round;opacity:.7}
+.w-log .w-pile{fill:var(--r4)}
+
+/* rain is grain, not drops */
+.sc-rain{position:absolute;inset:0;opacity:var(--rain);
+  background:repeating-linear-gradient(101deg,transparent 0 10px,color-mix(in srgb,var(--lum) 34%,transparent) 10px 10.7px,transparent 10.7px 23px),
+    repeating-linear-gradient(98deg,transparent 0 17px,color-mix(in srgb,var(--lum) 22%,transparent) 17px 17.5px,transparent 17.5px 37px);
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:300px 420px;mask-size:300px 420px}
+.sc-grain{position:absolute;inset:0;background:var(--ink);opacity:.045;
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:180px;mask-size:180px}
+
+/* the one motion: two sets of glints trade places, slowly */
+@media (prefers-reduced-motion:no-preference){
+  .sc-gl-a{animation:shim 5.6s ease-in-out infinite alternate}
+  .sc-gl-b{animation:shim 5.6s ease-in-out infinite alternate-reverse}
+  @keyframes shim{from{opacity:1}to{opacity:.3}}
+}
+@media (prefers-reduced-motion:reduce){.sc-gl-b{opacity:.45}}
+/* the far shore slides slower than the near one as you scroll away */
+@supports (animation-timeline:scroll()){
+  @media (prefers-reduced-motion:no-preference){
+    .sc-back{animation:par-a linear both;animation-timeline:scroll(root);animation-range:0 420px}
+    .sc-gl,.sc-mid{transform-origin:50% 60%}
+    .sc-mid{animation:par-b linear both;animation-timeline:scroll(root);animation-range:0 420px}
+    @keyframes par-a{to{transform:translateY(34px)}}
+    @keyframes par-b{to{transform:translateY(16px)}}
+  }
+}
+
+/* ================= the dock ================= */
+.dock{position:sticky;top:0;z-index:30;display:flex;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 0 8px;margin:0 -4px}
+.seg{flex:1;display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent)}
+.tab{flex:1;display:grid;place-items:center;height:44px;border-radius:999px;
+  font:700 15.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.075em;text-transform:uppercase;color:var(--t2)}
+.tab[aria-current="page"]{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 88%,var(--paper)),var(--ink));color:var(--paper);
+  box-shadow:0 1px 1px color-mix(in srgb,var(--shade) 30%,transparent),var(--shx) 6px 12px -6px color-mix(in srgb,var(--shade) 60%,transparent),
+    inset 0 1px 0 color-mix(in srgb,var(--paper) 22%,transparent)}
+.skybtn{flex:0 0 auto;display:flex;align-items:center;gap:7px;height:52px;padding:0 14px 0 8px;border:0;border-radius:999px;cursor:pointer;
+  background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent);
+  font:700 15.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.075em;text-transform:uppercase;color:var(--t2)}
+/* the sky button carries the sky: a coin of it, horizon and all */
+.skytok{flex:0 0 auto;width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 56%,var(--r3) 56% 61%,var(--water1) 61%,var(--water2) 100%);
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--lum) 60%,transparent),inset 0 -6px 8px -4px color-mix(in srgb,var(--shore) 35%,transparent),
+    0 1px 2px color-mix(in srgb,var(--shade) 30%,transparent)}
+.chip .skytok{width:16px;height:16px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 18%,transparent)}
+
+/* ================= the hero: the title sits in the sky ================= */
+.hero{min-height:calc(var(--sw)*268/390 - 70px);padding:10px 4px 0;display:flex;flex-direction:column;align-items:flex-start}
+.hero h1{margin:0;font:700 48px/.94 "Barlow Condensed",sans-serif;letter-spacing:-.012em;color:var(--sky-ink,var(--ink));text-wrap:balance;
+  text-shadow:0 0 22px color-mix(in srgb,var(--sky-halo,var(--sky1)) 70%,transparent)}
+.hero h1.long{font-size:37px;line-height:1}
+:root[data-title="pale"] .hero h1{text-shadow:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent),0 0 22px color-mix(in srgb,var(--sky-halo,var(--sky1)) 70%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;padding:0}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:4px 11px;border-radius:999px;
+  background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim);font-size:12.5px;font-weight:600;color:var(--t2);white-space:nowrap}
+.chip b{font-weight:700;color:var(--t1)}
+.chips{align-items:center}
+.back{position:relative;min-height:36px;padding-left:10px;padding-right:13px;font:700 14.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t1)}
+.back svg{width:8px;height:13px}
+
+/* ================= surfaces ================= */
+.panel{position:relative;border-radius:20px;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+/* a float crosses the waterline: glass, so the water still moves under its lip */
+.float{position:relative;display:block;border-radius:22px;background:linear-gradient(180deg,var(--glass),var(--pan-b) 62%);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 26%,transparent)}
+.well{border-radius:16px;padding:13px 16px 14px;background:var(--well);color:var(--t2);font-size:14.5px;line-height:1.45;
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),
+    0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .well{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.well p{margin:0}
+.well p+p{margin-top:3px;color:var(--t3)}
+.well b{font-weight:650;color:var(--t1)}
+
+.eyebrow{display:block;font:700 12px/1 "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-style:normal}
+.chev{flex:0 0 auto;width:8px;height:14px;color:var(--t3)}
+.tag{flex:0 0 auto;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
+.tag.hot{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 80%,var(--paper)),var(--gold));color:var(--on-gold);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 50%,transparent),0 4px 9px -4px color-mix(in srgb,var(--gold) 75%,var(--shade))}
+:root[data-dark="1"] .tag.hot{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 82%,var(--ink)),var(--gold));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 40%,transparent),0 0 14px -2px color-mix(in srgb,var(--gold) 55%,transparent)}
+.tag.good{color:var(--accent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 42%,transparent)}
+.pill{display:inline-flex;align-items:center;gap:5px;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 10px 5px;border-radius:999px}
+.pill.go{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
+.pill.go::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 22%,transparent)}
+
+.avs{display:inline-flex;vertical-align:middle}
+.av{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font:700 11.5px/1 Inter,sans-serif;font-style:normal;
+  box-shadow:0 0 0 2px var(--pan-b),0 2px 4px -1px color-mix(in srgb,var(--shade) 40%,transparent)}
+.av+.av{margin-left:-6px}
+.av.a1{background:var(--accent);color:var(--paper)}
+.av.a2{background:color-mix(in oklab,var(--water1) 55%,var(--paper));color:var(--ink)}
+.av.a3{background:color-mix(in oklab,var(--shore) 26%,var(--paper));color:var(--ink)}
+:root[data-dark="1"] .av.a1{color:var(--on-gold)}
+:root[data-dark="1"] .av.a2{background:color-mix(in oklab,var(--water1) 24%,var(--ink2));color:var(--paper)}
+:root[data-dark="1"] .av.a3{background:color-mix(in oklab,var(--sky2) 30%,var(--ink));color:var(--paper)}
+
+/* ================= trips ================= */
+.crewtrip{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px}
+.stamp{flex:0 0 52px;height:58px;border-radius:13px;overflow:hidden;display:flex;flex-direction:column;text-align:center;background:var(--pan-a);
+  box-shadow:0 0 0 1px var(--edge),0 5px 10px -5px color-mix(in srgb,var(--shade) 45%,transparent)}
+.stamp i{font:700 11.5px/19px "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;font-style:normal;background:var(--accent);color:var(--paper)}
+:root[data-dark="1"] .stamp i{color:var(--on-gold)}
+.stamp b{flex:1;display:grid;place-items:center;font:700 29px/1 "Barlow Condensed",sans-serif;color:var(--t1)}
+.tx{flex:1;display:block}
+.tx>b{display:block;font-weight:650;font-size:16px;line-height:1.25;letter-spacing:-.011em;color:var(--t1)}
+.tx>span{display:block;font-size:13.5px;line-height:1.35;color:var(--t3);margin-top:2px}
+.crewtrip .tx>b{font-size:17.5px;margin-top:5px}
+.cap{display:flex!important;align-items:center;gap:9px;margin:0!important}
+.who{display:flex!important;align-items:center;gap:8px;margin-top:6px!important}
+
+.day{margin-top:26px}
+.day>h2{display:flex;align-items:baseline;gap:8px;margin:0 4px 10px;font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:var(--t1)}
+.day>h2 span{font-weight:600;font-size:16px;letter-spacing:.08em;color:var(--t2)}
+/* the day as a ribbon of its own light, five in the morning to eleven at
+   night, with a bead where each trip starts: gold if it is hot */
+.ribbon{position:relative;flex:0 0 96px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 55%,transparent)}
+.ribbon b{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--paper);
+  box-shadow:0 0 0 1.2px var(--ink),0 1px 2px color-mix(in srgb,var(--shade) 50%,transparent)}
+:root[data-dark="1"] .ribbon b{background:var(--ink);box-shadow:0 0 0 1.2px var(--bg)}
+.ribbon b.h,:root[data-dark="1"] .ribbon b.h{background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
+.ribbon+i{margin-left:10px!important}
+.day>h2 i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3)}
+
+.list{overflow:hidden}
+.trip{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto 8px;column-gap:12px;align-items:center;align-content:center;
+  min-height:76px;padding:13px 14px 13px 12px}
+.trip .tx{display:contents}
+.trip .tile{grid-column:1;grid-row:1/span 3}
+.trip .tx>b{grid-column:2;grid-row:1}
+.trip .tag{grid-column:3;grid-row:1}
+.trip .tx>span{grid-column:2/span 2}
+.trip .chev{grid-column:4;grid-row:1/span 3}
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:66px;padding:12px 14px 12px 16px}
+.trip+.trip::before,.row+.row::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
+.row+.row::before{left:16px}
+.tile{flex:0 0 48px;height:48px;border-radius:13px;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 16%,transparent),var(--shx) 5px 9px -5px color-mix(in srgb,var(--shade) 55%,transparent)}
+.tile svg{display:block;width:100%;height:100%}
+.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 30%,transparent)}
+.trip .tx>span.note{display:inline-flex;justify-self:start;align-items:center;gap:6px;margin-top:6px;padding:3px 9px 3px 7px;border-radius:999px;
+  background:color-mix(in srgb,var(--accent) 9%,var(--paper));color:var(--t2);font-size:12.5px;font-weight:600}
+.note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.withcrew{display:inline-flex!important;align-items:center;gap:7px;margin-top:6px!important}
+
+/* ================= run card ================= */
+.plan{padding:14px 16px 15px}
+.planhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:7px}
+.planhead b{font:700 30px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1)}
+.planhead span{font-size:13.5px;font-weight:600;color:var(--t2);white-space:nowrap}
+/* the evening as a strip of its own skies; gold marks the hours you fish */
+.tl{position:relative;display:block;height:34px;margin:14px 2px 0}
+.tl-sky{position:absolute;left:0;right:0;top:12px;height:12px;border-radius:6px;
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 60%,transparent)}
+.tl-win{position:absolute;top:8px;height:20px;border-radius:10px;border:2px solid var(--gold);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 18%,transparent),0 0 12px -1px color-mix(in srgb,var(--gold) 70%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shore) 30%,transparent)}
+.tl-dot{position:absolute;top:9px;left:-2px;width:18px;height:18px;border-radius:50%;background:var(--pan-a);
+  box-shadow:0 0 0 2px var(--ink),0 3px 6px -2px color-mix(in srgb,var(--shade) 60%,transparent)}
+.tl-drive{position:absolute;top:17px;height:2px;border-radius:1px;background:repeating-linear-gradient(90deg,var(--lum) 0 4px,transparent 4px 8px);opacity:.9}
+.tl-lab{position:relative;display:block;height:34px;margin:4px 2px 0}
+.tl-lab span{position:absolute;top:0;font:700 15px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--t1);white-space:nowrap}
+.tl-lab small{display:block;font:600 11.5px/1.3 Inter,sans-serif;letter-spacing:0;color:var(--t3)}
+.rows{margin-top:12px}
+/* two rows are worth a picture each: what to pack, and what the water does */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tcard{display:flex;flex-direction:column;padding:13px 14px 14px;min-height:158px}
+.tcard>b{display:flex;align-items:center;justify-content:space-between;font-weight:650;font-size:16px;letter-spacing:-.011em;color:var(--t1)}
+.bignum{display:flex;align-items:baseline;gap:7px;margin-top:8px;font:700 54px/.9 "Barlow Condensed",sans-serif;color:var(--t1)}
+.bignum span{font:600 14px/1.2 Inter,sans-serif;color:var(--t2)}
+.pips{display:flex;gap:5px;margin-top:9px}
+.pips i{width:13px;height:13px;border-radius:4px;box-shadow:inset 0 0 0 1.6px var(--warn)}
+.pips i.c{box-shadow:inset 0 0 0 1.6px color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.pips i.c:first-of-type{margin-left:5px}
+.tcard .sub{display:block;margin-top:auto;padding-top:8px;font-size:13px;line-height:1.35;color:var(--t3);text-wrap:balance}
+.tcard .lead{display:block;margin-top:4px;font-size:13px;font-weight:650;color:var(--t1)}
+.tide{display:block;width:100%;height:auto;margin-top:8px}
+.tide .t-fill{fill:color-mix(in oklab,var(--water1) 30%,var(--paper))}
+.tide .t-line{fill:none;stroke:color-mix(in oklab,var(--water2) 70%,var(--ink));stroke-width:1.6;stroke-linecap:round}
+.tide .t-now{fill:var(--pan-a);stroke:var(--ink);stroke-width:1.6}
+.tide .t-tick{stroke:var(--ink);stroke-width:1;opacity:.35}
+:root[data-dark="1"] .tide .t-fill{fill:color-mix(in oklab,var(--water1) 55%,var(--ink2));opacity:.5}
+:root[data-dark="1"] .tide .t-line{stroke:var(--ink2)}
+.rule{margin-top:14px;display:flex;align-items:center;gap:12px;padding:13px 14px 13px 16px;border-radius:16px;position:relative;overflow:hidden;
+  background:var(--well);box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+.rule::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--no)}
+
+/* ================= crew trip ================= */
+.cond{display:flex;align-items:center;gap:13px;padding:14px 14px 14px 14px}
+.seal{flex:0 0 54px;height:54px;border-radius:50%;display:grid;place-items:center;font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;
+  color:var(--paper);background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--go) 78%,var(--lum)),var(--go) 62%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 18%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 30%,transparent),0 6px 12px -5px color-mix(in srgb,var(--go) 70%,var(--shade))}
+:root[data-dark="1"] .seal{color:var(--bg);background:radial-gradient(circle at 35% 28%,var(--go),color-mix(in srgb,var(--go) 78%,var(--bg)) 70%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 16%,transparent),0 0 22px -4px color-mix(in srgb,var(--go) 50%,transparent)}
+:root[data-dark="1"] .check.done .box{background:color-mix(in srgb,var(--go) 84%,var(--bg))}
+.flow{flex:0 0 auto;width:74px;height:40px}
+.flow .f-fill{fill:color-mix(in oklab,var(--go) 16%,var(--paper))}
+.flow .f-line{fill:none;stroke:var(--go);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.flow .f-dot{fill:var(--pan-a);stroke:var(--go);stroke-width:2}
+.flow .f-base{stroke:var(--t3);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
+.sect{margin:24px 4px 10px;display:flex;align-items:baseline;gap:8px;font:700 19px/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t1)}
+.sect i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3)}
+.rsvp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rs{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-height:112px;padding:11px 12px 12px;border:0;border-radius:16px;text-align:left;cursor:pointer;
+  background:var(--well);box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .rs,:root[data-dark="1"] .rule{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.rs[aria-pressed="true"],:root[data-dark="1"] .rs[aria-pressed="true"]{background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 60%,transparent)}
+.rs-h{display:flex;align-items:center;justify-content:space-between;width:100%;font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t2)}
+.rs[aria-pressed="true"] .rs-h{color:var(--go)}
+.rs-h b{font-size:22px;letter-spacing:0;color:var(--t1)}
+.rs-p{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--t1)}
+.rs-p.none{color:var(--t3);font-weight:500}
+.noterow{margin-top:12px}
+.noterow .row{min-height:60px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12.5px;font-weight:650;
+  background:color-mix(in srgb,var(--accent) 10%,var(--paper));color:var(--accent)}
+.badge svg{width:14px;height:14px}
+.check{position:relative;display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px 10px 14px}
+.check+.check::before{content:"";position:absolute;left:54px;right:0;top:0;height:1px;background:var(--edge)}
+.box{position:relative;flex:0 0 28px;height:28px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--well);
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shade) 25%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 55%,transparent)}
+.box::after,.back::after,.by.open::after{content:"";position:absolute;inset:-9px}   /* a thumb-sized target */
+.box svg{width:14px;height:14px;opacity:0}
+.check.done .box{background:var(--go);box-shadow:inset 0 -2px 3px color-mix(in srgb,var(--shade) 25%,transparent),0 3px 7px -3px color-mix(in srgb,var(--go) 80%,var(--shade))}
+.check.done .box svg{opacity:1;color:var(--paper)}
+:root[data-dark="1"] .check.done .box svg{color:var(--bg)}
+.check b{flex:1;font-weight:650;font-size:16px;letter-spacing:-.011em}
+.check.done b{color:var(--t2)}
+.by{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--t2)}
+.by.open{position:relative;min-height:34px;cursor:pointer;padding:6px 12px;border-radius:999px;color:var(--t3);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent);
+  background:transparent;border:0;font-weight:600}
+.by.open::before{content:"+";font-weight:700;font-size:15px;line-height:1;margin-right:-2px}
+
+/* ================= the one main action ================= */
+.act{position:sticky;bottom:calc(54px + env(safe-area-inset-bottom));z-index:20;margin-top:18px;padding:10px 0 0}
+.act::before{content:"";position:absolute;left:-16px;right:-16px;top:-14px;bottom:-60px;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 92%,transparent) 42%)}
+.gold{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:58px;border:0;border-radius:18px;cursor:pointer;
+  font:700 21px/1 "Barlow Condensed",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--on-gold);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 76%,var(--paper)),var(--gold) 55%,color-mix(in srgb,var(--gold) 90%,var(--shade)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 60%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--shade) 16%,transparent),
+    0 1px 2px color-mix(in srgb,var(--shade) 30%,transparent),var(--shx) 14px 26px -12px color-mix(in srgb,var(--gold) 55%,var(--shade))}
+:root[data-dark="1"] .gold{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 80%,var(--ink)),var(--gold) 55%,color-mix(in srgb,var(--gold) 86%,var(--shore)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 45%,transparent),0 0 30px -6px color-mix(in srgb,var(--gold) 50%,transparent),0 12px 24px -12px var(--shore)}
+.gold svg{width:22px;height:22px}
+
+/* ================= the look switcher (not part of the app) ================= */
+.lookbar{position:fixed;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:2px;
+  padding:3px;border-radius:999px;background:color-mix(in srgb,var(--ink) 90%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 6px 18px -6px color-mix(in srgb,var(--shade) 70%,transparent);font:600 12px/1 Inter,sans-serif;color:var(--paper)}
+.lookbar a{padding:9px 11px;border-radius:999px;color:color-mix(in srgb,var(--paper) 80%,var(--ink))}
+.lookbar a[aria-current="page"]{background:var(--paper);color:var(--ink)}
+.lookbar select{flex:0 0 auto;min-width:104px;appearance:none;-webkit-appearance:none;border:0;border-left:1px solid color-mix(in srgb,var(--paper) 25%,transparent);background:transparent;
+  color:var(--paper);font:inherit;padding:9px 12px 9px 11px;margin-left:3px;border-radius:0 999px 999px 0}
+.lookbar select option{color:var(--ink);background:var(--paper)}
+
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}

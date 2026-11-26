@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" data-dark="0">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rig Card: Chart room</title>
+<link rel="preload" href="/rigs/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/rigs/look/chart/chart.css">
+</head>
+<body>
+
+<!-- Shared ink: paper-cut shadows, hatches and the two glyphs the rows use. -->
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="lf1" x="-4%" y="-4%" width="110%" height="110%"><feDropShadow class="fl" flood-color="#131C24" flood-opacity=".3" dx=".7" dy="1.1" stdDeviation=".65"/></filter>
+    <filter id="lf2" x="-4%" y="-4%" width="110%" height="110%"><feDropShadow class="fl fl2" flood-color="#131C24" flood-opacity=".4" dx="1.1" dy="1.7" stdDeviation="1"/></filter>
+    <filter id="lf3" x="-30%" y="-40%" width="170%" height="200%"><feDropShadow class="fl fl3" flood-color="#131C24" flood-opacity=".42" dx="1" dy="1.8" stdDeviation="1.3"/></filter>
+    <filter id="soft" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="1.7"/></filter>
+    <pattern id="hatch" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-48)"><line class="hatchl" x1="0" y1="0" x2="0" y2="4.5"/></pattern>
+    <pattern id="stip" width="7" height="7" patternUnits="userSpaceOnUse"><circle class="stipd" cx="1.4" cy="1.6" r=".55"/><circle class="stipd" cx="4.9" cy="4.4" r=".45"/><circle class="stipd" cx="5.6" cy=".9" r=".35"/></pattern>
+    <radialGradient id="pool"><stop offset="0" class="pool0" stop-opacity="0"/><stop offset=".45" class="pool1" stop-opacity="0"/><stop offset="1" class="pool2" stop-opacity="0"/></radialGradient>
+  </defs>
+  <symbol id="chev" viewBox="0 0 8 14"><path d="M1.5 1.5l5 5.5-5 5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="tick" viewBox="0 0 14 12"><path d="M1.6 6.4l3.7 3.7 7-8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="table" id="table">
+  <svg class="tablechart" id="tablechart" aria-hidden="true" focusable="false"></svg>
+
+  <header class="bar">
+    <nav class="tabs" aria-label="Sections">
+      <a class="tab on" href="?screen=trips" data-go="trips" aria-current="page">Trips</a>
+      <a class="tab" href="#water">Water</a>
+      <a class="tab" href="#fish">Fish</a>
+      <a class="tab" href="#learn">Learn</a>
+    </nav>
+    <button class="skybtn" type="button" data-sky-next aria-label="Sky">
+      <span class="port" aria-hidden="true"><i></i></span><span>Sky</span>
+    </button>
+  </header>
+
+  <!-- ============ TRIPS ============ -->
+  <main class="screen" id="trips" data-screen="trips">
+    <section class="hero">
+      <div class="cart title">
+        <p class="eyebrow">Next 7 days</p>
+        <h1>Hot Trips</h1>
+      </div>
+      <figure class="frame stack"><div class="neat">
+        <svg class="chart" id="soundchart" viewBox="0 0 344 268" role="img" aria-label="Chart of the South Sound with this week's spots marked"></svg>
+      </div></figure>
+    </section>
+
+    <a class="slip" href="?screen=crew" data-go="crew">
+      <span class="leaf" aria-hidden="true"><i>Nov</i><b>28</b></span>
+      <span class="eyebrow">Crew trip &middot; Sat</span>
+      <span class="lamp"><i></i>On</span>
+      <b class="ttl">Chum on the Green</b>
+      <span class="sub">Coach and Russell going</span>
+      <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+    </a>
+
+    <section class="day quiet">
+      <header class="dayhead">
+        <h2 class="tabhd"><small>Today</small>Wed Nov 25</h2>
+        <svg class="spark" data-day="0" aria-hidden="true"></svg>
+      </header>
+      <div class="note">
+        <p>No daylight after work, sunset 4:23 PM. Waiting for the weekend: Bonney Lake, Coho on the Green.</p>
+        <div class="light" aria-hidden="true"><u></u><i></i><b>4:23 PM</b></div>
+      </div>
+    </section>
+
+    <section class="day">
+      <header class="dayhead">
+        <h2 class="tabhd">Thu Nov 26</h2>
+        <svg class="spark" data-day="1" aria-hidden="true"></svg>
+      </header>
+      <div class="sheet stack">
+        <a class="row hot" href="?screen=card" data-go="card">
+          <svg class="win" data-day="1" data-from="17" data-to="22" data-kind="tide" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Squid at Les Davis Pier</b><span class="sub"><i>Evening</i> 5:00 PM to 10:00 PM</span>
+          <span class="heat hot">Hot</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+        <a class="row" href="#chum-thu">
+          <svg class="win" data-day="1" data-from="7.47" data-to="11" data-kind="light" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Chum on the Green</b><span class="sub"><i>Quick trip</i> 7:28 AM to 11:00 AM</span>
+          <span class="heat">Good</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+        <a class="row" href="#cutthroat-thu">
+          <svg class="win" data-day="1" data-from="12.65" data-to="15" data-kind="tide" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Sea-run cutthroat, Dash Point beach</b><span class="sub"><i>Quick trip</i> 12:39 PM to 3:00 PM</span>
+          <span class="heat">Good</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <section class="day">
+      <header class="dayhead">
+        <h2 class="tabhd">Sat Nov 28</h2>
+        <svg class="spark" data-day="3" aria-hidden="true"></svg>
+      </header>
+      <div class="sheet stack">
+        <a class="row hot" href="#razor-sat">
+          <svg class="win" data-day="3" data-from="19.3" data-to="21.8" data-kind="tide" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Razor clams, Copalis and Mocrocks</b><span class="sub"><i>Adventure day</i> 7:18 PM to 9:48 PM</span>
+          <span class="heat hot">Hot</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+        <a class="row hot" href="?screen=crew" data-go="crew">
+          <svg class="win" data-day="3" data-from="7.52" data-to="11" data-kind="light" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Chum on the Green</b><span class="sub"><i>Crew on</i> 7:31 AM to 11:00 AM</span>
+          <span class="heat hot">Hot</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+        <a class="row" href="#trout-sat">
+          <svg class="win" data-day="3" data-from="7.5" data-to="11" data-kind="light" viewBox="0 0 46 32" aria-hidden="true"></svg>
+          <b class="ttl">Trout at Bonney Lake</b><span class="sub"><i>Quick trip</i> 7:30 AM to 11:00 AM</span><em class="stamp">Stocked Nov 23: 600 rainbow</em>
+          <span class="heat">Good</span>
+          <svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ RUN CARD ============ -->
+  <main class="screen" id="card" data-screen="card" hidden>
+    <a class="back" href="?screen=trips" data-go="trips"><span aria-hidden="true">&larr;</span> Hot Trips</a>
+    <section class="hero spot">
+      <figure class="frame stack"><div class="neat">
+        <svg class="chart" id="pierchart" viewBox="0 0 344 176" role="img" aria-label="Chart of Les Davis Pier on Commencement Bay"></svg>
+      </div></figure>
+      <div class="cart wide">
+        <span class="heat hot big">Hot</span>
+        <p class="eyebrow">Thu Nov 26 &middot; Evening</p>
+        <h1>Squid at Les Davis Pier</h1>
+        <p class="sub">5:00 PM to 10:00 PM &middot; 45 min drive</p>
+      </div>
+    </section>
+
+    <section class="instr sheet">
+      <div class="wells">
+        <div class="well"><span>Leave by</span><b>3:58<small>PM</small></b><em>45 min drive</em></div>
+        <div class="well"><span>Wind</span><b>6<small>mph</small></b><em>gusts 11</em></div>
+        <div class="well"><span>Air</span><b>44<small>F</small></b></div>
+      </div>
+      <svg class="tideplot" id="tideplot" viewBox="0 0 326 140" role="img" aria-label="Tide curve for the evening. High slack 5:15 PM. Fish 5:00 PM to 10:00 PM."></svg>
+    </section>
+
+    <h2 class="lab"><span>Run card</span></h2>
+    <div class="sheet log stack">
+      <a class="row" href="#plan"><i class="n">1</i><span class="rt"><b>The plan</b><span>Leave by 3:58 PM, fish 5:00 PM to 10:00 PM</span></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#what"><i class="n">2</i><span class="rt"><b>What it is</b><span>Market squid under the lights after dark</span></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#gear"><i class="n">3</i><span class="rt"><b>Gear</b><span>4 to get, 4 to check, the rest you own</span></span><span class="gearbar" aria-hidden="true"><i></i><i></i><i></i><i></i><u></u><u></u><u></u><u></u><s></s></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#bait"><i class="n">4</i><span class="rt"><b>Bait and lures</b><span>Two squid jigs, 2.0 to 2.5</span></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#how"><i class="n">5</i><span class="rt"><b>How to fish it</b></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#tide"><i class="n">6</i><span class="rt"><b>Tide and weather</b><span>Wind to 6 mph, gusts 11, 44 F; high slack 5:15 PM</span></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#spot"><i class="n">7</i><span class="rt"><b>The spot</b></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#expect"><i class="n">8</i><span class="rt"><b>What to expect</b></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+      <a class="row" href="#rules"><i class="n">9</i><span class="rt"><b>Rules</b><span>5 quarts or 10 pounds, one line</span></span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+    </div>
+  </main>
+
+  <!-- ============ CREW TRIP ============ -->
+  <main class="screen" id="crew" data-screen="crew" hidden>
+    <a class="back" href="?screen=trips" data-go="trips"><span aria-hidden="true">&larr;</span> Hot Trips</a>
+    <section class="hero spot">
+      <figure class="frame stack"><div class="neat">
+        <svg class="chart" id="riverchart" viewBox="0 0 344 176" role="img" aria-label="Chart of a bend on the Green River"></svg>
+      </div></figure>
+      <div class="cart wide">
+        <span class="lamp big"><i></i>On</span>
+        <p class="eyebrow">Crew trip &middot; Sat Nov 28</p>
+        <h1>Chum on the Green</h1>
+        <p class="sub">7:31 AM to 11:00 AM</p>
+      </div>
+    </section>
+
+    <section class="cond sheet">
+      <div class="go">
+        <span class="lens" aria-hidden="true"><i></i></span>
+        <b>Go</b>
+      </div>
+      <p>Good flow 400 cfs, dropping after a rise, light wind</p>
+      <svg class="hydro" id="hydro" viewBox="0 0 122 74" role="img" aria-label="River flow: dropping after a rise, 400 cfs now"></svg>
+    </section>
+
+    <section class="roster sheet" aria-label="Who is going">
+      <div class="seg" role="radiogroup" aria-label="Are you going">
+        <button type="button" class="on" role="radio" aria-checked="true">Going<i>2</i></button>
+        <button type="button" role="radio" aria-checked="false">Maybe<i>1</i></button>
+        <button type="button" role="radio" aria-checked="false">Out<i>0</i></button>
+      </div>
+      <div class="cols">
+        <ul><li class="me"><i>C</i>Coach</li><li><i>R</i>Russell</li></ul>
+        <ul><li><i>D</i>Dad</li></ul>
+        <ul aria-label="Nobody is out"></ul>
+      </div>
+    </section>
+
+    <h2 class="lab"><span>Notes</span></h2>
+    <div class="sheet">
+      <a class="row" href="#notes-gear"><span class="rt"><b>Gear</b></span><span class="count">2 notes</span><svg class="chev" width="8" height="14" aria-hidden="true"><use href="#chev"/></svg></a>
+    </div>
+
+    <h2 class="lab"><span>The list</span></h2>
+    <div class="sheet list stack">
+      <label class="row done"><span class="box on" aria-hidden="true"><svg width="14" height="12"><use href="#tick"/></svg></span><span class="rt"><b>Net</b></span><span class="who"><i>R</i>Russell</span></label>
+      <label class="row"><span class="box" aria-hidden="true"></span><span class="rt"><b>Cured eggs</b></span><span class="who"><i>C</i>Coach</span></label>
+      <label class="row"><span class="box" aria-hidden="true"></span><span class="rt"><b>Cooler</b></span><span class="who none">Nobody</span></label>
+    </div>
+
+    <a class="cta" href="#text-the-crew">Text the crew</a>
+  </main>
+</div>
+
+<!-- Preview control only. Not part of the app. -->
+<nav class="look" aria-label="Preview">
+  <a href="?screen=trips" data-go="trips">Trips</a>
+  <a href="?screen=card" data-go="card">Card</a>
+  <a href="?screen=crew" data-go="crew">Crew</a>
+  <button type="button" data-sky-next><i></i><span data-sky-name>Overcast</span></button>
+</nav>
+
+<script src="/rigs/sky.js"></script>
+<script src="/rigs/look/chart/chart.js"></script>
+</body>
+</html>

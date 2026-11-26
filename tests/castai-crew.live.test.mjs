@@ -921,6 +921,25 @@ try {
   ok((await loggedCount(owner)) === 0 && (await loggedCount(member)) === 0, "and no test catch left in either catch log");
 }
 
+// ---- names: yours to set, and the crew's is the owner's -------------------------
+{
+  const mine = await call(M, { action: "me_rename", name: "  ZZTEST Russ  " });
+  is(mine, 200, "a member renames themselves");
+  ok(mine.body.name === "ZZTEST Russ", "the name comes back trimmed", mine.text);
+  const seenBy = await call(O, { action: "state" });
+  ok(seenBy.body.members.some((m) => m.name === "ZZTEST Russ"), "the owner sees the new name");
+  refused(await call(M, { action: "me_rename", name: "   " }), 400, "an empty name is refused");
+  refused(await call(M, { action: "me_rename", name: "x".repeat(61) }), 400, "a name over 60 characters is refused");
+  refused(await call(M, { action: "crew_rename", name: "Mine now" }), 403, "a member cannot rename the crew");
+  const crewNew = await call(O, { action: "crew_rename", name: "ZZTEST crew two" });
+  is(crewNew, 200, "the owner renames the crew");
+  ok((await call(M, { action: "state" })).body.crew.name === "ZZTEST crew two", "the member sees the crew's new name");
+  is(await call(O, { action: "crew_rename", name: "ZZTEST crew" }), 200, "the crew's name is put back");
+  is(await call(M, { action: "me_rename", name: "ZZTEST Member" }), 200, "the member's name is put back");
+  const after = await call(O, { action: "state" });
+  ok(after.body.crew.name === "ZZTEST crew" && after.body.members.some((m) => m.name === "ZZTEST Member"), "both names are back as they were");
+}
+
 // ---- nothing real was sent --------------------------------------------------
 ok(everyAlert.length > 40, `every outbox row either account was shown was kept for checking (${everyAlert.length} readings)`);
 ok(everyAlert.every((r) => r.status !== "sent" && r.channel === null), "not one alert was ever sent: no text, no phone alert",
