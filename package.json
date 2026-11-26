@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node tests/rigs-content.test.mjs && node tests/rigs-offline.test.mjs && node tests/rigs-offline.smoke.mjs && node tests/rigs-nav.smoke.mjs && node tests/rigs-trip.smoke.mjs && node tests/rigs-river.smoke.mjs && node tests/rigs-ui.smoke.mjs && node tests/rigs-trips.test.mjs && node tests/rigs-hot.smoke.mjs && node tests/rigs-map.smoke.mjs && node tests/rigs-rules.test.mjs && node tests/rigs-rules.smoke.mjs",
+    "test": "node tests/rigs-content.test.mjs && node tests/rigs-offline.test.mjs && node tests/rigs-offline.smoke.mjs && node tests/rigs-nav.smoke.mjs && node tests/rigs-trip.smoke.mjs && node tests/rigs-river.smoke.mjs && node tests/rigs-ui.smoke.mjs && node tests/castai-crew-schema.test.mjs && node tests/rigs-trips.test.mjs && node tests/rigs-hot.smoke.mjs && node tests/rigs-map.smoke.mjs && node tests/rigs-rules.test.mjs && node tests/rigs-rules.smoke.mjs",
     "test:rigs": "node tests/rigs-content.test.mjs && node tests/rigs-offline.test.mjs && node tests/rigs-offline.smoke.mjs && node tests/rigs-nav.smoke.mjs && node tests/rigs-trip.smoke.mjs && node tests/rigs-river.smoke.mjs && node tests/rigs-ui.smoke.mjs && node tests/rigs-trips.test.mjs && node tests/rigs-hot.smoke.mjs && node tests/rigs-map.smoke.mjs && node tests/rigs-rules.test.mjs && node tests/rigs-rules.smoke.mjs"
   },
   "keywords": [],
