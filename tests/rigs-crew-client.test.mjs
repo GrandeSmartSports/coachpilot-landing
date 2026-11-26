@@ -815,6 +815,48 @@ function server(log = []) {
   ok(refused.error === "That trip is not here any more." && !refused.ok && (await r2.crew.pending()).count === 0, "a catch the function refuses answers with the error and does not wait forever", refused);
 }
 
+// ------------------------------------- a token the photo store or sign-in server will not take
+{
+  // The photo store says "jwt expired" with a 400. That is a token trouble,
+  // not a bad photo: one fresh token, one more try, and the photo is kept.
+  const st = phoneStore(); signedIn(st);
+  const log = []; let tokens = 0;
+  const blob = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3])], { type: "image/jpeg" });
+  const t = tab({ store: st, net: (req) => {
+    if (req.url.startsWith(AUTH + "/token")) { tokens++; return { status: 200, body: { access_token: "tok-2", refresh_token: "ref-2", expires_in: 3600 } }; }
+    if (req.url.startsWith(STORE)) { log.push(req.headers.Authorization); return req.headers.Authorization === "Bearer tok-2" ? { status: 200, body: { Key: "x" } } : { status: 400, body: { statusCode: "403", error: "Unauthorized", message: "jwt expired" } }; }
+    if (req.url.startsWith(REST)) { log.push(req.body); return { status: 201, raw: "" }; }
+    return server()(req);
+  } });
+  // No canvas in node: hand the client a photo that is already small.
+  t.root.document.createElement = (tag) => tag === "img"
+    ? { set src(v) { setTimeout(() => this.onload(), 0); }, naturalWidth: 800, naturalHeight: 600 }
+    : { getContext: () => ({ drawImage() {} }), toBlob: (cb) => cb(blob) };
+  t.root.URL = { createObjectURL: () => "blob:x", revokeObjectURL() {} };
+  const c = await t.crew.catch("t1", { species: "Squid", photo: blob });
+  ok(c.ok && !c.queued && !c.photoFailed && tokens === 1 && log[0] === "Bearer tok-1" && log[1] === "Bearer tok-2", "a photo refused over the token goes again with a fresh one", { c, tokens, log: log.slice(0, 2) });
+  ok(log[2] && /catch-photos\/u-russ\//.test(log[2].photo_url || ""), "and the catch keeps its photo", log[2]);
+
+  // A photo the store truly will not take: the fish is saved without it, and says so.
+  const st2 = phoneStore(); signedIn(st2);
+  const rows = [];
+  const t2 = tab({ store: st2, net: (req) => {
+    if (req.url.startsWith(STORE)) return { status: 413, body: { statusCode: "413", error: "Payload too large", message: "The object exceeded the maximum allowed size" } };
+    if (req.url.startsWith(REST)) { rows.push(req.body); return { status: 201, raw: "" }; }
+    return server()(req);
+  } });
+  t2.root.document.createElement = t.root.document.createElement;
+  t2.root.URL = t.root.URL;
+  const c2 = await t2.crew.catch("t1", { species: "Squid", photo: blob });
+  ok(c2.ok && c2.photoFailed === true && rows.length === 1 && !("photo_url" in rows[0]), "a photo the store will not take does not cost the fish: saved without it, and it says so", c2);
+
+  // The sign-in server saying the session is gone, on its own endpoint, is believed.
+  const st3 = phoneStore(); signedIn(st3);
+  const t3 = tab({ store: st3, net: () => ({ status: 403, body: { code: 403, error_code: "session_not_found", msg: "Session from session_id claim in JWT does not exist" } }) });
+  const gone = await t3.crew.addMyNumber("2535550147");
+  ok(gone.signedOut === true && t3.crew.session() === null, "the sign-in server saying the session is gone while adding a number signs out", gone);
+}
+
 // ------------------------------------------------------------------ signing out
 {
   const st = phoneStore(); signedIn(st);

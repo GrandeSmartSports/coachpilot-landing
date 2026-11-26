@@ -390,12 +390,13 @@
   // Resolves its { status, ok, body }, or { signedOut: true }, or
   // { offline: true }. A token past its time is never sent, and a 401 is
   // taken to the sign-in server before anyone is signed out over it.
-  function authed(make) {
+  // refused(r), when given, names other answers that mean "that token".
+  function authed(make, refused) {
     return ensure().then(function (e) {
       if (e.signedOut) return { signedOut: true };
       if (e.wait) return { offline: true };
       return make(e.s.token).then(function (r) {
-        if (r.status !== 401) return r;
+        if (r.status !== 401 && !(refused && refused(r))) return r;
         return swap(e.s.token).then(function (x) {
           if (x.signedOut) return { signedOut: true };
           if (!x.s) return { offline: true };
@@ -437,6 +438,8 @@
       if (r.signedOut) return r;
       if (r.offline) return { offline: true, error: "No signal. Try again when you have some." };
       if (r.ok) return { ok: true };
+      // This is the sign-in server too. If it says the session is gone, it is.
+      if (saysSignedOut(r)) { forget(); return { signedOut: true }; }
       var code = authCode(r);
       if (code === "phone_exists" || /already (been )?registered/i.test(authMsg(r))) return { error: "That number is already on another account." };
       if (r.status === 429 || /rate_limit/.test(code)) return { error: "A code was just sent. Wait a minute, then try again.", retryAfter: Math.ceil(COOLDOWN / 1000) };
@@ -714,8 +717,11 @@
     if (j.stop !== "later" || !(Date.now() - Date.parse(at) > GIVE_UP)) return j;
     return { drop: true, error: "That waited three days and the server still would not take it.", status: 0 };
   }
+  // The photo store answers a token it will not take with a 400 that talks
+  // about the jwt, not with a 401.
+  function tokenTrouble(r) { return !r.ok && r.status >= 400 && r.status < 500 && /jwt/i.test(JSON.stringify(r.body || "")); }
   function restDelete(path) {
-    return authed(function (token) { return http("DELETE", BASE + path, null, { Authorization: "Bearer " + token }); });
+    return authed(function (token) { return http("DELETE", BASE + path, null, { Authorization: "Bearer " + token }); }, tokenTrouble);
   }
   function catchPath(userId, id) { return "/storage/v1/object/catch-photos/" + userId + "/" + id + ".jpg"; }
   // Take a catch back out of CastAI's own log and photo store. Best effort.
@@ -785,7 +791,9 @@
     if (!rec.step && rec.photo) {
       start = authed(function (token) {
         return http("PUT", BASE + path, rec.photo, { Authorization: "Bearer " + token, "Content-Type": "image/jpeg", "x-upsert": "true" }, limit() * 5);
-      }).then(function (r) {
+      }, tokenTrouble).then(function (r) {
+        // Still a token trouble after a fresh one: wait, do not lose the photo over it.
+        if (!r.signedOut && !r.offline && tokenTrouble(r)) return { stop: "later" };
         var j = judge(r, false, true);
         if (j.stop) return j;
         // A photo the store will not take must not cost the fish: the catch
