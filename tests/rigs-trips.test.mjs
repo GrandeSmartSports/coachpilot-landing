@@ -15,6 +15,7 @@ vm.runInContext(readFileSync(resolve(ROOT, "rigs/trips.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/runs.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/rules.js"), "utf8"), ctx);
 vm.runInContext(readFileSync(resolve(ROOT, "rigs/waters.js"), "utf8"), ctx);
+vm.runInContext(readFileSync(resolve(ROOT, "rigs/sky.js"), "utf8"), ctx);
 const T = ctx.RIG.trips;
 
 let pass = 0, fail = 0;
@@ -376,11 +377,37 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(T.runs["steelhead-tokul"].rules.some((x) => /5 PM to 7 AM/.test(x)), "Tokul carries the night closure");
 }
 
+// --- the sky: the screen is the light you are standing in -----------------
+{
+  const S = ctx.RIG.sky, sun = { rise: 7.5, set: 16.4 };
+  ok(S.phase(12, sun, { clouds: 20, rain: 0 }) === "bright" && S.phase(12, sun, { clouds: 90, rain: 0 }) === "overcast",
+    "midday reads the cloud cover");
+  ok(S.phase(12, sun, { clouds: 95, rain: 0.05 }) === "rain", "rain has its own sky");
+  ok(S.phase(21, sun, {}) === "night" && S.phase(5, sun, {}) === "night", "after dark is night");
+  ok(!S.paletteFor(S.phase(12, sun, { clouds: 90 })).dark && S.paletteFor(S.phase(21, sun, {})).dark,
+    "daylight is a light screen, night is a dark one");
+  ok(S.resolve(12, sun, { clouds: 90 }, "dark").p.dark && !S.resolve(21, sun, {}, "light").p.dark,
+    "the switch beats the sky, for glare");
+  ok(S.resolve(12, sun, { clouds: 90 }, "dark").forced, "a held screen says it is held");
+  // Every palette has to carry the whole set, or the app loses a colour.
+  const need = ["sky", "water", "ground", "paper", "line", "ink", "ink2", "dim", "accent", "accent2", "gold", "onGold", "shore"];
+  const missing = Object.entries(S.palettes).flatMap(([k, p]) => need.filter((n) => p[n] == null).map((n) => k + "." + n));
+  ok(missing.length === 0, "every sky carries every colour", missing.join(","));
+  // Readable in sun: small text and text on the gold tag.
+  const lum = (h) => { const v = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    .map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)));
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
+  const low = Object.entries(S.palettes).filter(([, p]) =>
+    ratio(p.dim, p.paper) < 4.5 || ratio(p.accent, p.paper) < 4.5 || ratio(p.onGold, p.gold) < 4.5 || ratio(p.ink, p.paper) < 7);
+  ok(low.length === 0, "every sky keeps small text readable (4.5:1)", low.map(([k]) => k).join(","));
+}
+
 // --- the API shapes become planner input -----------------------------------
 {
   const n = T.spots.length;
   const wxJson = T.spots.map(() => ({
-    hourly: { time: ["2026-11-23T17:00"], temperature_2m: [44], precipitation: [0], wind_speed_10m: [5], wind_gusts_10m: [9] },
+    hourly: { time: ["2026-11-23T17:00"], temperature_2m: [44], precipitation: [0], wind_speed_10m: [5], wind_gusts_10m: [9], cloud_cover: [92] },
     daily: { time: ["2026-11-23"], sunrise: ["2026-11-23T07:31"], sunset: ["2026-11-23T16:24"] }
   }));
   const u = T.urls("2026-11-23", "2026-11-30");
@@ -388,6 +415,8 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   const shaped = T.shape(wxJson, marine, u.marineSpots, { "9446248": { predictions: [{ t: "2026-11-23 17:15", v: "11.9", type: "H" }] } });
   ok(Object.keys(shaped.wx).length === n, "one weather series per spot");
   ok(Math.abs(shaped.wx.redondo.sun["2026-11-23"].set - 16.4) < 0.01, "sunset becomes a local hour");
+  ok(shaped.wx.redondo.hours[0].clouds === 92, "cloud cover rides along, so the screen knows the sky", JSON.stringify(shaped.wx.redondo.hours[0]));
+  ok(/cloud_cover/.test(u.wx), "the weather call asks for cloud cover");
   ok(shaped.wx["ocean-shores"].hours[0].wave === 6.5 && shaped.wx.redondo.hours[0].wave === undefined, "waves only on the ocean");
   ok(shaped.tides["9446248"][0].v === 11.9, "tide heights become numbers");
   ok(/latitude=47\.349,/.test(u.wx) && /forecast_days=7/.test(u.wx), "one weather call covers every spot");

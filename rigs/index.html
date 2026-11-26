@@ -21,6 +21,10 @@
 @font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;
   src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
 :root{
+  /* First paint, and the floor if sky.js never loads. rigs/sky.js replaces
+     the sky-dependent ones (bg, paper, line, ink, ink2, dim, accent, gold)
+     as soon as it runs. */
+  --paper:#141a20; --gold:#D9A94A; --on-gold:#14171F; --shore:#030708;
   --bg:#0a0d10; --bg2:#0e1318;
   --panel:#141a20; --panel2:#1a222a; --panel3:#212b34;
   --line:#26313a; --line2:#334049;
@@ -66,9 +70,9 @@ body{
 }
 .tab:hover{color:var(--ink2);border-color:var(--line2)}
 .tab[aria-selected="true"]{
-  background:linear-gradient(180deg,var(--accent2),var(--accent));
-  color:#14171F;border-color:transparent;
-  box-shadow:0 2px 10px -2px color-mix(in srgb,var(--accent) 60%,transparent);
+  background:var(--gold);
+  color:var(--on-gold);border-color:transparent;
+  box-shadow:0 2px 10px -2px color-mix(in srgb,var(--gold) 55%,transparent);
 }
 
 .sheet[hidden]{display:none}
@@ -90,7 +94,12 @@ h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:44px;
 .sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font-size:10.5px;font-family:var(--mono);color:var(--dim);line-height:1.3}
 
 /* diagram */
-.dia{background:linear-gradient(180deg,var(--panel),var(--panel2));
+/* The rig and knot drawings are built for a dark ground, so they keep one in
+   every sky, like a photograph printed on the page. */
+.dia{--bg:#0a0d10;--panel:#141a20;--panel2:#1a222a;--panel3:#212b34;--line:#26313a;--line2:#334049;
+  --ink:#f4f7f9;--ink2:#c3cfd8;--dim:#8899a5;--accent:#ff6a2b;--accent2:#ffa066;
+  --go:#8fe85f;--warn:#ffc53d;--no:#ff5a4e;--hi:#fff;color:var(--ink);
+  background:linear-gradient(180deg,var(--panel),var(--panel2));
   border:1px solid var(--line);border-radius:16px;padding:8px;margin:0 0 18px;
   box-shadow:var(--sh);overflow:hidden}
 .dia svg{display:block;width:100%;height:auto;border-radius:10px}
@@ -152,7 +161,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 }
 .rail button:hover{border-color:var(--line2);color:var(--ink2)}
 .rail button[aria-current="true"]{
-  background:linear-gradient(180deg,var(--accent2),var(--accent));color:#14171F;border-color:transparent}
+  background:var(--gold);color:var(--on-gold);border-color:transparent}
 .rail button.done{color:var(--go);border-color:color-mix(in srgb,var(--go) 35%,var(--line))}
 .play{
   flex:0 0 auto;height:30px;padding:0 14px;border-radius:8px;cursor:pointer;
@@ -201,6 +210,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .buy .go{color:var(--line2);font-size:17px;line-height:1;flex:0 0 auto}
 
 /* ---- pinned header: species tabs + jump bar ---- */
+.skymode{margin-left:auto;flex:0 0 auto;min-width:44px;min-height:34px;padding:0 10px;cursor:pointer;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  font-size:12px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:999px}
+.skymode[data-held="yes"]{color:var(--on-gold);background:var(--gold);border-color:transparent}
 .top{position:sticky;top:0;z-index:30;margin:calc(-18px - env(safe-area-inset-top)) -16px 18px;
   padding-top:env(safe-area-inset-top);
   background:color-mix(in srgb,var(--bg) 88%,transparent);
@@ -225,10 +238,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   background:linear-gradient(180deg,var(--panel3),var(--panel2));border:1px solid var(--line2)}
 .vid:hover,.vid:active{border-color:var(--accent)}
 .vid .play{flex:0 0 52px;height:52px;border-radius:12px;position:relative;
-  background:linear-gradient(180deg,var(--accent2),var(--accent));
-  box-shadow:0 2px 12px -2px color-mix(in srgb,var(--accent) 60%,transparent)}
+  background:var(--gold);
+  box-shadow:0 2px 12px -2px color-mix(in srgb,var(--gold) 55%,transparent)}
 .vid .play::after{content:"";position:absolute;left:21px;top:16px;border-style:solid;
-  border-width:10px 0 10px 16px;border-color:transparent transparent transparent #fff}
+  border-width:10px 0 10px 16px;border-color:transparent transparent transparent var(--on-gold)}
 .vid .vt{flex:1;min-width:0}
 .vid .vt b{display:block;color:var(--ink);font-weight:650;font-size:15px;line-height:1.3}
 .vid .by{display:block;color:var(--accent);font-size:12.5px;font-weight:600;margin-top:3px}
@@ -266,7 +279,7 @@ a.back{text-decoration:none}
 /* ---- hot trips ---- */
 .heat{display:inline-block;padding:3px 9px;border-radius:999px;font-family:"Barlow Condensed",sans-serif;font-weight:700;
   font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line))}
-.heat.hot{background:var(--accent);color:#1a0d05;border-color:var(--accent)}
+.heat.hot{background:var(--gold);color:var(--on-gold);border-color:transparent}
 .gear{list-style:none;margin:14px 0 0;padding:0}
 .gear li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
 .gear li:first-child{border-top:0}
@@ -354,7 +367,7 @@ a.back{text-decoration:none}
   background:var(--panel);color:var(--dim);border:1px solid var(--line);
   border-radius:999px;padding:7px 14px;transition:all .15s;
 }
-.loc[aria-pressed="true"]{background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;border-color:transparent}
+.loc[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);border-color:transparent}
 .locone{font-size:13px;color:var(--dim);margin:0 0 4px}
 .locone strong{color:var(--ink2);font-weight:600}
 
@@ -408,7 +421,7 @@ a.back{text-decoration:none}
   text-transform:uppercase;letter-spacing:.07em;font-size:14px;color:var(--dim)}
 .tripgo{
   flex:0 0 auto;padding:10px 18px;border-radius:999px;cursor:pointer;border:0;
-  background:linear-gradient(180deg,var(--accent2),var(--accent));color:#fff;
+  background:var(--gold);color:var(--on-gold);
   font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.08em;font-size:14px;
   box-shadow:0 2px 12px -2px color-mix(in srgb,var(--accent) 60%,transparent);
@@ -475,6 +488,7 @@ a.back{text-decoration:none}
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
 <script src="/rigs/runs.js"></script>
+<script src="/rigs/sky.js"></script>
 <script src="/rigs/rules.js"></script>
 <script src="/rigs/waters.js"></script>
 <script>
@@ -724,7 +738,9 @@ a.back{text-decoration:none}
         (t[0] === tab ? "true" : "false") + '">' + t[1] + "</button>";
     }).join("");
     var sub = chipsFor(tab, active);
-    return '<header class="top"><nav class="tabs" role="tablist">' + tabs + "</nav>" +
+    return '<header class="top"><nav class="tabs" role="tablist">' + tabs +
+      '<button class="skymode" type="button" data-skymode title="Screen: follows the sky, or held light or dark">' +
+      '<span data-skylabel></span></button></nav>' +
       (sub ? '<nav class="jump" aria-label="Filter">' + sub + "</nav>" : "") + "</header>";
   }
 
@@ -983,7 +999,7 @@ a.back{text-decoration:none}
     if (c && !force) { lastPlan = planFrom(c); drawTrips(lastPlan); }
     RIG.trips.load(force).then(function (data) {
       if (!/^(#\/?)?(trips\/?)?$/.test(location.hash)) return;
-      lastPlan = planFrom(data); drawTrips(lastPlan);
+      lastPlan = planFrom(data); drawTrips(lastPlan); applySky();
     }).catch(function () {
       var host = app.querySelector("[data-week]");
       if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. The weather servers did not answer. Open this once with a signal and it will keep the last one for the pier.</p>' +
@@ -1369,6 +1385,45 @@ a.back{text-decoration:none}
     });
   }
 
+  // ---- the sky: the screen is the light Coach is standing in -------------
+  // Sunrise, sunset, cloud cover and rain come from the forecast the week is
+  // already built from, so this costs no extra call. "auto" follows the sky;
+  // "light" and "dark" hold it when the glare on the water says otherwise.
+  var SKY_KEY = "rig.skymode.v1";
+  function skyMode() {
+    try { var v = localStorage.getItem(SKY_KEY); return v === "light" || v === "dark" ? v : "auto"; } catch (e) { return "auto"; }
+  }
+  function setSkyMode(v) { try { localStorage.setItem(SKY_KEY, v); } catch (e) { /* private mode: this visit only */ } }
+  // Today's sun and cloud at the water, from the cached forecast.
+  function skyNow() {
+    var n = new Date(), h = n.getHours() + n.getMinutes() / 60;
+    var iso = n.getFullYear() + "-" + ("0" + (n.getMonth() + 1)).slice(-2) + "-" + ("0" + n.getDate()).slice(-2);
+    var c = RIG.trips && RIG.trips.cached && RIG.trips.cached();
+    var w = c && c.wx && (c.wx.redondo || c.wx[Object.keys(c.wx)[0]]);
+    var sun = (w && w.sun && w.sun[iso]) || null;
+    var hr = null;
+    if (w && w.hours) {
+      var want = iso + "T" + ("0" + Math.floor(h)).slice(-2);
+      for (var i = 0; i < w.hours.length; i++) if (w.hours[i].t.slice(0, 13) === want) { hr = w.hours[i]; break; }
+    }
+    return { h: h, sun: sun, wx: { clouds: hr && hr.clouds != null ? hr.clouds : 80, rain: (hr && hr.rain) || 0 } };
+  }
+  function applySky() {
+    if (!RIG.sky) return;
+    var mode = skyMode(), s = skyNow();
+    var r = RIG.sky.resolve(s.h, s.sun, s.wx, mode);
+    RIG.sky.apply(document.documentElement, r);
+    var theme = document.querySelector('meta[name="theme-color"]');
+    if (theme) theme.setAttribute("content", r.p.ground);
+    app.querySelectorAll("[data-skymode]").forEach(function (b) {
+      b.setAttribute("data-held", mode === "auto" ? "no" : "yes");
+      b.setAttribute("aria-label", mode === "auto" ? "Screen follows the sky. Tap to hold it light."
+        : mode === "light" ? "Screen held light. Tap to hold it dark." : "Screen held dark. Tap to follow the sky.");
+      var l = b.querySelector("[data-skylabel]");
+      if (l) l.textContent = mode === "auto" ? "Sky" : mode === "light" ? "Light" : "Dark";
+    });
+  }
+
   // When the screen was last drawn, and for which day. The installed app is
   // suspended, not reloaded, when Coach switches away from it, so coming
   // back the next morning would otherwise leave yesterday's trips on screen.
@@ -1387,6 +1442,7 @@ a.back{text-decoration:none}
   function render() {
     drawnDay = todayIso(); drawnAt = Date.now();
     renderView();
+    applySky();
     fillRules();
     initTyers(app);
     var top = app.querySelector(".top");
@@ -1451,6 +1507,11 @@ a.back{text-decoration:none}
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
+    var sm = t.closest("[data-skymode]");
+    if (sm) {
+      var next = { auto: "light", light: "dark", dark: "auto" }[skyMode()];
+      setSkyMode(next); applySky(); return;
+    }
     if (t.closest("[data-refresh]")) { renderTrips(true); checkRules(); return; }
     var ak = t.closest("[data-ack]");
     if (ak) { RIG.rules.ack(ak.dataset.ack); fillRules(); return; }
@@ -1499,6 +1560,9 @@ a.back{text-decoration:none}
   load();
   resolveMode();
   render();
+  applySky();
+  // The sky moves while the app is open: dusk arrives without a tap.
+  setInterval(applySky, 10 * 60e3);
   // Background rule check on every load. The page never waits for it.
   checkRules();
 

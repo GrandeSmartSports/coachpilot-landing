@@ -73,6 +73,19 @@
     return { id: id, forced: false, p: p, skyName: p.name };
   }
 
+  // Mix two hex colours, t of 0 is a, 1 is b. Used to shade the card
+  // surfaces out of the palette so every existing rule in the app keeps
+  // working under any sky.
+  function mix(a, b, t) {
+    function p(h, i) { return parseInt(h.slice(1 + i * 2, 3 + i * 2), 16); }
+    var o = "#";
+    for (var i = 0; i < 3; i++) {
+      var v = Math.round(p(a, i) + (p(b, i) - p(a, i)) * t);
+      o += ("0" + Math.max(0, Math.min(255, v)).toString(16)).slice(-2);
+    }
+    return o;
+  }
+
   function apply(el, r) {
     var p = r.p, s = el.style;
     s.setProperty("--sky1", p.sky[0]); s.setProperty("--sky2", p.sky[1]);
@@ -82,6 +95,17 @@
     s.setProperty("--accent", p.accent); s.setProperty("--accent2", p.accent2);
     s.setProperty("--gold", p.gold); s.setProperty("--on-gold", p.onGold);
     s.setProperty("--shore", p.shore);
+    // Card surfaces, shaded off the paper so the app's existing rules follow.
+    s.setProperty("--panel", p.paper);
+    s.setProperty("--panel2", mix(p.paper, p.ink, p.dark ? 0.05 : 0.035));
+    s.setProperty("--panel3", mix(p.paper, p.ink, p.dark ? 0.1 : 0.07));
+    s.setProperty("--bg2", mix(p.ground, p.ink, 0.03));
+    s.setProperty("--line2", mix(p.line, p.ink, 0.25));
+    // Go, warning and no. The bright set is built for a dark screen and
+    // washes out on a light one, so each sky gets its own.
+    s.setProperty("--go", p.dark ? "#8fe85f" : "#176B43");
+    s.setProperty("--warn", p.dark ? "#ffc53d" : "#8A6100");
+    s.setProperty("--no", p.dark ? "#ff5a4e" : "#A8291E");
     el.setAttribute("data-sky", r.id);
     el.style.colorScheme = p.dark ? "dark" : "light";
   }

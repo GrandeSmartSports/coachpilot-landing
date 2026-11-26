@@ -516,7 +516,7 @@
     var b = today.replace(/-/g, ""), e = end.replace(/-/g, "");
     return {
       wx: "https://api.open-meteo.com/v1/forecast?latitude=" + la + "&longitude=" + lo +
-        "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m&daily=sunrise,sunset" +
+        "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
         "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7",
       marine: "https://marine-api.open-meteo.com/v1/marine?latitude=" + ms.map(function (s) { return s.lat; }).join(",") +
         "&longitude=" + ms.map(function (s) { return s.lon; }).join(",") +
@@ -541,7 +541,8 @@
       var H = r.hourly, sun = {};
       (r.daily.time || []).forEach(function (d, j) { sun[d] = { rise: toHour(r.daily.sunrise[j]), set: toHour(r.daily.sunset[j]) }; });
       wx[s.id] = { sun: sun, hours: H.time.map(function (t, j) {
-        return { t: t, temp: H.temperature_2m[j], rain: H.precipitation[j], wind: H.wind_speed_10m[j], gust: H.wind_gusts_10m[j] };
+        return { t: t, temp: H.temperature_2m[j], rain: H.precipitation[j], wind: H.wind_speed_10m[j], gust: H.wind_gusts_10m[j],
+          clouds: H.cloud_cover ? H.cloud_cover[j] : null };
       }) };
     });
     var ml = marineJson ? (Array.isArray(marineJson) ? marineJson : [marineJson]) : [];

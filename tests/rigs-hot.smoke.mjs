@@ -141,6 +141,38 @@ try {
   ok(calls() === before, "a second open inside 3 hours reuses the saved forecast", `${before} -> ${calls()}`);
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 
+  // The screen is the sky: light in the day, dark at night, held when asked.
+  {
+    const c4 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles" });
+    await fake(c4);
+    const pg = await c4.newPage();
+    await pg.clock.install({ time: new Date("2026-11-24T11:00:00-08:00") });
+    await pg.goto(base, { waitUntil: "load" });
+    await pg.waitForSelector("[data-day]");
+    const bg = () => pg.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const lum = (c) => { const [r, g, b] = c.match(/\d+/g).map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+    const day = await bg();
+    ok(lum(day) > 150, "at 11 AM the screen is bright", day);
+    ok(await pg.locator("[data-sky]").count() > 0 || await pg.evaluate(() => !!document.documentElement.dataset.sky), "the page says which sky it is using");
+    await pg.locator("[data-skymode]").first().click();
+    await pg.waitForTimeout(300);
+    ok(/^light$/i.test((await pg.locator("[data-skylabel]").first().innerText()).trim()), "the first tap holds it light",
+      await pg.locator("[data-skylabel]").first().innerText());
+    await pg.locator("[data-skymode]").first().click();
+    await pg.waitForTimeout(400);
+    const held = await bg();
+    ok(lum(held) < 60, "the next tap holds it dark for glare", held);
+    await pg.reload({ waitUntil: "load" });
+    await pg.waitForSelector("[data-day]");
+    ok(lum(await bg()) < 60, "the choice sticks across opens", await bg());
+    // The rig drawings stay on their own dark card whatever the sky is.
+    await pg.goto(base + "#/squid/redondo/squid-rig", { waitUntil: "load" });
+    await pg.waitForSelector(".dia");
+    const diaDark = await pg.evaluate(() => { const [r, g, b] = getComputedStyle(document.querySelector(".dia")).backgroundColor.match(/\d+/g).map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; });
+    ok(diaDark < 70, "the rig drawings keep their dark card", diaDark);
+    await c4.close();
+  }
+
   // Coming back to the app the next day must not show yesterday's screen.
   // The installed app is suspended, not reloaded, so it has to notice.
   {
