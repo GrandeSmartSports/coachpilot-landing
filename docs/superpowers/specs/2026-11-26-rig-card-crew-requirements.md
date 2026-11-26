@@ -45,11 +45,14 @@ Coach, Russell (who Coach teaches), Coach's dad when he visits, Coach's nephew (
 
 | # | Requirement | Coach's words | Status |
 |---|---|---|---|
-| R17 | The call. The top of the home screen is the one best trip for you this week, said the way a guide would say it, with the reason and the next step | "I want suggestions", "actually help me plan" | NEXT (today, with the new look; the planner already has the data) |
+| R17 | The call. The top of the home screen is the one best trip for you this week, said the way a guide would say it, with the reason and the next step | "I want suggestions", "actually help me plan" | LIVE 11/26 as the top card of Hot Trips (was: NEXT, today, with the new look; the planner already has the data) |
 | R18 | The app learns the person by use: where they start from, when they fish, how far they will drive, shore or kayak or boat, what they chase, what they own, how experienced they are. No setup form | "The app should learn the user just like the user is learning the app" | NEXT (design first; today the week is tuned to Coach by hand) |
 | R19 | One question at a time, in the moment, skippable, only when the answer changes the advice | "asked me about 30 questions before I even got started" | NEXT, with R18 |
 | R20 | After a trip, one tap: how did it go. It feeds what the guide suggests next, and the crew log | "learn the user" | NEXT, with R18 |
 | R21 | The map is a view you can open, never the front door | "It opens to a map with dots... everything wrong" | LIVE (Trips opens to the list; Map is a second tab) |
+| R22 | The look is "On the water": a painted picture of the water on top of every screen under the real sky, cards crossing the waterline, lit at night. It follows the design identity at ~/memory/design-identity and passes its gate before Coach sees it | "that look is right it is coming together" | Hot Trips and trip cards LIVE 11/26 (stage A); library, crew, final proof NEXT (stages B, C, D in docs of the port brief) |
+| R23 | The app knows the spot. Each spot gets its own picture from true facts: which way you face, what is really on the skyline, the real pier or bank, with today's tide, river level, wind and rain painted in. Coach's own spots first. A fact that cannot be proven is not drawn | "I don't want it to be the same 5 scenes... How do we make it feel like the app knows our spots. These make me feel like the app is putting me into the spot" | NEXT (stage E; spot facts being researched and verified 11/26) |
+| R24 | Every person is called by their own name, which they can change. The owner can rename the crew. "Coach" is never a person's name in the app | "my name isn't coach to everyone else" | Server LIVE 11/26 (me_rename, crew_rename); screen NEXT (stage C) |
 
 ## Rules that hold across all of it
 
