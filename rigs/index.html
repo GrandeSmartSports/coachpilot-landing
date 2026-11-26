@@ -494,6 +494,40 @@ a.back{text-decoration:none}
 .cw-big{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg)}
 .cw-big img{display:block;max-width:100%;max-height:calc(100dvh - 140px);border-radius:12px;object-fit:contain}
+/* alerts on the crew screen: rows that are switches, and the notes that sit under a row */
+.cw-mark{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--go)}
+.cw-al{margin:28px 0 0}
+.cw-al > h2{margin-top:0}
+.cw-al-sum{font-size:15.5px;line-height:1.45;color:var(--ink);margin:0 0 12px}
+.cw-al-k{font-size:13px;color:var(--dim);margin:18px 0 6px}
+.cw-sws{margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden}
+.cw-sw{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 14px;font:inherit;text-align:left;color:var(--ink);
+  background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
+.cw-sw:first-child{border-top:0}
+.cw-sw:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.cw-sw-t{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
+.cw-sw-t b{display:block;font-size:15.5px;font-weight:600;line-height:1.3}
+.cw-sw-t span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--dim)}
+.cw-sw-k{flex:0 0 auto;position:relative;width:46px;height:28px;border-radius:14px;background:var(--panel3);border:1px solid var(--line2);
+  transition:background .15s}
+.cw-sw-k::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--dim);transition:transform .15s}
+.cw-sw[aria-checked="true"] .cw-sw-k{background:var(--go);border-color:transparent}
+.cw-sw[aria-checked="true"] .cw-sw-k::after{transform:translateX(18px);background:var(--paper)}
+.cw-sw-note{padding:12px 14px;border-top:1px solid var(--line);background:var(--panel2);font-size:14.5px;line-height:1.45;color:var(--ink2)}
+.cw-sw-note p{margin:0 0 4px}
+.cw-sw-note ol{margin:8px 0 0;padding:0 0 0 20px}
+.cw-sw-note li{margin:0 0 4px}
+.cw-sw-note .cw-act,.cw-sw-note .cw-plain{margin-top:10px}
+.cw-sw-note .cw-fld{margin:10px 0 0}
+.cw-sw-note .cw-msg{margin:10px 0 0}
+.cw-sw-note > .cw-msg:first-child{margin-top:0}
+.cw-sw-note.warn{color:var(--ink)}
+.cw-sw-note.warn p:first-child{color:var(--warn);font-weight:600}
+.cw-al .cw-two{margin-top:16px}
+.cw-al .cw-two .cw-fld{margin-bottom:0}
+.cw-al .cw-plain{margin-top:18px}
+.cw-al-lines .cw-msg{margin:10px 0 0}
+.cw-al [data-al-note]{margin:0 0 12px}
 .quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
 .asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -621,6 +655,7 @@ a.back{text-decoration:none}
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
   .cw-rowbtn .chev{transition:none}
+  .cw-sw-k,.cw-sw-k::after{transition:none}
   .floatbob{animation:none}
   .pickcard:hover{transform:none}
 }
@@ -1193,7 +1228,7 @@ a.back{text-decoration:none}
   var STEP_KEY = "rig.crewstep.v1", STEP_AGE = 15 * 60e3;
   function crewFresh(sms) {
     return { step: "phone", msg: null, sms: sms === undefined ? null : sms, joinMsg: null, vals: {}, st: null, sig: "",
-      share: null, confirm: null, rowMsg: {}, invMsg: null, hasPhone: null, num: null };
+      share: null, confirm: null, rowMsg: {}, invMsg: null, num: null, al: alFresh() };
   }
   var crewUi = crewFresh(), joinUi = { token: null }, crewQuiet = false, crewLoad = 0, cwBusy = {};
 
@@ -1216,11 +1251,20 @@ a.back{text-decoration:none}
   function crewOn() { return /^#\/?(crew|join)(\/|$)/.test(location.hash || ""); }
   function crewRedraw(load) {
     if (!crewOn()) return;
-    var act = document.activeElement, key = act && act.getAttribute ? act.getAttribute("data-keep") : null;
+    var act = document.activeElement, key = act && act.getAttribute ? act.getAttribute("data-keep") : null, alSel = "";
+    // A switch or a picker in the alerts group is found again by its own data-al- name.
+    if (!key && act && act.closest && act.closest("[data-al]")) {
+      [].some.call(act.attributes, function (a) {
+        if (a.name.indexOf("data-al-") !== 0) return false;
+        alSel = "[" + a.name + (a.value ? '="' + a.value + '"' : "") + "]";
+        return true;
+      });
+    }
     crewQuiet = !load;
     try { render(); } finally { crewQuiet = false; }
     var el = key && app.querySelector('[data-keep="' + key + '"]');
     if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* not that kind of box */ } }
+    else if (alSel && (el = app.querySelector("[data-al] " + alSel))) { try { el.focus({ preventScroll: true }); } catch (e) { /* nothing to hold */ } }
   }
   function kv(key) { return esc(crewUi.vals[key] || ""); }
   function cwField(label, input) { return '<label class="cw-fld"><span>' + label + "</span>" + input + "</label>"; }
@@ -1312,23 +1356,283 @@ a.back{text-decoration:none}
       '<button class="cw-go" type="button" data-invite-send>Add them</button>' +
       cwSaid(crewUi.invMsg, "Nobody else can get in. With a number they can sign in with a code too.", "data-invite-msg") + "</div>";
   }
+  // Adding a number to the account. It sits in the Alerts group under Text me,
+  // for an account with no number on it. This is only the inside of that note.
   function addnumHtml() {
-    if (crewUi.hasPhone !== false) return "";
-    var n = crewUi.num, open = '<div class="box" data-addnum><b>your number</b>';
-    if (!n) return open + "<p>Add your phone number and you can sign in with a code on any phone.</p>" +
-      '<button class="cw-plain" type="button" data-addnum-open>Add my number</button></div>';
-    if (n.step === "done") return open + cwMsg("Your number is on your account. You can sign in with it now.", "ok", "data-addnum-done") + "</div>";
-    if (n.step === "code") return open +
-      cwField("The code we texted you", '<input data-addnum-code data-keep="numCode" data-enter="data-addnum-verify" type="text" inputmode="numeric" ' +
+    var g = crewUi.al.got, n = crewUi.num;
+    if (n && n.step === "done") return cwMsg("Your number is on your account. You can sign in with it now.", "ok", "data-addnum-done");
+    if (!g || g.hasPhone) return "";
+    if (!n) return "<p>No number on your account yet. Add it to get texts, and to sign in with a code on any phone.</p>" +
+      '<button class="cw-act" type="button" data-addnum-open>Add my number</button>';
+    if (n.step === "code") return cwField("The code we texted you", '<input data-addnum-code data-keep="numCode" data-enter="data-addnum-verify" type="text" inputmode="numeric" ' +
         'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("numCode") + '">') +
       '<button class="cw-plain" type="button" data-addnum-verify>Confirm my number</button>' +
-      cwSaid(n.msg, "It can take a minute to arrive.", "data-addnum-msg") + "</div>";
-    return open +
-      cwField("Your phone number", '<input data-addnum-phone data-keep="numPhone" data-enter="data-addnum-send" type="tel" inputmode="tel" ' +
+      cwSaid(n.msg, "It can take a minute to arrive.", "data-addnum-msg");
+    return cwField("Your phone number", '<input data-addnum-phone data-keep="numPhone" data-enter="data-addnum-send" type="tel" inputmode="tel" ' +
         'autocomplete="tel" placeholder="253 555 0147" value="' + kv("numPhone") + '">') +
       '<button class="cw-plain" type="button" data-addnum-send>Text me a code</button>' +
-      cwSaid(n.msg, "", "data-addnum-msg") + "</div>";
+      cwSaid(n.msg, "", "data-addnum-msg");
   }
+
+  // ---- alerts --------------------------------------------------------------
+  // A group on the signed-in crew screen. Everything starts off. There are two
+  // ways to be told: a text, which needs a number on the account, and an alert
+  // on this phone, which the phone has to allow (and on an iPhone only a copy
+  // on the Home Screen may ask). Once either is on, the four kinds and quiet
+  // hours show. Send me a test says what happened, way by way.
+  //
+  // A change is saved as it is made. The row shows where it is going with
+  // "Saving" beside it, and only the server's own answer settles it: anything
+  // else puts the row back and says why. The last settings this phone saw are
+  // kept (rig.crewprefs.v1) so the group still opens with no signal.
+  //   crewUi.al   got: { prefs, hasPhone, pushSubs } as the server last gave them, or null
+  //               note: why they may be old.   err: why there are none.
+  //               pend: { switch: where it is going } while a save is on its way
+  //               said: { texts | push | kinds | quiet: { t, no } }
+  //               here: this phone itself is set up for alerts
+  //               help: "" | "install" | "denied", the how-to under Alert this phone
+  //               wantTexts: Text me was tapped on an account with no number
+  //               test: the lines the last test left.   testing: one is on its way.
+  var AL_KEY = "rig.crewprefs.v1";
+  var AL_KINDS = [["evTrips", "A new trip or idea"], ["evStatus", "A trip is on, moved or called off"],
+    ["evNotes", "A note on a trip you are on"], ["evGearCatches", "Gear handed to you, and catches"]];
+  function alFresh() { return { got: null, note: "", err: "", pend: {}, said: {}, here: false, help: "", wantTexts: false, test: null, testing: false }; }
+  function alSaved() {
+    try {
+      var s = RIG.crew.session(), c = JSON.parse(localStorage.getItem(AL_KEY) || "null");
+      return s && s.userId && c && c.userId === s.userId && c.prefs ? { prefs: c.prefs, hasPhone: c.hasPhone === true, pushSubs: Number(c.pushSubs) || 0 } : null;
+    } catch (e) { return null; }
+  }
+  function alKeep(got) {
+    var s = RIG.crew.session();
+    if (!s || !s.userId) return;
+    try { localStorage.setItem(AL_KEY, JSON.stringify({ userId: s.userId, prefs: got.prefs, hasPhone: got.hasPhone, pushSubs: got.pushSubs, at: Date.now() })); } catch (e) { /* private mode: this visit only */ }
+  }
+  // The server's own answer, taken as the truth. False when it is not one.
+  function alTake(a) {
+    var p = a && a.prefs, al = crewUi.al;
+    if (!p || typeof p !== "object" || typeof p.texts !== "boolean" || typeof p.push !== "boolean") return false;
+    al.got = { prefs: p, hasPhone: a.hasPhone === true, pushSubs: Number(a.pushSubs) || 0 };
+    al.note = ""; al.err = "";
+    alKeep(al.got);
+    return true;
+  }
+  // Is this phone itself set up for alerts right now: allowed, and listening.
+  function alHere() {
+    try {
+      var sw = navigator.serviceWorker;
+      if (!sw || !window.PushManager || !window.Notification || window.Notification.permission !== "granted") return Promise.resolve(false);
+      return Promise.resolve(sw.getRegistration()).then(function (reg) { return reg && reg.pushManager ? reg.pushManager.getSubscription() : null; })
+        .then(function (sub) { return !!sub; }, function () { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+  function alLoad(mine) {
+    var al = crewUi.al;
+    alHere().then(function (h) { if (mine === crewLoad && crewUi.al === al && al.here !== h) { al.here = h; crewRedraw(); } });
+    RIG.crew.prefsGet().then(function (p) {
+      if (mine !== crewLoad || crewUi.al !== al || (p && p.signedOut)) return;
+      var was = JSON.stringify([al.got, al.note, al.err]);
+      if (!alTake(p)) {
+        if (al.got) al.note = (p && p.offline ? "No signal." : "Could not refresh.") + " These are the alert settings this phone last saw.";
+        else al.err = p && p.offline ? "No signal, and your alert settings are not saved on this phone yet." : (p && p.error) || "Your alert settings could not be loaded. Try again.";
+      }
+      if (JSON.stringify([al.got, al.note, al.err]) !== was) crewRedraw();
+    });
+  }
+  function alVal(key) { var al = crewUi.al; return key in al.pend ? al.pend[key] : al.got.prefs[key]; }
+  // This phone's own switch reads on only when all of it is true: the account
+  // says alerts go to phones, the server holds a phone to send to, and this
+  // phone is listening.
+  function alPushOn() { var al = crewUi.al; return "push" in al.pend ? !!al.pend.push : !!(al.got.prefs.push && al.here && al.got.pushSubs > 0); }
+  function hourName(h) { return (h % 12 || 12) + (h < 12 ? " AM" : " PM"); }
+  function alSwitch(key, label, on, sub) {
+    var busy = key in crewUi.al.pend;
+    return '<button class="cw-sw" type="button" role="switch" data-al-sw="' + key + '" aria-checked="' + (on ? "true" : "false") + '"' + (busy ? ' aria-busy="true"' : "") + ">" +
+      '<span class="cw-sw-t"><b>' + label + "</b>" + (sub ? "<span>" + sub + "</span>" : "") + "</span>" +
+      (busy ? '<span class="cw-wait" data-al-saving>Saving</span>' : "") + '<span class="cw-sw-k" aria-hidden="true"></span></button>';
+  }
+  function alSaid(area) { var m = crewUi.al.said[area]; return m ? '<div class="cw-sw-note">' + cwSaid(m, "", 'data-al-said="' + area + '"') + "</div>" : ""; }
+  function alTextsNote() {
+    var al = crewUi.al, out = "";
+    if (al.got.prefs.textsStopped) {
+      out = '<div class="cw-sw-note warn" data-al-stopped><p>Texts are stopped.</p>' +
+        "<p>This number replied STOP. To get them back, text START to the number our texts come from, then tap below.</p>" +
+        '<button class="cw-act" type="button" data-al-unstop' + ("textsStopped" in al.pend ? " disabled" : "") + ">I texted START</button></div>";
+    }
+    var num = addnumHtml(), m = al.said.texts;
+    if (num || m) out += '<div class="cw-sw-note"' + (num ? " data-addnum" : "") + ">" + (m ? cwSaid(m, "", 'data-al-said="texts"') : "") + num + "</div>";
+    return out;
+  }
+  function alPushNote() {
+    var al = crewUi.al, out = "";
+    if (al.help === "install") {
+      out = '<div class="cw-sw-note" data-al-install><p>Add Rig Card to your Home Screen first.</p><p>Apple only allows alerts there.</p>' +
+        "<ol><li>Tap Share.</li><li>Tap Add to Home Screen.</li><li>Open Rig Card from there, sign in, and switch this on.</li></ol></div>";
+    } else if (al.help === "denied") {
+      out = '<div class="cw-sw-note" data-al-denied>' + (RIG.crew.alerts().ios
+        ? "<p>Alerts are turned off for Rig Card on this phone.</p><p>To turn them back on, open Settings, then Notifications, then Rig Card, and allow notifications. Then switch this on again.</p>"
+        : "<p>Alerts are blocked for this site in your browser.</p><p>To turn them back on, open the site settings next to the address, find Notifications, and choose Allow. Then switch this on again.</p>") + "</div>";
+    }
+    return out + alSaid("push");
+  }
+  function alertsHtml() {
+    var al = crewUi.al, g = al.got, head = '<section class="cw-al" data-al><h2>Alerts</h2>';
+    if (!g) {
+      return head + (al.err ? cwMsg(al.err, "no", "data-al-msg") + '<button class="cw-plain" type="button" data-al-retry>Try again</button>'
+        : cwMsg("Loading your alerts...", "", "data-al-msg")) + "</section>";
+    }
+    var p = g.prefs, texts = !!alVal("texts"), push = alPushOn();
+    // What can really reach this person right now. A switch left on with nothing behind it does not count.
+    var reach = !!(p.texts && g.hasPhone && !p.textsStopped), phoneOn = !!(p.push && al.here && g.pushSubs > 0), elsewhere = !!(p.push && g.pushSubs > 0 && !al.here);
+    var sum = reach && phoneOn ? "On: texts and this phone." : reach && elsewhere ? "On: texts and another phone of yours." : reach ? "On: texts."
+      : phoneOn ? "On: this phone." : elsewhere ? "On: another phone of yours." : "Off. Nothing is sent to you.";
+    var ways = alSwitch("texts", "Text me", texts, texts && !g.hasPhone ? "No number on your account, so no text can reach you." : "") + alTextsNote() +
+      alSwitch("push", "Alert this phone", push, !push && elsewhere ? "On for another phone of yours." : "") + alPushNote();
+    var more = "";
+    if (p.texts || p.push) {
+      var from = Number(alVal("quietFrom")), to = Number(alVal("quietTo")), saving = "quietFrom" in al.pend || "quietTo" in al.pend;
+      var hours = function (attr, picked) {
+        var o = "", h;
+        for (h = 0; h < 24; h++) o += '<option value="' + h + '"' + (h === picked ? " selected" : "") + ">" + hourName(h) + "</option>";
+        return "<select " + attr + (saving ? " disabled" : "") + ">" + o + "</select>";
+      };
+      more = '<p class="cw-al-k">You hear about</p><div class="cw-sws" data-al-kinds>' +
+        AL_KINDS.map(function (k) { return alSwitch(k[0], k[1], !!alVal(k[0]), ""); }).join("") + alSaid("kinds") + "</div>" +
+        '<div class="cw-two" data-al-quiet>' + cwField("Quiet from", hours("data-al-quiet-from", from)) + cwField("Until", hours("data-al-quiet-to", to)) + "</div>" +
+        cwMsg(saving ? "Saving..." : from === to ? "No quiet hours." : "Nothing is sent from " + hourName(from) + " to " + hourName(to) + ". It arrives at " + hourName(to) + ".", "", "data-al-quiet-note") +
+        (al.said.quiet ? cwSaid(al.said.quiet, "", 'data-al-said="quiet"') : "");
+    }
+    var lines = (al.test || []).map(function (l) { return cwMsg(l.t, l.no ? "no" : l.k === "none" ? "" : "ok", 'data-al-test-line="' + l.k + '"'); }).join("");
+    return head + '<p class="cw-al-sum" data-al-sum>' + sum + "</p>" + (al.note ? cwMsg(al.note, "", "data-al-note") : "") +
+      '<div class="cw-sws" data-al-ways>' + ways + "</div>" + more +
+      '<button class="cw-plain" type="button" data-al-test' + (al.testing ? " disabled" : "") + ">" + (al.testing ? "Sending..." : "Send me a test") + "</button>" +
+      '<div class="cw-al-lines" data-al-test-msg>' + lines + "</div></section>";
+  }
+  function alWhy(r) {
+    if (r && r.offline) return "No signal. That was not saved.";
+    var e = (r && r.error) || "That did not go through.";
+    return /not saved/i.test(e) ? e : e.replace(/\s*Try again\.?\s*$/i, "") + " That was not saved.";
+  }
+  // My own row in the crew list follows my switches, and so does what the
+  // phone has saved of the crew.
+  function alSync() {
+    var st = crewUi.st, g = crewUi.al.got, on = !!(g && (g.prefs.texts || g.prefs.push)), moved = false;
+    if (!st || !st.me || !st.members) return;
+    st.members.forEach(function (m) { if (m.id === st.me.id && !!m.alerts !== on) { m.alerts = on; moved = true; } });
+    if (!moved) return;
+    crewUi.sig = "";
+    RIG.crew.state({ fresh: true }).then(function (r) { if (r && (r.me || r.signedOut)) crewTake(r); });
+  }
+  // One change, saved now. area says where a failure is reported.
+  function alSave(fields, area) {
+    var al = crewUi.al, keys = Object.keys(fields);
+    keys.forEach(function (k) { al.pend[k] = fields[k]; });
+    al.said[area] = null;
+    crewRedraw();
+    return RIG.crew.prefsSet(fields).then(function (r) {
+      if (crewUi.al !== al) return;
+      keys.forEach(function (k) { delete al.pend[k]; });
+      if (r && r.signedOut) { crewTake(r); return; }
+      if (alTake(r)) alSync(); else al.said[area] = { t: alWhy(r), no: true };
+      crewRedraw();
+    });
+  }
+  function alTap(key) {
+    var al = crewUi.al, f = {};
+    if (!al.got || key in al.pend || cwT.repeat) return;
+    if (key === "push") { alPushTap(); return; }
+    var on = !!alVal(key);
+    if (key === "texts" && !on && !al.got.hasPhone) {
+      // Nowhere to send a text, so nothing is switched on. The number first.
+      al.wantTexts = true;
+      al.said.texts = { t: "Texts need a number on your account. Add yours first." };
+      if (!crewUi.num || crewUi.num.step === "done") crewUi.num = { step: "phone", msg: null };
+      crewRedraw();
+      focusKeep(crewUi.num.step === "code" ? "numCode" : "numPhone");
+      return;
+    }
+    f[key] = !on;
+    alSave(f, key === "texts" ? "texts" : "kinds");
+  }
+  function alPushTap() {
+    var al = crewUi.al, a = RIG.crew.alerts();
+    al.said.push = null; al.help = "";
+    if (alPushOn()) { alPushOff(); return; }
+    // An iPhone or iPad that is not running from the Home Screen: Apple shows
+    // no question there, so none is asked.
+    if (a.ios && !a.installed) { al.help = "install"; crewRedraw(); return; }
+    // Asked right here, inside the tap: a phone only shows its question to a tap.
+    var asking = RIG.crew.pushSubscribe();
+    al.pend.push = true;
+    crewRedraw();
+    asking.then(function (r) {
+      if (crewUi.al !== al) return;
+      delete al.pend.push;
+      if (r && r.signedOut) { crewTake(r); return; }
+      if (r && r.ok) { al.here = true; alSave({ push: true }, "push"); return; }
+      if (r && r.needsInstall) al.help = "install";
+      else if (r && r.denied) al.help = "denied";
+      else al.said.push = { t: r && r.offline ? "No signal. Alerts were not switched on." : RIG.crew.say(r, "This phone could not be set up for alerts. Try again."), no: true };
+      crewRedraw();
+    });
+  }
+  function alPushOff() {
+    var al = crewUi.al, others = al.got.pushSubs > 1;
+    al.pend.push = false;
+    crewRedraw();
+    RIG.crew.pushUnsubscribe().then(function (r) {
+      if (crewUi.al !== al) return;
+      delete al.pend.push;
+      if (!r || !r.ok) { al.said.push = { t: RIG.crew.say(r, "Alerts could not be turned off on this phone. Try again."), no: true }; crewRedraw(); return; }
+      al.here = false;
+      // With another phone of theirs still on, the account's own switch stays
+      // on. With none left it goes off, so the crew is not told this person
+      // can be reached when they cannot.
+      if (!others) { alSave({ push: false }, "push"); return; }
+      crewRedraw();
+      RIG.crew.prefsGet().then(function (p) { if (crewUi.al === al && alTake(p)) crewRedraw(); });
+    });
+  }
+  // What the test did, one line for each way it tried.
+  function alTestWords(r) {
+    var al = crewUi.al, g = al.got, p = g.prefs, out = [];
+    if (!r || r.ok !== true) return [{ k: "fail", t: r && r.offline ? "No signal. The test was not sent." : RIG.crew.say(r, "The test could not be sent. Try again."), no: true }];
+    if (r.push === "sent") out.push({ k: "push", t: al.here ? "Sent to this phone." : "Sent to your other phone." });
+    else if (r.push === "failed") out.push({ k: "push", t: "Your phone refused it. Switch Alert this phone off, then on again.", no: true });
+    if (r.text === "sent") out.push({ k: "text", t: "Texted you." });
+    else if (r.text === "failed") out.push({ k: "text", t: "The text did not go through. Try again in a minute.", no: true });
+    else if (r.text === "stopped") out.push({ k: "text", t: "Texts are stopped. This number replied STOP. Text START to the number our texts come from to get them back.", no: true });
+    if (out.length) return out;
+    if (!p.texts && !p.push) return [{ k: "none", t: "Nothing is switched on." }];
+    return [{ k: "none", no: true, t: "Nothing was sent. " + (p.texts && !g.hasPhone ? "Texts are on, but there is no number on your account."
+      : p.push && !g.pushSubs ? "No phone is set up for alerts." : "The limit is 30 alerts a day, and you may be at it.") }];
+  }
+  function alTest() {
+    var al = crewUi.al;
+    if (!al.got || al.testing) return;
+    al.testing = true; al.test = null;
+    crewRedraw();
+    RIG.crew.testAlert().then(function (r) {
+      if (crewUi.al !== al) return;
+      al.testing = false;
+      if (r && r.signedOut) { crewTake(r); return; }
+      al.test = alTestWords(r);
+      // The server has just learned this number replied STOP.
+      if (r && r.text === "stopped") { al.got.prefs.textsStopped = true; alKeep(al.got); }
+      crewRedraw();
+    });
+  }
+  // A number has just been confirmed on the account.
+  function alGotPhone() {
+    var al = crewUi.al, want = al.wantTexts;
+    al.wantTexts = false; al.said.texts = null;
+    if (!al.got) return;
+    al.got.hasPhone = true;
+    alKeep(al.got);
+    // They got here by tapping Text me, so that is finished for them.
+    if (want && !al.got.prefs.texts && !("texts" in al.pend)) alSave({ texts: true }, "texts");
+  }
+
   function crewBodyHtml() {
     var r = crewUi.st, out = '<button class="cw-plain cw-out" type="button" data-signout>Sign out</button>';
     if (!r) return cwMsg("Loading the crew...", "", "data-crew-msg");
@@ -1341,7 +1645,7 @@ a.back{text-decoration:none}
       : r.stale && r.error ? "Could not refresh. This is the last crew list this phone saw." : "";
     var noteHtml = note ? cwMsg(note, "", "data-crew-note") : "";
     if (!r.crew) {
-      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>' + addnumHtml() + out;
+      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>' + out;
     }
     var owner = r.crew.role === "owner";
     var rows = (r.members || []).map(function (m) {
@@ -1357,12 +1661,13 @@ a.back{text-decoration:none}
             (m.signIn === "link" ? '<button class="cw-mini" type="button" data-newlink="' + id + '">New link</button>' : "") +
             '<button class="cw-mini" type="button" data-remove="' + id + '">Remove</button></span>';
       }
-      return '<li data-member="' + id + '"><span class="cw-who"><b>' + esc(m.name) + "</b>" + (tags ? "<span>" + tags + "</span>" : "") + "</span>" + acts +
+      return '<li data-member="' + id + '"><span class="cw-who"><b>' + esc(m.name) + "</b>" + (tags ? "<span>" + tags + "</span>" : "") + "</span>" +
+        (m.alerts ? '<span class="cw-mark" data-member-alerts>alerts on</span>' : "") + acts +
         (crewUi.rowMsg[m.id] ? cwMsg(crewUi.rowMsg[m.id], "no", 'data-member-msg="' + id + '"') : "") + "</li>";
     }).join("");
     return "<h2 data-crewname>" + esc(r.crew.name || "Your crew") + "</h2>" + noteHtml +
       '<ul class="cw-list">' + rows + "</ul>" +
-      (crewUi.share ? shareHtml() : owner ? inviteHtml() : "") + addnumHtml() + out;
+      (crewUi.share ? shareHtml() : owner ? inviteHtml() : "") + alertsHtml() + out;
   }
   function crewTake(r) {
     if (!r || r.signedOut) { crewUi = crewFresh(crewUi.sms); stepSave(); crewRedraw(true); return; }
@@ -1377,12 +1682,7 @@ a.back{text-decoration:none}
     var mine = ++crewLoad;
     function take(r) { if (mine === crewLoad) crewTake(r); }
     RIG.crew.state({ onFresh: take }).then(take);
-    // Only an account with no number on it is offered "Add my number".
-    RIG.crew.prefsGet().then(function (p) {
-      if (mine !== crewLoad || !p || typeof p.hasPhone !== "boolean" || crewUi.hasPhone === p.hasPhone) return;
-      crewUi.hasPhone = p.hasPhone;
-      crewRedraw();
-    });
+    alLoad(mine);
   }
   function renderCrew() {
     if (!RIG.crew) {
@@ -1394,6 +1694,14 @@ a.back{text-decoration:none}
       if (!crewQuiet) helloCheck();
       return;
     }
+    var al = crewUi.al;
+    if (cwT.nav) {
+      // Arriving here: what the last visit said is not said again.
+      al.said = {}; al.help = ""; al.test = null;
+      if (crewUi.num && crewUi.num.step === "done") crewUi.num = null;
+    }
+    // What this phone last saw of the alert settings is on screen at once, signal or not.
+    if (!al.got) al.got = alSaved();
     app.innerHTML = crewHead("crew") + '<div class="cw">' + crewBodyHtml() + "</div></div>" + tripBarHtml();
     if (!crewQuiet) crewFetch();
   }
@@ -1572,7 +1880,12 @@ a.back{text-decoration:none}
       return true;
     }
 
-    if (t.closest("[data-addnum-open]")) { crewUi.num = { step: "phone", msg: null }; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-al-sw]"))) { alTap(hit.getAttribute("data-al-sw")); return true; }
+    if (t.closest("[data-al-unstop]")) { if (crewUi.al.got && !("textsStopped" in crewUi.al.pend)) alSave({ textsStopped: false }, "texts"); return true; }
+    if (t.closest("[data-al-test]")) { alTest(); return true; }
+    if (t.closest("[data-al-retry]")) { crewUi.al = alFresh(); crewRedraw(true); return true; }
+
+    if (t.closest("[data-addnum-open]")) { crewUi.num = { step: "phone", msg: null }; crewUi.al.said.texts = null; crewRedraw(); focusKeep("numPhone"); return true; }
     if (t.closest("[data-addnum-send]")) {
       if (!RIG.crew.normalizePhone(v.numPhone)) { crewUi.num = { step: "phone", msg: { t: "That does not look like a US phone number.", no: true } }; crewRedraw(); return true; }
       cwOnce("num", function () {
@@ -1591,7 +1904,7 @@ a.back{text-decoration:none}
         crewUi.num = { step: "code", msg: { t: "Checking..." } }; crewRedraw();
         return RIG.crew.confirmMyNumber(v.numPhone, v.numCode).then(function (r) {
           if (r && r.signedOut) { crewTake(r); return; }
-          if (r && r.ok) { crewUi.num = { step: "done" }; v.numPhone = ""; v.numCode = ""; }
+          if (r && r.ok) { crewUi.num = { step: "done" }; v.numPhone = ""; v.numCode = ""; alGotPhone(); }
           else crewUi.num = { step: "code", msg: { t: RIG.crew.say(r, "That code did not work. Check it, or ask for a new one."), no: true } };
           crewRedraw();
         });
@@ -1950,9 +2263,9 @@ a.back{text-decoration:none}
   // Notes, the list and catches sit in three boxes on the trip page (and one
   // notes box on each section page), filled by cwNotesHtml, cwListHtml and
   // cwCatchesHtml below. Anything added to a trip goes in there, not in from
-  // outside: the page is redrawn whole whenever a write lands. Alerts, the
-  // next stage, need only RIG.crew.prefsGet and friends; the Tell row
-  // (tellHtml, tellIds, withTell) already rides on every write that can alert.
+  // outside: the page is redrawn whole whenever a write lands. The Tell row
+  // (tellHtml, tellIds, withTell) rides on every write that can alert. Who can
+  // hear is set on the crew screen, in the Alerts group (search "---- alerts").
   var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAYFULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -2229,6 +2542,16 @@ a.back{text-decoration:none}
       cwField("A note (optional)", '<textarea data-cw-note data-keep="newNote" maxlength="280" placeholder="Meet at the pier at 5">' + kv("newNote") + "</textarea>") +
       tellHtml("new") + '<button class="cw-go" type="button" data-cw-create>Make the trip</button>' +
       cwSaid(cwT.newMsg, "", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
+  }
+  // A trip is where a text or an alert lands, so it is often opened cold, on a
+  // crew this phone saved hours ago. The Tell row and Who has it are drawn
+  // from that, and a sender must not be choosing from yesterday's people: the
+  // crew is asked for quietly, at most once a minute. The answer redraws the
+  // trip through the one RIG.crew.onChange listener.
+  function crewStFresh() {
+    if (Date.now() - (cwT.stAt || 0) < 60e3) return;
+    cwT.stAt = Date.now();
+    RIG.crew.state({ fresh: true }).then(function (r) { if (!r || !r.me || r.stale) cwT.stAt = 0; });
   }
   // Nothing saved yet (a cold open straight onto a crew page): ask once.
   function crewStLoad() {
@@ -2633,7 +2956,7 @@ a.back{text-decoration:none}
       tripRedraw();
     }
     RIG.crew.trip(id, { onFresh: take }).then(take);
-    if (!RIG.crew.cached()) crewStLoad();
+    if (!RIG.crew.cached()) crewStLoad(); else crewStFresh();
     wxLoad(tripRedraw);
   }
   function goingHtml(trip, me) {
@@ -3008,8 +3331,12 @@ a.back{text-decoration:none}
     RIG.crew.onChange(function (w) {
       if (!w) return;
       if (w.kind === "session") {
-        // Signed out: the catch photos kept on this phone go too.
-        if (!RIG.crew.session()) { photoLocal = {}; photoAsked = {}; try { if (window.caches) window.caches.delete(PHOTO_BOX).then(null, function () {}); } catch (e) { /* no store here */ } }
+        // Signed out: the catch photos kept on this phone go too, and the alert settings it had saved.
+        if (!RIG.crew.session()) {
+          photoLocal = {}; photoAsked = {};
+          try { if (window.caches) window.caches.delete(PHOTO_BOX).then(null, function () {}); } catch (e) { /* no store here */ }
+          try { localStorage.removeItem(AL_KEY); } catch (e) { /* nothing saved */ }
+        }
         return;
       }
       // Only the end of a pass that sent or dropped something carries "dropped".
@@ -3305,6 +3632,13 @@ a.back{text-decoration:none}
     // Log a fish: the photo that was picked shows small, before anything is sent.
     var ph = e.target.closest("[data-cw-catch-photo]");
     if (ph) { catchPhoto(ph.files && ph.files[0]); tripUi.cMsg = null; crewRedraw(); }
+    // Alerts: a new quiet hour is saved as it is picked.
+    var qh = e.target.closest("[data-al-quiet-from],[data-al-quiet-to]");
+    if (qh && crewUi.al.got) {
+      var quiet = {};
+      quiet[qh.hasAttribute("data-al-quiet-from") ? "quietFrom" : "quietTo"] = Number(qh.value);
+      alSave(quiet, "quiet");
+    }
     // Planning a trip: the list of plans and the conditions line follow the
     // day, the pick and the window.
     var f = e.target.closest('[data-view="crewnew"] [data-keep]');

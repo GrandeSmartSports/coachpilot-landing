@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v24";
+const CACHE = "rigs-v25";
 
 // This one file runs under two registrations. "/rigs/" is the app, and
 // everything below is for it. "/rigs" with no slash is the address a person
@@ -189,17 +189,26 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ---- alerts ---------------------------------------------------------------
-// The crew function sends { title, body, url }. Only the "/rigs/" worker is
-// ever subscribed, so only it hears these.
+// The crew function sends { title, body, url, tag }. Only the "/rigs/" worker
+// is ever subscribed, so only it hears these.
+//
+// The link in an alert is written for coachpilot.org. This copy of the app may
+// have been opened, and put on a Home Screen, from www.coachpilot.org (both
+// answer), so the link is carried over to the address this worker lives at:
+// the same page, on the copy that is installed. A link to anywhere that is not
+// a Rig Card page of ours becomes the app's front door and is never opened.
+const OURS = /^(www\.)?coachpilot\.org$/;
 function rigUrl(raw) {
+  const home = self.location.origin + "/rigs/";
   try {
     const u = new URL(raw || "/rigs/", self.location.origin);
-    return u.origin === self.location.origin && u.pathname.startsWith("/rigs/") ? u.href : self.location.origin + "/rigs/";
-  } catch (e) { return self.location.origin + "/rigs/"; }
+    const ours = u.origin === self.location.origin || (u.protocol === "https:" && !u.port && OURS.test(u.hostname));
+    return ours && u.pathname.startsWith("/rigs/") ? self.location.origin + u.pathname + u.search + u.hash : home;
+  } catch (e) { return home; }
 }
 
 // What to show for one push. Kept apart from the listener so it can be read
-// and tested on its own. A link that is not Rig Card's own is never opened.
+// and tested on its own.
 function pushParts(data) {
   let d = { title: "Rig Card", body: "Something changed on a crew trip.", url: "/rigs/#/trips" };
   if (data) {
@@ -209,17 +218,21 @@ function pushParts(data) {
   if (d.tag) opts.tag = String(d.tag);
   return { title: String(d.title || "Rig Card"), opts: opts };
 }
+function showPush(data) {
+  const p = pushParts(data);
+  return self.registration.showNotification(p.title, p.opts);
+}
 self.addEventListener("push", (event) => {
-  const p = pushParts(event.data);
-  event.waitUntil(self.registration.showNotification(p.title, p.opts));
+  event.waitUntil(showPush(event.data));
 });
 
 // A tap: bring an open Rig Card to the front and send it to the trip, or
-// open one there.
+// open one there. Only the app itself can be sent anywhere. Another page
+// under /rigs/ would take the message and do nothing with it.
 async function openRig(target) {
   const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
   for (const c of all) {
-    if (new URL(c.url).pathname.startsWith("/rigs/")) {
+    if (isShellPath(new URL(c.url).pathname)) {
       c.postMessage({ type: "rig-open", url: target });
       if ("focus" in c) { try { await c.focus(); } catch (e) { /* the phone decides */ } }
       return "sent";
@@ -228,7 +241,10 @@ async function openRig(target) {
   if (self.clients.openWindow) await self.clients.openWindow(target);
   return "opened";
 }
+function alertTapped(notification) {
+  notification.close();
+  return openRig(rigUrl(notification.data && notification.data.url));
+}
 self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  event.waitUntil(openRig(rigUrl(event.notification.data && event.notification.data.url)));
+  event.waitUntil(alertTapped(event.notification));
 });
