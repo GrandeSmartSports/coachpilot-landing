@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rig Card: the new look</title>
+<link rel="icon" href="/rigs/icon-v4-192.png">
+<style>
+/* VOICE  a grey morning on Puget Sound, not a postcard
+   IDEA   the app is a window: the top is the sky you are actually under
+   PICTURE a live horizon, sky over water, that tracks the real hour
+   COLOUR the sky sets everything; gold is the only thing that never moves
+   LAYOUT one phone column, the horizon above, the week below */
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format('woff2')}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(/rigs/fonts/barlow-condensed-600.woff2) format('woff2')}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);overflow-x:clip}
+body{font:16px/1.5 Inter,system-ui,sans-serif;color:var(--ink);
+  transition:background-color .7s ease,color .7s ease;
+  padding:0 0 calc(28px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
+.wrap{max-width:430px;margin:0 auto;padding:0 16px}
+
+/* ---- the window: sky over water ------------------------------------- */
+.window{position:relative;height:172px;margin:0 0 14px;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2));transition:background .9s ease}
+.window .sun{position:absolute;left:50%;width:62px;height:62px;border-radius:50%;
+  transform:translate(-50%,-50%);transition:top .9s ease,opacity .9s ease,background .9s ease;filter:blur(.3px)}
+.window .water{position:absolute;left:0;right:0;bottom:0;height:56px;
+  background:linear-gradient(180deg,var(--water1),var(--water2));transition:background .9s ease}
+/* Chop: fine strokes near the horizon, opening up as the water comes toward you. */
+.window .water::before{content:"";position:absolute;inset:0;opacity:.22;
+  background:repeating-linear-gradient(180deg,rgba(255,255,255,.45) 0 .5px,transparent .5px 5px),
+    repeating-linear-gradient(180deg,transparent 0 13px,rgba(0,0,0,.18) 13px 14px);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
+/* The sun lays a column of light down the water instead of a block. */
+.window .glint{position:absolute;bottom:0;width:150px;height:56px;transform:translateX(-50%);
+  background:radial-gradient(60% 120% at 50% 0,color-mix(in srgb,var(--sky2) 85%,transparent),transparent 72%);
+  opacity:.8;transition:opacity .9s ease,left .9s ease}
+.window .hills{position:absolute;left:0;right:0;bottom:50px;height:44px;opacity:1}
+.window svg{display:block;width:100%;height:100%}
+.hz{position:absolute;left:0;right:0;bottom:56px;height:1px;background:rgba(255,255,255,.3)}
+
+.top{position:relative;z-index:2}
+.eyebrow{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;font-size:12px;color:var(--accent);margin:0 0 2px}
+h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:40px;line-height:1;margin:0 0 4px;
+  letter-spacing:-.01em;text-wrap:balance}
+.sub{margin:0;color:var(--ink2);font-size:15px}
+
+/* ---- cards ----------------------------------------------------------- */
+.day{margin:22px 0 0}
+.day h2{display:flex;align-items:center;gap:10px;font-family:"Barlow Condensed",sans-serif;font-weight:700;
+  text-transform:uppercase;letter-spacing:.07em;font-size:17px;margin:0 0 8px;color:var(--ink)}
+.day h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.rows{background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 1px 2px color-mix(in srgb,var(--ink) 7%,transparent),0 14px 30px -22px color-mix(in srgb,var(--ink) 55%,transparent)}
+.row{display:flex;align-items:center;gap:12px;padding:13px 14px;text-decoration:none;color:inherit;
+  border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.rt{flex:1;min-width:0}
+.rt b{display:block;font-size:16px;font-weight:600;letter-spacing:-.01em}
+.rt span{display:block;font-size:13px;color:var(--dim);margin-top:2px}
+.heat{flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;
+  color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line))}
+.heat.hot{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.chev{color:var(--dim)}
+.why{margin:8px 0 0;padding:11px 13px;border:1px solid var(--line);border-radius:14px;
+  font-size:13px;line-height:1.45;color:var(--dim);background:color-mix(in srgb,var(--paper) 55%,transparent)}
+
+/* ---- the switch ------------------------------------------------------ */
+.bar{position:sticky;bottom:0;z-index:5;margin:26px 0 0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  background:var(--paper);border-top:1px solid var(--line);
+  box-shadow:0 -10px 24px -18px color-mix(in srgb,var(--ink) 70%,transparent)}
+.bar .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:0 0 8px}
+.bar .lab b{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;font-size:12px;color:var(--accent)}
+.bar .lab span{font-size:13px;color:var(--dim)}
+input[type=range]{width:100%;accent-color:var(--accent);height:30px}
+.modes{display:flex;gap:8px;margin-top:6px}
+.modes button{flex:1;min-height:44px;font:inherit;font-size:14px;font-weight:600;color:var(--ink2);
+  background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.modes button[aria-pressed=true]{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.note{max-width:430px;margin:18px auto 0;padding:0 16px;font-size:13px;color:var(--dim)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="window" aria-hidden="true">
+  <div class="sun" id="sun"></div>
+  <div class="hills"><svg viewBox="0 0 400 46" preserveAspectRatio="none"><path d="M0 44 L0 26 Q46 10 86 22 Q122 33 152 17 Q188 0 226 18 Q262 34 300 21 Q338 9 368 24 Q384 32 400 26 L400 44Z" fill="rgba(13,26,24,.72)"/>
+<path d="M0 44 L0 36 Q60 28 110 34 Q150 39 196 31 Q244 23 288 33 Q336 43 400 35 L400 44Z" fill="rgba(8,18,17,.86)"/></svg></div>
+  <div class="hz"></div>
+  <div class="water"><div class="glint"></div></div>
+</div>
+
+<div class="wrap top">
+  <p class="eyebrow" id="eyebrow">Next 7 days</p>
+  <h1>Hot Trips</h1>
+  <p class="sub" id="sub">Picked from tides, wind and season.</p>
+
+  <section class="day">
+    <h2>Today Nov 25</h2>
+    <p class="why">No daylight after work, sunset 4:23 PM. Waiting for the weekend: Bonney Lake, Coho on the Green.</p>
+  </section>
+
+  <section class="day">
+    <h2>Thu Nov 26</h2>
+    <div class="rows">
+      <a class="row" href="#"><span class="rt"><b>Squid at Les Davis Pier</b><span>Evening &middot; 5:00 PM to 10:00 PM</span></span><span class="heat hot">Hot</span><span class="chev">&rsaquo;</span></a>
+      <a class="row" href="#"><span class="rt"><b>Chum on the Green</b><span>Quick trip &middot; 7:28 AM to 11:00 AM</span></span><span class="heat">Good</span><span class="chev">&rsaquo;</span></a>
+      <a class="row" href="#"><span class="rt"><b>Sea-run cutthroat, Dash Point</b><span>Quick trip &middot; 12:39 PM to 3:00 PM</span></span><span class="heat">Good</span><span class="chev">&rsaquo;</span></a>
+    </div>
+  </section>
+
+  <section class="day">
+    <h2>Sat Nov 28</h2>
+    <div class="rows">
+      <a class="row" href="#"><span class="rt"><b>Razor clams, Copalis</b><span>Adventure day &middot; 7:18 PM to 9:48 PM</span></span><span class="heat hot">Hot</span><span class="chev">&rsaquo;</span></a>
+      <a class="row" href="#"><span class="rt"><b>Trout at Bonney Lake</b><span>Quick trip &middot; 7:30 AM to 11:00 AM</span></span><span class="heat">Good</span><span class="chev">&rsaquo;</span></a>
+    </div>
+  </section>
+</div>
+
+<div class="bar">
+  <div class="wrap" style="padding:0">
+    <p class="lab"><b id="phase">Overcast</b><span id="clock">10:00 AM</span></p>
+    <input type="range" id="t" min="0" max="1439" step="5" value="600" aria-label="Time of day">
+    <div class="modes">
+      <button data-mode="auto" aria-pressed="true">Auto</button>
+      <button data-mode="light" aria-pressed="false">Light</button>
+      <button data-mode="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
+</div>
+<p class="note">Drag the slider to walk through the day. Auto follows the real sky at the water. Light and Dark pin it when the glare is wrong.</p>
+
+<script src="/rigs/look/sky.js"></script>
+<script>
+(function () {
+  var SUN = { rise: 7.52, set: 16.38 }; // Nov 25, Bonney Lake
+  var mode = "auto";
+  var t = document.getElementById("t"), sun = document.getElementById("sun");
+  function wxAt(h) {
+    // A believable late November day: overcast, a shower at midday, clearing late.
+    if (h > 11 && h < 13.5) return { clouds: 95, rain: 0.05 };
+    if (h > 14.5) return { clouds: 55, rain: 0 };
+    return { clouds: 88, rain: 0 };
+  }
+  function clock(h) {
+    var hh = Math.floor(h), mm = Math.round((h - hh) * 60); if (mm === 60) { hh++; mm = 0; }
+    return (hh % 12 || 12) + ":" + (mm < 10 ? "0" : "") + mm + " " + (hh >= 12 && hh < 24 ? "PM" : "AM");
+  }
+  function draw() {
+    var h = +t.value / 60, r = RIG.sky.resolve(h, SUN, wxAt(h), mode);
+    RIG.sky.apply(document.documentElement, r);
+    document.getElementById("phase").textContent = r.forced ? (mode === "dark" ? "Dark, held" : "Light, held") : r.p.name;
+    document.getElementById("clock").textContent = clock(h);
+    document.getElementById("eyebrow").textContent = r.forced ? "Next 7 days" : r.p.name + " · next 7 days";
+    // The sun rides the window: below the horizon at night, high at midday.
+    var day = (h - SUN.rise) / (SUN.set - SUN.rise);
+    var y = 150 - Math.sin(Math.max(0, Math.min(1, day)) * Math.PI) * 120;
+    sun.style.top = (h < SUN.rise - 0.4 || h > SUN.set + 0.4 ? 230 : y) + "px";
+    sun.style.opacity = r.p.dark ? .22 : (wxAt(h).clouds > 80 ? .3 : .85);
+    sun.style.background = r.p.dark ? "radial-gradient(circle,#CBD8E6,transparent 70%)"
+      : "radial-gradient(circle," + r.p.gold + ",transparent 72%)";
+    var g = document.querySelector(".glint");
+    g.style.left = (50 + (Math.max(0, Math.min(1, day)) - 0.5) * 46) + "%";
+    g.style.opacity = r.p.dark ? .3 : (wxAt(h).clouds > 80 ? .55 : .9);
+  }
+  t.addEventListener("input", draw);
+  document.querySelectorAll(".modes button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      mode = b.dataset.mode;
+      document.querySelectorAll(".modes button").forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      draw();
+    });
+  });
+  var now = new Date(); t.value = now.getHours() * 60 + now.getMinutes();
+  draw();
+})();
+</script>
+</body>
+</html>
