@@ -212,3 +212,23 @@ No signal: the catch and its photo wait in IndexedDB (`rig-crew`), show as "wait
 
 - Live: prefs get and set; a push subscription stored and removed; `test_alert` with no channels answers `none`/`none`; quiet hours hold a row (`send_after` in the future) and `deliver` with the cron key sends nothing early; `tell: []` makes no outbox rows; the audience table above row by row using the two ZZTEST accounts with `texts` on but no phone (rows end `skipped`, never a real text); a catch linked from a real `catch_logs` row made with the ZZTEST member's own token, a catch that belongs to someone else refused, and everything deleted after. Never send a real text or push in a test.
 - Page smokes: the Alerts group, the iPhone not-installed message, the Tell row, a catch with a photo (stub storage and rest), a queued catch with no signal that sends once.
+
+---
+
+# Contract v2.1 (2026-11-26, after the first build and review)
+
+Accepted from the server build (commit 394cc78): `join` answers `{ ok, name, crew: "<crew name>", by: "<who made the link>"|null, token_hash? }`; trips carry a `client_id`; every `clientId` must be a UUID from `crypto.randomUUID()`; one crew per person; `done -> idea` is refused; a repeated delete of a list line, catch or trip answers 404 and the page's queue treats that as done.
+
+## Links are only for accounts the invite itself made (security)
+
+A join link signs a person in without a code. That is right for an account that exists only because the owner added a name. It is wrong for an account that already belonged to someone: whoever holds the link would be inside that person's CastAI account. Texted codes work again, so:
+
+- `invite` with a phone that matches an account the invite did not make (no `app_metadata.crew_invited`): the person is added to the crew and the answer is `{ ok, created: true, name, userId, link: null, signIn: "code" }`. No link is made. The page tells the owner: "<Name> already has an account with that number. They sign in with their number and a code." and offers to text them the sign-in page `https://coachpilot.org/rigs/#/crew`.
+- `invite` that makes a new account (with or without a phone): `{ ok, created: true, name, userId, link, signIn: "link" }`.
+- `link` for an account the invite did not make: 403 `{ error: "They sign in with their number and a code." }`. `join` re-checks the mark and answers 410 for any other account.
+- `state.members[]` is `{ id, name, role, alerts: boolean, signIn: "link"|"code" }`.
+- Coach's own account is a real CastAI account, so Coach signs in with his number and a code.
+
+## Housekeeping
+
+- `package.json` gets `"test:crew-live": "node tests/castai-crew.live.test.mjs"`. It stays out of `npm test` (network, 50 seconds). Cortex adds this line; workers do not edit package.json.
