@@ -21,28 +21,14 @@ body{font:16px/1.5 Inter,system-ui,sans-serif;color:var(--ink);
   padding:0 0 calc(28px + env(safe-area-inset-bottom));-webkit-font-smoothing:antialiased}
 .wrap{max-width:430px;margin:0 auto;padding:0 16px}
 
-/* ---- the window: sky over water ------------------------------------- */
-.window{position:relative;height:172px;margin:0 0 14px;overflow:hidden;
-  background:linear-gradient(180deg,var(--sky1),var(--sky2));transition:background .9s ease}
-.window .sun{position:absolute;left:50%;width:62px;height:62px;border-radius:50%;
-  transform:translate(-50%,-50%);transition:top .9s ease,opacity .9s ease,background .9s ease;filter:blur(.3px)}
-.window .water{position:absolute;left:0;right:0;bottom:0;height:56px;
-  background:linear-gradient(180deg,var(--water1),var(--water2));transition:background .9s ease}
-/* Chop: fine strokes near the horizon, opening up as the water comes toward you. */
-.window .water::before{content:"";position:absolute;inset:0;opacity:.22;
-  background:repeating-linear-gradient(180deg,rgba(255,255,255,.45) 0 .5px,transparent .5px 5px),
-    repeating-linear-gradient(180deg,transparent 0 13px,rgba(0,0,0,.18) 13px 14px);
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
-/* The sun lays a column of light down the water instead of a block. */
-.window .glint{position:absolute;bottom:0;width:150px;height:56px;transform:translateX(-50%);
-  background:radial-gradient(60% 120% at 50% 0,color-mix(in srgb,var(--sky2) 85%,transparent),transparent 72%);
-  opacity:.8;transition:opacity .9s ease,left .9s ease}
-.window .hills{position:absolute;left:0;right:0;bottom:50px;height:44px;opacity:1}
-.window svg{display:block;width:100%;height:100%}
-.hz{position:absolute;left:0;right:0;bottom:56px;height:1px;background:rgba(255,255,255,.3)}
-
-.top{position:relative;z-index:2}
+/* ---- the sky ---------------------------------------------------------
+   No scenery at all. A drawn sun, a water band, a glint and a treeline each
+   read as clipart on a phone. What is left is the thing he asked for: the
+   screen is the sky, and it changes with the day. */
+.sky{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 30%,var(--bg) 62%);
+  transition:background 1.1s ease}
+.top{position:relative;z-index:2;padding-top:28px}
 .eyebrow{font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.14em;
   text-transform:uppercase;font-size:12px;color:var(--accent);margin:0 0 2px}
 h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:40px;line-height:1;margin:0 0 4px;
@@ -88,13 +74,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
 </style>
 </head>
 <body>
-<div class="window" aria-hidden="true">
-  <div class="sun" id="sun"></div>
-  <div class="hills"><svg viewBox="0 0 400 46" preserveAspectRatio="none"><path d="M0 44 L0 26 Q46 10 86 22 Q122 33 152 17 Q188 0 226 18 Q262 34 300 21 Q338 9 368 24 Q384 32 400 26 L400 44Z" fill="rgba(13,26,24,.72)"/>
-<path d="M0 44 L0 36 Q60 28 110 34 Q150 39 196 31 Q244 23 288 33 Q336 43 400 35 L400 44Z" fill="rgba(8,18,17,.86)"/></svg></div>
-  <div class="hz"></div>
-  <div class="water"><div class="glint"></div></div>
-</div>
+<div class="sky" aria-hidden="true"></div>
 
 <div class="wrap top">
   <p class="eyebrow" id="eyebrow">Next 7 days</p>
@@ -142,7 +122,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
 (function () {
   var SUN = { rise: 7.52, set: 16.38 }; // Nov 25, Bonney Lake
   var mode = "auto";
-  var t = document.getElementById("t"), sun = document.getElementById("sun");
+  var t = document.getElementById("t");
   function wxAt(h) {
     // A believable late November day: overcast, a shower at midday, clearing late.
     if (h > 11 && h < 13.5) return { clouds: 95, rain: 0.05 };
@@ -159,16 +139,6 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
     document.getElementById("phase").textContent = r.forced ? (mode === "dark" ? "Dark, held" : "Light, held") : r.p.name;
     document.getElementById("clock").textContent = clock(h);
     document.getElementById("eyebrow").textContent = r.forced ? "Next 7 days" : r.p.name + " · next 7 days";
-    // The sun rides the window: below the horizon at night, high at midday.
-    var day = (h - SUN.rise) / (SUN.set - SUN.rise);
-    var y = 150 - Math.sin(Math.max(0, Math.min(1, day)) * Math.PI) * 120;
-    sun.style.top = (h < SUN.rise - 0.4 || h > SUN.set + 0.4 ? 230 : y) + "px";
-    sun.style.opacity = r.p.dark ? .22 : (wxAt(h).clouds > 80 ? .3 : .85);
-    sun.style.background = r.p.dark ? "radial-gradient(circle,#CBD8E6,transparent 70%)"
-      : "radial-gradient(circle," + r.p.gold + ",transparent 72%)";
-    var g = document.querySelector(".glint");
-    g.style.left = (50 + (Math.max(0, Math.min(1, day)) - 0.5) * 46) + "%";
-    g.style.opacity = r.p.dark ? .3 : (wxAt(h).clouds > 80 ? .55 : .9);
   }
   t.addEventListener("input", draw);
   document.querySelectorAll(".modes button").forEach(function (b) {
