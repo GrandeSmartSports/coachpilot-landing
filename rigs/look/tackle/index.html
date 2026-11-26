@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rig Card: Tackle box</title>
+<link rel="icon" href="/rigs/icon-v4-192.png">
+<link rel="preload" href="/rigs/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/rigs/look/tackle/tackle.css">
+</head>
+<body>
+
+<!-- The wet deck the box sits on, and the light falling on it. Fixed, painted once. -->
+<div class="deck" aria-hidden="true"></div>
+
+<!-- Lure artwork. Every shape is hand placed; paint comes from the lure variables in tackle.css. -->
+<svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+  <defs>
+    <linearGradient id="g-egi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--uv-d)"/>
+      <stop offset=".28" style="stop-color:var(--uv)"/>
+      <stop offset=".5" style="stop-color:var(--uv-l)"/>
+      <stop offset=".61" style="stop-color:var(--glow)"/>
+      <stop offset="1" style="stop-color:var(--glow-d)"/>
+    </linearGradient>
+    <linearGradient id="g-lead" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--sv2)"/>
+      <stop offset=".4" style="stop-color:var(--sv1)"/>
+      <stop offset="1" style="stop-color:var(--sv3)"/>
+    </linearGradient>
+    <linearGradient id="g-chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--sv1)"/>
+      <stop offset=".3" style="stop-color:var(--sv2)"/>
+      <stop offset=".47" style="stop-color:var(--sv4)"/>
+      <stop offset=".58" style="stop-color:var(--sv1)"/>
+      <stop offset="1" style="stop-color:var(--sv3)"/>
+    </linearGradient>
+    <radialGradient id="g-chart" cx=".36" cy=".3" r=".8">
+      <stop offset="0" style="stop-color:var(--chart-l)"/>
+      <stop offset=".45" style="stop-color:var(--chart)"/>
+      <stop offset="1" style="stop-color:var(--chart-d)"/>
+    </radialGradient>
+    <radialGradient id="g-glow" cx=".36" cy=".3" r=".85">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset=".42" style="stop-color:var(--glow)"/>
+      <stop offset="1" style="stop-color:var(--glow-d)"/>
+    </radialGradient>
+    <linearGradient id="g-shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--shell-l)"/>
+      <stop offset=".5" style="stop-color:var(--shell)"/>
+      <stop offset="1" style="stop-color:var(--shell-d)"/>
+    </linearGradient>
+    <linearGradient id="g-plume" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0" style="stop-color:var(--uv-d)"/>
+      <stop offset=".45" style="stop-color:var(--uv)"/>
+      <stop offset="1" style="stop-color:var(--uv-l)"/>
+    </linearGradient>
+    <radialGradient id="g-dough" cx=".38" cy=".32" r=".8">
+      <stop offset="0" style="stop-color:var(--glow)"/>
+      <stop offset=".5" style="stop-color:var(--chart-l)"/>
+      <stop offset="1" style="stop-color:var(--chart)"/>
+    </radialGradient>
+    <pattern id="p-rope" width="3.4" height="3.4" patternUnits="userSpaceOnUse" patternTransform="rotate(-34)">
+      <rect width="3.4" height="3.4" style="fill:var(--rope)"/>
+      <path d="M.6 0V3.4" style="stroke:var(--rope-d)" stroke-width="1"/>
+      <path d="M2.1 0V3.4" stroke="#fff" stroke-opacity=".32" stroke-width=".7"/>
+    </pattern>
+    <pattern id="p-cloth" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+      <path d="M0 0h3.2M0 0v3.2" stroke="#000" stroke-opacity=".17" stroke-width=".7"/>
+    </pattern>
+    <clipPath id="c-egi"><path d="M230 38C222 29 212 24 200 22C176 18 146 20 120 25C98 29 78 33 60 35.5L60 43C78 45.5 100 50 124 54.5C148 59 180 60 204 52C214 48.5 224 44 230 40Z"/></clipPath>
+    <clipPath id="c-egi-back"><path d="M56 10H236V38C200 44 150 43 110 38C90 36 70 38 56 39Z"/></clipPath>
+  </defs>
+
+  <!-- Squid jig, full detail. Nose and tie eye right, two crowns of needles left. -->
+  <symbol id="l-egi" viewBox="0 0 240 84">
+    <path d="M233 36C237 25 238.5 13 239.5 1" fill="none" stroke="var(--sv1)" stroke-opacity=".55" stroke-width=".9"/>
+    <path d="M62 39.5H20" stroke="var(--sv3)" stroke-width="2.6" stroke-linecap="round"/>
+    <g fill="none" stroke="var(--sv1)" stroke-width="1.25" stroke-linecap="round">
+      <path d="M22 39.5C18 33 23 25.5 34 23"/>
+      <path d="M22 39.5C20 35.5 25 30.5 35 29.4"/>
+      <path d="M22 39.5C22 38 28 36 35.5 36.2"/>
+      <path d="M22 39.5C22 41.4 28 43.4 35.5 43"/>
+      <path d="M22 39.5C20 43.8 25 48.6 35 49.9"/>
+      <path d="M22 39.5C18 46.4 23 53.6 34 56.2"/>
+      <path d="M40 39.5C36 33.4 41 26.4 52 24.2"/>
+      <path d="M40 39.5C38 35.8 43 31 53 30"/>
+      <path d="M40 39.5C40 38 46 36.4 53.4 36.6"/>
+      <path d="M40 39.5C40 41.2 46 43 53.4 42.6"/>
+      <path d="M40 39.5C38 43.4 43 48.2 53 49.2"/>
+      <path d="M40 39.5C36 45.8 41 52.8 52 55"/>
+    </g>
+    <ellipse cx="22" cy="39.5" rx="2.1" ry="3.6" fill="var(--sv2)"/>
+    <ellipse cx="40" cy="39.5" rx="2.1" ry="3.6" fill="var(--sv2)"/>
+    <path d="M157 54.5C149 63 137 68.6 123 70C133.4 65 141.6 58.6 147.6 50.6Z" fill="var(--uv-d)"/>
+    <path d="M163 56.4C154 66.4 141 72.6 126.6 74C137.6 68 146.6 60.6 153.4 52Z" fill="var(--uv)"/>
+    <path d="M160 58.2C152 65.4 143 70 133 72.4M157 56.6C151 61.6 145 65 139 67.2M154.4 55C150 58.4 146 60.8 142 62.4" fill="none" stroke="var(--uv-l)" stroke-opacity=".8" stroke-width=".7" stroke-linecap="round"/>
+    <path d="M168 57.5C172 72 200 76 213 50C203 55 186 58.5 168 57.5Z" fill="url(#g-lead)"/>
+    <path d="M176 62C184 68 198 67 207 56" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M230 38C222 29 212 24 200 22C176 18 146 20 120 25C98 29 78 33 60 35.5L60 43C78 45.5 100 50 124 54.5C148 59 180 60 204 52C214 48.5 224 44 230 40Z" fill="url(#g-egi)"/>
+    <g clip-path="url(#c-egi)">
+      <g clip-path="url(#c-egi-back)" stroke="var(--uv-d)" stroke-opacity=".5" fill="none">
+        <path d="M188 14L177 46" stroke-width="7"/>
+        <path d="M161 14L152 46" stroke-width="5"/>
+        <path d="M137 16L129 46" stroke-width="8"/>
+        <path d="M112 18L106 46" stroke-width="4.5"/>
+        <path d="M92 22L87 46" stroke-width="6"/>
+      </g>
+      <rect x="56" y="10" width="180" height="60" fill="url(#p-cloth)"/>
+      <path d="M62 44.5C82 47.5 104 52 126 56C150 60.5 182 61 206 53" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="5"/>
+    </g>
+    <path d="M214 27.5C200 22.5 170 21.5 140 24.5C120 26.6 100 30.4 84 33.4" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="2" stroke-linecap="round"/>
+    <path d="M62 34.6V44M65.5 34.2V44.6M69 33.8V45.2" stroke="var(--sv4)" stroke-width="2.2"/>
+    <circle cx="208" cy="34" r="6.6" fill="var(--gold)"/>
+    <circle cx="208" cy="34" r="6.6" fill="none" stroke="#000" stroke-opacity=".35" stroke-width=".8"/>
+    <circle cx="208.4" cy="34.2" r="3.7" fill="#0B0F14"/>
+    <circle cx="206.6" cy="32.2" r="1.35" fill="#fff"/>
+    <circle cx="233" cy="38.6" r="3.1" fill="none" stroke="var(--sv2)" stroke-width="1.7"/>
+  </symbol>
+
+  <!-- Squid jig, compartment size: fewer needles, thicker body. -->
+  <symbol id="l-egi-s" viewBox="0 0 64 64">
+    <g transform="rotate(-27 32 32) translate(32 33) scale(1.1) translate(-32 -33)">
+      <path d="M59.5 31.6C62 27 63.5 21 64 15" fill="none" stroke="var(--sv1)" stroke-opacity=".5" stroke-width=".6"/>
+      <path d="M18 33H5" stroke="var(--sv3)" stroke-width="1.5" stroke-linecap="round"/>
+      <g fill="none" stroke="var(--sv1)" stroke-width=".95" stroke-linecap="round">
+        <path d="M5.5 33C3.6 29 6.4 25 11.6 24"/>
+        <path d="M5.5 33C5 31 8 29.6 12.2 29.8"/>
+        <path d="M5.5 33C5 35 8 36.6 12.2 36.2"/>
+        <path d="M5.5 33C3.6 37 6.4 41.2 11.6 42.2"/>
+        <path d="M11.5 33C9.6 29.4 12.4 25.6 17.6 24.8"/>
+        <path d="M11.5 33C11 31.2 14 30 18 30.2"/>
+        <path d="M11.5 33C11 34.8 14 36.2 18 35.8"/>
+        <path d="M11.5 33C9.6 36.6 12.4 40.6 17.6 41.4"/>
+      </g>
+      <path d="M36 40.6C33 46.6 26.6 50 20.4 50C25.4 46.6 29.6 42.6 32.4 37.6Z" fill="var(--uv-d)"/>
+      <path d="M38.4 41.6C40.4 49 50.6 49 54.4 38.2C49.6 40.8 44 41.8 38.4 41.6Z" fill="url(#g-lead)"/>
+      <path d="M58.4 31.4C54.4 25.4 46.6 22.6 37 23C28.6 23.4 22 27.4 18 30.2L18 35.6C23 38.2 30.6 41.2 39 41.6C47 42 54.4 38.4 58.4 34.2Z" fill="url(#g-egi)"/>
+      <path d="M46.6 21L43.2 33M38.6 21L36 33M30 22L28.4 33" stroke="var(--uv-d)" stroke-opacity=".5" stroke-width="2.6" fill="none"/>
+      <path d="M53 27C47 24.4 38 24.4 27 28.4" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M19 30V35.4M20.8 29.4V36" stroke="var(--sv4)" stroke-width="1.2"/>
+      <circle cx="50.6" cy="30.6" r="3.2" fill="var(--gold)"/>
+      <circle cx="50.8" cy="30.8" r="1.8" fill="#0B0F14"/>
+      <circle cx="49.9" cy="29.8" r=".7" fill="#fff"/>
+      <circle cx="59.8" cy="32.6" r="1.7" fill="none" stroke="var(--sv2)" stroke-width="1"/>
+    </g>
+  </symbol>
+
+  <!-- Marabou jig for chum: chartreuse head, cerise plume. -->
+  <symbol id="l-jig" viewBox="0 0 64 64">
+    <g transform="rotate(-17 32 33)">
+      <path d="M46.4 18.6C47.6 12.6 49.6 6 52.6 0" fill="none" stroke="var(--sv1)" stroke-opacity=".5" stroke-width=".6"/>
+      <path d="M27 28.6C22 23.8 13.6 22.4 7 24.6L1.6 23.2L5.4 27.2L.4 30L5.6 32.2L2 36.4L8 35.6C14 38.6 21.6 36 27 32.4Z" fill="url(#g-plume)"/>
+      <path d="M26 29.6C20 26.4 13 26 4 27.4M26 31C19 30.4 12 31.4 3.6 33.6M26 31.8C20 33.2 14 34.6 7.4 35.4M25 28.8C19 24.8 12 24 6.4 25.2" fill="none" stroke="var(--uv-l)" stroke-opacity=".8" stroke-width=".55" stroke-linecap="round"/>
+      <path d="M9 23.4L3.4 20.6M8 36.6L3 39.6M12.6 37.4L9 41" fill="none" stroke="var(--uv)" stroke-opacity=".75" stroke-width=".5" stroke-linecap="round"/>
+      <path d="M40 30.4H21C12.6 30.4 10.4 19.4 17.6 17.2C20.4 16.4 23 17.4 24.6 19.4" fill="none" stroke="var(--sv2)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M24.6 19.4L21.6 19.9" stroke="var(--sv2)" stroke-width="1.1" stroke-linecap="round"/>
+      <path d="M12.9 26C12.2 22.8 13.8 19.6 16.8 18.2" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width=".6" stroke-linecap="round"/>
+      <path d="M25 27.4C30 26.4 36 26.4 40 27V33.8C36 34.6 30 34.6 25 33.4Z" fill="var(--uv-d)"/>
+      <path d="M27.6 27V33.8M30.4 26.8V34.2M33.2 26.7V34.3M36 26.8V34.2M38.6 26.9V34" stroke="#000" stroke-opacity=".28" stroke-width=".6"/>
+      <path d="M25.6 28.4C30 27.6 36 27.6 39.6 28" fill="none" stroke="var(--uv-l)" stroke-opacity=".7" stroke-width=".7"/>
+      <rect x="39.4" y="26" width="2.6" height="8.8" rx="1.1" fill="var(--chart-d)"/>
+      <circle cx="48.6" cy="30.4" r="8" fill="url(#g-chart)"/>
+      <circle cx="48.6" cy="30.4" r="8" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".7"/>
+      <path d="M43.8 26C45.4 23.6 48.4 22.8 51 23.6" fill="none" stroke="#fff" stroke-opacity=".95" stroke-width="1.4" stroke-linecap="round"/>
+      <circle cx="51.6" cy="30.8" r="2" fill="#0B0F14" stroke="var(--uv)" stroke-width=".9"/>
+      <circle cx="51" cy="30.1" r=".55" fill="#fff"/>
+      <circle cx="46.6" cy="20.6" r="1.9" fill="none" stroke="var(--sv2)" stroke-width="1.1"/>
+    </g>
+  </symbol>
+
+  <!-- Casting spoon for sea-run cutthroat: chrome leaf, one strip of prism tape. -->
+  <symbol id="l-spoon" viewBox="0 0 64 64">
+    <g transform="rotate(-38 32 32)">
+      <path d="M58.6 32C60.6 32 62.6 32 64 32" stroke="var(--sv1)" stroke-opacity=".5" stroke-width=".6"/>
+      <path d="M14.6 32H8.6C3.4 32 2 38.8 6.6 40.2C8.2 40.6 9.8 40 10.8 38.8" fill="none" stroke="var(--sv2)" stroke-width="1.7" stroke-linecap="round"/>
+      <circle cx="16.6" cy="32" r="2.5" fill="none" stroke="var(--sv2)" stroke-width="1.1"/>
+      <circle cx="56.4" cy="32" r="2.3" fill="none" stroke="var(--sv2)" stroke-width="1.1"/>
+      <path d="M18.4 32C19.4 24.4 30 21.4 40.6 24.2C47.6 26 52.6 29.4 54.6 32C52.6 34.6 47.6 38 40.6 39.8C30 42.6 19.4 39.6 18.4 32Z" fill="url(#g-chrome)"/>
+      <path d="M18.4 32C19.4 24.4 30 21.4 40.6 24.2C47.6 26 52.6 29.4 54.6 32C52.6 34.6 47.6 38 40.6 39.8C30 42.6 19.4 39.6 18.4 32Z" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".7"/>
+      <path d="M24 32.6C31 31.4 41 31.6 50 32.4" fill="none" stroke="var(--uv)" stroke-width="2.3" stroke-linecap="round"/>
+      <path d="M24 32C31 30.9 41 31 50 31.8" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".6" stroke-linecap="round"/>
+      <path d="M23.6 27.4C29 24.6 36 24.4 42.6 26.4" fill="none" stroke="#fff" stroke-opacity=".95" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="21.6" cy="32" r=".9" fill="var(--sv4)"/>
+      <circle cx="52" cy="32" r=".8" fill="var(--sv4)"/>
+    </g>
+  </symbol>
+
+  <!-- Razor clam: two shells, the near one varnished by the wet. -->
+  <symbol id="l-clam" viewBox="0 0 64 64">
+    <g transform="rotate(-9 30 24)">
+      <path d="M10 24C10 19.6 14 18 21 17.8L44 18.2C50 18.4 54 20.4 54 24C54 28.6 47.6 31.2 34 31.4C20 31.6 10 29.6 10 24Z" fill="var(--shell-d)"/>
+      <path d="M14 21C22 19.6 40 19.6 50 21.4" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1" stroke-linecap="round"/>
+      <path d="M13 26C17 28.6 26 29.6 34 29.4C42 29.2 48 28 51 25.6" fill="none" stroke="#000" stroke-opacity=".25" stroke-width=".7" stroke-linecap="round"/>
+    </g>
+    <g transform="rotate(-19 32 38)">
+      <path d="M56.6 35.2C60.4 34.8 63 36.2 63.2 38.2C63 40.2 60.4 41.2 56.6 40.6Z" fill="var(--neck)"/>
+      <path d="M61.4 36.4C62.4 37.4 62.4 39 61.4 40" fill="none" stroke="#000" stroke-opacity=".3" stroke-width=".7" stroke-linecap="round"/>
+      <path d="M5 38C5 32.6 10 30.6 19 30.4L46 30.8C53 31 58 33.6 58 38C58 43.6 50 47 34 47.2C18 47.4 5 45 5 38Z" fill="url(#g-shell)"/>
+      <g fill="none" stroke="var(--shell-d)" stroke-opacity=".75" stroke-width=".7" stroke-linecap="round">
+        <path d="M8 39.6C9 43.6 20 45.4 34 45.2C46 45 54 42.6 55.6 38.4"/>
+        <path d="M11.4 39C13 41.8 22 43.2 34 43C44 42.8 51 41 52.6 37.6"/>
+        <path d="M15 37.6C17 39.8 25 41 34 40.8C42 40.6 48 39.2 49.6 36.6"/>
+        <path d="M18.6 35.6C21.6 37.6 28 38.4 34 38.4C40 38.2 44 37.2 46 35.2"/>
+      </g>
+      <path d="M5 38C5 32.6 10 30.6 19 30.4L46 30.8C53 31 58 33.6 58 38C58 43.6 50 47 34 47.2C18 47.4 5 45 5 38Z" fill="none" stroke="#000" stroke-opacity=".34" stroke-width=".7"/>
+      <path d="M11 33.6C21 32 40 32 52 33.8" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M20 36C26 35.4 34 35.4 41 36" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width=".8" stroke-linecap="round"/>
+      <path d="M17 30.6C19 30 22 30 24 30.5" fill="none" stroke="var(--shell-d)" stroke-width="1.5" stroke-linecap="round"/>
+    </g>
+  </symbol>
+
+  <!-- Dough bait for stocked rainbows: glow dough on a single hook, one split shot up the line. -->
+  <symbol id="l-dough" viewBox="0 0 64 64">
+    <path d="M37 0C36.6 3 36.2 5 35.8 7M35.2 18.6C35 21 34.6 23 34.2 25" fill="none" stroke="var(--sv1)" stroke-opacity=".55" stroke-width=".6"/>
+    <circle cx="35.6" cy="8.4" r="1.6" fill="none" stroke="var(--sv2)" stroke-width="1"/>
+    <rect x="33.9" y="10" width="3.2" height="5.4" rx="1.2" fill="url(#g-lead)"/>
+    <circle cx="35.3" cy="17" r="1.6" fill="none" stroke="var(--sv2)" stroke-width="1"/>
+    <circle cx="34" cy="26.4" r="1.7" fill="none" stroke="var(--gold)" stroke-width="1.1"/>
+    <path d="M33.8 28L33 42C32.4 53.4 47.4 55 48.4 43.6L48.6 33.6" fill="none" stroke="var(--gold)" stroke-width="1.9" stroke-linecap="round"/>
+    <path d="M48.6 33.6L45.8 36.8" stroke="var(--gold)" stroke-width="1.1" stroke-linecap="round"/>
+    <path d="M20.6 41.4C20.4 33.6 26 28.6 33 28.8C37 28.9 40.6 30.4 42.6 33.2C44.4 35.6 45 38.6 44.6 42C43.8 49 38.6 53.6 32 53C25.6 52.4 20.8 47.8 20.6 41.4Z" fill="url(#g-dough)"/>
+    <path d="M20.6 41.4C20.4 33.6 26 28.6 33 28.8C37 28.9 40.6 30.4 42.6 33.2C44.4 35.6 45 38.6 44.6 42C43.8 49 38.6 53.6 32 53C25.6 52.4 20.8 47.8 20.6 41.4Z" fill="none" stroke="#000" stroke-opacity=".25" stroke-width=".6"/>
+    <path d="M42.6 33.2C40.4 34.6 39.4 37 40 39.6" fill="none" stroke="var(--chart-d)" stroke-opacity=".5" stroke-width=".8" stroke-linecap="round"/>
+    <ellipse cx="27.8" cy="35.6" rx="4.8" ry="2.9" fill="#fff" fill-opacity=".55" transform="rotate(-34 27.8 35.6)"/>
+    <path d="M36.4 43.4l.9 1.2-.9 1.2-.9-1.2zM26.6 45.4l.8 1-.8 1-.8-1zM33 36.6l.7.9-.7.9-.7-.9zM31.2 50l.6.8-.6.8-.6-.8z" fill="#fff"/>
+    <circle cx="30.4" cy="41.6" r=".8" fill="var(--uv)"/>
+    <circle cx="38.6" cy="48.6" r=".7" fill="var(--uv)"/>
+    <circle cx="24.4" cy="40" r=".6" fill="var(--uv)"/>
+    <circle cx="36.4" cy="32.6" r=".6" fill="var(--uv)"/>
+  </symbol>
+
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M5.5 2.5L11 8l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 16 16"><path d="M10.5 2.5L5 8l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-tick" viewBox="0 0 16 16"><path d="M3.2 8.6l3.2 3.2 6.4-7.4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<!-- The latch rail: four rubber tabs and the sky lens. -->
+<header class="rail">
+  <nav class="wrap railin" aria-label="Sections">
+    <button class="tab" type="button" aria-current="page">Trips</button>
+    <button class="tab" type="button">Water</button>
+    <button class="tab" type="button">Fish</button>
+    <button class="tab" type="button">Learn</button>
+    <button class="skybtn" type="button" data-sky-next aria-label="Sky: Overcast. Tap to change.">
+      <span class="bezel"><span class="lens"></span></span><span class="skyl">Sky</span>
+    </button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<!-- ====================================================== TRIPS -->
+<section class="screen" data-screen="trips">
+
+  <div class="plate">
+    <i class="screw" style="--r:28deg;left:7px;top:7px"></i><i class="screw" style="--r:104deg;right:7px;top:7px"></i>
+    <i class="screw" style="--r:151deg;left:7px;bottom:7px"></i><i class="screw" style="--r:67deg;right:7px;bottom:7px"></i>
+    <h1 class="engr">Hot Trips</h1>
+    <p class="engr sm">Next 7 days</p>
+    <i class="bead" style="left:57%;top:9px;--d:11px"></i><i class="bead" style="left:62.5%;top:25px;--d:6px"></i><i class="bead" style="left:54.6%;top:29px;--d:4px"></i><i class="bead rainy" style="left:45%;top:13px;--d:7px"></i><i class="bead rainy" style="left:70%;top:11px;--d:5px"></i>
+    
+  </div>
+
+  <section class="crewgrp" aria-label="Crew trips">
+    <svg class="cord" viewBox="0 0 44 92" aria-hidden="true">
+      <path class="cu" d="M24 0C30 18 30 44 27 60C26 67 24 73 22.4 78"/>
+      <path class="cr" stroke="url(#p-rope)" d="M24 0C30 18 30 44 27 60C26 67 24 73 22.4 78"/>
+      <path class="cu" d="M12 0C6 20 13 40 16 58C17.4 66 19 73 20.6 78"/>
+      <path class="cr" stroke="url(#p-rope)" d="M12 0C6 20 13 40 16 58C17.4 66 19 73 20.6 78"/>
+    </svg>
+    <h2 class="woven">Crew trips</h2>
+    <a class="tagcard" href="?screen=crew" data-go="crew">
+      <span class="tagin">
+        <i class="eyelet"></i>
+        <span class="tx">
+          <span class="eb">Sat Nov 28 <i class="pip chart"></i><b>On</b></span>
+          <b>Chum on the Green</b>
+          <span>Coach and Russell going</span>
+        </span>
+        <svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg>
+      </span>
+    </a>
+  </section>
+
+  <section class="tray" data-day="2026-11-25">
+    <header class="rim"><i class="rivet l"></i><h2 class="engr">Today <span>Wed Nov 25</span></h2><i class="rivet r"></i></header>
+    <div class="well flat">
+      <div class="trip none">
+        <span class="cell empty"><i class="glass"></i></span>
+        <p class="lam slip"><b>No daylight after work</b>, sunset 4:23 PM. Waiting for the weekend: Bonney Lake, Coho on the Green.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tray" data-day="2026-11-26">
+    <header class="rim"><i class="rivet l"></i><h2 class="engr">Thu <span>Nov 26</span></h2><i class="rivet r"></i><i class="bead" style="right:64px;top:9px;--d:9px"></i><i class="bead" style="right:54px;top:20px;--d:5px"></i><i class="bead rainy" style="right:96px;top:15px;--d:6px"></i></header>
+    <div class="well">
+      <a class="trip" href="?screen=card" data-go="card">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-egi-s"/></svg><i class="glass"></i><b class="heat hot">Hot</b></span>
+        <span class="lam label"><span class="tx"><b>Squid at Les Davis Pier</b><span>Evening &middot; 5:00 PM to 10:00 PM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+      <a class="trip" href="?screen=crew" data-go="crew">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-jig"/></svg><i class="glass"></i><b class="heat good">Good</b></span>
+        <span class="lam label"><span class="tx"><b>Chum on the Green</b><span>Quick trip &middot; 7:28 AM to 11:00 AM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+      <a class="trip" href="?screen=card" data-go="card">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-spoon"/></svg><i class="glass"></i><b class="heat good">Good</b></span>
+        <span class="lam label"><span class="tx"><b>Sea-run cutthroat, Dash Point beach</b><span>Quick trip &middot; 12:39 PM to 3:00 PM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+    </div>
+  </section>
+
+  <section class="tray" data-day="2026-11-28">
+    <header class="rim"><i class="rivet l"></i><h2 class="engr">Sat <span>Nov 28</span></h2><i class="rivet r"></i></header>
+    <div class="well">
+      <a class="trip" href="?screen=card" data-go="card">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-clam"/></svg><i class="glass"></i><b class="heat hot">Hot</b></span>
+        <span class="lam label"><span class="tx"><b>Razor clams, Copalis and Mocrocks</b><span>Adventure day &middot; 7:18 PM to 9:48 PM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+      <a class="trip" href="?screen=crew" data-go="crew">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-jig"/></svg><i class="glass"></i><b class="heat hot">Hot</b></span>
+        <span class="lam label"><span class="tx"><b>Chum on the Green</b><span>Quick trip &middot; 7:31 AM to 11:00 AM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+      <a class="trip" href="?screen=card" data-go="card">
+        <span class="cell"><svg class="lure" aria-hidden="true"><use href="#l-dough"/></svg><i class="glass"></i><b class="heat good">Good</b></span>
+        <span class="lam label"><span class="tx"><b>Trout at Bonney Lake</b><span>Quick trip &middot; 7:30 AM to 11:00 AM</span><em class="stamp">Stocked Nov 23: 600 rainbow</em></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></span>
+      </a>
+    </div>
+  </section>
+  <div class="drops" aria-hidden="true"><i class="bead" style="left:6%;top:16px;--d:13px"></i><i class="bead" style="left:11.5%;top:34px;--d:7px"></i><i class="bead" style="left:3%;top:40px;--d:5px"></i><i class="bead" style="right:7%;top:26px;--d:10px"></i><i class="bead" style="right:13%;top:12px;--d:5px"></i><i class="bead rainy" style="left:18%;top:12px;--d:8px"></i><i class="bead rainy" style="right:3.4%;top:46px;--d:6px"></i><i class="bead rainy" style="right:19%;top:40px;--d:9px"></i></div>
+</section>
+
+<!-- ====================================================== RUN CARD -->
+<section class="screen" data-screen="card" hidden>
+  <a class="back" href="?screen=trips" data-go="trips"><svg aria-hidden="true"><use href="#i-back"/></svg>Hot Trips</a>
+
+  <section class="tray hero">
+    <header class="rim"><i class="rivet l"></i><p class="engr">Thu Nov 26 <span>Evening</span></p><i class="rivet r"></i><i class="bead" style="right:52px;top:8px;--d:10px"></i><i class="bead" style="right:42px;top:21px;--d:5px"></i><i class="bead rainy" style="right:88px;top:14px;--d:6px"></i></header>
+    <div class="bay">
+      <svg class="lure big" viewBox="0 0 240 84" aria-hidden="true"><use href="#l-egi"/></svg>
+      <i class="glass"></i>
+    </div>
+    <div class="lam title">
+      <b class="heat hot">Hot</b>
+      <h1>Squid at Les Davis Pier</h1>
+      <p>5:00 PM to 10:00 PM &middot; 45 min drive</p>
+    </div>
+  </section>
+
+  <section class="tray file">
+    <header class="rim"><i class="rivet l"></i><h2 class="engr">Run card</h2><i class="rivet r"></i></header>
+    <div class="well">
+      <a class="strip" href="#"><span class="tx"><b>The plan</b><span>Leave by 3:58 PM, fish 5:00 PM to 10:00 PM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>What it is</b><span>Market squid under the lights after dark</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>Gear</b><span><i class="pip uv"></i>4 to get, 4 to check, the rest you own</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>Bait and lures</b><span>Two squid jigs, 2.0 to 2.5</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>How to fish it</b></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>Tide and weather</b><span>Wind to 6 mph, gusts 11, 44 F; high slack 5:15 PM</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>The spot</b></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>What to expect</b></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+      <a class="strip" href="#"><span class="tx"><b>Rules</b><span>5 quarts or 10 pounds, one line</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+    </div>
+  </section>
+  <div class="drops" aria-hidden="true"><i class="bead" style="left:6%;top:16px;--d:13px"></i><i class="bead" style="left:11.5%;top:34px;--d:7px"></i><i class="bead" style="left:3%;top:40px;--d:5px"></i><i class="bead" style="right:7%;top:26px;--d:10px"></i><i class="bead" style="right:13%;top:12px;--d:5px"></i><i class="bead rainy" style="left:18%;top:12px;--d:8px"></i><i class="bead rainy" style="right:3.4%;top:46px;--d:6px"></i><i class="bead rainy" style="right:19%;top:40px;--d:9px"></i></div>
+</section>
+
+<!-- ====================================================== CREW TRIP -->
+<section class="screen" data-screen="crew" hidden>
+  <a class="back" href="?screen=trips" data-go="trips"><svg aria-hidden="true"><use href="#i-back"/></svg>Hot Trips</a>
+
+  <section class="tray hero mini">
+    <header class="rim"><i class="rivet l"></i><p class="engr">Sat Nov 28 <span>Crew trip</span></p><i class="rivet r"></i></header>
+    <div class="well flat">
+      <div class="trip none">
+        <span class="cell lg"><svg class="lure" aria-hidden="true"><use href="#l-jig"/></svg><i class="glass"></i></span>
+        <div class="lam title"><h1>Chum on the Green</h1><p>7:31 AM to 11:00 AM</p></div>
+      </div>
+      <p class="lam cond"><b class="heat go">Go</b><span>Good flow 400 cfs, dropping after a rise, light wind</span></p>
+    </div>
+  </section>
+
+  <section class="tray who" aria-label="Who is going">
+    <div class="well three" role="group">
+      <button class="bin" type="button" data-bin="going" aria-pressed="true">
+        <span class="binh"><i class="pip chart"></i>Going <b data-n>2</b></span>
+        <span class="tags"><span class="ntag me" data-me>Coach</span><span class="ntag">Russell</span></span>
+      </button>
+      <button class="bin" type="button" data-bin="maybe" aria-pressed="false">
+        <span class="binh"><i class="pip sv"></i>Maybe <b data-n>1</b></span>
+        <span class="tags"><span class="ntag">Dad</span></span>
+      </button>
+      <button class="bin" type="button" data-bin="out" aria-pressed="false">
+        <span class="binh"><i class="pip uv"></i>Out <b data-n>0</b></span>
+        <span class="tags"></span>
+      </button>
+    </div>
+  </section>
+
+  <a class="lam notes" href="#"><i class="coil" aria-hidden="true"></i><span class="tx"><b>Notes</b><span>2 notes on Gear</span></span><svg class="chev" aria-hidden="true"><use href="#i-chev"/></svg></a>
+
+  <section class="tray list">
+    <header class="rim"><i class="rivet l"></i><h2 class="engr">The list</h2><i class="rivet r"></i><i class="bead" style="right:70px;top:10px;--d:9px"></i><i class="bead" style="right:86px;top:19px;--d:5px"></i></header>
+    <div class="well">
+      <button class="strip item" type="button" role="checkbox" aria-checked="true"><i class="box"><svg aria-hidden="true"><use href="#i-tick"/></svg></i><b>Net</b><span class="ntag">Russell</span></button>
+      <button class="strip item" type="button" role="checkbox" aria-checked="false"><i class="box"><svg aria-hidden="true"><use href="#i-tick"/></svg></i><b>Cured eggs</b><span class="ntag">Coach</span></button>
+      <button class="strip item" type="button" role="checkbox" aria-checked="false"><i class="box"><svg aria-hidden="true"><use href="#i-tick"/></svg></i><b>Cooler</b><span class="ntag nobody"><i class="pip uv"></i>Nobody</span></button>
+    </div>
+  </section>
+
+  <button class="cta" type="button"><span>Text the crew</span></button>
+  <div class="drops" aria-hidden="true"><i class="bead" style="left:6%;top:16px;--d:13px"></i><i class="bead" style="left:11.5%;top:34px;--d:7px"></i><i class="bead" style="left:3%;top:40px;--d:5px"></i><i class="bead" style="right:7%;top:26px;--d:10px"></i><i class="bead" style="right:13%;top:12px;--d:5px"></i><i class="bead rainy" style="left:18%;top:12px;--d:8px"></i><i class="bead rainy" style="right:3.4%;top:46px;--d:6px"></i><i class="bead rainy" style="right:19%;top:40px;--d:9px"></i></div>
+</section>
+
+</main>
+
+<!-- Preview control: which screen is showing. Not part of the app. -->
+<nav class="switch" aria-label="Preview screen">
+  <button type="button" data-go="trips" aria-pressed="true">Trips</button>
+  <button type="button" data-go="card" aria-pressed="false">Card</button>
+  <button type="button" data-go="crew" aria-pressed="false">Crew</button>
+</nav>
+
+<!-- The headlamp falloff, drawn over everything at night. -->
+<div class="lamp" aria-hidden="true"></div>
+
+<script src="/rigs/sky.js"></script>
+<script src="/rigs/look/tackle/tackle.js"></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+/* Plate colours and brushwork for the specimens in species.js.
+
+   Every tone here is a mix of the sky engine's own variables, so a fish
+   painted under an overcast sky is a pewter fish and the same fish at night
+   is the plate read by lantern. Two earth pigments are the only fixed
+   colours, for the marks that name a fish (the rainbow's band, the
+   cutthroat's slash); they are always thinned with the sky, never used raw.
+
+   How the colours reach the drawing: a plate is a <symbol> placed with
+   <use>. Variables are set on the .sky root, on the outer svg.specimen and
+   on the symbol itself, and everything inside inherits. Rules that reach
+   inside a plate use only classes that live inside it (.sp .ink), because a
+   <use> copy cannot see ancestors outside the symbol. */
+.sky{
+  --madder:#B24A5E; --vermilion:#D2572A;
+  --olive:color-mix(in oklab,var(--shore) 62%,var(--gold));
+  --rose:color-mix(in oklab,var(--madder) 78%,var(--water1));
+  --slash:color-mix(in oklab,var(--vermilion) 88%,var(--ink));
+
+  --f-line:color-mix(in oklab,var(--ink) 80%,var(--shore));
+  --f-back:color-mix(in oklab,var(--shore) 80%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--shore) 36%,var(--water1));
+  --f-flank:color-mix(in oklab,var(--water1) 34%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 94%,var(--water1));
+  --f-under:color-mix(in oklab,var(--paper) 78%,var(--water1));
+  --f-shade:var(--shore);
+  --f-lit:#fff;
+  --f-scale:var(--shore);
+  --f-head:color-mix(in oklab,var(--shore) 62%,var(--water2));
+  --f-iris1:color-mix(in oklab,var(--gold) 52%,var(--paper));
+  --f-iris2:color-mix(in oklab,var(--shore) 56%,var(--gold));
+  --q-iris2:color-mix(in oklab,var(--water2) 60%,var(--shore));
+  --f-pupil:color-mix(in srgb,var(--shore) 62%,#000);
+  --f-ring:color-mix(in oklab,var(--shore) 72%,var(--water2));
+  --f-glint:#fff;
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--shore) 52%,var(--water1)) 88%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--shore) 30%,var(--water1)) 70%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--water1) 60%,var(--paper)) 52%,transparent);
+  --fin-ray:color-mix(in oklab,var(--ink) 70%,var(--shore));
+  --fin-tip:#fff; --fin-tip-o:.85;
+  --spot:color-mix(in srgb,var(--shore) 70%,#000);
+  --bar-m:color-mix(in oklab,var(--madder) 74%,var(--shore)); --bar-m-o:.62;
+  --bar-g:color-mix(in oklab,var(--shore) 84%,var(--water2)); --bar-g-o:.5;
+  --grain-o:1;
+  --sp-shadow:color-mix(in srgb,var(--ink) 24%,transparent);
+  --sp-shadow2:color-mix(in srgb,var(--ink) 15%,transparent);
+}
+.sky[data-dark]{
+  --olive:color-mix(in oklab,var(--gold) 34%,color-mix(in oklab,var(--ink2) 36%,var(--paper)));
+  --rose:color-mix(in oklab,var(--madder) 72%,var(--ink2));
+  --slash:color-mix(in oklab,var(--vermilion) 86%,var(--gold));
+
+  --f-line:color-mix(in oklab,var(--ink2) 30%,var(--shore));
+  --f-back:color-mix(in oklab,var(--ink2) 26%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 52%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink2) 88%,var(--gold));
+  --f-belly:color-mix(in oklab,var(--ink) 90%,var(--gold));
+  --f-under:color-mix(in oklab,var(--ink2) 74%,var(--paper));
+  --f-lit:color-mix(in oklab,#fff 86%,var(--gold));
+  --f-scale:var(--paper);
+  --f-head:color-mix(in oklab,var(--ink2) 22%,var(--paper));
+  --f-iris1:color-mix(in oklab,var(--gold) 60%,#fff);
+  --f-iris2:color-mix(in oklab,var(--gold) 50%,var(--paper));
+  --q-iris2:color-mix(in oklab,var(--ink2) 40%,var(--paper));
+  --f-pupil:#020405;
+  --f-ring:color-mix(in oklab,var(--paper) 70%,#000);
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--ink2) 34%,var(--paper)) 92%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--ink2) 48%,var(--paper)) 72%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--ink2) 66%,var(--paper)) 44%,transparent);
+  --fin-ray:color-mix(in oklab,var(--ink) 58%,var(--paper));
+  --fin-tip:color-mix(in oklab,#fff 80%,var(--gold)); --fin-tip-o:.6;
+  --spot:color-mix(in srgb,var(--paper) 55%,#000);
+  --bar-m:color-mix(in oklab,var(--madder) 82%,var(--paper)); --bar-m-o:.78;
+  --bar-g:color-mix(in oklab,var(--paper) 80%,var(--olive)); --bar-g-o:.6;
+  --sp-shadow:color-mix(in srgb,#000 42%,transparent);
+  --sp-shadow2:color-mix(in srgb,#000 18%,transparent);
+}
+
+/* ---- per plate colours (outer svg and the symbol) ---- */
+.sky .sp-chum{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 76%,var(--gold)) 88%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--olive) 60%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--olive) 40%,var(--water1)) 46%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 86%,var(--olive));
+  --f-head:color-mix(in oklab,var(--shore) 70%,var(--olive));
+}
+.sky[data-dark] .sp-chum{
+  --f-back:color-mix(in oklab,var(--olive) 46%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 74%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--olive) 30%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 82%,var(--olive));
+  --f-head:color-mix(in oklab,var(--olive) 30%,var(--paper));
+}
+.sky .sp-rainbow{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 78%,var(--gold)) 78%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--olive) 34%,var(--water1));
+}
+.sky[data-dark] .sp-rainbow{
+  --f-back:color-mix(in oklab,var(--olive) 36%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 40%,var(--ink2));
+}
+.sky .sp-cutthroat{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 70%,var(--gold)) 82%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--olive) 46%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--gold) 30%,var(--water1)) 36%,var(--paper));
+}
+.sky[data-dark] .sp-cutthroat{
+  --f-back:color-mix(in oklab,var(--olive) 42%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 56%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--gold) 16%,var(--ink2));
+}
+.sky .sp-squid,.sky .sp-jig{
+  --q-edge:color-mix(in oklab,var(--water1) 50%,var(--paper));
+  --q-edge2:color-mix(in oklab,var(--water2) 46%,var(--paper));
+  --q-mid:color-mix(in oklab,color-mix(in oklab,var(--water1) 13%,var(--paper)) 96%,var(--madder));
+  --q-pearl:color-mix(in oklab,var(--paper) 96%,var(--madder));
+  --q-arm:color-mix(in oklab,color-mix(in oklab,var(--water1) 22%,var(--paper)) 90%,var(--madder));
+  --q-umber:color-mix(in oklab,var(--madder) 58%,var(--shore));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--water1) 34%,var(--paper)) 94%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--water1) 20%,var(--paper)) 88%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--water1) 10%,var(--paper)) 80%,transparent);
+  --fin-ray:color-mix(in oklab,var(--water2) 70%,var(--shore));
+}
+.sky[data-dark] .sp-squid,.sky[data-dark] .sp-jig{
+  --q-edge:color-mix(in oklab,var(--ink2) 44%,var(--paper));
+  --q-edge2:color-mix(in oklab,var(--ink2) 34%,var(--paper));
+  --q-mid:color-mix(in oklab,var(--ink2) 84%,var(--paper));
+  --q-pearl:color-mix(in oklab,var(--ink) 90%,var(--gold));
+  --q-arm:color-mix(in oklab,var(--ink2) 74%,var(--paper));
+  --q-umber:color-mix(in oklab,var(--madder) 66%,var(--paper));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--ink2) 52%,var(--paper)) 92%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--ink2) 66%,var(--paper)) 84%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--ink2) 78%,var(--paper)) 70%,transparent);
+  --fin-ray:color-mix(in oklab,var(--paper) 70%,var(--ink2));
+}
+.sky .sp-clam{
+  --k-worn:color-mix(in oklab,var(--paper) 78%,var(--gold));
+  --k-light:color-mix(in oklab,var(--gold) 52%,var(--paper));
+  --k-mid:color-mix(in oklab,var(--gold) 66%,var(--shore));
+  --k-dark:color-mix(in oklab,var(--shore) 58%,var(--gold));
+  --k-flesh:color-mix(in oklab,var(--gold) 16%,var(--paper));
+  --k-flesh2:color-mix(in oklab,color-mix(in oklab,var(--gold) 62%,var(--water1)) 40%,var(--paper));
+  --k-neck:color-mix(in oklab,color-mix(in oklab,var(--gold) 46%,var(--water2)) 60%,var(--paper));
+  --k-neck2:color-mix(in oklab,var(--shore) 46%,var(--water1));
+}
+.sky[data-dark] .sp-clam{
+  --k-worn:color-mix(in oklab,var(--ink) 80%,var(--gold));
+  --k-light:color-mix(in oklab,var(--gold) 70%,var(--ink2));
+  --k-mid:color-mix(in oklab,var(--gold) 62%,var(--paper));
+  --k-dark:color-mix(in oklab,var(--gold) 30%,var(--paper));
+  --k-flesh:color-mix(in oklab,var(--ink) 84%,var(--gold));
+  --k-flesh2:color-mix(in oklab,var(--ink2) 80%,var(--gold));
+  --k-neck:color-mix(in oklab,var(--ink2) 62%,var(--paper));
+  --k-neck2:color-mix(in oklab,var(--ink2) 26%,var(--paper));
+}
+.sky .sp-jig{
+  --j-back:color-mix(in oklab,var(--madder) 84%,var(--shore));
+  --j-cloth:color-mix(in oklab,var(--madder) 62%,var(--paper));
+  --j-glow:color-mix(in oklab,var(--paper) 88%,var(--gold));
+  --j-glow2:color-mix(in oklab,var(--paper) 72%,var(--water1));
+  --j-lead1:color-mix(in oklab,var(--water1) 70%,var(--paper));
+  --j-lead2:color-mix(in oklab,var(--water2) 70%,var(--shore));
+  --j-steel:color-mix(in oklab,var(--water2) 60%,var(--shore));
+}
+.sky[data-dark] .sp-jig{
+  --j-back:color-mix(in oklab,var(--madder) 70%,var(--paper));
+  --j-cloth:color-mix(in oklab,var(--madder) 70%,var(--ink2));
+  --j-glow:color-mix(in oklab,var(--ink) 86%,var(--gold));
+  --j-glow2:color-mix(in oklab,var(--ink2) 80%,var(--paper));
+  --j-lead1:color-mix(in oklab,var(--ink2) 80%,var(--paper));
+  --j-lead2:color-mix(in oklab,var(--ink2) 30%,var(--paper));
+  --j-steel:color-mix(in oklab,var(--ink2) 80%,var(--paper));
+}
+
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.specimen{display:block;overflow:visible;width:100%;height:auto;
+  filter:drop-shadow(var(--shx,1px) 1.5px 1.2px var(--sp-shadow)) drop-shadow(calc(var(--shx,1px) * 4) 9px 10px var(--sp-shadow2))}
+
+/* ---- brushwork shared by every plate ---- */
+.sp .ink{fill:none;stroke:var(--f-line);stroke-width:.8;opacity:.78;stroke-linejoin:round;stroke-linecap:round}
+.sp .ink.thin{stroke-width:.5;opacity:.6}
+.sp .ink.under{stroke-width:1.4;opacity:.42}
+.sp .ink.ghost{stroke-width:.5;opacity:.22}
+.sp .ink.gill{stroke-width:.8;opacity:.7}
+.sp .ink.mouth{stroke-width:.9;opacity:.85}
+.sp .blot{opacity:.16}
+.sp .scale-hi{fill:none;stroke:var(--f-lit);stroke-width:.45;opacity:.5}
+.sp .lid{fill:var(--f-pupil);opacity:.42}
+.sp .sheen{fill:var(--rose);opacity:.2}
+.sp .sh-back{fill:none;stroke:var(--f-back);stroke-width:26;opacity:.85}
+.sp .sh-belly{fill:none;stroke:var(--f-belly);stroke-width:20;opacity:.85}
+.sp .sh-core{fill:none;stroke:var(--f-shade);stroke-width:13;opacity:.11}
+.sp .sh-rim.top{opacity:.16}
+.sp .lip{fill:none;stroke:var(--f-belly);stroke-width:2.2;opacity:.5;stroke-linecap:round}
+.sp .sq-iris{stroke-width:.3}
+.sp .sh-lit{fill:none;stroke:var(--f-lit);stroke-width:8;opacity:.5;stroke-linecap:round}
+.sp .head-lit{stroke-width:6;opacity:.42}
+.sp .sh-rim{fill:none;stroke:var(--f-shade);stroke-width:6;opacity:.3}
+.sp .scale{fill:none;stroke:var(--f-scale);stroke-width:.5}
+.sp .scale.s0{opacity:.5}.sp .scale.s1{opacity:.3}.sp .scale.s2{opacity:.13}
+.sp .lateral{fill:none;stroke:var(--f-line);stroke-width:.7;opacity:.42;stroke-dasharray:3.4 1.3}
+.sp .head-wash{fill:var(--f-head);opacity:.42}
+.sp .gill-shade{fill:none;stroke:var(--f-shade);stroke-width:6;opacity:.26}
+.sp .cheek{fill:var(--f-flank);opacity:.5}
+.sp .eye-ring{fill:var(--f-ring)}
+.sp .iris{stroke:var(--f-pupil);stroke-width:.45}
+.sp .pupil{fill:var(--f-pupil)}
+.sp .glint{fill:var(--f-glint)}
+.sp .nostril{fill:var(--f-pupil);opacity:.7}
+.sp .fin .ray{fill:none;stroke:var(--fin-ray);stroke-width:.5;opacity:.62;stroke-linecap:round}
+.sp .fin .ray.twig{stroke-width:.34;opacity:.4}
+.sp .fin-tip{fill:var(--fin-tip);opacity:var(--fin-tip-o)}
+.sp .fin-dusk{fill:var(--f-shade);opacity:.22}
+.sp .fin-lead{fill:none;stroke:var(--fin-tip);stroke-width:2.2;opacity:calc(var(--fin-tip-o) * .8);stroke-linecap:round;stroke-linejoin:round}
+.sp .spot{fill:var(--spot);opacity:.86}
+
+/* chum */
+.sp .bar-m{fill:var(--bar-m);opacity:var(--bar-m-o)}
+.sp .bar-g{fill:var(--bar-g);opacity:var(--bar-g-o)}
+.sp-chum .head-wash{opacity:.62}
+.sp-chum .cheek{fill:var(--olive);opacity:.35}
+.sp-chum .sheen{opacity:.12}
+/* rainbow */
+.sp .band{fill:none;stroke:var(--rose);stroke-width:9;opacity:.5;stroke-linecap:round}
+.sp .band.wide{stroke-width:22;opacity:.34}
+.sp-rainbow .cheek{fill:var(--rose);opacity:.5}
+/* cutthroat */
+.sp .brass{fill:none;stroke:color-mix(in oklab,var(--gold) 80%,var(--shore));stroke-width:30;opacity:.22}
+.sp .slash{fill:none;stroke:var(--slash);stroke-width:3.6;stroke-linecap:round;opacity:.95}
+.sp-cutthroat .cheek{fill:color-mix(in oklab,var(--gold) 60%,var(--rose));opacity:.3}
+/* squid */
+.sp .sq-fin .ray{stroke-width:.4;opacity:.42}
+.sp .sq-fin .ray.twig{opacity:.25}
+.sp .sq-head{fill:var(--q-mid)}
+.sp .sq-headshade{fill:none;stroke:var(--f-shade);stroke-width:10;opacity:.2}
+.sp .sq-arm{fill:var(--q-arm)}
+.sp .sq-tent{fill:var(--q-mid)}
+.sp .sq-armshade{fill:none;stroke:var(--f-shade);stroke-width:1.6;opacity:.16;stroke-linecap:round}
+.sp .sq-suck{fill:var(--q-umber);opacity:.5}
+.sp .sq-lit{fill:none;stroke:var(--f-lit);stroke-width:7;opacity:.55;stroke-linecap:round}
+.sp .sq-collar{fill:none;stroke:var(--f-shade);stroke-width:3;opacity:.16}
+.sp .q-rose{fill:var(--madder);opacity:.12}
+.sp .q-teal{fill:var(--water1);opacity:.3}
+.sp .q-pen{fill:var(--f-shade);opacity:.13}
+.sp .chroma{fill:var(--q-umber)}
+.sp .chroma.big{opacity:.72}.sp .chroma.small{opacity:.6}
+.sp .chroma.pale{fill:color-mix(in oklab,var(--madder) 62%,var(--gold));opacity:.34}
+/* razor clam */
+.sp .k-ring{fill:none;stroke:var(--f-shade);stroke-width:.45;opacity:.3}
+.sp .k-ring.bold{stroke-width:.8;opacity:.4}
+.sp .k-band{fill:none;stroke:var(--f-shade);stroke-width:5;opacity:.13}
+.sp .k-ray{fill:none;stroke:var(--k-worn);stroke-width:7;opacity:.3}
+.sp .k-gloss{fill:none;stroke:var(--f-lit);stroke-width:12;opacity:.42;stroke-linecap:round}
+.sp .k-glint{fill:none;stroke:var(--f-lit);stroke-width:1.8;opacity:.8;stroke-linecap:round}
+.sp .k-umbo{fill:var(--k-worn);opacity:.7}
+.sp .k-crease{fill:none;stroke:var(--f-shade);stroke-width:.6;opacity:.24;stroke-linecap:round}
+.sp .k-crease.dark{opacity:.34}
+.sp .k-under{fill:none;stroke:var(--f-shade);stroke-width:10;opacity:.34}
+.sp .k-hole{fill:var(--f-pupil);opacity:.75}
+/* squid jig */
+.sp .j-line{fill:none;stroke:var(--j-steel);stroke-width:.6;opacity:.7}
+.sp .j-wire{fill:none;stroke:var(--j-steel);stroke-width:1.3;stroke-linecap:round}
+.sp .j-pin{fill:none;stroke:var(--j-steel);stroke-width:.85;stroke-linecap:round;stroke-linejoin:round}
+.sp .j-collar{fill:var(--j-lead2)}
+.sp .j-feather{fill:none;stroke:var(--j-cloth);stroke-width:.7;opacity:.85;stroke-linecap:round}
+.sp .j-leadlit{fill:none;stroke:var(--f-lit);stroke-width:3;opacity:.5;stroke-linecap:round}
+.sp .j-band{fill:var(--j-back);opacity:.5}
+.sp .j-weave{fill:none;stroke:var(--f-shade);stroke-width:.3;opacity:.2}
+.sp .j-seg{fill:none;stroke:var(--f-shade);stroke-width:.6;opacity:.34}
+.sp .sh-back.j{stroke:var(--j-back);stroke-width:9;opacity:.6}

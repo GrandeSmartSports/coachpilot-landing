@@ -1,0 +1,514 @@
+/* Rig Card look: Chart room.
+   VOICE   a NOAA chart and a tide book, made tactile
+   LIGHT   one lamp, top left. Every shadow falls down and to the right
+   DEPTH   stacked paper, cut-paper soundings, embossed wells, ink density
+   COLOUR  every shade is a mix of the sky engine variables; gold is the one accent
+   Day is bright chart paper on a pewter table. Night is a backlit plotter. */
+
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(/rigs/fonts/barlow-condensed-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format("woff2")}
+
+/* Overcast, so the first paint is sane before sky.js speaks. */
+:root{
+  --sky1:#B9C4CC;--sky2:#DCE3E8;--water1:#8E9DA7;--water2:#6F7E89;--bg:#E8EDF0;--paper:#FFFFFF;--line:#CDD6DC;
+  --ink:#131C24;--ink2:#44525C;--dim:#606F79;--accent:#1A544D;--accent2:#236B62;--gold:#D9A94A;--on-gold:#131C24;
+  --shore:#223029;--go:#176B43;--warn:#8A6100;--no:#A8291E;
+}
+
+html{
+  /* light and shade */
+  --hl:var(--paper);
+  --sh:var(--ink);
+  --sA:color-mix(in srgb,var(--sh) 12%,transparent);
+  --sB:color-mix(in srgb,var(--sh) 22%,transparent);
+  --sC:color-mix(in srgb,var(--sh) 46%,transparent);
+  --rim:color-mix(in srgb,var(--hl) 90%,transparent);
+  --lift1:1px 1px 0 var(--sA),2px 3px 5px -1px var(--sA),8px 14px 22px -10px var(--sC);
+  --lift2:1px 1px 0 var(--sA),3px 5px 9px -2px var(--sB),16px 26px 36px -16px var(--sC);
+  /* surfaces */
+  --table:color-mix(in oklab,var(--bg) 66%,var(--water1));
+  --tink:color-mix(in oklab,var(--ink) 11%,var(--table));
+  --tink2:color-mix(in oklab,var(--ink) 26%,var(--table));
+  --tline:color-mix(in oklab,var(--ink) 46%,var(--table));
+  --paper2:color-mix(in oklab,var(--paper) 93%,var(--water1));
+  --paper3:color-mix(in oklab,var(--paper) 86%,var(--water1));
+  --well:color-mix(in oklab,var(--paper) 91%,var(--water1));
+  --edge:color-mix(in oklab,var(--ink) 30%,var(--paper));
+  --rule:color-mix(in oklab,var(--ink) 15%,var(--paper));
+  --rule2:color-mix(in oklab,var(--ink) 40%,var(--paper));
+  --deck:color-mix(in oklab,var(--ink) 90%,var(--water1));
+  --deck2:color-mix(in oklab,var(--ink) 74%,var(--water1));
+  --on-navy:var(--gold);
+  --dk:var(--deck);
+  --quiet:color-mix(in oklab,var(--paper) 62%,var(--table));
+  --nightc:color-mix(in oklab,var(--ink) 58%,var(--table));
+  --dayc:color-mix(in oklab,var(--gold) 52%,var(--paper));
+  --on-deck:var(--paper);
+  --on-deck2:color-mix(in oklab,var(--paper) 74%,var(--deck));
+  --on-accent:var(--paper);
+  /* brass: gold let down with ink, for hardware only */
+  --brass:color-mix(in oklab,var(--gold) 72%,var(--ink));
+  --brass-hi:color-mix(in oklab,var(--gold) 58%,var(--paper));
+  --brass-lo:color-mix(in oklab,var(--gold) 52%,var(--ink));
+  --lampc:color-mix(in oklch,var(--go) 62%,var(--paper));
+  /* chart inks */
+  --deep:color-mix(in oklab,var(--water2) 84%,var(--paper));
+  --shoal:color-mix(in oklab,var(--water1) 9%,var(--paper));
+  --flat:color-mix(in oklab,var(--accent) 16%,var(--land));
+  --lampglow:color-mix(in srgb,var(--hl) 30%,transparent);
+  --falloff:color-mix(in srgb,var(--sh) 9%,transparent);
+  --land:color-mix(in oklab,var(--gold) 21%,var(--paper));
+  --land2:color-mix(in oklab,var(--gold) 46%,var(--paper));
+  --wood:color-mix(in oklab,var(--accent) 46%,var(--land));
+  --coast:color-mix(in oklab,var(--ink) 82%,var(--water1));
+  --isoc:color-mix(in srgb,var(--ink) 22%,transparent);
+  --sndc:color-mix(in oklab,var(--ink) 62%,var(--water1));
+  --namec:color-mix(in oklab,var(--ink) 88%,var(--water1));
+  --halo:color-mix(in oklab,var(--deep) 26%,var(--shoal));
+  --gravel:color-mix(in oklab,var(--bg) 70%,var(--land2));
+  --pool-a:0;--pool-b:0;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .07  0 0 0 0 .1  0 0 0 0 .14  .3 0 0 0 -.12'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background:var(--table);
+  -webkit-text-size-adjust:100%;
+}
+html[data-dark="1"]{
+  --hl:var(--ink);
+  --sh:var(--shore);
+  --sA:color-mix(in srgb,var(--sh) 50%,transparent);
+  --sB:color-mix(in srgb,var(--sh) 70%,transparent);
+  --sC:color-mix(in srgb,var(--sh) 92%,transparent);
+  --rim:color-mix(in srgb,var(--ink) 12%,transparent);
+  --table:var(--bg);
+  --tink:color-mix(in oklab,var(--ink2) 17%,var(--bg));
+  --tink2:color-mix(in oklab,var(--ink2) 36%,var(--bg));
+  --tline:color-mix(in oklab,var(--ink2) 50%,var(--bg));
+  --paper2:color-mix(in oklab,var(--paper) 62%,var(--bg));
+  --paper3:color-mix(in oklab,var(--paper) 36%,var(--bg));
+  --well:color-mix(in oklab,var(--paper) 55%,var(--bg));
+  --edge:color-mix(in oklab,var(--ink2) 30%,var(--paper));
+  --rule:color-mix(in oklab,var(--ink2) 15%,var(--paper));
+  --rule2:color-mix(in oklab,var(--ink2) 42%,var(--paper));
+  --deck:color-mix(in oklab,var(--paper) 80%,var(--ink2));
+  --deck2:color-mix(in oklab,var(--paper) 74%,var(--ink2));
+  --on-navy:var(--accent2);
+  --dk:color-mix(in oklab,var(--bg) 60%,var(--shore));
+  --quiet:var(--paper2);
+  --nightc:var(--dk);
+  --dayc:color-mix(in oklab,var(--gold) 62%,var(--paper));
+  --on-deck:var(--ink);
+  --on-deck2:color-mix(in oklab,var(--ink) 74%,var(--deck));
+  --on-accent:var(--on-gold);
+  --brass:color-mix(in oklab,var(--gold) 78%,var(--paper));
+  --brass-hi:color-mix(in oklab,var(--gold) 80%,var(--ink));
+  --brass-lo:color-mix(in oklab,var(--gold) 42%,var(--bg));
+  --lampc:var(--go);
+  --deep:color-mix(in oklab,var(--water2) 70%,var(--shore));
+  --shoal:color-mix(in oklab,var(--ink2) 30%,var(--water1));
+  --land:color-mix(in oklab,var(--gold) 13%,var(--paper));
+  --flat:color-mix(in oklab,var(--go) 12%,var(--land));
+  --lampglow:color-mix(in srgb,var(--ink2) 9%,transparent);
+  --falloff:color-mix(in srgb,var(--shore) 40%,transparent);
+  --land2:color-mix(in oklab,var(--gold) 32%,var(--paper));
+  --wood:color-mix(in oklab,var(--go) 26%,var(--land));
+  --coast:color-mix(in oklab,var(--ink2) 78%,var(--bg));
+  --isoc:color-mix(in srgb,var(--ink2) 34%,transparent);
+  --sndc:color-mix(in oklab,var(--ink2) 72%,var(--bg));
+  --namec:color-mix(in oklab,var(--ink) 86%,var(--bg));
+  --halo:color-mix(in oklab,var(--deep) 55%,var(--shoal));
+  --gravel:color-mix(in oklab,var(--ink2) 26%,var(--land));
+  --pool-a:.85;--pool-b:.29;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .8  0 0 0 0 .87  0 0 0 0 .95  .2 0 0 0 -.08'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+*{box-sizing:border-box;min-width:0}
+body{margin:0;font:16px/1.45 Inter,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+.sub,.rt>span,.cart .sub,.well em,.note p{font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+h1,h2,p,ul,figure{margin:0}
+.defs{position:absolute}
+[hidden]{display:none!important}
+
+/* ---- the chart table: the ground everything lies on ---------------- */
+.table{position:relative;isolation:isolate;max-width:430px;min-height:100vh;margin:0 auto;overflow:clip;
+  padding:10px 16px calc(118px + env(safe-area-inset-bottom))}
+.table::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(120% 620px at 6% 0,var(--lampglow),transparent 70%),linear-gradient(170deg,transparent 45%,var(--falloff)),var(--grain)}
+.tablechart{position:absolute;left:0;top:0;width:100%;z-index:-2;pointer-events:none}
+.tablechart .iso{fill:none;stroke:var(--tink);stroke-width:.8}
+.tablechart .ix{stroke-width:1.5}
+.tablechart text{font:500 8px Inter,sans-serif;font-style:italic;fill:var(--tink2)}
+.tablechart .rose{--rosec:var(--tink2)}
+
+/* ---- top bar: a recessed selector and a brass porthole ------------- */
+.bar{display:flex;align-items:center;gap:10px;height:52px}
+.tabs{flex:1;display:flex;padding:3px;border-radius:11px;
+  background:color-mix(in oklab,var(--table) 86%,var(--sh));
+  box-shadow:inset 1px 2px 3px var(--sB),inset -1px -1px 0 color-mix(in srgb,var(--hl) 50%,transparent)}
+html[data-dark="1"] .tabs{background:var(--dk);box-shadow:inset 1px 2px 3px var(--sC),inset -1px -1px 0 var(--rim)}
+.tab{position:relative;flex:1;display:grid;place-items:center;height:44px;border-radius:8px;
+  font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--ink)}
+.tab.on{background:var(--grain),var(--paper);
+  box-shadow:inset 0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim),1px 2px 3px var(--sB)}
+.tab.on::after{content:"";position:absolute;left:50%;bottom:6px;width:16px;height:2.5px;margin-left:-8px;border-radius:2px;
+  background:linear-gradient(90deg,var(--brass-hi),var(--brass))}
+.skybtn{flex:none;display:flex;align-items:center;gap:8px;height:50px;padding:0 13px 0 5px;border:0;border-radius:25px;
+  background:var(--grain),var(--paper);box-shadow:inset 0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim),var(--lift1);
+  font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.port{position:relative;width:40px;height:40px;border-radius:50%;
+  background:conic-gradient(from 215deg,var(--brass-hi),var(--brass-lo) 22%,var(--brass) 40%,var(--brass-hi) 52%,var(--brass-lo) 74%,var(--brass) 88%,var(--brass-hi));
+  box-shadow:inset 0 0 0 1px var(--brass-lo),1px 1.5px 2px var(--sB)}
+.port i{position:absolute;inset:5px;border-radius:50%;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky1),var(--sky2) 55%,var(--water1) 55%,var(--water2));
+  box-shadow:inset 1.5px 2px 3px color-mix(in srgb,var(--sh) 55%,transparent),0 0 0 1px var(--brass-lo)}
+.port i::before{content:"";position:absolute;left:0;right:0;top:43%;height:14%;background:var(--shore);opacity:.86;
+  clip-path:polygon(0 100%,0 62%,8% 38%,15% 55%,24% 20%,31% 48%,40% 30%,47% 60%,58% 42%,66% 12%,74% 46%,83% 34%,92% 58%,100% 44%,100% 100%)}
+.port i::after{content:"";position:absolute;left:14%;top:10%;width:44%;height:20%;border-radius:50%;transform:rotate(-28deg);
+  background:color-mix(in srgb,var(--hl) 34%,transparent)}
+html[data-dark="1"] .port i::after{background:color-mix(in srgb,var(--ink) 14%,transparent)}
+html[data-dark="1"] .port i{box-shadow:inset 1.5px 2px 3px color-mix(in srgb,var(--sh) 55%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--ink2) 26%,transparent),0 0 0 1px var(--brass-lo)}
+
+/* ---- shared type ---------------------------------------------------- */
+.eyebrow{display:block;font:700 11.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.lab{display:flex;align-items:center;gap:10px;margin:24px 2px 9px;font:700 13.5px/1 "Barlow Condensed",sans-serif;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--ink)}
+.lab::after{content:"";flex:1;height:4px;border-top:1px solid var(--tline);border-bottom:1px solid var(--tline);opacity:.7}
+.chev{flex:none;color:var(--ink2)}
+
+/* ---- paper ---------------------------------------------------------- */
+.sheet{position:relative;border-radius:7px;background:var(--grain),var(--paper);
+  box-shadow:0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim),var(--lift1)}
+/* two more sheets under the top one, knocked slightly out of square */
+.stack{position:relative}
+.stack::before,.stack::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+  background:var(--paper2);box-shadow:0 0 0 1px var(--edge),1px 2px 3px var(--sA)}
+.stack::before{transform:translate(3px,4px) rotate(.4deg)}
+.stack::after{transform:translate(-1px,7px) rotate(-.45deg);background:var(--paper3);box-shadow:0 0 0 1px var(--edge),3px 6px 10px -2px var(--sB)}
+
+/* ---- chart frames: the zebra neatline of a real chart -------------- */
+.hero{position:relative;margin-top:16px}
+.frame{padding:2.5px;border-radius:3px;background:var(--grain),var(--paper);box-shadow:0 0 0 1px var(--rule2),var(--lift2)}
+.neat{position:relative;padding:5.5px;outline:.75px solid var(--coast);
+  background:
+    repeating-linear-gradient(90deg,var(--coast) 0 13px,transparent 13px 26px) 0 0/100% 3px no-repeat,
+    repeating-linear-gradient(90deg,transparent 0 13px,var(--coast) 13px 26px) 0 100%/100% 3px no-repeat,
+    repeating-linear-gradient(0deg,var(--coast) 0 13px,transparent 13px 26px) 0 0/3px 100% no-repeat,
+    repeating-linear-gradient(0deg,transparent 0 13px,var(--coast) 13px 26px) 100% 0/3px 100% no-repeat}
+.neat::after{content:"";position:absolute;inset:3px;outline:.75px solid var(--coast);pointer-events:none}
+.chart{display:block;width:100%;height:auto;overflow:hidden;background:var(--deep)}
+
+/* title label, pasted over the chart like a cartouche */
+.cart{position:absolute;z-index:2;padding:10px 12px 10px;border:1.5px solid var(--coast);border-radius:2px;
+  background:var(--grain),var(--paper);
+  box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 2.75px var(--coast),var(--lift2)}
+.cart h1{font:700 32px/.94 "Barlow Condensed",sans-serif;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance}
+.cart .eyebrow{margin-bottom:6px}
+.cart.title{right:9px;top:-9px;padding:10px 13px 9px}
+.cart.title h1{font-size:30px;white-space:nowrap}
+.cart.wide{position:relative;margin:-42px 11px 0;padding:13px 15px 13px}
+.cart.wide h1{font-size:29px;padding-right:2px}
+.cart.wide .eyebrow{margin-bottom:7px}
+.cart .sub{margin-top:7px;font-size:14px;line-height:1.3;color:var(--ink2)}
+.cart .big{position:absolute;right:12px;top:10px}
+
+/* ---- tags ----------------------------------------------------------- */
+.heat{flex:none;padding:6px 8px 5px;border-radius:5px;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);box-shadow:inset 0 0 0 1.25px color-mix(in oklab,var(--accent) 55%,var(--paper))}
+.heat.hot{color:var(--on-gold);
+  background:linear-gradient(150deg,color-mix(in oklab,var(--gold) 70%,var(--hl)),var(--gold) 46%,color-mix(in oklab,var(--gold) 86%,var(--sh)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hl) 60%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--sh) 24%,transparent),
+    0 0 0 .75px color-mix(in oklab,var(--gold) 62%,var(--sh)),1px 1.5px 2px var(--sB)}
+.lamp{flex:none;display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 9px 0 7px;border-radius:13px;
+  font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--go);
+  box-shadow:inset 0 0 0 1.25px color-mix(in oklab,var(--go) 55%,var(--paper))}
+.lamp i{width:9px;height:9px;border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,color-mix(in oklch,var(--go) 45%,var(--hl)),var(--go) 70%);
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--go) 22%,transparent)}
+
+/* ---- crew slip: the one navy card, tucked under the chart's edge ---- */
+.slip{position:relative;z-index:3;display:grid;grid-template-columns:44px 1fr auto 8px;
+  grid-template-areas:"leaf eye lamp chev" "leaf ttl ttl chev" "leaf sub sub chev";column-gap:12px;align-items:center;
+  margin:-22px 10px 0;padding:9px 13px 11px 11px;border-radius:8px;color:var(--on-deck);
+  background:var(--grain),linear-gradient(140deg,var(--deck2),var(--deck) 58%);
+  box-shadow:inset 1.5px 1.5px 0 color-mix(in srgb,var(--on-deck) 20%,transparent),inset -1px -1px 0 color-mix(in srgb,var(--sh) 40%,transparent),
+    0 0 0 1px color-mix(in oklab,var(--deck) 80%,var(--sh)),var(--lift2)}
+.leaf{grid-area:leaf;display:grid;place-items:center;align-content:center;gap:2px;width:44px;height:48px;border-radius:3px;
+  transform:rotate(-3deg);color:var(--ink);background:var(--grain),var(--paper);
+  box-shadow:inset 0 -1px 0 var(--rule2),1px 2px 3px color-mix(in srgb,var(--sh) 50%,transparent)}
+html[data-dark="1"] .leaf{background:var(--ink);color:var(--paper)}
+.leaf i{font:700 10.5px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:.16em;text-transform:uppercase}
+.leaf b{font:700 25px/.9 "Barlow Condensed",sans-serif}
+.slip .eyebrow{grid-area:eye;color:var(--on-navy);white-space:nowrap;overflow:hidden;text-overflow:clip}
+.slip .ttl{grid-area:ttl;margin-top:1px}
+.slip .sub{grid-area:sub;margin-top:2px;color:var(--on-deck2)}
+.slip .lamp{grid-area:lamp;height:23px;color:var(--on-deck);background:color-mix(in oklab,var(--lampc) 22%,var(--deck));
+  box-shadow:inset 0 0 0 1.25px color-mix(in oklab,var(--lampc) 62%,var(--deck))}
+.slip .lamp i{background:radial-gradient(circle at 36% 30%,var(--hl),var(--lampc) 60%);
+  box-shadow:0 0 0 2.5px color-mix(in srgb,var(--lampc) 26%,transparent),0 0 9px 1px color-mix(in srgb,var(--lampc) 70%,transparent)}
+.slip .chev{grid-area:chev;color:var(--on-deck2)}
+
+/* ---- a day in the tide book ---------------------------------------- */
+.day{margin-top:24px}
+.dayhead{position:relative;display:flex;align-items:flex-end;gap:10px}
+/* the date is an index tab cut from the same sheet as the list under it */
+.tabhd{position:relative;z-index:1;flex:none;display:flex;align-items:baseline;gap:9px;height:37px;padding:11px 16px 0 15px;
+  border-radius:7px 7px 0 0;background:var(--grain),var(--paper);
+  box-shadow:0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim),4px 0 6px -3px var(--sB);
+  font:700 20px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase}
+.tabhd::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:5px;background:var(--grain),var(--paper)}
+.tabhd small{font:700 11.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.22em;color:color-mix(in oklab,var(--accent) 62%,var(--ink))}
+.day .sheet,.day .note,.day .sheet .row:first-child{border-top-left-radius:0}
+/* the day's tide rises from behind the sheet */
+.spark{flex:1;height:40px;margin:0 3px -3px 0;overflow:visible}
+.spark .dy{fill:color-mix(in oklab,var(--paper) 62%,var(--table))}
+.spark .nt{fill:color-mix(in oklab,var(--ink) 20%,var(--table))}
+.spark .ln{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-linejoin:round}
+.spark .hi{fill:var(--paper);stroke:var(--ink);stroke-width:1.1}
+.spark .sun{stroke:var(--ink);stroke-width:.8;stroke-dasharray:1.5 2;opacity:.55}
+html[data-dark="1"] .spark .dy{fill:color-mix(in oklab,var(--ink2) 34%,var(--bg))}
+html[data-dark="1"] .spark .nt{fill:color-mix(in oklab,var(--ink2) 13%,var(--bg))}
+html[data-dark="1"] .spark .ln{stroke:var(--ink2)}
+html[data-dark="1"] .spark .hi{fill:var(--bg);stroke:var(--ink2)}
+
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:68px;padding:11px 13px 11px 15px}
+.row+.row{border-top:1px solid var(--rule)}
+.row:first-child{border-radius:7px 7px 0 0}
+.row:last-child{border-radius:0 0 7px 7px}
+.row:only-child{border-radius:7px}
+.rt{flex:1;display:block}
+.rt b,.ttl{display:block;font-size:16.5px;font-weight:650;line-height:1.2;letter-spacing:-.012em;text-wrap:balance}
+.rt>span,.sub{display:block;margin-top:4px;font-size:13px;line-height:1.3;color:var(--ink2);text-wrap:pretty}
+.sub i{margin-right:7px;font:700 11.5px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--accent)}
+/* a trip row: window on the water, name, heat, then the hours underneath */
+.day .row{display:grid;grid-template-columns:46px 1fr auto 8px;grid-template-areas:"win ttl heat chev" "win sub sub chev";
+  column-gap:12px;row-gap:5px;align-content:center;min-height:70px}
+.day .win{grid-area:win}
+.day .ttl{grid-area:ttl}
+.day .sub{grid-area:sub;margin-top:0}
+.day .heat{grid-area:heat}
+.day .chev{grid-area:chev}
+/* colour index on the book edge: gold for hot, a quiet tab for good */
+.day .row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:inherit;border-top-right-radius:0;border-bottom-right-radius:0;
+  background:color-mix(in oklab,var(--accent) 34%,var(--paper))}
+.day .row.hot::before{background:linear-gradient(180deg,color-mix(in oklab,var(--gold) 72%,var(--hl)),var(--gold))}
+.day .row.hot{background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 17%,transparent),transparent 58%)}
+.win{flex:none;width:46px;height:32px;border-radius:4px;background:var(--well);
+  box-shadow:inset 1px 1px 2px var(--sB),inset -1px -1px 0 var(--rim)}
+.win .w{fill:color-mix(in srgb,var(--accent) 24%,transparent)}
+.win .hz{stroke:var(--ink2);stroke-width:.8;opacity:.55}
+.win .ln{fill:none;stroke:var(--ink2);stroke-width:1;opacity:.8}
+.win .on{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.win .sn{stroke:var(--ink2);stroke-width:1}
+.hot .win .w{fill:color-mix(in srgb,var(--gold) 52%,transparent)}
+.hot .win .on{stroke:var(--ink)}
+html[data-dark="1"] .hot .win .w{fill:color-mix(in srgb,var(--gold) 32%,transparent)}
+html[data-dark="1"] .hot .win .on{stroke:var(--gold)}
+.stamp{grid-column:2/4;justify-self:start;margin:2px 0 1px;padding:4px 6px 3px;border-radius:2px;transform:rotate(-1.1deg);
+  font:700 11px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);
+  border:1px solid color-mix(in oklab,var(--accent) 55%,var(--paper))}
+
+/* nothing today: a quieter slip, and the day's light drawn to show why */
+.quiet .tabhd,.quiet .tabhd::after,.note{background:var(--grain),var(--quiet)}
+.note{position:relative;padding:13px 15px 12px;border-radius:7px;
+  box-shadow:0 0 0 1px var(--edge),inset 1.5px 1.5px 0 color-mix(in srgb,var(--hl) 45%,transparent),1px 2px 4px -1px var(--sA),6px 10px 16px -10px var(--sB)}
+html[data-dark="1"] .note{box-shadow:0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim)}
+.note p{font-size:14px;line-height:1.42}
+.light{position:relative;height:25px;margin-top:13px}
+.light u{display:block;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,var(--nightc) 0 31.1%,var(--dayc) 31.1% 68.3%,var(--nightc) 68.3%);
+  box-shadow:inset 1px 1px 1.5px var(--sB)}
+.light::before{content:"";position:absolute;left:0;right:0;top:9px;height:3px;opacity:.8;
+  background:repeating-linear-gradient(90deg,var(--rule2) 0 1px,transparent 1px 12.5%)}
+.light i{position:absolute;left:68.3%;top:-4px;height:17px;width:1.5px;background:var(--ink)}
+.light b{position:absolute;left:68.3%;top:9px;margin-left:6px;font:700 11px/1 "Barlow Condensed",sans-serif;letter-spacing:.12em;white-space:nowrap}
+
+/* ---- run card ------------------------------------------------------- */
+.back{position:relative;display:inline-flex;align-items:center;gap:7px;height:36px;margin-top:12px;padding:0 13px 0 10px;border-radius:18px;
+  background:var(--grain),var(--paper);box-shadow:inset 0 0 0 1px var(--edge),inset 1.5px 1.5px 0 var(--rim),var(--lift1);
+  font:700 13.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.13em;text-transform:uppercase}
+.back::after{content:"";position:absolute;inset:-5px -4px}
+.hero.spot{margin-top:11px}
+.instr{margin-top:14px;padding:11px 11px 6px}
+.wells{display:grid;grid-template-columns:1.32fr 1fr .86fr;gap:8px}
+.well{padding:9px 10px 9px;border-radius:5px;background:var(--well);box-shadow:inset 1px 1px 2px var(--sB),inset -1px -1px 0 var(--rim)}
+.well span{display:block;font:700 10.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.19em;text-transform:uppercase;color:var(--ink2)}
+.well b{display:block;margin-top:6px;font:700 28px/.9 "Barlow Condensed",sans-serif;letter-spacing:.015em}
+.well small{margin-left:3px;font-size:13px;letter-spacing:.1em;color:var(--ink2)}
+.well em{display:block;margin-top:5px;font-style:normal;font-size:12px;line-height:1.1;color:var(--ink2)}
+.tideplot{display:block;width:100%;height:auto;margin-top:9px;overflow:visible}
+.tideplot .ar1{fill:color-mix(in oklab,var(--water1) 30%,var(--paper))}
+.tideplot .ar2{fill:color-mix(in oklab,var(--water1) 55%,var(--paper))}
+.tideplot .wn{fill:color-mix(in srgb,var(--gold) 46%,transparent)}
+.tideplot .ht{fill:url(#hatch)}
+.tideplot .ln{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.tideplot .ax{stroke:var(--rule2);stroke-width:1}
+.tideplot .tk{stroke:var(--rule2);stroke-width:.8}
+.tideplot .gd{stroke:var(--rule);stroke-width:.8;stroke-dasharray:1.5 3}
+.tideplot .lead{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 2.5;fill:none}
+.tideplot .drive{stroke:var(--ink2);stroke-width:1.6;stroke-dasharray:1 4;stroke-linecap:round;fill:none}
+.tideplot .fishbar{fill:var(--gold);stroke:color-mix(in oklab,var(--gold) 60%,var(--sh));stroke-width:.75}
+.tideplot .dot{fill:var(--paper);stroke:var(--ink);stroke-width:1.6}
+.tideplot .ring{fill:none;stroke:var(--gold);stroke-width:1.6}
+.tideplot text{font:500 11px Inter,sans-serif;fill:var(--ink2)}
+.tideplot .cap{font:700 11.5px "Barlow Condensed",sans-serif;letter-spacing:.14em;fill:var(--ink)}
+.tideplot .now{font:700 11.5px "Barlow Condensed",sans-serif;letter-spacing:.14em;fill:var(--ink)}
+.tideplot .on-bar{font:700 10.5px "Barlow Condensed",sans-serif;letter-spacing:.16em;fill:var(--on-gold)}
+html[data-dark="1"] .tideplot .ar1{fill:color-mix(in oklab,var(--ink2) 15%,var(--paper))}
+html[data-dark="1"] .tideplot .ar2{fill:color-mix(in oklab,var(--ink2) 28%,var(--paper))}
+html[data-dark="1"] .tideplot .wn{fill:color-mix(in srgb,var(--gold) 30%,transparent)}
+html[data-dark="1"] .tideplot .ln{stroke:var(--ink)}
+.hatchl{stroke:color-mix(in oklab,var(--gold) 50%,var(--ink));stroke-width:.8;opacity:.55}
+html[data-dark="1"] .hatchl{stroke:var(--gold);opacity:.5}
+
+/* the run card itself: a log page with a ruled margin */
+.log .row::before{content:"";position:absolute;left:39px;top:-1px;bottom:0;width:4px;border-left:1px solid var(--brass-hi);border-right:1px solid var(--brass-hi)}
+.log .row{min-height:60px;padding-left:0;gap:14px}
+.log .rt>span{font-size:13.5px}
+.log .row:not(:has(.rt>span)){min-height:52px}
+.n{flex:none;width:39px;text-align:center;font:700 14px/1 "Barlow Condensed",sans-serif;font-style:normal;letter-spacing:.04em;color:var(--ink2)}
+.gearbar{flex:none;display:flex;align-items:center;gap:2px}
+.gearbar i,.gearbar u{width:5px;height:13px;border-radius:1px}
+.gearbar i{background:var(--gold);box-shadow:inset 0 0 0 .75px color-mix(in oklab,var(--gold) 60%,var(--sh))}
+.gearbar u{box-shadow:inset 0 0 0 1.25px var(--ink2);margin-left:0}
+.gearbar i+u{margin-left:3px}
+.gearbar s{width:15px;height:13px;margin-left:3px;border-radius:1px;background:var(--rule)}
+
+/* ---- crew trip ------------------------------------------------------ */
+.cond{display:grid;grid-template-columns:1fr 122px;grid-template-areas:"go hy" "p hy";column-gap:13px;align-content:start;
+  margin-top:14px;padding:13px 12px 13px 15px}
+.go{grid-area:go;display:flex;align-items:center;gap:10px}
+.go b{font:700 36px/.9 "Barlow Condensed",sans-serif;letter-spacing:.07em;text-transform:uppercase;color:var(--go)}
+.lens{flex:none;width:32px;height:32px;padding:4px;border-radius:50%;
+  background:conic-gradient(from 215deg,var(--brass-hi),var(--brass-lo) 22%,var(--brass) 40%,var(--brass-hi) 52%,var(--brass-lo) 74%,var(--brass) 88%,var(--brass-hi));
+  box-shadow:inset 0 0 0 1px var(--brass-lo),1px 1.5px 2px var(--sB)}
+.lens i{display:block;width:100%;height:100%;border-radius:50%;
+  background:radial-gradient(circle at 36% 30%,color-mix(in oklch,var(--go) 38%,var(--hl)),var(--go) 58%,color-mix(in oklab,var(--go) 72%,var(--sh)));
+  box-shadow:0 0 0 1px var(--brass-lo),0 0 10px 1px color-mix(in srgb,var(--go) 50%,transparent)}
+.cond p{grid-area:p;margin-top:9px;font-size:15px;font-weight:500;line-height:1.36;text-wrap:pretty}
+.hydro{grid-area:hy;display:block;width:122px;height:74px;border-radius:5px;background:var(--well);
+  box-shadow:inset 1px 1px 2px var(--sB),inset -1px -1px 0 var(--rim)}
+.hydro .ar{fill:color-mix(in oklab,var(--water1) 40%,var(--paper))}
+.hydro .ln{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round}
+.hydro .ax{stroke:var(--rule2);stroke-width:.8}
+.hydro .dot{fill:var(--go);stroke:var(--paper);stroke-width:1.5}
+.hydro .ring{fill:none;stroke:var(--go);stroke-width:1.5}
+.hydro text{font:700 17px "Barlow Condensed",sans-serif;letter-spacing:.02em;fill:var(--ink)}
+.hydro .u{font-size:10.5px;letter-spacing:.16em;fill:var(--ink2)}
+html[data-dark="1"] .hydro .ar{fill:color-mix(in oklab,var(--ink2) 24%,var(--paper))}
+
+.roster{margin-top:12px;padding:8px 8px 10px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);padding:3px;border-radius:9px;background:var(--well);
+  box-shadow:inset 1px 2px 3px var(--sB),inset -1px -1px 0 var(--rim)}
+.seg button{height:46px;border:0;border-radius:7px;background:none;
+  font:700 15.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.seg i{margin-left:7px;font-style:normal;font-size:13px;color:var(--ink2)}
+.seg .on{color:var(--on-deck);background:linear-gradient(140deg,var(--deck2),var(--deck) 60%);
+  box-shadow:inset 1.5px 1.5px 0 color-mix(in srgb,var(--on-deck) 20%,transparent),1px 2px 3px var(--sC)}
+.seg .on i{color:var(--on-navy)}
+.cols{display:grid;grid-template-columns:repeat(3,1fr);padding:11px 3px 2px}
+.cols ul{list-style:none;display:grid;gap:8px;align-content:start;padding:0 0 0 9px}
+.cols ul+ul{border-left:1px solid var(--rule)}
+.cols li,.who{display:flex;align-items:center;gap:7px;font-size:14.5px;font-weight:600}
+.cols li i,.who i{flex:none;display:grid;place-items:center;width:25px;height:25px;border-radius:50%;
+  font:700 13px/1 "Barlow Condensed",sans-serif;font-style:normal;color:var(--on-deck);background:var(--deck);
+  box-shadow:inset 0 0 0 1.5px var(--brass),1px 1.5px 2px var(--sB)}
+.count{flex:none;padding:6px 8px 5px;border-radius:5px;background:var(--well);box-shadow:inset 1px 1px 2px var(--sB),inset -1px -1px 0 var(--rim);
+  font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.11em;text-transform:uppercase}
+.list .row{min-height:58px;padding-left:13px;cursor:pointer}
+.row:only-child{min-height:56px}
+.box{flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:var(--well);
+  box-shadow:inset 0 0 0 1px var(--rule2),inset 1.5px 2px 3px var(--sB)}
+.box.on{color:var(--on-accent);background:var(--accent);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--hl) 28%,transparent),inset 0 -1px 0 color-mix(in srgb,var(--sh) 30%,transparent),1px 1.5px 2px var(--sB)}
+.done .rt b{color:var(--ink2)}
+.who{flex:none}
+.who.none{padding:5px 11px;border-radius:14px;border:1px dashed var(--rule2);font-weight:500;color:var(--ink2)}
+.cta{display:grid;place-items:center;height:58px;margin-top:20px;border-radius:10px;
+  font:700 20px/1 "Barlow Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--on-gold);
+  background:linear-gradient(160deg,color-mix(in oklab,var(--gold) 68%,var(--hl)),var(--gold) 44%,color-mix(in oklab,var(--gold) 84%,var(--sh)));
+  box-shadow:inset 0 1.5px 0 color-mix(in srgb,var(--hl) 62%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--sh) 22%,transparent),
+    0 0 0 1px color-mix(in oklab,var(--gold) 58%,var(--sh)),var(--lift2)}
+
+/* ---- the charts ----------------------------------------------------- */
+.fl{flood-color:var(--sh);flood-opacity:.3}
+.fl2{flood-opacity:.4}
+.fl3{flood-opacity:.42}
+html[data-dark="1"] .fl{flood-opacity:.85}
+.chart .lyr{stroke:var(--isoc);stroke-width:.5}
+.chart .land{fill:var(--land)}
+.chart .coast{fill:none;stroke:var(--coast);stroke-width:1;stroke-linejoin:round}
+.chart .topo{fill:none;stroke:color-mix(in oklab,var(--land2) 70%,var(--coast));stroke-width:.5;opacity:.6}
+.chart .grat{stroke:var(--coast);stroke-width:.4;opacity:.3}
+.chart .snd text{font:500 5.3px Inter,sans-serif;font-style:italic;fill:var(--sndc);opacity:.85}
+.chart .wn{font:600 7.5px "Barlow Condensed",sans-serif;font-style:italic;letter-spacing:.3em;text-transform:uppercase;fill:var(--namec)}
+.chart .pl{font:700 7.5px "Barlow Condensed",sans-serif;letter-spacing:.2em;text-transform:uppercase;fill:var(--namec)}
+.chart .clr{fill:var(--halo)}
+.chart .nohalo{stroke:none}
+.chart .pl,.chart .mt,.chart .onl{paint-order:stroke;stroke:var(--land);stroke-width:2.2px;stroke-linejoin:round}
+.chart .mt{font:600 5.6px "Barlow Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;fill:var(--namec)}
+.chart .riv{fill:none;stroke:var(--coast);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.chart .riv2{fill:none;stroke:var(--shoal);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.chart .lake{fill:var(--shoal);stroke:var(--coast);stroke-width:.8}
+.chart .lake2{fill:color-mix(in oklab,var(--deep) 40%,var(--shoal))}
+.chart .ferry{fill:none;stroke:var(--coast);stroke-width:.7;stroke-dasharray:2.4 1.8;opacity:.75}
+.chart .road{fill:none;stroke:var(--coast);stroke-width:2.6;opacity:.55}
+.chart .road2{fill:none;stroke:var(--land);stroke-width:1.6}
+.chart .rail{fill:none;stroke:var(--coast);stroke-width:.7;opacity:.7}
+.chart .rail2{fill:none;stroke:var(--coast);stroke-width:2.6;stroke-dasharray:.7 4.3;opacity:.7}
+.chart .rip{fill:none;stroke:var(--coast);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:.1 2.6;opacity:.55}
+.chart .pierc{fill:none;stroke:var(--coast);stroke-linecap:butt;stroke-linejoin:miter}
+.chart .pierd{fill:none;stroke:var(--land2);stroke-linecap:butt}
+.chart .pile{fill:none;stroke:var(--coast);stroke-width:.7;opacity:.75}
+.chart .plank{fill:none;stroke:var(--coast);stroke-dasharray:.4 2.7;opacity:.42}
+.pool0{stop-color:var(--gold);stop-opacity:var(--pool-a)}
+.pool1{stop-color:var(--gold);stop-opacity:var(--pool-b)}
+.pool2{stop-color:var(--gold);stop-opacity:0}
+.chart .sector{fill:none;stroke:var(--brass);stroke-width:.7;stroke-dasharray:1.2 2.2;opacity:.8}
+.chart .lampd{fill:var(--gold);stroke:var(--coast);stroke-width:.6}
+.chart .bar-g{fill:var(--gravel);stroke:var(--coast);stroke-width:.5;stroke-opacity:.6}
+.chart .stp{fill:url(#stip)}
+.stipd{fill:var(--coast);opacity:.6}
+.chart .wood{fill:color-mix(in oklab,var(--wood) 30%,var(--land));stroke:color-mix(in oklab,var(--wood) 70%,var(--land));stroke-width:.4}
+.chart .wood2{fill:color-mix(in oklab,var(--wood) 52%,var(--land))}
+.chart .flat{fill:var(--flat);stroke:var(--isoc);stroke-width:.4}
+.chart .piles{fill:var(--coast);opacity:.8}
+.chart .flow{fill:none;stroke:var(--coast);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+.chart .narr{fill:none;stroke:var(--coast);stroke-width:.9}
+.chart .narrf{fill:var(--coast)}
+
+/* compass rose */
+.rose{--rosec:var(--brass)}
+.rose circle,.rose path,.rose line{fill:none;stroke:var(--rosec)}
+.rose .fillc{fill:var(--rosec);stroke:none}
+.rose text{font:700 6px "Barlow Condensed",sans-serif;fill:var(--rosec);stroke:none}
+
+/* spot marks and their paper labels */
+.mk .halo{fill:var(--gold);opacity:.3}
+.mk .c{fill:var(--gold);stroke:var(--on-gold);stroke-width:1.1}
+.mk .p{fill:var(--on-gold)}
+.mk.good .c{fill:var(--paper);stroke:var(--accent);stroke-width:2}
+.mk.good .p{fill:var(--accent)}
+.mk .pulse{fill:none;stroke:var(--gold);stroke-width:1.6;transform-box:fill-box;transform-origin:center;animation:ping 2.8s cubic-bezier(.2,.6,.3,1) infinite}
+.tg rect{fill:var(--paper);stroke:var(--coast);stroke-width:.75}
+.tg .pip{fill:var(--gold);stroke:var(--on-gold);stroke-width:.6}
+.tg.good .pip{fill:var(--paper);stroke:var(--accent);stroke-width:1.3}
+.tg text{font:700 10.5px "Barlow Condensed",sans-serif;letter-spacing:.09em;fill:var(--ink)}
+.tg .ld{stroke:var(--coast);stroke-width:.8;fill:none}
+.ring{transform-box:fill-box;transform-origin:center;animation:ping 2.8s cubic-bezier(.2,.6,.3,1) infinite}
+@keyframes ping{0%{transform:scale(.55);opacity:.85}75%,100%{transform:scale(2.5);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mk .pulse,.ring{animation:none;transform:scale(1.7);opacity:.4}}
+
+/* ---- preview control (not part of the app) ------------------------- */
+.look{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;transform:translateX(-50%);
+  display:flex;align-items:center;gap:2px;padding:4px;border-radius:21px;white-space:nowrap;
+  background:color-mix(in srgb,var(--deck) 95%,transparent);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--on-deck) 16%,transparent),var(--lift2);
+  font:700 12.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase}
+.look a,.look button{display:flex;align-items:center;gap:6px;height:34px;padding:0 11px;border:0;border-radius:17px;background:none;color:var(--on-deck);
+  font:inherit;letter-spacing:inherit;text-transform:inherit}
+.look a.on{background:var(--on-deck);color:var(--deck)}
+.look button{margin-left:4px;padding-left:8px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--on-deck) 26%,transparent)}
+.look button i{width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--sky1),var(--sky2) 55%,var(--water1) 55%,var(--water2));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--on-deck) 40%,transparent)}

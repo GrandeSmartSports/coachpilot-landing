@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rig Card: on the water</title>
+<link rel="icon" href="/rigs/icon-v4-192.png">
+<link rel="preload" href="/rigs/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/rigs/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/rigs/look/water/water.css">
+<script src="/rigs/sky.js"></script>
+<script src="/rigs/look/water/scene.js"></script>
+</head>
+<body>
+<div class="phone" id="app">
+
+<!-- ============ Hot Trips ============ -->
+<main class="screen" data-screen="trips" hidden>
+  <div class="scene" data-scene="sound"></div>
+  <nav class="dock" aria-label="Sections"></nav>
+  <header class="hero">
+    <h1>Hot Trips</h1>
+    <p class="chips"><span class="chip"><i class="skytok"></i><b data-skyname>Overcast</b> sunset 4:23 PM</span></p>
+  </header>
+
+  <a class="float crewtrip" data-to="crew" href="?screen=crew">
+    <span class="stamp"><i>Sat</i><b>28</b></span>
+    <span class="tx">
+      <span class="cap"><em class="eyebrow">Crew trip</em><span class="pill go">On</span></span>
+      <b>Chum on the Green</b>
+      <span class="who"><span class="avs"><i class="av a1">C</i><i class="av a2">R</i></span>Coach and Russell going</span>
+    </span>
+    <i data-ic="chev"></i>
+  </a>
+
+  <section class="day">
+    <h2>Today <span>Wed Nov 25</span><u class="ribbon" data-ribbon=""></u></h2>
+    <div class="well">
+      <p><b>No daylight after work,</b> sunset 4:23 PM.</p>
+      <p>Waiting for the weekend: Bonney Lake, Coho on the Green.</p>
+    </div>
+  </section>
+
+  <section class="day">
+    <h2>Thu <span>Nov 26</span><u class="ribbon" data-ribbon="17h,7.47,12.65"></u><i>3 trips</i></h2>
+    <div class="panel list">
+      <a class="trip" data-to="card" href="?screen=card">
+        <span class="tile" data-mini="pier" data-hour="17"></span>
+        <span class="tx"><b>Squid at Les Davis Pier</b><span>Evening · 5:00 PM to 10:00 PM</span></span>
+        <span class="tag hot">Hot</span><i data-ic="chev"></i>
+      </a>
+      <a class="trip" href="#">
+        <span class="tile" data-mini="river" data-hour="7.47"></span>
+        <span class="tx"><b>Chum on the Green</b><span>Quick trip · 7:28 AM to 11:00 AM</span></span>
+        <span class="tag good">Good</span><i data-ic="chev"></i>
+      </a>
+      <a class="trip" href="#">
+        <span class="tile" data-mini="beach" data-hour="12.65"></span>
+        <span class="tx"><b>Sea-run cutthroat, Dash Point beach</b><span>Quick trip · 12:39 PM to 3:00 PM</span></span>
+        <span class="tag good">Good</span><i data-ic="chev"></i>
+      </a>
+    </div>
+  </section>
+
+  <section class="day">
+    <h2>Sat <span>Nov 28</span><u class="ribbon" data-ribbon="19.3h,7.52h,7.5"></u><i>3 trips</i></h2>
+    <div class="panel list">
+      <a class="trip" href="#">
+        <span class="tile" data-mini="surf" data-hour="19.3"></span>
+        <span class="tx"><b>Razor clams, Copalis and Mocrocks</b><span>Adventure day · 7:18 PM to 9:48 PM</span></span>
+        <span class="tag hot">Hot</span><i data-ic="chev"></i>
+      </a>
+      <a class="trip" data-to="crew" href="?screen=crew">
+        <span class="tile" data-mini="river" data-hour="7.52"></span>
+        <span class="tx"><b>Chum on the Green</b><span>Quick trip · 7:31 AM to 11:00 AM</span>
+          <span class="withcrew"><span class="avs"><i class="av a1">C</i><i class="av a2">R</i></span>Crew is on</span></span>
+        <span class="tag hot">Hot</span><i data-ic="chev"></i>
+      </a>
+      <a class="trip" href="#">
+        <span class="tile" data-mini="lake" data-hour="7.5"></span>
+        <span class="tx"><b>Trout at Bonney Lake</b><span>Quick trip · 7:30 AM to 11:00 AM</span>
+          <span class="note">Stocked Nov 23: 600 rainbow</span></span>
+        <span class="tag good">Good</span><i data-ic="chev"></i>
+      </a>
+    </div>
+  </section>
+</main>
+
+<!-- ============ Run card ============ -->
+<main class="screen" data-screen="card" hidden>
+  <div class="scene" data-scene="pier"></div>
+  <nav class="dock" aria-label="Sections"></nav>
+  <header class="hero">
+    <h1 class="long">Squid at Les Davis Pier</h1>
+    <p class="chips"><a class="chip back" data-to="trips" href="?screen=trips"><i data-ic="back"></i>Hot Trips</a><span class="chip"><b>Thu Nov 26</b> Evening</span><span class="tag hot">Hot</span></p>
+  </header>
+
+  <a class="float plan" href="#">
+    <em class="eyebrow">The plan</em>
+    <span class="planhead"><b>Leave by 3:58 PM</b><span>45 min drive</span></span>
+    <span class="tl" data-timeline="15.967,22" aria-hidden="true">
+      <i class="tl-sky"></i>
+      <i class="tl-drive" style="left:16px;width:calc(12.4% - 16px)"></i>
+      <i class="tl-win" style="left:17.1%;right:0"></i>
+      <i class="tl-dot"></i>
+    </span>
+    <span class="tl-lab">
+      <span style="left:0">3:58 PM<small>Leave</small></span>
+      <span style="left:17.1%">5:00 PM<small>Fish</small></span>
+      <span style="right:0;text-align:right">10:00 PM<small>Done</small></span>
+    </span>
+  </a>
+
+  <div class="duo">
+    <a class="panel tcard" href="#">
+      <b>Gear<i data-ic="chev"></i></b>
+      <span class="bignum">4<span>to get</span></span>
+      <span class="pips" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="c"></i><i class="c"></i><i class="c"></i><i class="c"></i></span>
+      <span class="sub">4 to check, the rest you own</span>
+    </a>
+    <a class="panel tcard" href="#">
+      <b>Tide and weather<i data-ic="chev"></i></b>
+      <svg class="tide" viewBox="0 0 146 44" aria-hidden="true"><path class="t-fill" d="M0 37C26 37 44 8 74 8S122 26 146 31V44H0Z"/><path class="t-line" d="M0 37C26 37 44 8 74 8S122 26 146 31"/><path class="t-tick" d="M74 12V44"/><circle class="t-now" cx="74" cy="8" r="3.6"/></svg>
+      <span class="lead">High slack 5:15 PM</span>
+      <span class="sub">Wind to 6 mph, gusts 11, 44 F</span>
+    </a>
+  </div>
+
+  <div class="panel list rows">
+    <a class="row" href="#"><span class="tx"><b>What it is</b><span>Market squid under the lights after dark</span></span><i data-ic="chev"></i></a>
+    <a class="row" href="#"><span class="tx"><b>Bait and lures</b><span>Two squid jigs, 2.0 to 2.5</span></span><i data-ic="chev"></i></a>
+    <a class="row" href="#"><span class="tx"><b>How to fish it</b><span>Stand where you can drop straight down</span></span><i data-ic="chev"></i></a>
+    <a class="row" href="#"><span class="tx"><b>The spot</b><span>Les Davis Pier, Tacoma. A lit public pier</span></span><i data-ic="chev"></i></a>
+    <a class="row" href="#"><span class="tx"><b>What to expect</b><span>A crowded rail on good nights</span></span><i data-ic="chev"></i></a>
+  </div>
+  <a class="rule" href="#"><span class="tx"><b>Rules</b><span>5 quarts or 10 pounds, one line</span></span><i data-ic="chev"></i></a>
+
+  <div class="act"><button class="gold" type="button"><i data-ic="plus"></i>Add to trip</button></div>
+</main>
+
+<!-- ============ Crew trip ============ -->
+<main class="screen" data-screen="crew" hidden>
+  <div class="scene" data-scene="river"></div>
+  <nav class="dock" aria-label="Sections"></nav>
+  <header class="hero">
+    <h1>Chum on the Green</h1>
+    <p class="chips"><a class="chip back" data-to="trips" href="?screen=trips"><i data-ic="back"></i>Hot Trips</a><span class="chip"><b>Sat Nov 28</b> 7:31 AM to 11:00 AM</span></p>
+  </header>
+
+  <section class="float cond">
+    <span class="seal">Go</span>
+    <span class="tx"><b>Good flow, 400 cfs</b><span>Dropping after a rise.<br>Light wind.</span></span>
+    <svg class="flow" viewBox="0 0 74 40" aria-hidden="true"><path class="f-fill" d="M3 31L13 30C19 29 21 8 27 8C35 8 43 17 52 21S65 25 69 26V36H3Z"/><path class="f-base" d="M3 36H71"/><path class="f-line" d="M3 31L13 30C19 29 21 8 27 8C35 8 43 17 52 21S65 25 69 26"/><circle class="f-dot" cx="69" cy="26" r="3.4"/></svg>
+  </section>
+
+  <h2 class="sect">Who is in</h2>
+  <div class="rsvp">
+    <button class="rs" type="button" aria-pressed="true"><span class="rs-h">Going <b>2</b></span><span class="rs-p"><i class="av a1">C</i>Coach</span><span class="rs-p"><i class="av a2">R</i>Russell</span></button>
+    <button class="rs" type="button" aria-pressed="false"><span class="rs-h">Maybe <b>1</b></span><span class="rs-p"><i class="av a3">D</i>Dad</span></button>
+    <button class="rs" type="button" aria-pressed="false"><span class="rs-h">Out <b>0</b></span><span class="rs-p none">Nobody</span></button>
+  </div>
+
+  <div class="panel list noterow">
+    <a class="row" href="#"><span class="tx"><b>Gear</b></span><span class="badge"><i data-ic="note"></i>2 notes</span><i data-ic="chev"></i></a>
+  </div>
+
+  <h2 class="sect">The list <i>1 of 3 packed</i></h2>
+  <div class="panel list">
+    <div class="check done"><button class="box" type="button" aria-label="Packed"><i data-ic="check"></i></button><b>Net</b><span class="by"><i class="av a2">R</i>Russell</span></div>
+    <div class="check"><button class="box" type="button" aria-label="Packed"><i data-ic="check"></i></button><b>Cured eggs</b><span class="by"><i class="av a1">C</i>Coach</span></div>
+    <div class="check"><button class="box" type="button" aria-label="Packed"><i data-ic="check"></i></button><b>Cooler</b><button class="by open" type="button">Nobody</button></div>
+  </div>
+
+  <div class="act"><button class="gold" type="button"><i data-ic="msg"></i>Text the crew</button></div>
+</main>
+
+</div>
+
+<!-- The look switcher. Not part of the app: it only moves this page between
+     the three screens and the eight skies. -->
+<nav class="lookbar" aria-label="Look switcher">
+  <a data-to="trips" href="?screen=trips">Trips</a>
+  <a data-to="card" href="?screen=card">Card</a>
+  <a data-to="crew" href="?screen=crew">Crew</a>
+  <select data-skypick aria-label="Sky"></select>
+</nav>
+
+<script src="/rigs/look/water/app.js"></script>
+</body>
+</html>
