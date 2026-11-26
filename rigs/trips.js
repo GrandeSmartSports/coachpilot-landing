@@ -589,6 +589,100 @@
     return Object.keys(wx).some(function (k) { return (wx[k].hours || []).some(function (h) { return h.t.slice(0, 10) === iso; }); });
   }
 
+  // ---- the call -------------------------------------------------------------
+  // What a guide would say first: the one best trip in the week, in plain
+  // words, with the reason and the next step. Pure, like the planner: a plan
+  // in, words out. It never makes up a trip the week does not list.
+  var WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  // The reasons that make a day, most telling first, then the ones against it.
+  var FOR = [/^WDFW dig/, /^Stocked /, / slack /, /^Incoming tide/, /^Moving water/, /^Good flow/, /^Dropping after/,
+    /^Dark moon/, /^Light wind/, /^Dry$/, /^Half moon/, /^Peak season/, /^In season/];
+  var AGAINST = [/^River rising/, /^High water/, /^Wind to/, /^Bright moon/, /^Cold/, /^No river reading/];
+  // "High slack 5:15 PM, right at dark" is "High slack right at dark" out
+  // loud. Everything else loses its numbers: they are on the run card.
+  function brief(w) {
+    var m = /^(High|Low) slack \d+:\d\d [AP]M(, right at dark)?$/.exec(w);
+    if (m) return m[1] + " slack" + (m[2] ? " right at dark" : "");
+    return w.split(/[:,]/)[0].replace(/ \(.*\)$/, "");
+  }
+  function ranked(why, order) {
+    var out = [];
+    order.forEach(function (re) { why.forEach(function (w) { if (re.test(w) && out.indexOf(w) === -1) out.push(w); }); });
+    return out;
+  }
+  // One sentence from a trip's own reasons, n of them. A good day leads with
+  // what makes it good; a slow one leads with what is against it.
+  function whyLine(t, n) {
+    var why = ((t && t.why) || []).filter(function (w) { return !/^Also good/.test(w); });
+    var pro = ranked(why, FOR), con = ranked(why, AGAINST);
+    var list = (t.heat === "Slow" ? con.concat(pro) : pro.concat(con)).slice(0, n || 2).map(brief);
+    if (!list.length) return "";
+    return list.map(function (x, i) {
+      return i && /^[A-Z][a-z]/.test(x) ? x.charAt(0).toLowerCase() + x.slice(1) : x;
+    }).join(", ") + ".";
+  }
+  // When to pull out of the driveway: the start, less the drive, less 15
+  // minutes to set up. The same sum the run card's plan uses.
+  function leaveBy(t) {
+    var h = t.from - (t.drive || 0) / 60 - 0.25;
+    return clock(((h % 24) + 24) % 24);
+  }
+  function isToday(day) { return /^Today\b/.test(day.label || ""); }
+  function isTomorrow(day) { return /^Tomorrow\b/.test(day.label || ""); }
+  function whenWords(day, t) {
+    var set = t.sun && t.sun.set != null ? t.sun.set : 17;
+    var part = t.from >= Math.min(set, 17) ? "evening" : t.from >= 12 ? "afternoon" : "morning";
+    if (isToday(day)) return part === "evening" ? "Tonight" : "This " + part;
+    if (isTomorrow(day)) return "Tomorrow " + part;
+    return WEEKDAYS[parseDay(day.iso).dow] + " " + part;
+  }
+  function onDay(day) { return isToday(day) ? "today" : isTomorrow(day) ? "tomorrow" : "on " + WEEKDAYS[parseDay(day.iso).dow]; }
+  // Why there is no trip, from the days' own notes: the weather that called a
+  // day off, and the weeknights the sun cut short.
+  function noCall(days) {
+    if (!days.length) return "No forecast yet.";
+    var wx = [], dark = "";
+    days.forEach(function (d) {
+      var m = /^No fishing: ([^.]+)/.exec(d.note || "") || /^Nothing good\. .*? is off: ([^.]+)/.exec(d.note || "");
+      if (m) wx.push({ day: d, why: m[1] });
+      if (d.dark && !dark) dark = /^No daylight after work, sunset \d+:\d\d [AP]M/.exec(d.dark) ? /^[^.]+/.exec(d.dark)[0] : d.dark.split(". ")[0].replace(/\.$/, "");
+    });
+    var said = [];
+    if (wx.length) {
+      var more = wx.length - 1, first = wx[0].why.charAt(0).toUpperCase() + wx[0].why.slice(1) + " " + onDay(wx[0].day);
+      // Weather every single day is the whole story. The short evenings are not.
+      if (more && wx.length === days.length) return first + ", and weather every day after.";
+      said.push(first + (more ? ", weather on " + more + " more day" + (more > 1 ? "s" : "") : ""));
+    }
+    if (dark) said.push(wx.length && /^No daylight/.test(dark) ? "no daylight after work on the weeknights" : dark);
+    return said.length ? said.join(", and ") + "." : "Nothing in this forecast is worth the drive.";
+  }
+  // p: what plan() returns. opts.nowHour (local decimal hour) leaves out a
+  // trip today that is already over.
+  // output: { trip, day, headline, why, leave } | { none: true, headline, why }
+  function theCall(p, opts) {
+    var days = (p && p.days) || [], now = opts && opts.nowHour, best = null;
+    days.forEach(function (day, i) {
+      (day.trips || []).forEach(function (t) {
+        if (now != null && isToday(day) && t.to <= now) return;
+        // Days come soonest first, so on a tie the sooner day is already
+        // holding the spot. Only the same day and a shorter drive takes it.
+        if (!best || t.score > best.t.score || (t.score === best.t.score && i === best.i && t.drive < best.t.drive)) best = { t: t, day: day, i: i };
+      });
+    });
+    if (!best) return { none: true, headline: "Nothing worth the drive this week.", why: noCall(days) };
+    return { trip: best.t, day: best.day, headline: whenWords(best.day, best.t) + ". " + best.t.name + ".",
+      why: whyLine(best.t, 2), leave: "Leave by " + leaveBy(best.t) + "." };
+  }
+
+  // The plans a crew can pick for a day: rules confirmed, a way in, in season.
+  function plansOn(iso) {
+    if (!/^\d{4}-\d\d-\d\d$/.test(iso || "")) return [];
+    var day = parseDay(iso);
+    return plans.filter(function (p) { return p.rules === "confirmed" && !p.access && spotById(p.spot) && season(p, day); })
+      .map(function (p) { return { id: p.id, name: p.name, species: p.species, spot: p.spot }; });
+  }
+
   // ---- loading the forecast (browser only) --------------------------------
   // One Open-Meteo call covers every spot, one marine call the ocean beaches,
   // one NOAA call per tide station. Cached so the pier with no signal still
@@ -739,5 +833,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, plan: plan, detail: detail, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, plan: plan, detail: detail, theCall: theCall, whyLine: whyLine, leaveBy: leaveBy, plansOn: plansOn, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);

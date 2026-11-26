@@ -784,5 +784,92 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   T.addWaters(snap);
 }
 
+// --- the call: the one best trip in the week, said the way a guide would ----
+{
+  const today = "2026-11-23"; // Monday
+  const wx = week(today), tides = tidesFor(today);
+  const r = T.plan({ today, wx, tides });
+  const c = T.theCall(r);
+  const all = r.days.flatMap((d, i) => d.trips.map((t) => ({ t, d, i })));
+  const top = all.slice().sort((a, b) => b.t.score - a.t.score || a.i - b.i || a.t.drive - b.t.drive)[0];
+  ok(c && !c.none && c.trip === top.t && c.day === top.d, "the call: the highest score in the week, the sooner day on a tie, then the shorter drive",
+    c && c.trip && c.trip.planId + " " + c.day.iso + " vs " + top.t.planId + " " + top.d.iso);
+  ok(/^(This morning|This afternoon|Tonight|Tomorrow (morning|afternoon|evening)|(Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day (morning|afternoon|evening))\. /.test(c.headline) &&
+    c.headline.endsWith(" " + c.trip.name + "."), "the call: the headline is when, then the trip by name", c.headline);
+  ok(typeof c.why === "string" && /^[A-Z].*\.$/.test(c.why) && !/Also good/.test(c.why) && c.why.length < 90, "the call: one short line of why", c.why);
+  ok(c.leave === "Leave by " + T.clock(c.trip.from - c.trip.drive / 60 - 0.25) + ".", "the call: when to leave is the run card's own leave time", c.leave);
+  ok(r.days.reduce((n, d) => n + d.trips.length, 0) === all.length && r.days.some((d) => d.trips.includes(c.trip)), "the call: the week it was picked from is left whole");
+
+  // The words, on a week built by hand.
+  const squid = (o = {}) => ({ planId: "squid-les-davis", name: "Squid at Les Davis Pier", species: "squid", spot: "les-davis", score: 10, drive: 45,
+    from: 16.97, to: 22, sun: { rise: 7.5, set: 16.37 }, dark: 16.97,
+    why: ["Peak season", "High slack 5:15 PM, right at dark", "Bright moon works against you", "Light wind, 4 mph", "Dry", "Also good: Redondo, Des Moines Pier"], ...o });
+  const days = (trips) => [["2026-11-23", "Today Nov 23"], ["2026-11-24", "Tomorrow Nov 24"], ["2026-11-25", "Wed Nov 25"], ["2026-11-26", "Thu Nov 26"],
+    ["2026-11-27", "Fri Nov 27"], ["2026-11-28", "Sat Nov 28"], ["2026-11-29", "Sun Nov 29"]].map(([iso, label]) => ({ iso, label, trips: trips[iso] || [] }));
+  const thu = T.theCall({ days: days({ "2026-11-26": [squid()] }), notListed: [] });
+  ok(thu.headline === "Thursday evening. Squid at Les Davis Pier.", "the call: Thursday evening. Squid at Les Davis Pier.", thu.headline);
+  ok(thu.why === "High slack right at dark, light wind.", "the call: the why is the reasons to go, without the clock times and the numbers", thu.why);
+  ok(thu.leave === "Leave by 3:58 PM.", "the call: Leave by 3:58 PM.", thu.leave);
+  ok(thu.trip.planId === "squid-les-davis" && thu.day.iso === "2026-11-26", "the call: it hands back the trip and the day for the button");
+
+  const lake = (o = {}) => ({ planId: "trout-fenwick", name: "Perch and trout, Lake Fenwick", species: "perch", spot: "lake-fenwick", score: 10, drive: 30,
+    from: 7.5, to: 11, sun: { rise: 7.5, set: 16.37 }, dark: 16.97, why: ["Stocked Nov 20: 400 rainbow, catchable size", "Light wind, 3 mph", "Dry"], ...o });
+  const tie = T.theCall({ days: days({ "2026-11-26": [squid()], "2026-11-28": [lake()] }), notListed: [] });
+  ok(tie.day.iso === "2026-11-26", "the call: the same score on two days goes to the sooner day", tie.day.iso);
+  const near = T.theCall({ days: days({ "2026-11-28": [squid(), lake()] }), notListed: [] });
+  ok(near.trip.planId === "trout-fenwick" && near.headline === "Saturday morning. Perch and trout, Lake Fenwick." && near.why === "Stocked Nov 20, light wind.",
+    "the call: the same score on one day goes to the shorter drive", near.headline + " " + near.why);
+  const better = T.theCall({ days: days({ "2026-11-24": [squid({ score: 8 })], "2026-11-28": [lake({ score: 9 })] }), notListed: [] });
+  ok(better.day.iso === "2026-11-28", "the call: a better trip later beats a lesser one sooner");
+  ok(T.theCall({ days: days({ "2026-11-23": [squid()] }), notListed: [] }).headline === "Tonight. Squid at Les Davis Pier.", "the call: today after sunset is Tonight");
+  ok(T.theCall({ days: days({ "2026-11-23": [lake({ from: 13, to: 16 })] }), notListed: [] }).headline === "This afternoon. Perch and trout, Lake Fenwick.", "the call: today after noon is This afternoon");
+  ok(T.theCall({ days: days({ "2026-11-24": [lake()] }), notListed: [] }).headline === "Tomorrow morning. Perch and trout, Lake Fenwick.", "the call: tomorrow is Tomorrow morning");
+  // A trip today that is already over is not the call.
+  const over = T.theCall({ days: days({ "2026-11-23": [lake()], "2026-11-26": [squid({ score: 7 })] }), notListed: [] }, { nowHour: 12 });
+  ok(over.day.iso === "2026-11-26", "the call: this morning's trip is not the call at noon", over.headline);
+  const still = T.theCall({ days: days({ "2026-11-23": [lake()], "2026-11-26": [squid({ score: 7 })] }), notListed: [] }, { nowHour: 9 });
+  ok(still.day.iso === "2026-11-23", "the call: a trip still going is");
+
+  // Nothing worth it: say so and why, from the days' own notes. Never a made-up trip.
+  const blown = T.plan({ today, wx: week(today, () => ({ wind: 28, gust: 42 })), tides });
+  const none = T.theCall(blown);
+  ok(none.none === true && !none.trip, "the call: a week with nothing good has no trip", JSON.stringify(none).slice(0, 200));
+  ok(none.why === "Gusts to 42 mph today, and weather every day after.", "the call: and it says why, from the days' own notes", none.why);
+  const wet = days({});
+  wet[0].note = "No fishing: gusts to 42 mph"; wet[1].note = "Nothing good. Squid at Redondo is off: heavy rain"; wet[4].note = "No fishing: 12 ft surf";
+  const twoBad = T.theCall({ days: wet, notListed: [] });
+  ok(twoBad.none && twoBad.why === "Gusts to 42 mph today, weather on 2 more days.", "the call: weather on some days counts them", twoBad.why);
+  const noted = days({});
+  noted[2].note = "No fishing: heavy rain. No daylight after work, sunset 4:24 PM. Waiting for the weekend: Lake Fenwick.";
+  noted[2].dark = "No daylight after work, sunset 4:24 PM. Waiting for the weekend: Lake Fenwick.";
+  ok(T.theCall({ days: noted, notListed: [] }).why === "Heavy rain on Wednesday, and no daylight after work on the weeknights.", "the call: weather on one day and dark weeknights, in one line", T.theCall({ days: noted, notListed: [] }).why);
+  const dim = days({});
+  dim[1].note = dim[1].dark = "No daylight after work, sunset 4:24 PM. Waiting for the weekend: Lake Fenwick.";
+  ok(T.theCall({ days: dim, notListed: [] }).why === "No daylight after work, sunset 4:24 PM.", "the call: only dark weeknights says that", T.theCall({ days: dim, notListed: [] }).why);
+  const slow = T.theCall({ days: days({}), notListed: [] });
+  ok(slow.none && typeof slow.why === "string" && slow.why.length > 10 && typeof slow.headline === "string", "the call: a week with no notes still says something plain", JSON.stringify(slow));
+  ok(T.theCall({ days: [], notListed: [] }).none && T.theCall(null).none, "the call: no forecast is no call, not a crash");
+
+  // The reasons, short. A slow day leads with what is against it.
+  ok(T.whyLine(squid(), 3) === "High slack right at dark, light wind, dry.", "why line: the reasons to go first, three of them", T.whyLine(squid(), 3));
+  ok(T.whyLine(squid({ heat: "Slow", why: ["In season", "Bright moon works against you", "Wind to 15 mph"] }), 2) === "Wind to 15 mph, bright moon works against you.",
+    "why line: a slow day says what is against it", T.whyLine(squid({ heat: "Slow", why: ["In season", "Bright moon works against you", "Wind to 15 mph"] }), 2));
+  ok(T.whyLine(squid({ why: ["Peak season", "WDFW dig at Copalis, low 7:35 PM, -1.8 ft", "Light wind, 4 mph"] }), 2) === "WDFW dig at Copalis, light wind.", "why line: a dig keeps its beach and drops the numbers");
+  ok(T.leaveBy(squid()) === "3:58 PM" && T.leaveBy({ from: 0.5, drive: 60 }) === "11:15 PM", "leave by: the start, less the drive, less 15 minutes to set up", T.leaveBy({ from: 0.5, drive: 60 }));
+}
+
+// --- the plans a crew can pick for a day -----------------------------------
+{
+  const nov = T.plansOn("2026-11-28"), ids = nov.map((p) => p.id);
+  ok(ids.includes("squid-redondo") && ids.includes("chum-green-river") && ids.includes("cutthroat-dash-point"), "plans for a day: what is in season is there", ids.slice(0, 8).join(","));
+  ok(!ids.includes("coho-dash-point") && !ids.includes("bass-fenwick"), "plans for a day: closed and out of season are not");
+  ok(!ids.includes("pink-green-river") && !ids.includes("steelhead-green-river") && !ids.includes("trout-tapps"), "plans for a day: rules not confirmed, or no way in, are not");
+  ok(nov.every((p) => p.id && p.name && p.species && p.spot && T.plans.find((x) => x.id === p.id).rules === "confirmed"), "plans for a day: each has its id, name, fish and spot");
+  ok(nov.some((p) => /^trout-w-/.test(p.id)), "plans for a day: a lake stocked this month is there");
+  ok(T.plansOn("2026-08-15").map((p) => p.id).includes("coho-dash-point") && !T.plansOn("2026-08-15").map((p) => p.id).includes("squid-redondo"), "plans for a day: August has coho and no squid");
+  ok(T.plansOn("").length === 0 && T.plansOn("soon").length === 0 && T.plansOn().length === 0, "plans for a day: no date, no plans");
+  ok(nov.every((p) => T.detail({ planId: p.id, iso: "2026-11-28", wx: {}, tides: {} }).status === "nodata"), "plans for a day: every one is a plan detail() knows and calls open");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

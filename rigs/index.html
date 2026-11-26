@@ -368,6 +368,60 @@ a.back{text-decoration:none}
 .cw .box p{margin:0 0 12px}
 .cw .box .cw-msg{margin:12px 0 0}
 .cw-row{border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+/* The call: what a guide would say first. One block, one gold button. */
+.cw-call{margin:0 0 4px;padding:16px 16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--paper);box-shadow:var(--sh)}
+.cw-call .eyebrow{margin:0 0 8px}
+.cw-call-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:29px;line-height:1.06;letter-spacing:-.005em;
+  color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere}
+.cw-call-why{font-size:15.5px;line-height:1.45;color:var(--ink2);margin:0}
+.cw-call-leave{font-size:15.5px;line-height:1.45;font-weight:650;color:var(--ink);margin:4px 0 0}
+.cw-call .cw-go{margin-top:14px}
+/* Crew trips: rows, a tag, a dot for what this phone has not seen. */
+.cw-tag{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:3px 8px;border-radius:6px;border:1px solid var(--line2);color:var(--ink2)}
+.cw-tag.planned{color:var(--go);border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
+.cw-tag.done{color:var(--dim)}
+.cw-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.cw-rowbtn{width:100%;font:inherit;text-align:left;background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
+.cw-rowbtn .chev{transition:transform .15s}
+.cw-rowbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.cw-make{margin:16px 0 0}
+/* A crew trip's own page. */
+.cw-thead h1{overflow-wrap:anywhere}
+.cw-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 0;font-size:13.5px;color:var(--dim)}
+.cw-tripnote{font-size:15px;line-height:1.45;color:var(--ink2);margin:12px 0 0;overflow-wrap:anywhere}
+.cw-cond{font-size:15.5px;line-height:1.45;color:var(--ink);margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);
+  border-radius:12px;background:var(--paper);overflow-wrap:anywhere}
+.cw-cond.go{border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
+.cw-cond.slow,.cw-cond.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
+.cw-cond.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.cw-going{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.cw-ans{width:100%;min-height:48px;font:inherit;font-size:15px;font-weight:600;color:var(--ink2);background:var(--paper);
+  border:1px solid var(--line2);border-radius:12px;padding:0 6px;cursor:pointer}
+.cw-ans[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);border-color:transparent}
+.cw-ghead{margin:0;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  font-size:13px;color:var(--dim);text-align:center}
+.cw-names{list-style:none;margin:8px 0 0;padding:0;font-size:14px;line-height:1.5;color:var(--ink2);text-align:center}
+.cw-names li{overflow-wrap:anywhere}
+.cw-names li[data-waiting]{color:var(--dim)}
+.cw-acts2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
+.cw-acts2:empty{display:none}
+.cw-act{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;font:inherit;font-size:14px;
+  font-weight:600;color:var(--ink2);background:transparent;border:1px solid var(--line);border-radius:999px;cursor:pointer;text-decoration:none}
+.cw-act.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.cw-act[disabled]{opacity:.55;cursor:default}
+.cw-asks{margin:14px 0 0;font-size:15px;color:var(--ink)}
+.cw-foot{margin:26px 0 0}
+/* Planning a trip. */
+.cw-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
+.cw-two .cw-fld input{min-width:0}
+.cw-seg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:0 0 14px}
+.cw-pick{min-height:48px;font:inherit;font-size:15px;font-weight:600;color:var(--ink2);background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;padding:0 8px;cursor:pointer}
+.cw-pick[aria-pressed="true"]{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
+.cw-condslot:empty{display:none}
+.cw-condslot{margin:0 0 14px}
+.cw-condslot .cw-cond{margin:0}
 .quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
 .asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -494,6 +548,7 @@ a.back{text-decoration:none}
 
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
+  .cw-rowbtn .chev{transition:none}
   .floatbob{animation:none}
   .pickcard:hover{transform:none}
 }
@@ -1026,7 +1081,25 @@ a.back{text-decoration:none}
       : "";
     var host = app.querySelector('[data-view="trips"] [data-week]');
     if (host) host.innerHTML = body + nl + asOf(p);
+    var call = app.querySelector('[data-view="trips"] [data-call-slot]');
+    if (call) call.innerHTML = callHtml(p);
     fillRules();
+  }
+  // The call: the one best trip in the forecast, said the way a guide would
+  // say it, above the week. rigs/trips.js picks it and finds the words; this
+  // only draws them. The week under it stays whole.
+  function callHtml(p) {
+    if (!RIG.trips.theCall) return "";
+    var n = new Date(), c = RIG.trips.theCall(p, { nowHour: n.getHours() + n.getMinutes() / 60 });
+    if (c.none) {
+      return '<section class="cw-call" data-call data-call-none><p class="eyebrow">The call</p>' +
+        '<p class="cw-call-h" data-call-headline>' + esc(c.headline) + '</p><p class="cw-call-why" data-call-why>' + esc(c.why) + "</p></section>";
+    }
+    return '<section class="cw-call" data-call><p class="eyebrow">The call</p>' +
+      '<p class="cw-call-h" data-call-headline>' + esc(c.headline) + "</p>" +
+      (c.why ? '<p class="cw-call-why" data-call-why>' + esc(c.why) + "</p>" : "") +
+      '<p class="cw-call-leave" data-call-leave>' + esc(c.leave) + "</p>" +
+      '<a class="cw-go" href="#/trips/' + encodeURIComponent(hotKey(c.day, c.trip)) + '" data-call-go>See the plan</a></section>';
   }
   // ---- the crew ----------------------------------------------------------
   // Signed out this is a sign-in screen and nothing more. Nothing anywhere
@@ -1285,7 +1358,9 @@ a.back{text-decoration:none}
   function crewJoined() {
     crewUi = crewFresh(crewUi.sms); stepSave();
     joinUi = { token: null };
-    location.hash = "#/trips";
+    // A link pasted on the way to a trip stays on that trip. Otherwise: the week.
+    if (/^#\/?crew\/(new$|trip\/)/.test(location.hash || "")) crewRedraw(true);
+    else location.hash = "#/trips";
   }
 
   // Every tap on a crew screen. Returns true when the tap was one of ours.
@@ -1457,8 +1532,10 @@ a.back{text-decoration:none}
   function renderTrips(force) {
     app.innerHTML = topHtml("trips") +
       '<div data-view="trips">' + headHtml("Next 7 days", "Hot Trips", "Picked from tides, wind and season.") +
+      '<div data-call-slot></div><div data-cw-trips-slot>' + crewTripsHtml(crewSt()) + "</div>" +
       '<div data-rules-status></div>' +
       '<div data-week><p class="quiet">Loading the forecast…</p></div>' + crewRowHtml() + "</div>" + tripBarHtml();
+    crewTripsLoad();
     if (!plannerReady()) return;
     var c = RIG.trips.cached();
     if (c && !force) { lastPlan = planFrom(c); drawTrips(lastPlan); }
@@ -1627,62 +1704,79 @@ a.back{text-decoration:none}
   function boxHtml(kind, head, inner) { return inner ? '<div class="box' + (kind ? " " + kind : "") + '"><b>' + esc(head) + "</b>" + inner + "</div>" : ""; }
   function whenP(t) { return '<p class="when">' + esc(t) + "</p>"; }
   function clk(h) { return RIG.trips.clock(((h % 24) + 24) % 24); }
-  function runSections(t, run) {
-    var drive = t.drive / 60;
-    var tl = [{ h: t.from - drive - 0.25, x: "Leave Bonney Lake (" + t.drive + " min drive)" },
-      { h: t.from - 0.25, x: "Arrive and set up" },
-      { h: t.from, x: (Math.abs(t.from - t.dark) < 0.05 ? "Full dark. " : "") + (t.beach ? "Start digging at " + t.beach : "Start fishing") }];
-    t.tides.forEach(function (x) {
-      if (x.h > t.from && x.h < t.to) tl.push({ h: x.h, x: (x.type === "H" ? "High tide, " : "Low tide, ") + x.v.toFixed(1) + " ft" });
-    });
-    if (t.sun.set > t.from && t.sun.set < t.to) tl.push({ h: t.sun.set, x: "Sunset" });
-    if (t.dark > t.from && t.dark < t.to) tl.push({ h: t.dark, x: "Full dark" });
-    tl.push({ h: t.to, x: "Pack up" }, { h: t.to + drive, x: "Home" });
-    tl.sort(function (a, b) { return a.h - b.h; });
-    var plan = whenP(t.slot + ", " + t.when + ".") +
-      '<ol class="steps">' + tl.map(function (e) { return '<li><span class="k">' + esc(clk(e.h)) + "</span> " + esc(e.x) + "</li>"; }).join("") + "</ol>" +
-      boxHtml("", "when you get there", stepsHtml(run.setup)) + boxHtml("tip", "while you fish", stepsHtml(run.during)) +
+  // t is the trip the planner scored. A crew trip the forecast cannot answer
+  // for (a no-go, too far out) has none: then the parts that need its times,
+  // tides and weather are left out, and everything else still shows.
+  // opts.crew: a crew trip. The have, get and check tags describe Coach's
+  // garage, so they are not shown; the trip's own list carries the names.
+  // opts.spot, opts.species: for the rules, when there is no t to read them from.
+  function runSections(t, run, opts) {
+    opts = opts || {};
+    var plan = boxHtml("", "when you get there", stepsHtml(run.setup)) + boxHtml("tip", "while you fish", stepsHtml(run.during)) +
       boxHtml("", "after", stepsHtml(run.wrap));
+    if (t) {
+      var drive = t.drive / 60;
+      var tl = [{ h: t.from - drive - 0.25, x: "Leave Bonney Lake (" + t.drive + " min drive)" },
+        { h: t.from - 0.25, x: "Arrive and set up" },
+        { h: t.from, x: (Math.abs(t.from - t.dark) < 0.05 ? "Full dark. " : "") + (t.beach ? "Start digging at " + t.beach : "Start fishing") }];
+      t.tides.forEach(function (x) {
+        if (x.h > t.from && x.h < t.to) tl.push({ h: x.h, x: (x.type === "H" ? "High tide, " : "Low tide, ") + x.v.toFixed(1) + " ft" });
+      });
+      if (t.sun.set > t.from && t.sun.set < t.to) tl.push({ h: t.sun.set, x: "Sunset" });
+      if (t.dark > t.from && t.dark < t.to) tl.push({ h: t.dark, x: "Full dark" });
+      tl.push({ h: t.to, x: "Pack up" }, { h: t.to + drive, x: "Home" });
+      tl.sort(function (a, b) { return a.h - b.h; });
+      plan = whenP(t.slot + ", " + t.when + ".") +
+        '<ol class="steps">' + tl.map(function (e) { return '<li><span class="k">' + esc(clk(e.h)) + "</span> " + esc(e.x) + "</li>"; }).join("") + "</ol>" + plan;
+    }
 
-    var need = run.gear.filter(function (g) { return g.s === "need"; }).length;
-    var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
-    var gear = whenP((need ? need + " to get, " : "") + check + " to check, the rest you own.") +
-      '<ul class="gear">' + run.gear.map(function (g) {
-        return '<li><span class="tag ' + g.s + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
-          esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
-      }).join("") + "</ul>";
+    var gear;
+    if (opts.crew) {
+      gear = whenP(run.gear.length + (run.gear.length === 1 ? " thing" : " things") + " for this trip.") +
+        '<ul class="gear">' + run.gear.map(function (g) {
+          return "<li><span>" + esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
+        }).join("") + "</ul>";
+    } else {
+      var need = run.gear.filter(function (g) { return g.s === "need"; }).length;
+      var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
+      gear = whenP((need ? need + " to get, " : "") + check + " to check, the rest you own.") +
+        '<ul class="gear">' + run.gear.map(function (g) {
+          return '<li><span class="tag ' + g.s + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
+            esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
+        }).join("") + "</ul>";
+    }
 
-    var rows = t.hours.map(function (h) {
-      return "<tr><td>" + esc(clk(h.h)) + "</td><td>" + h.wind + " mph, gusts " + h.gust + "</td><td>" + h.temp + "°F</td><td>" +
-        (h.rain >= 0.02 ? "rain" : "dry") + (h.wave != null ? ", " + Math.round(h.wave) + " ft surf" : "") + "</td></tr>";
-    }).join("");
-    var tides = t.tides.map(function (x) {
-      var inside = x.h >= t.from && x.h <= t.to;
-      return (inside ? "<strong>" : "") + esc(clk(x.h)) + " " + (x.type === "H" ? "high" : "low") + " " + x.v.toFixed(1) + " ft" + (inside ? "</strong>" : "");
-    }).join("<br>");
-    var wx = whenP("Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", low of " + t.wx.temp + "°F.") +
-      '<table class="hrs">' + rows + "</table>" +
-      boxHtml("", "tides today", tides || "No tide station for this water.") +
-      boxHtml("", "light", esc("Sunrise " + clk(t.sun.rise) + ". Sunset " + clk(t.sun.set) + ". Moon " + t.moon + "% lit."));
-
-    var out = [
-      { id: "plan", tab: "The plan", title: "The plan", body: plan },
-      { id: "what", tab: "What it is", title: "What it is", body: whenP(run.what) + boxHtml("tip", "why this day", stepsHtml(t.why)) },
-      { id: "gear", tab: "Gear", title: "Gear", body: gear }
-    ];
+    var out = [];
+    if (plan) out.push({ id: "plan", tab: "The plan", title: "The plan", body: plan });
+    out.push(
+      { id: "what", tab: "What it is", title: "What it is", body: whenP(run.what) + (t ? boxHtml("tip", "why this day", stepsHtml(t.why)) : "") },
+      { id: "gear", tab: "Gear", title: "Gear", body: gear });
     if (run.bait) out.push({ id: "bait", tab: "Bait + lures", title: "Bait and lures",
       body: whenP("Tie on first: " + run.bait.first) + boxHtml("", "if that is not working", stepsHtml(run.bait.backup)) +
         (run.bait.note ? boxHtml("tip", "tip", esc(run.bait.note)) : "") });
-    out.push(
-      { id: "how", tab: "How", title: run.bait ? "How to fish it" : "How to dig it", body: stepsHtml(run.how) },
-      { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx });
-    if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
+    out.push({ id: "how", tab: "How", title: run.bait ? "How to fish it" : "How to dig it", body: stepsHtml(run.how) });
+    if (t) {
+      var rows = t.hours.map(function (h) {
+        return "<tr><td>" + esc(clk(h.h)) + "</td><td>" + h.wind + " mph, gusts " + h.gust + "</td><td>" + h.temp + "°F</td><td>" +
+          (h.rain >= 0.02 ? "rain" : "dry") + (h.wave != null ? ", " + Math.round(h.wave) + " ft surf" : "") + "</td></tr>";
+      }).join("");
+      var tides = t.tides.map(function (x) {
+        var inside = x.h >= t.from && x.h <= t.to;
+        return (inside ? "<strong>" : "") + esc(clk(x.h)) + " " + (x.type === "H" ? "high" : "low") + " " + x.v.toFixed(1) + " ft" + (inside ? "</strong>" : "");
+      }).join("<br>");
+      var wx = whenP("Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", low of " + t.wx.temp + "°F.") +
+        '<table class="hrs">' + rows + "</table>" +
+        boxHtml("", "tides today", tides || "No tide station for this water.") +
+        boxHtml("", "light", esc("Sunrise " + clk(t.sun.rise) + ". Sunset " + clk(t.sun.set) + ". Moon " + t.moon + "% lit."));
+      out.push({ id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx });
+      if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
+    }
     out.push(
       { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
         (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
       { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
       { id: "rules", tab: "Rules", title: "Rules", body:
-        '<div data-rules-slot' + slotAttrs(t.spot, t.species, run.checked) + '></div><div data-rules-status></div>' + stepsHtml(run.rules) +
+        '<div data-rules-slot' + slotAttrs(t ? t.spot : opts.spot || "", t ? t.species : opts.species || "", run.checked) + '></div><div data-rules-status></div>' + stepsHtml(run.rules) +
         boxHtml("law", "check before you go", 'Limits change. <a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>.') }
     );
     out.forEach(function (c) { c.group = "before"; });
@@ -1722,7 +1816,7 @@ a.back{text-decoration:none}
     }).join("");
   }
   function secLine(c, t, run) {
-    if (c.id === "plan") return "Leave by " + clk(t.from - t.drive / 60 - 0.25) + ", fish " + t.when;
+    if (c.id === "plan") return t ? "Leave by " + clk(t.from - t.drive / 60 - 0.25) + ", fish " + t.when : "When you get there, while you fish, and after";
     if (c.id === "what") return run.what;
     if (c.id === "river") return riverLine(t.flow);
     if (c.id === "wx") return "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
@@ -1754,6 +1848,7 @@ a.back{text-decoration:none}
       return;
     }
     var more = moreRows(run);
+    if (cwT.hotKey !== key) { cwT.hotKey = key; cwT.hotMsg = null; }
     app.innerHTML = topHtml("trips") +
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' +
         '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
@@ -1764,13 +1859,584 @@ a.back{text-decoration:none}
             return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
               "</b><span>" + esc(secLine(c, t, run)) + '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
           }).join("") + "</div></section>" +
+        '<div data-cw-make-slot data-cw-key="' + esc(key) + '">' + hotCrewHtml(day, t) + "</div>" +
         (more ? '<section class="grp"><h2>Go deeper</h2><div class="rows" data-more>' + more + "</div></section>" : "") +
       "</div>" + tripBarHtml();
+    hotCrewLoad();
     window.scrollTo(0, 0);
   }
 
   // Short name for a card in next and back.
   function label(c) { return c.tab || String(c.title).split(":")[0]; }
+
+  // ---- crew trips ----------------------------------------------------------
+  // The group on the Trips tab, the two buttons on a Hot Trip, planning one
+  // from scratch (#/crew/new) and a trip's own page (#/crew/trip/<id>).
+  // Everything is drawn from what the phone has saved first, then refreshed
+  // quietly. Only people signed in and on a crew ever see any of it.
+  //
+  // For the next stage (notes, the list, catches): the trip page and each
+  // section page carry mount points, filled by cwNotesHtml, cwListHtml and
+  // cwCatchesHtml below. They return "" today. Fill them there, not from
+  // outside: the page is redrawn whole whenever a write lands.
+  var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var DAYFULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var cwT = { past: false, hotKey: "", hotMsg: null, nav: true, watersAt: 0, newStatus: "idea", newMsg: null };
+  function tripFresh(id) { return { id: id, gone: false, note: "", msg: null, goMsg: null, confirm: false, sending: 0, edit: false, editMsg: null, res: null }; }
+  var tripUi = tripFresh(null);
+
+  // The saved crew state (with waiting writes laid over it), or null.
+  function crewSt() { return RIG.crew && RIG.crew.session() ? RIG.crew.cached() : null; }
+  // The same, but only for someone who is on a crew.
+  function crewIn() { var st = crewSt(); return st && st.crew ? st : null; }
+
+  function isoDay(iso) { var a = String(iso || "").split("-").map(Number); return new Date(a[0], (a[1] || 1) - 1, a[2] || 1, 12); }
+  function isoOf(d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function isoPlus(iso, n) { var d = isoDay(iso); d.setDate(d.getDate() + n); return isoOf(d); }
+  function dayDate(iso) { var d = isoDay(iso); return isNaN(d) ? "" : DAY3[d.getDay()] + " " + MON3[d.getMonth()] + " " + d.getDate(); }
+  function hoursWords(from, to) {
+    if (from != null && to != null) return clk(from) + " to " + clk(to);
+    return from != null ? "From " + clk(from) : to != null ? "Until " + clk(to) : "";
+  }
+  // "17:30" from a time box is 17.5, and back.
+  function boxHour(v) { var m = /^(\d{1,2}):(\d\d)/.exec(String(v || "")); return m ? Math.round((+m[1] + m[2] / 60) * 10000) / 10000 : null; }
+  function hourBox(h) {
+    if (h == null || isNaN(h)) return "";
+    var mins = Math.round(h * 60), hh = Math.floor(mins / 60) % 24, mm = mins % 60;
+    return ("0" + hh).slice(-2) + ":" + ("0" + mm).slice(-2);
+  }
+  function lowerFirst(x) { return /^[A-Z][a-z]/.test(x) ? x.charAt(0).toLowerCase() + x.slice(1) : x; }
+  function tagHtml(trip, over) {
+    var word = trip.status === "planned" ? "On" : trip.status === "done" ? "Done" : "Idea";
+    return '<span class="cw-tag ' + (over ? "done" : esc(trip.status || "idea")) + '" data-cw-tag>' + word + "</span>";
+  }
+  function namesFor(trip, answer) {
+    return (trip.going || []).filter(function (g) { return g.answer === answer; }).map(function (g) { return firstName(g.name); });
+  }
+  function planOf(id) { return ((RIG.trips && RIG.trips.plans) || []).filter(function (x) { return x.id === id; })[0] || null; }
+  function tripSpot(id) { return ((RIG.trips && RIG.trips.spots) || []).filter(function (x) { return x.id === id; })[0] || null; }
+  // The gear lines a new trip's list starts from: labels only, trimmed, no
+  // longer than a list line may be, and no more of them than the server takes.
+  function seedOf(planId) {
+    var run = RIG.trips && RIG.trips.runs && RIG.trips.runs[planId];
+    return ((run && run.gear) || []).map(function (g) { return String(g.i || "").trim().slice(0, 120).trim(); })
+      .filter(Boolean).slice(0, 40);
+  }
+  function sameTrip(st, planId, iso) {
+    return ((st && st.trips) || []).filter(function (x) { return x.planId === planId && x.date === iso; })[0] || null;
+  }
+  // True when a crew page may draw. Signed out (a texted trip link opened on
+  // a phone that is not signed in), the sign-in screen is drawn right here,
+  // at the same address, so signing in lands on the page the link was for.
+  function crewGate() {
+    if (RIG.crew && RIG.crew.session()) return true;
+    renderCrew();
+    return false;
+  }
+
+  // ---- the group on the Trips tab
+  function crewTripRow(t) {
+    var who = namesFor(t, "going"), over = t.date < todayIso();
+    return '<a class="row" href="#/crew/trip/' + esc(t.id) + '" data-cw-trip="' + esc(t.id) + '">' +
+      '<span class="rt"><b>' + esc(t.title) + "</b><span>" + esc(dayDate(t.date) + " · " + (who.length ? who.join(", ") : "Nobody yet")) + "</span></span>" +
+      (RIG.crew.isNew(t) ? '<span class="cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + tagHtml(t, over) +
+      '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+  }
+  function crewTripsHtml(st) {
+    if (!st || !st.crew) return "";
+    var today = todayIso(), live = [], past = [];
+    (st.trips || []).forEach(function (t) { (t.status !== "done" && t.date >= today ? live : past).push(t); });
+    function soonest(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.from == null ? 99 : a.from) - (b.from == null ? 99 : b.from); }
+    live.sort(soonest);
+    past.sort(function (a, b) { return soonest(b, a); });
+    return '<section class="grp" data-cw-trips><h2>Crew trips</h2><div class="rows">' + live.map(crewTripRow).join("") +
+      '<a class="row" href="#/crew/new" data-cw-plan><span class="rt"><b>Plan a trip</b><span>Pick one and a day. The crew sees it.</span></span>' +
+      '<span class="chev" aria-hidden="true">&rsaquo;</span></a>' +
+      (past.length ? '<button class="row cw-rowbtn" type="button" data-cw-past aria-expanded="' + (cwT.past ? "true" : "false") + '"><span class="rt"><b>Past trips</b><span>' +
+        past.length + (past.length === 1 ? " trip" : " trips") + '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></button>' +
+        (cwT.past ? past.map(crewTripRow).join("") : "") : "") +
+      "</div></section>";
+  }
+  function crewTripsDraw() {
+    var host = app.querySelector('[data-view="trips"] [data-cw-trips-slot]');
+    if (host) host.innerHTML = crewTripsHtml(crewSt());
+  }
+  // The saved trips are on screen already. This asks for fresh ones.
+  function crewTripsLoad() {
+    if (!RIG.crew || !RIG.crew.session()) return;
+    RIG.crew.state({ onFresh: crewTripsDraw }).then(crewTripsDraw);
+  }
+
+  // ---- the two buttons on a Hot Trip
+  function hotCrewHtml(day, t) {
+    var st = crewIn();
+    if (!st) return "";
+    var have = sameTrip(st, t.planId, day.iso);
+    if (have) {
+      var who = namesFor(have, "going");
+      return '<div class="cw cw-make" data-cw-make><a class="cw-go" href="#/crew/trip/' + esc(have.id) + '" data-cw-open-trip>Open the crew trip</a>' +
+        cwMsg((have.status === "planned" ? "It is on. " : have.status === "done" ? "Done. " : "Floated as an idea. ") + (who.length ? "Going: " + who.join(", ") + "." : ""), "", "data-cw-make-msg") + "</div>";
+    }
+    return '<div class="cw cw-make" data-cw-make><button class="cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
+      '<button class="cw-plain" type="button" data-cw-do="idea">Float it</button>' +
+      cwSaid(cwT.hotMsg, "Either one puts this trip in front of the crew.", "data-cw-make-msg") + "</div>";
+  }
+  function hotCrewSync() {
+    var host = app.querySelector('[data-view="hot"] [data-cw-make-slot]'), f = host && findTrip(host.getAttribute("data-cw-key"));
+    if (f) host.innerHTML = hotCrewHtml(f.day, f.t);
+  }
+  function hotCrewLoad() {
+    if (!RIG.crew || !RIG.crew.session()) return;
+    RIG.crew.state({ onFresh: hotCrewSync }).then(hotCrewSync);
+  }
+  function hotCrewMake(key, status) {
+    var f = findTrip(key), st = crewIn();
+    if (!f || !st) return;
+    var have = sameTrip(st, f.t.planId, f.day.iso);
+    if (have) { location.hash = "#/crew/trip/" + have.id; return; }
+    cwOnce("make", function () {
+      cwT.hotMsg = { t: "Making it..." }; hotCrewSync();
+      var t = f.t, here = location.hash, r2 = function (h) { return Math.round(h * 100) / 100; };
+      return RIG.crew.createTrip({ planId: t.planId, spotId: t.spot, species: t.species, title: String(t.name).slice(0, 120), date: f.day.iso,
+        from: r2(t.from), to: r2(t.to), status: status, seedList: seedOf(t.planId) }).then(function (r) {
+        // Still on the card they tapped: go to the new trip. Wandered off: leave them be.
+        if (r && r.ok && r.trip) { cwT.hotMsg = null; if (location.hash === here) location.hash = "#/crew/trip/" + r.trip.id; return; }
+        cwT.hotMsg = { t: r && r.offline ? "No signal. Making a trip needs one. Try again when you have some." : RIG.crew.say(r, "The trip could not be made. Try again."), no: true };
+        hotCrewSync();
+      });
+    });
+  }
+
+  // ---- the forecast a crew page reads
+  // The same saved forecast the week is built from. A crew page opened cold
+  // asks for it once, and says so plainly until it lands.
+  function tripDetail(trip) {
+    if (!plannerReady() || !RIG.trips.detail) return null;
+    var c = RIG.trips.cached();
+    if (c && c.waters && cwT.watersAt !== c.at) { cwT.watersAt = c.at; RIG.trips.addWaters(c.waters); }
+    return RIG.trips.detail({ planId: trip.planId, iso: trip.date, from: trip.from, to: trip.to,
+      wx: c ? c.wx : {}, tides: c ? c.tides : {}, flow: c ? c.flow : {} });
+  }
+  // then() runs only when a newer forecast than the one on screen lands. One
+  // ask at a time: a second caller just changes who hears about it.
+  function wxLoad(then) {
+    if (!plannerReady()) return;
+    cwT.wxThen = then;
+    if (cwT.wxBusy) return;
+    var c = RIG.trips.cached(), had = c ? c.at : 0;
+    cwT.wxBusy = true;
+    RIG.trips.load().then(function (data) {
+      cwT.wxBusy = false;
+      if (data && data.at !== had && cwT.wxThen) cwT.wxThen();
+    }, function () { cwT.wxBusy = false; /* no forecast: the line says so */ });
+  }
+  // The live go or no-go, in one plain line.
+  function condHtml(trip, det) {
+    if (!det || trip.status === "done") return "";
+    var today = todayIso(), s = det.status, kind = "", text;
+    if (trip.date < today) { s = "past"; text = "That day has passed."; }
+    else if (s === "ok") {
+      var heat = det.trip.heat, why = RIG.trips.whyLine(det.trip, 3);
+      text = (heat === "Hot" ? "Hot" : heat === "Slow" ? "Go, but slow" : "Go") + (why ? ": " + lowerFirst(why) : ".");
+      kind = heat === "Slow" ? "slow" : "go";
+    } else if (s === "nogo") { text = "No-go: " + det.why + "."; kind = "no"; }
+    else if (s === "dark") { text = "Dark by then. Sunset is " + clk(det.sunset) + ", and this one fishes in daylight."; kind = "warn"; }
+    else if (s === "closed") {
+      text = det.why ? "Off the list for now. " + String(det.why).replace(/[.\s]*$/, "") + "." : "Out of season on that day.";
+      kind = "warn";
+    } else if (s === "nodata") {
+      if (trip.date > isoPlus(today, 6)) {
+        var back = isoPlus(trip.date, -6), n = Math.round((isoDay(back) - isoDay(today)) / 864e5);
+        text = "The forecast reaches 7 days out. Check back " + (n <= 1 ? "tomorrow" : n < 7 ? DAYFULL[isoDay(back).getDay()] : dayDate(back)) + ".";
+      } else text = "No forecast for that day on this phone yet.";
+    } else text = "The app has no plan for this one, so it cannot call the day.";
+    return '<p class="cw-cond' + (kind ? " " + kind : "") + '" data-cw-cond data-status="' + s + '">' + esc(text) + "</p>";
+  }
+
+  // ---- planning a trip from scratch: #/crew/new
+  function planOptions(iso, picked) {
+    var groups = [], by = {};
+    RIG.trips.plansOn(iso).forEach(function (p) {
+      var sp = findSpecies(p.species), fish = sp ? sp.name : p.species;
+      if (!by[fish]) { by[fish] = []; groups.push(fish); }
+      by[fish].push(p);
+    });
+    return '<option value="">Pick a trip</option>' + groups.map(function (g) {
+      return '<optgroup label="' + esc(g) + '">' + by[g].map(function (p) {
+        return '<option value="' + esc(p.id) + '"' + (p.id === picked ? " selected" : "") + ">" + esc(p.name) + "</option>";
+      }).join("") + "</optgroup>";
+    }).join("");
+  }
+  function planSig(iso) { return RIG.trips.plansOn(iso).map(function (p) { return p.id; }).join(","); }
+  function newCondHtml() {
+    var v = crewUi.vals;
+    if (!v.newPlan || !/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) return "";
+    var trip = { planId: v.newPlan, date: v.newDate, from: boxHour(v.newFrom), to: boxHour(v.newTo), status: "idea" };
+    return condHtml(trip, tripDetail(trip));
+  }
+  // The parts of the form that follow the day and the pick, changed in place.
+  // The whole screen is not redrawn: that would shut a date wheel mid-spin.
+  function newSync() {
+    var view = app.querySelector('[data-view="crewnew"]');
+    if (!view) return;
+    var v = crewUi.vals, sel = view.querySelector("[data-cw-what]"), slot = view.querySelector("[data-cw-cond-slot]"), msg = view.querySelector("[data-cw-new-msg]");
+    if (sel) {
+      var open = RIG.trips.plansOn(v.newDate || ""), lost = v.newPlan && !open.some(function (p) { return p.id === v.newPlan; }) ? planOf(v.newPlan) : null;
+      if (lost) { v.newPlan = ""; cwT.newMsg = { t: lost.name + " is not in season on that day. Pick another.", no: true }; }
+      // Only when the choices really changed: rebuilding a list under an open wheel shuts it.
+      var sig = planSig(v.newDate || "");
+      if (lost || sel.getAttribute("data-sig") !== sig) { sel.innerHTML = planOptions(v.newDate || "", v.newPlan || ""); sel.setAttribute("data-sig", sig); }
+    }
+    if (slot) slot.innerHTML = newCondHtml();
+    [].forEach.call(view.querySelectorAll("[data-cw-pick]"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-cw-pick") === cwT.newStatus ? "true" : "false"); });
+    if (msg) { msg.textContent = cwT.newMsg ? cwT.newMsg.t : ""; msg.className = "cw-msg" + (cwT.newMsg && cwT.newMsg.no ? " no" : ""); }
+  }
+  function renderCrewNew() {
+    if (!crewGate()) return;
+    var st = crewSt(), v = crewUi.vals, today = todayIso();
+    var head = topHtml("trips", "crew") + '<div data-view="crewnew"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
+      headHtml("The crew", "Plan a trip", "Pick one and a day. The crew sees it.");
+    if (cwT.nav) window.scrollTo(0, 0);
+    if (!crewQuiet) wxLoad(newSync);
+    if (!st || !st.crew) {
+      app.innerHTML = head + '<div class="cw">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>'
+        : cwMsg(cwT.stErr || "Loading the crew...", cwT.stErr ? "no" : "", "data-cw-new-msg") +
+          (cwT.stErr ? '<button class="cw-plain" type="button" data-cw-retry>Try again</button>' : "")) +
+        (st ? '<a class="cw-plain" href="#/crew">The crew</a>' : "") + "</div></div>" + tripBarHtml();
+      if (!crewQuiet && !st) crewStLoad();
+      return;
+    }
+    if (!/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) v.newDate = today;
+    if (!plannerReady() || !RIG.trips.plansOn) {
+      app.innerHTML = head + '<div class="cw">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
+      return;
+    }
+    app.innerHTML = head + '<div class="cw">' +
+      cwField("What", '<select data-cw-what data-keep="newPlan" data-sig="' + esc(planSig(v.newDate)) + '">' + planOptions(v.newDate, v.newPlan || "") + "</select>") +
+      cwField("When", '<input data-cw-date data-keep="newDate" type="date" min="' + today + '" max="' + isoPlus(today, 60) + '" value="' + kv("newDate") + '">') +
+      '<div class="cw-condslot" data-cw-cond-slot>' + newCondHtml() + "</div>" +
+      '<div class="cw-two">' +
+        cwField("From (optional)", '<input data-cw-from data-keep="newFrom" type="time" step="900" value="' + kv("newFrom") + '">') +
+        cwField("To (optional)", '<input data-cw-to data-keep="newTo" type="time" step="900" value="' + kv("newTo") + '">') + "</div>" +
+      '<div class="cw-seg" role="group" aria-label="How sure">' +
+        '<button class="cw-pick" type="button" data-cw-pick="idea" aria-pressed="' + (cwT.newStatus === "idea" ? "true" : "false") + '">Just an idea</button>' +
+        '<button class="cw-pick" type="button" data-cw-pick="planned" aria-pressed="' + (cwT.newStatus === "planned" ? "true" : "false") + '">It is on</button></div>' +
+      cwField("A note (optional)", '<textarea data-cw-note data-keep="newNote" maxlength="280" placeholder="Meet at the pier at 5">' + kv("newNote") + "</textarea>") +
+      '<button class="cw-go" type="button" data-cw-create>Make the trip</button>' +
+      cwSaid(cwT.newMsg, "", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
+  }
+  // Nothing saved yet (a cold open straight onto a crew page): ask once.
+  function crewStLoad() {
+    cwT.stErr = "";
+    RIG.crew.state().then(function (r) {
+      if (r && !r.me && !r.signedOut) cwT.stErr = r.offline ? "No signal, and the crew is not saved on this phone yet." : r.error || "The crew could not be loaded. Try again in a minute.";
+      crewRedraw();
+    });
+  }
+  function newCreate() {
+    var v = crewUi.vals, p = planOf(v.newPlan), today = todayIso(), from = boxHour(v.newFrom), to = boxHour(v.newTo);
+    var note = String(v.newNote || "").trim(), bad = "";
+    if (!p) bad = "Pick the trip first.";
+    else if (!/^\d{4}-\d\d-\d\d$/.test(v.newDate || "") || v.newDate < today || v.newDate > isoPlus(today, 60)) bad = "Pick a day from today to " + dayDate(isoPlus(today, 60)) + ".";
+    else if (!RIG.trips.plansOn(v.newDate).some(function (x) { return x.id === p.id; })) bad = p.name + " is not in season on that day. Pick another.";
+    else if (from != null && to != null && !(to > from)) bad = "The end has to come after the start.";
+    else if (note.length > 280) bad = "Keep the note to 280 characters.";
+    if (bad) { cwT.newMsg = { t: bad, no: true }; newSync(); return; }
+    cwOnce("create", function () {
+      cwT.newMsg = { t: "Making it..." }; newSync();
+      var here = location.hash;
+      var body = { planId: p.id, spotId: p.spot, species: p.species, title: String(p.name).slice(0, 120), date: v.newDate, status: cwT.newStatus, seedList: seedOf(p.id) };
+      if (from != null) body.from = from;
+      if (to != null) body.to = to;
+      if (note) body.note = note;
+      return RIG.crew.createTrip(body).then(function (r) {
+        if (r && r.ok && r.trip) {
+          v.newPlan = ""; v.newDate = ""; v.newFrom = ""; v.newTo = ""; v.newNote = ""; cwT.newMsg = null; cwT.newStatus = "idea";
+          if (location.hash === here) location.hash = "#/crew/trip/" + r.trip.id;
+          return;
+        }
+        cwT.newMsg = { t: r && r.offline ? "No signal. Making a trip needs one. Try again when you have some." : RIG.crew.say(r, "The trip could not be made. Try again."), no: true };
+        newSync();
+      });
+    });
+  }
+
+  // ---- a trip's own page: #/crew/trip/<id>
+  // Mount points for the next stage. d is { trip, comments, list, catches }
+  // as RIG.crew.cachedTrip gives it; section is a run card section id, or ""
+  // for notes on the whole trip. Each returns the inside of its box.
+  function cwNotesHtml(d, section) { return ""; }
+  function cwListHtml(d) { return ""; }
+  function cwCatchesHtml(d) { return ""; }
+
+  // The trip as this phone knows it, with waiting writes laid over it. A trip
+  // seen only in the week has no notes, list or catches saved yet.
+  function tripData(id) {
+    var full = RIG.crew.cachedTrip(id), st = RIG.crew.cached();
+    var row = st && (st.trips || []).filter(function (x) { return x.id === id; })[0];
+    if (!full) return row ? { trip: row, comments: [], list: [], catches: [], thin: true } : null;
+    if (row && Date.parse(row.updatedAt) > Date.parse(full.trip.updatedAt)) full.trip = row;
+    return full;
+  }
+  // A redraw nobody asked for (a fresh answer, a write landing) leaves the
+  // edit screen alone: it would shut a date wheel under a thumb.
+  function tripRedraw() { if (!/\/edit$/.test(location.hash || "")) crewRedraw(); }
+  function tripLoad(id) {
+    function take(r) {
+      if (tripUi.id !== id || !r) return;
+      if (r.signedOut) { crewRedraw(true); return; }
+      tripUi.gone = !!r.gone;
+      tripUi.res = r;
+      tripUi.note = r.gone || (r.trip && !r.stale) ? "" : r.offline ? "No signal. This is what this phone last saw."
+        : r.error ? "Could not refresh. This is what this phone last saw." : tripUi.note;
+      if (r.trip) RIG.crew.markSeen(id);
+      tripRedraw();
+    }
+    RIG.crew.trip(id, { onFresh: take }).then(take);
+    if (!RIG.crew.cached()) crewStLoad();
+    wxLoad(tripRedraw);
+  }
+  function goingHtml(trip, me) {
+    var mine = (trip.going || []).filter(function (g) { return g.id === me.id; })[0], done = trip.status === "done";
+    var cols = [["going", "Going"], ["maybe", "Maybe"], ["out", "Out"]].map(function (a) {
+      var names = (trip.going || []).filter(function (g) { return g.answer === a[0]; }).map(function (g) {
+        return "<li" + (g.waiting ? " data-waiting" : "") + ">" + esc(firstName(g.name)) + "</li>";
+      }).join("");
+      return '<div class="cw-gcol">' + (done ? '<p class="cw-ghead">' + a[1] + "</p>"
+        : '<button class="cw-ans" type="button" data-cw-answer="' + a[0] + '" aria-pressed="' + (mine && mine.answer === a[0] ? "true" : "false") + '">' + a[1] + "</button>") +
+        '<ul class="cw-names" data-cw-names="' + a[0] + '">' + names + "</ul></div>";
+    }).join("");
+    var wait = mine && mine.waiting ? '<p class="cw-msg" data-cw-waiting><span class="cw-wait">' +
+      (tripUi.sending ? "Sending" : "Waiting to send") + "</span>" + (tripUi.sending ? "" : " It goes when there is a signal.") + "</p>" : "";
+    return '<section class="grp" data-cw-going><h2>Who is in</h2><div class="cw-going">' + cols + "</div>" + wait +
+      (tripUi.goMsg ? cwSaid(tripUi.goMsg, "", "data-cw-going-msg") : "") + "</section>";
+  }
+  function tripLeave(trip, det) {
+    if (det && det.status === "ok") return RIG.trips.leaveBy(det.trip);
+    var spot = tripSpot(trip.spotId);
+    return trip.from != null && spot && trip.date >= todayIso() ? RIG.trips.leaveBy({ from: trip.from, drive: spot.drive }) : "";
+  }
+  // What the rules allow this person to do to this trip, as buttons.
+  function tripActsHtml(trip, canEdit) {
+    var today = todayIso(), out = [], s = trip.status;
+    function btn(to, word) { out.push('<button class="cw-act" type="button" data-cw-status="' + to + '">' + word + "</button>"); }
+    if (s === "idea") btn("planned", "It is on");
+    if (s === "planned" && canEdit) btn("idea", "Call it off");
+    if (s !== "done" && (trip.date <= today || (canEdit && s === "planned"))) btn("done", "Mark it done");
+    if (s === "done" && canEdit) btn("planned", "Reopen it");
+    if (canEdit && s !== "done") out.push('<a class="cw-act" href="#/crew/trip/' + esc(trip.id) + '/edit" data-cw-edit>Edit</a>');
+    if (canEdit) out.push('<button class="cw-act no" type="button" data-cw-delete>Delete</button>');
+    return out.join("");
+  }
+  function tripEditHtml(trip) {
+    var v = crewUi.vals, today = todayIso(), min = trip.date < today ? trip.date : today;
+    if (tripUi.edit !== trip.id) {
+      tripUi.edit = trip.id; tripUi.editMsg = null;
+      v.editDate = trip.date; v.editFrom = hourBox(trip.from); v.editTo = hourBox(trip.to); v.editNote = trip.note || "";
+    }
+    return '<a class="back" href="#/crew/trip/' + esc(trip.id) + '" data-up>&larr; ' + esc(trip.title) + "</a>" +
+      headHtml("Crew trip", "Change it", trip.title) + '<div class="cw" data-cw-edit-form>' +
+      cwField("When", '<input data-cw-edit-date data-keep="editDate" type="date" min="' + min + '" max="' + isoPlus(today, 60) + '" value="' + kv("editDate") + '">') +
+      '<div class="cw-two">' +
+        cwField("From (optional)", '<input data-cw-edit-from data-keep="editFrom" type="time" step="900" value="' + kv("editFrom") + '">') +
+        cwField("To (optional)", '<input data-cw-edit-to data-keep="editTo" type="time" step="900" value="' + kv("editTo") + '">') + "</div>" +
+      cwField("A note (optional)", '<textarea data-cw-edit-note data-keep="editNote" maxlength="280">' + kv("editNote") + "</textarea>") +
+      '<button class="cw-go" type="button" data-cw-save>Save</button>' +
+      '<a class="cw-plain" href="#/crew/trip/' + esc(trip.id) + '">Leave it as it is</a>' +
+      cwSaid(tripUi.editMsg, "", "data-cw-edit-msg") + "</div>";
+  }
+  function tripSave(trip) {
+    var v = crewUi.vals, from = boxHour(v.editFrom), to = boxHour(v.editTo), note = String(v.editNote || "").trim(), patch = {}, bad = "";
+    var same = function (a, b) { return (a == null ? null : Math.round(a * 100)) === (b == null ? null : Math.round(b * 100)); };
+    if (!/^\d{4}-\d\d-\d\d$/.test(v.editDate || "")) bad = "Pick the day.";
+    else if (from != null && to != null && !(to > from)) bad = "The end has to come after the start.";
+    if (bad) { tripUi.editMsg = { t: bad, no: true }; crewRedraw(); return; }
+    if (v.editDate !== trip.date) patch.date = v.editDate;
+    if (!same(from, trip.from)) patch.from = from;
+    if (!same(to, trip.to)) patch.to = to;
+    if (note !== (trip.note || "")) patch.note = note;
+    var back = "#/crew/trip/" + trip.id;
+    if (!Object.keys(patch).length) { tripUi.edit = false; location.hash = back; return; }
+    cwOnce("save", function () {
+      tripUi.editMsg = { t: "Saving..." }; crewRedraw();
+      return RIG.crew.updateTrip(trip.id, patch).then(function (r) {
+        if (r && r.ok) { tripUi.edit = false; tripUi.editMsg = null; location.hash = back; return; }
+        tripUi.editMsg = { t: r && r.offline ? "No signal. A change needs one. Try again when you have some." : RIG.crew.say(r, "That was not saved. Try again."), no: true };
+        crewRedraw();
+      });
+    });
+  }
+  function renderCrewTrip(id, sub) {
+    if (!crewGate()) return;
+    if (tripUi.id !== id) tripUi = tripFresh(id);
+    if (sub !== "edit") tripUi.edit = false;
+    var st = crewSt(), d = tripData(id);
+    var open = topHtml("trips", "crew") + '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
+    var up = '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>';
+    if (cwT.nav) { window.scrollTo(0, 0); tripUi.confirm = false; tripUi.msg = null; tripUi.goMsg = null; }
+    if (!crewQuiet) { tripUi.res = null; tripLoad(id); }
+    if (!d || !st) {
+      var r = tripUi.res, body;
+      if (tripUi.gone) body = '<p class="cw-lead" data-cw-gone>That trip is not here any more.</p><a class="cw-plain" href="#/trips">Back to the week</a>';
+      else if (st && !st.crew) body = '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p><a class="cw-plain" href="#/crew">The crew</a>';
+      else if (r && !r.trip || !st && cwT.stErr) {
+        body = cwMsg(r && r.offline ? "No signal, and this trip is not saved on this phone yet." : (r && r.error) || cwT.stErr || "The trip could not be loaded. Try again in a minute.", "no", "data-cw-trip-msg") +
+          '<button class="cw-plain" type="button" data-cw-retry>Try again</button>';
+      } else body = cwMsg("Loading the trip...", "", "data-cw-trip-msg");
+      app.innerHTML = open + ">" + up + headHtml("The crew", "Crew trip", "") + '<div class="cw">' + body + "</div></div>" + tripBarHtml();
+      return;
+    }
+    var trip = d.trip, det = tripDetail(trip), me = st.me;
+    var canEdit = !!(st.crew && st.crew.role === "owner") || !!(trip.by && trip.by.id === me.id);
+    if (!crewQuiet) RIG.crew.markSeen(id);
+
+    if (sub === "edit" && canEdit && trip.status !== "done") {
+      app.innerHTML = open + ' data-sec="edit">' + tripEditHtml(trip) + "</div>" + tripBarHtml();
+      return;
+    }
+
+    var run = RIG.trips && RIG.trips.runs && RIG.trips.runs[trip.planId];
+    var t = det && det.status === "ok" ? det.trip : null;
+    var secs = run ? runSections(t, run, { crew: true, spot: trip.spotId, species: trip.species }) : [];
+    var base = "#/crew/trip/" + encodeURIComponent(id);
+    var card = sub && secs.filter(function (c) { return c.id === sub; })[0];
+    if (card) {
+      var i = secs.indexOf(card), prev = secs[i - 1], next = secs[i + 1];
+      var step = function (c, cls, word) {
+        return c ? '<a class="pnb ' + cls + '" href="' + esc(base + "/" + c.id) + '" data-step="' + esc(c.id) + '"><span>' + word +
+          "</span><b>" + esc(label(c)) + "</b></a>" : '<span class="pnb ' + cls + ' none"></span>';
+      };
+      app.innerHTML = open + ' data-sec="' + esc(sub) + '" data-run="' + esc(trip.planId) + '">' +
+        '<a class="back" href="' + esc(base) + '" data-up>&larr; ' + esc(trip.title) + "</a>" +
+        cardHtml(card, { addable: false }) +
+        '<div data-cw-notes="' + esc(sub) + '">' + cwNotesHtml(d, sub) + "</div>" +
+        '<nav class="pn">' + step(prev, "prev", "Back") + '<span class="pos">' + (i + 1) + " of " + secs.length + "</span>" + step(next, "next", "Next") + "</nav>" +
+        "</div>" + tripBarHtml();
+      return;
+    }
+
+    var win = hoursWords(trip.from, trip.to) || (t ? t.when : "");
+    var counts = {};
+    (d.comments || []).forEach(function (c) { if (c.section) counts[c.section] = (counts[c.section] || 0) + 1; });
+    var rows = secs.map(function (c) {
+      var n = counts[c.id] || 0;
+      return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
+        "</b><span>" + esc(secLine(c, t, run)) + "</span></span>" +
+        (n ? '<span class="rm" data-cw-count="' + c.id + '">' + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
+        '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+    }).join("");
+    var leave = tripLeave(trip, det);
+    var words = trip.title + ", " + dayDate(trip.date) + "." + (leave ? " Leave by " + leave + "." : "") + " " + SITE + "#/crew/trip/" + trip.id;
+    var ask = tripUi.confirm
+      ? '<p class="cw-asks" data-cw-delete-ask>Delete this trip for everyone?</p><div class="cw-acts2">' +
+        '<button class="cw-act no" type="button" data-cw-delete-yes>Delete</button><button class="cw-act" type="button" data-cw-delete-no>Keep</button></div>'
+      : '<div class="cw-acts2" data-cw-acts>' + tripActsHtml(trip, canEdit) + "</div>";
+    app.innerHTML = open + ">" + up +
+      '<div class="shead cw-thead"><p class="eyebrow">Crew trip</p><h1 data-cw-title>' + esc(trip.title) + "</h1>" +
+        '<p class="when" data-cw-when>' + esc(dayDate(trip.date) + (win ? " · " + win : "")) + "</p>" +
+        '<p class="cw-meta">' + tagHtml(trip) + "<span data-cw-by>" + (trip.by ? "Made by " + esc(firstName(trip.by.name)) : "") + "</span></p>" +
+        (trip.note ? '<p class="cw-tripnote" data-cw-tripnote>' + esc(trip.note) + "</p>" : "") + "</div>" +
+      (tripUi.note ? cwMsg(tripUi.note, "", "data-cw-trip-note") : "") +
+      condHtml(trip, det) +
+      goingHtml(trip, me) +
+      (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2>Run card</h2><div class="rows">' + rows + "</div></section>" : "") +
+      '<div data-cw-notes="">' + cwNotesHtml(d, "") + "</div>" +
+      '<div data-cw-list>' + cwListHtml(d) + "</div>" +
+      '<div data-cw-catches>' + cwCatchesHtml(d) + "</div>" +
+      '<div class="cw cw-foot"><a class="cw-plain" data-cw-text href="' + esc(RIG.crew.textLink(words)) + '">Text the crew</a>' +
+        ask + cwSaid(tripUi.msg, "", "data-cw-trip-msg") + "</div>" +
+      "</div>" + tripBarHtml();
+  }
+
+  // Every tap on the crew trip screens. Returns true when the tap was one of ours.
+  function tripsClick(t) {
+    if (!RIG.crew) return false;
+    var hit;
+    if (t.closest("[data-cw-past]")) { cwT.past = !cwT.past; crewTripsDraw(); return true; }
+    if ((hit = t.closest("[data-cw-do]"))) {
+      var slot = hit.closest("[data-cw-key]");
+      if (slot) hotCrewMake(slot.getAttribute("data-cw-key"), hit.getAttribute("data-cw-do") === "planned" ? "planned" : "idea");
+      return true;
+    }
+    var view = t.closest('[data-view="crewnew"],[data-view="crewtrip"]');
+    if (!view) return false;
+    app.querySelectorAll("[data-keep]").forEach(function (el) { crewUi.vals[el.getAttribute("data-keep")] = el.value; });
+
+    if ((hit = t.closest("[data-cw-pick]"))) { cwT.newStatus = hit.getAttribute("data-cw-pick") === "planned" ? "planned" : "idea"; newSync(); return true; }
+    if (t.closest("[data-cw-create]")) { newCreate(); return true; }
+
+    var id = view.getAttribute("data-trip"), d = id && tripData(id);
+    if (t.closest("[data-cw-retry]")) { cwT.stErr = ""; tripUi = tripFresh(id); crewRedraw(true); return true; }
+    if (!d) return false;
+    if ((hit = t.closest("[data-cw-answer]"))) {
+      var ans = hit.getAttribute("data-cw-answer");
+      tripUi.goMsg = null; tripUi.sending++;
+      // The queue holds it before this line returns, so the redraw that
+      // follows already shows it. The server's word arrives when it arrives.
+      RIG.crew.going(id, ans).then(function (r) {
+        if (tripUi.id !== id) return;
+        tripUi.sending = Math.max(0, tripUi.sending - 1);
+        if (r && r.signedOut) { crewRedraw(true); return; }
+        if (r && r.error) tripUi.goMsg = { t: r.error, no: true };
+        crewRedraw();
+      });
+      crewRedraw();
+      return true;
+    }
+    if ((hit = t.closest("[data-cw-status]"))) {
+      var to = hit.getAttribute("data-cw-status");
+      cwOnce("status:" + id, function () {
+        tripUi.msg = { t: "Saving..." }; crewRedraw();
+        return RIG.crew.updateTrip(id, { status: to }).then(function (r) {
+          if (tripUi.id !== id) return;
+          if (r && r.signedOut) { crewRedraw(true); return; }
+          tripUi.msg = r && r.ok ? null : { t: r && r.offline ? "No signal. That needs one. Try again when you have some." : RIG.crew.say(r, "That did not go through. Try again."), no: true };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-cw-delete]")) { tripUi.confirm = true; tripUi.msg = null; crewRedraw(); return true; }
+    if (t.closest("[data-cw-delete-no]")) { tripUi.confirm = false; crewRedraw(); return true; }
+    if (t.closest("[data-cw-delete-yes]")) {
+      cwOnce("delete:" + id, function () {
+        tripUi.msg = { t: "Deleting..." }; crewRedraw();
+        return RIG.crew.deleteTrip(id).then(function (r) {
+          if (r && r.ok) { tripUi = tripFresh(null); if (crewOn()) location.hash = "#/trips"; return; }
+          if (tripUi.id !== id) return;
+          if (r && r.signedOut) { crewRedraw(true); return; }
+          tripUi.confirm = false;
+          tripUi.msg = { t: r && r.offline ? "No signal. Nothing was deleted." : RIG.crew.say(r, "That did not go through. Nothing was deleted."), no: true };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-cw-save]")) { tripSave(d.trip); return true; }
+    return false;
+  }
+  // A write that lands, or one that starts waiting, redraws the screen it is on.
+  if (RIG.crew && RIG.crew.onChange) {
+    RIG.crew.onChange(function (w) {
+      if (!w || w.kind === "session") return;
+      var h = location.hash || "";
+      if (/^#\/?crew\/trip\//.test(h)) { tripRedraw(); return; }
+      if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsDraw();
+    });
+  }
+  // Signal back while a trip is open: ask again, so "no signal" does not linger.
+  window.addEventListener("online", function () {
+    if (/^#\/?crew\/trip\/[^/]+$/.test(location.hash || "") && tripUi.note) crewRedraw(true);
+  });
+  // Back from Messages, or the phone woke up: what the crew did meanwhile is
+  // asked for quietly. Signed out, this asks nobody for anything.
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden" || !RIG.crew || !RIG.crew.session()) return;
+    var h = location.hash || "";
+    if (/^#\/?crew\/trip\/[^/]+/.test(h) && tripUi.id) tripLoad(tripUi.id);
+    else if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsLoad();
+  });
 
   // Field mode is deliberately thin: this trip's cards, bigger type, and a
   // way back. Nothing to navigate, nothing to scroll past.
@@ -1935,6 +2601,8 @@ a.back{text-decoration:none}
     if (!parts.length) { renderTrips(); return; }
     if (parts[0] === "trips" && parts[1] === "map") { renderMap(); return; }
     if (parts[0] === "join") { renderJoin(parts[1] || ""); return; }
+    if (parts[0] === "crew" && parts[1] === "new") { renderCrewNew(); return; }
+    if (parts[0] === "crew" && parts[1] === "trip" && parts[2]) { renderCrewTrip(decodeURIComponent(parts[2]), parts[3] || ""); return; }
     if (parts[0] === "crew") { renderCrew(); return; }
     if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1]), parts[2]); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
@@ -1977,6 +2645,7 @@ a.back{text-decoration:none}
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
     if (crewClick(t)) return;
+    if (tripsClick(t)) return;
     var sm = t.closest("[data-skymode]");
     if (sm) {
       var next = { auto: "light", light: "dark", dark: "auto" }[skyMode()];
@@ -2009,6 +2678,14 @@ a.back{text-decoration:none}
   app.addEventListener("change", function (e) {
     var d = e.target.closest("[data-trip-date]");
     if (d) RIG.trip.setDate(d.value);
+    // Planning a trip: the list of plans and the conditions line follow the
+    // day, the pick and the window.
+    var f = e.target.closest('[data-view="crewnew"] [data-keep]');
+    if (f) {
+      crewUi.vals[f.getAttribute("data-keep")] = f.value;
+      if (f.matches("[data-cw-what]")) cwT.newMsg = null;
+      if (f.matches("[data-cw-what],[data-cw-date],[data-cw-from],[data-cw-to]")) newSync();
+    }
   });
   // What is typed into a crew box is remembered, so a redraw never eats it.
   app.addEventListener("input", function (e) {
@@ -2035,12 +2712,14 @@ a.back{text-decoration:none}
     // and the trip bar is already the way back.
     var h = (location.hash || "").replace(/^#\/?/, "");
     if (activeMode === "field" && h) activeMode = "library";
-    render();
+    cwT.nav = true;
+    try { render(); } finally { cwT.nav = false; }
   });
 
   load();
   resolveMode();
   render();
+  cwT.nav = false;
   applySky();
   // The sky moves while the app is open: dusk arrives without a tap.
   setInterval(applySky, 10 * 60e3);
