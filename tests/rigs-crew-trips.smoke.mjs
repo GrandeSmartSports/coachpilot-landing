@@ -516,12 +516,11 @@ try {
     ok(secRows.join().startsWith("plan=#/crew/trip/t-hot/plan,what=#/crew/trip/t-hot/what,gear=#/crew/trip/t-hot/gear") && secRows.some((r) => r.startsWith("wx=")) && secRows.some((r) => r.startsWith("rules=")),
       "the run card's headline rows, each opening its section under this trip", secRows.join());
     ok(/Leave by 4:10 PM, fish 5:00 PM to 10:00 PM/.test(await text(p, '[data-sec-row="plan"]')), "the plan row carries this trip's own times", await text(p, '[data-sec-row="plan"]'));
-    // Mount points for the next stage, empty for now.
-    const mounts = await p.evaluate(() => ["[data-cw-notes]", "[data-cw-list]", "[data-cw-catches]"].map((s) => {
-      const e = document.querySelector('[data-view="crewtrip"] ' + s);
-      return e ? e.innerHTML.trim().length + ":" + e.getBoundingClientRect().height : "missing";
-    }));
-    ok(mounts.join() === "0:0,0:0,0:0", "empty mount points for notes, the list and catches", mounts.join());
+    // Notes and the list are on the page (tests/rigs-crew-notes.smoke.mjs walks them); catches wait for the day.
+    const mounts = await p.evaluate(() => ({ note: !!document.querySelector('[data-view="crewtrip"] [data-cw-notes=""] [data-cw-note-text]'),
+      list: !!document.querySelector('[data-view="crewtrip"] [data-cw-list] [data-cw-item-new]'),
+      catches: document.querySelector('[data-view="crewtrip"] [data-cw-catches]').innerHTML.trim().length }));
+    ok(mounts.note && mounts.list && mounts.catches === 0, "a box for a note on the whole trip, the list with its add line, and no catches part before the day", mounts);
     // Text the crew.
     const href = await p.locator("[data-cw-text]").getAttribute("href");
     ok(href === "sms:&body=" + encodeURIComponent("Squid at Redondo, Tue Nov 24. Leave by 4:10 PM. " + SITE + "#/crew/trip/t-hot"),
@@ -688,7 +687,8 @@ try {
     await p.locator('[data-cw-status="planned"]').dblclick();
     await p.waitForFunction(() => (document.querySelector('[data-view="crewtrip"] [data-cw-tag]')?.innerText || "").trim().toLowerCase() === "on");
     const ups = calls.landed.filter((b) => b.action === "trip_update");
-    ok(ups.length === 1 && ups[0].tripId === "t-idea" && ups[0].status === "planned" && Object.keys(ups[0]).sort().join() === "action,status,tripId", "It is on sends the new status, once", ups);
+    ok(ups.length === 1 && ups[0].tripId === "t-idea" && ups[0].status === "planned" && Object.keys(ups[0]).sort().join() === "action,status,tell,tripId" && ups[0].tell.join() === "u-coach",
+      "It is on sends the new status and who to tell (Coach has alerts on), once", ups);
     ok(await acts(p) === "", "and then the buttons follow the new state: not the maker, so none");
 
     // The maker edits the day, the window and the note.
@@ -812,7 +812,8 @@ try {
     // Signal back: the answer goes, once.
     await ctx.setOffline(false); ctl.down = false; sky.down = false;
     await p.evaluate(() => window.dispatchEvent(new Event("online")));
-    await p.waitForFunction(async () => (await window.RIG.crew.pending()).count === 0);
+    // Polled by hand: waitForFunction takes a promise itself for a yes.
+    for (let i = 0; i < 200 && await p.evaluate(async () => (await window.RIG.crew.pending()).count) > 0; i++) await later(50);
     ok(calls.landed.filter((b) => b.action === "going" && b.answer === "going").length === 1 && db.trips[0].going.find((g) => g.id === "u-russ").answer === "going", "the waiting answer sends once when the signal returns");
     ok(p.errs.length === 0, "no page errors", p.errs.join(" | "));
     await ctx.close();

@@ -422,6 +422,78 @@ a.back{text-decoration:none}
 .cw-condslot:empty{display:none}
 .cw-condslot{margin:0 0 14px}
 .cw-condslot .cw-cond{margin:0}
+/* Notes, the list and catches on a crew trip, and the Tell row. */
+.cw-x{min-height:44px;padding:0 2px;font:inherit;font-size:13px;font-weight:600;color:var(--dim);background:none;border:0;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px}
+.cw-plain.cw-main{color:var(--ink);border-color:var(--accent);font-weight:600}
+.cw-tell{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}
+.cw-foot .cw-tell{margin:14px 0 0}
+.cw-tell-h{font-size:13px;color:var(--dim)}
+.cw-pill{display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:0 14px;font:inherit;font-size:14px;font-weight:600;
+  color:var(--dim);background:var(--paper);border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow-wrap:anywhere}
+.cw-pill[aria-pressed="true"]{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
+.cw-tell .cw-pill::before{content:"";flex:0 0 auto;width:9px;height:5px;margin-top:-3px;border:solid currentColor;border-width:0 0 2px 2px;
+  transform:rotate(-45deg);opacity:0}
+.cw-tell .cw-pill[aria-pressed="true"]::before{opacity:1}
+.cw-nlist,.cw-clist{list-style:none;margin:0 0 14px;padding:0}
+.cw-note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
+.cw-note-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;font-size:13px;color:var(--dim)}
+.cw-note-h b{font-size:14.5px;font-weight:650;color:var(--ink)}
+.cw-note-b{margin:4px 0 0;font-size:15.5px;line-height:1.45;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.cw-note .cw-x,.cw-catch .cw-x{margin:2px 0 -10px}
+.cw-note .cw-asks,.cw-catch .cw-asks{margin:10px 0 0;font-size:14.5px}
+.cw-note .cw-acts2,.cw-catch .cw-acts2{margin:10px 0 0}
+.cw-notebox textarea{min-height:76px}
+.cw-sum{font-size:15px;line-height:1.45;color:var(--ink2);margin:0 0 12px}
+.cw-items{list-style:none;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden}
+.cw-items:empty{display:none}
+.cw-item{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;padding:4px 10px 4px 4px;border-top:1px solid var(--line)}
+.cw-item:first-child{border-top:0}
+.cw-tick{position:relative;flex:0 0 44px;width:44px;height:44px;padding:0;background:none;border:0;cursor:pointer}
+.cw-tick::before{content:"";position:absolute;left:11px;top:11px;width:22px;height:22px;border:2px solid var(--line2);border-radius:7px}
+.cw-tick[aria-checked="true"]::before{border-color:var(--go)}
+.cw-tick[aria-checked="true"]::after{content:"";position:absolute;left:19px;top:14px;width:6px;height:11px;border:solid var(--go);
+  border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.cw-item-l{flex:1 1 0;min-width:0;padding:8px 0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+.cw-item.done .cw-item-l{color:var(--dim)}
+.cw-item.done .cw-item-l > span:first-child{text-decoration:line-through}
+.cw-item-l .cw-wait{display:block;margin-top:2px}
+.cw-whob{flex:0 0 auto;max-width:42%;min-height:44px;padding:0 13px;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);
+  background:transparent;border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cw-whob.none{color:var(--dim);border-style:dashed}
+.cw-whob[aria-expanded="true"]{color:var(--ink);border-color:var(--accent)}
+.cw-panel{flex:1 1 100%;min-width:0;margin:4px 0 8px 6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.cw-panel-h{margin:0 0 8px;font-size:13px;color:var(--dim)}
+.cw-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.cw-panel .cw-acts2{margin:0}
+.cw-panel .cw-asks{margin:0 0 10px}
+.cw-panel .cw-fld{margin:0 0 10px}
+.cw-addline{display:flex;gap:8px;align-items:center}
+.cw-addline input{flex:1 1 0;min-width:0;min-height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.cw-addline input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.cw-addline .cw-act{flex:0 0 auto;min-height:48px;border-radius:12px}
+.cw-catch{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
+.cw-thumb{flex:0 0 76px;width:76px;height:76px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2);
+  cursor:pointer;font:inherit;font-size:11px;line-height:1.3;color:var(--dim)}
+.cw-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.cw-thumb[data-nophoto]{cursor:default}
+.cw-thumb[data-nophoto]::after{content:"Photo needs a signal"}
+.cw-catch-t{flex:1 1 0;min-width:0}
+.cw-catch-h{margin:0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
+.cw-catch-h b{font-weight:650}
+.cw-catch-h span{margin-left:8px;font-family:var(--mono);font-size:13px;color:var(--ink2)}
+.cw-catch-m{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--dim);overflow-wrap:anywhere}
+.cw-catch-n{margin:4px 0 0;font-size:14.5px;line-height:1.45;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
+.cw-form{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.cw-photo{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
+.cw-photo img{display:block;width:96px;height:96px;object-fit:cover;border:1px solid var(--line);border-radius:10px}
+.cw-file{position:relative;overflow:hidden}
+.cw-file input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0}
+.cw-file:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.cw-big{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg)}
+.cw-big img{display:block;max-width:100%;max-height:calc(100dvh - 140px);border-radius:12px;object-fit:contain}
 .quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
 .asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -1875,16 +1947,48 @@ a.back{text-decoration:none}
   // Everything is drawn from what the phone has saved first, then refreshed
   // quietly. Only people signed in and on a crew ever see any of it.
   //
-  // For the next stage (notes, the list, catches): the trip page and each
-  // section page carry mount points, filled by cwNotesHtml, cwListHtml and
-  // cwCatchesHtml below. They return "" today. Fill them there, not from
-  // outside: the page is redrawn whole whenever a write lands.
+  // Notes, the list and catches sit in three boxes on the trip page (and one
+  // notes box on each section page), filled by cwNotesHtml, cwListHtml and
+  // cwCatchesHtml below. Anything added to a trip goes in there, not in from
+  // outside: the page is redrawn whole whenever a write lands. Alerts, the
+  // next stage, need only RIG.crew.prefsGet and friends; the Tell row
+  // (tellHtml, tellIds, withTell) already rides on every write that can alert.
   var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAYFULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var cwT = { past: false, hotKey: "", hotMsg: null, nav: true, watersAt: 0, newStatus: "idea", newMsg: null };
-  function tripFresh(id) { return { id: id, gone: false, note: "", msg: null, goMsg: null, confirm: false, sending: 0, edit: false, editMsg: null, res: null }; }
+  var cwT = { past: false, hotKey: "", hotMsg: null, nav: true, watersAt: 0, newStatus: "idea", newMsg: null, tell: {}, repeat: false };
+  // ask: what a Delete is waiting on a yes for ("note:<id>", "item:<id>", "catch:<id>"). open: the list line
+  // whose picker is open. rename: the line being renamed. nMsg, lMsg, pMsg, cMsg: what the note box, the
+  // list, the picker and the catches last said. cOpen, cBusy, photo, photoUrl: the Log a fish form.
+  // big: the catch photo shown large.
+  function tripFresh(id) {
+    return { id: id, gone: false, note: "", msg: null, goMsg: null, confirm: false, sending: 0, edit: false, editMsg: null, res: null,
+      ask: "", open: "", rename: "", nMsg: null, lMsg: null, pMsg: null, cMsg: null, cOpen: false, cBusy: false, photo: null, photoUrl: "", big: "" };
+  }
   var tripUi = tripFresh(null);
+
+  // The Tell row. Wherever a write can alert people it names the others on
+  // the crew who have alerts switched on, by first name, all ticked. A tap
+  // unticks one. With nobody to tell there is no row, and nothing about
+  // telling is sent. key says which row it is: each row's ticks are its own,
+  // and they start over whenever a screen is navigated to.
+  //   tellHtml(key)        the row, or ""
+  //   tellIds(key)         the ticked ids, or null when there is no row
+  //   withTell(body, key)  adds body.tell when there is a row. Returns body.
+  function tellHtml(key) {
+    var who = RIG.crew.canTell(), off = cwT.tell[key] || {};
+    if (!who.length) return "";
+    return '<div class="cw-tell" data-cw-tell="' + key + '" role="group" aria-label="Who gets an alert"><span class="cw-tell-h">Tell:</span>' +
+      who.map(function (m) {
+        return '<button class="cw-pill" type="button" data-cw-tell-id="' + esc(m.id) + '" aria-pressed="' + (off[m.id] ? "false" : "true") + '">' +
+          esc(firstName(m.name)) + "</button>";
+      }).join("") + "</div>";
+  }
+  function tellIds(key) {
+    var who = RIG.crew.canTell(), off = cwT.tell[key] || {};
+    return who.length ? who.filter(function (m) { return !off[m.id]; }).map(function (m) { return m.id; }) : null;
+  }
+  function withTell(body, key) { var ids = tellIds(key); if (ids) body.tell = ids; return body; }
 
   // The saved crew state (with waiting writes laid over it), or null.
   function crewSt() { return RIG.crew && RIG.crew.session() ? RIG.crew.cached() : null; }
@@ -1978,7 +2082,7 @@ a.back{text-decoration:none}
       return '<div class="cw cw-make" data-cw-make><a class="cw-go" href="#/crew/trip/' + esc(have.id) + '" data-cw-open-trip>Open the crew trip</a>' +
         cwMsg((have.status === "planned" ? "It is on. " : have.status === "done" ? "Done. " : "Floated as an idea. ") + (who.length ? "Going: " + who.join(", ") + "." : ""), "", "data-cw-make-msg") + "</div>";
     }
-    return '<div class="cw cw-make" data-cw-make><button class="cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
+    return '<div class="cw cw-make" data-cw-make>' + tellHtml("hot") + '<button class="cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
       '<button class="cw-plain" type="button" data-cw-do="idea">Float it</button>' +
       cwSaid(cwT.hotMsg, "Either one puts this trip in front of the crew.", "data-cw-make-msg") + "</div>";
   }
@@ -1998,8 +2102,8 @@ a.back{text-decoration:none}
     cwOnce("make", function () {
       cwT.hotMsg = { t: "Making it..." }; hotCrewSync();
       var t = f.t, here = location.hash, r2 = function (h) { return Math.round(h * 100) / 100; };
-      return RIG.crew.createTrip({ planId: t.planId, spotId: t.spot, species: t.species, title: String(t.name).slice(0, 120), date: f.day.iso,
-        from: r2(t.from), to: r2(t.to), status: status, seedList: seedOf(t.planId) }).then(function (r) {
+      return RIG.crew.createTrip(withTell({ planId: t.planId, spotId: t.spot, species: t.species, title: String(t.name).slice(0, 120), date: f.day.iso,
+        from: r2(t.from), to: r2(t.to), status: status, seedList: seedOf(t.planId) }, "hot")).then(function (r) {
         // Still on the card they tapped: go to the new trip. Wandered off: leave them be.
         if (r && r.ok && r.trip) { cwT.hotMsg = null; if (location.hash === here) location.hash = "#/crew/trip/" + r.trip.id; return; }
         cwT.hotMsg = { t: r && r.offline ? "No signal. Making a trip needs one. Try again when you have some." : RIG.crew.say(r, "The trip could not be made. Try again."), no: true };
@@ -2123,7 +2227,7 @@ a.back{text-decoration:none}
         '<button class="cw-pick" type="button" data-cw-pick="idea" aria-pressed="' + (cwT.newStatus === "idea" ? "true" : "false") + '">Just an idea</button>' +
         '<button class="cw-pick" type="button" data-cw-pick="planned" aria-pressed="' + (cwT.newStatus === "planned" ? "true" : "false") + '">It is on</button></div>' +
       cwField("A note (optional)", '<textarea data-cw-note data-keep="newNote" maxlength="280" placeholder="Meet at the pier at 5">' + kv("newNote") + "</textarea>") +
-      '<button class="cw-go" type="button" data-cw-create>Make the trip</button>' +
+      tellHtml("new") + '<button class="cw-go" type="button" data-cw-create>Make the trip</button>' +
       cwSaid(cwT.newMsg, "", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
   }
   // Nothing saved yet (a cold open straight onto a crew page): ask once.
@@ -2150,7 +2254,7 @@ a.back{text-decoration:none}
       if (from != null) body.from = from;
       if (to != null) body.to = to;
       if (note) body.note = note;
-      return RIG.crew.createTrip(body).then(function (r) {
+      return RIG.crew.createTrip(withTell(body, "new")).then(function (r) {
         if (r && r.ok && r.trip) {
           v.newPlan = ""; v.newDate = ""; v.newFrom = ""; v.newTo = ""; v.newNote = ""; cwT.newMsg = null; cwT.newStatus = "idea";
           if (location.hash === here) location.hash = "#/crew/trip/" + r.trip.id;
@@ -2162,13 +2266,348 @@ a.back{text-decoration:none}
     });
   }
 
-  // ---- a trip's own page: #/crew/trip/<id>
-  // Mount points for the next stage. d is { trip, comments, list, catches }
-  // as RIG.crew.cachedTrip gives it; section is a run card section id, or ""
-  // for notes on the whole trip. Each returns the inside of its box.
-  function cwNotesHtml(d, section) { return ""; }
-  function cwListHtml(d) { return ""; }
-  function cwCatchesHtml(d) { return ""; }
+  // ---- notes, the list and catches on a trip
+  // Three boxes on the trip page, each filled by one function. d is
+  // { trip, comments, list, catches } as tripData gives it, with waiting
+  // writes already laid over it. A trip seen only in the week (d.thin) has
+  // none of the three saved yet, so nothing is drawn until the whole trip lands.
+  //   cwNotesHtml(d, section, shown)   section is a run card section id, or "" for the whole trip.
+  //                             shown (trip page only) lists the section ids the run card has
+  //                             right now: a note pinned to one it has dropped joins the trip's own.
+  //   cwListHtml(d)             the list, a summary on top, a box to add a line
+  //   cwCatchesHtml(d)          catches and Log a fish, once the day has come
+  function isOwner() { var st = crewSt(); return !!(st && st.crew && st.crew.role === "owner"); }
+  // "Tue 4:12 PM", or "Nov 9, 4:12 PM" once the weekday alone would not say which.
+  function noteTime(iso) {
+    var d = new Date(iso);
+    if (isNaN(d)) return "";
+    var near = Math.abs(Date.now() - d.getTime()) < 6 * 864e5;
+    return (near ? DAY3[d.getDay()] : MON3[d.getMonth()] + " " + d.getDate() + ",") + " " + clk(d.getHours() + d.getMinutes() / 60);
+  }
+  function oldestFirst(rows) {
+    return rows.map(function (r, i) { return { r: r, i: i }; })
+      .sort(function (a, b) { return ((Date.parse(a.r.at) || 0) - (Date.parse(b.r.at) || 0)) || a.i - b.i; })
+      .map(function (x) { return x.r; });
+  }
+  function waitTag() { return '<span class="cw-wait" data-cw-wait>' + (tripUi.sending ? "Sending" : "Waiting to send") + "</span>"; }
+  // Delete asks once, inside the page. The question takes the place of the
+  // small Delete, and the real one sits a line lower, so a double tap on the
+  // first can never land on the second.
+  function askHtml(words, yesAttr) {
+    return '<p class="cw-asks">' + words + '</p><div class="cw-acts2"><button class="cw-act no" type="button" ' + yesAttr + ">Delete</button>" +
+      '<button class="cw-act" type="button" data-cw-ask-no>Keep</button></div>';
+  }
+  function focusKeep(key) {
+    var el = app.querySelector('[data-keep="' + key + '"]');
+    if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* not that kind of box */ } }
+  }
+
+  // New notes on a section. rig.crewlook.v1 is { tripId: { section: the
+  // newest note time this phone has looked at there } }. A run card row gets
+  // a dot while it holds someone else's note newer than that, and opening
+  // the section is the look. A person's own note never raises one.
+  var LOOK_KEY = "rig.crewlook.v1";
+  function lookAll() {
+    try { var m = JSON.parse(localStorage.getItem(LOOK_KEY) || "{}"); return m && typeof m === "object" ? m : {}; } catch (e) { return {}; }
+  }
+  function lookNew(tripId, sec, d) {
+    var seen = Date.parse((lookAll()[tripId] || {})[sec] || "") || 0;
+    return (d.comments || []).some(function (c) { return c.section === sec && !c.mine && !c.waiting && Date.parse(c.at) > seen; });
+  }
+  function lookMark(tripId, sec, d) {
+    var newest = 0, at = "";
+    (d.comments || []).forEach(function (c) {
+      var when = c.section === sec && !c.waiting ? Date.parse(c.at) : 0;
+      if (when > newest) { newest = when; at = c.at; }
+    });
+    var all = lookAll(), mine = all[tripId] || {};
+    if (!at || Date.parse(mine[sec] || "") >= newest) return;
+    mine[sec] = at;
+    // Trips that have left the week need no memory.
+    var st = crewSt(), live = {};
+    if (st && st.trips && st.trips.length) {
+      st.trips.forEach(function (t) { live[t.id] = true; });
+      Object.keys(all).forEach(function (k) { if (!live[k]) delete all[k]; });
+    }
+    all[tripId] = mine;
+    try { localStorage.setItem(LOOK_KEY, JSON.stringify(all)); } catch (e) { /* private mode: this visit only */ }
+  }
+
+  // The run card's parts by name, for a note whose part is not on the card
+  // today (the weather and the river only show while the forecast reaches).
+  var SEC_NAMES = { plan: "The plan", what: "What it is", gear: "Gear", bait: "Bait and lures", how: "How", wx: "Tide and weather",
+    river: "River flow", spot: "The spot", expect: "What to expect", rules: "Rules" };
+  function cwNotesHtml(d, section, shown) {
+    if (d.thin) return "";
+    var sec = section || "", owner = isOwner(), key = "t.note." + (sec || "trip");
+    var mine = oldestFirst((d.comments || []).filter(function (c) {
+      return (c.section || "") === sec || (!sec && shown && c.section && shown.indexOf(c.section) === -1);
+    }));
+    var notes = mine.map(function (c) {
+      var id = esc(c.id), part = !sec && c.section ? SEC_NAMES[c.section] || "" : "";
+      return '<li class="cw-note" data-cw-note="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
+        '<p class="cw-note-h"><b data-cw-note-who>' + esc(c.by ? firstName(c.by.name) : "Someone") + "</b>" +
+        '<span data-cw-note-at>' + esc(noteTime(c.at)) + "</span>" + (part ? '<span data-cw-note-part>' + esc(part) + "</span>" : "") +
+        (c.waiting ? waitTag() : "") + "</p>" +
+        '<p class="cw-note-b" data-cw-note-body>' + esc(c.body) + "</p>" +
+        (c.mine || owner ? (tripUi.ask === "note:" + c.id ? askHtml("Delete this note?", 'data-cw-note-del-yes="' + id + '"')
+          : '<button class="cw-x" type="button" data-cw-note-del="' + id + '">Delete</button>') : "") + "</li>";
+    }).join("");
+    // The names to tell sit above the box, the button under it: a second tap
+    // that lands where the button was finds the box, never a name.
+    return '<section class="grp" data-cw-notebox><h2>Notes' + (mine.length ? ' <span class="n">' + mine.length + "</span>" : "") + "</h2>" +
+      (notes ? '<ul class="cw-nlist">' + notes + "</ul>" : "") +
+      '<div class="cw cw-notebox">' + tellHtml("note") +
+      cwField(sec ? "Add a note on this part" : "Add a note on the whole trip",
+        '<textarea data-cw-note-text data-keep="' + key + '" maxlength="1000">' + kv(key) + "</textarea>") +
+      '<button class="cw-plain cw-main" type="button" data-cw-note-add="' + esc(sec) + '">Add the note</button>' +
+      cwSaid(tripUi.nMsg, "", "data-cw-note-msg") + "</div></section>";
+  }
+
+  // "7 of 12 packed. Russell has 3, Coach has 4, 5 nobody."
+  function listSummary(list) {
+    if (!list.length) return "Nothing on the list yet.";
+    var done = list.filter(function (i) { return i.done; }).length, by = {}, order = [], nobody = 0;
+    list.forEach(function (i) {
+      if (!i.assignedTo) { nobody++; return; }
+      var k = i.assignedTo.id;
+      if (!by[k]) { by[k] = { name: firstName(i.assignedTo.name), n: 0 }; order.push(k); }
+      by[k].n++;
+    });
+    var parts = order.map(function (k) { return by[k].name + " has " + by[k].n; });
+    if (nobody) parts.push(nobody + " nobody");
+    return done + " of " + list.length + " packed. " + parts.join(", ") + ".";
+  }
+  function itemOf(d, id) { return ((d && d.list) || []).filter(function (i) { return i.id === id; })[0] || null; }
+  function cwListHtml(d) {
+    if (d.thin) return "";
+    var st = crewSt(), owner = isOwner(), list = d.list || [];
+    var rows = list.map(function (it) {
+      var id = esc(it.id), open = tripUi.open === it.id, mayEdit = it.mine || owner, has = it.assignedTo ? it.assignedTo.id : "", panel = "";
+      var who = it.assignedTo ? firstName(it.assignedTo.name) : "nobody";
+      function give(uid, name) {
+        return '<button class="cw-pill" type="button" data-cw-give="' + esc(uid) + '" aria-pressed="' + (uid === has ? "true" : "false") + '">' + esc(name) + "</button>";
+      }
+      if (open && tripUi.rename === it.id && mayEdit) {
+        panel = cwField("The words", '<input data-cw-item-name data-keep="t.rename" data-enter="data-cw-item-save" type="text" maxlength="120" autocomplete="off" value="' + kv("t.rename") + '">') +
+          '<div class="cw-acts2"><button class="cw-act" type="button" data-cw-item-save>Save</button>' +
+          '<button class="cw-act" type="button" data-cw-item-cancel>Leave it</button></div>';
+      } else if (open && tripUi.ask === "item:" + it.id && mayEdit) {
+        panel = askHtml("Delete this line?", 'data-cw-item-del-yes="' + id + '"');
+      } else if (open) {
+        panel = '<p class="cw-panel-h">Who has it?</p><div class="cw-pills">' +
+          ((st && st.members) || []).map(function (m) { return give(m.id, firstName(m.name)); }).join("") + give("", "Nobody") + "</div>" +
+          tellHtml("list") +
+          (mayEdit ? '<div class="cw-acts2"><button class="cw-act" type="button" data-cw-item-rename>Rename</button>' +
+            '<button class="cw-act no" type="button" data-cw-item-del>Delete</button></div>' : "");
+      }
+      return '<li class="cw-item' + (it.done ? " done" : "") + '" data-cw-item="' + id + '"' + (it.waiting ? " data-waiting" : "") + ">" +
+        '<button class="cw-tick" type="button" role="checkbox" aria-checked="' + (it.done ? "true" : "false") + '" data-cw-tick="' + id +
+          '" aria-label="Packed: ' + esc(it.label) + '"></button>' +
+        '<span class="cw-item-l" data-cw-item-label><span>' + esc(it.label) + "</span>" + (it.waiting ? waitTag() : "") + "</span>" +
+        '<button class="cw-whob' + (it.assignedTo ? "" : " none") + '" type="button" data-cw-who="' + id + '" aria-expanded="' + (open ? "true" : "false") +
+          '" aria-label="' + esc(it.assignedTo ? who + " has it. Change who." : "Nobody has it. Pick who.") + '">' + esc(who) + "</button>" +
+        (open ? '<div class="cw-panel" data-cw-panel>' + panel + (tripUi.pMsg ? cwSaid(tripUi.pMsg, "", "data-cw-panel-msg") : "") + "</div>" : "") + "</li>";
+    }).join("");
+    return '<section class="grp" data-cw-listbox><h2>The list</h2><p class="cw-sum" data-cw-list-sum>' + esc(listSummary(list)) + "</p>" +
+      '<ul class="cw-items">' + rows + "</ul>" +
+      '<div class="cw-addline"><input data-cw-item-new data-keep="t.item" data-enter="data-cw-item-add" type="text" maxlength="120" autocomplete="off" ' +
+        'placeholder="Add a line" aria-label="Add a line" value="' + kv("t.item") + '">' +
+      '<button class="cw-act" type="button" data-cw-item-add>Add</button></div>' +
+      cwSaid(tripUi.lMsg, "", "data-cw-list-msg") + "</section>";
+  }
+
+  // Catch photos with no signal. A photo that has been on this screen is
+  // kept on the phone (the browser's own cache store, the newest PHOTO_KEEP
+  // of them), so a catch that was seen still has its picture at the pier.
+  var PHOTO_BOX = "rigphotos-v1", PHOTO_KEEP = 60, photoLocal = {}, photoAsked = {};
+  function photoBox() {
+    try { return window.caches ? window.caches.open(PHOTO_BOX).then(null, function () { return null; }) : Promise.resolve(null); } catch (e) { return Promise.resolve(null); }
+  }
+  function photoSrc(url) { return photoLocal[url] || url; }
+  function photoKeep(url) {
+    if (!/^https:\/\//.test(url || "") || photoAsked[url]) return;
+    photoAsked[url] = true;
+    photoBox().then(function (box) {
+      if (!box) return null;
+      return box.match(url).then(function (hit) {
+        if (hit) return null;
+        return fetch(url, { mode: "cors", credentials: "omit" }).then(function (res) {
+          if (!res.ok) return null;
+          return box.put(url, res).then(function () { return box.keys(); }).then(function (keys) {
+            return Promise.all(keys.slice(0, Math.max(0, keys.length - PHOTO_KEEP)).map(function (k) { return box.delete(k); }));
+          });
+        });
+      });
+      // One try for each photo on each visit: a store that will not hand it
+      // over is not asked again every time the screen is redrawn.
+    }).then(null, function () { /* not kept this time */ });
+  }
+  // The phone's own copy of a photo, as an address an <img> can show, or "".
+  function photoSaved(url) {
+    if (photoLocal[url]) return Promise.resolve(photoLocal[url]);
+    return photoBox().then(function (box) { return box ? box.match(url) : null; })
+      .then(function (hit) { return hit ? hit.blob() : null; })
+      .then(function (b) { if (b) photoLocal[url] = URL.createObjectURL(b); return photoLocal[url] || ""; }, function () { return ""; });
+  }
+  function photoMiss(img) {
+    var b = img.closest("[data-cw-photo]");
+    img.hidden = true;
+    if (b) { b.setAttribute("data-nophoto", ""); b.setAttribute("aria-label", "This photo needs a signal"); }
+  }
+  // Neither load nor error bubbles, so both are caught on the way down.
+  app.addEventListener("load", function (e) {
+    var img = e.target;
+    if (img && img.matches && img.matches("img[data-cw-img]")) photoKeep(img.getAttribute("data-cw-img"));
+  }, true);
+  app.addEventListener("error", function (e) {
+    var img = e.target;
+    if (!img || !img.matches || !img.matches("img[data-cw-img]")) return;
+    if (img.getAttribute("data-tried")) { photoMiss(img); return; }
+    img.setAttribute("data-tried", "1");
+    photoSaved(img.getAttribute("data-cw-img")).then(function (local) {
+      if (!img.isConnected) return;
+      if (local && img.getAttribute("src") !== local) img.src = local; else photoMiss(img);
+    });
+  }, true);
+
+  function sizeWords(c) {
+    function num(v) { return String(Math.round(v * 100) / 100); }
+    return [c.lengthIn != null ? num(c.lengthIn) + " in" : "", c.weightLb != null ? num(c.weightLb) + " lb" : ""].filter(Boolean).join(", ");
+  }
+  function fishName(trip) {
+    var sp = findSpecies(trip.species), id = String(trip.species || "");
+    return sp ? sp.name : id.charAt(0).toUpperCase() + id.slice(1);
+  }
+  function catchFormHtml() {
+    var has = !!tripUi.photo;
+    return '<div class="cw cw-form" data-cw-catch-form>' +
+      cwField("Fish", '<input data-cw-catch-species data-keep="t.species" type="text" maxlength="40" autocomplete="off" value="' + kv("t.species") + '">') +
+      '<div class="cw-two">' +
+        cwField("Length, inches", '<input data-cw-catch-len data-keep="t.len" type="text" inputmode="decimal" autocomplete="off" placeholder="Optional" value="' + kv("t.len") + '">') +
+        cwField("Weight, pounds", '<input data-cw-catch-wt data-keep="t.wt" type="text" inputmode="decimal" autocomplete="off" placeholder="Optional" value="' + kv("t.wt") + '">') + "</div>" +
+      cwField("Lure or bait", '<input data-cw-catch-lure-in data-keep="t.lure" type="text" maxlength="80" autocomplete="off" placeholder="Optional" value="' + kv("t.lure") + '">') +
+      cwField("A note", '<textarea data-cw-catch-note-in data-keep="t.cnote" maxlength="500" placeholder="Optional">' + kv("t.cnote") + "</textarea>") +
+      '<div class="cw-photo">' + (tripUi.photoUrl ? '<img data-cw-catch-preview src="' + esc(tripUi.photoUrl) + '" alt="The photo you picked">' : "") +
+        '<label class="cw-act cw-file"><input type="file" accept="image/*" data-cw-catch-photo>' + (has ? "Change the photo" : "Add a photo") + "</label>" +
+        (has ? '<button class="cw-act" type="button" data-cw-catch-nophoto>No photo</button>' : "") + "</div>" +
+      tellHtml("catch") +
+      '<button class="cw-plain cw-main" type="button" data-cw-catch-save' + (tripUi.cBusy ? " disabled" : "") + ">Save the fish</button>" +
+      '<button class="cw-plain" type="button" data-cw-catch-cancel>Not now</button></div>';
+  }
+  function cwCatchesHtml(d) {
+    if (d.thin) return "";
+    var trip = d.trip, list = oldestFirst(d.catches || []);
+    if (!list.length && trip.date > todayIso()) return "";
+    var rows = list.map(function (c) {
+      var id = esc(c.id), size = sizeWords(c), who = c.by ? firstName(c.by.name) : "Someone";
+      var meta = ['<span data-cw-catch-who>' + esc(who) + "</span>", '<span data-cw-catch-at>' + esc(noteTime(c.at)) + "</span>"];
+      if (c.lure) meta.push('<span data-cw-catch-lure>' + esc(c.lure) + "</span>");
+      return '<li class="cw-catch" data-cw-catch="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
+        (c.photoUrl ? '<button class="cw-thumb" type="button" data-cw-photo="' + id + '" aria-label="See the photo large"><img data-cw-img="' + esc(c.photoUrl) +
+          '" src="' + esc(photoSrc(c.photoUrl)) + '" alt="' + esc(who + ", " + c.species) + '"></button>' : "") +
+        '<div class="cw-catch-t"><p class="cw-catch-h"><b data-cw-catch-what>' + esc(c.species) + "</b>" +
+          (size ? '<span data-cw-catch-size>' + esc(size) + "</span>" : "") + "</p>" +
+        '<p class="cw-catch-m">' + meta.join(" · ") + "</p>" +
+        (c.notes ? '<p class="cw-catch-n" data-cw-catch-notes>' + esc(c.notes) + "</p>" : "") +
+        (c.waiting ? '<p class="cw-catch-m">' + waitTag() + "</p>" : "") +
+        (c.mine ? (tripUi.ask === "catch:" + c.id ? askHtml("Delete this catch? It leaves your CastAI catch log too.", 'data-cw-catch-del-yes="' + id + '"')
+          : '<button class="cw-x" type="button" data-cw-catch-del="' + id + '">Delete</button>') : "") +
+        "</div></li>";
+    }).join("");
+    return '<section class="grp" data-cw-catchbox><h2>Catches' + (list.length ? ' <span class="n">' + list.length + "</span>" : "") + "</h2>" +
+      (rows ? '<ul class="cw-clist">' + rows + "</ul>" : "") +
+      (tripUi.cOpen ? catchFormHtml() : '<div class="cw"><button class="cw-plain cw-main" type="button" data-cw-catch-open>Log a fish</button></div>') +
+      cwSaid(tripUi.cMsg, "", "data-cw-catch-msg") + "</section>";
+  }
+
+  // One write from the trip page. While any is on its way the waiting tags
+  // read "Sending". start() makes the call; done(answer) hears every answer
+  // but signed out, and the screen is redrawn after it.
+  function tripWrite(id, start, done) {
+    tripUi.sending++;
+    return start().then(function (r) {
+      if (tripUi.id !== id) return;
+      tripUi.sending = Math.max(0, tripUi.sending - 1);
+      if (r && r.signedOut) { crewRedraw(true); return; }
+      if (done) done(r || {});
+      tripRedraw();
+    });
+  }
+  function noteAdd(id, sec) {
+    var v = crewUi.vals, key = "t.note." + (sec || "trip"), words = String(v[key] || "").trim();
+    if (!words) { tripUi.nMsg = { t: "Write the note first.", no: true }; crewRedraw(); return; }
+    var tell = tellIds("note");
+    v[key] = ""; tripUi.nMsg = null;
+    tripWrite(id, function () { return RIG.crew.addComment(id, sec || null, words, tell ? { tell: tell } : null); }, function (r) {
+      // Refused: the words go back in the box, with the reason.
+      if (r.error) { tripUi.nMsg = { t: r.error, no: true }; if (!v[key]) v[key] = words; }
+    });
+  }
+  function listSaid(r) { if (r.error) tripUi.lMsg = { t: r.error, no: true }; }
+  function itemAdd(id) {
+    var v = crewUi.vals, label = String(v["t.item"] || "").trim();
+    if (!label) { tripUi.lMsg = { t: "Say what it is first.", no: true }; crewRedraw(); return; }
+    v["t.item"] = ""; tripUi.lMsg = null;
+    tripWrite(id, function () { return RIG.crew.addItem(id, label, null); }, function (r) {
+      if (r.error) { tripUi.lMsg = { t: r.error, no: true }; if (!v["t.item"]) v["t.item"] = label; }
+    });
+    // Ready for the next line.
+    focusKeep("t.item");
+  }
+
+  // The Log a fish form.
+  function catchPhoto(file) {
+    if (tripUi.photoUrl) { try { URL.revokeObjectURL(tripUi.photoUrl); } catch (e) { /* gone already */ } }
+    tripUi.photo = file || null; tripUi.photoUrl = "";
+    if (file) { try { tripUi.photoUrl = URL.createObjectURL(file); } catch (e) { tripUi.photoUrl = ""; } }
+  }
+  function catchFormShut(clear) {
+    tripUi.cOpen = false;
+    if (!clear) return;
+    ["t.species", "t.len", "t.wt", "t.lure", "t.cnote"].forEach(function (k) { delete crewUi.vals[k]; });
+    catchPhoto(null);
+  }
+  // "" is nothing typed (null), "14" is 14, "1,5" is 1.5, anything else is not a number (NaN).
+  function numBox(text) {
+    var s = String(text == null ? "" : text).trim().replace(",", ".");
+    if (!s) return null;
+    return /^(\d+\.?\d*|\.\d+)$/.test(s) && Number(s) > 0 ? Number(s) : NaN;
+  }
+  function catchSave(id, trip) {
+    if (tripUi.cBusy) return;
+    var v = crewUi.vals, species = String(v["t.species"] || "").trim(), len = numBox(v["t.len"]), wt = numBox(v["t.wt"]), bad = "";
+    if (!species) bad = "Which fish was it?";
+    else if (len !== null && isNaN(len)) bad = "Length is a number, in inches. Or leave it empty.";
+    else if (wt !== null && isNaN(wt)) bad = "Weight is a number, in pounds. Or leave it empty.";
+    if (bad) { tripUi.cMsg = { t: bad, no: true }; crewRedraw(); return; }
+    var spot = findSpot(trip.spotId), had = {}, kept = false, tell = tellIds("catch");
+    ((tripData(id) || {}).catches || []).forEach(function (c) { had[c.id] = true; });
+    var fields = { species: species, lengthIn: len, weightLb: wt, lure: v["t.lure"] || "", notes: v["t.cnote"] || "", spotName: spot ? spot.name : trip.title };
+    if (tripUi.photo) fields.photo = tripUi.photo;
+    tripUi.cBusy = true; tripUi.cMsg = { t: "Saving..." }; crewRedraw();
+    // The moment the phone itself holds the catch the form's work is done:
+    // the row is in the list with its photo, and sending is the queue's job.
+    var stop = RIG.crew.onChange(function (w) {
+      if (kept || !w || w.kind !== "queue" || w.tripId !== id || tripUi.id !== id) return;
+      var now = tripData(id);
+      if (!now || !(now.catches || []).some(function (c) { return c.waiting && !had[c.id]; })) return;
+      kept = true; tripUi.cBusy = false; tripUi.cMsg = null;
+      catchFormShut(true);
+      crewRedraw();
+    });
+    tripWrite(id, function () {
+      return RIG.crew["catch"](id, fields, tell ? { tell: tell } : null).then(function (r) { stop(); return r; });
+    }, function (r) {
+      tripUi.cBusy = false;
+      if (r.ok) {
+        if (!kept) catchFormShut(true);
+        tripUi.cMsg = r.photoFailed ? { t: "The catch is saved. Its photo did not go up.", no: true } : null;
+        return;
+      }
+      tripUi.cMsg = { t: RIG.crew.say(r, "The catch was not saved. Try again."), no: true };
+    });
+  }
 
   // The trip as this phone knows it, with waiting writes laid over it. A trip
   // seen only in the week has no notes, list or catches saved yet.
@@ -2242,7 +2681,7 @@ a.back{text-decoration:none}
         cwField("From (optional)", '<input data-cw-edit-from data-keep="editFrom" type="time" step="900" value="' + kv("editFrom") + '">') +
         cwField("To (optional)", '<input data-cw-edit-to data-keep="editTo" type="time" step="900" value="' + kv("editTo") + '">') + "</div>" +
       cwField("A note (optional)", '<textarea data-cw-edit-note data-keep="editNote" maxlength="280">' + kv("editNote") + "</textarea>") +
-      '<button class="cw-go" type="button" data-cw-save>Save</button>' +
+      tellHtml("edit") + '<button class="cw-go" type="button" data-cw-save>Save</button>' +
       '<a class="cw-plain" href="#/crew/trip/' + esc(trip.id) + '">Leave it as it is</a>' +
       cwSaid(tripUi.editMsg, "", "data-cw-edit-msg") + "</div>";
   }
@@ -2258,6 +2697,8 @@ a.back{text-decoration:none}
     if (note !== (trip.note || "")) patch.note = note;
     var back = "#/crew/trip/" + trip.id;
     if (!Object.keys(patch).length) { tripUi.edit = false; location.hash = back; return; }
+    // Only a new day or a new time is news to the crew. A changed note is not.
+    if ("date" in patch || "from" in patch || "to" in patch) withTell(patch, "edit");
     cwOnce("save", function () {
       tripUi.editMsg = { t: "Saving..." }; crewRedraw();
       return RIG.crew.updateTrip(trip.id, patch).then(function (r) {
@@ -2269,12 +2710,22 @@ a.back{text-decoration:none}
   }
   function renderCrewTrip(id, sub) {
     if (!crewGate()) return;
-    if (tripUi.id !== id) tripUi = tripFresh(id);
+    if (tripUi.id !== id) {
+      // What was half typed on another trip does not follow to this one.
+      catchPhoto(null);
+      Object.keys(crewUi.vals).forEach(function (k) { if (k.indexOf("t.") === 0) delete crewUi.vals[k]; });
+      tripUi = tripFresh(id);
+    }
     if (sub !== "edit") tripUi.edit = false;
     var st = crewSt(), d = tripData(id);
     var open = topHtml("trips", "crew") + '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
     var up = '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>';
-    if (cwT.nav) { window.scrollTo(0, 0); tripUi.confirm = false; tripUi.msg = null; tripUi.goMsg = null; }
+    if (cwT.nav) {
+      window.scrollTo(0, 0);
+      tripUi.confirm = false; tripUi.msg = null; tripUi.goMsg = null;
+      tripUi.ask = ""; tripUi.open = ""; tripUi.rename = ""; tripUi.big = ""; tripUi.nMsg = null; tripUi.lMsg = null; tripUi.pMsg = null;
+      if (!tripUi.cBusy) tripUi.cMsg = null;
+    }
     if (!crewQuiet) { tripUi.res = null; tripLoad(id); }
     if (!d || !st) {
       var r = tripUi.res, body;
@@ -2303,6 +2754,8 @@ a.back{text-decoration:none}
     var card = sub && secs.filter(function (c) { return c.id === sub; })[0];
     if (card) {
       var i = secs.indexOf(card), prev = secs[i - 1], next = secs[i + 1];
+      // Opening a section is the look that clears its dot.
+      if (!d.thin) lookMark(id, sub, d);
       var step = function (c, cls, word) {
         return c ? '<a class="pnb ' + cls + '" href="' + esc(base + "/" + c.id) + '" data-step="' + esc(c.id) + '"><span>' + word +
           "</span><b>" + esc(label(c)) + "</b></a>" : '<span class="pnb ' + cls + ' none"></span>';
@@ -2323,15 +2776,19 @@ a.back{text-decoration:none}
       var n = counts[c.id] || 0;
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
         "</b><span>" + esc(secLine(c, t, run)) + "</span></span>" +
+        (n && lookNew(id, c.id, d) ? '<span class="cw-dot" data-cw-newnote="' + c.id + '" role="img" aria-label="New note"></span>' : "") +
         (n ? '<span class="rm" data-cw-count="' + c.id + '">' + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
         '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
     }).join("");
     var leave = tripLeave(trip, det);
     var words = trip.title + ", " + dayDate(trip.date) + "." + (leave ? " Leave by " + leave + "." : "") + " " + SITE + "#/crew/trip/" + trip.id;
+    // Calling a trip on or off, and deleting it, are news to the crew. Marking
+    // it done and reopening it are not, so then there is nobody to tick.
+    var tellFoot = tripUi.confirm || trip.status === "idea" || (trip.status === "planned" && canEdit) ? tellHtml("status") : "";
     var ask = tripUi.confirm
-      ? '<p class="cw-asks" data-cw-delete-ask>Delete this trip for everyone?</p><div class="cw-acts2">' +
+      ? '<p class="cw-asks" data-cw-delete-ask>Delete this trip for everyone?</p>' + tellFoot + '<div class="cw-acts2">' +
         '<button class="cw-act no" type="button" data-cw-delete-yes>Delete</button><button class="cw-act" type="button" data-cw-delete-no>Keep</button></div>'
-      : '<div class="cw-acts2" data-cw-acts>' + tripActsHtml(trip, canEdit) + "</div>";
+      : tellFoot + '<div class="cw-acts2" data-cw-acts>' + tripActsHtml(trip, canEdit) + "</div>";
     app.innerHTML = open + ">" + up +
       '<div class="shead cw-thead"><p class="eyebrow">Crew trip</p><h1 data-cw-title>' + esc(trip.title) + "</h1>" +
         '<p class="when" data-cw-when>' + esc(dayDate(trip.date) + (win ? " · " + win : "")) + "</p>" +
@@ -2341,11 +2798,13 @@ a.back{text-decoration:none}
       condHtml(trip, det) +
       goingHtml(trip, me) +
       (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2>Run card</h2><div class="rows">' + rows + "</div></section>" : "") +
-      '<div data-cw-notes="">' + cwNotesHtml(d, "") + "</div>" +
+      '<div data-cw-notes="">' + cwNotesHtml(d, "", secs.map(function (c) { return c.id; })) + "</div>" +
       '<div data-cw-list>' + cwListHtml(d) + "</div>" +
       '<div data-cw-catches>' + cwCatchesHtml(d) + "</div>" +
       '<div class="cw cw-foot"><a class="cw-plain" data-cw-text href="' + esc(RIG.crew.textLink(words)) + '">Text the crew</a>' +
         ask + cwSaid(tripUi.msg, "", "data-cw-trip-msg") + "</div>" +
+      (tripUi.big ? '<div class="cw-big" data-cw-photo-big role="dialog" aria-label="The photo"><img data-cw-img="' + esc(tripUi.big) + '" src="' +
+        esc(photoSrc(tripUi.big)) + '" alt="The catch"><button class="cw-act" type="button" data-cw-photo-close>Close</button></div>' : "") +
       "</div>" + tripBarHtml();
   }
 
@@ -2353,6 +2812,16 @@ a.back{text-decoration:none}
   function tripsClick(t) {
     if (!RIG.crew) return false;
     var hit;
+    // A name on a Tell row, on any screen that has one. Changed in place: a
+    // redraw would shut an open date wheel.
+    if ((hit = t.closest("[data-cw-tell-id]"))) {
+      var trow = hit.closest("[data-cw-tell]"), tkey = trow && trow.getAttribute("data-cw-tell"), tuid = hit.getAttribute("data-cw-tell-id");
+      if (!tkey) return true;
+      var off = cwT.tell[tkey] || (cwT.tell[tkey] = {});
+      off[tuid] = !off[tuid];
+      hit.setAttribute("aria-pressed", off[tuid] ? "false" : "true");
+      return true;
+    }
     if (t.closest("[data-cw-past]")) { cwT.past = !cwT.past; crewTripsDraw(); return true; }
     if ((hit = t.closest("[data-cw-do]"))) {
       var slot = hit.closest("[data-cw-key]");
@@ -2385,10 +2854,11 @@ a.back{text-decoration:none}
       return true;
     }
     if ((hit = t.closest("[data-cw-status]"))) {
-      var to = hit.getAttribute("data-cw-status");
+      var to = hit.getAttribute("data-cw-status"), was = d.trip.status, change = { status: to };
+      if ((was === "idea" && to === "planned") || (was === "planned" && to === "idea")) withTell(change, "status");
       cwOnce("status:" + id, function () {
         tripUi.msg = { t: "Saving..." }; crewRedraw();
-        return RIG.crew.updateTrip(id, { status: to }).then(function (r) {
+        return RIG.crew.updateTrip(id, change).then(function (r) {
           if (tripUi.id !== id) return;
           if (r && r.signedOut) { crewRedraw(true); return; }
           tripUi.msg = r && r.ok ? null : { t: r && r.offline ? "No signal. That needs one. Try again when you have some." : RIG.crew.say(r, "That did not go through. Try again."), no: true };
@@ -2402,7 +2872,7 @@ a.back{text-decoration:none}
     if (t.closest("[data-cw-delete-yes]")) {
       cwOnce("delete:" + id, function () {
         tripUi.msg = { t: "Deleting..." }; crewRedraw();
-        return RIG.crew.deleteTrip(id).then(function (r) {
+        return RIG.crew.deleteTrip(id, withTell({}, "status")).then(function (r) {
           if (r && r.ok) { tripUi = tripFresh(null); if (crewOn()) location.hash = "#/trips"; return; }
           if (tripUi.id !== id) return;
           if (r && r.signedOut) { crewRedraw(true); return; }
@@ -2414,12 +2884,136 @@ a.back{text-decoration:none}
       return true;
     }
     if (t.closest("[data-cw-save]")) { tripSave(d.trip); return true; }
+
+    // Notes, the list and catches. None of these waits behind another: at
+    // the pier a call can hang for a long time, and the next tap must still work.
+    var v = crewUi.vals;
+    if (t.closest("[data-cw-ask-no]")) { tripUi.ask = ""; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-cw-note-add]"))) { if (!cwT.repeat) noteAdd(id, hit.getAttribute("data-cw-note-add") || ""); return true; }
+    if ((hit = t.closest("[data-cw-note-del]"))) { tripUi.ask = "note:" + hit.getAttribute("data-cw-note-del"); tripUi.nMsg = null; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-cw-note-del-yes]"))) {
+      var cid = hit.getAttribute("data-cw-note-del-yes");
+      tripUi.ask = "";
+      tripWrite(id, function () { return RIG.crew.deleteComment(cid); }, function (r) { if (r.error) tripUi.nMsg = { t: r.error, no: true }; });
+      crewRedraw();
+      return true;
+    }
+
+    if ((hit = t.closest("[data-cw-tick]"))) {
+      var kid = hit.getAttribute("data-cw-tick"), kit = itemOf(d, kid);
+      tripUi.lMsg = null;
+      if (kit && !cwT.repeat) tripWrite(id, function () { return RIG.crew.updateItem(kid, { done: !kit.done }); }, listSaid);
+      return true;
+    }
+    if ((hit = t.closest("[data-cw-who]"))) {
+      var wid = hit.getAttribute("data-cw-who");
+      if (cwT.repeat) return true;
+      tripUi.open = tripUi.open === wid ? "" : wid; tripUi.rename = ""; tripUi.ask = ""; tripUi.pMsg = null;
+      crewRedraw();
+      return true;
+    }
+    if ((hit = t.closest("[data-cw-give]"))) {
+      var gid = tripUi.open, git = itemOf(d, gid), uid = hit.getAttribute("data-cw-give") || null;
+      tripUi.open = ""; tripUi.lMsg = null;
+      if (git && (git.assignedTo ? git.assignedTo.id : null) !== uid) {
+        var give = withTell({ assignedTo: uid }, "list");
+        tripWrite(id, function () { return RIG.crew.updateItem(gid, give); }, listSaid);
+      }
+      crewRedraw();
+      return true;
+    }
+    if (t.closest("[data-cw-item-rename]")) {
+      var rit = itemOf(d, tripUi.open);
+      if (rit) { tripUi.rename = rit.id; tripUi.pMsg = null; v["t.rename"] = rit.label; crewRedraw(); focusKeep("t.rename"); }
+      return true;
+    }
+    if (t.closest("[data-cw-item-cancel]")) { tripUi.rename = ""; tripUi.pMsg = null; crewRedraw(); return true; }
+    if (t.closest("[data-cw-item-save]")) {
+      var sid = tripUi.rename, sit = itemOf(d, sid), name = String(v["t.rename"] || "").trim();
+      if (sit && !name) { tripUi.pMsg = { t: "Say what it is first.", no: true }; crewRedraw(); return true; }
+      tripUi.rename = ""; tripUi.open = ""; tripUi.pMsg = null; tripUi.lMsg = null;
+      if (sit && name !== sit.label) tripWrite(id, function () { return RIG.crew.updateItem(sid, { label: name.slice(0, 120) }); }, listSaid);
+      crewRedraw();
+      return true;
+    }
+    if (t.closest("[data-cw-item-del]")) { tripUi.ask = "item:" + tripUi.open; tripUi.pMsg = null; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-cw-item-del-yes]"))) {
+      var did = hit.getAttribute("data-cw-item-del-yes");
+      tripUi.ask = ""; tripUi.open = ""; tripUi.lMsg = null;
+      tripWrite(id, function () { return RIG.crew.deleteItem(did); }, listSaid);
+      crewRedraw();
+      return true;
+    }
+    if (t.closest("[data-cw-item-add]")) { if (!cwT.repeat) itemAdd(id); return true; }
+
+    if (t.closest("[data-cw-catch-open]")) {
+      tripUi.cOpen = true; tripUi.cMsg = null;
+      if (!v["t.species"]) v["t.species"] = fishName(d.trip);
+      crewRedraw();
+      return true;
+    }
+    if (t.closest("[data-cw-catch-cancel]")) { catchFormShut(false); tripUi.cMsg = null; crewRedraw(); return true; }
+    if (t.closest("[data-cw-catch-nophoto]")) { catchPhoto(null); crewRedraw(); return true; }
+    if (t.closest("[data-cw-catch-save]")) { if (!cwT.repeat) catchSave(id, d.trip); return true; }
+    if ((hit = t.closest("[data-cw-catch-del]"))) { tripUi.ask = "catch:" + hit.getAttribute("data-cw-catch-del"); tripUi.cMsg = null; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-cw-catch-del-yes]"))) {
+      var fid = hit.getAttribute("data-cw-catch-del-yes");
+      tripUi.ask = "";
+      tripWrite(id, function () { return RIG.crew.deleteCatch(fid); }, function (r) { if (r.error) tripUi.cMsg = { t: r.error, no: true }; });
+      crewRedraw();
+      return true;
+    }
+    // A catch photo: large, inside the page. Any tap on it puts it away.
+    if (t.closest("[data-cw-photo-big]")) { tripUi.big = ""; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-cw-photo]"))) {
+      var pid = hit.getAttribute("data-cw-photo"), fish = (d.catches || []).filter(function (c) { return c.id === pid; })[0];
+      if (fish && fish.photoUrl && !hit.hasAttribute("data-nophoto")) {
+        tripUi.big = fish.photoUrl; crewRedraw();
+        var shut = app.querySelector("[data-cw-photo-close]");
+        if (shut) shut.focus();
+      }
+      return true;
+    }
     return false;
+  }
+  // A pass of the queue that sent something: a moment later, ask for the
+  // fresh trip (or the week). That brings back what the crew did meanwhile,
+  // and it squares this phone's "seen" mark with the server while the only
+  // change is this person's own, so a note of theirs cannot hide someone
+  // else's next one. One ask for a run of ticks.
+  // A write that waited for a signal and was then refused has left the
+  // screen. If its trip is the one open, say so where it was made.
+  function tripRefused(list) {
+    (list || []).forEach(function (x) {
+      if (!x || x.tripId !== tripUi.id) return;
+      var m = { t: "That was not sent. " + (x.error || "The server would not take it."), no: true };
+      if (/^comment/.test(x.kind)) tripUi.nMsg = m;
+      else if (/^list/.test(x.kind)) tripUi.lMsg = m;
+      else if (/^catch/.test(x.kind)) tripUi.cMsg = m;
+      else tripUi.goMsg = m;
+    });
+  }
+  var cwAfter = 0;
+  function afterSend() {
+    clearTimeout(cwAfter);
+    cwAfter = setTimeout(function () {
+      if (!RIG.crew.session()) return;
+      var h = location.hash || "";
+      if (/^#\/?crew\/trip\/[^/]+/.test(h) && tripUi.id) tripLoad(tripUi.id);
+      else if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsLoad();
+    }, 900);
   }
   // A write that lands, or one that starts waiting, redraws the screen it is on.
   if (RIG.crew && RIG.crew.onChange) {
     RIG.crew.onChange(function (w) {
-      if (!w || w.kind === "session") return;
+      if (!w) return;
+      if (w.kind === "session") {
+        // Signed out: the catch photos kept on this phone go too.
+        if (!RIG.crew.session()) { photoLocal = {}; photoAsked = {}; try { if (window.caches) window.caches.delete(PHOTO_BOX).then(null, function () {}); } catch (e) { /* no store here */ } }
+        return;
+      }
+      // Only the end of a pass that sent or dropped something carries "dropped".
+      if (w.kind === "queue" && "dropped" in w) { afterSend(); tripRefused(w.dropped); }
       var h = location.hash || "";
       if (/^#\/?crew\/trip\//.test(h)) { tripRedraw(); return; }
       if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsDraw();
@@ -2639,13 +3233,43 @@ a.back{text-decoration:none}
     renderSpecies(sp, loc);
   }
 
+  // A double tap. The first tap redrew the screen, and the second lands on
+  // the same spot a moment later.
+  //   "slid"    a different control is under the thumb now (a new line pushed
+  //             Add down, a Delete turned into its question). On a crew trip
+  //             that tap is dropped: it was never meant for what it hit.
+  //   "repeat"  the same control again. cwT.repeat says so, and the handlers
+  //             where once is enough (add, tick, who has it) let it go by.
+  var lastTap = null;
+  function tapSig(t) {
+    var c = t.closest("button,a,input,textarea,select,label");
+    return c ? c.tagName + "|" + Object.keys(c.dataset).sort().map(function (k) { return k + "=" + c.dataset[k]; }).join("|") : "";
+  }
+  function tapKind(e) {
+    // A label passes its tap on to the file box inside it. That is one tap.
+    if (e.target.matches && e.target.matches('input[type="file"]')) return "";
+    var was = lastTap, now = { at: e.timeStamp, x: e.clientX, y: e.clientY, sig: tapSig(e.target) };
+    var again = !!(was && e.detail && now.at - was.at < 400 && Math.abs(now.x - was.x) < 12 && Math.abs(now.y - was.y) < 12);
+    // A dropped tap does not move the mark: a third tap is still measured from the first.
+    if (again && now.sig !== was.sig) return "slid";
+    lastTap = now;
+    return again ? "repeat" : "";
+  }
+
   app.addEventListener("click", function (e) {
     var t = e.target;
+    var tap = tapKind(e);
+    cwT.repeat = tap === "repeat";
+    if (tap === "slid" && t.closest('[data-view="crewtrip"]')) { e.preventDefault(); return; }
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
     if (crewClick(t)) return;
     if (tripsClick(t)) return;
+    // A crew trip screen owns every tap inside it. Its section and edit pages
+    // carry data-sec, which further down means "open that part of Learn": a
+    // tap into a box there used to leave the page.
+    if (t.closest('[data-view="crewnew"],[data-view="crewtrip"]')) return;
     var sm = t.closest("[data-skymode]");
     if (sm) {
       var next = { auto: "light", light: "dark", dark: "auto" }[skyMode()];
@@ -2678,6 +3302,9 @@ a.back{text-decoration:none}
   app.addEventListener("change", function (e) {
     var d = e.target.closest("[data-trip-date]");
     if (d) RIG.trip.setDate(d.value);
+    // Log a fish: the photo that was picked shows small, before anything is sent.
+    var ph = e.target.closest("[data-cw-catch-photo]");
+    if (ph) { catchPhoto(ph.files && ph.files[0]); tripUi.cMsg = null; crewRedraw(); }
     // Planning a trip: the list of plans and the conditions line follow the
     // day, the pick and the window.
     var f = e.target.closest('[data-view="crewnew"] [data-keep]');
@@ -2694,6 +3321,7 @@ a.back{text-decoration:none}
   });
   // Go on the phone keyboard presses the button the box belongs to.
   app.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && tripUi.big) { tripUi.big = ""; crewRedraw(); return; }
     if (e.key !== "Enter" || !e.target || !e.target.getAttribute) return;
     var press = e.target.getAttribute("data-enter"), btn = press && app.querySelector("[" + press + "]");
     if (btn) { e.preventDefault(); btn.click(); }
@@ -2713,6 +3341,7 @@ a.back{text-decoration:none}
     var h = (location.hash || "").replace(/^#\/?/, "");
     if (activeMode === "field" && h) activeMode = "library";
     cwT.nav = true;
+    cwT.tell = {};
     try { render(); } finally { cwT.nav = false; }
   });
 
