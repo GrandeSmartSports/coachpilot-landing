@@ -67,6 +67,14 @@ try {
     await ctx.setOffline(true);
     await page.reload({ waitUntil: "load" });
     ok((await page.locator("h1").innerText()).trim() === "Hot Trips", "renders with the network cut");
+    // The worker owns /rigs/, but other pages under it are their own pages.
+    // Serving the app shell for them makes a link Coach taps show the app.
+    await ctx.setOffline(false);
+    await page.goto(`http://127.0.0.1:${PORT}/rigs/look/`, { waitUntil: "load" });
+    const isLook = await page.evaluate(() => document.title + " | slider:" + !!document.getElementById("t"));
+    ok(/the new look/.test(isLook) && /slider:true/.test(isLook), "a sibling page under /rigs/ is not replaced by the app shell", isLook);
+    await page.goto(BASE, { waitUntil: "load" });
+    await ctx.setOffline(true);
     ok(await page.evaluate(() => document.fonts.check('700 44px "Barlow Condensed"')),
       "self-hosted heading font available offline");
     ok(await page.evaluate(() => (window.RIG.content.species || []).length > 0 && !!window.RIG.trips), "content.js and trips.js executed offline");

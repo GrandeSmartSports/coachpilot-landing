@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v20";
+const CACHE = "rigs-v21";
 
 // Without these three the page cannot render at all, so a failure to cache
 // any of them must fail the whole install and leave the previous worker and
@@ -102,6 +102,11 @@ self.addEventListener("fetch", (event) => {
   //
   // So: serve the cached shell immediately, and refresh it in the background
   // for the next open.
+  // The app owns /rigs/ itself. Other pages under it (/rigs/look/ and
+  // anything later) are their own pages: serving them the app shell made a
+  // link Coach tapped open the app instead, which looked like a stale copy.
+  if (req.mode === "navigate" && !isShellPath(url.pathname)) return;
+
   if (req.mode === "navigate") {
     event.respondWith((async function () {
       const cached = await caches.match("/rigs/index.html");
