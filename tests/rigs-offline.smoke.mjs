@@ -7,6 +7,7 @@
 // offline assertion passed with the service worker deleted. Two real defects
 // shipped past it. The control case at the bottom now pins that honesty.
 import { chromium } from "@playwright/test";
+import { createServer } from "node:http";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { startServer } from "./helpers/rigs-server.mjs";
@@ -31,6 +32,33 @@ watchdog.unref?.();
 const BASE = `http://127.0.0.1:${PORT}/rigs/`;
 let server = await startServer(ROOT, PORT);
 let browser;
+
+// The test server answers /rigs with the page itself. Production does not:
+// it redirects /rigs to /rigs/ with nothing cacheable, and it must send
+// Service-Worker-Allowed for sw.js so the worker may also take the bare
+// address. This stands in front of the test server and answers those two
+// things the way production does.
+function vercelLike(port, upstream) {
+  const live = createServer(async (req, res) => {
+    const u = new URL(req.url, "http://x");
+    if (u.pathname === "/rigs") {
+      res.writeHead(307, { location: "/rigs/" + u.search, "cache-control": "public, max-age=0, must-revalidate" });
+      res.end();
+      return;
+    }
+    try {
+      const r = await fetch(upstream + req.url);
+      const body = Buffer.from(await r.arrayBuffer());
+      const headers = { "content-type": r.headers.get("content-type") || "application/octet-stream", "cache-control": "no-store" };
+      if (u.pathname === "/rigs/sw.js") headers["service-worker-allowed"] = "/rigs";
+      res.writeHead(r.status, headers);
+      res.end(body);
+    } catch (e) {
+      res.writeHead(502, { "cache-control": "no-store" }).end("upstream down");
+    }
+  });
+  return new Promise((ok) => live.listen(port, "127.0.0.1", () => ok(live)));
+}
 
 // Opens a fresh context, lets the worker install and take control.
 async function warmed(ctx) {
@@ -122,6 +150,63 @@ try {
     slow.close();
     server = await startServer(ROOT, PORT);
     await ctx.close();
+  }
+
+  // ------------------------------------------- the address with no slash
+  // coachpilot.org/rigs is what a person types, or gets in a text. It is
+  // outside the app's "/rigs/" scope and the live site answers it with a
+  // redirect that cannot be saved, so with no signal it was the browser's own
+  // error page. A second registration at scope "/rigs" hands that one address
+  // to "/rigs/", and leaves everything else alone.
+  {
+    const live = await vercelLike(HANG_PORT, `http://127.0.0.1:${PORT}`);
+    const origin = `http://127.0.0.1:${HANG_PORT}`;
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto(origin + "/rigs", { waitUntil: "load" });
+    ok(new URL(page.url()).pathname === "/rigs/", "online, /rigs lands on /rigs/ the way the live site sends it", page.url());
+    const both = await page.evaluate(async () => {
+      for (let i = 0; i < 100; i++) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        if (regs.length >= 2 && regs.every((r) => r.active) && navigator.serviceWorker.controller) return regs.map((r) => new URL(r.scope).pathname).sort().join(" ");
+        await new Promise((r) => setTimeout(r, 100));
+      }
+      return (await navigator.serviceWorker.getRegistrations()).map((r) => new URL(r.scope).pathname).join(" ");
+    });
+    ok(both === "/rigs /rigs/", "the app and the bare address each have a worker", both);
+
+    await ctx.setOffline(true);
+    await page.goto(origin + "/rigs", { waitUntil: "load" }).catch(() => {});
+    const h1 = await page.locator("h1").innerText().catch(() => "");
+    ok(h1.trim() === "Hot Trips" && new URL(page.url()).pathname === "/rigs/", "/rigs with no slash opens with the network cut", h1 + " " + page.url());
+    await page.goto(origin + "/rigs#/learn", { waitUntil: "load" }).catch(() => {});
+    await page.waitForFunction(() => document.querySelector('.top [data-tab="learn"]')?.getAttribute("aria-selected") === "true", null, { timeout: 5000 }).catch(() => {});
+    ok(new URL(page.url()).pathname === "/rigs/" && await page.evaluate(() => location.hash) === "#/learn", "and a link into the app through /rigs keeps where it was going", page.url());
+    ok(await page.evaluate(() => (window.RIG.content.species || []).length > 0), "with the app's own files, served by the app's own worker");
+
+    // The wider scope also covers /rigs/look/ and anything that merely
+    // starts with /rigs. None of that may be answered by the app.
+    await ctx.setOffline(false);
+    await page.goto(origin + "/rigs/look/", { waitUntil: "load" });
+    const isLook = await page.evaluate(() => document.title + " | slider:" + !!document.getElementById("t"));
+    ok(/the new look/.test(isLook) && /slider:true/.test(isLook), "a sibling page under /rigs/ is still its own page", isLook);
+    await page.goto(origin + "/rigs-nope", { waitUntil: "load" }).catch(() => {});
+    const other = await page.evaluate(() => document.body.innerText).catch(() => "");
+    ok(/SERVER 404/.test(other) && new URL(page.url()).pathname === "/rigs-nope", "an address that only starts with /rigs is left to the server", other.slice(0, 80) + " " + page.url());
+    ok(errors.length === 0, "no page errors", errors.join(" | "));
+    await ctx.close();
+    live.close();
+
+    // Where the server does not allow the wider scope (the plain test server
+    // here), the second registration fails quietly and nothing else changes.
+    const ctx2 = await browser.newContext();
+    const page2 = await warmed(ctx2);
+    const errors2 = []; page2.on("pageerror", (e) => errors2.push(e.message));
+    await page2.waitForTimeout(400);
+    const scopes = await page2.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).map((r) => new URL(r.scope).pathname).join(" "));
+    ok(scopes === "/rigs/" && errors2.length === 0, "without that header there is just the app's worker, and no error", scopes + " " + errors2.join(" | "));
+    await ctx2.close();
   }
 
   // ----------------------------------------------------- the control case

@@ -330,20 +330,44 @@ a.back{text-decoration:none}
 .rulestamp{margin:14px 0 0;font-size:12.5px;color:var(--dim)}
 .quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
 .quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
-.signin{max-width:430px}
-.fld{display:block;margin:0 0 14px}
-.fld span{display:block;font-size:13px;color:var(--dim);margin:0 0 6px}
-.fld input{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);
-  border:1px solid var(--line);border-radius:12px;padding:0 14px}
-.go{width:100%;min-height:50px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;
-  background:var(--gold);color:var(--on-gold);border:0;border-radius:12px}
-.plain{width:100%;min-height:46px;margin-top:10px;font:inherit;font-size:15px;color:var(--ink2);
-  background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer}
-.crewlist{list-style:none;margin:0 0 18px;padding:0}
-.crewlist li{display:flex;align-items:baseline;gap:10px;padding:12px 14px;border:1px solid var(--line);
+/* ---- the crew ---- */
+/* Every class here starts cw- so no other part of the app can collide with
+   it. An earlier bare .go rule turned the bait card's buy arrows into gold bars. */
+.cw{max-width:430px}
+.cw-fld{display:block;margin:0 0 14px}
+.cw-fld > span{display:block;font-size:13px;color:var(--dim);margin:0 0 6px}
+.cw-fld input,.cw-fld select,.cw-fld textarea{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.cw-fld textarea{min-height:96px;padding:12px 14px;resize:vertical}
+.cw-fld input:focus,.cw-fld select:focus,.cw-fld textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.cw-go,.cw-plain{display:flex;align-items:center;justify-content:center;width:100%;font:inherit;text-align:center;
+  text-decoration:none;cursor:pointer;border-radius:12px;padding:0 14px}
+.cw-go{min-height:50px;font-size:16px;font-weight:600;background:var(--gold);color:var(--on-gold);border:0}
+.cw-plain{min-height:46px;margin-top:10px;font-size:15px;color:var(--ink2);background:transparent;border:1px solid var(--line)}
+.cw-go[disabled],.cw-plain[disabled]{opacity:.55;cursor:default}
+.cw-out{margin-top:22px}
+.cw-mini{min-height:34px;font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:transparent;
+  border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer}
+.cw-mini.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.cw-msg{font-size:14px;line-height:1.45;color:var(--dim);margin:12px 0 0;min-height:1px}
+.cw-msg:empty{display:none}
+.cw-msg.no{color:var(--no)}
+.cw-msg.ok{color:var(--go)}
+.cw-lead{font-size:17px;line-height:1.45;color:var(--ink);margin:0 0 16px}
+.cw-sec{margin:26px 0 0;padding:20px 0 0;border-top:1px solid var(--line)}
+.cw-list{list-style:none;margin:0 0 18px;padding:0}
+.cw-list li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border:1px solid var(--line);
   border-radius:12px;background:var(--paper);margin:0 0 8px}
-.crewlist li span{font-size:13px;color:var(--dim)}
-.crewrow{border:1px solid var(--line);border-radius:14px;background:var(--paper)}
+.cw-who{flex:1 1 auto;min-width:0}
+.cw-who b{font-weight:650;font-size:15.5px;overflow-wrap:anywhere}
+.cw-who span{font-size:13px;color:var(--dim);margin-left:8px}
+.cw-ask{flex:1 1 100%;font-size:14px;color:var(--ink2)}
+.cw-acts{display:flex;flex-wrap:wrap;gap:8px}
+.cw-list .cw-msg{flex:1 1 100%;margin:0}
+.cw-wait{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--warn)}
+.cw .box p{margin:0 0 12px}
+.cw .box .cw-msg{margin:12px 0 0}
+.cw-row{border:1px solid var(--line);border-radius:14px;background:var(--paper)}
 .quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
 .asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -1006,56 +1030,428 @@ a.back{text-decoration:none}
   }
   // ---- the crew ----------------------------------------------------------
   // Signed out this is a sign-in screen and nothing more. Nothing anywhere
-  // else in the app asks anyone to sign in.
-  var crewStep = "phone", crewPhone = "", crewMsg = "";
+  // else in the app asks anyone to sign in: the one way in is a single row
+  // at the foot of the week. All the talking to servers is in rigs/crew.js.
+  //
+  // Building blocks every crew screen uses (their classes all start cw-):
+  //   crewHead(view)             the top bar, the way back and the heading
+  //   cwField(label, inputHtml)  a labelled box. Give the input data-keep="name"
+  //                              and value="' + kv("name") + '" and what is typed
+  //                              survives a redraw. data-enter="data-some-button"
+  //                              makes Go on the keyboard press that button.
+  //   cwMsg(text, kind, attr)    the message line. kind: "" plain, "no" trouble, "ok" good.
+  //   cwOnce(key, work)          a tap that cannot be doubled. work returns a promise.
+  //   crewRedraw(load)           redraw, but only if the person is still on a crew
+  //                              screen, so a slow answer never takes over another page.
+  //   crewOn()                   true on #/crew... and #/join...
+  var SITE = "https://coachpilot.org/rigs/";
+  var STEP_KEY = "rig.crewstep.v1", STEP_AGE = 15 * 60e3;
+  function crewFresh(sms) {
+    return { step: "phone", msg: null, sms: sms === undefined ? null : sms, joinMsg: null, vals: {}, st: null, sig: "",
+      share: null, confirm: null, rowMsg: {}, invMsg: null, hasPhone: null, num: null };
+  }
+  var crewUi = crewFresh(), joinUi = { token: null }, crewQuiet = false, crewLoad = 0, cwBusy = {};
+
+  // The step a person is on outlives a reload: reading the code means
+  // leaving for Messages, and a phone may throw the page away meanwhile.
+  function stepSave() {
+    try {
+      if (crewUi.step === "code") localStorage.setItem(STEP_KEY, JSON.stringify({ step: "code", phone: crewUi.vals.phone || "", at: Date.now() }));
+      else localStorage.removeItem(STEP_KEY);
+    } catch (e) { /* private mode: this visit only */ }
+  }
+  (function stepLoad() {
+    try {
+      var s = JSON.parse(localStorage.getItem(STEP_KEY) || "null");
+      if (s && s.step === "code" && s.phone && Date.now() - s.at < STEP_AGE) { crewUi.step = "code"; crewUi.vals.phone = s.phone; }
+      else if (s) localStorage.removeItem(STEP_KEY);
+    } catch (e) { /* nothing saved */ }
+  })();
+
+  function crewOn() { return /^#\/?(crew|join)(\/|$)/.test(location.hash || ""); }
+  function crewRedraw(load) {
+    if (!crewOn()) return;
+    var act = document.activeElement, key = act && act.getAttribute ? act.getAttribute("data-keep") : null;
+    crewQuiet = !load;
+    try { render(); } finally { crewQuiet = false; }
+    var el = key && app.querySelector('[data-keep="' + key + '"]');
+    if (el) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* not that kind of box */ } }
+  }
+  function kv(key) { return esc(crewUi.vals[key] || ""); }
+  function cwField(label, input) { return '<label class="cw-fld"><span>' + label + "</span>" + input + "</label>"; }
+  function cwMsg(text, kind, attr) {
+    return '<p class="cw-msg' + (kind ? " " + kind : "") + '" aria-live="polite"' + (attr ? " " + attr : "") + ">" + esc(text || "") + "</p>";
+  }
+  function cwSaid(m, quiet, attr) { return cwMsg(m ? m.t : quiet, m && m.no ? "no" : "", attr); }
+  function cwOnce(key, work) {
+    if (cwBusy[key]) return;
+    cwBusy[key] = true;
+    var done = function () { cwBusy[key] = false; };
+    try { Promise.resolve(work()).then(done, done); } catch (e) { done(); }
+  }
+  function firstName(n) { return String(n || "").trim().split(/\s+/)[0] || "Coach"; }
+  function crewHead(view) {
+    return topHtml("trips", "crew") + '<div data-view="' + view + '"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
+      headHtml("The crew", "Fish together", "Everyone sees the same week.");
+  }
+
   // The one way in, at the foot of the week. It is a row, not a demand.
   function crewRowHtml() {
     var inCrew = !!(RIG.crew && RIG.crew.session());
-    return '<section class="grp"><a class="row crewrow" href="#/crew" data-crew-open><span class="rt"><b>' +
+    return '<section class="grp"><a class="row cw-row" href="#/crew" data-crew-open><span class="rt"><b>' +
       (inCrew ? "The crew" : "Fish with your crew") + "</b><span>" +
       (inCrew ? "Who is in, and who you fish with" : "Sign in to share this week") +
       '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a></section>';
   }
-  function crewMsgHtml() { return '<p class="quiet' + (crewMsg ? " no" : "") + '" data-crew-msg>' + esc(crewMsg || "A code comes by text. It is free.") + "</p>"; }
-  function renderCrew() {
-    var head = topHtml("learn") + '<div data-view="crew">' + headHtml("The crew", "Fish together", "Everyone sees the same week.");
-    if (!RIG.crew || !RIG.crew.session()) {
-      var body = crewStep === "code"
-        ? '<label class="fld"><span>The code we texted you</span>' +
-          '<input data-code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></label>' +
-          '<button class="go" type="button" data-verify>Let me in</button>' +
-          '<button class="plain" type="button" data-backphone>Use a different number</button>'
-        : '<label class="fld"><span>Your phone number</span>' +
-          '<input data-phone type="tel" inputmode="tel" autocomplete="tel" placeholder="253 555 0147" value="' + esc(crewPhone) + '"></label>' +
-          '<button class="go" type="button" data-sendcode>Text me a code</button>';
-      app.innerHTML = head + '<div class="signin">' + body + crewMsgHtml() + "</div></div>" + tripBarHtml();
-      return;
+
+  // Signed out: the phone number and its code first, a pasted link under it.
+  // With texting switched off on the server there is no phone form at all.
+  function signinHtml() {
+    var sms = crewUi.sms !== false, form;
+    if (!sms) {
+      form = '<p class="cw-lead" data-nosms>Texted codes are off right now. Ask Coach for your link, then paste it here.</p>';
+    } else if (crewUi.step === "code") {
+      form = cwField("The code we texted you", '<input data-code data-keep="code" data-enter="data-verify" type="text" inputmode="numeric" ' +
+          'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("code") + '">') +
+        '<button class="cw-go" type="button" data-verify>Let me in</button>' +
+        '<button class="cw-plain" type="button" data-backphone>Use a different number</button>' +
+        cwSaid(crewUi.msg, "It can take a minute to arrive.", "data-crew-msg");
+    } else {
+      form = cwField("Your phone number", '<input data-phone data-keep="phone" data-enter="data-sendcode" type="tel" inputmode="tel" ' +
+          'autocomplete="tel" placeholder="253 555 0147" value="' + kv("phone") + '">') +
+        '<button class="cw-go" type="button" data-sendcode>Text me a code</button>' +
+        cwSaid(crewUi.msg, "A code comes by text. It is free.", "data-crew-msg");
     }
-    app.innerHTML = head + '<div class="signin"><p class="quiet" data-crew-msg>Loading the crew...</p></div></div>' + tripBarHtml();
-    RIG.crew.state().then(function (r) {
-      if (!r || r.signedOut) { crewStep = "phone"; crewMsg = ""; render(); return; }
-      if (r.offline) { var h = app.querySelector("[data-crew-msg]"); if (h) h.textContent = "No signal, and the crew is not saved on this phone yet."; return; }
-      drawCrew(r);
+    var paste = '<div class="' + (sms ? "cw-sec" : "") + '" data-join-box>' +
+      cwField(sms ? "Have a link from Coach? Paste it here" : "Paste your link here",
+        '<input data-join-paste data-keep="paste" data-enter="data-join-send" type="text" autocapitalize="off" autocorrect="off" ' +
+        'spellcheck="false" placeholder="The link, or the whole text" value="' + kv("paste") + '">') +
+      '<button class="' + (sms ? "cw-plain" : "cw-go") + '" type="button" data-join-send>Join</button>' +
+      cwSaid(crewUi.joinMsg, "", "data-join-msg") + "</div>";
+    return '<div class="cw" data-signin>' + form + paste + "</div>";
+  }
+  function helloCheck() {
+    function take(h) {
+      if (!h || typeof h.sms !== "boolean") return;
+      var was = crewUi.sms !== false;
+      crewUi.sms = h.sms;
+      if (was !== h.sms) crewRedraw();
+    }
+    RIG.crew.hello({ onFresh: take }).then(take);
+  }
+
+  // Signed in: who is on the crew, and for the owner, the three moves.
+  function shareHtml() {
+    var s = crewUi.share, mine = firstName(crewUi.st && crewUi.st.me && crewUi.st.me.name), n = esc(s.name);
+    var head = s.kind === "link" ? "a new link for " + n : s.created === false ? n + " is already on the crew" : n + " is on the crew";
+    if (s.link) {
+      var words = mine + " added you to the fishing crew on Rig Card. Tap to join: " + s.link;
+      return '<div class="box" data-share><b>' + head + "</b>" +
+        "<p>" + (s.kind === "link" ? "The old link has stopped working. " : "") + "Text " + n + " the link. One tap and they are in.</p>" +
+        '<a class="cw-go" data-share-text href="' + esc(RIG.crew.textLink(words)) + '">Text ' + n + " the link</a>" +
+        '<button class="cw-plain" type="button" data-share-copy>' + (s.copied ? "Copied" : "Copy the link") + "</button>" +
+        (s.manual ? cwField("This phone would not copy it. Press and hold to copy.", '<input data-share-link type="text" readonly value="' + esc(s.link) + '">') : "") +
+        '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
+    }
+    var page = mine + " added you to the fishing crew on Rig Card. Sign in with your phone number: " + SITE + "#/crew";
+    return '<div class="box" data-share><b>' + head + "</b>" +
+      "<p>" + n + " already has an account with that number. They sign in with their number and a code.</p>" +
+      '<a class="cw-go" data-share-text href="' + esc(RIG.crew.textLink(page)) + '">Text ' + n + " the sign-in page</a>" +
+      '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
+  }
+  function inviteHtml() {
+    return '<div class="box" data-invite><b>add someone</b>' +
+      cwField("Their name", '<input data-invite-name data-keep="invName" data-enter="data-invite-send" type="text" autocomplete="off" placeholder="Russell" value="' + kv("invName") + '">') +
+      cwField("Their phone number (optional)", '<input data-invite-phone data-keep="invPhone" data-enter="data-invite-send" type="tel" inputmode="tel" ' +
+        'autocomplete="off" placeholder="253 555 0147" value="' + kv("invPhone") + '">') +
+      '<button class="cw-go" type="button" data-invite-send>Add them</button>' +
+      cwSaid(crewUi.invMsg, "Nobody else can get in. With a number they can sign in with a code too.", "data-invite-msg") + "</div>";
+  }
+  function addnumHtml() {
+    if (crewUi.hasPhone !== false) return "";
+    var n = crewUi.num, open = '<div class="box" data-addnum><b>your number</b>';
+    if (!n) return open + "<p>Add your phone number and you can sign in with a code on any phone.</p>" +
+      '<button class="cw-plain" type="button" data-addnum-open>Add my number</button></div>';
+    if (n.step === "done") return open + cwMsg("Your number is on your account. You can sign in with it now.", "ok", "data-addnum-done") + "</div>";
+    if (n.step === "code") return open +
+      cwField("The code we texted you", '<input data-addnum-code data-keep="numCode" data-enter="data-addnum-verify" type="text" inputmode="numeric" ' +
+        'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("numCode") + '">') +
+      '<button class="cw-plain" type="button" data-addnum-verify>Confirm my number</button>' +
+      cwSaid(n.msg, "It can take a minute to arrive.", "data-addnum-msg") + "</div>";
+    return open +
+      cwField("Your phone number", '<input data-addnum-phone data-keep="numPhone" data-enter="data-addnum-send" type="tel" inputmode="tel" ' +
+        'autocomplete="tel" placeholder="253 555 0147" value="' + kv("numPhone") + '">') +
+      '<button class="cw-plain" type="button" data-addnum-send>Text me a code</button>' +
+      cwSaid(n.msg, "", "data-addnum-msg") + "</div>";
+  }
+  function crewBodyHtml() {
+    var r = crewUi.st, out = '<button class="cw-plain cw-out" type="button" data-signout>Sign out</button>';
+    if (!r) return cwMsg("Loading the crew...", "", "data-crew-msg");
+    // Nothing saved on this phone and no answer: say so. Never an empty crew.
+    if (!r.me) {
+      return cwMsg(r.offline ? "No signal, and the crew is not saved on this phone yet." : r.error || "The crew could not be loaded. Try again in a minute.", "no", "data-crew-msg") +
+        '<button class="cw-plain" type="button" data-crew-retry>Try again</button>' + out;
+    }
+    var note = r.stale && r.offline ? "No signal. This is the last crew list this phone saw."
+      : r.stale && r.error ? "Could not refresh. This is the last crew list this phone saw." : "";
+    var noteHtml = note ? cwMsg(note, "", "data-crew-note") : "";
+    if (!r.crew) {
+      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>' + addnumHtml() + out;
+    }
+    var owner = r.crew.role === "owner";
+    var rows = (r.members || []).map(function (m) {
+      var mine = m.id === r.me.id, id = esc(m.id);
+      var tags = [m.role === "owner" ? "runs the crew" : "", mine ? "you" : ""].filter(Boolean).join(", ");
+      var acts = "";
+      if (owner && !mine && m.role !== "owner") {
+        acts = crewUi.confirm === m.id
+          ? '<span class="cw-ask">Remove ' + esc(m.name) + " from the crew?</span><span class=\"cw-acts\">" +
+            '<button class="cw-mini no" type="button" data-remove-yes="' + id + '">Remove</button>' +
+            '<button class="cw-mini" type="button" data-remove-no>Keep</button></span>'
+          : '<span class="cw-acts">' +
+            (m.signIn === "link" ? '<button class="cw-mini" type="button" data-newlink="' + id + '">New link</button>' : "") +
+            '<button class="cw-mini" type="button" data-remove="' + id + '">Remove</button></span>';
+      }
+      return '<li data-member="' + id + '"><span class="cw-who"><b>' + esc(m.name) + "</b>" + (tags ? "<span>" + tags + "</span>" : "") + "</span>" + acts +
+        (crewUi.rowMsg[m.id] ? cwMsg(crewUi.rowMsg[m.id], "no", 'data-member-msg="' + id + '"') : "") + "</li>";
+    }).join("");
+    return "<h2 data-crewname>" + esc(r.crew.name || "Your crew") + "</h2>" + noteHtml +
+      '<ul class="cw-list">' + rows + "</ul>" +
+      (crewUi.share ? shareHtml() : owner ? inviteHtml() : "") + addnumHtml() + out;
+  }
+  function crewTake(r) {
+    if (!r || r.signedOut) { crewUi = crewFresh(crewUi.sms); stepSave(); crewRedraw(true); return; }
+    // A call that failed with nothing saved must not blank a crew already on screen.
+    if (!r.me && crewUi.st && crewUi.st.me) r = Object.assign({}, crewUi.st, { stale: true }, r);
+    var sig = JSON.stringify(r);
+    if (sig === crewUi.sig) return;
+    crewUi.sig = sig; crewUi.st = r;
+    crewRedraw();
+  }
+  function crewFetch() {
+    var mine = ++crewLoad;
+    function take(r) { if (mine === crewLoad) crewTake(r); }
+    RIG.crew.state({ onFresh: take }).then(take);
+    // Only an account with no number on it is offered "Add my number".
+    RIG.crew.prefsGet().then(function (p) {
+      if (mine !== crewLoad || !p || typeof p.hasPhone !== "boolean" || crewUi.hasPhone === p.hasPhone) return;
+      crewUi.hasPhone = p.hasPhone;
+      crewRedraw();
     });
   }
-  function drawCrew(r) {
-    var mine = (r.crew && r.crew.role) || "member";
-    var rows = (r.members || []).map(function (m) {
-      return '<li data-member><b>' + esc(m.name) + "</b>" + (m.role === "owner" ? "<span>runs the crew</span>" : "") + "</li>";
-    }).join("");
-    var add = mine === "owner"
-      ? '<div class="box"><b>add someone</b>' +
-        '<label class="fld"><span>Their name</span><input data-invite-name type="text" placeholder="Russell"></label>' +
-        '<label class="fld"><span>Their phone number</span><input data-invite-phone type="tel" inputmode="tel" placeholder="253 555 0147"></label>' +
-        '<button class="go" type="button" data-invite-send>Add them</button>' +
-        '<p class="quiet" data-invite-msg>They get a text with a link. Nobody else can get in.</p></div>'
-      : "";
-    var host = app.querySelector('[data-view="crew"] .signin');
-    if (!host) return;
-    host.innerHTML = '<h2 data-crewname>' + esc((r.crew && r.crew.name) || "Your crew") + "</h2>" +
-      (r.stale ? '<p class="quiet">No signal. This is the last crew list this phone saw.</p>' : "") +
-      '<ul class="crewlist">' + rows + "</ul>" + add +
-      '<button class="plain" type="button" data-signout>Sign out</button>';
+  function renderCrew() {
+    if (!RIG.crew) {
+      app.innerHTML = crewHead("crew") + '<div class="cw">' + cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-crew-msg") + "</div></div>" + tripBarHtml();
+      return;
+    }
+    if (!RIG.crew.session()) {
+      app.innerHTML = crewHead("crew") + signinHtml() + "</div>" + tripBarHtml();
+      if (!crewQuiet) helloCheck();
+      return;
+    }
+    app.innerHTML = crewHead("crew") + '<div class="cw">' + crewBodyHtml() + "</div></div>" + tripBarHtml();
+    if (!crewQuiet) crewFetch();
+  }
+
+  // A tapped link. It only looks first: message previews load pages, and a
+  // preview must not sign anyone in. Nothing is minted until the tap on Join.
+  function renderJoin(token) {
+    if (joinUi.token !== token) joinUi = { token: token, peek: null, asked: false, msg: null };
+    var pk = joinUi.peek, body;
+    if (!pk && RIG.crew && !RIG.crew.joinToken(token)) pk = joinUi.peek = { error: "That link is not complete.", dead: true };
+    if (!RIG.crew) body = cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-join-msg");
+    else if (!pk) body = cwMsg("Checking your link...", "", "data-join-msg");
+    else if (pk.ok) {
+      body = '<p class="cw-lead" data-join-who>' + esc((pk.by ? pk.by + " added you to " : "You were added to ") + pk.crew + ", " + pk.name + ".") + "</p>" +
+        '<button class="cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
+    } else if (pk.dead) {
+      body = '<p class="cw-lead" data-join-dead>' + esc(pk.status === 410 ? "That link is not good any more." : pk.error) + "</p>" +
+        cwMsg("Ask Coach to text you a new link. If Coach added your phone number, you can sign in with that instead.", "", "") +
+        '<a class="cw-plain" href="#/crew" data-join-signin>Sign in with my number</a>';
+    } else {
+      body = cwMsg(pk.offline ? "No signal. The link needs a signal the first time it is used." : pk.error || "That link could not be checked.", "no", "data-join-msg") +
+        '<button class="cw-plain" type="button" data-join-retry>Try again</button>';
+    }
+    app.innerHTML = crewHead("join") + '<div class="cw">' + body + "</div></div>" + tripBarHtml();
+    if (RIG.crew && !joinUi.peek && !joinUi.asked) {
+      joinUi.asked = true;
+      RIG.crew.join(token, { peek: true }).then(function (r) {
+        if (joinUi.token !== token) return;
+        joinUi.peek = r; joinUi.asked = false;
+        crewRedraw();
+      });
+    }
+  }
+  function crewJoined() {
+    crewUi = crewFresh(crewUi.sms); stepSave();
+    joinUi = { token: null };
+    location.hash = "#/trips";
+  }
+
+  // Every tap on a crew screen. Returns true when the tap was one of ours.
+  function crewClick(t) {
+    if (!t.closest('[data-view="crew"],[data-view="join"]') || !RIG.crew) return false;
+    app.querySelectorAll("[data-keep]").forEach(function (el) { crewUi.vals[el.getAttribute("data-keep")] = el.value; });
+    var v = crewUi.vals, hit;
+
+    if (t.closest("[data-sendcode]")) {
+      if (!RIG.crew.normalizePhone(v.phone)) { crewUi.msg = { t: "That does not look like a US phone number.", no: true }; crewRedraw(); return true; }
+      cwOnce("code", function () {
+        crewUi.msg = { t: "Sending..." }; crewRedraw();
+        return RIG.crew.sendCode(v.phone).then(function (r) {
+          // Told to wait means a code is already on its way: the person needs the code box, not the number box.
+          if (r.ok) { crewUi.step = "code"; crewUi.msg = null; }
+          else if (r.retryAfter) { crewUi.step = "code"; crewUi.msg = { t: "A code was already texted. Enter it here." }; }
+          else { crewUi.step = "phone"; crewUi.msg = { t: r.error || "That code could not be sent. Check the number and try again.", no: true }; }
+          stepSave();
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-backphone]")) { crewUi.step = "phone"; crewUi.msg = null; v.code = ""; stepSave(); crewRedraw(); return true; }
+    if (t.closest("[data-verify]")) {
+      if (!String(v.code || "").trim()) { crewUi.msg = { t: "Type the code from the text.", no: true }; crewRedraw(); return true; }
+      cwOnce("verify", function () {
+        crewUi.msg = { t: "Checking..." }; crewRedraw();
+        return RIG.crew.verify(v.phone, v.code).then(function (r) {
+          if (!r.ok) { crewUi.msg = { t: r.error || "That code did not work. Check it, or ask for a new one.", no: true }; crewRedraw(); return; }
+          crewUi = crewFresh(crewUi.sms); stepSave();
+          crewRedraw(true);
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-join-send]")) {
+      if (!RIG.crew.joinToken(v.paste || "")) { crewUi.joinMsg = { t: "That does not look like a crew link. Paste the whole text Coach sent you.", no: true }; crewRedraw(); return true; }
+      cwOnce("join", function () {
+        crewUi.joinMsg = { t: "Joining..." }; crewRedraw();
+        return RIG.crew.join(v.paste).then(function (r) {
+          if (r.ok) { crewJoined(); return; }
+          crewUi.joinMsg = { t: r.offline ? "No signal. Try again when you have some." : r.error || "That did not go through. Try again.", no: true };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-join-go]")) {
+      cwOnce("join", function () {
+        joinUi.msg = { t: "Joining..." }; crewRedraw();
+        return RIG.crew.join(joinUi.token).then(function (r) {
+          if (r.ok) { crewJoined(); return; }
+          if (r.dead) joinUi.peek = r;
+          else joinUi.msg = { t: r.offline ? "No signal. Try again when you have some." : r.error || "That did not go through. Try again.", no: true };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-join-retry]")) { joinUi.peek = null; joinUi.msg = null; crewRedraw(); return true; }
+    if (t.closest("[data-crew-retry]")) { crewUi.st = null; crewUi.sig = ""; crewRedraw(true); return true; }
+    if (t.closest("[data-signout]")) {
+      RIG.crew.signOut();
+      crewUi = crewFresh(crewUi.sms); stepSave();
+      crewRedraw(true);
+      return true;
+    }
+
+    if (t.closest("[data-invite-send]")) {
+      var name = String(v.invName || "").trim(), ph = String(v.invPhone || "").trim();
+      if (!name) { crewUi.invMsg = { t: "They need a name.", no: true }; crewRedraw(); return true; }
+      if (ph && !RIG.crew.normalizePhone(ph)) {
+        crewUi.invMsg = { t: "That does not look like a US phone number. Leave it empty to add them without one.", no: true };
+        crewRedraw(); return true;
+      }
+      cwOnce("invite", function () {
+        crewUi.invMsg = { t: "Adding..." }; crewRedraw();
+        return RIG.crew.invite(name, ph).then(function (r) {
+          if (r && r.signedOut) { crewTake(r); return; }
+          // Only a plain yes from the function counts. Anything else: say so, keep what was typed.
+          if (!r || r.ok !== true) {
+            var why = r && r.offline ? "No signal." : (r && r.error) || "That did not go through.";
+            crewUi.invMsg = { t: /nobody was added/i.test(why) ? why : why + " Nobody was added.", no: true };
+            crewRedraw();
+            return;
+          }
+          v.invName = ""; v.invPhone = ""; crewUi.invMsg = null;
+          crewUi.share = { kind: "invite", name: r.name || name, link: r.link || null, created: r.created };
+          var st = crewUi.st;
+          if (st && st.members && r.userId && !st.members.some(function (m) { return m.id === r.userId; })) {
+            st.members = st.members.concat([{ id: r.userId, name: r.name || name, role: "member", alerts: false, signIn: r.signIn || (r.link ? "link" : "code") }]);
+          }
+          crewRedraw(true);
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-share-copy]")) {
+      var s = crewUi.share;
+      if (!s || !s.link) return true;
+      var copied = function (ok) { if (crewUi.share !== s) return; s.copied = ok; s.manual = !ok; crewRedraw(); };
+      try { navigator.clipboard.writeText(s.link).then(function () { copied(true); }, function () { copied(false); }); } catch (e) { copied(false); }
+      return true;
+    }
+    if (t.closest("[data-share-done]")) { crewUi.share = null; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-newlink]"))) {
+      var lid = hit.getAttribute("data-newlink");
+      cwOnce("link:" + lid, function () {
+        crewUi.rowMsg = {}; crewUi.confirm = null;
+        return RIG.crew.link(lid).then(function (r) {
+          if (r && r.signedOut) { crewTake(r); return; }
+          if (r && r.ok && r.link) crewUi.share = { kind: "link", name: r.name, link: r.link };
+          else crewUi.rowMsg[lid] = RIG.crew.say(r, "A new link could not be made. Try again.");
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if ((hit = t.closest("[data-remove]"))) { crewUi.confirm = hit.getAttribute("data-remove"); crewUi.rowMsg = {}; crewRedraw(); return true; }
+    if (t.closest("[data-remove-no]")) { crewUi.confirm = null; crewRedraw(); return true; }
+    if ((hit = t.closest("[data-remove-yes]"))) {
+      var uid = hit.getAttribute("data-remove-yes");
+      cwOnce("remove:" + uid, function () {
+        return RIG.crew.removeMember(uid).then(function (r) {
+          if (r && r.signedOut) { crewTake(r); return; }
+          crewUi.confirm = null;
+          if (r && r.ok === true) {
+            if (crewUi.st && crewUi.st.members) { crewUi.st.members = crewUi.st.members.filter(function (m) { return m.id !== uid; }); crewUi.sig = ""; }
+            crewRedraw(true);
+          } else {
+            crewUi.rowMsg[uid] = RIG.crew.say(r, "That did not go through. Nobody was removed.");
+            crewRedraw();
+          }
+        });
+      });
+      return true;
+    }
+
+    if (t.closest("[data-addnum-open]")) { crewUi.num = { step: "phone", msg: null }; crewRedraw(); return true; }
+    if (t.closest("[data-addnum-send]")) {
+      if (!RIG.crew.normalizePhone(v.numPhone)) { crewUi.num = { step: "phone", msg: { t: "That does not look like a US phone number.", no: true } }; crewRedraw(); return true; }
+      cwOnce("num", function () {
+        crewUi.num = { step: "phone", msg: { t: "Sending..." } }; crewRedraw();
+        return RIG.crew.addMyNumber(v.numPhone).then(function (r) {
+          if (r && r.signedOut) { crewTake(r); return; }
+          crewUi.num = r && r.ok ? { step: "code", msg: null } : { step: "phone", msg: { t: RIG.crew.say(r, "The code could not be sent. Check the number and try again."), no: true } };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    if (t.closest("[data-addnum-verify]")) {
+      if (!String(v.numCode || "").trim()) { crewUi.num = { step: "code", msg: { t: "Type the code from the text.", no: true } }; crewRedraw(); return true; }
+      cwOnce("num", function () {
+        crewUi.num = { step: "code", msg: { t: "Checking..." } }; crewRedraw();
+        return RIG.crew.confirmMyNumber(v.numPhone, v.numCode).then(function (r) {
+          if (r && r.signedOut) { crewTake(r); return; }
+          if (r && r.ok) { crewUi.num = { step: "done" }; v.numPhone = ""; v.numCode = ""; }
+          else crewUi.num = { step: "code", msg: { t: RIG.crew.say(r, "That code did not work. Check it, or ask for a new one."), no: true } };
+          crewRedraw();
+        });
+      });
+      return true;
+    }
+    return false;
   }
 
   function renderTrips(force) {
@@ -1503,7 +1899,9 @@ a.back{text-decoration:none}
   }
   function refreshIfStale() {
     if (document.visibilityState === "hidden") return;
-    if (drawnDay === todayIso() && Date.now() - drawnAt < 3 * 3600e3) return;
+    // Same day and still fresh: nothing to redraw, but the sun may have set
+    // while the phone was in a pocket, so the sky is checked every time.
+    if (drawnDay === todayIso() && Date.now() - drawnAt < 3 * 3600e3) { applySky(); return; }
     render();
     checkRules();
   }
@@ -1536,6 +1934,7 @@ a.back{text-decoration:none}
     // The bare url opens on Hot Trips: the week first, the library a tap away.
     if (!parts.length) { renderTrips(); return; }
     if (parts[0] === "trips" && parts[1] === "map") { renderMap(); return; }
+    if (parts[0] === "join") { renderJoin(parts[1] || ""); return; }
     if (parts[0] === "crew") { renderCrew(); return; }
     if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1]), parts[2]); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
@@ -1577,44 +1976,7 @@ a.back{text-decoration:none}
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
-    if (t.closest("[data-sendcode]")) {
-      var pi = app.querySelector("[data-phone]");
-      crewPhone = pi ? pi.value : "";
-      var digits = crewPhone.replace(/\D+/g, "");
-      var e164 = digits.length === 10 ? "+1" + digits : digits.length === 11 && digits[0] === "1" ? "+" + digits : null;
-      if (!e164) { crewMsg = "That does not look like a US phone number."; renderCrew(); return; }
-      crewMsg = "Sending...";
-      var msgEl = app.querySelector("[data-crew-msg]"); if (msgEl) msgEl.textContent = crewMsg;
-      RIG.crew.sendCode(e164).then(function (r) {
-        if (r.error) { crewMsg = r.error; crewStep = "phone"; } else { crewMsg = ""; crewStep = "code"; }
-        renderCrew();
-      });
-      return;
-    }
-    if (t.closest("[data-backphone]")) { crewStep = "phone"; crewMsg = ""; renderCrew(); return; }
-    if (t.closest("[data-verify]")) {
-      var ci = app.querySelector("[data-code]");
-      var digits2 = crewPhone.replace(/\D+/g, "");
-      var e2 = digits2.length === 11 ? "+" + digits2 : "+1" + digits2;
-      crewMsg = "Checking...";
-      RIG.crew.verify(e2, ci ? ci.value : "").then(function (r) {
-        if (r.error) { crewMsg = r.error; renderCrew(); return; }
-        crewMsg = ""; crewStep = "phone"; renderCrew();
-      });
-      return;
-    }
-    if (t.closest("[data-signout]")) { RIG.crew.signOut(); crewStep = "phone"; crewMsg = ""; renderCrew(); return; }
-    if (t.closest("[data-invite-send]")) {
-      var n = app.querySelector("[data-invite-name]"), ph = app.querySelector("[data-invite-phone]");
-      var im = app.querySelector("[data-invite-msg]");
-      if (!n || !ph || !n.value.trim()) { if (im) im.textContent = "They need a name."; return; }
-      if (im) im.textContent = "Adding...";
-      RIG.crew.invite(n.value.trim(), ph.value).then(function (r) {
-        if (!r || r.error) { var m = app.querySelector("[data-invite-msg]"); if (m) m.textContent = (r && r.error) || "That did not go through."; return; }
-        RIG.crew.state().then(function (st) { if (st && st.crew) drawCrew(st); });
-      });
-      return;
-    }
+    if (crewClick(t)) return;
     var sm = t.closest("[data-skymode]");
     if (sm) {
       var next = { auto: "light", light: "dark", dark: "auto" }[skyMode()];
@@ -1648,6 +2010,17 @@ a.back{text-decoration:none}
     var d = e.target.closest("[data-trip-date]");
     if (d) RIG.trip.setDate(d.value);
   });
+  // What is typed into a crew box is remembered, so a redraw never eats it.
+  app.addEventListener("input", function (e) {
+    var k = e.target && e.target.getAttribute && e.target.getAttribute("data-keep");
+    if (k) crewUi.vals[k] = e.target.value;
+  });
+  // Go on the phone keyboard presses the button the box belongs to.
+  app.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" || !e.target || !e.target.getAttribute) return;
+    var press = e.target.getAttribute("data-enter"), btn = press && app.querySelector("[" + press + "]");
+    if (btn) { e.preventDefault(); btn.click(); }
+  });
 
   // Back from the app switcher, or the phone woke up: redraw if the day
   // turned or the forecast has aged out. Both events fire on iOS.
@@ -1678,6 +2051,18 @@ a.back{text-decoration:none}
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("/rigs/sw.js", { scope: "/rigs/" })
         .catch(function (e) { console.warn("rigs: service worker did not register", e); });
+      // coachpilot.org/rigs with no slash is outside that scope, so with no
+      // signal it would be the browser's error page. A second, tiny
+      // registration catches that one address and hands it to /rigs/. It
+      // needs the server to allow the wider scope (Service-Worker-Allowed);
+      // where it does not, this fails quietly and nothing else changes.
+      navigator.serviceWorker.register("/rigs/sw.js", { scope: "/rigs" }).catch(function () { /* not allowed here */ });
+    });
+    // A tapped alert asks the open app to go to its trip.
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      var d = e.data || {};
+      if (d.type !== "rig-open" || typeof d.url !== "string") return;
+      try { var u = new URL(d.url, location.href); if (u.origin === location.origin && u.hash) location.hash = u.hash; } catch (x) { /* not a link */ }
     });
   }
 })();

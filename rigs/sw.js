@@ -13,7 +13,15 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v23";
+const CACHE = "rigs-v24";
+
+// This one file runs under two registrations. "/rigs/" is the app, and
+// everything below is for it. "/rigs" with no slash is the address a person
+// types or gets in a text: it is outside the app's scope, the server answers
+// it with a redirect that cannot be saved, and with no signal that used to be
+// the browser's own error page. The second registration exists only to hand
+// that one address to "/rigs/". It caches nothing and touches nothing else.
+const BARE_ONLY = new URL(self.registration.scope).pathname === "/rigs";
 
 // Without these three the page cannot render at all, so a failure to cache
 // any of them must fail the whole install and leave the previous worker and
@@ -60,6 +68,7 @@ function cacheable(res) {
 }
 
 self.addEventListener("install", (event) => {
+  if (BARE_ONLY) { event.waitUntil(self.skipWaiting()); return; }
   event.waitUntil(
     caches.open(CACHE).then(function (c) {
       // addAll is all or nothing: a half cached shell is worse than none.
@@ -73,6 +82,7 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  if (BARE_ONLY) { event.waitUntil(self.clients.claim()); return; }
   event.waitUntil((async function () {
     // Only drop the previous cache once this one can actually serve the page.
     const c = await caches.open(CACHE);
@@ -93,6 +103,14 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  if (BARE_ONLY) {
+    // Exactly "/rigs" and nothing else. "/rigs-anything" also falls in this
+    // scope and is none of our business.
+    if (req.mode === "navigate" && url.pathname === "/rigs") {
+      event.respondWith(Response.redirect("/rigs/" + url.search + url.hash, 302));
+    }
+    return;
+  }
   if (!url.pathname.startsWith("/rigs")) return;
 
   // ---- navigations: cache first, always ----------------------------------
@@ -168,4 +186,49 @@ self.addEventListener("fetch", (event) => {
       return hit || net;
     })
   );
+});
+
+// ---- alerts ---------------------------------------------------------------
+// The crew function sends { title, body, url }. Only the "/rigs/" worker is
+// ever subscribed, so only it hears these.
+function rigUrl(raw) {
+  try {
+    const u = new URL(raw || "/rigs/", self.location.origin);
+    return u.origin === self.location.origin && u.pathname.startsWith("/rigs/") ? u.href : self.location.origin + "/rigs/";
+  } catch (e) { return self.location.origin + "/rigs/"; }
+}
+
+// What to show for one push. Kept apart from the listener so it can be read
+// and tested on its own. A link that is not Rig Card's own is never opened.
+function pushParts(data) {
+  let d = { title: "Rig Card", body: "Something changed on a crew trip.", url: "/rigs/#/trips" };
+  if (data) {
+    try { d = Object.assign(d, data.json()); } catch (e) { d.body = data.text() || d.body; }
+  }
+  const opts = { body: String(d.body || ""), icon: "/rigs/icon-v4-192.png", badge: "/rigs/icon-v4-192.png", data: { url: rigUrl(d.url) } };
+  if (d.tag) opts.tag = String(d.tag);
+  return { title: String(d.title || "Rig Card"), opts: opts };
+}
+self.addEventListener("push", (event) => {
+  const p = pushParts(event.data);
+  event.waitUntil(self.registration.showNotification(p.title, p.opts));
+});
+
+// A tap: bring an open Rig Card to the front and send it to the trip, or
+// open one there.
+async function openRig(target) {
+  const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+  for (const c of all) {
+    if (new URL(c.url).pathname.startsWith("/rigs/")) {
+      c.postMessage({ type: "rig-open", url: target });
+      if ("focus" in c) { try { await c.focus(); } catch (e) { /* the phone decides */ } }
+      return "sent";
+    }
+  }
+  if (self.clients.openWindow) await self.clients.openWindow(target);
+  return "opened";
+}
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(openRig(rigUrl(event.notification.data && event.notification.data.url)));
 });
