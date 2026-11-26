@@ -318,6 +318,7 @@
     var days = [];
     var nDays = input.days || 7;
     var notListed = {};
+    var weekendOn = false;
     for (var i = 0; i < nDays; i++) {
       var day = addDays(start, i);
       if (!hasWx(wx, day.iso)) break;
@@ -400,7 +401,17 @@
         out.dark = said.join(" ");
         out.note = out.note ? out.note.replace(/[.\s]*$/, "") + ". " + out.dark : out.dark;
       }
+      if ((day.dow === 0 || day.dow === 6) && out.trips.length) weekendOn = true;
       days.push(out);
+    }
+    // Nothing is "waiting for the weekend" when the weekend in this forecast
+    // has no trip on it either. The reason the weeknight is empty still stands.
+    if (!weekendOn) {
+      days.forEach(function (d) {
+        ["dark", "note"].forEach(function (k) {
+          if (d[k]) d[k] = d[k].replace(/\s*Waiting for the weekend(: [^.]*)?\./g, "").trim();
+        });
+      });
     }
     return { days: days, notListed: Object.keys(notListed).map(function (k) { return notListed[k]; }) };
   }

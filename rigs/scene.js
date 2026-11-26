@@ -304,6 +304,19 @@
     }
     return s;
   }
+  // A lit window on a near bank after dark: its glow in the trees, the two
+  // panes, and the broken ladder of gold it lays on the water at wy. It is
+  // there only when the lamps are on (w-lampson), like the pier's.
+  function litWindow(id, r, x, y, wy) {
+    var s = '<circle cx="' + x + '" cy="' + n(y - 0.4) + '" r="24" fill="url(#' + id + '-lamp)"/><g class="w-poolg">' +
+      '<rect x="' + n(x - 1.7) + '" y="' + n(y - 1.3) + '" width="1.4" height="2.4"/><rect x="' + n(x + 0.3) + '" y="' + n(y - 1.3) + '" width="1.4" height="2.4"/>';
+    for (var k = 0; k < 12; k++) {
+      var q = k / 12, ww = (4 + q * 11) * (0.55 + r() * 0.75), yy = wy + 1.4 + k * (1.5 + q * 2.4);
+      s += '<rect x="' + n(x - ww / 2 + (r() - 0.5) * (1 + q * 8)) + '" y="' + n(yy) + '" width="' + n(ww) + '" height="' + n(0.75 + q * 1) +
+        '" rx=".5" opacity="' + n((1 - q * 0.8) * (0.5 + r() * 0.5)) + '"/>';
+    }
+    return '<g class="w-lampson w-window">' + s + "</g></g>";
+  }
   function shoreEdge(pts) {
     // where the page meets the water: the ground the cards stand on
     var d = line(pts);
@@ -501,7 +514,9 @@
     }
     var edge = [];
     for (x = 236; x <= 394; x += 6) edge.push([x, nb(x) + 0.8]);
+    // after dark: one lit window in the firs on the far bank, and its light on the river
     var mid = defs(id + "m", rB.def) + rB.svg + land(bank, "w-l3") + '<path class="w-beach" d="M-4 ' + n(RY + 0.4) + 'H232"/>' +
+      litWindow(id + "m", rnd(63), 158, RY - 8.6, RY) +
       '<g class="w-alder">' + alders + "</g>" + mist(id + "m", 83, RY + 3, 0.9) +
       '<g class="w-riffle">' + rf + "</g>" +
       '<g filter="url(#' + id + 'm-wv)"><path class="w-under" d="' + poly(shadeTop.concat(shadeBot)) + '" filter="url(#' + id + 'm-b2)"/></g>' +
@@ -623,6 +638,13 @@
     el.style.setProperty("--sky-halo", air);
     // A pale title on a daytime sky (dawn) gets a thin dark edge to hold it.
     el.setAttribute("data-title", pale && !p.dark ? "pale" : "ink");
+    // A title pushed down by a filter row sits in the air near the horizon,
+    // which at dawn is the pale side of the sky: it gets its own tone.
+    var lowAir = mixHex(p.sky[0], p.sky[1], 0.7);
+    var lowPale = contrast(p.paper, lowAir) > contrast(p.ink, lowAir);
+    el.style.setProperty("--sky-ink-low", lowPale ? p.paper : p.ink);
+    el.style.setProperty("--sky-halo-low", lowAir);
+    el.setAttribute("data-title-low", lowPale && !p.dark ? "pale" : "ink");
   }
   // A strip of sky from hour h0 to h1, as a CSS gradient, n steps. paletteAt(h)
   // answers with the sky engine's palette for that hour. Used by a day's

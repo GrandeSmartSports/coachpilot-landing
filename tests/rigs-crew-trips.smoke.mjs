@@ -273,6 +273,17 @@ try {
     ok(await p.locator('[data-cw-trip="t-sat"] [data-cw-new]').count() === 1 && await p.locator('[data-cw-trip="t-wed"] [data-cw-new]').count() === 0,
       "a small dot on the trip this phone has not seen, none on the one it has");
     ok(await p.locator("[data-cw-plan]").getAttribute("href") === "#/crew/new" && /Plan a trip/.test(await text(p, "[data-cw-plan]")), "a Plan a trip row goes to #/crew/new");
+    ok(/^new$/i.test((await text(p, '[data-cw-trip="t-sat"] [data-cw-new]')).trim()), "the mark on an unseen trip says New, in a word", await text(p, '[data-cw-trip="t-sat"] [data-cw-new]'));
+    // Planning a trip and past trips sit at the foot with the crew row, so
+    // the week starts straight under the crew's trips.
+    const foot = await p.evaluate(() => {
+      const plan = document.querySelector("[data-cw-plan]"), past = document.querySelector("[data-cw-past]"), crewRow = document.querySelector("[data-crew-open]");
+      const grp = document.querySelector("[data-cw-trips]"), week = document.querySelector("[data-week]");
+      const after = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return { order: after(week, plan) && after(plan, past) && after(past, crewRow), oneList: plan.parentElement === crewRow.parentElement && past.parentElement === plan.parentElement,
+        top: [...grp.querySelectorAll("a, button")].every((e) => e.matches("[data-cw-trip]")) };
+    });
+    ok(foot.order && foot.oneList && foot.top, "Plan a trip and Past trips are rows at the foot, in one list with the crew row; on top there are only the trips", foot);
     const where = await p.evaluate(() => {
       const call = document.querySelector("[data-call]"), grp = document.querySelector("[data-cw-trips]"), week = document.querySelector("[data-week]");
       const after = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -325,12 +336,19 @@ try {
     await p.waitForSelector('[data-day="2026-11-24"] [data-hot="squid-redondo"]');
     await p.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').click();
     await p.waitForSelector('[data-view="hot"] [data-cw-do="planned"]');
-    ok(/^We are doing this$/i.test((await text(p, '[data-cw-do="planned"]')).trim()) && /^Float it$/.test((await text(p, '[data-cw-do="idea"]')).trim()), "a run card has We are doing this and Float it");
+    ok(/^We are doing this$/i.test((await text(p, '[data-cw-do="planned"]')).trim()) && /^Float it$/i.test((await text(p, '[data-cw-do="idea"]')).trim()), "a run card has We are doing this and Float it");
     const under = await p.evaluate(() => {
       const rows = [...document.querySelectorAll('[data-view="hot"] [data-sec-row]')], btn = document.querySelector("[data-cw-do]");
       return !!(rows[rows.length - 1].compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     ok(under, "under the headline rows");
+    const place = await p.evaluate(() => {
+      const make = document.querySelector('[data-view="hot"] [data-cw-make]'), more = document.querySelector("[data-more]"), idea = document.querySelector('[data-cw-do="idea"]'), go = document.querySelector('[data-cw-do="planned"]');
+      const a = go.getBoundingClientRect(), b = idea.getBoundingClientRect();
+      return { beforeMore: !more || !!(make.compareDocumentPosition(more) & Node.DOCUMENT_POSITION_FOLLOWING), quiet: idea.classList.contains("quiet"), sideBySide: Math.abs(a.top - b.top) < 2 && b.left >= a.right,
+        pinned: /sticky|fixed/.test(getComputedStyle(make).position) };
+    });
+    ok(place.beforeMore && place.quiet && place.sideBySide && !place.pinned, "the two buttons close the card, before Go deeper: the gold one and the quiet one beside it", place);
     ok(await p.locator('[data-view="hot"] .cw-go').count() === 1, "one gold button on the run card", await p.locator('[data-view="hot"] .cw-go').count());
     ok((await short(p, "[data-cw-make] button, [data-cw-make] a")).length === 0, "both are full tap targets");
     await fits(p, "a run card with the plan buttons");
@@ -554,6 +572,9 @@ try {
     ok((await text(p, '[data-view="crewtrip"] [data-cw-tag]')).trim().toLowerCase() === "idea" && /Russell/.test(await text(p, "[data-cw-by]")), "an idea is tagged Idea, with its maker");
     const river = await at("t-river", "ok");
     ok(/^Hot: good flow, /.test(river) && await p.locator('[data-view="crewtrip"] [data-sec-row="river"]').count() === 1, "a river trip leads with its flow and has its river row", river);
+    // Even a one line call is a card that crosses the waterline.
+    const condBox = await p.evaluate(() => { const c = document.querySelector("[data-cw-cond]").getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect(); return { top: Math.round(c.top), bottom: Math.round(c.bottom), scene: Math.round(s.bottom) }; });
+    ok(condBox.top < condBox.scene - 24 && condBox.bottom > condBox.scene, "the go or no-go card starts on the picture and ends below it", condBox);
 
     const nogo = await at("t-nogo", "nogo");
     ok(nogo === "No-go: gusts to 42 mph.", "nogo: No-go and why", nogo);

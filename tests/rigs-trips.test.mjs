@@ -132,6 +132,20 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(ids(r, "2026-11-24").includes("squid-redondo"), "the calm day next to it still has its trip");
 }
 
+// --- nothing waits for a weekend that is blown out too --------------------
+{
+  const today = "2026-11-23"; // Monday
+  const calm = T.plan({ today, wx: week(today), tides: tidesFor(today) });
+  ok(calm.days.slice(0, 3).some((d) => /Waiting for the weekend/.test(d.dark || "")), "with a weekend that fishes, a dark weeknight names what waits for it",
+    calm.days.slice(0, 3).map((d) => d.dark).join(" | "));
+  const gale = T.plan({ today, wx: week(today, () => ({ wind: 28, gust: 42 })), tides: tidesFor(today) });
+  ok(gale.days.every((d) => d.trips.length === 0), "a week of 42 mph gusts lists no trips");
+  ok(gale.days.every((d) => !/Waiting for the weekend/.test((d.dark || "") + (d.note || ""))), "and no day says anything is waiting for the weekend",
+    gale.days.map((d) => d.note).join(" | "));
+  ok(gale.days.slice(0, 3).some((d) => /No daylight after work, sunset 4:24 PM\.$/.test(d.dark || "")), "the weeknight's own reason still stands, as a whole sentence",
+    gale.days.slice(0, 3).map((d) => d.dark).join(" | "));
+}
+
 // --- the kayak has tighter limits than the bank ---------------------------
 {
   const today = "2027-04-10"; // Saturday, trout season

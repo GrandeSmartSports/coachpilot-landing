@@ -218,7 +218,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .chip .ic{flex:0 0 auto;width:18px;height:18px;color:var(--accent)}
 .row .rm{flex:0 0 auto;max-width:42%;text-align:right;font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent2)}
 .row .tx>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .tx>span.clamp{white-space:normal}
+/* a line that must not be cut (a rule): it wraps */
+.row .tx>span.whole{white-space:normal}
 .grp{margin:26px 0 0}
 .grp>.sect{margin-top:0}
 /* A heading that lands on the picture gets glass under it, and the title
@@ -261,7 +262,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .mk.dim i{border-color:var(--dim);opacity:.75}
 .mk.dim b{opacity:.75;font-weight:600}
 .mk.home i{border-radius:5px;border-color:var(--ink);background:var(--ink)}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 4px 0;font-size:12.5px;color:var(--t3)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 4px 0;font-size:12.5px;color:var(--t2)}
 .legend .mk{font-size:12.5px}
 .legend .mk i{width:13px;height:13px;border-width:2px}
 .legend .mk.hot i{margin:0 4px}
@@ -321,7 +322,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .cw-rowbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
 [data-cw-trips] .crewtrip{margin-top:10px}
 [data-cw-trips] .crewtrip+.list{margin-top:10px}
-.cw-make{margin:18px 0 0}
+.cw-make,.mainact{margin:18px 0 0}
 [data-cw-make-slot]{display:contents}
 .cw-cond{font-size:15.5px;line-height:1.45;color:var(--ink);margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);
   border-radius:12px;background:var(--paper);overflow-wrap:anywhere}
@@ -565,12 +566,13 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .cw.float{padding:16px}
 .cw.float>:first-child{margin-top:0}
 .cw.float>.cw-out:last-child,.cw.float>.cw-plain:last-child{margin-bottom:0}
-.float.cw-cond{margin:0;padding:14px 16px;border:0;border-radius:22px;font-weight:600;
+.float.cw-cond{display:flex;align-items:center;min-height:calc(var(--sw)*88/390);margin:0;padding:14px 16px;border:0;border-radius:22px;font-weight:600;
   background:linear-gradient(180deg,var(--glass),var(--pan-b) 62%)}
 .float.cw-cond.go{box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 50%,transparent)}
 .float.cw-cond.no{box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--no) 50%,transparent)}
 .hero+.cw-msg{display:inline-block;margin:0 0 10px;padding:6px 12px;border-radius:14px;color:var(--t2);background:var(--glass);box-shadow:var(--e1)}
 [data-cw-going].grp{margin-top:18px}
+[data-hot-wait]{min-height:calc(var(--sw)*88/390)}
 [data-notlisted] .box p{margin:0}
 [data-notlisted] .box p+p{margin-top:6px}
 .float.fallback{padding:14px 16px}
@@ -867,8 +869,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var m = /<p class="when">([\s\S]*?)<\/p>/.exec(c.body || "");
     if (!m) return "";
     scratch.innerHTML = m[1];
-    var t = scratch.textContent.trim();
-    return t.length > 90 ? t.slice(0, 88).replace(/\s+\S*$/, "") + "…" : t;
+    return scratch.textContent.trim();
   }
   function metaOf(c) {
     var b = c.body || "";
@@ -882,7 +883,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   function rowHtml(c, href) {
     var s = snippet(c), m = metaOf(c);
     return '<a class="row" href="' + esc(href) + '" data-row="' + esc(c.id) + '">' +
-      '<span class="tx"><b>' + esc(c.title) + "</b>" + (s ? "<span>" + esc(s) + "</span>" : "") + "</span>" +
+      '<span class="tx"><b>' + esc(c.title) + "</b>" + (s ? lineHtml(s, m ? m.length * 7 + 12 : 0) : "") + "</span>" +
       (m ? '<span class="rm">' + esc(m) + "</span>" : "") +
       IC.chev + '</a>';
   }
@@ -915,10 +916,12 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         (t[0] === tab ? "true" : "false") + '">' + t[1] + "</button>";
     }).join("");
     var sub = chipsFor(tab, active);
+    // The sky button needs the sky engine. Without it the button could not
+    // change the screen, so it is not there.
     return '<header class="top dock"><nav class="tabs seg" role="tablist">' + tabs + "</nav>" +
-      '<button class="skymode skybtn" type="button" data-skymode data-held="' + (m === "auto" ? "no" : "yes") +
+      (RIG.sky ? '<button class="skymode skybtn" type="button" data-skymode data-held="' + (m === "auto" ? "no" : "yes") +
       '" title="Screen: follows the sky, or held light or dark"><i class="skytok"></i>' +
-      "<span data-skylabel>" + (m === "auto" ? "Sky" : m === "light" ? "Light" : "Dark") + "</span></button>" +
+      "<span data-skylabel>" + (m === "auto" ? "Sky" : m === "light" ? "Light" : "Dark") + "</span></button>" : "") +
       (sub ? '<nav class="jump" aria-label="Filter">' + sub + "</nav>" : "") + "</header>";
   }
 
@@ -1163,6 +1166,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var c = (RIG.trips && RIG.trips.cached && RIG.trips.cached()) || {}, wx = c.wx || {}, memo = {};
     var any = wx.redondo || wx[Object.keys(wx)[0]];
     function sky(iso, h, spotId) {
+      // No sky engine (the file did not load): there is no sky to name, and
+      // nothing that needs one is drawn. The week and the cards still are.
+      if (!RIG.sky) return "";
       var w = wx[spotId] || any, sun = (w && w.sun && w.sun[iso]) || null, hr = null;
       if (w && w.hours) {
         var k = (wx[spotId] ? spotId : "*") + iso, day = memo[k];
@@ -1189,23 +1195,49 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // The big scene a trip's screens stand under.
   function sceneFor(t) { var k = waterKind(t); return k === "pier" || k === "river" ? k : "sound"; }
   // The small painting: kind of water, under the sky of one hour.
+  // Without the painter (its file did not load) a plain swatch of sky over
+  // water holds the picture's place, so the row keeps its shape.
   function miniHtml(kind, under, cls) {
-    return LOOK ? '<span class="tile' + (cls ? " " + cls : "") + '" data-mini="' + kind + '" data-under="' + under + '">' +
-      RIG.water.mini(kind, RIG.sky.paletteFor(under)) + "</span>" : "";
+    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' +
+      (LOOK ? RIG.water.mini(kind, RIG.sky.paletteFor(under)) : "") + "</span>";
   }
   function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
 
   // A day's heading: its name, its date, a ribbon of its own light from five
   // in the morning to eleven at night with a bead where each trip starts
   // (gold if it is hot), and the count.
+  // Where each trip's bead sits on the ribbon, as a share of its width. Trips
+  // that start at the same hour would land on one spot, so beads that touch
+  // fan out into a small cluster about the hour they share: a bead can be
+  // counted for every trip.
+  function beadSpots(trips) {
+    var GAP = 0.08, lo = 0.045, hi = 0.955, out = [], groups = [];
+    trips.map(function (t, i) { return { i: i, x: Math.max(lo, Math.min(hi, (t.from - 5) / 18)) }; })
+      .sort(function (a, b) { return a.x - b.x || a.i - b.i; })
+      .forEach(function (p) {
+        var g = { items: [p], sum: p.x };
+        // Join the cluster before it while the two would overlap.
+        for (var last = groups[groups.length - 1]; last && g.sum / g.items.length - (g.items.length - 1) * GAP / 2 < last.sum / last.items.length + (last.items.length + 1) * GAP / 2; last = groups[groups.length - 1]) {
+          groups.pop();
+          g = { items: last.items.concat(g.items), sum: last.sum + g.sum };
+        }
+        groups.push(g);
+      });
+    groups.forEach(function (g) {
+      var n = g.items.length, gap = Math.min(GAP, n > 1 ? (hi - lo) / (n - 1) : GAP), half = (n - 1) * gap / 2;
+      var mid = Math.max(lo + half, Math.min(hi - half, g.sum / n));
+      g.items.forEach(function (p, k) { out[p.i] = mid - half + k * gap; });
+    });
+    return out;
+  }
   function dayHeadHtml(day, sky) {
     var m = /^(Today|Tomorrow) (.*)$/.exec(day.label), bits = String(day.label).split(" ");
     var big = m ? m[1] : bits[0], small = m ? DAY3[isoDay(day.iso).getDay()] + " " + m[2] : bits.slice(1).join(" ");
-    var n = day.trips.length;
+    var n = day.trips.length, at = beadSpots(day.trips);
     var ribbon = LOOK ? '<u class="ribbon" data-ribbon aria-hidden="true" style="background:' +
       RIG.water.stops(5, 23, 18, function (h) { return RIG.sky.paletteFor(sky(day.iso, h)); }) + '">' +
-      day.trips.map(function (t) {
-        return "<b" + (t.heat === "Hot" ? ' class="h"' : "") + ' style="left:' + pct(Math.max(0.03, Math.min(0.97, (t.from - 5) / 18))) + '%"></b>';
+      day.trips.map(function (t, i) {
+        return "<b" + (t.heat === "Hot" ? ' class="h"' : "") + ' style="left:' + pct(at[i]) + '%"></b>';
       }).join("") + "</u>" : "";
     return "<h2>" + esc(big) + " <span>" + esc(small) + "</span>" + ribbon + (n ? "<i>" + n + (n === 1 ? " trip" : " trips") + "</i>" : "") + "</h2>";
   }
@@ -1236,6 +1268,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var note = day.note || day.dark || "Nothing good", m = /^(No fishing:|Nothing good\.)\s*(.*)$/.exec(note);
     if (!m && note !== "Nothing good") return darkHtml(note, true);
     var why = m ? m[2] : "", i = why.indexOf(". "), first = i < 0 ? why : why.slice(0, i + 1), rest = i < 0 ? "" : why.slice(i + 2);
+    if (first) first = first.replace(/[.\s]*$/, "") + ".";
     return '<div class="well' + (day.note ? " no" : "") + '" data-quiet><p>' +
       (m ? "<b>" + esc(m[1]) + "</b> " + esc(first) : "<b>" + esc(note) + "</b>") + "</p>" + (rest ? "<p>" + esc(rest) + "</p>" : "") + "</div>";
   }
@@ -1363,7 +1396,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // The one way in, at the foot of the week. It is a row, not a demand.
   function crewRowHtml() {
     var inCrew = !!(RIG.crew && RIG.crew.session());
-    return '<section class="grp"><div class="panel list"><a class="row" href="#/crew" data-crew-open><span class="tx"><b>' +
+    return '<section class="grp"><div class="panel list">' + crewTripsHtml(crewSt()).foot + '<a class="row" href="#/crew" data-crew-open><span class="tx"><b>' +
       (inCrew ? "The crew" : "Fish with your crew") + "</b><span>" +
       (inCrew ? "Who is in, and who you fish with" : "Sign in to share this week") +
       "</span></span>" + IC.chev + "</a></div></section>";
@@ -1991,10 +2024,11 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   }
 
   // What the sky chip says: the sky's name, and today's sunset when the
-  // forecast has it.
+  // forecast has it. A screen held light or dark against the real sky says
+  // that it is held, so the words match the picture.
   function skyWords() {
-    var s = skyNow(), r = RIG.sky ? RIG.sky.resolve(s.h, s.sun, s.wx, skyMode()) : null;
-    return { name: r ? r.skyName : "", sunset: s.sun && s.sun.set != null && RIG.trips && RIG.trips.clock ? "sunset " + RIG.trips.clock(s.sun.set) : "" };
+    var m = skyMode(), s = skyNow(), r = RIG.sky ? RIG.sky.resolve(s.h, s.sun, s.wx, m) : null;
+    return { name: !r ? "" : r.forced ? (m === "dark" ? "Held dark" : "Held light") : r.skyName, sunset: s.sun && s.sun.set != null && RIG.trips && RIG.trips.clock ? "sunset " + RIG.trips.clock(s.sun.set) : "" };
   }
   // The head of the Trips tab, shared by the list and the map: the title,
   // the sky chip, and the List and Map switch.
@@ -2003,15 +2037,16 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var sw = '<span class="switch" role="group" aria-label="List or map">' + [["list", "List"], ["map", "Map"]].map(function (m) {
       return '<button type="button" data-tmode="' + m[0] + '" aria-current="' + (m[0] === mode ? "true" : "false") + '">' + m[1] + "</button>";
     }).join("") + "</span>";
+    // With no sky engine there is no sky to name, so there is no chip.
     return heroHtml({ title: "Hot Trips", more: more,
-      chips: '<span class="chip" data-skychip><i class="skytok"></i><b data-skyname>' + esc(w.name) + "</b><span data-sunset>" + esc(w.sunset) + "</span></span>" + sw });
+      chips: (w.name ? '<span class="chip" data-skychip><i class="skytok"></i><b data-skyname>' + esc(w.name) + "</b><span data-sunset>" + esc(w.sunset) + "</span></span>" : "") + sw });
   }
   function renderTrips(force) {
     app.innerHTML = topHtml("trips") +
       '<div data-view="trips">' + tripsHeroHtml("list") +
-      '<div data-call-slot></div><div data-cw-trips-slot>' + crewTripsHtml(crewSt()) + "</div>" +
+      '<div data-call-slot></div><div data-cw-trips-slot>' + crewTripsHtml(crewSt()).top + "</div>" +
       '<div data-rules-status="top"></div>' +
-      '<div data-week><div class="well"><p>Loading the forecast…</p></div></div>' + crewRowHtml() + "</div>" + tripBarHtml();
+      '<div data-week><div class="well"><p>Loading the forecast…</p></div></div><div data-cw-foot-slot>' + crewRowHtml() + "</div></div>" + tripBarHtml();
     crewTripsLoad();
     if (!plannerReady()) return;
     var c = RIG.trips.cached();
@@ -2110,7 +2145,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         return { s: s, name: name, cls: cls, html: html };
       }).sort(function (a, b) { return RANK[b.cls] - RANK[a.cls]; });
       var layer = L.layerGroup().addTo(mapObj);
-      L.marker(HOME, { icon: pin("home", ""), keyboard: false, interactive: false, zIndexOffset: -500 }).addTo(mapObj);
+      // Home is drawn in a pane of its own, under every pin, so it never covers one.
+      mapObj.createPane("home").style.zIndex = 590;
+      L.marker(HOME, { icon: pin("home", ""), pane: "home", keyboard: false, interactive: false }).addTo(mapObj);
       // Pins closer than a fingertip merge into one, with a count; the popup
       // lists every trip in the group. Zoom in and they split again.
       function drawPins() {
@@ -2216,7 +2253,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     } else {
       var need = run.gear.filter(function (g) { return g.s === "need"; }).length;
       var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
-      gear = whenP((need ? need + " to get, " : "") + check + " to check, the rest you own.") +
+      // "The rest you own" is only said when there is a rest.
+      var counts = [need ? need + " to get" : "", check ? check + " to check" : "", run.gear.length > need + check ? (need + check ? "the rest you own" : "you own all of it") : ""].filter(Boolean).join(", ");
+      gear = whenP(counts.charAt(0).toUpperCase() + counts.slice(1) + ".") +
         '<ul class="gear">' + run.gear.map(function (g) {
           return '<li><span class="tag ' + (g.s === "have" ? "have" : g.s === "need" ? "need" : "todo") + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
             esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
@@ -2292,17 +2331,147 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return c ? rowHtml(c, href) : "";
     }).join("");
   }
+  // ---- one short line ------------------------------------------------------
+  // A row says one thing on one line. fitLine() gives back as much of a
+  // longer piece of text as fits a row on this phone without cutting a
+  // thought in half: whole sentences while they fit, else the first sentence
+  // up to a comma, else up to the word where a phrase ends. Never half a
+  // word. Three dots only when stopping at a clean place would leave too
+  // little said.
+  //   lineHtml(text, less)  the span for a row: the fitted line, and the whole
+  //                         text kept on it so refit() can fit it again.
+  //                         less: px the row gives to something on its right.
+  //   refit()               fits every line on screen again. Called when the
+  //                         font arrives and when the phone is turned.
+  var lineCx = null;
+  function lineWidth(t) {
+    try {
+      lineCx = lineCx || document.createElement("canvas").getContext("2d");
+      lineCx.font = "13.5px Inter, system-ui, sans-serif";
+      return lineCx.measureText(t).width;
+    } catch (e) { return t.length * 6.8; }
+  }
+  // The room a row's line has: the phone column, less the card's padding and
+  // its chevron.
+  function lineRoom(less) { return (Math.min(document.documentElement.clientWidth || 390, 430) - 82 - (less || 0)) * 0.985; }
+  // Text as sentences, asides in brackets left out.
+  function sentences(text) {
+    var s = String(text || "").replace(/\s*\([^)]*\)/g, "").replace(/\s+/g, " ").trim(), out = [], from = 0, re = /[.!?]+(\s+|$)/g, m;
+    while ((m = re.exec(s))) { out.push(s.slice(from, m.index)); from = re.lastIndex; }
+    if (from < s.length) out.push(s.slice(from));
+    return out.filter(Boolean);
+  }
+  // JOINS: words a line may not end on. TURNS: words a new phrase starts
+  // with, so what stands before one is whole.
+  var TURN_WORDS = "of|to|at|in|on|with|without|within|into|onto|for|from|off|by|up|near|under|over|below|above|behind|along|across|through|between|before|after|during|until|past|per|like|and|or|but|so|then|if|than|while|when|where|which|who|because|most|some|all|each|every|about|around|only|just";
+  var JOINS = new RegExp("^(a|an|the|as|is|are|it|its|your|you|that|not|no|" + TURN_WORDS + ")$", "i");
+  var TURNS = new RegExp("^(" + TURN_WORDS + ")$", "i");
+  function bare(w) { return String(w || "").replace(/[^A-Za-z']/g, ""); }
+  function capFirst(x) { return x.charAt(0).toUpperCase() + x.slice(1); }
+  function fitLine(text, less) {
+    var room = lineRoom(less), S = sentences(text), out = S[0] || "", i;
+    function fits(x) { return lineWidth(x) <= room; }
+    if (fits(out)) {
+      for (i = 1; i < S.length && fits(out + ". " + S[i]); i++) out += ". " + S[i];
+      return out;
+    }
+    // The longest run up to a comma that fits, when that is most of a line.
+    var cut = -1, re = /[,;:](?=\s)/g, m;
+    while ((m = re.exec(out))) if (fits(out.slice(0, m.index))) cut = m.index;
+    var head = cut > 0 ? out.slice(0, cut) : "";
+    if (head && lineWidth(head) >= room * 0.55) return head;
+    // Word by word. A line never ends on a joining word. When the next word
+    // would have carried the same phrase on, the line steps back to the last
+    // place a phrase turned (a comma, or a word like "with" or "from").
+    var words = out.split(" "), keep = [], k = 0;
+    while (k < words.length && fits(keep.concat(words[k]).join(" "))) keep.push(words[k++]);
+    var next = words[k] || "";
+    while (keep.length > 2 && JOINS.test(bare(keep[keep.length - 1]))) next = keep.pop();
+    var plain = keep.slice();
+    if (!TURNS.test(bare(next)) && !/[,;:]$/.test(keep[keep.length - 1])) {
+      for (i = keep.length - 1; i >= 2; i--) {
+        if (TURNS.test(bare(keep[i])) || /[,;:]$/.test(keep[i - 1])) { keep = keep.slice(0, i); break; }
+      }
+    }
+    // A word or two left hanging after a comma goes too.
+    for (i = keep.length - 1; i >= Math.max(2, keep.length - 2); i--) if (/[,;:]$/.test(keep[i - 1])) { keep = keep.slice(0, i); break; }
+    var line = keep.join(" ").replace(/[,;:]$/, "");
+    if (head.length > line.length) line = head;
+    // Little left in front of a comma ("Chum on the Green, the hardest
+    // fighting salmon in the Sound"): what comes after it is the line, when
+    // that fits whole.
+    var c1 = out.search(/[,;:]\s/), tail = c1 > 0 ? out.slice(c1 + 2) : "";
+    if (tail && lineWidth(line) < room * 0.45 && fits(tail) && tail.length > line.length) return capFirst(tail);
+    // Stopping clean left too little to say anything: stop at a word, and
+    // own up to it with three dots.
+    if (lineWidth(line) < room * 0.45 && plain.length > keep.length) {
+      while (plain.length > 2 && (!fits(plain.join(" ") + "…") || JOINS.test(bare(plain[plain.length - 1])))) plain.pop();
+      return plain.join(" ").replace(/[,;:]$/, "") + "…";
+    }
+    return line;
+  }
+  function lineHtml(text, less) {
+    return '<span data-fit="' + esc(text) + '"' + (less ? ' data-less="' + Math.round(less) + '"' : "") + ">" + esc(fitLine(text, less)) + "</span>";
+  }
+  function refit() {
+    [].forEach.call(app.querySelectorAll("[data-fit]"), function (el) { el.textContent = fitLine(el.getAttribute("data-fit"), +el.getAttribute("data-less") || 0); });
+    [].forEach.call(app.querySelectorAll("[data-fit-rule]"), function (el) {
+      var run = RIG.trips && RIG.trips.runs && RIG.trips.runs[el.getAttribute("data-fit-rule")];
+      if (run) el.textContent = ruleLine(run);
+    });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
+  // A phone fires resize when its address bar slides away. Only a change of
+  // width changes what fits.
+  var fitWidth = document.documentElement.clientWidth;
+  window.addEventListener("resize", function () {
+    var w = document.documentElement.clientWidth;
+    if (w !== fitWidth) { fitWidth = w; refit(); }
+  });
+  // The rules row: the limit, whole. A rule is never trimmed into a different
+  // rule, so a clause is only left off when it holds no number and no
+  // restriction. If that leaves it long, the row takes a second line.
+  function ruleLine(run) {
+    var all = [];
+    (run.rules || []).forEach(function (r) { all = all.concat(sentences(r)); });
+    var line = all.filter(function (x) { return /\ba day\b/.test(x); })[0] || all[0] || "", room = lineRoom(), cuts = [], re = /[,;](?=\s)/g, m, i;
+    if (lineWidth(line) <= room) return line;
+    while ((m = re.exec(line))) cuts.push(m.index);
+    for (i = cuts.length - 1; i >= 0; i--) {
+      if (lineWidth(line.slice(0, cuts[i])) <= room &&
+        !/\d|\b(no|not|only|except|closed|release|minimum|maximum|must|barbless|single|one|two|three|four)\b/i.test(line.slice(cuts[i]))) return line.slice(0, cuts[i]);
+    }
+    return line;
+  }
   function secLine(c, t, run) {
     if (c.id === "plan") return t ? "Leave by " + clk(t.from - t.drive / 60 - 0.25) + ", fish " + t.when : "When you get there, while you fish, and after";
-    if (c.id === "what") return run.what;
     if (c.id === "river") return riverLine(t.flow);
     if (c.id === "wx") return "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
+    if (c.id === "rules") return ruleLine(run);
+    return fitLine(secText(c, run));
+  }
+  // The longer text a section's line is fitted from.
+  function secText(c, run) {
+    // What it is: the trip's own name is in the sky already, so a sentence
+    // that opens with it ("Chum on the Green, the hardest fighting...")
+    // starts after it.
+    if (c.id === "what") {
+      var runs = (RIG.trips && RIG.trips.runs) || {}, id = Object.keys(runs).filter(function (k) { return runs[k] === run; })[0], plan = id && planOf(id);
+      var lead = plan ? plan.name + ", " : "";
+      return lead && run.what.indexOf(lead) === 0 ? capFirst(run.what.slice(lead.length)) : run.what;
+    }
+    if (c.id === "bait" && run.bait) return run.bait.first;
     var s = snippet(c);
     if (s) return s;
     // No lead line: the first thing on its list says it.
     scratch.innerHTML = c.body;
-    var txt = (scratch.querySelector("li") || scratch).textContent.trim();
-    return txt.length > 90 ? txt.slice(0, 88).replace(/\s+\S*$/, "") + "…" : txt;
+    return (scratch.querySelector("li") || scratch).textContent.trim();
+  }
+  // A section row's line as html: fitted, and able to be fitted again.
+  function secLineHtml(c, t, run, planId, less) {
+    if (c.id === "plan" || c.id === "river" || c.id === "wx") return "<span>" + esc(secLine(c, t, run)) + "</span>";
+    if (c.id === "rules") return '<span class="whole" data-fit-rule="' + esc(planId) + '">' + esc(ruleLine(run)) + "</span>";
+    return lineHtml(secText(c, run), less);
   }
   // ---- the run card's own pictures ----------------------------------------
   function leaveHour(t) { return t.from - t.drive / 60 - 0.25; }
@@ -2331,11 +2500,14 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     run.gear.forEach(function (g) { if (g.s === "need") need++; else if (g.s === "check") check++; else have++; });
     var n = run.gear.length;
     var big = need ? [need, "to get"] : check ? [check, "to check"] : [n, n === 1 ? "thing" : "things"];
-    var sub = need ? check + " to check, the rest you own" : check ? "The rest you own" : "You own all of it";
+    // The line under the pips: what else there is. Nothing is said to be owned
+    // when nothing is.
+    var sub = need ? [check ? check + " to check" : "", have ? "the rest you own" : ""].filter(Boolean).join(", ") : check ? (have ? "The rest you own" : "") : "You own all of it";
+    sub = sub.charAt(0).toUpperCase() + sub.slice(1);
     for (i = 0; i < n && i < 20; i++) pips += i < need ? "<i></i>" : i < need + check ? '<i class="c"></i>' : '<i class="h"></i>';
     return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="gear"><b>Gear' + IC.chev + "</b>" +
       '<span class="bignum">' + big[0] + "<span>" + big[1] + "</span></span>" +
-      '<span class="pips' + (n > 8 ? " many" : "") + '" aria-hidden="true">' + pips + "</span>" + '<span class="sub">' + sub + "</span></a>";
+      '<span class="pips' + (n > 8 ? " many" : "") + '" aria-hidden="true">' + pips + "</span>" + (sub ? '<span class="sub">' + sub + "</span>" : "") + "</a>";
   }
   // The height of the tide at an hour, from the day's highs and lows: a
   // cosine between two turns, and the same swing carried on past the ends.
@@ -2409,11 +2581,29 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   }
   // The one gold button on a run card. On a crew it is the crew's two
   // buttons (hotCrewHtml). Otherwise it walks the card from the plan on.
+  // It closes the card, in the page: it is never pinned, so it never sits on
+  // the rows or on the trip bar.
   function hotMainHtml(day, t) {
-    return hotCrewHtml(day, t) || '<div class="act"><a class="gold" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '/plan" data-walk>Walk through it' + IC.go + "</a></div>";
+    return hotCrewHtml(day, t) || '<div class="mainact"><a class="gold" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '/plan" data-walk>Walk through it' + IC.go + "</a></div>";
+  }
+  // A run card opened cold (a link, a reload) has no forecast on the phone
+  // yet. It waits for one under the trip's own name, once, then draws. A day
+  // that is no longer in the forecast still goes back to the week.
+  var hotCold = { key: "", busy: false };
+  function renderHotWait(key) {
+    var plan = planOf(key.split("~")[1]), here = location.hash;
+    app.innerHTML = topHtml("trips", "", plan ? sceneFor({ planId: plan.id, spot: plan.spot }) : "sound") +
+      '<div data-view="hotwait">' + heroHtml({ title: plan ? plan.name : "Hot Trips", back: { href: "#/trips", text: "Hot Trips" } }) +
+      '<div class="float fallback" data-hot-wait>' + whenP("Loading the forecast…") + "</div></div>" + tripBarHtml();
+    // Drawn again while the forecast is on its way: it is asked for once.
+    if (hotCold.key === key) return;
+    hotCold = { key: key, busy: true };
+    RIG.trips.load().then(function (data) { lastPlan = planFrom(data); }, function () { /* no signal: the week says so */ })
+      .then(function () { hotCold.busy = false; if (location.hash === here) render(); });
   }
   function renderHot(key, sec) {
     var f = findTrip(key);
+    if (!f && plannerReady() && !lastPlan && !RIG.trips.cached() && (hotCold.key !== key || hotCold.busy)) { renderHotWait(key); return; }
     if (!f) { location.replace("#/trips"); return; }
     var t = f.t, day = f.day, run = RIG.trips.runs && RIG.trips.runs[t.planId];
     var base = "#/trips/" + encodeURIComponent(key);
@@ -2446,7 +2636,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     secs.forEach(function (c) { by[c.id] = c; });
     var rows = secs.filter(function (c) { return !own[c.id]; }).map(function (c) {
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
-        '</b><span class="clamp">' + esc(secLine(c, t, run)) + "</span></span>" + IC.chev + "</a>";
+        "</b>" + secLineHtml(c, t, run, t.planId) + "</span>" + IC.chev + "</a>";
     }).join("");
     app.innerHTML = topHtml("trips", "", scene) +
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' + hero +
@@ -2456,9 +2646,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
           (t.flow ? riverTileHtml(t, day, base + "/river", sky.saved) : tideTileHtml(t, by.wx.title, base + "/wx")) + "</div>" +
         '<div class="panel list">' + rows + "</div>" +
         '<a class="rule" href="' + esc(base + "/rules") + '" data-sec-row="rules"><span class="tx"><b>' + esc(by.rules.title) +
-          '</b><span class="clamp">' + esc(secLine(by.rules, t, run)) + "</span></span>" + IC.chev + "</a>" +
-        (more ? '<section class="grp"><h2 class="sect">Go deeper</h2><div class="panel list" data-more>' + more + "</div></section>" : "") +
+          "</b>" + secLineHtml(by.rules, t, run, t.planId) + "</span>" + IC.chev + "</a>" +
         '<div data-cw-make-slot data-cw-key="' + esc(key) + '">' + hotMainHtml(day, t) + "</div>" +
+        (more ? '<section class="grp"><h2 class="sect">Go deeper</h2><div class="panel list" data-more>' + more + "</div></section>" : "") +
       "</div>" + tripBarHtml();
     hotCrewLoad();
     window.scrollTo(0, 0);
@@ -2573,7 +2763,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     return '<a class="panel crewtrip" href="#/crew/trip/' + esc(t.id) + '" data-cw-trip="' + esc(t.id) + '">' +
       '<span class="datestamp" aria-hidden="true"><i>' + DAY3[d.getDay()] + "</i><b>" + d.getDate() + "</b></span>" +
       '<span class="tx"><span class="caprow"><em class="eyebrow">Crew trip</em>' + tagHtml(t, false) +
-        (RIG.crew.isNew(t) ? '<span class="dot cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + "</span>" +
+        (RIG.crew.isNew(t) ? '<span class="pill new cw-dot" data-cw-new>New</span>' : "") + "</span>" +
       "<b>" + esc(t.title) + "</b>" +
       '<span class="who">' + avsHtml(who) + '<span><span class="vh">' + esc(dayDate(t.date)) + ". </span>" +
         esc(who.length ? andList(who) + " going" : "Nobody yet") + "</span></span></span>" + IC.chev + "</a>";
@@ -2586,24 +2776,27 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       (RIG.crew.isNew(t) ? '<span class="dot cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + tagHtml(t, over) +
       IC.chev + "</a>";
   }
+  // The group on the Trips tab comes in two parts: top is the trips still
+  // ahead, each a card, between the call and the week. foot is the rows that
+  // go with the crew row under the week: planning a new one, and past ones.
   function crewTripsHtml(st) {
-    if (!st || !st.crew) return "";
+    if (!st || !st.crew) return { top: "", foot: "" };
     var today = todayIso(), live = [], past = [];
     (st.trips || []).forEach(function (t) { (t.status !== "done" && t.date >= today ? live : past).push(t); });
     function soonest(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.from == null ? 99 : a.from) - (b.from == null ? 99 : b.from); }
     live.sort(soonest);
     past.sort(function (a, b) { return soonest(b, a); });
-    return '<section class="grp" data-cw-trips><h2 class="vh">Crew trips</h2>' + live.map(crewTripCard).join("") +
-      '<div class="panel list"><a class="row" href="#/crew/new" data-cw-plan><span class="tx"><b>Plan a trip</b><span>Pick one and a day. The crew sees it.</span></span>' +
+    return { top: '<section class="grp" data-cw-trips><h2 class="vh">Crew trips</h2>' + live.map(crewTripCard).join("") + "</section>",
+      foot: '<a class="row" href="#/crew/new" data-cw-plan><span class="tx"><b>Plan a trip</b><span>Pick one and a day. The crew sees it.</span></span>' +
       IC.chev + "</a>" +
       (past.length ? '<button class="row cw-rowbtn" type="button" data-cw-past aria-expanded="' + (cwT.past ? "true" : "false") + '"><span class="tx"><b>Past trips</b><span>' +
         past.length + (past.length === 1 ? " trip" : " trips") + "</span></span>" + IC.chev + "</button>" +
-        (cwT.past ? past.map(crewTripRow).join("") : "") : "") +
-      "</div></section>";
+        (cwT.past ? past.map(crewTripRow).join("") : "") : "") };
   }
   function crewTripsDraw() {
-    var host = app.querySelector('[data-view="trips"] [data-cw-trips-slot]');
-    if (host) host.innerHTML = crewTripsHtml(crewSt());
+    var host = app.querySelector('[data-view="trips"] [data-cw-trips-slot]'), foot = app.querySelector('[data-view="trips"] [data-cw-foot-slot]');
+    if (host) host.innerHTML = crewTripsHtml(crewSt()).top;
+    if (foot) foot.innerHTML = crewRowHtml();
     // A row in the week says when the crew is on it. Redraw the week only
     // when one of those lines would change.
     if (host && lastPlan && app.querySelector("[data-week] [data-day]") && crewWeekSig(crewIn()) !== weekSig) drawTrips(lastPlan);
@@ -2624,8 +2817,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return '<div class="cw cw-make" data-cw-make><a class="gold cw-go" href="#/crew/trip/' + esc(have.id) + '" data-cw-open-trip>Open the crew trip</a>' +
         cwMsg((have.status === "planned" ? "It is on. " : have.status === "done" ? "Done. " : "Floated as an idea. ") + (who.length ? "Going: " + who.join(", ") + "." : ""), "", "data-cw-make-msg") + "</div>";
     }
-    return '<div class="cw cw-make" data-cw-make>' + tellHtml("hot") + '<button class="gold cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
-      '<button class="cw-plain" type="button" data-cw-do="idea">Float it</button>' +
+    return '<div class="cw cw-make" data-cw-make>' + tellHtml("hot") + '<div class="pair"><button class="gold cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
+      '<button class="quiet" type="button" data-cw-do="idea">Float it</button></div>' +
       cwSaid(cwT.hotMsg, "Either one puts this trip in front of the crew.", "data-cw-make-msg") + "</div>";
   }
   function hotCrewSync() {
@@ -3327,7 +3520,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var rows = secs.map(function (c) {
       var n = counts[c.id] || 0;
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
-        "</b><span>" + esc(secLine(c, t, run)) + "</span></span>" +
+        "</b>" + secLineHtml(c, t, run, trip.planId, n ? 70 : 0) + "</span>" +
         (n && lookNew(id, c.id, d) ? '<span class="dot cw-dot" data-cw-newnote="' + c.id + '" role="img" aria-label="New note"></span>' : "") +
         (n ? '<span class="rm" data-cw-count="' + c.id + '">' + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
         IC.chev + '</a>';
@@ -3588,6 +3781,23 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     else if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsLoad();
   });
 
+  // The scene field mode stands under: the water the trip's first card is
+  // for (a squid card is a pier, a river coho card is the river). A card
+  // that belongs to no fish or spot leaves it at the Sound.
+  function fieldScene(cards) {
+    var found = "";
+    cards.some(function (c) {
+      // A list holds its own cards, and shared ones by id.
+      function has(list) { return (list || []).some(function (x) { return x === c || x === c.id; }); }
+      return species().some(function (sp) {
+        var locs = sp.locations || [], at = locs.filter(function (l) { return has(l.cards); })[0];
+        if (!at && !has(sp.cards)) return false;
+        found = sceneFor({ planId: "", spot: (at || locs[0] || {}).id || "", species: sp.id, name: at ? at.name : "" });
+        return true;
+      });
+    });
+    return found || "sound";
+  }
   // Field mode is deliberately thin: this trip's cards, bigger type, and a
   // way back. Nothing to navigate, nothing to scroll past.
   function renderField() {
@@ -3596,7 +3806,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     // A content edit can delete a card a saved trip still points at. Drop it
     // quietly rather than rendering a hole or throwing.
     var cards = state.cards.map(function (id) { return byId[id]; }).filter(Boolean);
-    setScene("sound");
+    setScene(fieldScene(cards));
     app.innerHTML =
       '<div data-view="field" class="fieldmode">' +
         heroHtml({ title: "This trip", chips:
@@ -3727,6 +3937,15 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     checkRules();
   }
 
+  // Once the page has moved, the dock keeps a band of sky behind it (kit.css
+  // reads data-scrolled), so what scrolls past goes behind it.
+  var movedOn = false;
+  function markMoved() {
+    var on = (window.scrollY || document.documentElement.scrollTop || 0) > 6;
+    if (on !== movedOn) { movedOn = on; document.documentElement.toggleAttribute("data-scrolled", on); }
+  }
+  window.addEventListener("scroll", markMoved, { passive: true });
+
   function render() {
     drawnDay = todayIso(); drawnAt = Date.now();
     renderView();
@@ -3744,6 +3963,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     // The open filter chip is scrolled into view, not left off the edge.
     var cur = app.querySelector('.jump [aria-current="true"]');
     if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - (cur.parentNode.clientWidth - cur.offsetWidth) / 2;
+    markMoved();
   }
 
   function renderView() {

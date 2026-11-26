@@ -86,6 +86,12 @@ try {
   });
   ok(!overlap, "no two pins sit on top of each other");
   ok(await page.locator(".leaflet-marker-icon.mk.home").count() === 1, "home is on the map");
+  // Home is drawn under every pin, so it can never cover a spot.
+  const homeUnder = await page.evaluate(() => {
+    const home = document.querySelector(".leaflet-marker-icon.mk.home").parentElement, pins = document.querySelector(".leaflet-marker-pane");
+    return { own: home !== pins, home: +getComputedStyle(home).zIndex, pins: +getComputedStyle(pins).zIndex, inPins: pins.querySelectorAll(".mk.home").length };
+  });
+  ok(homeUnder.own && homeUnder.home < homeUnder.pins && homeUnder.inPins === 0, "home sits in a layer of its own, under the pins", JSON.stringify(homeUnder));
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   ok(wide <= 390, "the map fits the phone", wide);
   const h = await page.evaluate(() => document.getElementById("tripmap").getBoundingClientRect().height);

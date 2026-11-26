@@ -104,6 +104,12 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 
 /* ================= the dock ================= */
 .dock{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 0 8px;margin:0 -4px}
+/* Once the page has moved (data-scrolled, set by the page), the sky stays
+   over the dock: a band of it that titles and cards pass behind, so nothing
+   ever shows between the pills. */
+.dock::before{content:"";position:absolute;z-index:-1;left:-12px;right:-12px;top:0;bottom:-16px;pointer-events:none;opacity:0;transition:opacity .16s;
+  background:linear-gradient(180deg,var(--sky1) calc(100% - 20px),transparent)}
+:root[data-scrolled] .dock::before{opacity:1}
 .seg{flex:1;display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--glass);
   -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
   box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent)}
@@ -128,26 +134,35 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
   box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--lum) 60%,transparent),inset 0 -6px 8px -4px color-mix(in srgb,var(--shore) 35%,transparent),
     0 1px 2px color-mix(in srgb,var(--shade) 30%,transparent)}
 .chip .skytok{width:16px;height:16px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 18%,transparent)}
-/* a second line in the dock: one tap filters for whichever tab is open */
-.dock .jump{flex:0 0 100%;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 10px;
-  -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+/* a second line in the dock: one tap filters for whichever tab is open. One
+   glass strip that slides sideways; the picked one is ink, like the lit tab.
+   A name cut by the strip's end is the sign that there are more. */
+.dock .jump{flex:0 0 100%;display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding:3px;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent)}
 .dock .jump::-webkit-scrollbar{display:none}
-.dock .jump .chip{flex:0 0 auto}
+.dock .jump .chip{flex:0 0 auto;min-height:30px;padding:4px 12px}
+.dock .jump .chip:not([aria-current="true"]){background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* ================= the hero: the title sits in the sky ================= */
 .hero{min-height:calc(var(--sw)*268/390 - 70px - var(--jumph,0px));padding:10px 4px 0;display:flex;flex-direction:column;align-items:flex-start}
-.dock:has(.jump)~* .hero{--jumph:42px}
-/* under a filter row the title sits down at the tree line: a closer halo of
-   the sky's own air keeps it clear of the firs */
-.dock:has(.jump)~* .hero h1{--title-near:0 0 7px color-mix(in srgb,var(--sky-halo,var(--sky1)) 92%,transparent)}
+.dock:has(.jump)~* .hero{--jumph:44px}
 /* The title's shadow is the sky's own air, in up to three parts: a thin dark
    edge under a pale title by day, a close halo when the title sits low, and
    a wide soft one always. */
 .hero h1{margin:0;font:700 48px/.94 "Barlow Condensed",sans-serif;letter-spacing:-.012em;color:var(--sky-ink,var(--ink));text-wrap:balance;overflow-wrap:anywhere;
-  text-shadow:var(--title-edge,0 0 0 transparent),var(--title-near,0 0 0 transparent),0 0 22px color-mix(in srgb,var(--sky-halo,var(--sky1)) 70%,transparent)}
+  --halo:var(--sky-halo,var(--sky1));
+  text-shadow:var(--title-edge,0 0 0 transparent),var(--title-near,0 0 0 transparent),0 0 22px color-mix(in srgb,var(--halo) 70%,transparent)}
 .hero h1.long{font-size:37px;line-height:1}
 .hero h1.xl{font-size:30px;line-height:1.02}
 :root[data-title="pale"] .hero h1{--title-edge:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent)}
+/* Under a filter row the title sits down in the air near the horizon. That
+   air can be the pale side of the sky when the top is the dark side (dawn),
+   so the title takes the tone that reads there (set by RIG.water.dress), and
+   a closer halo of that air keeps it clear of the firs. */
+.dock:has(.jump)~* .hero h1{color:var(--sky-ink-low,var(--sky-ink,var(--ink)));--halo:var(--sky-halo-low,var(--sky-halo,var(--sky1)));
+  --title-edge:0 0 0 transparent;--title-near:0 0 7px color-mix(in srgb,var(--halo) 92%,transparent)}
+:root[data-title-low="pale"] .dock:has(.jump)~* .hero h1{--title-edge:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent)}
 .chips{display:flex;flex-wrap:wrap;align-items:center;align-self:stretch;gap:6px;margin:10px 0 0;padding:0}
 .chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:28px;max-width:100%;padding:4px 11px;border:0;border-radius:999px;
   background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);
@@ -200,8 +215,11 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 :root[data-dark="1"] .tag.hot{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 82%,var(--ink)),var(--gold));
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 40%,transparent),0 0 14px -2px color-mix(in srgb,var(--gold) 55%,transparent)}
 .tag.good{color:var(--accent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 42%,transparent)}
-/* on the scene a tag needs paper under it */
+/* on the scene a tag needs paper under it, and by day the gold one a pale
+   ring and a shadow, or a warm sky swallows it (by night it glows) */
 .hero .tag.good{background:var(--glass)}
+.hero .tag.hot{box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 50%,transparent),0 0 0 1.5px color-mix(in srgb,var(--lum) 72%,transparent),
+  0 1px 2px color-mix(in srgb,var(--shade) 34%,transparent),var(--shx) 7px 14px -6px color-mix(in srgb,var(--shade) 62%,transparent)}
 /* have, get, check (todo): what is in the garage */
 .tag.have{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
 .tag.need{color:color-mix(in srgb,var(--warn) 84%,var(--t1));background:color-mix(in srgb,var(--warn) 13%,var(--paper))}
@@ -213,6 +231,9 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .pill.go::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 22%,transparent)}
 .pill.idea{color:var(--t2);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
 .pill.done{color:var(--t3);background:var(--well)}
+/* something this phone has not seen yet: gold's soft partner, and the word */
+.pill.new{color:var(--t1);background:color-mix(in srgb,var(--gold) 26%,var(--paper))}
+.pill.new::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 28%,transparent)}
 /* a note under a row: what makes this one special, in a soft pill */
 .note{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 7px;border-radius:999px;
   background:color-mix(in srgb,var(--accent) 9%,var(--paper));color:var(--t2);font-size:12.5px;font-weight:600}
@@ -251,17 +272,17 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 /* ================= a day: its heading and its ribbon of light ================= */
 .day{margin-top:26px}
 .day>h2{display:flex;align-items:baseline;gap:8px;margin:0 4px 10px;font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:var(--t1)}
-.day>h2 span{font-weight:600;font-size:16px;letter-spacing:.08em;color:var(--t2)}
+.day>h2 span{font-weight:600;font-size:16px;letter-spacing:.08em;color:var(--t2);white-space:nowrap}
 /* the day as a ribbon of its own light, five in the morning to eleven at
    night, with a bead where each trip starts: gold if it is hot */
-.ribbon{position:relative;flex:0 0 96px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
+.ribbon{position:relative;flex:0 1 96px;min-width:56px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
   box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 55%,transparent)}
 .ribbon b{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--paper);
   box-shadow:0 0 0 1.2px var(--ink),0 1px 2px color-mix(in srgb,var(--shade) 50%,transparent)}
 :root[data-dark="1"] .ribbon b{background:var(--ink);box-shadow:0 0 0 1.2px var(--bg)}
-.ribbon b.h,:root[data-dark="1"] .ribbon b.h{background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
+.ribbon b.h,:root[data-dark="1"] .ribbon b.h{z-index:1;background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
 .ribbon+i{margin-left:10px!important}
-.day>h2 i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3)}
+.day>h2 i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3);white-space:nowrap}
 .day>.well+.panel,.day>.panel+.well{margin-top:10px}
 
 /* ================= lists, trips and rows ================= */
@@ -278,13 +299,14 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .trip+.trip::before,.row+.row::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
 .row+.row::before{left:16px}
 .trip:active,.row:active{background:color-mix(in srgb,var(--accent) 7%,transparent)}
-.row .tx>span.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
 /* the small painting: this trip's own water under its own hour */
 .tile{flex:0 0 48px;width:48px;height:48px;border-radius:13px;overflow:hidden;position:relative;
   box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 16%,transparent),var(--shx) 5px 9px -5px color-mix(in srgb,var(--shade) 55%,transparent)}
 .tile svg{display:block;width:100%;height:100%}
 .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 30%,transparent)}
 .tile.lg{flex-basis:60px;width:60px;height:60px;border-radius:16px}
+/* no painter: a swatch of the sky over the water holds the picture's place */
+.tile.plain{background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 54%,var(--r3) 54% 60%,var(--water1) 60%,var(--water2) 100%)}
 .trip .tx>span.note,.trip .tx>span.withcrew{display:inline-flex;justify-self:start;margin-top:6px}
 .withcrew{display:inline-flex!important;align-items:center;gap:7px;margin-top:6px!important}
 
@@ -320,12 +342,13 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .tcard>b{display:flex;align-items:center;justify-content:space-between;font-weight:650;font-size:16px;letter-spacing:-.011em;color:var(--t1)}
 .bignum{display:flex;align-items:baseline;gap:7px;margin-top:8px;font:700 54px/.9 "Barlow Condensed",sans-serif;color:var(--t1)}
 .bignum span{font:600 14px/1.2 Inter,sans-serif;color:var(--t2)}
-.pips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
-.pips i{width:13px;height:13px;border-radius:4px;box-shadow:inset 0 0 0 1.6px var(--warn)}
+.pips{display:flex;gap:5px;margin-top:9px}
+.pips i{flex:0 1 13px;aspect-ratio:1;border-radius:4px;box-shadow:inset 0 0 0 1.6px var(--warn)}
 .pips i.c{box-shadow:inset 0 0 0 1.6px color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .pips i.h{box-shadow:none;background:color-mix(in srgb,var(--go) 62%,var(--pan-b))}
 .pips.many{gap:4px}
-.pips.many i{width:10px;height:10px;border-radius:3px}
+.pips.many i{flex-basis:10px;border-radius:3px}
+@media (max-width:379px){.tcard>b{font-size:14.5px;letter-spacing:-.02em;white-space:nowrap}}
 .tcard .sub{display:block;margin-top:auto;padding-top:8px;font-size:13px;line-height:1.35;color:var(--t3);text-wrap:balance}
 .tcard .lead{display:block;margin-top:4px;font-size:13px;font-weight:650;color:var(--t1)}
 .tide{display:block;width:100%;height:auto;margin-top:8px}
@@ -403,8 +426,9 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 
 /* ================= the one main action ================= */
 .act{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;margin-top:18px;padding:10px 0 0}
-.act::before{content:"";position:absolute;left:-16px;right:-16px;top:-14px;bottom:-40px;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 92%,transparent) 42%)}
+/* the ground comes up under a pinned button: nothing shows through below it */
+.act::before{content:"";position:absolute;left:-16px;right:-16px;top:-18px;bottom:-60px;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,var(--bg) 28px)}
 .gold{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;padding:8px 16px;border:0;border-radius:18px;cursor:pointer;
   font:700 21px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.07em;text-transform:uppercase;text-align:center;text-wrap:balance;color:var(--on-gold);
   background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 76%,var(--paper)),var(--gold) 55%,color-mix(in srgb,var(--gold) 90%,var(--shade)));
@@ -415,6 +439,15 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .gold svg{flex:0 0 auto;width:22px;height:22px}
 .gold:active{transform:translateY(1px);filter:brightness(.94)}
 .gold[disabled]{opacity:.55;cursor:default}
+/* two choices side by side: the gold one, and a quiet one pressed in beside it */
+.pair{display:flex;gap:10px}
+.pair .gold{flex:1 1 0}
+.quiet{flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-height:58px;padding:8px 18px;border:0;border-radius:18px;cursor:pointer;
+  font:700 17px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .quiet{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.quiet:active{transform:translateY(1px)}
+.quiet[disabled]{opacity:.55;cursor:default}
 /* the same light, smaller: the one button inside a card */
 .gold.sm{width:auto;min-height:44px;padding:6px 16px 6px 18px;border-radius:14px;font-size:17px;gap:8px}
 .gold.sm svg{width:8px;height:14px}

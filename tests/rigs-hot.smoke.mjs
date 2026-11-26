@@ -101,6 +101,22 @@ try {
   ok(/Leave by 4:10 PM/.test(await page.locator('[data-sec-row="plan"]').innerText()), "the plan headline says when to leave");
   const words = await page.evaluate(() => document.querySelector('[data-view="hot"]').innerText.split(/\s+/).length);
   ok(words < 340, "the run card overview is headlines, not an essay", words);
+  // Each headline row says one thing on one line, in whole words.
+  const rowLines = await page.locator('[data-view="hot"] > .list [data-sec-row] .tx > span').allInnerTexts();
+  ok(rowLines.join(" | ") === "Market squid under the pier lights after dark | Two squid jigs, 2.0 to 2.5, early in the season | Stand where you can drop straight down | Redondo Pier, Des Moines | A crowded rail on good nights",
+    "the rows are one short line each: what, bait, how, the spot, what to expect", rowLines.join(" | "));
+  ok((await page.locator('[data-sec-row="rules"] .tx > span').innerText()).trim() === "10 pounds or 5 quarts a day", "and the rules row is the limit, said short",
+    await page.locator('[data-sec-row="rules"] .tx > span').innerText());
+  // Signed out, the card's one gold button closes the card: in the page, after
+  // the rules and before Go deeper, never pinned over the rows.
+  const walk = await page.evaluate(() => {
+    const g = document.querySelector('[data-view="hot"] [data-walk]'), rules = document.querySelector('[data-sec-row="rules"]'), more = document.querySelector("[data-more]");
+    const after = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    let pinned = false;
+    for (let e = g; e && e.id !== "app"; e = e.parentElement) if (/sticky|fixed/.test(getComputedStyle(e).position)) pinned = true;
+    return { n: document.querySelectorAll('[data-view="hot"] .gold').length, href: g.getAttribute("href"), order: after(rules, g) && after(g, more), pinned };
+  });
+  ok(walk.n === 1 && /\/plan$/.test(walk.href) && walk.order && !walk.pinned, "one gold button, after the rules and before Go deeper, in the page and not pinned", JSON.stringify(walk));
 
   await page.locator('[data-sec-row="plan"]').click();
   await page.waitForSelector('[data-view="card"][data-run="squid-redondo"]');
@@ -142,6 +158,40 @@ try {
   const riv = await page.locator(".card").innerText();
   ok(/Right now: 410 cfs/.test(riv) && /Over 2,000 cfs: blown out/.test(riv), "the River card shows the live reading and the no-go line", riv.slice(0, 300));
 
+  // The gear tile only says "the rest you own" when there is a rest. The
+  // razor clam dig has two things to get, four to check and nothing owned.
+  await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-26~clams-ocean-shores"), { waitUntil: "load" });
+  await page.waitForSelector('[data-view="hot"][data-run="clams-ocean-shores"]');
+  const clamGear = (await page.locator('[data-sec-row="gear"]').innerText()).replace(/\s+/g, " ");
+  ok(/2 to get/.test(clamGear) && /4 to check/.test(clamGear) && !/you own/i.test(clamGear), "a trip with nothing owned does not say the rest is owned", clamGear);
+  await page.locator('[data-sec-row="gear"]').click();
+  await page.waitForSelector('[data-card="gear"]');
+  const clamCard = await page.locator(".card .when").first().innerText();
+  ok(/^2 to get, 4 to check\.$/.test(clamCard.trim()), "and neither does its gear card", clamCard);
+
+  // With a card in the trip, the trip bar is the only thing pinned over a
+  // run card: the gold button scrolls with the page.
+  await page.goto(base + "#/squid/redondo/squid-rig", { waitUntil: "load" });
+  await page.locator("[data-addtrip]").first().click();
+  await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo"), { waitUntil: "load" });
+  await page.waitForSelector('[data-view="hot"][data-run="squid-redondo"]');
+  await page.waitForSelector(".tripbar");
+  const at = async (y) => {
+    await page.evaluate((v) => window.scrollTo(0, v), y);
+    await page.waitForTimeout(120);
+    return page.evaluate(() => ({ gold: Math.round(document.querySelector("[data-walk]").getBoundingClientRect().top), bar: Math.round(document.querySelector(".tripbar").getBoundingClientRect().bottom), h: innerHeight }));
+  };
+  const y1 = await at(100), y2 = await at(300);
+  ok(y1.gold - y2.gold === 200 && y1.bar === y2.bar && y2.bar <= y2.h && y2.bar > y2.h - 40, "the trip bar stays pinned and the gold button scrolls with the page, never pinned on top of it", JSON.stringify([y1, y2]));
+  await page.locator("[data-mode-field]").click();
+  await page.waitForSelector('[data-view="field"]');
+  ok(await page.evaluate(() => document.getElementById("scene").getAttribute("data-scene")) === "pier", "field mode stands under the water its cards are for: a squid card, the pier",
+    await page.evaluate(() => document.getElementById("scene").getAttribute("data-scene")));
+  await page.locator("[data-mode-library]").click();
+  await page.goto(base + "#/squid/redondo/squid-rig", { waitUntil: "load" });
+  await page.locator("[data-addtrip]").first().click();
+  ok(await page.locator(".tripbar").count() === 0, "the card comes back out of the trip");
+
   // Coming back uses the saved forecast, no new calls.
   const before = calls();
   await page.goto(base + "#/trips", { waitUntil: "load" });
@@ -170,6 +220,9 @@ try {
     await pg.waitForTimeout(400);
     const held = await bg();
     ok(lum(held) < 60, "the next tap holds it dark for glare", held);
+    // The chip under the title says it is held, so the words match the night picture.
+    const heldWords = (await pg.locator("[data-skychip]").innerText()).replace(/\s+/g, " ").trim();
+    ok(/^Held dark/.test(heldWords) && /sunset 4:24 PM/.test(heldWords) && !/Overcast|Blue sky/.test(heldWords), "held dark at midday, the sky chip says Held dark and keeps the sunset", heldWords);
     await pg.reload({ waitUntil: "load" });
     await pg.waitForSelector("[data-day]");
     ok(lum(await bg()) < 60, "the choice sticks across opens", await bg());
@@ -179,6 +232,37 @@ try {
     const diaDark = await pg.evaluate(() => { const [r, g, b] = getComputedStyle(document.querySelector(".dia")).backgroundColor.match(/\d+/g).map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; });
     ok(diaDark < 70, "the rig drawings keep their dark card", diaDark);
     await c4.close();
+  }
+
+  // A run card opened cold, by its link, before any forecast is on the phone:
+  // it waits under the trip's own name, then draws. It does not fall back to
+  // the week.
+  {
+    const c5 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles" });
+    await fake(c5);
+    let hold = null;
+    const held = new Promise((r) => { hold = r; });
+    await c5.route(/api\.open-meteo\.com\/v1\/forecast/, async (route) => { await held; return route.fallback(); });
+    const pg = await c5.newPage();
+    await pg.clock.setFixedTime(new Date("2026-11-23T12:00:00-08:00"));
+    const errs = []; pg.on("pageerror", (e) => errs.push(e.message));
+    const link = "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo");
+    await pg.goto(base + link, { waitUntil: "load" });
+    await pg.waitForSelector("[data-hot-wait]");
+    const waiting = await pg.evaluate(() => ({ hash: location.hash, title: document.querySelector(".hero h1").textContent, scene: document.getElementById("scene").getAttribute("data-scene"),
+      back: document.querySelector(".hero [data-up]").getAttribute("href") }));
+    ok(decodeURIComponent(waiting.hash) === decodeURIComponent(link) && waiting.title === "Squid at Redondo" && waiting.scene === "pier" && waiting.back === "#/trips",
+      "a cold run card link waits for the forecast under the trip's own name and scene", JSON.stringify(waiting));
+    hold();
+    await pg.waitForSelector('[data-view="hot"][data-run="squid-redondo"] [data-sec-row="plan"]', { timeout: 8000 }).catch(() => {});
+    ok(await pg.locator('[data-view="hot"][data-run="squid-redondo"] [data-sec-row]').count() === 9 && /Leave by 4:10 PM/.test(await pg.locator('[data-sec-row="plan"]').innerText()),
+      "then the run card draws, at the same address", await pg.evaluate(() => location.hash));
+    // A link to a day that is not in the forecast any more goes to the week.
+    await pg.goto(base + "#/trips/" + encodeURIComponent("2026-11-01~squid-redondo"), { waitUntil: "load" });
+    await pg.waitForSelector('[data-view="trips"] [data-day]');
+    ok(/^#\/trips$/.test(await pg.evaluate(() => location.hash)), "a link to a day that has passed lands on the week", await pg.evaluate(() => location.hash));
+    ok(errs.length === 0, "no page errors on a cold link", errs.join(" | "));
+    await c5.close();
   }
 
   // Coming back to the app the next day must not show yesterday's screen.
