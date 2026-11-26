@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0d10">
+<meta name="theme-color" content="#B9C4CC">
 <title>Rig Card</title>
 <link rel="manifest" href="/rigs/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/rigs/icon-v4-180.png">
@@ -11,102 +11,76 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Rig Card">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preload" href="/rigs/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/rigs/kit.css">
+<link rel="stylesheet" href="/rigs/scene.css">
+<script src="/rigs/sky.js"></script>
+<script src="/rigs/scene.js"></script>
+<script>
+// The sky before anything is drawn, so the page never opens in the wrong
+// light. The clock alone decides here; the forecast refines it once it is read.
+(function () {
+  try {
+    var n = new Date(), m = null;
+    try { m = localStorage.getItem("rig.skymode.v1"); } catch (e) { /* private mode */ }
+    var r = RIG.sky.resolve(n.getHours() + n.getMinutes() / 60, null, null, m === "light" || m === "dark" ? m : "auto");
+    RIG.sky.apply(document.documentElement, r);
+    RIG.water.dress(document.documentElement, r.p);
+  } catch (e) { /* the overcast floor in kit.css stands */ }
+})();
+</script>
 <style>
-/* Self-hosted so the page opens at a pier with no cell signal.
-   Inter ships as a variable font: one file covers 400 through 700. */
-@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;
-  src:url(/rigs/fonts/inter.woff2) format('woff2')}
-@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;
-  src:url(/rigs/fonts/barlow-condensed-600.woff2) format('woff2')}
-@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;
-  src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
 :root{
-  /* First paint, and the floor if sky.js never loads. rigs/sky.js replaces
-     the sky-dependent ones (bg, paper, line, ink, ink2, dim, accent, gold)
-     as soon as it runs. */
-  --paper:#141a20; --gold:#D9A94A; --on-gold:#14171F; --shore:#030708;
-  --bg:#0a0d10; --bg2:#0e1318;
-  --panel:#141a20; --panel2:#1a222a; --panel3:#212b34;
-  --line:#26313a; --line2:#334049;
-  --ink:#f4f7f9; --ink2:#c3cfd8; --dim:#8899a5;
-  --accent:#D9A94A; --accent2:#ecc777;
-  --go:#8fe85f; --warn:#ffc53d; --no:#ff5a4e;
+  /* What the older screens and the rig drawings read. The sky's own colours
+     and the look's tokens are in kit.css. rigs/sky.js sets the panel and line
+     shades for the sky as soon as it runs; these are the floor. */
+  --panel:var(--paper);
+  --panel2:color-mix(in srgb,var(--paper) 96.5%,var(--ink));
+  --panel3:color-mix(in srgb,var(--paper) 93%,var(--ink));
+  --bg2:color-mix(in srgb,var(--bg) 97%,var(--ink));
+  --line2:color-mix(in srgb,var(--line) 75%,var(--ink));
+  --sh:var(--e1);
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  /* the drawings' own inks: they sit on a dark card in every sky */
   --water:#123243; --rope:#f0f4f7;
   --steel:#8c99a3; --steel2:#6b7883; --hi:#fff;
   --roe:#f0a071; --roe2:#d9542f; --roe3:#8e2f22; --lure:#f2563a; --lure2:#e8442c;
   --yarn:#ff3d8a; --chart:#8ef06a; --brass:#d9a441; --brass2:#b8862c;
-  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
-  --sh:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.7);
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-html{background:var(--bg)}
-body{min-height:100vh;min-height:100dvh}
-body{
-  background:var(--bg);
-  background-image:radial-gradient(1200px 520px at 50% -10%, var(--bg2), transparent 70%);
-  color:var(--ink);
-  font-family:Inter,system-ui,-apple-system,sans-serif;
-  -webkit-font-smoothing:antialiased;line-height:1.55;
-  padding-top:env(safe-area-inset-top);
-}
-.wrap{max-width:640px;margin:0 auto;padding:18px 16px 80px}
+/* The scene is painted once and stays put while the screens under it are
+   redrawn. It sits straight in the phone column, so it reaches both edges. */
+.phone>.scene{left:0;right:0}
+/* An installed app on an iPhone draws the clock and battery in white over the
+   top of the page. The sky there is often pale, so the strip they sit in is
+   shaded with the shore tone. In a browser tab the inset is zero and this is
+   nothing. */
+.phone::before{content:"";position:fixed;z-index:50;left:0;right:0;top:0;height:env(safe-area-inset-top);pointer-events:none;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--shore) 86%,transparent),color-mix(in srgb,var(--shore) 62%,transparent))}
 
-/* tabs */
-.tabs{
-  position:sticky;top:0;z-index:30;margin:0 -16px 22px;padding:11px 16px;
-  background:color-mix(in srgb, var(--bg) 82%, transparent);
-  backdrop-filter:blur(16px) saturate(140%);
-  border-bottom:1px solid var(--line);
-  display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;
-}
-.tabs::-webkit-scrollbar{display:none}
-.tab{
-  flex:0 0 auto;font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  text-transform:uppercase;letter-spacing:.07em;font-size:14px;
-  background:var(--panel);color:var(--dim);border:1px solid var(--line);
-  border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap;
-  transition:all .16s cubic-bezier(.4,0,.2,1);
-}
-.tab:hover{color:var(--ink2);border-color:var(--line2)}
-.tab[aria-selected="true"]{
-  background:var(--gold);
-  color:var(--on-gold);border-color:transparent;
-  box-shadow:0 2px 10px -2px color-mix(in srgb,var(--gold) 55%,transparent);
-}
 
-.sheet[hidden]{display:none}
-.shead{margin-bottom:18px}
-.eyebrow{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.18em;
-  text-transform:uppercase;font-size:11.5px;color:var(--accent);margin:0 0 6px
-}
-h1{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:44px;
-  line-height:.96;margin:0 0 10px;letter-spacing:-.015em}
 .when{font-size:15px;color:var(--ink2);margin:0;max-width:52ch}
 
 /* specs */
 .specs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:20px 0}
 .sp{background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;box-shadow:var(--sh)}
-.sp .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:700}
+.sp .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);font-weight:700}
 .sp .v{font-family:var(--mono);font-size:13.5px;font-weight:600;margin-top:4px;line-height:1.3;color:var(--ink)}
-.sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font-size:10.5px;font-family:var(--mono);color:var(--dim);line-height:1.3}
+.sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font-size:10.5px;font-family:var(--mono);color:var(--t3);line-height:1.3}
 
 /* diagram */
 /* The rig and knot drawings are built for a dark ground, so they keep one in
    every sky, like a photograph printed on the page. */
-.dia{--bg:#0a0d10;--panel:#141a20;--panel2:#1a222a;--panel3:#212b34;--line:#26313a;--line2:#334049;
+.dia,.tyer{--bg:#0a0d10;--panel:#141a20;--panel2:#1a222a;--panel3:#212b34;--line:#26313a;--line2:#334049;
   --ink:#f4f7f9;--ink2:#c3cfd8;--dim:#8899a5;--accent:#ff6a2b;--accent2:#ffa066;
   --go:#8fe85f;--warn:#ffc53d;--no:#ff5a4e;--hi:#fff;color:var(--ink);
-  background:linear-gradient(180deg,var(--panel),var(--panel2));
+  /* the kit's text tones, mixed again from the card's own inks */
+  --t1:var(--ink);--t2:var(--ink2);--t3:color-mix(in srgb,var(--dim) 68%,var(--ink))}
+.dia{background:linear-gradient(180deg,var(--panel),var(--panel2));
   border:1px solid var(--line);border-radius:16px;padding:8px;margin:0 0 18px;
-  box-shadow:var(--sh);overflow:hidden}
+  box-shadow:var(--e1);overflow:hidden}
 .dia svg{display:block;width:100%;height:auto;border-radius:10px}
 
-h2{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;font-size:20px;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
-h2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
 
 ol.steps{list-style:none;counter-reset:s;padding:0;margin:0}
 ol.steps li{counter-increment:s;position:relative;padding:0 0 15px 40px;font-size:15px;color:var(--ink2)}
@@ -118,12 +92,15 @@ ol.steps li::before{
   font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;
   display:grid;place-items:center
 }
+ol.steps li:last-child{padding-bottom:0}
 ol.steps b{font-weight:650;color:var(--ink)}
 ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-weight:600;
   background:color-mix(in srgb,var(--accent) 12%,transparent);padding:2px 7px;border-radius:5px;white-space:normal;overflow-wrap:anywhere}
 
 .box{border-radius:14px;padding:13px 15px;font-size:14.5px;margin:16px 0 0;
-  border:1px solid var(--line);background:var(--panel);color:var(--ink2);box-shadow:var(--sh)}
+  border:1px solid var(--edge);background:var(--pan-a);color:var(--t2);box-shadow:var(--e1)}
+.card .box,.float .box{box-shadow:none}
+.box a{text-decoration:underline;text-underline-offset:2px}
 .box strong{font-weight:680;color:var(--ink)}
 .box b{display:block;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase;
   letter-spacing:.09em;font-size:14px;margin-bottom:5px;color:var(--ink)}
@@ -142,10 +119,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .chk label:has(input:checked){opacity:.42}
 .chk input{appearance:none;-webkit-appearance:none;flex:0 0 20px;width:20px;height:20px;margin:1px 0 0;border-radius:6px;border:2px solid var(--line2);background:transparent;position:relative;cursor:pointer}
 .chk input:checked{background:var(--accent);border-color:var(--accent)}
-.chk input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid #120704;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.chk input:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;border:solid var(--paper);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
 .chk .t{min-width:0}
 .chk .t b{display:block;font-weight:650;font-size:14.5px;line-height:1.3;color:var(--ink)}
-.chk .t i{display:block;font-style:normal;font-size:12.5px;line-height:1.4;color:var(--dim);margin-top:2px}
+.chk .t i{display:block;font-style:normal;font-size:12.5px;line-height:1.4;color:var(--t3);margin-top:2px}
 
 /* ---- knot tyer ---- */
 .tyer{margin:0 0 6px;background:linear-gradient(180deg,var(--panel),var(--panel2));
@@ -156,7 +133,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .rail{display:flex;gap:5px;flex:1}
 .rail button{
   flex:1;height:30px;border-radius:8px;cursor:pointer;
-  background:var(--panel3);border:1px solid var(--line);color:var(--dim);
+  background:var(--panel3);border:1px solid var(--line);color:var(--t3);
   font-family:var(--mono);font-size:12.5px;font-weight:600;transition:all .15s;
 }
 .rail button:hover{border-color:var(--line2);color:var(--ink2)}
@@ -180,7 +157,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   color:var(--accent);text-decoration:none;font-weight:600;
   border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:var(--panel)}
 .klink:hover{border-color:var(--accent)}
-.klink span{color:var(--dim);font-weight:400;font-size:13px}
+.klink span{color:var(--t3);font-weight:400;font-size:13px}
 .card h4{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.08em;font-size:17px;color:var(--ink);margin:22px 0 8px}
 
@@ -205,33 +182,12 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .buy a:hover{border-color:var(--accent)}
 .buy .n{flex:1;min-width:0}
 .buy .n b{display:block;color:var(--ink);font-weight:650;font-size:14.5px;line-height:1.3}
-.buy .n span{display:block;color:var(--dim);font-size:12.5px;margin-top:3px;line-height:1.35}
+.buy .n span{display:block;color:var(--t3);font-size:12.5px;margin-top:3px;line-height:1.35}
 .buy .p{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
 .buy .go{color:var(--line2);font-size:17px;line-height:1;flex:0 0 auto}
 
-/* ---- pinned header: species tabs + jump bar ---- */
-.skymode{margin-left:auto;flex:0 0 auto;min-width:44px;min-height:34px;padding:0 10px;cursor:pointer;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-  font-size:12px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:999px}
-.skymode[data-held="yes"]{color:var(--on-gold);background:var(--gold);border-color:transparent}
-.top{position:sticky;top:0;z-index:30;margin:calc(-18px - env(safe-area-inset-top)) -16px 18px;
-  padding-top:env(safe-area-inset-top);
-  background:color-mix(in srgb,var(--bg) 88%,transparent);
-  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
-  border-bottom:1px solid var(--line)}
-.top .tabs{position:static;margin:0;border:0;background:none;backdrop-filter:none;padding:11px 16px 9px}
-.jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 16px 10px}
-.jump::-webkit-scrollbar{display:none}
-.jump .jp{flex:0 0 auto;font:600 13px/1 Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer;
-  color:var(--ink2);background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:7px 11px}
-.jump .jp:hover,.jump .jp[aria-current="true"]{color:var(--ink);border-color:var(--accent);
-  background:color-mix(in srgb,var(--accent) 16%,var(--panel2))}
-.jump .jsep{flex:0 0 auto;align-self:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--accent);padding:0 2px 0 6px}
 .card{scroll-margin-top:var(--toph,130px)}
-.card p a,.card .box a,.card li a{color:var(--accent);font-weight:600;text-underline-offset:2px}
-.top .tab{padding:8px 12px;font-size:13.5px;letter-spacing:.05em}
-.top .tabs{gap:5px}
+.card p a,.card .box a,.card li a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 /* ---- video tiles ---- */
 .vids{display:grid;gap:10px;margin:12px 0 0}
 .vid{display:flex;align-items:center;gap:13px;padding:12px;border-radius:14px;text-decoration:none;
@@ -245,111 +201,105 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .vid .vt{flex:1;min-width:0}
 .vid .vt b{display:block;color:var(--ink);font-weight:650;font-size:15px;line-height:1.3}
 .vid .by{display:block;color:var(--accent);font-size:12.5px;font-weight:600;margin-top:3px}
-.vid .why{display:block;color:var(--dim);font-size:13px;line-height:1.4;margin-top:4px}
-.vid .len{flex:0 0 auto;align-self:flex-start;text-align:right;font-family:var(--mono);font-size:11.5px;color:var(--dim);line-height:1.4}
+.vid .why{display:block;color:var(--t3);font-size:13px;line-height:1.4;margin-top:4px}
+.vid .len{flex:0 0 auto;align-self:flex-start;text-align:right;font-family:var(--mono);font-size:11.5px;color:var(--t3);line-height:1.4}
 .card .box + ol.steps,.card .box + .box{margin-top:14px}
 .card ol.steps + .box{margin-top:6px}
 
 
-/* ---- headlines first: tiles, rows, one card at a time ---- */
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 0}
-.tile{display:flex;flex-direction:column;gap:2px;min-height:128px;padding:16px 15px 14px;text-decoration:none;
-  background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:16px;
-  box-shadow:var(--sh);color:var(--ink);transition:border-color .15s,transform .15s}
-.tile:hover,.tile:active{border-color:var(--accent);transform:translateY(-1px)}
-.tile .ic{width:40px;height:40px;color:var(--accent);margin-bottom:auto}
-.tile .nm{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:24px;line-height:1;margin-top:12px}
-.tile .meta{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent2)}
+/* ---- the library, until its own stage: tiles, rows, one card at a time ---- */
+.wtiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.wtile{display:flex;flex-direction:column;gap:2px;min-height:128px;padding:16px 15px 14px;color:var(--t1)}
+.wtile:active{transform:translateY(1px)}
+.wtile .ic{width:40px;height:40px;color:var(--accent);margin-bottom:auto}
+.wtile .nm{font:700 24px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;margin-top:12px}
+.wtile .meta{font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent2)}
 .ic{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.eyebrow .ic{width:34px;height:34px;display:block;margin-bottom:6px}
-.rows{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);
-  border-radius:16px;overflow:hidden;box-shadow:var(--sh)}
-.row{display:flex;align-items:center;gap:12px;min-height:62px;padding:12px 14px;text-decoration:none;color:var(--ink);
-  border-top:1px solid var(--line);transition:background .15s}
-.row:first-child{border-top:0}
-.row:hover,.row:active{background:color-mix(in srgb,var(--accent) 9%,transparent)}
-.row .rt{flex:1;min-width:0}
-.row .rt b{display:block;font-weight:650;font-size:15.5px;line-height:1.3}
-.row .rt span{display:block;font-size:13px;color:var(--dim);line-height:1.35;margin-top:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip .ic{flex:0 0 auto;width:18px;height:18px;color:var(--accent)}
 .row .rm{flex:0 0 auto;max-width:42%;text-align:right;font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--accent2)}
-.row .chev{flex:0 0 auto;font-size:24px;line-height:1;color:var(--steel2)}
-.grp > h2 .n{font-family:var(--mono);font-size:12px;letter-spacing:0;color:var(--dim);font-weight:600}
-a.back{text-decoration:none}
+.row .tx>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .tx>span.clamp{white-space:normal}
+.grp{margin:26px 0 0}
+.grp>.sect{margin-top:0}
+/* A heading that lands on the picture gets glass under it, and the title
+   gives up a little sky so the first card still crosses the waterline. */
+.sect.lead{display:inline-flex;margin:0 0 10px;padding:8px 13px 7px;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);box-shadow:var(--e1),inset 0 1px 0 var(--rim)}
+.sect.lead .n{margin-left:4px}
+.hero.tight{min-height:calc(var(--sw)*268/390 - 114px - var(--jumph,0px))}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* ---- hot trips ---- */
-.heat{display:inline-block;padding:3px 9px;border-radius:999px;font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);border:1px solid color-mix(in srgb,var(--accent) 45%,var(--line))}
-.heat.hot{background:var(--gold);color:var(--on-gold);border-color:transparent}
 .gear{list-style:none;margin:14px 0 0;padding:0}
 .gear li{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink)}
 .gear li:first-child{border-top:0}
 .gear li span:last-child{flex:1;min-width:0}
-.gear li small{display:block;color:var(--dim);font-size:13px;margin-top:2px}
-.tag{flex:0 0 auto;min-width:52px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-  padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim)}
-.tag.have{color:var(--go);border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
-.tag.need{color:var(--accent2);border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.gear li small{display:block;color:var(--t3);font-size:13px;margin-top:2px}
+.gear .tag{min-width:58px;text-align:center}
 .hrs{width:100%;border-collapse:collapse;margin:12px 0 0;font-size:13.5px;color:var(--ink2)}
 .hrs td{padding:7px 4px;border-top:1px solid var(--line)}
 .hrs td:first-child{font-family:var(--mono);color:var(--accent2);white-space:nowrap}
-.grp > h2 .heat{margin-left:8px;vertical-align:middle}
-.mapbox{height:calc(100dvh - var(--toph,130px) - 150px);min-height:380px;margin:12px 0 0;border-radius:16px;overflow:hidden;
-  border:1px solid var(--line);background:#0d1218;box-shadow:var(--sh)}
-.mapbox .quiet{margin:16px}
-.tiles-dark{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.92) saturate(.6)}
-.days{margin:14px 0 0}
+/* The map follows the sky like every other surface: plain tiles by day,
+   turned dark only under the three dark skies. */
+.mapbox{height:calc(100dvh - var(--sw)*268/390 - 104px);min-height:380px;border-radius:20px;overflow:hidden;isolation:isolate;
+  box-shadow:var(--e2),inset 0 0 0 1px var(--edge)}
+.mapbox,.mapbox.leaflet-container{background:var(--panel2)}
+.mapbox .well{margin:16px}
+.tiles-dark{filter:saturate(.55) contrast(.96)}
+:root[data-dark="1"] .tiles-dark{filter:invert(1) hue-rotate(180deg) brightness(.8) contrast(.92) saturate(.6)}
+.days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:10px -20px 0;padding:2px 20px 12px;align-self:stretch}
+.days::-webkit-scrollbar{display:none}
+.days .chip{flex:0 0 auto}
 .mk{display:flex !important;align-items:center;gap:6px;white-space:nowrap;background:none;border:0}
-.mk i{flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:3px solid var(--accent);background:#0b0f14}
-.mk b{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000}
+.mk i{flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:3px solid var(--accent);background:var(--paper)}
+.mk b{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;color:var(--ink);
+  text-shadow:0 0 2px var(--paper),0 0 4px var(--paper),0 0 7px var(--paper)}
 .mk b{pointer-events:none}
-.mk.group i{width:26px;height:26px;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:12px;font-weight:700;color:#fff}
-.mk.group.hot i{color:#1a0d05}
+.mk.group i{width:26px;height:26px;display:grid;place-items:center;font-style:normal;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--ink)}
+.mk.group.hot i{color:var(--on-gold)}
 .leaflet-popup-content .pg + .pg{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
-.mk.hot i{background:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 35%,transparent)}
-.mk.dim i{border-color:var(--steel2);opacity:.55}
-.mk.dim b{opacity:.55;font-weight:600}
-.mk.home i{border-radius:5px;border-color:#fff;background:#fff}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 2px 0;font-size:12.5px;color:var(--dim)}
+.mk.hot i{border-color:var(--gold);background:var(--gold);box-shadow:0 0 0 5px color-mix(in srgb,var(--gold) 35%,transparent),0 0 0 1px var(--on-gold)}
+.mk.dim i{border-color:var(--dim);opacity:.75}
+.mk.dim b{opacity:.75;font-weight:600}
+.mk.home i{border-radius:5px;border-color:var(--ink);background:var(--ink)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 4px 0;font-size:12.5px;color:var(--t3)}
 .legend .mk{font-size:12.5px}
 .legend .mk i{width:13px;height:13px;border-width:2px}
+.legend .mk.hot i{margin:0 4px}
 .mapbox .leaflet-popup-content-wrapper,.mapbox .leaflet-popup-tip{background:var(--panel);color:var(--ink);box-shadow:var(--sh)}
 .mapbox .leaflet-popup-content{margin:14px 16px;font:14px/1.4 Inter,sans-serif}
-.mapbox .leaflet-popup-content small{color:var(--dim)}
+.mapbox .leaflet-popup-content small{color:var(--t3)}
 .mapbox .leaflet-popup-content a.pt{color:var(--ink)}
 .mapbox .leaflet-popup-content .pt{display:block;margin-top:10px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600}
 .mapbox .leaflet-popup-content .pt span{display:block;font-family:var(--mono);font-size:11px;color:var(--accent2);font-weight:600}
-.mapbox .leaflet-popup-content .pq{margin:8px 0 0;color:var(--dim)}
-.mapbox.leaflet-container a.leaflet-popup-close-button{color:var(--dim)}
-.mapbox .leaflet-control-attribution{background:rgba(11,15,20,.75) !important;color:var(--dim) !important}
+.mapbox .leaflet-popup-content .pq{margin:8px 0 0;color:var(--t3)}
+.mapbox.leaflet-container a.leaflet-popup-close-button{color:var(--t3)}
+.mapbox .leaflet-control-attribution{background:color-mix(in srgb,var(--paper) 82%,transparent) !important;color:var(--ink2) !important}
 .mapbox .leaflet-control-attribution a{color:var(--ink2) !important}
-.heat.rule{color:var(--no);border-color:color-mix(in srgb,var(--no) 55%,var(--line));margin-right:6px}
-.heat.rule[hidden]{display:none}
 .ruleacts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
 .ruleacts a{color:var(--ink);font-weight:600}
 .ack{font:inherit;font-size:13px;color:var(--ink);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
-.rulestamp{margin:14px 0 0;font-size:12.5px;color:var(--dim)}
-.quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
-.quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.rulestamp{margin:14px 4px 0;font-size:12.5px;color:var(--t3)}
+.card .rulestamp{font-size:12.5px;color:var(--t3);margin:0 0 12px}
 /* ---- the crew ---- */
 /* Every class here starts cw- so no other part of the app can collide with
    it. An earlier bare .go rule turned the bait card's buy arrows into gold bars. */
 .cw{max-width:430px}
 .cw-fld{display:block;margin:0 0 14px}
-.cw-fld > span{display:block;font-size:13px;color:var(--dim);margin:0 0 6px}
+.cw-fld > span{display:block;font-size:13px;color:var(--t3);margin:0 0 6px}
 .cw-fld input,.cw-fld select,.cw-fld textarea{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);
   background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:0 14px}
 .cw-fld textarea{min-height:96px;padding:12px 14px;resize:vertical}
 .cw-fld input:focus,.cw-fld select:focus,.cw-fld textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
-.cw-go,.cw-plain{display:flex;align-items:center;justify-content:center;width:100%;font:inherit;text-align:center;
-  text-decoration:none;cursor:pointer;border-radius:12px;padding:0 14px}
-.cw-go{min-height:50px;font-size:16px;font-weight:600;background:var(--gold);color:var(--on-gold);border:0}
-.cw-plain{min-height:46px;margin-top:10px;font-size:15px;color:var(--ink2);background:transparent;border:1px solid var(--line)}
-.cw-go[disabled],.cw-plain[disabled]{opacity:.55;cursor:default}
+.cw-plain{display:flex;align-items:center;justify-content:center;width:100%;font:inherit;text-align:center;
+  text-decoration:none;cursor:pointer;border-radius:14px;padding:0 14px;
+  min-height:46px;margin-top:10px;font-size:15px;color:var(--ink2);background:transparent;border:1px solid var(--line2)}
+.cw-plain[disabled]{opacity:.55;cursor:default}
+.cw-plain:active{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 .cw-out{margin-top:22px}
 .cw-mini{min-height:34px;font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:transparent;
   border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer}
 .cw-mini.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
-.cw-msg{font-size:14px;line-height:1.45;color:var(--dim);margin:12px 0 0;min-height:1px}
+.cw-msg{font-size:14px;line-height:1.45;color:var(--t3);margin:12px 0 0;min-height:1px}
 .cw-msg:empty{display:none}
 .cw-msg.no{color:var(--no)}
 .cw-msg.ok{color:var(--go)}
@@ -360,36 +310,19 @@ a.back{text-decoration:none}
   border-radius:12px;background:var(--paper);margin:0 0 8px}
 .cw-who{flex:1 1 auto;min-width:0}
 .cw-who b{font-weight:650;font-size:15.5px;overflow-wrap:anywhere}
-.cw-who span{font-size:13px;color:var(--dim);margin-left:8px}
+.cw-who span{font-size:13px;color:var(--t3);margin-left:8px}
 .cw-ask{flex:1 1 100%;font-size:14px;color:var(--ink2)}
 .cw-acts{display:flex;flex-wrap:wrap;gap:8px}
 .cw-list .cw-msg{flex:1 1 100%;margin:0}
 .cw-wait{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--warn)}
 .cw .box p{margin:0 0 12px}
 .cw .box .cw-msg{margin:12px 0 0}
-.cw-row{border:1px solid var(--line);border-radius:14px;background:var(--paper)}
-/* The call: what a guide would say first. One block, one gold button. */
-.cw-call{margin:0 0 4px;padding:16px 16px 18px;border:1px solid var(--line);border-radius:16px;background:var(--paper);box-shadow:var(--sh)}
-.cw-call .eyebrow{margin:0 0 8px}
-.cw-call-h{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:29px;line-height:1.06;letter-spacing:-.005em;
-  color:var(--ink);margin:0 0 8px;overflow-wrap:anywhere}
-.cw-call-why{font-size:15.5px;line-height:1.45;color:var(--ink2);margin:0}
-.cw-call-leave{font-size:15.5px;line-height:1.45;font-weight:650;color:var(--ink);margin:4px 0 0}
-.cw-call .cw-go{margin-top:14px}
-/* Crew trips: rows, a tag, a dot for what this phone has not seen. */
-.cw-tag{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-  padding:3px 8px;border-radius:6px;border:1px solid var(--line2);color:var(--ink2)}
-.cw-tag.planned{color:var(--go);border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
-.cw-tag.done{color:var(--dim)}
-.cw-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--accent)}
-.cw-rowbtn{width:100%;font:inherit;text-align:left;background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
 .cw-rowbtn .chev{transition:transform .15s}
 .cw-rowbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
-.cw-make{margin:16px 0 0}
-/* A crew trip's own page. */
-.cw-thead h1{overflow-wrap:anywhere}
-.cw-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:12px 0 0;font-size:13.5px;color:var(--dim)}
-.cw-tripnote{font-size:15px;line-height:1.45;color:var(--ink2);margin:12px 0 0;overflow-wrap:anywhere}
+[data-cw-trips] .crewtrip{margin-top:10px}
+[data-cw-trips] .crewtrip+.list{margin-top:10px}
+.cw-make{margin:18px 0 0}
+[data-cw-make-slot]{display:contents}
 .cw-cond{font-size:15.5px;line-height:1.45;color:var(--ink);margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);
   border-radius:12px;background:var(--paper);overflow-wrap:anywhere}
 .cw-cond.go{border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
@@ -400,10 +333,10 @@ a.back{text-decoration:none}
   border:1px solid var(--line2);border-radius:12px;padding:0 6px;cursor:pointer}
 .cw-ans[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);border-color:transparent}
 .cw-ghead{margin:0;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-  font-size:13px;color:var(--dim);text-align:center}
+  font-size:13px;color:var(--t3);text-align:center}
 .cw-names{list-style:none;margin:8px 0 0;padding:0;font-size:14px;line-height:1.5;color:var(--ink2);text-align:center}
 .cw-names li{overflow-wrap:anywhere}
-.cw-names li[data-waiting]{color:var(--dim)}
+.cw-names li[data-waiting]{color:var(--t3)}
 .cw-acts2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
 .cw-acts2:empty{display:none}
 .cw-act{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;font:inherit;font-size:14px;
@@ -423,21 +356,21 @@ a.back{text-decoration:none}
 .cw-condslot{margin:0 0 14px}
 .cw-condslot .cw-cond{margin:0}
 /* Notes, the list and catches on a crew trip, and the Tell row. */
-.cw-x{min-height:44px;padding:0 2px;font:inherit;font-size:13px;font-weight:600;color:var(--dim);background:none;border:0;cursor:pointer;
+.cw-x{min-height:44px;padding:0 2px;font:inherit;font-size:13px;font-weight:600;color:var(--t3);background:none;border:0;cursor:pointer;
   text-decoration:underline;text-underline-offset:3px}
 .cw-plain.cw-main{color:var(--ink);border-color:var(--accent);font-weight:600}
 .cw-tell{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}
 .cw-foot .cw-tell{margin:14px 0 0}
-.cw-tell-h{font-size:13px;color:var(--dim)}
+.cw-tell-h{font-size:13px;color:var(--t3)}
 .cw-pill{display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:0 14px;font:inherit;font-size:14px;font-weight:600;
-  color:var(--dim);background:var(--paper);border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow-wrap:anywhere}
+  color:var(--t3);background:var(--paper);border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow-wrap:anywhere}
 .cw-pill[aria-pressed="true"]{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
 .cw-tell .cw-pill::before{content:"";flex:0 0 auto;width:9px;height:5px;margin-top:-3px;border:solid currentColor;border-width:0 0 2px 2px;
   transform:rotate(-45deg);opacity:0}
 .cw-tell .cw-pill[aria-pressed="true"]::before{opacity:1}
 .cw-nlist,.cw-clist{list-style:none;margin:0 0 14px;padding:0}
 .cw-note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
-.cw-note-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;font-size:13px;color:var(--dim)}
+.cw-note-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;font-size:13px;color:var(--t3)}
 .cw-note-h b{font-size:14.5px;font-weight:650;color:var(--ink)}
 .cw-note-b{margin:4px 0 0;font-size:15.5px;line-height:1.45;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
 .cw-note .cw-x,.cw-catch .cw-x{margin:2px 0 -10px}
@@ -455,15 +388,15 @@ a.back{text-decoration:none}
 .cw-tick[aria-checked="true"]::after{content:"";position:absolute;left:19px;top:14px;width:6px;height:11px;border:solid var(--go);
   border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
 .cw-item-l{flex:1 1 0;min-width:0;padding:8px 0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
-.cw-item.done .cw-item-l{color:var(--dim)}
+.cw-item.done .cw-item-l{color:var(--t3)}
 .cw-item.done .cw-item-l > span:first-child{text-decoration:line-through}
 .cw-item-l .cw-wait{display:block;margin-top:2px}
 .cw-whob{flex:0 0 auto;max-width:42%;min-height:44px;padding:0 13px;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);
   background:transparent;border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cw-whob.none{color:var(--dim);border-style:dashed}
+.cw-whob.none{color:var(--t3);border-style:dashed}
 .cw-whob[aria-expanded="true"]{color:var(--ink);border-color:var(--accent)}
 .cw-panel{flex:1 1 100%;min-width:0;margin:4px 0 8px 6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
-.cw-panel-h{margin:0 0 8px;font-size:13px;color:var(--dim)}
+.cw-panel-h{margin:0 0 8px;font-size:13px;color:var(--t3)}
 .cw-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .cw-panel .cw-acts2{margin:0}
 .cw-panel .cw-asks{margin:0 0 10px}
@@ -475,7 +408,7 @@ a.back{text-decoration:none}
 .cw-addline .cw-act{flex:0 0 auto;min-height:48px;border-radius:12px}
 .cw-catch{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
 .cw-thumb{flex:0 0 76px;width:76px;height:76px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2);
-  cursor:pointer;font:inherit;font-size:11px;line-height:1.3;color:var(--dim)}
+  cursor:pointer;font:inherit;font-size:11px;line-height:1.3;color:var(--t3)}
 .cw-thumb img{display:block;width:100%;height:100%;object-fit:cover}
 .cw-thumb[data-nophoto]{cursor:default}
 .cw-thumb[data-nophoto]::after{content:"Photo needs a signal"}
@@ -483,7 +416,7 @@ a.back{text-decoration:none}
 .cw-catch-h{margin:0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
 .cw-catch-h b{font-weight:650}
 .cw-catch-h span{margin-left:8px;font-family:var(--mono);font-size:13px;color:var(--ink2)}
-.cw-catch-m{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--dim);overflow-wrap:anywhere}
+.cw-catch-m{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--t3);overflow-wrap:anywhere}
 .cw-catch-n{margin:4px 0 0;font-size:14.5px;line-height:1.45;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
 .cw-form{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
 .cw-photo{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
@@ -499,7 +432,7 @@ a.back{text-decoration:none}
 .cw-al{margin:28px 0 0}
 .cw-al > h2{margin-top:0}
 .cw-al-sum{font-size:15.5px;line-height:1.45;color:var(--ink);margin:0 0 12px}
-.cw-al-k{font-size:13px;color:var(--dim);margin:18px 0 6px}
+.cw-al-k{font-size:13px;color:var(--t3);margin:18px 0 6px}
 .cw-sws{margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden}
 .cw-sw{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 14px;font:inherit;text-align:left;color:var(--ink);
   background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
@@ -507,7 +440,7 @@ a.back{text-decoration:none}
 .cw-sw:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .cw-sw-t{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
 .cw-sw-t b{display:block;font-size:15.5px;font-weight:600;line-height:1.3}
-.cw-sw-t span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--dim)}
+.cw-sw-t span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--t3)}
 .cw-sw-k{flex:0 0 auto;position:relative;width:46px;height:28px;border-radius:14px;background:var(--panel3);border:1px solid var(--line2);
   transition:background .15s}
 .cw-sw-k::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--dim);transition:transform .15s}
@@ -528,9 +461,9 @@ a.back{text-decoration:none}
 .cw-al .cw-plain{margin-top:18px}
 .cw-al-lines .cw-msg{margin:10px 0 0}
 .cw-al [data-al-note]{margin:0 0 12px}
-.quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
-.asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
-.asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
+.asof{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 4px 0;font-size:12.5px;line-height:1.45;color:var(--t3)}
+.asof .chip{position:relative}
+.asof .chip::after{content:"";position:absolute;inset:-8px}
 .pn{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:8px;margin:14px 0 0}
 .pnb{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:58px;padding:9px 13px;text-decoration:none;
   background:var(--panel2);border:1px solid var(--line2);border-radius:12px;color:var(--ink);min-width:0}
@@ -539,13 +472,13 @@ a.back{text-decoration:none}
 .pnb span{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px;color:var(--accent)}
 .pnb b{font-weight:650;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pnb.none{visibility:hidden}
-.pos{align-self:center;font-family:var(--mono);font-size:11.5px;color:var(--dim);white-space:nowrap}
+.pos{align-self:center;font-family:var(--mono);font-size:11.5px;color:var(--t3);white-space:nowrap}
 [data-view="card"] .card{margin-bottom:0}
 
 /* ---- species picker ---- */
 .pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 0}
 .pickcard{
-  display:block;width:100%;text-align:left;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:flex-start;width:100%;text-align:left;cursor:pointer;
   background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:14px;padding:16px 14px;
   box-shadow:var(--sh);transition:border-color .15s,transform .15s;
@@ -555,49 +488,31 @@ a.back{text-decoration:none}
 .pickcard:hover{border-color:var(--accent);transform:translateY(-1px)}
 .pickcard .nm{display:block;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.04em;font-size:26px;color:var(--ink);line-height:1}
-.pickcard .sub{display:block;font-size:12.5px;color:var(--dim);margin-top:5px;line-height:1.4}
+.pickcard .sub{display:block;font-size:12.5px;color:var(--t3);margin-top:5px;line-height:1.4}
 
 /* ---- where ---- */
-.locs{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 4px}
-.loc{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.06em;font-size:13.5px;cursor:pointer;
-  background:var(--panel);color:var(--dim);border:1px solid var(--line);
-  border-radius:999px;padding:7px 14px;transition:all .15s;
-}
-.loc[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);border-color:transparent}
-.locone{font-size:13px;color:var(--dim);margin:0 0 4px}
+.locs{display:contents}
+.locone{font-size:13px;color:var(--t3);margin:0 0 4px}
 .locone strong{color:var(--ink2);font-weight:600}
 
 /* ---- card groups ---- */
-.grp{margin:26px 0 0}
-.grp > h2{margin-top:0}
-.card{
-  background:linear-gradient(180deg,var(--panel),var(--panel2));
-  border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:0 0 12px;
-  box-shadow:var(--sh);
-}
+.card{padding:15px 16px;margin:0 0 12px;line-height:1.55}
 .card > h3{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.07em;font-size:17px;margin:0 0 8px;color:var(--ink)}
 .card .when{margin-bottom:2px}
 .card p{font-size:14.5px;color:var(--ink2);margin:0 0 10px}
 .card :last-child{margin-bottom:0}
-.stamp{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px;
+.card p.stamp{font-family:var(--mono);font-size:11px;color:var(--t3);margin:14px 0 0;
   padding-top:8px;border-top:1px solid var(--line)}
-.back{
-  display:inline-flex;align-items:center;gap:7px;margin:0 0 14px;cursor:pointer;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.07em;font-size:13px;color:var(--dim);
-  background:none;border:0;padding:4px 0;
-}
-.back:hover{color:var(--accent)}
+/* The card's title is in the sky on a screen that shows one card. */
+[data-view="card"] .card>h3,[data-view="crewtrip"][data-sec] .card>h3{display:none}
 
 /* ---- add to trip ---- */
 .addtrip{
   display:block;width:100%;margin:14px 0 0;padding:10px;cursor:pointer;
   font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.08em;font-size:13.5px;
-  background:var(--panel2);color:var(--dim);
+  background:var(--panel2);color:var(--t2);
   border:1px dashed var(--line2);border-radius:10px;transition:all .15s;
 }
 .addtrip:hover{color:var(--ink2);border-color:var(--accent)}
@@ -608,32 +523,28 @@ a.back{text-decoration:none}
 
 /* ---- trip bar ---- */
 .tripbar{
-  position:sticky;bottom:0;z-index:40;margin:22px -16px 0;padding:12px 16px;
-  padding-bottom:calc(12px + env(safe-area-inset-bottom));
-  display:flex;align-items:center;gap:12px;
-  background:color-mix(in srgb,var(--bg) 88%, transparent);
-  backdrop-filter:blur(16px) saturate(140%);
-  border-top:1px solid var(--line);
+  position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:40;margin:22px -4px 0;padding:8px 8px 8px 18px;
+  display:flex;align-items:center;gap:12px;border-radius:999px;
+  background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent);
 }
+.screen:has(.tripbar) .act{bottom:calc(76px + env(safe-area-inset-bottom))}
 .tripbar span{flex:1;font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  text-transform:uppercase;letter-spacing:.07em;font-size:14px;color:var(--dim)}
+  text-transform:uppercase;letter-spacing:.07em;font-size:14px;color:var(--t2)}
+/* The trip bar's button is ink, like the lit tab: gold is kept for the one
+   main action on a screen. */
 .tripgo{
-  flex:0 0 auto;padding:10px 18px;border-radius:999px;cursor:pointer;border:0;
-  background:var(--gold);color:var(--on-gold);
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
-  letter-spacing:.08em;font-size:14px;
-  box-shadow:0 2px 12px -2px color-mix(in srgb,var(--accent) 60%,transparent);
+  flex:0 0 auto;min-height:40px;padding:0 18px;border-radius:999px;cursor:pointer;border:0;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 88%,var(--paper)),var(--ink));color:var(--paper);
+  font:700 14px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.08em;
+  box-shadow:0 1px 1px color-mix(in srgb,var(--shade) 30%,transparent),inset 0 1px 0 color-mix(in srgb,var(--paper) 22%,transparent);
 }
 
 /* ---- field mode ---- */
 /* Bigger everything. Cold hands, head lamp, one eye on the rod. */
-.fieldtop{display:flex;align-items:center;gap:12px;margin-bottom:6px}
-.fieldtop .back{margin:0;flex:1}
-.tripdate{
-  font:inherit;font-size:14px;color:var(--ink2);
-  background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:7px 10px;
-}
-.fieldmode h1{font-size:40px}
+.fieldmode .hero{padding-top:calc(26px + env(safe-area-inset-top));min-height:calc(var(--sw)*268/390 - 20px)}
+.tripdate{font:600 12.5px/1.25 Inter,system-ui,sans-serif;color:var(--t1);min-height:36px;padding:4px 11px;border:0;border-radius:999px;
+  background:var(--glass);box-shadow:var(--e1),inset 0 1px 0 var(--rim)}
 .fieldmode .card{padding:18px 18px;border-radius:18px;margin-bottom:16px}
 .fieldmode .card > h3{font-size:21px;margin-bottom:11px}
 .fieldmode .card p,.fieldmode .box{font-size:17px;line-height:1.5}
@@ -642,15 +553,32 @@ a.back{text-decoration:none}
 .fieldmode ol.steps li{font-size:17px;padding-left:44px}
 .fieldmode .sp .v{font-size:15px}
 .fieldmode .sp .have{font-size:12px}
-.fieldmode .stamp{font-size:12.5px}
+.fieldmode .card p.stamp{font-size:12.5px}
 
 /* Four spec columns is too tight on a phone. The original card had this and
    the new spec strip needs it just as much. */
 @media (max-width:420px){
   .specs{grid-template-columns:repeat(2,1fr)}
-  h1{font-size:38px}
-  .fieldmode h1{font-size:34px}
 }
+
+/* ---- the crew's screens in the new shell, until their own stage ---- */
+.cw.float{padding:16px}
+.cw.float>:first-child{margin-top:0}
+.cw.float>.cw-out:last-child,.cw.float>.cw-plain:last-child{margin-bottom:0}
+.float.cw-cond{margin:0;padding:14px 16px;border:0;border-radius:22px;font-weight:600;
+  background:linear-gradient(180deg,var(--glass),var(--pan-b) 62%)}
+.float.cw-cond.go{box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 50%,transparent)}
+.float.cw-cond.no{box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--no) 50%,transparent)}
+.hero+.cw-msg{display:inline-block;margin:0 0 10px;padding:6px 12px;border-radius:14px;color:var(--t2);background:var(--glass);box-shadow:var(--e1)}
+[data-cw-going].grp{margin-top:18px}
+[data-notlisted] .box p{margin:0}
+[data-notlisted] .box p+p{margin-top:6px}
+.float.fallback{padding:14px 16px}
+.float.fallback .box{margin-top:12px}
+.grp[data-cw-trips]{margin-top:0}
+[data-rules-status]:empty,[data-call-slot]:empty,[data-rules-slot]:empty{display:none}
+[data-rules-status="top"] .box{margin:12px 0 0}
+[data-view="hot"] [data-rules-slot] .box{margin:0 0 12px}
 
 @media (prefers-reduced-motion:reduce){
   .kstep.on .draw{transition:none}
@@ -680,15 +608,15 @@ a.back{text-decoration:none}
     <path d="M10 1.2 L10 14.8" stroke="var(--panel)" stroke-width="1.6"/>
   </symbol>
 </defs></svg>
-<div class="wrap">
-  <div id="app"></div>
+<div class="phone">
+  <div class="scene" id="scene" data-scene="sound" aria-hidden="true"></div>
+  <div id="app" class="screen"></div>
 </div>
 
 <script src="/rigs/diagrams.js"></script>
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
 <script src="/rigs/runs.js"></script>
-<script src="/rigs/sky.js"></script>
 <script src="/rigs/crew.js"></script>
 <script src="/rigs/rules.js"></script>
 <script src="/rigs/waters.js"></script>
@@ -713,6 +641,52 @@ a.back{text-decoration:none}
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
+  // ---- the look -----------------------------------------------------------
+  // Every screen is built from the kit (rigs/kit.css) under a painted scene
+  // (rigs/scene.js, rigs/scene.css). To put a screen into the look:
+  //   topHtml(tab, active, scene)     the dock. scene: "sound", "pier" or "river".
+  //   heroHtml({ title, back, chips }) the title in the sky and its line of chips.
+  //   then one .float card first (it crosses the waterline), then .panel
+  //   cards, .well notes and h2.sect headings.
+  // The scene itself is one element that outlives every redraw: setScene()
+  // repaints it only when the place changes.
+  var LOOK = !!(RIG.water && RIG.sky);
+  var IC = {
+    chev: '<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    back: '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M6.5 1.5 1.5 7l5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    go: '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  var sceneEl = document.getElementById("scene");
+  function setScene(kind) {
+    if (!sceneEl || !LOOK) return;
+    kind = RIG.water.scenes.indexOf(kind) >= 0 ? kind : "sound";
+    if (sceneEl.getAttribute("data-scene") === kind && sceneEl.dataset.painted) return;
+    sceneEl.setAttribute("data-scene", kind);
+    delete sceneEl.dataset.painted;
+    RIG.water.scene(sceneEl);
+  }
+  // The title in the sky. o.title, o.back {href, text}, o.chips (html, on
+  // glass: nothing small is ever written straight on the picture), o.attr
+  // (extra attributes for the h1), o.more (html under the chips).
+  function heroHtml(o) {
+    var n = String(o.title || "").length;
+    var size = n > 34 ? "xl" : n > 17 ? "long" : "";
+    var back = o.back ? '<a class="chip back" href="' + esc(o.back.href) + '" data-up>' + IC.back + "<span>" + esc(o.back.text) + "</span></a>" : "";
+    var chips = back + (o.chips || "");
+    return '<header class="hero shead"><h1' + (size ? ' class="' + size + '"' : "") + (o.attr ? " " + o.attr : "") + ">" + esc(o.title) + "</h1>" +
+      (chips ? '<p class="chips">' + chips + "</p>" : "") + (o.more || "") + "</header>";
+  }
+  function pct(v) { return (Math.max(0, Math.min(1, v)) * 100).toFixed(1); }
+  function initial(name) { return esc(String(name || "").trim().charAt(0).toUpperCase() || "?"); }
+  // Up to three faces, overlapping: who is going.
+  function avsHtml(names) {
+    return names.length ? '<span class="avs" aria-hidden="true">' + names.slice(0, 3).map(function (n, i) {
+      return '<i class="av a' + (i % 3 + 1) + '">' + initial(n) + "</i>";
+    }).join("") + "</span>" : "";
+  }
+  // "A", "A and B", "A, B and C".
+  function andList(a) { return a.length < 3 ? a.join(" and ") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1]; }
+
   function species() { return (RIG.content && RIG.content.species) || []; }
   function fundamentals() { return (RIG.content && RIG.content.fundamentals) || []; }
   function findSpecies(id) {
@@ -836,7 +810,7 @@ a.back{text-decoration:none}
         (RIG.trip.has(c.id) ? "true" : "false") + '">' +
         (RIG.trip.has(c.id) ? "In this trip" : "Add to trip") + "</button>"
       : "";
-    return '<article class="card" data-card="' + esc(c.id) + '">' +
+    return '<article class="card panel" data-card="' + esc(c.id) + '">' +
       "<h3>" + esc(c.title) + "</h3>" + warn + dia + c.body + stamp + add + "</article>";
   }
 
@@ -908,13 +882,13 @@ a.back{text-decoration:none}
   function rowHtml(c, href) {
     var s = snippet(c), m = metaOf(c);
     return '<a class="row" href="' + esc(href) + '" data-row="' + esc(c.id) + '">' +
-      '<span class="rt"><b>' + esc(c.title) + "</b>" + (s ? "<span>" + esc(s) + "</span>" : "") + "</span>" +
+      '<span class="tx"><b>' + esc(c.title) + "</b>" + (s ? "<span>" + esc(s) + "</span>" : "") + "</span>" +
       (m ? '<span class="rm">' + esc(m) + "</span>" : "") +
-      '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+      IC.chev + '</a>';
   }
 
   function chip(attr, id, text, active) {
-    return '<button class="jp" type="button" ' + attr + '="' + esc(id) + '" aria-current="' +
+    return '<button class="chip jp" type="button" ' + attr + '="' + esc(id) + '" aria-current="' +
       (id === active ? "true" : "false") + '">' + esc(text) + "</button>";
   }
   function learnSections() {
@@ -926,28 +900,33 @@ a.back{text-decoration:none}
     if (tab === "water") return types().filter(function (t) { return spotsOfType(t.id).length; })
       .map(function (t) { return chip("data-type", t.id, t.label, active); }).join("");
     if (tab === "fish") return species().map(function (sp) { return chip("data-species", sp.id, sp.name, active); }).join("");
-    if (tab === "trips") return chip("data-tmode", "list", "List", active || "list") + chip("data-tmode", "map", "Map", active || "list");
     if (tab === "learn") return learnSections().map(function (n) { return chip("data-sec", n.toLowerCase(), n, active); }).join("");
     return "";
   }
 
-  // Pinned header: three ways in (Water, Fish, Learn), and under them one
-  // tap filters for whichever way is open.
-  function topHtml(tab, active) {
+  // The dock, pinned: four ways in and the sky button, and under them one
+  // tap filters for whichever way is open. It also sets the scene the screen
+  // stands under.
+  function topHtml(tab, active, scene) {
+    setScene(scene);
+    var m = skyMode();
     var tabs = [["trips", "Trips"], ["water", "Water"], ["fish", "Fish"], ["learn", "Learn"]].map(function (t) {
       return '<button class="tab" type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' +
         (t[0] === tab ? "true" : "false") + '">' + t[1] + "</button>";
     }).join("");
     var sub = chipsFor(tab, active);
-    return '<header class="top"><nav class="tabs" role="tablist">' + tabs +
-      '<button class="skymode" type="button" data-skymode title="Screen: follows the sky, or held light or dark">' +
-      '<span data-skylabel></span></button></nav>' +
+    return '<header class="top dock"><nav class="tabs seg" role="tablist">' + tabs + "</nav>" +
+      '<button class="skymode skybtn" type="button" data-skymode data-held="' + (m === "auto" ? "no" : "yes") +
+      '" title="Screen: follows the sky, or held light or dark"><i class="skytok"></i>' +
+      "<span data-skylabel>" + (m === "auto" ? "Sky" : m === "light" ? "Light" : "Dark") + "</span></button>" +
       (sub ? '<nav class="jump" aria-label="Filter">' + sub + "</nav>" : "") + "</header>";
   }
 
-  function headHtml(eyebrow, title, line) {
-    return '<div class="shead">' + (eyebrow ? '<p class="eyebrow">' + eyebrow + "</p>" : "") +
-      "<h1>" + esc(title) + "</h1>" + (line ? '<p class="when">' + esc(line) + "</p>" : "") + "</div>";
+  // The usual head: the title, and one chip that says where you are.
+  // eyebrow is html, title and line are text. back: { href, text }.
+  function headHtml(eyebrow, title, line, back) {
+    var say = (eyebrow ? "<b>" + eyebrow + "</b>" : "") + (eyebrow && line ? " " : "") + (line ? esc(line) : "");
+    return heroHtml({ title: title, back: back, chips: say ? '<span class="chip wrap">' + say + "</span>" : "" });
   }
 
   // Cards in the order the groups render them, so next and back read in the
@@ -962,34 +941,34 @@ a.back{text-decoration:none}
     var tiles = types().map(function (t) {
       var n = spotsOfType(t.id).length;
       if (!n) return "";
-      return '<a class="tile" href="#/water/' + esc(t.id) + '" data-type-tile="' + esc(t.id) + '">' + icon(t.id) +
+      return '<a class="wtile panel" href="#/water/' + esc(t.id) + '" data-type-tile="' + esc(t.id) + '">' + icon(t.id) +
         '<span class="nm">' + esc(t.label) + '</span><span class="meta">' + n + (n === 1 ? " spot" : " spots") + "</span></a>";
     }).join("");
     app.innerHTML = topHtml("water") +
       '<div data-view="home">' + headHtml("Fishing library", "Rig Card", "How do you want to fish?") +
-        noticeHtml() + '<div class="tiles">' + tiles + "</div></div>" + tripBarHtml();
+        noticeHtml() + '<div class="wtiles">' + tiles + "</div></div>" + tripBarHtml();
   }
 
   function renderWater(t) {
     var rows = spotsOfType(t.id).map(function (s) {
       var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
       return '<a class="row" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' +
-        '<span class="rt"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + "</span></span>" +
-        '<span class="rm">' + esc(names) + '</span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+        '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + "</span></span>" +
+        '<span class="rm">' + esc(names) + '</span>' + IC.chev + '</a>';
     }).join("");
     // Kayak water also gets the boat itself, and Fly gets the casting course.
     function learnLink(attr, sec, head, title, sub) {
       return fundamentals().some(function (c) { return c.section === sec; })
-        ? '<section class="grp" ' + attr + '><h2>' + head + '</h2><div class="rows"><a class="row" href="#/learn/' + sec.toLowerCase() + '">' +
-          '<span class="rt"><b>' + title + "</b><span>" + sub + "</span></span>" +
-          '<span class="chev" aria-hidden="true">&rsaquo;</span></a></div></section>'
+        ? '<section class="grp" ' + attr + '><h2 class="sect">' + head + '</h2><div class="panel list"><a class="row" href="#/learn/' + sec.toLowerCase() + '">' +
+          '<span class="tx"><b>' + title + "</b><span>" + sub + "</span></span>" +
+          IC.chev + '</a></div></section>'
         : "";
     }
     var kayak = /^kayak/.test(t.id) ? learnLink("data-kayak", "Kayak", "The kayak", "Kayak safety and gear", "Go or no go, packing, anchor, getting back in")
       : t.id === "fly" ? learnLink("data-flylearn", "Fly", "Learn it", "Fly casting course", "Rig, cast, roll cast, flies, yard practice") : "";
     app.innerHTML = topHtml("water", t.id) +
       '<div data-view="water">' + headHtml(icon(t.id), t.label, "") +
-        '<div class="rows">' + rows + "</div>" + kayak + "</div>" + tripBarHtml();
+        '<div class="panel list">' + rows + "</div>" + kayak + "</div>" + tripBarHtml();
   }
 
   function renderSpot(s) {
@@ -998,13 +977,13 @@ a.back{text-decoration:none}
       var loc = findLocation(sp, s.id);
       var n = cardsFor(sp, loc).length;
       return '<a class="row" href="#/' + esc(sp.id) + "/" + esc(s.id) + '" data-row-species="' + esc(sp.id) + '">' +
-        '<span class="rt"><b>' + esc(sp.name) + "</b>" + (sp.hint ? "<span>" + esc(sp.hint) + "</span>" : "") + "</span>" +
-        '<span class="rm">' + n + ' cards</span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+        '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? "<span>" + esc(sp.hint) + "</span>" : "") + "</span>" +
+        '<span class="rm">' + n + ' cards</span>' + IC.chev + '</a>';
     }).join("");
     var t = findType(s.types[0]);
     app.innerHTML = topHtml("water", t && t.id) +
       '<div data-view="spot">' + headHtml(esc(s.where), s.name, "What are you after?") +
-        '<div class="rows">' + rows + "</div></div>" + tripBarHtml();
+        '<div class="panel list">' + rows + "</div></div>" + tripBarHtml();
   }
 
   function renderFish() {
@@ -1021,7 +1000,7 @@ a.back{text-decoration:none}
     var fams = (RIG.content && RIG.content.families) || [];
     var body = fams.map(function (f) {
       var mine = species().filter(function (sp) { return sp.family === f.id; });
-      return mine.length ? '<section class="grp" data-family="' + esc(f.id) + '"><h2>' + esc(f.label) + "</h2>" +
+      return mine.length ? '<section class="grp" data-family="' + esc(f.id) + '"><h2 class="sect">' + esc(f.label) + "</h2>" +
         '<div class="pick">' + mine.map(pick).join("") + "</div></section>" : "";
     }).join("");
     var loose = species().filter(function (sp) { return !fams.some(function (f) { return f.id === sp.family; }); });
@@ -1034,8 +1013,8 @@ a.back{text-decoration:none}
     return GROUPS.map(function (g) {
       var mine = cards.filter(function (c) { return c.group === g.key; });
       if (!mine.length) return "";
-      return '<section class="grp" data-group="' + g.key + '"><h2>' + esc(g.short) +
-        ' <span class="n">' + mine.length + '</span></h2><div class="rows">' +
+      return '<section class="grp" data-group="' + g.key + '"><h2 class="sect">' + esc(g.short) +
+        ' <span class="n">' + mine.length + '</span></h2><div class="panel list">' +
         mine.map(function (c) { return rowHtml(c, hrefFor(c)); }).join("") + "</div></section>";
     }).join("");
   }
@@ -1051,17 +1030,17 @@ a.back{text-decoration:none}
   function renderSpecies(sp, loc) {
     var locs = sp.locations || [];
     var place = loc ? esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "") : "";
+    // More than one place: each is a chip in the sky, the open one lit.
     var chips = locs.length > 1
-      ? '<div class="locs" data-locations>' + locs.map(function (l) {
-          return '<button class="loc" type="button" data-loc="' + esc(l.id) + '" aria-pressed="' +
+      ? '<span class="chip wrap"><b>' + place + '</b></span><span class="locs" data-locations>' + locs.map(function (l) {
+          return '<button class="chip loc" type="button" data-loc="' + esc(l.id) + '" aria-pressed="' +
             (l === loc ? "true" : "false") + '">' + esc(l.name) + "</button>";
-        }).join("") + "</div>"
-      : "";
-    var eyebrow = locs.length > 1 ? place : '<span data-locations>' + place + "</span>";
+        }).join("") + "</span>"
+      : place ? '<span class="chip wrap" data-locations><b>' + place + "</b></span>" : "<span data-locations></span>";
     var base = speciesBase(sp, loc);
     app.innerHTML = topHtml("fish", sp.id) +
-      '<div data-view="species">' + headHtml(eyebrow, sp.name, "") +
-        noticeHtml() + chips + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") +
+      '<div data-view="species">' + heroHtml({ title: sp.name, chips: chips }) +
+        noticeHtml() + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
         groupRows(cardsFor(sp, loc), function (c) { return base + "/" + c.id; }) +
       "</div>" + tripBarHtml();
@@ -1072,8 +1051,8 @@ a.back{text-decoration:none}
     var names = learnSections().filter(function (n) { return !sec || n.toLowerCase() === sec; });
     var body = names.map(function (n) {
       var mine = all.filter(function (c) { return c.section === n; });
-      return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2>' + esc(n) +
-        ' <span class="n">' + mine.length + '</span></h2><div class="rows">' +
+      return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2 class="sect">' + esc(n) +
+        ' <span class="n">' + mine.length + '</span></h2><div class="panel list">' +
         mine.map(function (c) { return rowHtml(c, "#/learn/" + c.id); }).join("") + "</div></section>";
     }).join("");
     app.innerHTML = topHtml("learn", sec) +
@@ -1089,9 +1068,9 @@ a.back{text-decoration:none}
       return c ? '<a class="pnb ' + cls + '" href="' + esc(o.hrefFor(c)) + '" data-step="' + esc(c.id) + '"><span>' + word +
         "</span><b>" + esc(label(c)) + "</b></a>" : '<span class="pnb ' + cls + ' none"></span>';
     }
-    app.innerHTML = topHtml(o.tab, o.active) +
+    app.innerHTML = topHtml(o.tab, o.active, o.scene) +
       '<div data-view="card">' +
-        '<a class="back" href="' + esc(o.upHref) + '" data-up>&larr; ' + esc(o.upText) + "</a>" +
+        heroHtml({ title: o.card.title, back: { href: o.upHref, text: o.upText } }) +
         noticeHtml() + (o.rules ? '<div data-rules-slot' + slotAttrs(o.rules.spot, o.rules.species, o.rules.since) + "></div>" : "") +
         cardHtml(o.card, { addable: o.addable !== false }) +
         '<nav class="pn">' + step(prev, "prev", "Back") +
@@ -1141,7 +1120,13 @@ a.back{text-decoration:none}
       el.hidden = !n;
       el.textContent = "New rule";
     });
-    [].forEach.call(app.querySelectorAll("[data-rules-status]"), function (el) { el.innerHTML = statusHtml(); });
+    // On the Trips list a fresh check is a quiet line at the foot and anything
+    // else is a warning at the top. Everywhere else it is drawn where it sits.
+    var st = RIG.rules.status(), fresh = !(st.never || st.stale);
+    [].forEach.call(app.querySelectorAll("[data-rules-status]"), function (el) {
+      var where = el.getAttribute("data-rules-status");
+      el.innerHTML = (where === "top" && fresh) || (where === "foot" && !fresh) ? "" : statusHtml();
+    });
   }
   function checkRules() {
     if (!rulesReady()) return;
@@ -1164,49 +1149,140 @@ a.back{text-decoration:none}
   function asOf(p) {
     var d = new Date(p.at);
     var t = d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" });
-    return '<div class="asof"><span data-asof>' + (p.stale ? "Offline. Forecast from " : "Forecast from ") + esc(t) + "</span>" +
-      '<button type="button" data-refresh>Refresh</button></div>';
+    return '<div class="asof"><span><span data-asof>' + (p.stale ? "Offline. Forecast from " : "Forecast from ") + esc(t) + "</span>. " +
+      "Next 7 days, picked from tides, wind and season.</span>" +
+      '<button class="chip" type="button" data-refresh>Refresh</button></div>';
+  }
+
+  // ---- the sky over a trip ----------------------------------------------
+  // The sky at a spot, on a day, at an hour, as a sky engine phase: the same
+  // sun, cloud and rain the screen's own sky is read from. The saved forecast
+  // is parsed once per reader, so make one per draw and pass it down.
+  // reader.saved is that forecast.
+  function skyReader() {
+    var c = (RIG.trips && RIG.trips.cached && RIG.trips.cached()) || {}, wx = c.wx || {}, memo = {};
+    var any = wx.redondo || wx[Object.keys(wx)[0]];
+    function sky(iso, h, spotId) {
+      var w = wx[spotId] || any, sun = (w && w.sun && w.sun[iso]) || null, hr = null;
+      if (w && w.hours) {
+        var k = (wx[spotId] ? spotId : "*") + iso, day = memo[k];
+        if (!day) { day = memo[k] = {}; w.hours.forEach(function (x) { if (x.t.slice(0, 10) === iso) day[+x.t.slice(11, 13)] = x; }); }
+        hr = day[((Math.floor(h) % 24) + 24) % 24] || null;
+      }
+      return RIG.sky.phase(h, sun, { clouds: hr && hr.clouds != null ? hr.clouds : 80, rain: (hr && hr.rain) || 0 });
+    }
+    sky.saved = c;
+    return sky;
+  }
+  // What kind of water a trip is on, for its picture: pier, river, lake, surf
+  // or beach. t needs planId and spot; name, species and how help.
+  function waterKind(t) {
+    var p = planOf(t.planId) || {}, sp = tripSpot(t.spot) || {}, info = findSpot(t.spot), types = (info && info.types) || [];
+    var name = t.name || p.name || "", how = t.how || p.how, fish = t.species || p.species;
+    if (sp.river) return "river";
+    if (how === "surf" || fish === "clams") return "surf";
+    if (fish === "squid" || /\b(pier|docks?)\b/i.test(name)) return "pier";
+    if (p.kind === "lake-trout" || /lake/i.test(t.spot + " " + types.join(" ") + " " + name)) return "lake";
+    if (types.length && types.every(function (x) { return x === "pier"; })) return "pier";
+    return "beach";
+  }
+  // The big scene a trip's screens stand under.
+  function sceneFor(t) { var k = waterKind(t); return k === "pier" || k === "river" ? k : "sound"; }
+  // The small painting: kind of water, under the sky of one hour.
+  function miniHtml(kind, under, cls) {
+    return LOOK ? '<span class="tile' + (cls ? " " + cls : "") + '" data-mini="' + kind + '" data-under="' + under + '">' +
+      RIG.water.mini(kind, RIG.sky.paletteFor(under)) + "</span>" : "";
+  }
+  function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
+
+  // A day's heading: its name, its date, a ribbon of its own light from five
+  // in the morning to eleven at night with a bead where each trip starts
+  // (gold if it is hot), and the count.
+  function dayHeadHtml(day, sky) {
+    var m = /^(Today|Tomorrow) (.*)$/.exec(day.label), bits = String(day.label).split(" ");
+    var big = m ? m[1] : bits[0], small = m ? DAY3[isoDay(day.iso).getDay()] + " " + m[2] : bits.slice(1).join(" ");
+    var n = day.trips.length;
+    var ribbon = LOOK ? '<u class="ribbon" data-ribbon aria-hidden="true" style="background:' +
+      RIG.water.stops(5, 23, 18, function (h) { return RIG.sky.paletteFor(sky(day.iso, h)); }) + '">' +
+      day.trips.map(function (t) {
+        return "<b" + (t.heat === "Hot" ? ' class="h"' : "") + ' style="left:' + pct(Math.max(0.03, Math.min(0.97, (t.from - 5) / 18))) + '%"></b>';
+      }).join("") + "</u>" : "";
+    return "<h2>" + esc(big) + " <span>" + esc(small) + "</span>" + ribbon + (n ? "<i>" + n + (n === 1 ? " trip" : " trips") + "</i>" : "") + "</h2>";
+  }
+  // One trip: its painting, its name, when, how good, and what is special.
+  function tripRowHtml(day, t, sky, st) {
+    var stocked = (t.why || []).filter(function (w) { return /^Stocked /.test(w); })[0];
+    var crew = st ? sameTrip(st, t.planId, day.iso) : null;
+    if (crew && crew.status === "done") crew = null;
+    return '<a class="trip" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
+      miniHtml(waterKind(t), sky(day.iso, t.from, t.spot)) +
+      '<span class="tx"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span>" +
+        '<span class="note alert" data-rule-badge hidden' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></span>" +
+        (crew ? '<span class="withcrew" data-cw-with>' + avsHtml(namesFor(crew, "going")) + (crew.status === "planned" ? "Crew is on" : "Crew idea") + "</span>" : "") +
+        (stocked ? '<span class="note" data-stocked>' + esc(stocked.split(",")[0]) + "</span>" : "") +
+      "</span>" + heatTag(t) + IC.chev + "</a>";
+  }
+  // Why a weeknight has no daylight trips: pressed in, the reason first.
+  function darkHtml(text, alone) {
+    var i = text.indexOf(". "), first = i < 0 ? text : text.slice(0, i + 1), rest = i < 0 ? "" : text.slice(i + 2);
+    var c = first.indexOf(",");
+    return '<div class="well" data-dark' + (alone ? " data-quiet" : "") + "><p>" +
+      (c < 0 ? "<b>" + esc(first) + "</b>" : "<b>" + esc(first.slice(0, c + 1)) + "</b>" + esc(first.slice(c + 1))) + "</p>" +
+      (rest ? "<p>" + esc(rest) + "</p>" : "") + "</div>";
+  }
+  // A day with nothing on it: the verdict, then the reason. A weeknight the
+  // sun cut short has no verdict, only its reason.
+  function quietHtml(day) {
+    var note = day.note || day.dark || "Nothing good", m = /^(No fishing:|Nothing good\.)\s*(.*)$/.exec(note);
+    if (!m && note !== "Nothing good") return darkHtml(note, true);
+    var why = m ? m[2] : "", i = why.indexOf(". "), first = i < 0 ? why : why.slice(0, i + 1), rest = i < 0 ? "" : why.slice(i + 2);
+    return '<div class="well' + (day.note ? " no" : "") + '" data-quiet><p>' +
+      (m ? "<b>" + esc(m[1]) + "</b> " + esc(first) : "<b>" + esc(note) + "</b>") + "</p>" + (rest ? "<p>" + esc(rest) + "</p>" : "") + "</div>";
+  }
+  // What the week was last drawn with from the crew, so a crew refresh only
+  // redraws the week when a row's note would change.
+  var weekSig = "";
+  function crewWeekSig(st) {
+    return st ? (st.trips || []).map(function (x) { return [x.planId, x.date, x.status, namesFor(x, "going").join("+")].join("|"); }).join(";") : "";
   }
   function drawTrips(p) {
+    var sky = skyReader(), st = crewIn();
+    weekSig = crewWeekSig(st);
     var body = p.days.map(function (day) {
-      var rows = day.trips.map(function (t) {
-        return '<a class="row" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
-          '<span class="rt"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span></span>" +
-          '<span class="heat rule" data-rule-badge hidden' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></span>" +
-          '<span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span>" +
-          '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
-      }).join("");
+      var rows = day.trips.map(function (t) { return tripRowHtml(day, t, sky, st); }).join("");
       // A weeknight in winter carries the reason the daylight trips are not
       // on it, under whatever night trip it does have.
-      var inner = rows ? '<div class="rows">' + rows + "</div>" + (day.dark ? '<p class="quiet why" data-dark>' + esc(day.dark) + "</p>" : "")
-        : '<p class="quiet' + (day.note ? " no" : "") + '" data-quiet>' + esc(day.note || "Nothing good") + "</p>";
-      return '<section class="grp" data-day="' + esc(day.iso) + '"><h2>' + esc(day.label) + "</h2>" + inner + "</section>";
+      var inner = rows ? '<div class="panel list">' + rows + "</div>" + (day.dark ? darkHtml(day.dark, false) : "") : quietHtml(day);
+      return '<section class="day" data-day="' + esc(day.iso) + '">' + dayHeadHtml(day, sky) + inner + "</section>";
     }).join("");
     var nl = p.notListed.length
-      ? '<section class="grp" data-notlisted><h2>Not listed yet</h2><div class="box law"><b>rules first</b>' +
-        p.notListed.map(function (n) { return esc(n.name) + ": " + esc(n.why) + "."; }).join("<br>") + "</div></section>"
+      ? '<section class="grp" data-notlisted><h2 class="sect">Not listed yet</h2><div class="box law"><b>rules first</b>' +
+        p.notListed.map(function (n) { return "<p><strong>" + esc(n.name) + ":</strong> " + esc(n.why) + ".</p>"; }).join("") + "</div></section>"
       : "";
     var host = app.querySelector('[data-view="trips"] [data-week]');
-    if (host) host.innerHTML = body + nl + asOf(p);
+    if (host) host.innerHTML = body + nl + asOf(p) + '<div data-rules-status="foot"></div>';
     var call = app.querySelector('[data-view="trips"] [data-call-slot]');
-    if (call) call.innerHTML = callHtml(p);
+    if (call) call.innerHTML = callHtml(p, sky);
     fillRules();
   }
   // The call: the one best trip in the forecast, said the way a guide would
   // say it, above the week. rigs/trips.js picks it and finds the words; this
-  // only draws them. The week under it stays whole.
-  function callHtml(p) {
+  // only draws them, on the card that crosses the waterline. The week under
+  // it stays whole.
+  function callHtml(p, sky) {
     if (!RIG.trips.theCall) return "";
     var n = new Date(), c = RIG.trips.theCall(p, { nowHour: n.getHours() + n.getMinutes() / 60 });
     if (c.none) {
-      return '<section class="cw-call" data-call data-call-none><p class="eyebrow">The call</p>' +
-        '<p class="cw-call-h" data-call-headline>' + esc(c.headline) + '</p><p class="cw-call-why" data-call-why>' + esc(c.why) + "</p></section>";
+      return '<section class="float call" data-call data-call-none><div class="call-top"><span class="tx"><em class="eyebrow">The call</em>' +
+        "<b data-call-headline>" + esc(c.headline) + "</b><span data-call-why>" + esc(c.why) + "</span></span></div></section>";
     }
-    return '<section class="cw-call" data-call><p class="eyebrow">The call</p>' +
-      '<p class="cw-call-h" data-call-headline>' + esc(c.headline) + "</p>" +
-      (c.why ? '<p class="cw-call-why" data-call-why>' + esc(c.why) + "</p>" : "") +
-      '<p class="cw-call-leave" data-call-leave>' + esc(c.leave) + "</p>" +
-      '<a class="cw-go" href="#/trips/' + encodeURIComponent(hotKey(c.day, c.trip)) + '" data-call-go>See the plan</a></section>';
+    return '<section class="float call" data-call><div class="call-top">' +
+      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg") +
+      '<span class="tx"><span class="caprow"><em class="eyebrow">The call</em>' + heatTag(c.trip) + "</span>" +
+      "<b data-call-headline>" + esc(c.headline) + "</b>" +
+      (c.why ? "<span data-call-why>" + esc(c.why) + "</span>" : "") + "</span></div>" +
+      '<div class="call-foot"><b data-call-leave>' + esc(c.leave) + "</b>" +
+      '<a class="gold sm cw-go" href="#/trips/' + encodeURIComponent(hotKey(c.day, c.trip)) + '" data-call-go>See the plan' + IC.go + "</a></div></section>";
   }
   // ---- the crew ----------------------------------------------------------
   // Signed out this is a sign-in screen and nothing more. Nothing anywhere
@@ -1280,17 +1356,17 @@ a.back{text-decoration:none}
   }
   function firstName(n) { return String(n || "").trim().split(/\s+/)[0] || "Coach"; }
   function crewHead(view) {
-    return topHtml("trips", "crew") + '<div data-view="' + view + '"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
-      headHtml("The crew", "Fish together", "Everyone sees the same week.");
+    return topHtml("trips", "crew") + '<div data-view="' + view + '">' +
+      headHtml("The crew", "Fish together", "Everyone sees the same week.", { href: "#/trips", text: "Hot Trips" });
   }
 
   // The one way in, at the foot of the week. It is a row, not a demand.
   function crewRowHtml() {
     var inCrew = !!(RIG.crew && RIG.crew.session());
-    return '<section class="grp"><a class="row cw-row" href="#/crew" data-crew-open><span class="rt"><b>' +
+    return '<section class="grp"><div class="panel list"><a class="row" href="#/crew" data-crew-open><span class="tx"><b>' +
       (inCrew ? "The crew" : "Fish with your crew") + "</b><span>" +
       (inCrew ? "Who is in, and who you fish with" : "Sign in to share this week") +
-      '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a></section>';
+      "</span></span>" + IC.chev + "</a></div></section>";
   }
 
   // Signed out: the phone number and its code first, a pasted link under it.
@@ -1302,22 +1378,22 @@ a.back{text-decoration:none}
     } else if (crewUi.step === "code") {
       form = cwField("The code we texted you", '<input data-code data-keep="code" data-enter="data-verify" type="text" inputmode="numeric" ' +
           'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("code") + '">') +
-        '<button class="cw-go" type="button" data-verify>Let me in</button>' +
+        '<button class="gold cw-go" type="button" data-verify>Let me in</button>' +
         '<button class="cw-plain" type="button" data-backphone>Use a different number</button>' +
         cwSaid(crewUi.msg, "It can take a minute to arrive.", "data-crew-msg");
     } else {
       form = cwField("Your phone number", '<input data-phone data-keep="phone" data-enter="data-sendcode" type="tel" inputmode="tel" ' +
           'autocomplete="tel" placeholder="253 555 0147" value="' + kv("phone") + '">') +
-        '<button class="cw-go" type="button" data-sendcode>Text me a code</button>' +
+        '<button class="gold cw-go" type="button" data-sendcode>Text me a code</button>' +
         cwSaid(crewUi.msg, "A code comes by text. It is free.", "data-crew-msg");
     }
     var paste = '<div class="' + (sms ? "cw-sec" : "") + '" data-join-box>' +
       cwField(sms ? "Have a link from Coach? Paste it here" : "Paste your link here",
         '<input data-join-paste data-keep="paste" data-enter="data-join-send" type="text" autocapitalize="off" autocorrect="off" ' +
         'spellcheck="false" placeholder="The link, or the whole text" value="' + kv("paste") + '">') +
-      '<button class="' + (sms ? "cw-plain" : "cw-go") + '" type="button" data-join-send>Join</button>' +
+      '<button class="' + (sms ? "cw-plain" : "gold cw-go") + '" type="button" data-join-send>Join</button>' +
       cwSaid(crewUi.joinMsg, "", "data-join-msg") + "</div>";
-    return '<div class="cw" data-signin>' + form + paste + "</div>";
+    return '<div class="cw float" data-signin>' + form + paste + "</div>";
   }
   function helloCheck() {
     function take(h) {
@@ -1337,7 +1413,7 @@ a.back{text-decoration:none}
       var words = mine + " added you to the fishing crew on Rig Card. Tap to join: " + s.link;
       return '<div class="box" data-share><b>' + head + "</b>" +
         "<p>" + (s.kind === "link" ? "The old link has stopped working. " : "") + "Text " + n + " the link. One tap and they are in.</p>" +
-        '<a class="cw-go" data-share-text href="' + esc(RIG.crew.textLink(words)) + '">Text ' + n + " the link</a>" +
+        '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(words)) + '">Text ' + n + " the link</a>" +
         '<button class="cw-plain" type="button" data-share-copy>' + (s.copied ? "Copied" : "Copy the link") + "</button>" +
         (s.manual ? cwField("This phone would not copy it. Press and hold to copy.", '<input data-share-link type="text" readonly value="' + esc(s.link) + '">') : "") +
         '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
@@ -1345,7 +1421,7 @@ a.back{text-decoration:none}
     var page = mine + " added you to the fishing crew on Rig Card. Sign in with your phone number: " + SITE + "#/crew";
     return '<div class="box" data-share><b>' + head + "</b>" +
       "<p>" + n + " already has an account with that number. They sign in with their number and a code.</p>" +
-      '<a class="cw-go" data-share-text href="' + esc(RIG.crew.textLink(page)) + '">Text ' + n + " the sign-in page</a>" +
+      '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(page)) + '">Text ' + n + " the sign-in page</a>" +
       '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
   }
   function inviteHtml() {
@@ -1353,7 +1429,7 @@ a.back{text-decoration:none}
       cwField("Their name", '<input data-invite-name data-keep="invName" data-enter="data-invite-send" type="text" autocomplete="off" placeholder="Russell" value="' + kv("invName") + '">') +
       cwField("Their phone number (optional)", '<input data-invite-phone data-keep="invPhone" data-enter="data-invite-send" type="tel" inputmode="tel" ' +
         'autocomplete="off" placeholder="253 555 0147" value="' + kv("invPhone") + '">') +
-      '<button class="cw-go" type="button" data-invite-send>Add them</button>' +
+      '<button class="gold cw-go" type="button" data-invite-send>Add them</button>' +
       cwSaid(crewUi.invMsg, "Nobody else can get in. With a number they can sign in with a code too.", "data-invite-msg") + "</div>";
   }
   // Adding a number to the account. It sits in the Alerts group under Text me,
@@ -1476,7 +1552,7 @@ a.back{text-decoration:none}
     return out + alSaid("push");
   }
   function alertsHtml() {
-    var al = crewUi.al, g = al.got, head = '<section class="cw-al" data-al><h2>Alerts</h2>';
+    var al = crewUi.al, g = al.got, head = '<section class="cw-al" data-al><h2 class="sect">Alerts</h2>';
     if (!g) {
       return head + (al.err ? cwMsg(al.err, "no", "data-al-msg") + '<button class="cw-plain" type="button" data-al-retry>Try again</button>'
         : cwMsg("Loading your alerts...", "", "data-al-msg")) + "</section>";
@@ -1665,7 +1741,7 @@ a.back{text-decoration:none}
         (m.alerts ? '<span class="cw-mark" data-member-alerts>alerts on</span>' : "") + acts +
         (crewUi.rowMsg[m.id] ? cwMsg(crewUi.rowMsg[m.id], "no", 'data-member-msg="' + id + '"') : "") + "</li>";
     }).join("");
-    return "<h2 data-crewname>" + esc(r.crew.name || "Your crew") + "</h2>" + noteHtml +
+    return '<h2 class="sect" data-crewname>' + esc(r.crew.name || "Your crew") + "</h2>" + noteHtml +
       '<ul class="cw-list">' + rows + "</ul>" +
       (crewUi.share ? shareHtml() : owner ? inviteHtml() : "") + alertsHtml() + out;
   }
@@ -1686,7 +1762,7 @@ a.back{text-decoration:none}
   }
   function renderCrew() {
     if (!RIG.crew) {
-      app.innerHTML = crewHead("crew") + '<div class="cw">' + cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-crew-msg") + "</div></div>" + tripBarHtml();
+      app.innerHTML = crewHead("crew") + '<div class="cw float">' + cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-crew-msg") + "</div></div>" + tripBarHtml();
       return;
     }
     if (!RIG.crew.session()) {
@@ -1702,7 +1778,7 @@ a.back{text-decoration:none}
     }
     // What this phone last saw of the alert settings is on screen at once, signal or not.
     if (!al.got) al.got = alSaved();
-    app.innerHTML = crewHead("crew") + '<div class="cw">' + crewBodyHtml() + "</div></div>" + tripBarHtml();
+    app.innerHTML = crewHead("crew") + '<div class="cw float">' + crewBodyHtml() + "</div></div>" + tripBarHtml();
     if (!crewQuiet) crewFetch();
   }
 
@@ -1716,7 +1792,7 @@ a.back{text-decoration:none}
     else if (!pk) body = cwMsg("Checking your link...", "", "data-join-msg");
     else if (pk.ok) {
       body = '<p class="cw-lead" data-join-who>' + esc((pk.by ? pk.by + " added you to " : "You were added to ") + pk.crew + ", " + pk.name + ".") + "</p>" +
-        '<button class="cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
+        '<button class="gold cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
     } else if (pk.dead) {
       body = '<p class="cw-lead" data-join-dead>' + esc(pk.status === 410 ? "That link is not good any more." : pk.error) + "</p>" +
         cwMsg("Ask Coach to text you a new link. If Coach added your phone number, you can sign in with that instead.", "", "") +
@@ -1725,7 +1801,7 @@ a.back{text-decoration:none}
       body = cwMsg(pk.offline ? "No signal. The link needs a signal the first time it is used." : pk.error || "That link could not be checked.", "no", "data-join-msg") +
         '<button class="cw-plain" type="button" data-join-retry>Try again</button>';
     }
-    app.innerHTML = crewHead("join") + '<div class="cw">' + body + "</div></div>" + tripBarHtml();
+    app.innerHTML = crewHead("join") + '<div class="cw float">' + body + "</div></div>" + tripBarHtml();
     if (RIG.crew && !joinUi.peek && !joinUi.asked) {
       joinUi.asked = true;
       RIG.crew.join(token, { peek: true }).then(function (r) {
@@ -1914,12 +1990,28 @@ a.back{text-decoration:none}
     return false;
   }
 
+  // What the sky chip says: the sky's name, and today's sunset when the
+  // forecast has it.
+  function skyWords() {
+    var s = skyNow(), r = RIG.sky ? RIG.sky.resolve(s.h, s.sun, s.wx, skyMode()) : null;
+    return { name: r ? r.skyName : "", sunset: s.sun && s.sun.set != null && RIG.trips && RIG.trips.clock ? "sunset " + RIG.trips.clock(s.sun.set) : "" };
+  }
+  // The head of the Trips tab, shared by the list and the map: the title,
+  // the sky chip, and the List and Map switch.
+  function tripsHeroHtml(mode, more) {
+    var w = skyWords();
+    var sw = '<span class="switch" role="group" aria-label="List or map">' + [["list", "List"], ["map", "Map"]].map(function (m) {
+      return '<button type="button" data-tmode="' + m[0] + '" aria-current="' + (m[0] === mode ? "true" : "false") + '">' + m[1] + "</button>";
+    }).join("") + "</span>";
+    return heroHtml({ title: "Hot Trips", more: more,
+      chips: '<span class="chip" data-skychip><i class="skytok"></i><b data-skyname>' + esc(w.name) + "</b><span data-sunset>" + esc(w.sunset) + "</span></span>" + sw });
+  }
   function renderTrips(force) {
     app.innerHTML = topHtml("trips") +
-      '<div data-view="trips">' + headHtml("Next 7 days", "Hot Trips", "Picked from tides, wind and season.") +
+      '<div data-view="trips">' + tripsHeroHtml("list") +
       '<div data-call-slot></div><div data-cw-trips-slot>' + crewTripsHtml(crewSt()) + "</div>" +
-      '<div data-rules-status></div>' +
-      '<div data-week><p class="quiet">Loading the forecast…</p></div>' + crewRowHtml() + "</div>" + tripBarHtml();
+      '<div data-rules-status="top"></div>' +
+      '<div data-week><div class="well"><p>Loading the forecast…</p></div></div>' + crewRowHtml() + "</div>" + tripBarHtml();
     crewTripsLoad();
     if (!plannerReady()) return;
     var c = RIG.trips.cached();
@@ -1929,8 +2021,8 @@ a.back{text-decoration:none}
       lastPlan = planFrom(data); drawTrips(lastPlan); applySky();
     }).catch(function () {
       var host = app.querySelector("[data-week]");
-      if (host && !lastPlan) host.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. The weather servers did not answer. Open this once with a signal and it will keep the last one for the pier.</p>' +
-        '<div class="asof"><button type="button" data-refresh>Try again</button></div>';
+      if (host && !lastPlan) host.innerHTML = '<div class="well no" data-quiet><p><b>No forecast yet.</b> The weather servers did not answer. Open this once with a signal and it will keep the last one for the pier.</p></div>' +
+        '<div class="asof"><span></span><button class="chip" type="button" data-refresh>Try again</button></div>';
     });
   }
   // ---- Hot Trips map ------------------------------------------------------
@@ -1957,8 +2049,8 @@ a.back{text-decoration:none}
   function shortDay(day) { return day.label.replace(/ [A-Z][a-z]{2} (\d+)$/, " $1"); }
   function renderMap() {
     app.innerHTML = topHtml("trips", "map") +
-      '<div data-view="map"><nav class="jump days" data-days aria-label="Day"></nav>' +
-      '<div class="mapbox" id="tripmap"><p class="quiet">Loading the map…</p></div>' +
+      '<div data-view="map">' + tripsHeroHtml("map", '<nav class="days" data-days aria-label="Day"></nav>') +
+      '<div class="mapbox" id="tripmap"><div class="well"><p>Loading the map…</p></div></div>' +
       '<p class="legend"><span class="mk hot"><i></i>Hot</span><span class="mk good"><i></i>Good</span>' +
       '<span class="mk dim"><i></i>Nothing good</span><span class="mk home"><i></i>Home</span></p></div>' + tripBarHtml();
     if (!plannerReady()) return;
@@ -1968,7 +2060,7 @@ a.back{text-decoration:none}
       drawMap(lastPlan);
     }).catch(function () {
       var box = document.getElementById("tripmap");
-      if (box) box.innerHTML = '<p class="quiet no" data-quiet>No forecast yet. The weather servers did not answer. Open this once with a signal.</p>';
+      if (box) box.innerHTML = '<div class="well no" data-quiet><p><b>No forecast yet.</b> The weather servers did not answer. Open this once with a signal.</p></div>';
     });
   }
   function drawMap(p) {
@@ -2065,7 +2157,7 @@ a.back{text-decoration:none}
       mapObj.on("zoomend", drawPins);
       drawPins();
     }).catch(function () {
-      box.innerHTML = '<p class="quiet no" data-quiet>The map needs a signal. The trip list works offline.</p>';
+      box.innerHTML = '<div class="well no" data-quiet><p><b>The map needs a signal.</b> The trip list works offline.</p></div>';
     });
   }
 
@@ -2126,7 +2218,7 @@ a.back{text-decoration:none}
       var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
       gear = whenP((need ? need + " to get, " : "") + check + " to check, the rest you own.") +
         '<ul class="gear">' + run.gear.map(function (g) {
-          return '<li><span class="tag ' + g.s + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
+          return '<li><span class="tag ' + (g.s === "have" ? "have" : g.s === "need" ? "need" : "todo") + '">' + (g.s === "have" ? "have" : g.s === "need" ? "get" : "check") + "</span><span>" +
             esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
         }).join("") + "</ul>";
     }
@@ -2207,45 +2299,166 @@ a.back{text-decoration:none}
     if (c.id === "wx") return "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
     var s = snippet(c);
     if (s) return s;
+    // No lead line: the first thing on its list says it.
     scratch.innerHTML = c.body;
-    var txt = scratch.textContent.trim();
+    var txt = (scratch.querySelector("li") || scratch).textContent.trim();
     return txt.length > 90 ? txt.slice(0, 88).replace(/\s+\S*$/, "") + "…" : txt;
+  }
+  // ---- the run card's own pictures ----------------------------------------
+  function leaveHour(t) { return t.from - t.drive / 60 - 0.25; }
+  // The plan: when to leave, and the trip as a strip of its own sky. The dot
+  // is leaving home, the dashes are the drive, gold is the time on the water.
+  function planFloatHtml(t, day, href, sky) {
+    var L = leaveHour(t), F = t.from, D = t.to;
+    // The strip is a sketch, not a ruler: the drive always has room for its label.
+    var xf = Math.max(0.2, Math.min(0.7, (F - L) / Math.max(0.1, D - L)));
+    function hourAt(u) { return u <= xf ? L + (F - L) * (u / xf) : F + (D - F) * ((u - xf) / (1 - xf)); }
+    var strip = LOOK ? RIG.water.stops(0, 1, 14, function (u) { return RIG.sky.paletteFor(sky(day.iso, hourAt(u), t.spot)); }) : "";
+    var arrive = xf * (1 - 0.25 / Math.max(0.3, F - L));
+    return '<a class="float plan" href="' + esc(href) + '" data-sec-row="plan">' +
+      '<em class="eyebrow">The plan</em>' +
+      '<span class="planhead"><b>Leave by ' + esc(clk(L)) + "</b><span>" + t.drive + " min drive</span></span>" +
+      '<span class="tl" aria-hidden="true"><i class="tl-sky"' + (strip ? ' style="background:' + strip + '"' : "") + "></i>" +
+        '<i class="tl-drive" style="left:16px;width:calc(' + pct(arrive) + '% - 16px)"></i>' +
+        '<i class="tl-win" style="left:' + pct(xf) + '%;right:0"></i><i class="tl-dot"></i></span>' +
+      '<span class="tl-lab"><span style="left:0">' + esc(clk(L)) + "<small>Leave</small></span>" +
+        '<span style="left:' + pct(xf) + '%">' + esc(clk(F)) + "<small>" + (t.beach ? "Dig" : "Fish") + "</small></span>" +
+        '<span style="right:0;text-align:right">' + esc(clk(D)) + "<small>Done</small></span></span></a>";
+  }
+  // Gear: how many to get, and one pip a thing (to get, to check, yours).
+  function gearTileHtml(run, href) {
+    var need = 0, check = 0, have = 0, pips = "", i;
+    run.gear.forEach(function (g) { if (g.s === "need") need++; else if (g.s === "check") check++; else have++; });
+    var n = run.gear.length;
+    var big = need ? [need, "to get"] : check ? [check, "to check"] : [n, n === 1 ? "thing" : "things"];
+    var sub = need ? check + " to check, the rest you own" : check ? "The rest you own" : "You own all of it";
+    for (i = 0; i < n && i < 20; i++) pips += i < need ? "<i></i>" : i < need + check ? '<i class="c"></i>' : '<i class="h"></i>';
+    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="gear"><b>Gear' + IC.chev + "</b>" +
+      '<span class="bignum">' + big[0] + "<span>" + big[1] + "</span></span>" +
+      '<span class="pips' + (n > 8 ? " many" : "") + '" aria-hidden="true">' + pips + "</span>" + '<span class="sub">' + sub + "</span></a>";
+  }
+  // The height of the tide at an hour, from the day's highs and lows: a
+  // cosine between two turns, and the same swing carried on past the ends.
+  function tideAt(T, h) {
+    var i = 0;
+    while (i < T.length && T[i].h <= h) i++;
+    var a = T[i - 1], b = T[i];
+    if (a && b) return a.v + (b.v - a.v) * (1 - Math.cos(Math.PI * (h - a.h) / (b.h - a.h))) / 2;
+    var e = a || b, o = a ? T[i - 2] : T[i + 1];
+    var swing = o ? o.v - e.v : e.type === "H" ? -6 : 6, per = o ? Math.abs(e.h - o.h) : 6.2;
+    return e.v + swing * (1 - Math.cos(Math.PI * Math.min(1, Math.abs(h - e.h) / per))) / 2;
+  }
+  function windAt(hrs, h) {
+    var i = 0;
+    while (i < hrs.length && hrs[i].h <= h) i++;
+    var a = hrs[i - 1], b = hrs[i];
+    return a && b ? a.wind + (b.wind - a.wind) * ((h - a.h) / (b.h - a.h)) : (a || b).wind;
+  }
+  // Tide and weather: the water's own curve across the trip, with the turn
+  // that matters marked. A lake has no tide, so its curve is the wind.
+  function tideTileHtml(t, title, href) {
+    var W = 146, H = 44, T = t.tides || [], hrs = t.hours || [], a = t.from - 1.5, b = t.to + 1.5, N = 36, i;
+    var at = T.length ? function (h) { return tideAt(T, h); } : hrs.length ? function (h) { return windAt(hrs, h); } : null;
+    var svg = "", lead, sub = "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
+    var wet = hrs.some(function (x) { return x.rain >= 0.02; });
+    if (at) {
+      var v = [], lo = Infinity, hi = -Infinity;
+      for (i = 0; i <= N; i++) { v.push(at(a + ((b - a) * i) / N)); lo = Math.min(lo, v[i]); hi = Math.max(hi, v[i]); }
+      if (hi - lo < 0.5) { var mid = (hi + lo) / 2; lo = mid - 1; hi = mid + 1; }
+      var X = function (h) { return ((h - a) / (b - a)) * W; }, Y = function (x) { return 38 - ((x - lo) / (hi - lo)) * 30; };
+      var d = v.map(function (x, k) { return (k ? "L" : "M") + (Math.round((k / N) * W * 10) / 10) + " " + (Math.round(Y(x) * 10) / 10); }).join("");
+      // The mark: the turn inside the window, the one the trip is timed for first.
+      var want = (t.why || []).some(function (w) { return /^High slack/.test(w); }) ? "H" : (t.why || []).some(function (w) { return /^Low slack|^WDFW dig/.test(w); }) ? "L" : "";
+      var inWin = T.filter(function (x) { return x.h >= t.from - 0.5 && x.h <= t.to + 0.5; });
+      var turn = inWin.filter(function (x) { return x.type === want; })[0] || inWin[0] || null;
+      var mh = turn ? turn.h : t.from, mx = Math.round(X(mh) * 10) / 10, my = Math.round(Y(at(mh)) * 10) / 10;
+      svg = '<svg class="tide" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-fill" d="' + d + "V" + H + 'H0Z"/><path class="t-line" d="' + d + '"/>' +
+        '<path class="t-tick" d="M' + mx + " " + (my + 4) + "V" + H + '"/><circle class="t-now" cx="' + mx + '" cy="' + my + '" r="3.6"/></svg>';
+      if (T.length) {
+        var slack = (t.why || []).filter(function (w) { return / slack /.test(w); })[0];
+        lead = slack ? slack.split(",")[0] : turn ? (turn.type === "H" ? "High tide " : "Low tide ") + clk(turn.h) : at(t.to) > at(t.from) ? "Tide coming in" : "Tide going out";
+      }
+    }
+    if (!lead) { lead = (wet ? "Rain, " : "Dry, ") + t.wx.temp + "°F"; sub = "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust; }
+    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="wx"><b>' + esc(title) + IC.chev + "</b>" + svg +
+      '<span class="lead">' + esc(lead) + '</span><span class="sub">' + esc(sub) + "</span></a>";
+  }
+  // The river: the gauge's forecast for the days around the trip, the line
+  // it has to stay under, and a dot on the day.
+  function riverTileHtml(t, day, href, saved) {
+    var f = t.flow, W = 146, H = 44, fl = ((saved && saved.flow) || {})[t.spot], days = (fl && fl.days) || {}, pts = [], k;
+    for (k = -3; k <= 3; k++) { var iso = isoPlus(day.iso, k); if (days[iso]) pts.push({ k: k, v: days[iso].max }); }
+    var svg = "";
+    if (f.cfs != null && pts.length > 1) {
+      var top = Math.max(f.good * 1.15, Math.max.apply(null, pts.map(function (p) { return p.v; })) * 1.12);
+      var X = function (kk) { return 5 + ((kk - pts[0].k) / Math.max(1, pts[pts.length - 1].k - pts[0].k)) * (W - 10); };
+      var Y = function (v) { return Math.round((40 - (v / top) * 34) * 10) / 10; };
+      var d = pts.map(function (p, i) {
+        if (!i) return "M" + X(p.k).toFixed(1) + " " + Y(p.v);
+        var q = pts[i - 1], mx = ((X(q.k) + X(p.k)) / 2).toFixed(1);
+        return "C" + mx + " " + Y(q.v) + " " + mx + " " + Y(p.v) + " " + X(p.k).toFixed(1) + " " + Y(p.v);
+      }).join("");
+      var here = pts.filter(function (p) { return p.k === 0; })[0];
+      svg = '<svg class="flow' + (f.call === "go" ? "" : " warn") + '" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true">' +
+        '<path class="f-fill" d="' + d + "V" + H + "H" + X(pts[0].k).toFixed(1) + 'Z"/><path class="f-base" d="M0 ' + Y(f.good) + "H" + W + '"/>' +
+        '<path class="f-line" d="' + d + '"/>' + (here ? '<circle class="f-dot" cx="' + X(0).toFixed(1) + '" cy="' + Y(here.v) + '" r="3.4"/>' : "") + "</svg>";
+    }
+    var sub = f.call === "unknown" ? "" : (f.trend === "rising" ? "Rising" : f.trend === "dropping" ? "Dropping after a rise" : "Steady") + ", fishable to " + cfsTxt(f.good);
+    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="river"><b>River' + IC.chev + "</b>" + svg +
+      '<span class="lead">' + esc(riverLine(f).split(", ")[0]) + "</span>" + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</a>";
+  }
+  // The one gold button on a run card. On a crew it is the crew's two
+  // buttons (hotCrewHtml). Otherwise it walks the card from the plan on.
+  function hotMainHtml(day, t) {
+    return hotCrewHtml(day, t) || '<div class="act"><a class="gold" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '/plan" data-walk>Walk through it' + IC.go + "</a></div>";
   }
   function renderHot(key, sec) {
     var f = findTrip(key);
     if (!f) { location.replace("#/trips"); return; }
     var t = f.t, day = f.day, run = RIG.trips.runs && RIG.trips.runs[t.planId];
     var base = "#/trips/" + encodeURIComponent(key);
-    var sp = findSpecies(t.species);
+    var sp = findSpecies(t.species), scene = sceneFor(t);
+    var hero = heroHtml({ title: t.name, back: { href: "#/trips", text: "Hot Trips" },
+      chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + "</b> " + esc(t.slot) + "</span>" + heatTag(t) });
     if (!run) {
-      app.innerHTML = topHtml("trips") + '<div data-view="hot"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
-        headHtml(esc(day.label + " · " + t.slot), t.name, t.when) + boxHtml("tip", "why", stepsHtml(t.why)) +
-        (sp ? '<div class="rows" style="margin-top:16px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards><span class="rt"><b>Open the ' +
-          esc(sp.name) + ' cards</b></span><span class="chev" aria-hidden="true">&rsaquo;</span></a></div>' : "") + "</div>" + tripBarHtml();
+      app.innerHTML = topHtml("trips", "", scene) + '<div data-view="hot">' + hero +
+        '<div class="float fallback">' + whenP(t.when + " · " + t.drive + " min drive") + boxHtml("tip", "why", stepsHtml(t.why)) + "</div>" +
+        (sp ? '<div class="panel list" style="margin-top:14px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards><span class="tx"><b>Open the ' +
+          esc(sp.name) + " cards</b></span>" + IC.chev + "</a></div>" : "") + "</div>" + tripBarHtml();
       return;
     }
     var secs = runSections(t, run);
     var card = sec && secs.filter(function (c) { return c.id === sec; })[0];
     if (card) {
-      renderCard({ tab: "trips", card: card, list: secs, addable: false,
+      renderCard({ tab: "trips", card: card, list: secs, addable: false, scene: scene,
         hrefFor: function (c) { return base + "/" + c.id; }, upHref: base, upText: t.name });
       app.querySelector('[data-view="card"]').setAttribute("data-run", t.planId);
       return;
     }
-    var more = moreRows(run);
+    var more = moreRows(run), sky = skyReader();
     if (cwT.hotKey !== key) { cwT.hotKey = key; cwT.hotMsg = null; }
-    app.innerHTML = topHtml("trips") +
-      '<div data-view="hot" data-run="' + esc(t.planId) + '">' +
-        '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
-        headHtml(esc(day.label + " · " + t.slot), t.name, t.when + " · " + t.drive + " min drive") +
+    // Four sections get a picture of their own: the plan, the gear, the water
+    // (the river for a river trip, the tide and weather for any other) and
+    // the rules. The rest are rows in one card.
+    var own = { plan: 1, gear: 1, rules: 1 };
+    own[t.flow ? "river" : "wx"] = 1;
+    var by = {};
+    secs.forEach(function (c) { by[c.id] = c; });
+    var rows = secs.filter(function (c) { return !own[c.id]; }).map(function (c) {
+      return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
+        '</b><span class="clamp">' + esc(secLine(c, t, run)) + "</span></span>" + IC.chev + "</a>";
+    }).join("");
+    app.innerHTML = topHtml("trips", "", scene) +
+      '<div data-view="hot" data-run="' + esc(t.planId) + '">' + hero +
         '<div data-rules-slot' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></div>" +
-        '<section class="grp"><h2>Run card <span class="heat' + (t.heat === "Hot" ? " hot" : "") + '">' + esc(t.heat) + "</span></h2><div class=\"rows\">" +
-          secs.map(function (c) {
-            return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
-              "</b><span>" + esc(secLine(c, t, run)) + '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a>';
-          }).join("") + "</div></section>" +
-        '<div data-cw-make-slot data-cw-key="' + esc(key) + '">' + hotCrewHtml(day, t) + "</div>" +
-        (more ? '<section class="grp"><h2>Go deeper</h2><div class="rows" data-more>' + more + "</div></section>" : "") +
+        planFloatHtml(t, day, base + "/plan", sky) +
+        '<div class="duo">' + gearTileHtml(run, base + "/gear") +
+          (t.flow ? riverTileHtml(t, day, base + "/river", sky.saved) : tideTileHtml(t, by.wx.title, base + "/wx")) + "</div>" +
+        '<div class="panel list">' + rows + "</div>" +
+        '<a class="rule" href="' + esc(base + "/rules") + '" data-sec-row="rules"><span class="tx"><b>' + esc(by.rules.title) +
+          '</b><span class="clamp">' + esc(secLine(by.rules, t, run)) + "</span></span>" + IC.chev + "</a>" +
+        (more ? '<section class="grp"><h2 class="sect">Go deeper</h2><div class="panel list" data-more>' + more + "</div></section>" : "") +
+        '<div data-cw-make-slot data-cw-key="' + esc(key) + '">' + hotMainHtml(day, t) + "</div>" +
       "</div>" + tripBarHtml();
     hotCrewLoad();
     window.scrollTo(0, 0);
@@ -2326,7 +2539,8 @@ a.back{text-decoration:none}
   function lowerFirst(x) { return /^[A-Z][a-z]/.test(x) ? x.charAt(0).toLowerCase() + x.slice(1) : x; }
   function tagHtml(trip, over) {
     var word = trip.status === "planned" ? "On" : trip.status === "done" ? "Done" : "Idea";
-    return '<span class="cw-tag ' + (over ? "done" : esc(trip.status || "idea")) + '" data-cw-tag>' + word + "</span>";
+    var kind = over || trip.status === "done" ? "done" : trip.status === "planned" ? "go" : "idea";
+    return '<span class="pill ' + kind + '" data-cw-tag>' + word + "</span>";
   }
   function namesFor(trip, answer) {
     return (trip.going || []).filter(function (g) { return g.answer === answer; }).map(function (g) { return firstName(g.name); });
@@ -2353,12 +2567,24 @@ a.back{text-decoration:none}
   }
 
   // ---- the group on the Trips tab
+  // A trip that is still ahead: the card with the date stamp.
+  function crewTripCard(t) {
+    var who = namesFor(t, "going"), d = isoDay(t.date);
+    return '<a class="panel crewtrip" href="#/crew/trip/' + esc(t.id) + '" data-cw-trip="' + esc(t.id) + '">' +
+      '<span class="datestamp" aria-hidden="true"><i>' + DAY3[d.getDay()] + "</i><b>" + d.getDate() + "</b></span>" +
+      '<span class="tx"><span class="caprow"><em class="eyebrow">Crew trip</em>' + tagHtml(t, false) +
+        (RIG.crew.isNew(t) ? '<span class="dot cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + "</span>" +
+      "<b>" + esc(t.title) + "</b>" +
+      '<span class="who">' + avsHtml(who) + '<span><span class="vh">' + esc(dayDate(t.date)) + ". </span>" +
+        esc(who.length ? andList(who) + " going" : "Nobody yet") + "</span></span></span>" + IC.chev + "</a>";
+  }
+  // A trip that is over: a plain row behind Past trips.
   function crewTripRow(t) {
     var who = namesFor(t, "going"), over = t.date < todayIso();
     return '<a class="row" href="#/crew/trip/' + esc(t.id) + '" data-cw-trip="' + esc(t.id) + '">' +
-      '<span class="rt"><b>' + esc(t.title) + "</b><span>" + esc(dayDate(t.date) + " · " + (who.length ? who.join(", ") : "Nobody yet")) + "</span></span>" +
-      (RIG.crew.isNew(t) ? '<span class="cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + tagHtml(t, over) +
-      '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+      '<span class="tx"><b>' + esc(t.title) + "</b><span>" + esc(dayDate(t.date) + " · " + (who.length ? who.join(", ") : "Nobody yet")) + "</span></span>" +
+      (RIG.crew.isNew(t) ? '<span class="dot cw-dot" data-cw-new role="img" aria-label="New"></span>' : "") + tagHtml(t, over) +
+      IC.chev + "</a>";
   }
   function crewTripsHtml(st) {
     if (!st || !st.crew) return "";
@@ -2367,17 +2593,20 @@ a.back{text-decoration:none}
     function soonest(a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.from == null ? 99 : a.from) - (b.from == null ? 99 : b.from); }
     live.sort(soonest);
     past.sort(function (a, b) { return soonest(b, a); });
-    return '<section class="grp" data-cw-trips><h2>Crew trips</h2><div class="rows">' + live.map(crewTripRow).join("") +
-      '<a class="row" href="#/crew/new" data-cw-plan><span class="rt"><b>Plan a trip</b><span>Pick one and a day. The crew sees it.</span></span>' +
-      '<span class="chev" aria-hidden="true">&rsaquo;</span></a>' +
-      (past.length ? '<button class="row cw-rowbtn" type="button" data-cw-past aria-expanded="' + (cwT.past ? "true" : "false") + '"><span class="rt"><b>Past trips</b><span>' +
-        past.length + (past.length === 1 ? " trip" : " trips") + '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></button>' +
+    return '<section class="grp" data-cw-trips><h2 class="vh">Crew trips</h2>' + live.map(crewTripCard).join("") +
+      '<div class="panel list"><a class="row" href="#/crew/new" data-cw-plan><span class="tx"><b>Plan a trip</b><span>Pick one and a day. The crew sees it.</span></span>' +
+      IC.chev + "</a>" +
+      (past.length ? '<button class="row cw-rowbtn" type="button" data-cw-past aria-expanded="' + (cwT.past ? "true" : "false") + '"><span class="tx"><b>Past trips</b><span>' +
+        past.length + (past.length === 1 ? " trip" : " trips") + "</span></span>" + IC.chev + "</button>" +
         (cwT.past ? past.map(crewTripRow).join("") : "") : "") +
       "</div></section>";
   }
   function crewTripsDraw() {
     var host = app.querySelector('[data-view="trips"] [data-cw-trips-slot]');
     if (host) host.innerHTML = crewTripsHtml(crewSt());
+    // A row in the week says when the crew is on it. Redraw the week only
+    // when one of those lines would change.
+    if (host && lastPlan && app.querySelector("[data-week] [data-day]") && crewWeekSig(crewIn()) !== weekSig) drawTrips(lastPlan);
   }
   // The saved trips are on screen already. This asks for fresh ones.
   function crewTripsLoad() {
@@ -2392,16 +2621,16 @@ a.back{text-decoration:none}
     var have = sameTrip(st, t.planId, day.iso);
     if (have) {
       var who = namesFor(have, "going");
-      return '<div class="cw cw-make" data-cw-make><a class="cw-go" href="#/crew/trip/' + esc(have.id) + '" data-cw-open-trip>Open the crew trip</a>' +
+      return '<div class="cw cw-make" data-cw-make><a class="gold cw-go" href="#/crew/trip/' + esc(have.id) + '" data-cw-open-trip>Open the crew trip</a>' +
         cwMsg((have.status === "planned" ? "It is on. " : have.status === "done" ? "Done. " : "Floated as an idea. ") + (who.length ? "Going: " + who.join(", ") + "." : ""), "", "data-cw-make-msg") + "</div>";
     }
-    return '<div class="cw cw-make" data-cw-make>' + tellHtml("hot") + '<button class="cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
+    return '<div class="cw cw-make" data-cw-make>' + tellHtml("hot") + '<button class="gold cw-go" type="button" data-cw-do="planned">We are doing this</button>' +
       '<button class="cw-plain" type="button" data-cw-do="idea">Float it</button>' +
       cwSaid(cwT.hotMsg, "Either one puts this trip in front of the crew.", "data-cw-make-msg") + "</div>";
   }
   function hotCrewSync() {
     var host = app.querySelector('[data-view="hot"] [data-cw-make-slot]'), f = host && findTrip(host.getAttribute("data-cw-key"));
-    if (f) host.innerHTML = hotCrewHtml(f.day, f.t);
+    if (f) host.innerHTML = hotMainHtml(f.day, f.t);
   }
   function hotCrewLoad() {
     if (!RIG.crew || !RIG.crew.session()) return;
@@ -2512,12 +2741,12 @@ a.back{text-decoration:none}
   function renderCrewNew() {
     if (!crewGate()) return;
     var st = crewSt(), v = crewUi.vals, today = todayIso();
-    var head = topHtml("trips", "crew") + '<div data-view="crewnew"><a class="back" href="#/trips" data-up>&larr; Hot Trips</a>' +
-      headHtml("The crew", "Plan a trip", "Pick one and a day. The crew sees it.");
+    var head = topHtml("trips", "crew") + '<div data-view="crewnew">' +
+      headHtml("The crew", "Plan a trip", "Pick one and a day. The crew sees it.", { href: "#/trips", text: "Hot Trips" });
     if (cwT.nav) window.scrollTo(0, 0);
     if (!crewQuiet) wxLoad(newSync);
     if (!st || !st.crew) {
-      app.innerHTML = head + '<div class="cw">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>'
+      app.innerHTML = head + '<div class="cw float">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>'
         : cwMsg(cwT.stErr || "Loading the crew...", cwT.stErr ? "no" : "", "data-cw-new-msg") +
           (cwT.stErr ? '<button class="cw-plain" type="button" data-cw-retry>Try again</button>' : "")) +
         (st ? '<a class="cw-plain" href="#/crew">The crew</a>' : "") + "</div></div>" + tripBarHtml();
@@ -2526,10 +2755,10 @@ a.back{text-decoration:none}
     }
     if (!/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) v.newDate = today;
     if (!plannerReady() || !RIG.trips.plansOn) {
-      app.innerHTML = head + '<div class="cw">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
+      app.innerHTML = head + '<div class="cw float">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
       return;
     }
-    app.innerHTML = head + '<div class="cw">' +
+    app.innerHTML = head + '<div class="cw float">' +
       cwField("What", '<select data-cw-what data-keep="newPlan" data-sig="' + esc(planSig(v.newDate)) + '">' + planOptions(v.newDate, v.newPlan || "") + "</select>") +
       cwField("When", '<input data-cw-date data-keep="newDate" type="date" min="' + today + '" max="' + isoPlus(today, 60) + '" value="' + kv("newDate") + '">') +
       '<div class="cw-condslot" data-cw-cond-slot>' + newCondHtml() + "</div>" +
@@ -2540,7 +2769,7 @@ a.back{text-decoration:none}
         '<button class="cw-pick" type="button" data-cw-pick="idea" aria-pressed="' + (cwT.newStatus === "idea" ? "true" : "false") + '">Just an idea</button>' +
         '<button class="cw-pick" type="button" data-cw-pick="planned" aria-pressed="' + (cwT.newStatus === "planned" ? "true" : "false") + '">It is on</button></div>' +
       cwField("A note (optional)", '<textarea data-cw-note data-keep="newNote" maxlength="280" placeholder="Meet at the pier at 5">' + kv("newNote") + "</textarea>") +
-      tellHtml("new") + '<button class="cw-go" type="button" data-cw-create>Make the trip</button>' +
+      tellHtml("new") + '<button class="gold cw-go" type="button" data-cw-create>Make the trip</button>' +
       cwSaid(cwT.newMsg, "", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
   }
   // A trip is where a text or an alert lands, so it is often opened cold, on a
@@ -2678,7 +2907,7 @@ a.back{text-decoration:none}
     }).join("");
     // The names to tell sit above the box, the button under it: a second tap
     // that lands where the button was finds the box, never a name.
-    return '<section class="grp" data-cw-notebox><h2>Notes' + (mine.length ? ' <span class="n">' + mine.length + "</span>" : "") + "</h2>" +
+    return '<section class="grp" data-cw-notebox><h2 class="sect">Notes' + (mine.length ? ' <span class="n">' + mine.length + "</span>" : "") + "</h2>" +
       (notes ? '<ul class="cw-nlist">' + notes + "</ul>" : "") +
       '<div class="cw cw-notebox">' + tellHtml("note") +
       cwField(sec ? "Add a note on this part" : "Add a note on the whole trip",
@@ -2732,7 +2961,7 @@ a.back{text-decoration:none}
           '" aria-label="' + esc(it.assignedTo ? who + " has it. Change who." : "Nobody has it. Pick who.") + '">' + esc(who) + "</button>" +
         (open ? '<div class="cw-panel" data-cw-panel>' + panel + (tripUi.pMsg ? cwSaid(tripUi.pMsg, "", "data-cw-panel-msg") : "") + "</div>" : "") + "</li>";
     }).join("");
-    return '<section class="grp" data-cw-listbox><h2>The list</h2><p class="cw-sum" data-cw-list-sum>' + esc(listSummary(list)) + "</p>" +
+    return '<section class="grp" data-cw-listbox><h2 class="sect">The list</h2><p class="cw-sum" data-cw-list-sum>' + esc(listSummary(list)) + "</p>" +
       '<ul class="cw-items">' + rows + "</ul>" +
       '<div class="cw-addline"><input data-cw-item-new data-keep="t.item" data-enter="data-cw-item-add" type="text" maxlength="120" autocomplete="off" ' +
         'placeholder="Add a line" aria-label="Add a line" value="' + kv("t.item") + '">' +
@@ -2838,7 +3067,7 @@ a.back{text-decoration:none}
           : '<button class="cw-x" type="button" data-cw-catch-del="' + id + '">Delete</button>') : "") +
         "</div></li>";
     }).join("");
-    return '<section class="grp" data-cw-catchbox><h2>Catches' + (list.length ? ' <span class="n">' + list.length + "</span>" : "") + "</h2>" +
+    return '<section class="grp" data-cw-catchbox><h2 class="sect">Catches' + (list.length ? ' <span class="n">' + list.length + "</span>" : "") + "</h2>" +
       (rows ? '<ul class="cw-clist">' + rows + "</ul>" : "") +
       (tripUi.cOpen ? catchFormHtml() : '<div class="cw"><button class="cw-plain cw-main" type="button" data-cw-catch-open>Log a fish</button></div>') +
       cwSaid(tripUi.cMsg, "", "data-cw-catch-msg") + "</section>";
@@ -2971,7 +3200,7 @@ a.back{text-decoration:none}
     }).join("");
     var wait = mine && mine.waiting ? '<p class="cw-msg" data-cw-waiting><span class="cw-wait">' +
       (tripUi.sending ? "Sending" : "Waiting to send") + "</span>" + (tripUi.sending ? "" : " It goes when there is a signal.") + "</p>" : "";
-    return '<section class="grp" data-cw-going><h2>Who is in</h2><div class="cw-going">' + cols + "</div>" + wait +
+    return '<section class="grp" data-cw-going><h2 class="sect">Who is in</h2><div class="cw-going">' + cols + "</div>" + wait +
       (tripUi.goMsg ? cwSaid(tripUi.goMsg, "", "data-cw-going-msg") : "") + "</section>";
   }
   function tripLeave(trip, det) {
@@ -2997,14 +3226,13 @@ a.back{text-decoration:none}
       tripUi.edit = trip.id; tripUi.editMsg = null;
       v.editDate = trip.date; v.editFrom = hourBox(trip.from); v.editTo = hourBox(trip.to); v.editNote = trip.note || "";
     }
-    return '<a class="back" href="#/crew/trip/' + esc(trip.id) + '" data-up>&larr; ' + esc(trip.title) + "</a>" +
-      headHtml("Crew trip", "Change it", trip.title) + '<div class="cw" data-cw-edit-form>' +
+    return headHtml("Crew trip", "Change it", trip.title, { href: "#/crew/trip/" + trip.id, text: trip.title }) + '<div class="cw float" data-cw-edit-form>' +
       cwField("When", '<input data-cw-edit-date data-keep="editDate" type="date" min="' + min + '" max="' + isoPlus(today, 60) + '" value="' + kv("editDate") + '">') +
       '<div class="cw-two">' +
         cwField("From (optional)", '<input data-cw-edit-from data-keep="editFrom" type="time" step="900" value="' + kv("editFrom") + '">') +
         cwField("To (optional)", '<input data-cw-edit-to data-keep="editTo" type="time" step="900" value="' + kv("editTo") + '">') + "</div>" +
       cwField("A note (optional)", '<textarea data-cw-edit-note data-keep="editNote" maxlength="280">' + kv("editNote") + "</textarea>") +
-      tellHtml("edit") + '<button class="cw-go" type="button" data-cw-save>Save</button>' +
+      tellHtml("edit") + '<button class="gold cw-go" type="button" data-cw-save>Save</button>' +
       '<a class="cw-plain" href="#/crew/trip/' + esc(trip.id) + '">Leave it as it is</a>' +
       cwSaid(tripUi.editMsg, "", "data-cw-edit-msg") + "</div>";
   }
@@ -3041,8 +3269,9 @@ a.back{text-decoration:none}
     }
     if (sub !== "edit") tripUi.edit = false;
     var st = crewSt(), d = tripData(id);
-    var open = topHtml("trips", "crew") + '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
-    var up = '<a class="back" href="#/trips" data-up>&larr; Hot Trips</a>';
+    var open = topHtml("trips", "crew", d && d.trip ? sceneFor({ planId: d.trip.planId, spot: d.trip.spotId, species: d.trip.species, name: d.trip.title }) : "") +
+      '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
+    var up = { href: "#/trips", text: "Hot Trips" };
     if (cwT.nav) {
       window.scrollTo(0, 0);
       tripUi.confirm = false; tripUi.msg = null; tripUi.goMsg = null;
@@ -3058,7 +3287,7 @@ a.back{text-decoration:none}
         body = cwMsg(r && r.offline ? "No signal, and this trip is not saved on this phone yet." : (r && r.error) || cwT.stErr || "The trip could not be loaded. Try again in a minute.", "no", "data-cw-trip-msg") +
           '<button class="cw-plain" type="button" data-cw-retry>Try again</button>';
       } else body = cwMsg("Loading the trip...", "", "data-cw-trip-msg");
-      app.innerHTML = open + ">" + up + headHtml("The crew", "Crew trip", "") + '<div class="cw">' + body + "</div></div>" + tripBarHtml();
+      app.innerHTML = open + ">" + headHtml("The crew", "Crew trip", "", up) + '<div class="cw float">' + body + "</div></div>" + tripBarHtml();
       return;
     }
     var trip = d.trip, det = tripDetail(trip), me = st.me;
@@ -3084,7 +3313,7 @@ a.back{text-decoration:none}
           "</span><b>" + esc(label(c)) + "</b></a>" : '<span class="pnb ' + cls + ' none"></span>';
       };
       app.innerHTML = open + ' data-sec="' + esc(sub) + '" data-run="' + esc(trip.planId) + '">' +
-        '<a class="back" href="' + esc(base) + '" data-up>&larr; ' + esc(trip.title) + "</a>" +
+        heroHtml({ title: card.title, back: { href: base, text: trip.title } }) +
         cardHtml(card, { addable: false }) +
         '<div data-cw-notes="' + esc(sub) + '">' + cwNotesHtml(d, sub) + "</div>" +
         '<nav class="pn">' + step(prev, "prev", "Back") + '<span class="pos">' + (i + 1) + " of " + secs.length + "</span>" + step(next, "next", "Next") + "</nav>" +
@@ -3097,11 +3326,11 @@ a.back{text-decoration:none}
     (d.comments || []).forEach(function (c) { if (c.section) counts[c.section] = (counts[c.section] || 0) + 1; });
     var rows = secs.map(function (c) {
       var n = counts[c.id] || 0;
-      return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="rt"><b>' + esc(c.title) +
+      return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
         "</b><span>" + esc(secLine(c, t, run)) + "</span></span>" +
-        (n && lookNew(id, c.id, d) ? '<span class="cw-dot" data-cw-newnote="' + c.id + '" role="img" aria-label="New note"></span>' : "") +
+        (n && lookNew(id, c.id, d) ? '<span class="dot cw-dot" data-cw-newnote="' + c.id + '" role="img" aria-label="New note"></span>' : "") +
         (n ? '<span class="rm" data-cw-count="' + c.id + '">' + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
-        '<span class="chev" aria-hidden="true">&rsaquo;</span></a>';
+        IC.chev + '</a>';
     }).join("");
     var leave = tripLeave(trip, det);
     var words = trip.title + ", " + dayDate(trip.date) + "." + (leave ? " Leave by " + leave + "." : "") + " " + SITE + "#/crew/trip/" + trip.id;
@@ -3112,15 +3341,15 @@ a.back{text-decoration:none}
       ? '<p class="cw-asks" data-cw-delete-ask>Delete this trip for everyone?</p>' + tellFoot + '<div class="cw-acts2">' +
         '<button class="cw-act no" type="button" data-cw-delete-yes>Delete</button><button class="cw-act" type="button" data-cw-delete-no>Keep</button></div>'
       : tellFoot + '<div class="cw-acts2" data-cw-acts>' + tripActsHtml(trip, canEdit) + "</div>";
-    app.innerHTML = open + ">" + up +
-      '<div class="shead cw-thead"><p class="eyebrow">Crew trip</p><h1 data-cw-title>' + esc(trip.title) + "</h1>" +
-        '<p class="when" data-cw-when>' + esc(dayDate(trip.date) + (win ? " · " + win : "")) + "</p>" +
-        '<p class="cw-meta">' + tagHtml(trip) + "<span data-cw-by>" + (trip.by ? "Made by " + esc(firstName(trip.by.name)) : "") + "</span></p>" +
-        (trip.note ? '<p class="cw-tripnote" data-cw-tripnote>' + esc(trip.note) + "</p>" : "") + "</div>" +
+    app.innerHTML = open + ">" +
+      heroHtml({ title: trip.title, attr: "data-cw-title", back: up,
+        chips: '<span class="chip wrap" data-cw-when><b>' + esc(dayDate(trip.date)) + "</b>" + esc(win ? " · " + win : "") + "</span>" + tagHtml(trip) +
+          (trip.by ? '<span class="chip" data-cw-by>Made by ' + esc(firstName(trip.by.name)) + "</span>" : "<span data-cw-by></span>") +
+          (trip.note ? '<span class="chip wrap" data-cw-tripnote>' + esc(trip.note) + "</span>" : "") }) +
       (tripUi.note ? cwMsg(tripUi.note, "", "data-cw-trip-note") : "") +
-      condHtml(trip, det) +
+      condHtml(trip, det).replace('class="cw-cond', 'class="float cw-cond') +
       goingHtml(trip, me) +
-      (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2>Run card</h2><div class="rows">' + rows + "</div></section>" : "") +
+      (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2 class="sect">Run card</h2><div class="panel list">' + rows + "</div></section>" : "") +
       '<div data-cw-notes="">' + cwNotesHtml(d, "", secs.map(function (c) { return c.id; })) + "</div>" +
       '<div data-cw-list>' + cwListHtml(d) + "</div>" +
       '<div data-cw-catches>' + cwCatchesHtml(d) + "</div>" +
@@ -3367,18 +3596,17 @@ a.back{text-decoration:none}
     // A content edit can delete a card a saved trip still points at. Drop it
     // quietly rather than rendering a hole or throwing.
     var cards = state.cards.map(function (id) { return byId[id]; }).filter(Boolean);
+    setScene("sound");
     app.innerHTML =
       '<div data-view="field" class="fieldmode">' +
-        '<div class="fieldtop">' +
-          '<button class="back" type="button" data-mode-library>&larr; Library</button>' +
-          '<input class="tripdate" type="date" data-trip-date value="' + esc(state.date) + '" aria-label="Trip date">' +
-        "</div>" +
-        '<div class="shead"><p class="eyebrow" data-trip-count>' + cards.length +
-          (cards.length === 1 ? " card" : " cards") + '</p><h1>This trip</h1></div>' +
+        heroHtml({ title: "This trip", chips:
+          '<button class="chip back" type="button" data-mode-library>' + IC.back + "<span>Library</span></button>" +
+          '<span class="chip" data-trip-count>' + cards.length + (cards.length === 1 ? " card" : " cards") + "</span>" +
+          '<input class="tripdate" type="date" data-trip-date value="' + esc(state.date) + '" aria-label="Trip date">' }) +
         noticeHtml() +
         (cards.length
           ? cards.map(function (c) { return cardHtml(c, { addable: false }); }).join("")
-          : '<p class="when">Nothing in this trip yet. Go back to the library and add cards.</p>') +
+          : '<div class="well"><p>Nothing in this trip yet. Go back to the library and add cards.</p></div>') +
       "</div>";
   }
 
@@ -3465,8 +3693,11 @@ a.back{text-decoration:none}
     var mode = skyMode(), s = skyNow();
     var r = RIG.sky.resolve(s.h, s.sun, s.wx, mode);
     RIG.sky.apply(document.documentElement, r);
+    if (RIG.water) RIG.water.dress(document.documentElement, r.p);
+    // The top of the page is sky now, so that is the colour the phone's own
+    // bar takes.
     var theme = document.querySelector('meta[name="theme-color"]');
-    if (theme) theme.setAttribute("content", r.p.ground);
+    if (theme) theme.setAttribute("content", r.p.sky[0]);
     app.querySelectorAll("[data-skymode]").forEach(function (b) {
       b.setAttribute("data-held", mode === "auto" ? "no" : "yes");
       b.setAttribute("aria-label", mode === "auto" ? "Screen follows the sky. Tap to hold it light."
@@ -3474,6 +3705,9 @@ a.back{text-decoration:none}
       var l = b.querySelector("[data-skylabel]");
       if (l) l.textContent = mode === "auto" ? "Sky" : mode === "light" ? "Light" : "Dark";
     });
+    var w = skyWords();
+    app.querySelectorAll("[data-skyname]").forEach(function (el) { el.textContent = w.name; });
+    app.querySelectorAll("[data-sunset]").forEach(function (el) { el.textContent = w.sunset; });
   }
 
   // When the screen was last drawn, and for which day. The installed app is
@@ -3501,6 +3735,15 @@ a.back{text-decoration:none}
     initTyers(app);
     var top = app.querySelector(".top");
     if (top) document.documentElement.style.setProperty("--toph", (top.offsetHeight + 8) + "px");
+    // A screen that opens on a heading, not a card: the heading gets glass
+    // under it and the title gives up some sky (see .sect.lead in the styles).
+    var hero = app.querySelector("[data-view] > .hero"), el = hero && hero.nextElementSibling;
+    while (el && !el.offsetHeight) el = el.nextElementSibling;
+    var h = el && el.matches(".grp") ? el.querySelector(":scope > h2.sect") : null;
+    if (h) { h.classList.add("lead"); hero.classList.add("tight"); }
+    // The open filter chip is scrolled into view, not left off the edge.
+    var cur = app.querySelector('.jump [aria-current="true"]');
+    if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - (cur.parentNode.clientWidth - cur.offsetWidth) / 2;
   }
 
   function renderView() {

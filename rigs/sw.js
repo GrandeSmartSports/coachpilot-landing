@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v25";
+const CACHE = "rigs-v26";
 
 // This one file runs under two registrations. "/rigs/" is the app, and
 // everything below is for it. "/rigs" with no slash is the address a person
@@ -23,11 +23,15 @@ const CACHE = "rigs-v25";
 // that one address to "/rigs/". It caches nothing and touches nothing else.
 const BARE_ONLY = new URL(self.registration.scope).pathname === "/rigs";
 
-// Without these three the page cannot render at all, so a failure to cache
-// any of them must fail the whole install and leave the previous worker and
-// its cache in place.
+// Without these the page cannot render at all, so a failure to cache any of
+// them must fail the whole install and leave the previous worker and its
+// cache in place. kit.css, scene.css and scene.js are the look: the page is
+// unstyled without them.
 const SHELL = [
   "/rigs/index.html",
+  "/rigs/kit.css",
+  "/rigs/scene.css",
+  "/rigs/scene.js",
   "/rigs/diagrams.js",
   "/rigs/content.js",
   "/rigs/trips.js",

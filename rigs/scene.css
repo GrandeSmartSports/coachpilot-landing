@@ -1,0 +1,158 @@
+/* Rig Card scenes: the paintings.
+
+   rigs/scene.js draws every picture as layered SVG with no colour of its
+   own. Every fill is one of the classes below, mixed out of the sky engine's
+   variables and the kit's ridge tones, so one drawing becomes eight paintings
+   (dawn, overcast, golden hour, night and the rest). The bones are in kit.css. */
+
+:root{
+  /* ---- the painting ---- */
+  --mistc:var(--hz);
+  --glowc:var(--paper);
+  --lampc:color-mix(in oklab,var(--gold) 74%,var(--lum));
+  --glintc:color-mix(in oklab,var(--hz) 40%,var(--lum));
+  --roadc:var(--glintc);
+  /* ---- the light. One direction per sky. ---- */
+  --lx:262px;--ly:58px;                  /* where the light sits, in scene units */
+  --glow:.5;--glowx:1;--glowy:1;--road:.22;--gl:.5;--gr:.6;
+  --mtn:.34;--stars:0;--lights:0;--lamps:0;--cloud:.9;--mist:.75;--rain:0;
+  --litl:0;--litr:.14;                   /* which edge of a piling catches it */
+  --rimx:0px;--rimy:-.9px;               /* which edge of a fir catches it */
+}
+:root[data-dark="1"]{--glintc:color-mix(in oklab,var(--hz) 55%,var(--ink))}
+/* Eight skies, eight lights. Geometry and strength only: the colours are
+   still the engine's. Which way card shadows fall is in kit.css. */
+:root[data-sky="night"]{
+  --lx:292px;--ly:52px;--glow:.2;--glowc:var(--ink2);--road:.1;--gl:.34;--gr:.3;
+  --mtn:.17;--stars:.85;--lights:1;--lamps:1;--cloud:.5;--mist:.6;--litl:0;--litr:.1;--rimx:0px;--rimy:-.8px}
+:root[data-sky="firstLight"]{
+  --lx:74px;--ly:176px;--glow:.55;--glowx:1.2;--glowy:.36;--glowc:color-mix(in oklab,var(--sky2) 55%,var(--ink));--road:.2;--gl:.4;--gr:.45;
+  --mtn:.3;--stars:.45;--lights:.85;--lamps:.9;--cloud:.5;--mist:.6;--litl:.07;--litr:.09;--rimx:-1px;--rimy:-.4px}
+:root[data-sky="dawn"]{
+  --lx:70px;--ly:176px;--glow:.95;--glowx:1.25;--glowy:.4;--glowc:color-mix(in oklab,var(--gold) 38%,var(--paper));--road:.5;--gl:.55;--gr:.9;
+  --roadc:color-mix(in oklab,var(--gold) 45%,var(--paper));
+  --mtn:.8;--lights:.2;--lamps:.25;--cloud:.42;--mist:.85;--litl:.14;--litr:.2;--rimx:-1.2px;--rimy:-.3px}
+:root[data-sky="overcast"]{--lx:262px;--ly:58px}
+:root[data-sky="rain"]{
+  --lx:206px;--ly:36px;--glow:.25;--road:.1;--gl:.3;--gr:.3;--mtn:0;--cloud:1;--mist:1;--rain:1;--litr:.06}
+:root[data-sky="bright"]{
+  --lx:318px;--ly:26px;--glow:.7;--road:.34;--gl:.9;--gr:1;--mtn:1;--cloud:.38;--mist:.5;--litl:0;--litr:.34;--rimx:.3px;--rimy:-1px}
+:root[data-sky="golden"]{
+  --lx:228px;--ly:168px;--glow:1;--glowx:1.2;--glowy:.6;--glowc:color-mix(in oklab,var(--gold) 22%,var(--paper));--road:.6;--gl:.6;--gr:1;
+  --roadc:color-mix(in oklab,var(--gold) 30%,var(--paper));
+  --mtn:.9;--cloud:.6;--mist:.8;--litl:0;--litr:.36;--rimx:-1.3px;--rimy:-.3px}
+:root[data-sky="dusk"]{
+  --lx:236px;--ly:176px;--glow:.62;--glowx:1.25;--glowy:.4;--glowc:color-mix(in oklab,var(--gold) 30%,var(--sky2));--road:.26;--gl:.42;--gr:.6;
+  --roadc:color-mix(in oklab,var(--gold) 30%,var(--ink));
+  --mtn:.34;--stars:.4;--lights:.9;--lamps:1;--cloud:.55;--mist:.6;--litl:0;--litr:.16;--rimx:-1px;--rimy:-.3px}
+
+/* ================= the scene ================= */
+.scene{position:absolute;left:-16px;right:-16px;top:0;height:calc(var(--sw)*330/390 + env(safe-area-inset-top));z-index:-1;overflow:hidden;
+  background:var(--sky1);contain:strict}
+.sc{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* the picture never ends on a cut: its last inch settles into the ground */
+.scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:17%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 70%,transparent) 55%,var(--bg))}
+.sc-gl{will-change:opacity}
+.w-far{fill:var(--r0)}
+.w-l0{fill:var(--r0)}.w-l1{fill:var(--r1)}.w-l2{fill:var(--r2)}.w-l3{fill:var(--r3)}.w-l5{fill:var(--r5)}
+.w-l1-stop{stop-color:var(--r1)}.w-l2-stop{stop-color:var(--r2)}.w-l3-stop{stop-color:var(--r3)}.w-l5-stop{stop-color:var(--r4)}
+.w-lightpos{transform:translate(var(--lx),var(--ly))}
+.w-lightx{transform:translateX(var(--lx))}
+.w-glow{opacity:var(--glow);transform:scale(var(--glowx),var(--glowy))}
+.w-road{opacity:var(--road)}
+.w-stars{fill:var(--lum);opacity:var(--stars)}
+.w-clouds{opacity:var(--cloud)}
+.w-cl-l{fill:color-mix(in oklab,var(--sky1) 66%,var(--hz))}
+.w-cl-d{fill:color-mix(in oklab,var(--sky1) 93%,var(--shore))}
+.w-mtn{opacity:var(--mtn)}
+.w-mtn-b{fill:color-mix(in oklab,var(--hz) 38%,var(--lum))}
+.w-mtn-s{fill:color-mix(in oklab,var(--sky1) 78%,var(--shore));opacity:.36}
+.w-mtn-s2{fill:color-mix(in oklab,var(--sky1) 78%,var(--shore));opacity:.17}
+.w-mtn-l{fill:var(--glowc);opacity:.42}
+.w-trough{fill:var(--water2);opacity:.3}
+.w-crest{fill:none;stroke:var(--glintc);stroke-width:.8;opacity:.3;stroke-linecap:round;stroke-dasharray:23 11 44 16 12 8 31 20}
+.w-gl{stroke:var(--glintc);stroke-linecap:round;fill:none;opacity:var(--gl)}
+.w-gr{stroke:var(--roadc);stroke-linecap:round;fill:none;opacity:var(--gr)}
+.w-mist{fill:var(--mistc);opacity:var(--mist)}
+.w-lights{fill:var(--lampc);stroke:var(--lampc);stroke-linecap:round;opacity:var(--lights)}
+.w-lights path{fill:none}
+.w-beach{fill:none;stroke:color-mix(in oklab,var(--r2) 55%,var(--lum));stroke-width:1.1;stroke-dasharray:14 2 31 3 9 1 22 4;opacity:.75;stroke-linecap:round}
+.w-rim{fill:color-mix(in oklab,var(--r5) 58%,var(--glowc));transform:translate(var(--rimx),var(--rimy))}
+.w-pile{fill:var(--r5)}
+.w-pile2{fill:var(--r3)}
+.w-litl{fill:var(--glowc);opacity:var(--litl)}
+.w-litr{fill:var(--glowc);opacity:var(--litr)}
+.w-wet{fill:color-mix(in oklab,var(--shore) 70%,var(--water1));opacity:.85}
+.w-cap{fill:var(--glowc);opacity:calc(.16 + var(--litl)*.5 + var(--litr)*.5)}
+.w-liteb{fill:none;stroke:var(--glowc);stroke-width:.8;opacity:calc(.12 + var(--litl) + var(--litr));stroke-linecap:round}
+.w-glass{fill:var(--r5)}
+.w-ring{fill:none;stroke:var(--glintc);stroke-width:.7;opacity:.55}
+.w-shore{fill:var(--bg)}
+.w-shorewet{fill:color-mix(in oklab,var(--bg) 50%,var(--water2));opacity:.55}
+.w-foam{fill:none;stroke:var(--lum);stroke-width:1.2;opacity:.5;stroke-dasharray:26 3 48 5 17 2;stroke-linecap:round}
+/* the pier */
+.w-under{fill:var(--shore);opacity:.42}
+.w-lampson{opacity:var(--lamps)}
+.w-pool{opacity:.5}
+.w-poolg{fill:var(--lampc)}
+.w-cone{fill:var(--lampc);opacity:.09}
+.w-braces{fill:none;stroke:var(--r4);stroke-linecap:round}
+.w-rail{fill:none;stroke:var(--r5);stroke-width:1;stroke-linecap:round}
+.w-railf{stroke:var(--r3);stroke-width:.8}
+.w-decktop{fill:color-mix(in oklab,var(--r3) 84%,var(--lum))}
+.w-planks{fill:none;stroke:var(--r5);stroke-width:.5;opacity:.35}
+.w-deckpool{fill:var(--lampc)}
+.w-deckpool ellipse{opacity:.5}
+.w-rock{fill:var(--r4)}
+.w-rock-l{fill:none;stroke:var(--glowc);stroke-width:.8;stroke-linecap:round;opacity:calc(.16 + var(--litl) + var(--litr))}
+.w-cob-sh{fill:var(--shade);opacity:.16}
+/* by night the bar is a rumour: stones and foam drop back to the dark */
+:root[data-dark="1"] .w-st-l{fill:color-mix(in srgb,var(--bg) 86%,var(--ink))}
+:root[data-dark="1"] .w-st-d{fill:color-mix(in srgb,var(--bg) 60%,var(--shore))}
+:root[data-dark="1"] .w-cob{fill:color-mix(in srgb,var(--bg) 88%,var(--ink))}
+:root[data-dark="1"] .w-cob-l{opacity:.22}
+:root[data-dark="1"] .w-foam{opacity:.2}
+:root[data-dark="1"] .w-alder{stroke:color-mix(in oklab,var(--r1) 74%,var(--ink))}
+:root[data-dark="1"] .w-shore{fill:color-mix(in srgb,var(--bg) 92%,var(--ink))}
+.w-pole{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-bulb{fill:color-mix(in oklab,var(--lampc) calc(var(--lamps)*100%),var(--r3))}
+.w-fig{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-figh{fill:var(--r5)}
+.w-rod{fill:none;stroke:var(--r5);stroke-linecap:round}
+.w-line{fill:none;stroke:var(--glintc);stroke-width:.4;opacity:.5}
+/* the river */
+.w-alder{fill:none;stroke:color-mix(in oklab,var(--r1) 55%,var(--lum));stroke-linecap:round}
+.w-riffle{fill:none;stroke:var(--glintc);stroke-width:.9;stroke-linecap:round;opacity:calc(.2 + var(--gl)*.8)}
+.w-st-d{fill:color-mix(in srgb,var(--bg) 84%,var(--shade))}
+.w-st-l{fill:color-mix(in srgb,var(--bg) 70%,var(--lum))}
+.w-cob{fill:color-mix(in srgb,var(--bg) 76%,var(--shade))}
+.w-cob-s{fill:var(--shade);opacity:.22}
+.w-cob-l{fill:none;stroke:var(--lum);stroke-width:1.3;stroke-linecap:round;opacity:.7}
+.w-log .w-pile{fill:var(--r4)}
+
+/* rain is grain, not drops */
+.sc-rain{position:absolute;inset:0;opacity:var(--rain);
+  background:repeating-linear-gradient(101deg,transparent 0 10px,color-mix(in srgb,var(--lum) 34%,transparent) 10px 10.7px,transparent 10.7px 23px),
+    repeating-linear-gradient(98deg,transparent 0 17px,color-mix(in srgb,var(--lum) 22%,transparent) 17px 17.5px,transparent 17.5px 37px);
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:300px 420px;mask-size:300px 420px}
+.sc-grain{position:absolute;inset:0;background:var(--ink);opacity:.045;
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:180px;mask-size:180px}
+
+/* the one motion: two sets of glints trade places, slowly */
+@media (prefers-reduced-motion:no-preference){
+  .sc-gl-a{animation:shim 5.6s ease-in-out infinite alternate}
+  .sc-gl-b{animation:shim 5.6s ease-in-out infinite alternate-reverse}
+  @keyframes shim{from{opacity:1}to{opacity:.3}}
+}
+@media (prefers-reduced-motion:reduce){.sc-gl-b{opacity:.45}}
+/* the far shore slides slower than the near one as you scroll away */
+@supports (animation-timeline:scroll()){
+  @media (prefers-reduced-motion:no-preference){
+    .sc-back{animation:par-a linear both;animation-timeline:scroll(root);animation-range:0 420px}
+    .sc-gl,.sc-mid{transform-origin:50% 60%}
+    .sc-mid{animation:par-b linear both;animation-timeline:scroll(root);animation-range:0 420px}
+    @keyframes par-a{to{transform:translateY(34px)}}
+    @keyframes par-b{to{transform:translateY(16px)}}
+  }
+}

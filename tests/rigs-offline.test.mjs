@@ -57,7 +57,9 @@ for (const f of rigFiles) {
   const src = readFileSync(f, "utf8");
   for (const m of src.matchAll(assetRe)) {
     const raw = (m[1] || m[2] || "").trim();
-    if (!raw || raw.startsWith("#")) continue;
+    // "#n" and its encoded form "%23n" point inside the same document (a
+    // filter in an inline SVG), not at a file.
+    if (!raw || raw.startsWith("#") || raw.startsWith("%23")) continue;
     referenced.add(raw.split("?")[0].split("#")[0]);
   }
 }
@@ -70,9 +72,13 @@ ok(haveSw && missingFromPrecache.length === 0,
   missingFromPrecache.join(" | "));
 
 // --- 3. referenced font files exist on disk -------------------------------
-const fontRefs = [...index.matchAll(/url\(\s*["']?([^"')]*\.woff2?)["']?\s*\)/g)].map((m) => m[1]);
+// The page's styles are index.html plus the stylesheets beside it (kit.css
+// carries the @font-face rules now), so both are read.
+const sheets = rigFiles.filter((f) => /\.css$/.test(f)).map((f) => readFileSync(f, "utf8")).join("\n");
+const pageCss = index + "\n" + sheets;
+const fontRefs = [...pageCss.matchAll(/url\(\s*["']?([^"')]*\.woff2?)["']?\s*\)/g)].map((m) => m[1]);
 const missingFonts = fontRefs.filter((f) => !existsSync(join(RIGS, f.replace(/^\.?\//, "").replace(/^rigs\//, ""))));
-ok(fontRefs.length > 0, "index.html declares at least one self-hosted font file");
+ok(fontRefs.length > 0, "the page declares at least one self-hosted font file");
 ok(missingFonts.length === 0, "every referenced font file exists on disk", missingFonts.join(" | "));
 
 // --- 4. the SW can actually take over on a new deploy ---------------------
@@ -94,14 +100,17 @@ const GENERIC = /(sans-serif|serif|monospace|system-ui|cursive|fantasy|ui-monosp
 // Inside @font-face, font-family NAMES the font being defined. A fallback
 // there would be meaningless, so those blocks are excluded and only real
 // usages are checked.
-const usageCss = index.replace(/@font-face\s*\{[^}]*\}/gi, "");
-const fontDecls = [...usageCss.matchAll(/font-family\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim());
-const varFonts = [...index.matchAll(/--mono\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim());
+const usageCss = pageCss.replace(/@font-face\s*\{[^}]*\}/gi, "");
+// The kit sets most type with the font shorthand, so that is read too. A
+// shorthand ends with the family list; "inherit" names no family at all.
+const fontDecls = [...usageCss.matchAll(/font-family\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim())
+  .concat([...usageCss.matchAll(/[;{\s]font\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim()).filter((d) => !/^inherit\b/i.test(d)));
+const varFonts = [...pageCss.matchAll(/--mono\s*:\s*([^;}]+)/gi)].map((m) => m[1].trim());
 const noFallback = fontDecls.filter((d) => {
   if (/^var\(\s*--mono\s*\)$/i.test(d)) return !varFonts.every((v) => GENERIC.test(v));
   return !GENERIC.test(d);
 });
-ok(fontDecls.length > 3, "index.html declares font families", `found ${fontDecls.length}`);
+ok(fontDecls.length > 3, "the page declares font families", `found ${fontDecls.length}`);
 ok(noFallback.length === 0,
   "EVERY font-family declaration ends in a generic family", noFallback.join(" | "));
 

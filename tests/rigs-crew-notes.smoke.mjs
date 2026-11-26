@@ -363,7 +363,8 @@ try {
     // A tap that is not on a control stays on the page. (A section page carries
     // data-sec, which elsewhere in the app means "open that part of Learn".)
     await p.locator("[data-cw-note-text]").click();
-    await p.locator('[data-card="gear"] h3').click();
+    await p.locator('[data-view="crewtrip"] h1').click();
+    await p.locator('[data-card="gear"] p.when').click();
     await later(150);
     ok(p.url().endsWith("#/crew/trip/t-sat/gear") && await p.locator('[data-view="crewtrip"][data-sec="gear"]').count() === 1, "tapping into the note box, or on the section's own words, stays on the section", p.url());
     await settle();

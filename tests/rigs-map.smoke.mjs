@@ -67,11 +67,13 @@ try {
 
   await page.goto(base, { waitUntil: "load" });
   await page.waitForSelector("[data-day]");
-  const modes = await page.locator(".top .jump [data-tmode]").evaluateAll((els) => els.map((e) => e.dataset.tmode + ":" + e.getAttribute("aria-current")));
+  const modes = await page.locator('[data-view="trips"] .hero [data-tmode]').evaluateAll((els) => els.map((e) => e.dataset.tmode + ":" + e.getAttribute("aria-current")));
   ok(modes.join(",") === "list:true,map:false", "Trips has List and Map, List lit", modes.join(","));
-  await page.locator('.top [data-tmode="map"]').click();
+  await page.locator('[data-view="trips"] [data-tmode="map"]').click();
   await page.waitForSelector(".leaflet-marker-icon.mk");
   ok(/#\/trips\/map$/.test(page.url()), "Map has its own address", page.url());
+  const lit = await page.locator('[data-view="map"] .hero [data-tmode]').evaluateAll((els) => els.map((e) => e.dataset.tmode + ":" + e.getAttribute("aria-current")));
+  ok(lit.join(",") === "list:false,map:true", "on the map the switch is still there, Map lit", lit.join(","));
   const covered = await page.locator("[data-pin]").evaluateAll((els) => els.flatMap((e) => e.dataset.pin.split(" ")));
   const nSpots = await page.evaluate(() => window.RIG.trips.spots.length);
   ok(covered.length === nSpots && new Set(covered).size === nSpots, "every spot is on the map, alone or in a group", covered.join(","));

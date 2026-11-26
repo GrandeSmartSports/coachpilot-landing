@@ -308,7 +308,7 @@ try {
     await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
     await p.waitForSelector("[data-join-go]");
     ok((await text(p, "[data-join-who]")).trim() === "Coach added you to ZZTEST crew, Russell.", "it says who added you, to which crew, and your name", await text(p, "[data-join-who]"));
-    ok(await p.locator('[data-view="join"] .cw-go').count() === 1 && /^Join$/.test((await text(p, "[data-join-go]")).trim()), "one gold Join button");
+    ok(await p.locator('[data-view="join"] .cw-go').count() === 1 && /^Join$/i.test((await text(p, "[data-join-go]")).trim()), "one gold Join button");
     await later(300);
     ok(calls.fn.filter((b) => b.action === "join").length === 1 && calls.fn.find((b) => b.action === "join").peek === true, "only a peek was asked", calls.fn);
     ok(calls.verify.length === 0 && await p.evaluate(() => localStorage.getItem("rig.session.v1")) === null, "nothing is minted until the tap");
@@ -412,7 +412,7 @@ try {
     ok(calls.invite === 1, "a double tap adds one person", calls.invite);
     const inv = calls.fn.find((b) => b.action === "invite");
     ok(inv.name === "Grandpa" && inv.phone === "253 555 0148", "the name and number go to the function", inv);
-    ok(/^Text Grandpa the link$/.test((await text(p, "[data-share-text]")).trim()), "after adding: Text Grandpa the link", await text(p, "[data-share-text]"));
+    ok(/^Text Grandpa the link$/i.test((await text(p, "[data-share-text]")).trim()), "after adding: Text Grandpa the link", await text(p, "[data-share-text]"));
     const href = await p.locator("[data-share-text]").getAttribute("href");
     const words = "Coach added you to the fishing crew on Rig Card. Tap to join: " + LINK;
     ok(href === "sms:&body=" + encodeURIComponent(words), "it opens Messages on an iPhone with the words and the link written", href);
@@ -435,7 +435,7 @@ try {
     await p.locator('[data-newlink="u-russ"]').click();
     await p.waitForSelector("[data-share]");
     ok(calls.fn.some((b) => b.action === "link" && b.userId === "u-russ"), "New link asks for one");
-    ok(/^Text Russell the link$/.test((await text(p, "[data-share-text]")).trim()), "and offers to text it to them", await text(p, "[data-share-text]"));
+    ok(/^Text Russell the link$/i.test((await text(p, "[data-share-text]")).trim()), "and offers to text it to them", await text(p, "[data-share-text]"));
     await p.locator("[data-share-done]").click();
 
     // Remove asks once, inside the page.
@@ -471,7 +471,7 @@ try {
     await p.waitForSelector("[data-share]");
     const t = await text(p, "[data-share]");
     ok(/Nephew already has an account with that number\. They sign in with their number and a code\./.test(t), "an account that was already there: says they sign in with a code", t);
-    ok(/^Text Nephew the sign-in page$/.test((await text(p, "[data-share-text]")).trim()), "and offers to text the sign-in page", await text(p, "[data-share-text]"));
+    ok(/^Text Nephew the sign-in page$/i.test((await text(p, "[data-share-text]")).trim()), "and offers to text the sign-in page", await text(p, "[data-share-text]"));
     const href = await p.locator("[data-share-text]").getAttribute("href");
     ok(href.startsWith("sms:?body=") && decodeURIComponent(href.slice(10)).includes(SITE + "#/crew") && !/#\/join\//.test(decodeURIComponent(href)), "the text carries the sign-in page, not a join link, and opens Messages the other way off an iPhone", href);
     ok(await p.locator("[data-share-copy]").count() === 0, "there is no link to copy");

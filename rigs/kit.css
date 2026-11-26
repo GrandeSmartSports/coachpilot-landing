@@ -1,0 +1,420 @@
+/* Rig Card kit: the bones of the "On the water" look.
+
+   IDEA    the top of every screen is the place you are going, under the sky
+           you will have; the page below is the shore you stand on
+   DEPTH   far pale, near dark; every layer overlaps the one behind; cards
+           are lifted by a shadow in the ink colour that falls away from
+           the light; quiet things are pressed in, live things float
+   COLOUR  every shade is mixed from the sky engine's variables (rigs/sky.js),
+           so the whole page repaints with the sky; gold is light and the one
+           main action, never an object
+   TYPE    Barlow Condensed for the things you scan, Inter for the rest
+
+   This file is the reusable part: tokens, the two elevations, type, and
+   every surface and control. The paintings are in scene.css and scene.js.
+   Parts, in order: tokens, base, shell, dock, hero, chips, surfaces, tags,
+   people, stamp, day heading and ribbon, lists and rows, thumbnail, the call,
+   plan and timeline, tiles, rules row, conditions, section heading, answers,
+   badge, checklist, main action. */
+
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(/rigs/fonts/barlow-condensed-600.woff2) format("woff2")}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format("woff2")}
+
+/* ================= tokens ================= */
+:root{
+  /* Overcast: the first paint, and the floor if sky.js never loads.
+     RIG.sky.apply replaces every one of these. */
+  --sky1:#B9C4CC;--sky2:#DCE3E8;--water1:#8E9DA7;--water2:#6F7E89;--shore:#223029;
+  --bg:#E8EDF0;--paper:#FFFFFF;--line:#CDD6DC;--ink:#131C24;--ink2:#44525C;--dim:#606F79;
+  --accent:#1A544D;--accent2:#236B62;--gold:#D9A94A;--on-gold:#131C24;
+  --go:#176B43;--warn:#8A6100;--no:#A8291E;
+
+  /* ---- derived: tone ---- */
+  --lum:var(--paper);                    /* the light tone: paper by day, ink by night */
+  --shade:var(--ink);                    /* the shadow tone: never black */
+  --hz:var(--sky2);                      /* the colour of the air at the horizon */
+  /* six ridges, far to near: each one a step from the horizon to the shore */
+  --r0:color-mix(in oklab,var(--shore) 12%,var(--hz));
+  --r1:color-mix(in oklab,var(--shore) 25%,var(--hz));
+  --r2:color-mix(in oklab,var(--shore) 41%,var(--hz));
+  --r3:color-mix(in oklab,var(--shore) 60%,var(--hz));
+  --r4:color-mix(in oklab,var(--shore) 80%,var(--hz));
+  --r5:var(--shore);
+
+  /* ---- derived: which way card shadows fall. One light per sky. ---- */
+  --shx:0px;--shy:14px;
+
+  /* ---- derived: type and surfaces ---- */
+  --t1:var(--ink);--t2:var(--ink2);
+  --t3:color-mix(in srgb,var(--dim) 68%,var(--ink));
+  --pan-a:var(--paper);
+  --pan-b:color-mix(in srgb,var(--paper) 97%,var(--ink));
+  --rim:color-mix(in srgb,var(--paper) 90%,transparent);
+  --edge:color-mix(in srgb,var(--line) 75%,transparent);
+  --well:color-mix(in srgb,var(--bg) 93%,var(--ink));
+  --glass:color-mix(in srgb,var(--paper) 86%,transparent);
+  /* two elevations, each a tight contact shadow plus a wide soft one */
+  --e1:0 1px 1.5px color-mix(in srgb,var(--shade) 9%,transparent),
+       var(--shx) 9px 20px -11px color-mix(in srgb,var(--shade) 30%,transparent);
+  --e2:0 1px 2px color-mix(in srgb,var(--shade) 10%,transparent),
+       var(--shx) var(--shy) 30px -12px color-mix(in srgb,var(--shade) 38%,transparent),
+       calc(var(--shx)*2) 30px 60px -30px color-mix(in srgb,var(--shade) 34%,transparent);
+  --sw:min(100vw,430px);
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.7 -0.5'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+}
+:root[data-dark="1"]{
+  --lum:var(--ink);--shade:var(--shore);
+  --pan-a:color-mix(in srgb,var(--paper) 93%,var(--ink));
+  --pan-b:var(--paper);
+  --rim:color-mix(in srgb,var(--ink) 13%,transparent);
+  --edge:color-mix(in srgb,var(--line) 85%,transparent);
+  --well:color-mix(in srgb,var(--bg) 55%,var(--shore));
+  --glass:color-mix(in srgb,var(--paper) 80%,transparent);
+  --e1:0 1px 2px color-mix(in srgb,var(--shore) 80%,transparent),
+       var(--shx) 10px 22px -10px var(--shore);
+  --e2:0 1px 2px color-mix(in srgb,var(--shore) 80%,transparent),
+       var(--shx) var(--shy) 34px -10px var(--shore),
+       0 0 0 1px color-mix(in srgb,var(--ink) 5%,transparent);
+}
+:root[data-sky="night"]{--hz:color-mix(in oklab,var(--sky2) 76%,var(--ink2));--shx:-3px}
+:root[data-sky="firstLight"]{--shx:4px}
+:root[data-sky="dawn"]{--shx:5px;--shy:16px}
+:root[data-sky="bright"]{--shx:-4px;--shy:15px}
+:root[data-sky="golden"]{--shx:-4px;--shy:17px}
+:root[data-sky="dusk"]{--shx:-3px}
+
+/* ================= base ================= */
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--t1);font:16px/1.45 Inter,system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+/* a whisper of tooth on the ground, so the page is a surface and not a fill */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--ink);opacity:.026;
+  -webkit-mask-image:var(--noise);mask-image:var(--noise);-webkit-mask-size:180px;mask-size:180px}
+:focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+
+/* ================= shell ================= */
+.phone{position:relative;max-width:430px;margin:0 auto;padding:0 16px;isolation:isolate}
+.screen{position:relative;min-height:100dvh;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+.screen[hidden]{display:none}
+
+/* ================= the dock ================= */
+.dock{position:sticky;top:0;z-index:30;display:flex;flex-wrap:wrap;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 0 8px;margin:0 -4px}
+.seg{flex:1;display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent)}
+.tab{flex:1;display:grid;place-items:center;height:44px;padding:0;border:0;border-radius:999px;background:none;cursor:pointer;
+  font:700 15.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.075em;text-transform:uppercase;color:var(--t2)}
+.tab[aria-current="page"],.tab[aria-selected="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 88%,var(--paper)),var(--ink));color:var(--paper);
+  box-shadow:0 1px 1px color-mix(in srgb,var(--shade) 30%,transparent),var(--shx) 6px 12px -6px color-mix(in srgb,var(--shade) 60%,transparent),
+    inset 0 1px 0 color-mix(in srgb,var(--paper) 22%,transparent)}
+.tab:active{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.tab[aria-current="page"]:active,.tab[aria-selected="true"]:active{background:var(--ink)}
+.skybtn{flex:0 0 auto;display:flex;align-items:center;gap:7px;height:52px;padding:0 14px 0 8px;border:0;border-radius:999px;cursor:pointer;
+  background:var(--glass);-webkit-backdrop-filter:blur(18px) saturate(1.5);backdrop-filter:blur(18px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 22%,transparent);
+  font:700 15.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.075em;text-transform:uppercase;color:var(--t2)}
+.skybtn:active{transform:translateY(1px)}
+/* held light or dark: the coin wears a ring, the label goes to full ink */
+.skybtn[data-held="yes"]{color:var(--t1)}
+.skybtn[data-held="yes"] .skytok{box-shadow:0 0 0 2px var(--glass),0 0 0 4px var(--accent),inset 0 -6px 8px -4px color-mix(in srgb,var(--shore) 35%,transparent)}
+/* the sky button carries the sky: a coin of it, horizon and all */
+.skytok{flex:0 0 auto;width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 56%,var(--r3) 56% 61%,var(--water1) 61%,var(--water2) 100%);
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--lum) 60%,transparent),inset 0 -6px 8px -4px color-mix(in srgb,var(--shore) 35%,transparent),
+    0 1px 2px color-mix(in srgb,var(--shade) 30%,transparent)}
+.chip .skytok{width:16px;height:16px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 18%,transparent)}
+/* a second line in the dock: one tap filters for whichever tab is open */
+.dock .jump{flex:0 0 100%;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:2px 12px 10px;
+  -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.dock .jump::-webkit-scrollbar{display:none}
+.dock .jump .chip{flex:0 0 auto}
+
+/* ================= the hero: the title sits in the sky ================= */
+.hero{min-height:calc(var(--sw)*268/390 - 70px - var(--jumph,0px));padding:10px 4px 0;display:flex;flex-direction:column;align-items:flex-start}
+.dock:has(.jump)~* .hero{--jumph:42px}
+/* under a filter row the title sits down at the tree line: a closer halo of
+   the sky's own air keeps it clear of the firs */
+.dock:has(.jump)~* .hero h1{--title-near:0 0 7px color-mix(in srgb,var(--sky-halo,var(--sky1)) 92%,transparent)}
+/* The title's shadow is the sky's own air, in up to three parts: a thin dark
+   edge under a pale title by day, a close halo when the title sits low, and
+   a wide soft one always. */
+.hero h1{margin:0;font:700 48px/.94 "Barlow Condensed",sans-serif;letter-spacing:-.012em;color:var(--sky-ink,var(--ink));text-wrap:balance;overflow-wrap:anywhere;
+  text-shadow:var(--title-edge,0 0 0 transparent),var(--title-near,0 0 0 transparent),0 0 22px color-mix(in srgb,var(--sky-halo,var(--sky1)) 70%,transparent)}
+.hero h1.long{font-size:37px;line-height:1}
+.hero h1.xl{font-size:30px;line-height:1.02}
+:root[data-title="pale"] .hero h1{--title-edge:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent)}
+.chips{display:flex;flex-wrap:wrap;align-items:center;align-self:stretch;gap:6px;margin:10px 0 0;padding:0}
+.chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:28px;max-width:100%;padding:4px 11px;border:0;border-radius:999px;
+  background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim);font:600 12.5px/1.25 Inter,system-ui,sans-serif;color:var(--t2);white-space:nowrap}
+.chip b{font-weight:700;color:var(--t1)}
+.chip.wrap{white-space:normal;border-radius:14px}
+button.chip,a.chip{cursor:pointer}
+button.chip:active,a.chip:active{transform:translateY(1px)}
+/* a chip that is a choice: the picked one is ink, like the lit tab */
+.chip[aria-current="true"],.chip[aria-pressed="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 88%,var(--paper)),var(--ink));color:var(--paper);
+  box-shadow:0 1px 1px color-mix(in srgb,var(--shade) 30%,transparent),var(--shx) 5px 10px -6px color-mix(in srgb,var(--shade) 60%,transparent),inset 0 1px 0 color-mix(in srgb,var(--paper) 22%,transparent)}
+.back{position:relative;min-height:36px;padding-left:10px;padding-right:13px;font:700 14.5px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t1)}
+.back svg{flex:0 0 auto;width:8px;height:13px}
+.back span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.back::after{content:"";position:absolute;inset:-9px}   /* a thumb-sized target */
+/* two or three choices side by side in one glass pill (List, Map) */
+.switch{display:inline-flex;gap:2px;padding:3px;margin-left:auto;border-radius:999px;background:var(--glass);
+  -webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);box-shadow:var(--e1),inset 0 1px 0 var(--rim)}
+.switch button{position:relative;min-width:46px;height:22px;padding:0 10px;border:0;border-radius:999px;background:none;cursor:pointer;
+  font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t2)}
+.switch button::after{content:"";position:absolute;inset:-11px -2px}
+.switch button[aria-current="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--ink) 88%,var(--paper)),var(--ink));color:var(--paper);
+  box-shadow:0 1px 1px color-mix(in srgb,var(--shade) 30%,transparent),inset 0 1px 0 color-mix(in srgb,var(--paper) 22%,transparent)}
+
+/* ================= surfaces ================= */
+/* a panel stands on the ground */
+.panel{position:relative;border-radius:20px;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+/* a float crosses the waterline: glass, so the water still moves under its lip */
+.float{position:relative;display:block;border-radius:22px;background:linear-gradient(180deg,var(--glass),var(--pan-b) 62%);
+  -webkit-backdrop-filter:blur(16px) saturate(1.5);backdrop-filter:blur(16px) saturate(1.5);
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 26%,transparent)}
+/* a well is pressed in: the quiet note, the thing that is not happening */
+.well{border-radius:16px;padding:13px 16px 14px;background:var(--well);color:var(--t2);font-size:14.5px;line-height:1.45;
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),
+    0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .well{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.well p{margin:0}
+.well p+p{margin-top:3px;color:var(--t3)}
+.well b{font-weight:650;color:var(--t1)}
+.well.no b{color:var(--no)}
+
+.eyebrow{display:block;margin:0;font:700 12px/1 "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-style:normal}
+.chev{flex:0 0 auto;width:8px;height:14px;color:var(--t3)}
+
+/* ================= tags and pills: colour in pairs ================= */
+.tag{flex:0 0 auto;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px 5px;border-radius:999px}
+.tag.hot{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 80%,var(--paper)),var(--gold));color:var(--on-gold);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 50%,transparent),0 4px 9px -4px color-mix(in srgb,var(--gold) 75%,var(--shade))}
+:root[data-dark="1"] .tag.hot{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 82%,var(--ink)),var(--gold));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 40%,transparent),0 0 14px -2px color-mix(in srgb,var(--gold) 55%,transparent)}
+.tag.good{color:var(--accent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 42%,transparent)}
+/* on the scene a tag needs paper under it */
+.hero .tag.good{background:var(--glass)}
+/* have, get, check (todo): what is in the garage */
+.tag.have{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
+.tag.need{color:color-mix(in srgb,var(--warn) 84%,var(--t1));background:color-mix(in srgb,var(--warn) 13%,var(--paper))}
+.tag.todo{color:var(--t2);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
+.tag.alert{color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--paper))}
+.pill{display:inline-flex;align-items:center;gap:5px;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 10px 5px;border-radius:999px}
+.pill.go{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
+.pill.go::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 22%,transparent)}
+.pill.idea{color:var(--t2);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
+.pill.done{color:var(--t3);background:var(--well)}
+/* a note under a row: what makes this one special, in a soft pill */
+.note{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 7px;border-radius:999px;
+  background:color-mix(in srgb,var(--accent) 9%,var(--paper));color:var(--t2);font-size:12.5px;font-weight:600}
+.note::before{content:"";flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.note.alert{background:color-mix(in srgb,var(--no) 11%,var(--paper));color:var(--no)}
+.note.alert::before{background:var(--no)}
+/* something this phone has not seen yet */
+.dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 26%,transparent)}
+
+/* ================= people ================= */
+.avs{display:inline-flex;vertical-align:middle}
+.av{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;font:700 11.5px/1 Inter,sans-serif;font-style:normal;
+  box-shadow:0 0 0 2px var(--pan-b),0 2px 4px -1px color-mix(in srgb,var(--shade) 40%,transparent)}
+.av+.av{margin-left:-6px}
+.av.a1{background:var(--accent);color:var(--paper)}
+.av.a2{background:color-mix(in oklab,var(--water1) 55%,var(--paper));color:var(--ink)}
+.av.a3{background:color-mix(in oklab,var(--shore) 26%,var(--paper));color:var(--ink)}
+:root[data-dark="1"] .av.a1{color:var(--on-gold)}
+:root[data-dark="1"] .av.a2{background:color-mix(in oklab,var(--water1) 24%,var(--ink2));color:var(--paper)}
+:root[data-dark="1"] .av.a3{background:color-mix(in oklab,var(--sky2) 30%,var(--ink));color:var(--paper)}
+
+/* ================= the date stamp, and a crew trip's card ================= */
+.crewtrip{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px}
+.datestamp{flex:0 0 52px;height:58px;border-radius:13px;overflow:hidden;display:flex;flex-direction:column;text-align:center;background:var(--pan-a);
+  box-shadow:0 0 0 1px var(--edge),0 5px 10px -5px color-mix(in srgb,var(--shade) 45%,transparent)}
+.datestamp i{font:700 11.5px/19px "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;font-style:normal;background:var(--accent);color:var(--paper)}
+:root[data-dark="1"] .datestamp i{color:var(--on-gold)}
+.datestamp b{flex:1;display:grid;place-items:center;font:700 29px/1 "Barlow Condensed",sans-serif;color:var(--t1)}
+.tx{flex:1;display:block}
+.tx>b{display:block;font-weight:650;font-size:16px;line-height:1.25;letter-spacing:-.011em;color:var(--t1)}
+.tx>span{display:block;font-size:13.5px;line-height:1.35;color:var(--t3);margin-top:2px}
+.crewtrip .tx>b{font-size:17.5px;margin-top:5px}
+.caprow{display:flex!important;align-items:center;gap:9px;margin:0!important}
+.who{display:flex!important;align-items:center;gap:8px;margin-top:6px!important}
+
+/* ================= a day: its heading and its ribbon of light ================= */
+.day{margin-top:26px}
+.day>h2{display:flex;align-items:baseline;gap:8px;margin:0 4px 10px;font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.03em;text-transform:uppercase;color:var(--t1)}
+.day>h2 span{font-weight:600;font-size:16px;letter-spacing:.08em;color:var(--t2)}
+/* the day as a ribbon of its own light, five in the morning to eleven at
+   night, with a bead where each trip starts: gold if it is hot */
+.ribbon{position:relative;flex:0 0 96px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 55%,transparent)}
+.ribbon b{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--paper);
+  box-shadow:0 0 0 1.2px var(--ink),0 1px 2px color-mix(in srgb,var(--shade) 50%,transparent)}
+:root[data-dark="1"] .ribbon b{background:var(--ink);box-shadow:0 0 0 1.2px var(--bg)}
+.ribbon b.h,:root[data-dark="1"] .ribbon b.h{background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
+.ribbon+i{margin-left:10px!important}
+.day>h2 i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3)}
+.day>.well+.panel,.day>.panel+.well{margin-top:10px}
+
+/* ================= lists, trips and rows ================= */
+.list{overflow:hidden}
+.trip{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto 8px;column-gap:12px;align-items:center;align-content:center;
+  min-height:76px;padding:13px 14px 13px 12px}
+.trip .tx{display:contents}
+.trip .tile{grid-column:1;grid-row:1/span 4}
+.trip .tx>b{grid-column:2;grid-row:1}
+.trip .tag{grid-column:3;grid-row:1}
+.trip .tx>span{grid-column:2/span 2}
+.trip .chev{grid-column:4;grid-row:1/span 4}
+.row{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:66px;padding:12px 14px 12px 16px;border:0;background:none;text-align:left;cursor:pointer}
+.trip+.trip::before,.row+.row::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
+.row+.row::before{left:16px}
+.trip:active,.row:active{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.row .tx>span.clamp{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+/* the small painting: this trip's own water under its own hour */
+.tile{flex:0 0 48px;width:48px;height:48px;border-radius:13px;overflow:hidden;position:relative;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 16%,transparent),var(--shx) 5px 9px -5px color-mix(in srgb,var(--shade) 55%,transparent)}
+.tile svg{display:block;width:100%;height:100%}
+.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 30%,transparent)}
+.tile.lg{flex-basis:60px;width:60px;height:60px;border-radius:16px}
+.trip .tx>span.note,.trip .tx>span.withcrew{display:inline-flex;justify-self:start;margin-top:6px}
+.withcrew{display:inline-flex!important;align-items:center;gap:7px;margin-top:6px!important}
+
+/* ================= the call: the one pick, said first ================= */
+.call{padding:13px 14px 14px}
+.call-top{display:flex;align-items:flex-start;gap:12px}
+.call-top .tx>b{margin-top:6px;font:700 27px/1.02 "Barlow Condensed",sans-serif;letter-spacing:-.005em;text-wrap:balance}
+.call-top .tx>span{margin-top:5px;font-size:14px;line-height:1.4;color:var(--t2)}
+.call-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding-top:11px;border-top:1px solid var(--edge)}
+.call-foot>b{font:700 19px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.01em;color:var(--t1)}
+
+/* ================= the plan and its timeline ================= */
+.plan{padding:14px 16px 15px}
+.planhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:7px}
+.planhead b{font:700 30px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1)}
+.planhead span{font-size:13.5px;font-weight:600;color:var(--t2);white-space:nowrap}
+/* the trip as a strip of its own skies; gold marks the hours you fish */
+.tl{position:relative;display:block;height:34px;margin:14px 2px 0}
+.tl-sky{position:absolute;left:0;right:0;top:12px;height:12px;border-radius:6px;
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 60%,transparent)}
+.tl-win{position:absolute;top:8px;height:20px;border-radius:10px;border:2px solid var(--gold);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 18%,transparent),0 0 12px -1px color-mix(in srgb,var(--gold) 70%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shore) 30%,transparent)}
+.tl-dot{position:absolute;top:9px;left:-2px;width:18px;height:18px;border-radius:50%;background:var(--pan-a);
+  box-shadow:0 0 0 2px var(--ink),0 3px 6px -2px color-mix(in srgb,var(--shade) 60%,transparent)}
+.tl-drive{position:absolute;top:17px;height:2px;border-radius:1px;background:repeating-linear-gradient(90deg,var(--lum) 0 4px,transparent 4px 8px);opacity:.9}
+.tl-lab{position:relative;display:block;height:34px;margin:4px 2px 0}
+.tl-lab span{position:absolute;top:0;font:700 15px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--t1);white-space:nowrap}
+.tl-lab small{display:block;font:600 11.5px/1.3 Inter,sans-serif;letter-spacing:0;color:var(--t3)}
+
+/* ================= two tiles: a picture each ================= */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tcard{display:flex;flex-direction:column;padding:13px 14px 14px;min-height:158px}
+.tcard>b{display:flex;align-items:center;justify-content:space-between;font-weight:650;font-size:16px;letter-spacing:-.011em;color:var(--t1)}
+.bignum{display:flex;align-items:baseline;gap:7px;margin-top:8px;font:700 54px/.9 "Barlow Condensed",sans-serif;color:var(--t1)}
+.bignum span{font:600 14px/1.2 Inter,sans-serif;color:var(--t2)}
+.pips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.pips i{width:13px;height:13px;border-radius:4px;box-shadow:inset 0 0 0 1.6px var(--warn)}
+.pips i.c{box-shadow:inset 0 0 0 1.6px color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.pips i.h{box-shadow:none;background:color-mix(in srgb,var(--go) 62%,var(--pan-b))}
+.pips.many{gap:4px}
+.pips.many i{width:10px;height:10px;border-radius:3px}
+.tcard .sub{display:block;margin-top:auto;padding-top:8px;font-size:13px;line-height:1.35;color:var(--t3);text-wrap:balance}
+.tcard .lead{display:block;margin-top:4px;font-size:13px;font-weight:650;color:var(--t1)}
+.tide{display:block;width:100%;height:auto;margin-top:8px}
+.tide .t-fill{fill:color-mix(in oklab,var(--water1) 30%,var(--paper))}
+.tide .t-line{fill:none;stroke:color-mix(in oklab,var(--water2) 70%,var(--ink));stroke-width:1.6;stroke-linecap:round}
+.tide .t-now{fill:var(--pan-a);stroke:var(--ink);stroke-width:1.6}
+.tide .t-tick{stroke:var(--ink);stroke-width:1;opacity:.35}
+.tide .t-win{fill:color-mix(in srgb,var(--gold) 26%,transparent)}
+:root[data-dark="1"] .tide .t-fill{fill:color-mix(in oklab,var(--water1) 55%,var(--ink2));opacity:.5}
+:root[data-dark="1"] .tide .t-line{stroke:var(--ink2)}
+.duo+.panel{margin-top:12px}
+
+/* ================= the rules row: a red edge ================= */
+.rule{margin-top:14px;display:flex;align-items:center;gap:12px;padding:13px 14px 13px 16px;border-radius:16px;position:relative;overflow:hidden;
+  background:var(--well);box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+.rule::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--no)}
+
+/* ================= conditions: the seal and the flow ================= */
+.cond{display:flex;align-items:center;gap:13px;padding:14px 14px 14px 14px}
+.seal{flex:0 0 54px;height:54px;border-radius:50%;display:grid;place-items:center;font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;
+  color:var(--paper);background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--go) 78%,var(--lum)),var(--go) 62%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 18%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 30%,transparent),0 6px 12px -5px color-mix(in srgb,var(--go) 70%,var(--shade))}
+:root[data-dark="1"] .seal{color:var(--bg);background:radial-gradient(circle at 35% 28%,var(--go),color-mix(in srgb,var(--go) 78%,var(--bg)) 70%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 16%,transparent),0 0 22px -4px color-mix(in srgb,var(--go) 50%,transparent)}
+.flow{flex:0 0 auto;width:74px;height:40px;--fc:var(--go)}
+.flow.warn{--fc:var(--warn)}
+.flow.no{--fc:var(--no)}
+.flow .f-fill{fill:color-mix(in oklab,var(--fc) 16%,var(--paper))}
+.flow .f-line{fill:none;stroke:var(--fc);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.flow .f-dot{fill:var(--pan-a);stroke:var(--fc);stroke-width:2}
+.flow .f-base{stroke:var(--t3);stroke-width:1;stroke-dasharray:2 3;opacity:.7}
+.tcard .flow{display:block;width:100%;height:auto;margin-top:8px}
+
+/* ================= a section heading ================= */
+.sect{margin:24px 4px 10px;display:flex;align-items:baseline;gap:8px;font:700 19px/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t1)}
+.sect i,.sect .n{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3)}
+
+/* ================= who is in: three answers ================= */
+.rsvp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rs{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-height:112px;padding:11px 12px 12px;border:0;border-radius:16px;text-align:left;cursor:pointer;
+  background:var(--well);box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .rs,:root[data-dark="1"] .rule{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.rs[aria-pressed="true"],:root[data-dark="1"] .rs[aria-pressed="true"]{background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+  box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 60%,transparent)}
+.rs-h{display:flex;align-items:center;justify-content:space-between;width:100%;font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t2)}
+.rs[aria-pressed="true"] .rs-h{color:var(--go)}
+.rs-h b{font-size:22px;letter-spacing:0;color:var(--t1)}
+.rs-p{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--t1)}
+.rs-p.none{color:var(--t3);font-weight:500}
+
+/* ================= a badge on a row ================= */
+.noterow{margin-top:12px}
+.noterow .row{min-height:60px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12.5px;font-weight:650;
+  background:color-mix(in srgb,var(--accent) 10%,var(--paper));color:var(--accent)}
+.badge svg{width:14px;height:14px}
+
+/* ================= the checklist ================= */
+.check{position:relative;display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px 10px 14px}
+.check+.check::before{content:"";position:absolute;left:54px;right:0;top:0;height:1px;background:var(--edge)}
+.tick{position:relative;flex:0 0 28px;height:28px;padding:0;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--well);
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shade) 25%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 55%,transparent)}
+.tick::after,.check .by.open::after{content:"";position:absolute;inset:-9px}   /* a thumb-sized target */
+.tick svg{width:14px;height:14px;opacity:0}
+.check.done .tick{background:var(--go);box-shadow:inset 0 -2px 3px color-mix(in srgb,var(--shade) 25%,transparent),0 3px 7px -3px color-mix(in srgb,var(--go) 80%,var(--shade))}
+:root[data-dark="1"] .check.done .tick{background:color-mix(in srgb,var(--go) 84%,var(--bg))}
+.check.done .tick svg{opacity:1;color:var(--paper)}
+:root[data-dark="1"] .check.done .tick svg{color:var(--bg)}
+.check b{flex:1;font-weight:650;font-size:16px;letter-spacing:-.011em}
+.check.done b{color:var(--t2)}
+.check .by{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--t2)}
+.check .by.open{position:relative;min-height:34px;cursor:pointer;padding:6px 12px;border-radius:999px;color:var(--t3);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent);
+  background:transparent;border:0;font-weight:600}
+.check .by.open::before{content:"+";font-weight:700;font-size:15px;line-height:1;margin-right:-2px}
+
+/* ================= the one main action ================= */
+.act{position:sticky;bottom:calc(12px + env(safe-area-inset-bottom));z-index:20;margin-top:18px;padding:10px 0 0}
+.act::before{content:"";position:absolute;left:-16px;right:-16px;top:-14px;bottom:-40px;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 92%,transparent) 42%)}
+.gold{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;padding:8px 16px;border:0;border-radius:18px;cursor:pointer;
+  font:700 21px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.07em;text-transform:uppercase;text-align:center;text-wrap:balance;color:var(--on-gold);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 76%,var(--paper)),var(--gold) 55%,color-mix(in srgb,var(--gold) 90%,var(--shade)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 60%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--shade) 16%,transparent),
+    0 1px 2px color-mix(in srgb,var(--shade) 30%,transparent),var(--shx) 14px 26px -12px color-mix(in srgb,var(--gold) 55%,var(--shade))}
+:root[data-dark="1"] .gold{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 80%,var(--ink)),var(--gold) 55%,color-mix(in srgb,var(--gold) 86%,var(--shore)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 45%,transparent),0 0 30px -6px color-mix(in srgb,var(--gold) 50%,transparent),0 12px 24px -12px var(--shore)}
+.gold svg{flex:0 0 auto;width:22px;height:22px}
+.gold:active{transform:translateY(1px);filter:brightness(.94)}
+.gold[disabled]{opacity:.55;cursor:default}
+/* the same light, smaller: the one button inside a card */
+.gold.sm{width:auto;min-height:44px;padding:6px 16px 6px 18px;border-radius:14px;font-size:17px;gap:8px}
+.gold.sm svg{width:8px;height:14px}

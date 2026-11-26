@@ -89,9 +89,15 @@ try {
   await page.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').click();
   await page.waitForSelector('[data-view="hot"][data-run="squid-redondo"]');
   const head = await page.locator('[data-view="hot"] .shead').innerText();
-  ok(/35 min drive/.test(head), "the run card says the drive", head);
+  ok(/Squid at Redondo/.test(head) && /Tue Nov 24/.test(head) && /After work/.test(head) && /hot/i.test(head), "the run card's head says the trip, the day, the slot and how good", head);
+  const planCard = await page.locator('[data-view="hot"] [data-sec-row="plan"]').innerText();
+  ok(/35 min drive/.test(planCard), "the run card says the drive", planCard);
   const secs = await page.locator("[data-sec-row]").evaluateAll((els) => els.map((e) => e.dataset.secRow));
-  ok(secs.join(",") === "plan,what,gear,bait,how,wx,spot,expect,rules", "run card headlines: plan, what, gear, bait, how, weather, spot, expect, rules", secs.join(","));
+  ok(secs.join(",") === "plan,gear,wx,what,bait,how,spot,expect,rules", "run card headlines: the plan, gear and weather as pictures, then what, bait, how, spot, expect, and rules last", secs.join(","));
+  ok(await page.locator('[data-sec-row="gear"] .pips i').count() >= 8 && /to get/.test(await page.locator('[data-sec-row="gear"]').innerText()), "the gear tile counts what to get, a pip a thing");
+  ok(await page.locator('[data-sec-row="wx"] svg.tide path').count() >= 2 && /High slack 5:15 PM/.test(await page.locator('[data-sec-row="wx"]').innerText()), "the weather tile draws the tide and names the slack",
+    await page.locator('[data-sec-row="wx"]').innerText());
+  ok(/10 pounds or 5 quarts/.test(await page.locator('[data-sec-row="rules"]').innerText()), "the rules row leads with the limit", await page.locator('[data-sec-row="rules"]').innerText());
   ok(/Leave by 4:10 PM/.test(await page.locator('[data-sec-row="plan"]').innerText()), "the plan headline says when to leave");
   const words = await page.evaluate(() => document.querySelector('[data-view="hot"]').innerText.split(/\s+/).length);
   ok(words < 340, "the run card overview is headlines, not an essay", words);
@@ -127,10 +133,12 @@ try {
   await page.goto(base + "#/trips/" + encodeURIComponent("2026-11-28~chum-green-river"), { waitUntil: "load" });
   await page.waitForSelector('[data-view="hot"][data-run="chum-green-river"]');
   const rsecs = await page.locator("[data-sec-row]").evaluateAll((els) => els.map((e) => e.dataset.secRow));
-  ok(rsecs.includes("river") && rsecs.indexOf("river") === rsecs.indexOf("wx") + 1, "a river trip has a River flow section after the weather", rsecs.join(","));
+  ok(rsecs.join(",") === "plan,gear,river,what,bait,how,wx,spot,expect,rules", "a river trip puts the river in the picture tile and keeps the weather as a row", rsecs.join(","));
+  ok(await page.locator('[data-sec-row="river"] svg.flow path').count() >= 2, "the river tile draws the flow");
   ok(/Go: 400 cfs/.test(await page.locator('[data-sec-row="river"]').innerText()), "the River headline says go and the flow");
   await page.locator('[data-sec-row="river"]').click();
   await page.waitForSelector('[data-card="river"]');
+  ok(await page.locator('.pnb.prev[data-step="wx"]').count() === 1, "walking the card, River flow comes after the weather");
   const riv = await page.locator(".card").innerText();
   ok(/Right now: 410 cfs/.test(riv) && /Over 2,000 cfs: blown out/.test(riv), "the River card shows the live reading and the no-go line", riv.slice(0, 300));
 
@@ -149,7 +157,7 @@ try {
     await pg.clock.install({ time: new Date("2026-11-24T11:00:00-08:00") });
     await pg.goto(base, { waitUntil: "load" });
     await pg.waitForSelector("[data-day]");
-    const bg = () => pg.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    const bg = () => pg.evaluate(() => getComputedStyle(document.documentElement).backgroundColor);
     const lum = (c) => { const [r, g, b] = c.match(/\d+/g).map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
     const day = await bg();
     ok(lum(day) > 150, "at 11 AM the screen is bright", day);

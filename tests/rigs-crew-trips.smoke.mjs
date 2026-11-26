@@ -177,7 +177,7 @@ try {
     ok((await text(p, "[data-call-headline]")).trim() === "Thursday evening. Razor clams, Copalis and Mocrocks.", "the call says when and what, in plain words", await text(p, "[data-call-headline]"));
     ok((await text(p, "[data-call-why]")).trim() === "WDFW dig at Copalis, light wind.", "then one line of why, from that trip's own reasons", await text(p, "[data-call-why]"));
     ok((await text(p, "[data-call-leave]")).trim() === "Leave by 2:50 PM.", "then the next step: when to leave", await text(p, "[data-call-leave]"));
-    ok(/^See the plan$/.test((await text(p, "[data-call-go]")).trim()), "and one button: See the plan");
+    ok(/^See the plan$/i.test((await text(p, "[data-call-go]")).trim()), "and one button: See the plan");
     const same = await p.evaluate(() => {
       const c = window.RIG.trips.cached();
       const plan = window.RIG.trips.plan({ today: "2026-11-23", wx: c.wx, tides: c.tides, flow: c.flow, waters: c.waters });
@@ -266,7 +266,9 @@ try {
     ok(/Winter salmon from Redondo Pier/.test(wedRow) && /Wed Nov 25/.test(wedRow), "a row has its title, day and date", wedRow);
     ok((await text(p, '[data-cw-trip="t-wed"] [data-cw-tag]')).trim().toLowerCase() === "idea" && (await text(p, '[data-cw-trip="t-sat"] [data-cw-tag]')).trim().toLowerCase() === "on",
       "an Idea or On tag", wedRow + " | " + satRow);
-    ok(/Sat Nov 28/.test(satRow) && /Coach, Russell/.test(satRow) && !/Dad/.test(satRow) && !/Grande/.test(satRow), "who is going, by first name, and only those going", satRow);
+    ok(/Sat Nov 28/.test(satRow) && /Coach and Russell going/.test(satRow) && !/Dad/.test(satRow) && !/Grande/.test(satRow), "who is going, by first name, and only those going", satRow);
+    ok(/^sat\s*28$/i.test((await text(p, '[data-cw-trip="t-sat"] .datestamp')).trim()) && await p.locator('[data-cw-trip="t-sat"] .av').count() === 2, "the card carries a date stamp and a face for each one going",
+      await text(p, '[data-cw-trip="t-sat"] .datestamp'));
     ok(/Russell/.test(wedRow) && !/Coach/.test(wedRow), "someone who is out is not listed as going", wedRow);
     ok(await p.locator('[data-cw-trip="t-sat"] [data-cw-new]').count() === 1 && await p.locator('[data-cw-trip="t-wed"] [data-cw-new]').count() === 0,
       "a small dot on the trip this phone has not seen, none on the one it has");
@@ -323,7 +325,7 @@ try {
     await p.waitForSelector('[data-day="2026-11-24"] [data-hot="squid-redondo"]');
     await p.locator('[data-day="2026-11-24"] [data-hot="squid-redondo"]').click();
     await p.waitForSelector('[data-view="hot"] [data-cw-do="planned"]');
-    ok(/^We are doing this$/.test((await text(p, '[data-cw-do="planned"]')).trim()) && /^Float it$/.test((await text(p, '[data-cw-do="idea"]')).trim()), "a run card has We are doing this and Float it");
+    ok(/^We are doing this$/i.test((await text(p, '[data-cw-do="planned"]')).trim()) && /^Float it$/.test((await text(p, '[data-cw-do="idea"]')).trim()), "a run card has We are doing this and Float it");
     const under = await p.evaluate(() => {
       const rows = [...document.querySelectorAll('[data-view="hot"] [data-sec-row]')], btn = document.querySelector("[data-cw-do]");
       return !!(rows[rows.length - 1].compareDocumentPosition(btn) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -797,7 +799,7 @@ try {
     await p.locator('[data-view="crewtrip"] [data-up]').click();
     await p.waitForSelector('[data-view="trips"] [data-cw-trip="t-sat"]');
     await p.waitForSelector("[data-call] [data-call-go]");
-    ok(/Coach, Russell/.test(await text(p, '[data-cw-trip="t-sat"]')), "the Trips tab shows the crew trip with the waiting answer counted", await text(p, '[data-cw-trip="t-sat"]'));
+    ok(/Coach and Russell going/.test(await text(p, '[data-cw-trip="t-sat"]')), "the Trips tab shows the crew trip with the waiting answer counted", await text(p, '[data-cw-trip="t-sat"]'));
     ok((await text(p, "[data-call-headline]")).trim().length > 10, "and the call, from the saved forecast");
     // Planning needs a signal, and says so without losing what was typed.
     await p.locator("[data-cw-plan]").click();

@@ -27,8 +27,9 @@ try {
   const page = await ctx.newPage();
   const errors = []; page.on("pageerror", (e) => errors.push(e.message));
   const base = `http://127.0.0.1:${PORT}/rigs/`;
+  // The ground is painted on the page itself (html), under the scene.
   const lumOf = () => page.evaluate(() => {
-    const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number);
+    const m = getComputedStyle(document.documentElement).backgroundColor.match(/\d+/g).map(Number);
     return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
   });
   await page.clock.setFixedTime(new Date("2026-11-24T12:00:00-08:00"));
