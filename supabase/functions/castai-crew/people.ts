@@ -2,26 +2,39 @@
 // what a signed-in person sees (state), and the owner's three moves (add
 // someone, a new link, remove someone).
 //
+// A join link signs a person in with no code, so one is only ever made, and
+// only ever honoured, for an account the invite itself created. An account
+// that belonged to someone first signs in with its number and a texted code.
+//
 // A member's phone number or email never leaves this file. Names only.
 import {
-  addDays, canInvite, cleanText, DEAD_LINK, ghostAccount, hashToken, inviteOutcome, joinLink, joinToken, LINK_DAYS,
-  newToken, normalizePhone, placeholderEmail,
+  addDays, canInvite, cleanText, DEAD_LINK, ghostAccount, hashToken, hears, inviteAnswer, inviteOutcome, joinLink, joinToken,
+  LINK_DAYS, linkRefusal, newToken, normalizePhone, placeholderEmail, signInWith,
 } from "./crew-core.mjs";
-import { Body, clean, context, Ctx, db, must, refuse, smsOn, uuid } from "./lib.ts";
+import { forgetAlerts, prefsFor } from "./alerts.ts";
+import { accounts, Body, clean, context, Ctx, db, must, refuse, smsOn, uuid } from "./lib.ts";
 import { forgetOnTrips, tripsSince } from "./trips.ts";
 
 const INVITES = "castai_crew_invites", MEMBERS = "castai_crew_members";
 
 // ---- no sign-in needed -----------------------------------------------------
 
+// Whether texted codes work, and the public key a phone needs to ask for alerts.
 export async function hello() {
-  return { ok: true, sms: await smsOn() };
+  return { ok: true, sms: await smsOn(), vapidKey: Deno.env.get("VAPID_PUBLIC_KEY") || null };
 }
 
-// A join link is the way in. With peek it only says who it is for and which
-// crew, and nothing is minted: message previews load pages, and a preview
-// must not burn or open anything. Without peek it mints a one-time sign-in
-// for that one account, which the page trades for a session.
+// Did an invite make this account? Not knowing is a no.
+async function inviteMadeIt(userId: string): Promise<boolean> {
+  return (await accounts([userId])).get(userId)?.invited === true;
+}
+
+// A join link is the way in for someone the owner added by name. With peek it
+// only says who it is for and which crew, and nothing is minted: message
+// previews load pages, and a preview must not burn or open anything. Without
+// peek it mints a one-time sign-in for that one account, which the page trades
+// for a session. A link that points at any other kind of account is dead,
+// whenever and however it was made.
 export async function join(body: Body) {
   if (typeof body.token !== "string" || !body.token.trim()) refuse(400, "A link is needed.");
   const token = joinToken(body.token);
@@ -41,6 +54,7 @@ export async function join(body: Body) {
   const by = must(byRes, "link maker") as { display_name: string } | null;
   // A link for someone who is no longer on the crew opens nothing.
   if (!crew || !member) refuse(410, DEAD_LINK);
+  if (!(await inviteMadeIt(inv!.user_id))) refuse(410, DEAD_LINK);
   const answer = { ok: true, name: member!.display_name, crew: crew!.name, by: by ? by.display_name : null };
   if (body.peek) return answer;
 
@@ -57,11 +71,18 @@ export async function join(body: Body) {
 export async function state(userId: string) {
   const [ctx, sms] = await Promise.all([context(userId), smsOn()]);
   if (!ctx) return { me: { id: userId, name: "You" }, crew: null, members: [], trips: [], sms };
+  const ids = ctx.members.map((m) => m.user_id);
+  const [facts, prefs, trips] = await Promise.all([accounts(ids), prefsFor(ids), tripsSince(ctx, addDays(ctx.today, -30))]);
   return {
     me: { id: userId, name: ctx.member.display_name },
     crew: { id: ctx.crew.id, name: ctx.crew.name, role: ctx.member.role },
-    members: ctx.members.map((m) => ({ id: m.user_id, name: m.display_name, role: m.role })),
-    trips: await tripsSince(ctx, addDays(ctx.today, -30)),
+    // alerts: this person has a channel on, so they can be told. signIn: how they get in.
+    members: ctx.members.map((m) => ({
+      id: m.user_id, name: m.display_name, role: m.role,
+      alerts: hears(prefs.get(m.user_id)) as boolean,
+      signIn: signInWith(facts.get(m.user_id)?.invited) as string,
+    })),
+    trips,
     sms,
   };
 }
@@ -118,6 +139,8 @@ async function freshLink(crewId: string, userId: string, by: string, replace: bo
 
 // Owner only. With a phone, an account that already has that number is
 // attached, never doubled. Without one, a new account that only its link opens.
+// The answer carries a link only for an account an invite made. Someone who
+// already had an account is added with link null and signIn "code".
 export async function invite(ctx: Ctx, body: Body) {
   if (!canInvite(ctx.member)) refuse(403, "Only the owner can add someone.");
   const name = clean(() => cleanText(body.name, 60, "name"));
@@ -128,8 +151,11 @@ export async function invite(ctx: Ctx, body: Body) {
   const onCrew = userId ? ctx.members.find((m) => m.user_id === userId) : null;
   let outcome = inviteOutcome({ user: userId ? { id: userId } : null, member: onCrew || null });
   if (outcome === "already") {
-    // Nothing changes but one more link to hand over. The ones already sent still work.
-    return { ok: true, created: false, name: onCrew!.display_name, userId, link: await freshLink(ctx.crew.id, userId!, ctx.me, false) };
+    // Nothing changes. Someone the invite made gets one more link to hand over,
+    // and the ones already sent still work.
+    const invited = await inviteMadeIt(userId!);
+    const link = invited ? await freshLink(ctx.crew.id, userId!, ctx.me, false) : null;
+    return inviteAnswer({ created: false, name: onCrew!.display_name, userId, invited, link });
   }
   let made = false;
   if (outcome === "create") {
@@ -139,6 +165,9 @@ export async function invite(ctx: Ctx, body: Body) {
     if (!userId) throw new Error("create account failed and the number is still free");
   }
   try {
+    // An account just made here is the invite's own. One that was already
+    // there is asked about: it may be someone's real account.
+    const invited = made || (await inviteMadeIt(userId!));
     if (outcome === "attach") {
       // One crew per person for now. Someone on another crew stays there.
       const elsewhere = must(
@@ -147,12 +176,13 @@ export async function invite(ctx: Ctx, body: Body) {
       ) as unknown[] | null;
       if (elsewhere && elsewhere.length) refuse(400, "That number is already on another crew.");
     }
-    // A phone account, new or already there, may have no address to sign in with.
-    if (phone) await emailFor(userId!);
+    // A link's sign-in is minted from an address, and a phone account the
+    // invite made may have none yet. A real account is never touched.
+    if (invited && phone) await emailFor(userId!);
     const ins = await db.from(MEMBERS).insert({ crew_id: ctx.crew.id, user_id: userId, role: "member", display_name: name, invited_by: ctx.me });
     if (ins.error && ins.error.code !== "23505") throw new Error("db add member: " + JSON.stringify(ins.error));
-    const link = await freshLink(ctx.crew.id, userId!, ctx.me, true);
-    return { ok: true, created: !ins.error, name, userId, link };
+    const link = invited ? await freshLink(ctx.crew.id, userId!, ctx.me, true) : null;
+    return inviteAnswer({ created: !ins.error, name, userId, invited, link });
   } catch (e) {
     // Do not leave an account behind that is on no crew and has no link.
     if (made) await db.auth.admin.deleteUser(userId!).catch(() => {});
@@ -160,18 +190,22 @@ export async function invite(ctx: Ctx, body: Body) {
   }
 }
 
-// The owner for anyone on the crew, or anyone for themselves. Every older link
-// for that person stops working.
+// The owner for anyone on the crew, or anyone for themselves, and only for an
+// account an invite made. Every older link for that person stops working.
 export async function link(ctx: Ctx, body: Body) {
   const userId = uuid(body.userId, "person");
-  if (!ctx.owner && userId !== ctx.me) refuse(403, "Only the owner can make a link for someone else.");
+  const self = userId === ctx.me;
   const target = ctx.members.find((m) => m.user_id === userId);
-  if (!target) refuse(404, "That person is not on the crew.");
+  // Asked only once it could matter, so a member learns nothing about anyone else.
+  const invited = !!target && (ctx.owner || self) ? await inviteMadeIt(userId) : false;
+  const no = linkRefusal({ owner: ctx.owner, self, onCrew: !!target, invited }) as { status: number; words: string } | null;
+  if (no) refuse(no.status, no.words);
   return { ok: true, name: target!.display_name, link: await freshLink(ctx.crew.id, userId, ctx.me, true) };
 }
 
 // Owner only, and never the owner himself. Their links stop working, they are
-// off every trip's going list, and nothing on a list is theirs any more.
+// off every trip's going list, nothing on a list is theirs any more, and no
+// alert still waiting from this crew will reach them.
 export async function memberRemove(ctx: Ctx, body: Body) {
   if (!canInvite(ctx.member)) refuse(403, "Only the owner can remove someone.");
   const userId = uuid(body.userId, "person");
@@ -180,6 +214,7 @@ export async function memberRemove(ctx: Ctx, body: Body) {
   if (target!.role === "owner" || userId === ctx.me) refuse(403, "The owner stays on the crew.");
   must(await db.from(INVITES).update({ revoked: true }).eq("crew_id", ctx.crew.id).eq("user_id", userId), "revoke links");
   await forgetOnTrips(ctx.crew.id, userId);
+  await forgetAlerts(ctx.crew.id, userId);
   must(await db.from(MEMBERS).delete().eq("crew_id", ctx.crew.id).eq("user_id", userId), "remove member");
   await dropGhost(userId);
   return { ok: true };

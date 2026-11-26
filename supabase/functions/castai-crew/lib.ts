@@ -73,6 +73,8 @@ export function pieces<T>(list: T[], size: number): T[][] {
 }
 
 export type Member = { crew_id: string; user_id: string; role: string; display_name: string; joined_at: string };
+// Work a write leaves for after its answer has gone: sending the alerts it queued.
+export type Later = () => Promise<unknown>;
 export type Ctx = {
   me: string;
   member: Member;
@@ -81,6 +83,7 @@ export type Ctx = {
   members: Member[];
   names: Map<string, string>;
   today: string;
+  later: Later[];
 };
 
 const MEMBER_COLS = "crew_id, user_id, role, display_name, joined_at";
@@ -120,6 +123,7 @@ export async function context(userId: string): Promise<Ctx | null> {
     members,
     names: new Map(members.map((m) => [m.user_id, m.display_name])),
     today: todayIn(),
+    later: [],
   };
 }
 
@@ -140,8 +144,28 @@ export async function caller(req: Request): Promise<{ id: string } | null> {
   return data?.user ? { id: data.user.id } : null;
 }
 
+// One row of castai_crew_settings, or null when there is none.
+export async function setting(key: string): Promise<string | null> {
+  const row = must(await db.from("castai_crew_settings").select("value").eq("key", key).maybeSingle(), "setting") as { value: string } | null;
+  return row ? String(row.value) : null;
+}
+
 // Is texting switched on? Only when the settings row says exactly 'on'.
 export async function smsOn(): Promise<boolean> {
-  const { data } = await db.from("castai_crew_settings").select("value").eq("key", "sms").maybeSingle();
-  return !!data && data.value === "on";
+  return (await setting("sms")) === "on";
+}
+
+// Two yes or no facts about each account, from one lookup in the database:
+// did an invite make it (so it signs in with a link), and does it have a phone
+// number. The number itself never comes back. An id that is not there is not
+// in the map, which reads as no to both.
+export type Account = { invited: boolean; hasPhone: boolean };
+export async function accounts(ids: string[]): Promise<Map<string, Account>> {
+  const out = new Map<string, Account>();
+  if (!ids.length) return out;
+  const rows = must(await db.rpc("castai_crew_accounts", { p_ids: ids }), "accounts") as
+    | { id: string; invited: boolean; has_phone: boolean }[]
+    | null;
+  for (const r of rows || []) out.set(r.id, { invited: r.invited === true, hasPhone: r.has_phone === true });
+  return out;
 }
