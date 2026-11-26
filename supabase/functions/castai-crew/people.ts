@@ -206,6 +206,22 @@ export async function link(ctx: Ctx, body: Body) {
 // Owner only, and never the owner himself. Their links stop working, they are
 // off every trip's going list, nothing on a list is theirs any more, and no
 // alert still waiting from this crew will reach them.
+// A person is called what the crew calls them, and that is theirs to set.
+// (Coach is "Coach" to his team, not to his fishing buddy or his dad.)
+export async function meRename(ctx: Ctx, body: Body) {
+  const name = clean(() => cleanText(body.name, 60, "name"));
+  must(await db.from(MEMBERS).update({ display_name: name }).eq("crew_id", ctx.crew.id).eq("user_id", ctx.me), "rename member");
+  return { ok: true, name };
+}
+
+// The crew's name is the owner's to set.
+export async function crewRename(ctx: Ctx, body: Body) {
+  if (!canInvite(ctx.member)) refuse(403, "Only the owner can rename the crew.");
+  const name = clean(() => cleanText(body.name, 60, "crew name"));
+  must(await db.from("castai_crew").update({ name }).eq("id", ctx.crew.id), "rename crew");
+  return { ok: true, name };
+}
+
 export async function memberRemove(ctx: Ctx, body: Body) {
   if (!canInvite(ctx.member)) refuse(403, "Only the owner can remove someone.");
   const userId = uuid(body.userId, "person");
