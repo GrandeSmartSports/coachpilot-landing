@@ -20,18 +20,30 @@ const server = await startServer(ROOT, PORT);
 let browser;
 try {
   browser = await chromium.launch();
-  // A phone in daylight asks for light. The card stays dark anyway.
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "light" });
+  // The screen follows the sky, not the phone's light or dark setting: bright
+  // at midday, dark at night, and dark at midday when it is held dark for glare.
+  // The clock is pinned so this reads the same at any hour it is run.
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, colorScheme: "light", timezoneId: "America/Los_Angeles" });
   const page = await ctx.newPage();
   const errors = []; page.on("pageerror", (e) => errors.push(e.message));
   const base = `http://127.0.0.1:${PORT}/rigs/`;
-  await page.goto(base + "#/water", { waitUntil: "load" });
-
-  const lum = await page.evaluate(() => {
+  const lumOf = () => page.evaluate(() => {
     const m = getComputedStyle(document.body).backgroundColor.match(/\d+/g).map(Number);
     return (0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]) / 255;
   });
-  ok(lum < 0.15, "page is dark even when the phone asks for light", lum.toFixed(2));
+  await page.clock.setFixedTime(new Date("2026-11-24T12:00:00-08:00"));
+  await page.goto(base + "#/water", { waitUntil: "load" });
+  const noon = await lumOf();
+  ok(noon > 0.6, "at midday the page is bright", noon.toFixed(2));
+  await page.evaluate(() => localStorage.setItem("rig.skymode.v1", "dark"));
+  await page.reload({ waitUntil: "load" });
+  const held = await lumOf();
+  ok(held < 0.15, "held dark, the page is dark at midday (glare)", held.toFixed(2));
+  await page.evaluate(() => localStorage.removeItem("rig.skymode.v1"));
+  await page.clock.setFixedTime(new Date("2026-11-24T22:00:00-08:00"));
+  await page.reload({ waitUntil: "load" });
+  const night = await lumOf();
+  ok(night < 0.15, "at night the page is dark even when the phone asks for light", night.toFixed(2));
 
   const tabs = await page.locator(".top .tabs [data-tab]").allInnerTexts();
   ok(tabs.map((t) => t.trim().toLowerCase()).join(",") === "trips,water,fish,learn", "four ways in: Trips, Water, Fish, Learn", tabs.join(","));

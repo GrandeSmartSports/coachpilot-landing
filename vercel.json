@@ -165,5 +165,20 @@
       "source": "/t/:team",
       "destination": "/cp/team.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/rigs/sw.js",
+      "headers": [
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/rigs"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
   ]
 }
