@@ -370,7 +370,7 @@
         }).map(function (p) { return (p.site && p.site.name) || p.name; });
         waiting = waiting.filter(function (x, i) { return waiting.indexOf(x) === i; }).slice(0, 2);
         out.dark = "No daylight after work, sunset " + clock(sunset) + ". Waiting for the weekend: " + waiting.join(", ") + ".";
-        out.note = out.note ? out.note + " " + out.dark : out.dark;
+        out.note = out.note ? out.note.replace(/[.\s]*$/, "") + ". " + out.dark : out.dark;
       }
       days.push(out);
     }

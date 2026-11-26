@@ -347,6 +347,7 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   const gale = T.plan({ today, wx: week(today, (sp, iso) => (iso === "2026-12-09" ? { wind: 26, gust: 44 } : {})), tides: tidesFor(today), waters: fake });
   const wed = gale.days.find((d) => d.iso === "2026-12-09");
   ok(wed.trips.length === 0 && /No fishing/.test(wed.note || ""), "a blown-out weeknight still says no fishing", wed.note);
+  ok(!/mph No daylight/.test(wed.note || "") && /mph\. No daylight/.test(wed.note || ""), "two reasons on one day read as two sentences", wed.note);
   T.addWaters(ctx.RIG.watersSnapshot);
 }
 
