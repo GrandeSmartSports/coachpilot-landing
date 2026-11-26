@@ -330,6 +330,20 @@ a.back{text-decoration:none}
 .rulestamp{margin:14px 0 0;font-size:12.5px;color:var(--dim)}
 .quiet{font-size:14px;color:var(--dim);padding:14px;border:1px dashed var(--line);border-radius:14px}
 .quiet.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.signin{max-width:430px}
+.fld{display:block;margin:0 0 14px}
+.fld span{display:block;font-size:13px;color:var(--dim);margin:0 0 6px}
+.fld input{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.go{width:100%;min-height:50px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;
+  background:var(--gold);color:var(--on-gold);border:0;border-radius:12px}
+.plain{width:100%;min-height:46px;margin-top:10px;font:inherit;font-size:15px;color:var(--ink2);
+  background:transparent;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.crewlist{list-style:none;margin:0 0 18px;padding:0}
+.crewlist li{display:flex;align-items:baseline;gap:10px;padding:12px 14px;border:1px solid var(--line);
+  border-radius:12px;background:var(--paper);margin:0 0 8px}
+.crewlist li span{font-size:13px;color:var(--dim)}
+.crewrow{border:1px solid var(--line);border-radius:14px;background:var(--paper)}
 .quiet.why{margin:8px 0 0;padding:10px 12px;border-style:solid;font-size:13px;line-height:1.45}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:22px 0 0;font-size:12.5px;color:var(--dim)}
 .asof button{font:inherit;color:var(--accent2);background:none;border:1px solid var(--line);border-radius:999px;padding:6px 12px;cursor:pointer}
@@ -489,6 +503,7 @@ a.back{text-decoration:none}
 <script src="/rigs/trips.js"></script>
 <script src="/rigs/runs.js"></script>
 <script src="/rigs/sky.js"></script>
+<script src="/rigs/crew.js"></script>
 <script src="/rigs/rules.js"></script>
 <script src="/rigs/waters.js"></script>
 <script>
@@ -989,11 +1004,65 @@ a.back{text-decoration:none}
     if (host) host.innerHTML = body + nl + asOf(p);
     fillRules();
   }
+  // ---- the crew ----------------------------------------------------------
+  // Signed out this is a sign-in screen and nothing more. Nothing anywhere
+  // else in the app asks anyone to sign in.
+  var crewStep = "phone", crewPhone = "", crewMsg = "";
+  // The one way in, at the foot of the week. It is a row, not a demand.
+  function crewRowHtml() {
+    var inCrew = !!(RIG.crew && RIG.crew.session());
+    return '<section class="grp"><a class="row crewrow" href="#/crew" data-crew-open><span class="rt"><b>' +
+      (inCrew ? "The crew" : "Fish with your crew") + "</b><span>" +
+      (inCrew ? "Who is in, and who you fish with" : "Sign in to share this week") +
+      '</span></span><span class="chev" aria-hidden="true">&rsaquo;</span></a></section>';
+  }
+  function crewMsgHtml() { return '<p class="quiet' + (crewMsg ? " no" : "") + '" data-crew-msg>' + esc(crewMsg || "A code comes by text. It is free.") + "</p>"; }
+  function renderCrew() {
+    var head = topHtml("learn") + '<div data-view="crew">' + headHtml("The crew", "Fish together", "Everyone sees the same week.");
+    if (!RIG.crew || !RIG.crew.session()) {
+      var body = crewStep === "code"
+        ? '<label class="fld"><span>The code we texted you</span>' +
+          '<input data-code type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456"></label>' +
+          '<button class="go" type="button" data-verify>Let me in</button>' +
+          '<button class="plain" type="button" data-backphone>Use a different number</button>'
+        : '<label class="fld"><span>Your phone number</span>' +
+          '<input data-phone type="tel" inputmode="tel" autocomplete="tel" placeholder="253 555 0147" value="' + esc(crewPhone) + '"></label>' +
+          '<button class="go" type="button" data-sendcode>Text me a code</button>';
+      app.innerHTML = head + '<div class="signin">' + body + crewMsgHtml() + "</div></div>" + tripBarHtml();
+      return;
+    }
+    app.innerHTML = head + '<div class="signin"><p class="quiet" data-crew-msg>Loading the crew...</p></div></div>' + tripBarHtml();
+    RIG.crew.state().then(function (r) {
+      if (!r || r.signedOut) { crewStep = "phone"; crewMsg = ""; render(); return; }
+      if (r.offline) { var h = app.querySelector("[data-crew-msg]"); if (h) h.textContent = "No signal, and the crew is not saved on this phone yet."; return; }
+      drawCrew(r);
+    });
+  }
+  function drawCrew(r) {
+    var mine = (r.crew && r.crew.role) || "member";
+    var rows = (r.members || []).map(function (m) {
+      return '<li data-member><b>' + esc(m.name) + "</b>" + (m.role === "owner" ? "<span>runs the crew</span>" : "") + "</li>";
+    }).join("");
+    var add = mine === "owner"
+      ? '<div class="box"><b>add someone</b>' +
+        '<label class="fld"><span>Their name</span><input data-invite-name type="text" placeholder="Russell"></label>' +
+        '<label class="fld"><span>Their phone number</span><input data-invite-phone type="tel" inputmode="tel" placeholder="253 555 0147"></label>' +
+        '<button class="go" type="button" data-invite-send>Add them</button>' +
+        '<p class="quiet" data-invite-msg>They get a text with a link. Nobody else can get in.</p></div>'
+      : "";
+    var host = app.querySelector('[data-view="crew"] .signin');
+    if (!host) return;
+    host.innerHTML = '<h2 data-crewname>' + esc((r.crew && r.crew.name) || "Your crew") + "</h2>" +
+      (r.stale ? '<p class="quiet">No signal. This is the last crew list this phone saw.</p>' : "") +
+      '<ul class="crewlist">' + rows + "</ul>" + add +
+      '<button class="plain" type="button" data-signout>Sign out</button>';
+  }
+
   function renderTrips(force) {
     app.innerHTML = topHtml("trips") +
       '<div data-view="trips">' + headHtml("Next 7 days", "Hot Trips", "Picked from tides, wind and season.") +
       '<div data-rules-status></div>' +
-      '<div data-week><p class="quiet">Loading the forecast…</p></div></div>' + tripBarHtml();
+      '<div data-week><p class="quiet">Loading the forecast…</p></div>' + crewRowHtml() + "</div>" + tripBarHtml();
     if (!plannerReady()) return;
     var c = RIG.trips.cached();
     if (c && !force) { lastPlan = planFrom(c); drawTrips(lastPlan); }
@@ -1467,6 +1536,7 @@ a.back{text-decoration:none}
     // The bare url opens on Hot Trips: the week first, the library a tap away.
     if (!parts.length) { renderTrips(); return; }
     if (parts[0] === "trips" && parts[1] === "map") { renderMap(); return; }
+    if (parts[0] === "crew") { renderCrew(); return; }
     if (parts[0] === "trips") { if (parts[1]) renderHot(decodeURIComponent(parts[1]), parts[2]); else renderTrips(); return; }
     if (parts[0] === "fish") { renderFish(); return; }
     if (parts[0] === "water") {
@@ -1507,6 +1577,44 @@ a.back{text-decoration:none}
     var addBtn = t.closest("[data-addtrip]");
     if (addBtn) { RIG.trip.toggle(addBtn.dataset.addtrip); return; }
     if (t.closest("[data-mode-field]")) { setMode("field"); return; }
+    if (t.closest("[data-sendcode]")) {
+      var pi = app.querySelector("[data-phone]");
+      crewPhone = pi ? pi.value : "";
+      var digits = crewPhone.replace(/\D+/g, "");
+      var e164 = digits.length === 10 ? "+1" + digits : digits.length === 11 && digits[0] === "1" ? "+" + digits : null;
+      if (!e164) { crewMsg = "That does not look like a US phone number."; renderCrew(); return; }
+      crewMsg = "Sending...";
+      var msgEl = app.querySelector("[data-crew-msg]"); if (msgEl) msgEl.textContent = crewMsg;
+      RIG.crew.sendCode(e164).then(function (r) {
+        if (r.error) { crewMsg = r.error; crewStep = "phone"; } else { crewMsg = ""; crewStep = "code"; }
+        renderCrew();
+      });
+      return;
+    }
+    if (t.closest("[data-backphone]")) { crewStep = "phone"; crewMsg = ""; renderCrew(); return; }
+    if (t.closest("[data-verify]")) {
+      var ci = app.querySelector("[data-code]");
+      var digits2 = crewPhone.replace(/\D+/g, "");
+      var e2 = digits2.length === 11 ? "+" + digits2 : "+1" + digits2;
+      crewMsg = "Checking...";
+      RIG.crew.verify(e2, ci ? ci.value : "").then(function (r) {
+        if (r.error) { crewMsg = r.error; renderCrew(); return; }
+        crewMsg = ""; crewStep = "phone"; renderCrew();
+      });
+      return;
+    }
+    if (t.closest("[data-signout]")) { RIG.crew.signOut(); crewStep = "phone"; crewMsg = ""; renderCrew(); return; }
+    if (t.closest("[data-invite-send]")) {
+      var n = app.querySelector("[data-invite-name]"), ph = app.querySelector("[data-invite-phone]");
+      var im = app.querySelector("[data-invite-msg]");
+      if (!n || !ph || !n.value.trim()) { if (im) im.textContent = "They need a name."; return; }
+      if (im) im.textContent = "Adding...";
+      RIG.crew.invite(n.value.trim(), ph.value).then(function (r) {
+        if (!r || r.error) { var m = app.querySelector("[data-invite-msg]"); if (m) m.textContent = (r && r.error) || "That did not go through."; return; }
+        RIG.crew.state().then(function (st) { if (st && st.crew) drawCrew(st); });
+      });
+      return;
+    }
     var sm = t.closest("[data-skymode]");
     if (sm) {
       var next = { auto: "light", light: "dark", dark: "auto" }[skyMode()];
