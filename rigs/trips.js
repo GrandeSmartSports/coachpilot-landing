@@ -377,13 +377,55 @@
     return { days: days, notListed: Object.keys(notListed).map(function (k) { return notListed[k]; }) };
   }
 
+  // One trip on one day, asked for by id: what a crew trip page shows.
+  // Same season, rules and scoring as the week, but it answers whatever the
+  // score, and says why when there is no trip to show.
+  //   from, to: local decimal hours, optional. No window means 5 to 22, which
+  //   scoreTrip clamps to daylight, or to full dark onward for a night trip.
+  // output: { status: "ok", trip } | { status: "nogo", why } | { status: "dark", sunset }
+  //   | { status: "closed", why? } | { status: "nodata" } | { status: "unknown" }
+  function detail(input) {
+    input = input || {};
+    var p = plans.filter(function (x) { return x.id === input.planId; })[0], spot = p && spotById(p.spot);
+    if (!spot) return { status: "unknown" };
+    // The app does not send anyone to these, in season or not.
+    if (p.rules !== "confirmed") return { status: "closed", why: p.rules };
+    if (p.access) return { status: "closed", why: p.access };
+    if (!/^\d{4}-\d\d-\d\d$/.test(input.iso || "")) return { status: "nodata" };
+    var day = parseDay(input.iso), s = season(p, day);
+    if (!s) return { status: "closed" };
+    var w = (input.wx || {})[spot.id];
+    if (!w || !(w.hours || []).some(function (h) { return h.t.slice(0, 10) === day.iso; })) return { status: "nodata" };
+    var from = input.from == null ? 5 : +input.from, to = input.to == null ? 22 : +input.to;
+    // A crew can pick a window shorter than the week's hour and a half. That
+    // is still a trip, as long as the whole window can be fished.
+    var slot = { id: "crew", label: "Crew trip", from: from, to: to, min: Math.max(0.5, Math.min(1.5, to - from)) };
+    var t = scoreTrip(p, spot, slot, day, s, w, (input.tides || {})[spot.tide], (input.flow || {})[spot.id]);
+    if (t.blocked) return { status: "nogo", why: t.blocked.why };
+    if (t.planId) return { status: "ok", trip: t };
+    // No trip and no weather reason: the window does not fit this trip (miss
+    // says how), or the sun cuts it, or its hours or tides are not in the
+    // forecast.
+    if (t.miss) return { status: "nogo", why: t.miss };
+    return t.sunset == null ? { status: "nodata" } : { status: "dark", sunset: t.sunset };
+  }
+
   function scoreTrip(p, spot, slot, day, s, w, tideList, fl) {
     var sun = (w && w.sun && w.sun[day.iso]) || { rise: 7.5, set: 16.5 };
-    var from = slot.from, to = slot.to;
+    var from = slot.from, to = slot.to, need = slot.min || 1.5;
     // Daylight fishing ends at sunset. Dark fishing starts at full dark.
     if (p.dark) from = Math.max(from, sun.set + 0.6);
     else { from = Math.max(from, sun.rise, p.opens || 0); to = Math.min(to, sun.set, p.closes || 24); }
     var dig = p.digs && p.digs[day.iso];
+    // Why the asked window leaves nothing to fish, in words, or "" when it is
+    // the sun. Only detail() reads it. The week drops the trip, or names it
+    // in its no-daylight note, as before.
+    function miss() {
+      if (dig) return "the dig is around the " + clock(dig.low) + " low";
+      if (p.dark) return "this one fishes after dark, from " + clock(sun.set + 0.6);
+      if (Math.min(slot.to, sun.set) - Math.max(slot.from, sun.rise) < need) return "";
+      return "the spot " + [p.opens && "opens at " + clock(p.opens), p.closes && "closes at " + clock(p.closes)].filter(Boolean).join(" and ");
+    }
     if (dig) {
       // WDFW: the best digging is 1 to 2 hours before the low.
       from = Math.max(slot.from, dig.low - 2); to = Math.min(slot.to, dig.low + 0.5);
@@ -397,10 +439,13 @@
         var a0 = Math.max(from, hourOf(fl[q - 1].t)), b0 = Math.min(to, hourOf(fl[q].t) + 0.5);
         if (b0 - a0 > (best ? best[1] - best[0] : 0)) best = [a0, b0];
       }
-      if (!best || best[1] - best[0] < 1.5) return { score: 0 };
+      if (!best || best[1] - best[0] < need) {
+        if (to - from < need) return { score: 0, sunset: sun.set, miss: miss() };
+        return { score: 0, miss: fl.length ? "no incoming tide in that window" : "" };
+      }
       from = best[0]; to = best[1];
     }
-    if (to - from < 1.5) return p.dark || dig ? { score: 0 } : { darkCut: true, sunset: sun.set };
+    if (to - from < need) return p.dark || dig ? { score: 0, miss: miss() } : { darkCut: true, sunset: sun.set, miss: miss() };
 
     var hrs = ((w && w.hours) || []).filter(function (h) {
       if (h.t.slice(0, 10) !== day.iso) return false;
@@ -461,7 +506,7 @@
       planId: p.id, species: p.species, spot: p.spot, how: p.how, name: p.name,
       slot: slot.id === "long" && to - from <= 4 ? "Quick trip" : slot.label,
       from: from, to: to, when: clock(from) + " to " + clock(to),
-      drive: spot.drive, score: score, heat: score >= 8 ? "Hot" : "Good", why: why, gear: p.gear || "",
+      drive: spot.drive, score: score, heat: score >= 8 ? "Hot" : score >= 6 ? "Good" : "Slow", why: why, gear: p.gear || "",
       wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) },
       hours: hrs.map(function (h) { return { h: hourOf(h.t), wind: Math.round(h.wind), gust: Math.round(h.gust), temp: Math.round(h.temp), rain: h.rain, wave: h.wave }; }),
       tides: dayT.map(function (x) { return { h: hourOf(x.t), v: x.v, type: x.type }; }),
@@ -627,5 +672,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, plan: plan, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, plan: plan, detail: detail, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);

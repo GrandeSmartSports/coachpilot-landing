@@ -435,5 +435,146 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(touch && existsSync(resolve(ROOT, touch[1].slice(1))) && /apple-mobile-web-app-title" content="Rig Card"/.test(html), "iPhone home screen gets the icon and the name");
 }
 
+// --- one trip, asked for by name: what a crew trip page shows -------------
+{
+  const today = "2026-11-23"; // Monday
+  const wx = week(today), tides = tidesFor(today);
+  const r = T.plan({ today, wx, tides });
+  const heatFor = (n) => (n >= 8 ? "Hot" : n >= 6 ? "Good" : "Slow");
+
+  // ok at Hot, no window given: a dark trip runs from full dark onward.
+  const hot = T.detail({ planId: "squid-redondo", iso: "2026-11-24", wx, tides });
+  ok(hot.status === "ok" && hot.trip.planId === "squid-redondo" && hot.trip.score >= 8 && hot.trip.heat === "Hot",
+    "detail: a calm squid night is ok and Hot", JSON.stringify(hot).slice(0, 200));
+  ok(hot.trip && Math.abs(hot.trip.from - 17) < 0.01 && hot.trip.to === 22, "detail: no window puts a night trip at full dark to 10 PM", hot.trip && hot.trip.when);
+  ok(hot.trip && hot.trip.slot === "Crew trip", "detail: the slot is named Crew trip", hot.trip && hot.trip.slot);
+  ok(hot.trip && hot.trip.name === "Squid at Redondo" && hot.trip.hours.length >= 3 && hot.trip.tides.length === 4 && hot.trip.sun.set === 16.4 && hot.trip.why.length >= 3,
+    "detail: the trip carries its name, hours, tides, sun and reasons like a week trip");
+
+  // ok below the 6 point cut: in season but slow, so the week leaves it off.
+  const slow = T.detail({ planId: "trout-fenwick", iso: "2026-11-28", wx, tides });
+  ok(!r.days.some((d) => d.trips.some((t) => t.planId === "trout-fenwick" || (t.alts || []).includes("trout-fenwick"))), "the week leaves slow Lake Fenwick off");
+  ok(slow.status === "ok" && slow.trip.score < 6 && slow.trip.heat === "Slow", "detail: a trip under the cut still answers ok, heat Slow", JSON.stringify(slow).slice(0, 200));
+  ok(slow.trip && slow.trip.from === 7.5 && slow.trip.to === 16.4, "detail: no window puts a daylight trip at sunrise to sunset", slow.trip && slow.trip.when);
+  const late = T.detail({ planId: "trout-fenwick", iso: "2026-11-28", from: 10, wx, tides });
+  ok(late.status === "ok" && late.trip.from === 10 && late.trip.to === 16.4, "detail: a start with no end still ends at sunset", late.trip && late.trip.when);
+
+  // Every listed trip of the week, asked for with its own window, is the same trip.
+  const listed = r.days.flatMap((d) => d.trips.map((t) => ({ iso: d.iso, t })));
+  const drift = listed.filter(({ iso, t }) => {
+    const x = T.detail({ planId: t.planId, iso, from: t.from, to: t.to, wx, tides });
+    return !(x.status === "ok" && x.trip.when === t.when && x.trip.score === t.score && x.trip.heat === t.heat &&
+      x.trip.why.join("|") === t.why.filter((w) => !/^Also good: /.test(w)).join("|"));
+  }).map(({ iso, t }) => iso + " " + t.planId);
+  ok(listed.length >= 8 && drift.length === 0, "detail: a listed trip gets the same when, why and score the week shows", drift.join(", "));
+
+  // Every plan, every day: one of the six answers, never a throw, heat matches the score.
+  const seen = {}, heats = {}, bad = [];
+  for (const p of T.plans) for (let i = 0; i < 9; i++) {
+    const iso = isoAdd(today, i);
+    let x;
+    try { x = T.detail({ planId: p.id, iso, wx, tides }); } catch (e) { bad.push(p.id + " " + iso + " threw " + e.message); continue; }
+    seen[x.status] = (seen[x.status] || 0) + 1;
+    if (!["ok", "nogo", "dark", "closed", "nodata"].includes(x.status)) bad.push(p.id + " " + iso + " " + x.status);
+    if (x.status === "ok") {
+      heats[x.trip.heat] = true;
+      if (x.trip.planId !== p.id || x.trip.heat !== heatFor(x.trip.score) || !x.trip.when || !x.trip.hours.length) bad.push(p.id + " " + iso + " trip shape");
+    }
+    if (i >= 7 && x.status !== "closed" && x.status !== "nodata") bad.push(p.id + " " + iso + " past the forecast: " + x.status);
+  }
+  ok(bad.length === 0, "detail: every plan answers every day with a known status", bad.slice(0, 5).join(" | "));
+  ok(heats.Hot && heats.Good && heats.Slow, "detail: Hot is 8 and up, Good is 6 and 7, Slow is under 6", Object.keys(heats).join(","));
+  ok(T.plans.some((p) => p.gen && T.detail({ planId: p.id, iso: today, wx, tides }).status !== "unknown"), "detail: lakes from the waters feed are known by their id");
+
+  // nogo from wind, in the week's own words.
+  const windy = week(today, (s, iso) => (iso === "2026-11-25" ? { gust: 32 } : {}));
+  const blow = T.detail({ planId: "squid-redondo", iso: "2026-11-25", wx: windy, tides });
+  ok(blow.status === "nogo" && blow.why === "gusts to 32 mph" && !blow.trip, "detail: 32 mph gusts are a no-go, and it says so", JSON.stringify(blow));
+  const note = T.plan({ today, wx: windy, tides }).days.find((d) => d.iso === "2026-11-25").note || "";
+  ok(note.includes(blow.why), "detail: the no-go reason is the one the week prints", note);
+  ok(T.detail({ planId: "squid-redondo", iso: "2026-11-24", wx: windy, tides }).status === "ok", "detail: the calm day next to it is still ok");
+  const wet = T.detail({ planId: "trout-fenwick", iso: "2026-11-28", wx: week(today, () => ({ rain: 0.4 })), tides });
+  ok(wet.status === "nogo" && wet.why === "heavy rain", "detail: heavy rain is a no-go", JSON.stringify(wet));
+  const surf = T.detail({ planId: "clams-ocean-shores", iso: "2026-11-26", wx: week(today, (s) => (s === "ocean-shores" ? { wave: 12 } : {})), tides });
+  ok(surf.status === "nogo" && surf.why === "12 ft surf", "detail: big surf is a no-go for the dig", JSON.stringify(surf));
+
+  // nogo from a blown-out river.
+  const flowAt = (v) => ({ "green-river": { days: { "2026-11-27": { min: 400, max: 400 }, "2026-11-28": { min: v, max: v } } } });
+  const blown = T.detail({ planId: "chum-green-river", iso: "2026-11-28", wx, tides, flow: flowAt(3200) });
+  ok(blown.status === "nogo" && blown.why === "river blown out, 3,200 cfs", "detail: a blown-out river is a no-go with the flow", JSON.stringify(blown));
+  const runs = T.detail({ planId: "chum-green-river", iso: "2026-11-28", wx, tides, flow: flowAt(400) });
+  ok(runs.status === "ok" && runs.trip.flow && runs.trip.flow.call === "go" && runs.trip.flow.cfs === 400, "detail: a fishable river is ok and carries its flow", JSON.stringify(runs).slice(0, 200));
+
+  // A window the trip cannot use is a no-go with the reason, never a blank.
+  const noon = T.detail({ planId: "squid-redondo", iso: "2026-11-24", from: 9, to: 13, wx, tides });
+  ok(noon.status === "nogo" && /after dark, from 5:00 PM/.test(noon.why), "detail: a night trip in a daylight window says it fishes after dark", JSON.stringify(noon));
+  const dig = T.detail({ planId: "clams-ocean-shores", iso: "2026-11-26", from: 7, to: 11, wx, tides });
+  ok(dig.status === "nogo" && /7:35 PM low/.test(dig.why), "detail: a dig window that misses the low says when the low is", JSON.stringify(dig));
+  const ebb = { "9446705": [{ t: "2026-11-27 00:45", v: -3.5, type: "L" }, { t: "2026-11-27 07:56", v: 14.7, type: "H" },
+    { t: "2026-11-27 13:36", v: 8.0, type: "L" }, { t: "2026-11-27 18:13", v: 12.9, type: "H" }] };
+  const out = T.detail({ planId: "cutthroat-dash-point", iso: "2026-11-27", from: 9, to: 13, wx, tides: ebb });
+  ok(out.status === "nogo" && /incoming tide/.test(out.why), "detail: an incoming-tide fish in a window that only ebbs is a no-go", JSON.stringify(out));
+  const aft = T.detail({ planId: "cutthroat-dash-point", iso: "2026-11-27", wx, tides: ebb });
+  ok(aft.status === "ok" && Math.abs(aft.trip.from - 13.6) < 0.01 && aft.trip.to === 16.4, "detail: with no window it finds the afternoon flood, low to sunset", JSON.stringify(aft).slice(0, 200));
+  ok(T.detail({ planId: "cutthroat-dash-point", iso: "2026-11-27", wx }).status === "nodata", "detail: an incoming-tide fish with no tide table is no data, not a guess");
+  const eve = T.detail({ planId: "cutthroat-dash-point", iso: "2026-11-27", from: 16.5, to: 20.5, wx, tides: ebb });
+  ok(eve.status === "dark" && eve.sunset === 16.4, "detail: an incoming-tide fish after sunset is dark, not a tide story", JSON.stringify(eve));
+  const spring = "2027-04-10", wxSpring = week(spring);
+  for (const sp of Object.keys(wxSpring)) for (const d of Object.keys(wxSpring[sp].sun)) wxSpring[sp].sun[d] = { rise: 6.4, set: 19.9 };
+  const early = T.detail({ planId: "cutthroat-dash-point", iso: spring, from: 6, to: 8, wx: wxSpring, tides: tidesFor(spring) });
+  ok(early.status === "nogo" && early.why === "the spot opens at 8:00 AM", "detail: daylight before the park opens says when it opens, not dark", JSON.stringify(early));
+
+  // closed: out of season, or inside a closed range, with or without a forecast.
+  const shut = T.detail({ planId: "coho-dash-point", iso: "2026-11-24", wx, tides });
+  ok(shut.status === "closed" && shut.why === undefined, "detail: inside a closed range is closed", JSON.stringify(shut));
+  ok(T.detail({ planId: "bass-fenwick", iso: "2026-11-24", wx, tides }).status === "closed", "detail: out of season is closed");
+  ok(T.detail({ planId: "bass-fenwick", iso: "2027-01-15", wx, tides }).status === "closed", "detail: out of season is closed even past the forecast");
+  ok(T.detail({ planId: "clams-ocean-shores", iso: "2026-11-29", wx, tides }).status === "closed", "detail: a day with no dig is closed");
+
+  // closed with a why: the plans the app does not send anyone to.
+  const dec = "2026-12-05", wxDec = week(dec), tidesDec = tidesFor(dec);
+  const held = T.detail({ planId: "steelhead-green-river", iso: dec, wx: wxDec, tides: tidesDec });
+  const said = T.plan({ today: dec, wx: wxDec, tides: tidesDec }).notListed.find((n) => /steelhead on the Green/.test(n.name));
+  ok(held.status === "closed" && /December steelhead limit not confirmed/.test(held.why), "detail: unconfirmed rules are closed, with the reason", JSON.stringify(held));
+  ok(said && said.why === held.why, "detail: that reason is the one the week's not-listed note gives");
+  const apr = "2027-04-10";
+  const ramp = T.detail({ planId: "trout-tapps", iso: apr, wx: week(apr), tides: tidesFor(apr) });
+  ok(ramp.status === "closed" && /ramp closed/.test(ramp.why), "detail: a closed ramp is closed, with the reason", JSON.stringify(ramp));
+
+  // nodata: the forecast does not reach the day, or there is none.
+  ok(T.detail({ planId: "squid-redondo", iso: "2026-12-03", wx, tides }).status === "nodata", "detail: ten days out is past the forecast");
+  ok(T.detail({ planId: "squid-redondo", iso: "2026-11-24" }).status === "nodata", "detail: no forecast at all is no data");
+  ok(T.detail({ planId: "squid-redondo", iso: "2026-11-24", wx: { "lake-fenwick": wx["lake-fenwick"] }, tides }).status === "nodata", "detail: a forecast for other spots only is no data");
+
+  // unknown: no such plan.
+  ok(T.detail({ planId: "no-such-trip", iso: "2026-11-24", wx, tides }).status === "unknown", "detail: an id the app does not have is unknown");
+  ok(T.detail({ iso: "2026-11-24", wx, tides }).status === "unknown" && T.detail().status === "unknown", "detail: no id is unknown, not a crash");
+
+  // Lakes from the waters feed, and dark: a daylight trip in a window with no daylight.
+  const lake = (geo, rule) => ({ geo, name: "Test Lake", county: "Pierce", lat: 47.18, lon: -122.17, km: 5,
+    plants: [{ d: "2026-12-05", sp: "Rainbow", n: 600, fpp: 0.5 }], rule });
+  T.addWaters({ waters: [lake("LTEST", { status: "ok", open: "all", lines: [] }), lake("LHELD", { status: "check", why: "Fly fishing only" })] });
+  const mon = "2026-12-07", wxMon = week(mon);
+  const dk = T.detail({ planId: "trout-w-ltest", iso: mon, from: 16.5, to: 20.5, wx: wxMon });
+  ok(dk.status === "dark" && dk.sunset === 16.4 && !dk.trip, "detail: a lake after work in December is dark, with the sunset", JSON.stringify(dk));
+  const lit = T.detail({ planId: "trout-w-ltest", iso: mon, wx: wxMon });
+  ok(lit.status === "ok" && lit.trip.from === 7.5 && lit.trip.to === 16.4 && lit.trip.why.some((w) => /Stocked Dec 5: 600 rainbow/.test(w)),
+    "detail: the same lake with no window fishes sunrise to sunset", JSON.stringify(lit).slice(0, 200));
+  const hour = T.detail({ planId: "trout-w-ltest", iso: mon, from: 10, to: 11, wx: wxMon });
+  ok(hour.status === "ok" && hour.trip.from === 10 && hour.trip.to === 11 && hour.trip.hours.length === 1, "detail: a one hour window in daylight is a trip, not dark", JSON.stringify(hour).slice(0, 200));
+  const dusk = T.detail({ planId: "trout-w-ltest", iso: mon, from: 16, to: 17, wx: wxMon });
+  ok(dusk.status === "dark" && dusk.sunset === 16.4, "detail: a one hour window the sunset cuts short is dark", JSON.stringify(dusk));
+  ok(T.detail({ planId: "trout-w-ltest", iso: mon, from: 16.5, to: 20.5 }).status === "nodata", "detail: with no forecast it never makes up a sunset");
+  const fly = T.detail({ planId: "trout-w-lheld", iso: mon, wx: wxMon });
+  ok(fly.status === "closed" && fly.why === "Fly fishing only", "detail: a lake held back for its rules is closed, with the rule", JSON.stringify(fly));
+  T.addWaters(ctx.RIG.watersSnapshot);
+  ok(T.detail({ planId: "trout-w-ltest", iso: mon, wx: wxMon }).status === "unknown", "detail: a lake the feed dropped is unknown");
+
+  // Pure: same answer twice, and the forecast handed in is left alone.
+  const before = JSON.stringify(wx);
+  const again = T.detail({ planId: "squid-redondo", iso: "2026-11-24", wx, tides });
+  ok(JSON.stringify(again) === JSON.stringify(hot) && JSON.stringify(wx) === before, "detail: the same question gets the same answer and changes nothing");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
