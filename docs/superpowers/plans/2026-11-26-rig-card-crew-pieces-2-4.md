@@ -133,3 +133,82 @@ Routes in `rigs/index.html`:
 - `tests/castai-crew.live.test.mjs`: signs in as the two ZZTEST accounts and walks every action against the deployed function, including a member being refused owner actions, a trip from another crew answering 404, a repeated `clientId` not doubling, a join link minting a real session, a revoked link answering 410. Skips cleanly when `~/.cortex/rigcard-test.json` is missing. Leaves no trips behind.
 - `tests/rigs-crew.smoke.mjs` and `tests/rigs-crew-trips.smoke.mjs`: the page with every network call stubbed, at 390 px wide: join by tap and by paste, signed-out screens unchanged, crew trips above the week, a trip made from a Hot Trip and from scratch, going, a note pinned to a section, the list, a catch, a queued note with no signal that sends once when the signal returns, and no phone number or email anywhere on screen.
 - `tests/rigs-trips.test.mjs`: `detail()` for ok, nogo, dark, closed, nodata, unknown.
+
+---
+
+# Contract v2 (2026-11-26, after Coach's direction: fix, do not route around)
+
+These replace or add to the sections above. Where v2 and v1 disagree, v2 wins.
+
+## Sign-in: phone codes work again
+
+Root cause was a stale Twilio auth token in the project's auth config; pushed the current one on 2026-11-26 (only that field; sign-ups stay off). Codes go through the Twilio Verify service "CastAI". Proven: `POST /auth/v1/otp` answers 200 and Twilio shows the SMS attempt.
+
+- `castai_crew_settings.sms` is `on`. `hello` answers `{ ok, sms: true, vapidKey }` (`vapidKey` is the VAPID public key from `Deno.env.get("VAPID_PUBLIC_KEY")`).
+- The signed-out `#/crew` screen: phone number and code first (Coach asked for this), and under it "Have a link from Coach? Paste it here". A tapped `#/join/<token>` link still works. Both stay.
+- A member with no number on the account can add one from the page with their own session: `PUT /auth/v1/user {"phone": "+1..."}` then `POST /auth/v1/verify {"type":"phone_change","phone","token"}`. After that codes and texts reach them. "That number is already on another account." when GoTrue says so.
+
+## R7: the list starts from the trip's own gear
+
+`trip_create` also takes `seedList: string[]` (up to 40 labels, each 1 to 120 chars). The page sends the run card's gear lines for that plan. The function adds them as list items in order. On a crew trip the run card's have/get/check tags (they describe Coach's garage) are not shown; the list with names is.
+
+## R9: notifications
+
+Every person starts with everything off. Coach's defaults once someone turns a channel on: all four kinds on, quiet 9 PM to 6 AM, both editable per person.
+
+```
+castai_crew_notify_prefs  user_id uuid pk -> auth.users cascade,
+                          texts boolean not null default false, push boolean not null default false,
+                          ev_trips, ev_status, ev_notes, ev_gear_catches boolean not null default true,
+                          quiet_from smallint not null default 21, quiet_to smallint not null default 6   (hours 0..23 in America/Los_Angeles; equal means no quiet hours),
+                          texts_stopped boolean not null default false, first_text_at timestamptz null, updated_at
+castai_crew_push_subs     id uuid pk, user_id -> auth.users cascade, endpoint text not null unique, p256dh text not null, auth text not null,
+                          ua text null, created_at, last_ok_at timestamptz null, fails integer not null default 0
+castai_crew_outbox        id uuid pk, crew_id -> castai_crew cascade, trip_id uuid null -> castai_crew_trips cascade, to_user -> auth.users cascade,
+                          by_user uuid null, kind text check in ('trip_new','trip_status','note','gear','catch','test'),
+                          title text not null, body text not null, url text not null,
+                          created_at, send_after timestamptz not null default now(), sent_at timestamptz null,
+                          channel text null, status text not null default 'queued' check in ('queued','sent','skipped','failed'), error text null
+```
+
+Who hears about what (always minus the person who did it, always only people with a channel on and that kind on):
+
+| kind | what happened | default audience |
+|---|---|---|
+| `trip_new` | a trip or idea was made | everyone else on the crew |
+| `trip_status` | it is on, the date or time moved, it was called off or deleted | everyone going or maybe, plus the maker |
+| `note` | a note was pinned | everyone going or maybe, plus the maker |
+| `gear` | a list line was assigned to you | that person |
+| `catch` | a fish was logged on a trip | everyone going or maybe, plus the maker |
+
+- **The sender chooses.** `trip_create`, `trip_update`, `trip_delete`, `comment_add`, `list_add`, `list_update`, `catch_link` take an optional `tell: [userId]`. Missing means the default audience. Present means exactly those people who are also allowed to hear (on the crew, channel on, kind on). `[]` tells nobody. `state.members[]` gains `alerts: boolean` so the page can show a "Tell" row with only the people who can hear. No phone or email is ever in an answer.
+- **Delivery.** Each recipient gets one outbox row, `send_after` now or the end of their quiet hours. The function answers first, then delivers what is due (`EdgeRuntime.waitUntil`). A pg_cron job `castai-crew-deliver` every 5 minutes posts `{action:"deliver"}` with header `x-cron-key` equal to `castai_crew_settings.cron_key` (seed a random one in the migration with `encode(gen_random_bytes(24),'hex')`, never overwrite) to send what was held. Follow the cron pattern in `supabase/migrations/20261123210000_castai_wdfw_rules.sql`.
+- **Channel per row.** Phone alert first when the person has `push` on and a live subscription (send to every subscription with the shared sender copied from `supabase/functions/_shared/webpush.ts` into the function folder; a 404 or 410 deletes that subscription). If there is no live subscription or every push fails, and `texts` is on and the account has a phone and `texts_stopped` is false, send a text through Twilio (`POST https://api.twilio.com/2010-04-01/Accounts/{TWILIO_ACCOUNT_SID}/Messages.json`, basic auth with `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN`, `From` = `TWILIO_FROM`; all three are already set as function secrets). Twilio error 21610 sets `texts_stopped`. Otherwise the row is `skipped`.
+- **Limits.** At most 30 a day per person. A `note` to the same person about the same trip from the same author inside 2 minutes of the last one is skipped.
+- **Words.** Text: `Rig Card: <Name> <did what>. <Trip title>, <Sat Nov 28>. <link>` under 300 characters, the first text ever to a person ends with ` Reply STOP to stop.` Push: title `<Name> <did what>`, body `<Trip title>, <Sat Nov 28>`, `url` the trip link `https://coachpilot.org/rigs/#/crew/trip/<id>`.
+- **Actions.** `prefs_get` -> `{ prefs: {texts, push, evTrips, evStatus, evNotes, evGearCatches, quietFrom, quietTo, textsStopped}, hasPhone: boolean, pushSubs: number }`. `prefs_set {…any of those}` -> same shape. `push_subscribe {endpoint, p256dh, auth, ua?}`, `push_unsubscribe {endpoint}` -> `{ ok }`. `test_alert` -> sends "Rig Card test. It works." to the caller through their channels right now, ignoring quiet hours, and answers `{ ok, push: "sent"|"none"|"failed", text: "sent"|"none"|"failed"|"stopped" }`. `deliver` (cron key only) -> `{ ok, sent, held }`.
+- **The page.** In `#/crew`: an **Alerts** group. "Text me" (needs a number on the account; offers to add one), "Alert this phone" (asks permission on the tap; on an iPhone that is not running from the Home Screen it says: add Rig Card to your Home Screen first, Apple only allows alerts there), the four kinds, quiet hours from and to, and "Send me a test". `rigs/sw.js` gains `push` (show the notification with `data.url`) and `notificationclick` (focus an open Rig Card window on that url or open it). On the trip form, note box, list and catch form: a "Tell" row of first names, ticked by default, for the people who can hear.
+
+## R10: catches are CastAI catches
+
+A crew catch is a row in CastAI's own `catch_logs`, owned by the person who caught it (so it shows in their CastAI catch log), plus a link to the trip. `catch_logs` itself is not altered.
+
+```
+castai_crew_catches  catch_id uuid primary key references public.catch_logs(id) on delete cascade,
+                     trip_id uuid not null -> castai_crew_trips cascade, created_at timestamptz default now()
+```
+(The v1 shape of this table held only test rows; the v2 migration drops and recreates it.)
+
+The page does what the CastAI app does (`CastAI/Shared/Services/CatchSyncService.swift`), with the person's own token:
+1. Make a uuid `catchId`. With a photo: shrink it in the browser to at most 1600 px on the long side, JPEG, then `PUT /storage/v1/object/catch-photos/<userId>/<catchId>.jpg` (headers `apikey`, `Authorization: Bearer <token>`, `Content-Type: image/jpeg`, `x-upsert: true`). The public address is `/storage/v1/object/public/catch-photos/<userId>/<catchId>.jpg`.
+2. `POST /rest/v1/catch_logs` with `Prefer: resolution=merge-duplicates` and `{ id, user_id, species, catch_date, weight?, length?, photo_url?, spot_name, latitude?, longitude?, state_code: "WA", notes?, lure?, technique? }`. Use the same units the CastAI add-catch screen uses (check `CastAI/Features/CatchLog/AddCatchView.swift`).
+3. `catch_link { tripId, catchId, tell? }` -> the function checks the `catch_logs` row exists and belongs to the caller, links it, answers `{ ok, catch: Catch }`.
+
+`Catch` is now `{ id, species, lengthIn, weightLb, lure, notes, photoUrl: string|null, by, at, mine }`. `catch_delete { catchId }` (yours only) removes the link; the page then deletes the `catch_logs` row and the photo with the person's own token. `catch_add` from v1 is gone.
+
+No signal: the catch and its photo wait in IndexedDB (`rig-crew`), show as "waiting to send" with the photo visible, and go up once when the signal returns.
+
+## Tests added by v2
+
+- Live: prefs get and set; a push subscription stored and removed; `test_alert` with no channels answers `none`/`none`; quiet hours hold a row (`send_after` in the future) and `deliver` with the cron key sends nothing early; `tell: []` makes no outbox rows; the audience table above row by row using the two ZZTEST accounts with `texts` on but no phone (rows end `skipped`, never a real text); a catch linked from a real `catch_logs` row made with the ZZTEST member's own token, a catch that belongs to someone else refused, and everything deleted after. Never send a real text or push in a test.
+- Page smokes: the Alerts group, the iPhone not-installed message, the Tell row, a catch with a photo (stub storage and rest), a queued catch with no signal that sends once.
