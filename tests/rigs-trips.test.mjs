@@ -576,5 +576,213 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(JSON.stringify(again) === JSON.stringify(hot) && JSON.stringify(wx) === before, "detail: the same question gets the same answer and changes nothing");
 }
 
+// --- spring-only lakes: closed until the 4th Saturday in April, every year --
+{
+  const plant = (d, n) => ({ d, sp: "Rainbow", n, fpp: 2.5 });
+  const springLake = { geo: "LSPRING", name: "Opener Lake", county: "King", lat: 47.4, lon: -122.1, km: 12,
+    // WDFW plants these in the weeks before opening day, while the lake is still closed.
+    plants: [plant("2026-04-15", 900), plant("2027-03-10", 900), plant("2027-04-15", 900), plant("2027-10-10", 300)],
+    rule: { status: "ok", open: "spring", closed: [["11-01", "04-27"]], lines: ["Open the 4th Saturday in April to Oct 31 only.", "WDFW special rule: Chumming permitted."] } };
+  const allYear = { geo: "LALLYEAR", name: "All Year Lake", county: "King", lat: 47.41, lon: -122.11, km: 13, plants: [plant("2027-04-15", 900)],
+    rule: { status: "ok", open: "all", lines: ["Open all year.", "WDFW special rule, crappie: Min. size 9\". Daily limit 10."] } };
+  T.addWaters({ waters: [springLake, allYear] });
+  const id = "trout-w-lspring", p = T.plans.find((x) => x.id === id);
+  const day = (iso) => { const [y, m, d] = iso.split("-").map(Number); return { y, m, d, iso }; };
+  ok(p && p.rules === "confirmed", "a spring-only lake is a plan with confirmed rules");
+  ok(T.season(p, day("2027-03-20")) === null && T.season(p, day("2027-04-20")) === null, "stocked in March, still closed: a plant does not open a closed lake");
+  // The 4th Saturday in April: the 24th in 2027, the 25th in 2026.
+  ok(T.season(p, day("2027-04-23")) === null, "2027: closed on Friday Apr 23, the day before the opener");
+  ok(T.season(p, day("2027-04-24")) === "peak" && T.season(p, day("2027-04-25")) === "peak", "2027: open on opening weekend, Apr 24 and 25",
+    T.season(p, day("2027-04-24")) + " " + T.season(p, day("2027-04-25")));
+  ok(T.season(p, day("2026-04-24")) === null && T.season(p, day("2026-04-25")) === "peak", "2026: the opener is Apr 25, not a day sooner",
+    T.season(p, day("2026-04-24")) + " " + T.season(p, day("2026-04-25")));
+  ok(T.season(p, day("2027-10-31")) === "peak" && T.season(p, day("2027-11-01")) === null, "open through Oct 31, closed again on Nov 1");
+  // The week of the 2027 opener: nothing before Saturday, then it is on the list.
+  const today = "2027-04-19", wx = week(today); // Monday
+  for (const sp of Object.keys(wx)) for (const d of Object.keys(wx[sp].sun)) wx[sp].sun[d] = { rise: 6.2, set: 20.1 };
+  const r = T.plan({ today, wx, tides: tidesFor(today) });
+  const listed = (iso, pid) => tripsOn(r, iso).some((t) => t.planId === pid || (t.alts || []).includes(pid));
+  const early = ["2027-04-19", "2027-04-20", "2027-04-21", "2027-04-22", "2027-04-23"].filter((iso) => listed(iso, id));
+  ok(early.length === 0, "the week before the opener never lists the closed lake", early.join(","));
+  ok(listed("2027-04-21", "trout-w-lallyear"), "a year-round lake stocked the same day is on that week", ids(r, "2027-04-21").join(","));
+  ok(listed("2027-04-24", id) && listed("2027-04-25", id), "opening weekend lists it", ids(r, "2027-04-24").join(",") + " / " + ids(r, "2027-04-25").join(","));
+  ok(T.detail({ planId: id, iso: "2027-04-23", wx }).status === "closed" && T.detail({ planId: id, iso: "2027-04-24", wx }).status === "ok", "a crew trip there is closed on the 23rd and a trip on the 24th");
+  // F11: the Rules card of a spring lake starts with its own season.
+  const card = T.runs[id].rules, yr = T.runs["trout-w-lallyear"].rules;
+  ok(card[0] === "Open the 4th Saturday in April to Oct 31 only." && !card.some((x) => /^Open all year/.test(x)),
+    "a spring-only lake's Rules card starts with its own season, and never says open all year", card.join(" | "));
+  ok(card.some((x) => /5 a day/.test(x)) && card.some((x) => /Chumming permitted/.test(x)) && card.filter((x) => /4th Saturday/.test(x)).length === 1,
+    "it still carries the trout limit and the lake's own rules, the season once", card.join(" | "));
+  ok(yr[0] === "Open all year." && yr.filter((x) => /^Open all year/.test(x)).length === 1 && yr.some((x) => /crappie/.test(x)),
+    "a year-round lake's card still starts Open all year, once", yr.join(" | "));
+  T.addWaters(ctx.RIG.watersSnapshot);
+}
+
+// --- a spot's own hours are not the sun's fault ---------------------------
+{
+  // Drive 1 keeps it first in the "waiting" names whatever the lakes of the day are.
+  T.spots.push({ id: "test-park", name: "Test Park Pond", lat: 47.2, lon: -122.2, drive: 1 });
+  T.plans.push({ id: "trout-test-park", species: "perch", spot: "test-park", name: "Trout at Test Park Pond", ok: [6, 12], closes: 17,
+    how: "shore", rules: "confirmed", site: { name: "Test Park Pond" } });
+  const june = "2026-06-08", wxJ = week(june); // Monday, light until 9 PM
+  for (const sp of Object.keys(wxJ)) for (const d of Object.keys(wxJ[sp].sun)) wxJ[sp].sun[d] = { rise: 5.2, set: 21 };
+  const mon = T.plan({ today: june, wx: wxJ, tides: tidesFor(june) }).days[0];
+  const line = [mon.dark, mon.note].filter(Boolean).join(" ~ ");
+  ok(/Test Park Pond closes at 5:00 PM/.test(mon.dark || ""), "a park that shuts at 5 PM says so on a summer weeknight", line);
+  ok(!/No daylight|sunset/i.test(line), "and the sun is not blamed with hours of light left", line);
+  ok(/Waiting for the weekend/.test(mon.dark || "") && (mon.trips.length || /closes at 5:00 PM/.test(mon.note || "")), "it still says the trip waits for the weekend, on the day itself", line);
+  const asked = T.detail({ planId: "trout-test-park", iso: june, from: 16.5, to: 20.5, wx: wxJ });
+  ok(asked.status === "nogo" && asked.why === "the spot closes at 5:00 PM", "a crew trip asked for after work there gets the same reason", JSON.stringify(asked));
+  // December: the sun is down before the park shuts, so darkness is the reason.
+  const dec = "2026-12-07", d = T.plan({ today: dec, wx: week(dec), tides: tidesFor(dec) }).days[0];
+  const lineD = [d.dark, d.note].filter(Boolean).join(" ~ ");
+  ok(/No daylight after work, sunset 4:24 PM\. Waiting for the weekend: Test Park Pond/.test(lineD) && !/closes at/.test(lineD),
+    "in December the same park is dark by then: the sunset wording stays when darkness is the cause", lineD);
+  // Tokul Creek shuts at 5 PM. Asked for on a long evening, that is the reason given, not its opening hour.
+  const tok = T.plans.find((x) => x.id === "steelhead-tokul"), save = { peak: tok.peak, ok: tok.ok, closed: tok.closed };
+  tok.peak = [6]; tok.ok = []; tok.closed = [];
+  const flowJ = { tokul: { days: { [june]: { min: 900, max: 1000 } } } };
+  const eve = T.detail({ planId: "steelhead-tokul", iso: june, from: 16.5, to: 20.5, wx: wxJ, flow: flowJ });
+  ok(eve.status === "nogo" && eve.why === "the spot closes at 5:00 PM", "Tokul after work on a long evening: closes at 5:00 PM", JSON.stringify(eve));
+  Object.assign(tok, save);
+  T.plans.splice(T.plans.findIndex((x) => x.id === "trout-test-park"), 1);
+  T.spots.splice(T.spots.findIndex((x) => x.id === "test-park"), 1);
+}
+
+// --- an incoming-tide fish on a river keeps the river's go or no-go -------
+{
+  T.spots.push({ id: "test-mouth", name: "Test River mouth", lat: 47.3, lon: -122.4, drive: 30, tide: "9446705",
+    river: { gauge: "TESTW1", usgs: "1", name: "Test River at the mouth", good: 1000, high: 2000, flood: 5000 } });
+  T.plans.push({ id: "cutthroat-test-mouth", species: "cutthroat", spot: "test-mouth", name: "Sea-run cutthroat at the Test River mouth",
+    peak: [11], how: "shore", tide: "flood", rules: "confirmed" });
+  const today = "2026-11-23", iso = "2026-11-28", wx = week(today), tides = tidesFor(today), id = "cutthroat-test-mouth";
+  const flowAt = (v) => ({ "test-mouth": { days: { "2026-11-27": { min: 500, max: 500 }, "2026-11-28": { min: v, max: v } } } });
+  const good = T.detail({ planId: id, iso, wx, tides, flow: flowAt(600) });
+  ok(good.status === "ok" && good.trip.why.some((w) => /Incoming tide/.test(w)) && good.trip.why.some((w) => /Good flow, 600 cfs/.test(w)),
+    "an incoming-tide trip at a river mouth reads the river too", JSON.stringify(good).slice(0, 300));
+  ok(good.trip && good.trip.flow && good.trip.flow.call === "go" && good.trip.flow.cfs === 600, "and carries the river card", JSON.stringify(good.trip && good.trip.flow));
+  const blown = T.detail({ planId: id, iso, wx, tides, flow: flowAt(4200) });
+  ok(blown.status === "nogo" && blown.why === "river blown out, 4,200 cfs", "a blown-out river calls that trip off", JSON.stringify(blown).slice(0, 200));
+  const wk = T.plan({ today, wx, tides, flow: flowAt(4200) });
+  ok(!tripsOn(wk, iso).some((t) => t.planId === id || (t.alts || []).includes(id)), "and the week does not send anyone to it", ids(wk, iso).join(","));
+  T.plans.splice(T.plans.findIndex((x) => x.id === id), 1);
+  T.spots.splice(T.spots.findIndex((x) => x.id === "test-mouth"), 1);
+}
+
+// --- F8: a lake that is new in today's feed gets weather on that same load --
+{
+  const snap = ctx.RIG.watersSnapshot, okRule = { status: "ok", open: "all", lines: ["Open all year."] };
+  const hourly = (temp) => ({ hourly: { time: ["2026-11-23T17:00"], temperature_2m: [temp], precipitation: [0], wind_speed_10m: [5], wind_gusts_10m: [9], cloud_cover: [50] },
+    daily: { time: ["2026-11-23"], sunrise: ["2026-11-23T07:31"], sunset: ["2026-11-23T16:24"] } });
+
+  // The answer is matched to the spots that were asked for, not to whatever the list is by then.
+  const u = T.urls("2026-11-23", "2026-11-30");
+  ok(Array.isArray(u.wxSpots) && u.wxSpots.length === T.spots.length && u.wxSpots.join() === T.spots.map((s) => s.id).join(), "the weather call remembers which spots it asked for, in order");
+  const answer = u.wxSpots.map((spotId, i) => hourly(i));
+  T.addWaters({ waters: [{ geo: "LFIRST", name: "First Lake", county: "Pierce", lat: 47.1, lon: -122.1, km: 3, plants: [{ d: "2026-11-20", sp: "Rainbow", n: 500, fpp: 2 }], rule: okRule }].concat(snap.waters) });
+  const shaped = T.shape(answer, null, [], {}, u.wxSpots);
+  const wrong = u.wxSpots.filter((spotId, i) => !shaped.wx[spotId] || shaped.wx[spotId].hours[0].temp !== i);
+  ok(wrong.length === 0, "each spot keeps its own weather when the lake list changes while the call is out", wrong.slice(0, 5).join(","));
+  ok(!shaped.wx["w-lfirst"], "a lake that was not asked for gets nobody else's weather");
+  T.addWaters(snap);
+
+  // No weather for a lake is never "no daylight".
+  const may = "2027-05-17", lost = { geo: "LNOWX", name: "No Forecast Lake", county: "Pierce", lat: 47.15, lon: -122.15, km: 2, // Monday
+    plants: [{ d: "2027-05-14", sp: "Rainbow", n: 700, fpp: 2 }], rule: okRule };
+  T.addWaters({ waters: [lost] });
+  const wxMay = week(may);
+  for (const sp of Object.keys(wxMay)) for (const d of Object.keys(wxMay[sp].sun)) wxMay[sp].sun[d] = { rise: 5.5, set: 20.67 };
+  delete wxMay["w-lnowx"];
+  const rMay = T.plan({ today: may, wx: wxMay, tides: tidesFor(may) });
+  const blamed = rMay.days.map((d) => [d.dark, d.note].filter(Boolean).join(" ")).filter((x) => /No daylight|No Forecast Lake|4:30 PM/.test(x));
+  ok(blamed.length === 0, "a lake with no forecast is left off: it is not called dark at 4:30 PM in May", blamed.join(" ~ "));
+  ok(!rMay.days.some((d) => d.trips.some((t) => t.planId === "trout-w-lnowx" || (t.alts || []).includes("trout-w-lnowx"))), "and it is not listed on a guess");
+
+  // load(), with every server stubbed. The dates follow the real clock, as load() does.
+  const store = {}, calls = [];
+  ctx.localStorage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } };
+  ctx.setTimeout = setTimeout; ctx.clearTimeout = clearTimeout;
+  const now = new Date(), today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  const point = () => {
+    const time = [], temperature_2m = [], precipitation = [], wind_speed_10m = [], wind_gusts_10m = [], cloud_cover = [], days = [], sunrise = [], sunset = [];
+    for (let i = 0; i < 7; i++) {
+      const iso = isoAdd(today, i);
+      days.push(iso); sunrise.push(iso + "T07:30"); sunset.push(iso + "T16:24");
+      for (let h = 0; h < 24; h++) { time.push(`${iso}T${pad(h)}:00`); temperature_2m.push(45); precipitation.push(0); wind_speed_10m.push(4); wind_gusts_10m.push(8); cloud_cover.push(60); }
+    }
+    return { hourly: { time, temperature_2m, precipitation, wind_speed_10m, wind_gusts_10m, cloud_cover }, daily: { time: days, sunrise, sunset } };
+  };
+  let feed = null, smallCallFails = false;
+  const isWx = (url) => /api\.open-meteo\.com\/v1\/forecast/.test(url), lats = (url) => new URL(url).searchParams.get("latitude").split(",");
+  ctx.fetch = (url) => {
+    calls.push(url);
+    const json = (body) => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(body) });
+    if (isWx(url)) {
+      const n = lats(url).length;
+      if (n === 1 && smallCallFails) return Promise.reject(new Error("weak signal"));
+      return json(n === 1 ? point() : Array.from({ length: n }, point)); // one place comes back as one object, not a list
+    }
+    if (/marine-api/.test(url)) return json(lats(url).map(() => ({ hourly: { time: [today + "T12:00"], wave_height: [3] } })));
+    if (/tidesandcurrents/.test(url)) return json({ predictions: [] });
+    if (/castai-waters/.test(url)) return feed ? json(feed) : Promise.reject(new Error("feed down"));
+    return Promise.reject(new Error("not stubbed")); // the river gauges
+  };
+  const lakeOld = { geo: "LOLD", name: "Old Lake", wdfw: "OLD LK (PIER)", county: "Pierce", lat: 47.111, lon: -122.111, km: 6, plants: [{ d: isoAdd(today, -3), sp: "Rainbow", n: 500, fpp: 2 }] };
+  const lakeNew = { geo: "LNEW", name: "New Lake", wdfw: "NEW LK (PIER)", county: "Pierce", lat: 47.777, lon: -122.777, km: 7, plants: [{ d: isoAdd(today, -1), sp: "Rainbow", n: 800, fpp: 2 }] };
+  // Boot: the snapshot knows both lakes and their rules.
+  T.addWaters({ waters: [{ ...lakeOld, rule: okRule }, { ...lakeNew, rule: okRule }] });
+  // Then the page draws yesterday's saved forecast, whose lake list is yesterday's: no New Lake.
+  T.addWaters({ waters: [lakeOld] });
+  ok(!T.spots.some((s) => s.id === "w-lnew"), "yesterday's saved list does not have the new lake");
+  feed = { at: now.toISOString(), waters: [lakeOld, lakeNew] };
+  const data = await T.load(true);
+  ok(data.wx["w-lnew"] && data.wx["w-lnew"].hours.length === 7 * 24 && data.wx["w-lnew"].sun[today].set > 16.3,
+    "a lake that is new in today's feed has weather after that same load", Object.keys(data.wx).filter((k) => /^w-/.test(k)).join(","));
+  const wxCalls = calls.filter(isWx);
+  ok(wxCalls.length === 2 && lats(wxCalls[1]).join() === "47.777" && new URL(wxCalls[1]).searchParams.get("longitude") === "-122.777",
+    "it costs one small second call, for the new lake only", wxCalls.map((x) => lats(x).length).join(" then "));
+  ok(lats(wxCalls[0]).indexOf("47.777") === -1 && data.wx["w-lold"] && data.wx.redondo, "the first call was built before the feed answered, and every other spot still has its weather");
+  const saved = JSON.parse(store["rig.wx.v1"] || "null");
+  ok(saved && saved.wx["w-lnew"] && !(saved.missing || []).length, "the saved forecast is whole, so the next three hours are too");
+  const wk = T.plan({ today, wx: data.wx, tides: data.tides, flow: data.flow, waters: data.waters });
+  ok(wk.days.some((d) => d.trips.some((t) => t.planId === "trout-w-lnew" || (t.alts || []).includes("trout-w-lnew"))), "the new lake is on the week",
+    wk.days.map((d) => d.trips.map((t) => t.planId).join("+")).join(" / "));
+  ok(!wk.days.some((d) => /sunset 4:30 PM/.test([d.dark, d.note].join(" "))), "no day falls back to a made-up sunset", wk.days.map((d) => d.dark || "").join(" ~ "));
+
+  // Nothing new: one weather call, as before.
+  calls.length = 0;
+  await T.load(true);
+  ok(calls.filter(isWx).length === 1 && lats(calls.filter(isWx)[0]).indexOf("47.777") !== -1, "when nothing is new there is no second call", calls.filter(isWx).length);
+
+  // The feed is down: the load still answers, from the lakes it already has.
+  feed = null; calls.length = 0;
+  const noFeed = await T.load(true);
+  ok(noFeed.waters === null && noFeed.wx["w-lnew"] && calls.filter(isWx).length === 1, "with the feed down the load still answers");
+
+  // The small call fails: the lake waits, it is not blamed on the sun, and the next open tries again soon.
+  const lakeLate = { geo: "LLATE", name: "Late Lake", wdfw: "LATE LK (PIER)", county: "Pierce", lat: 47.555, lon: -122.555, km: 8, plants: [{ d: isoAdd(today, -1), sp: "Rainbow", n: 400, fpp: 2 }] };
+  T.addWaters({ waters: [{ ...lakeOld, rule: okRule }, { ...lakeNew, rule: okRule }, { ...lakeLate, rule: okRule }] });
+  T.addWaters({ waters: [lakeOld, lakeNew] });
+  feed = { at: now.toISOString(), waters: [lakeOld, lakeNew, lakeLate] }; smallCallFails = true; calls.length = 0;
+  const part = await T.load(true);
+  ok(!part.wx["w-llate"] && part.wx["w-lnew"] && (part.missing || []).join() === "w-llate", "when the small call fails the rest of the forecast still lands, and it says what is missing", JSON.stringify(part.missing));
+  const wkPart = T.plan({ today, wx: part.wx, tides: part.tides, flow: part.flow, waters: part.waters });
+  ok(!wkPart.days.some((d) => /Late Lake|4:30 PM/.test([d.dark, d.note].join(" "))), "a lake still waiting for its forecast is not called dark");
+  calls.length = 0;
+  await T.load();
+  ok(calls.length === 0, "a forecast saved a moment ago is used as it is, even with a lake missing");
+  store["rig.wx.v1"] = JSON.stringify({ ...JSON.parse(store["rig.wx.v1"]), at: Date.now() - 11 * 60e3 });
+  smallCallFails = false; calls.length = 0;
+  const healed = await T.load();
+  ok(calls.filter(isWx).length >= 1 && healed.wx["w-llate"] && !(healed.missing || []).length, "ten minutes on, a forecast with a lake missing is fetched again and comes back whole");
+  store["rig.wx.v1"] = JSON.stringify({ ...JSON.parse(store["rig.wx.v1"]), at: Date.now() - 11 * 60e3 });
+  calls.length = 0;
+  await T.load();
+  ok(calls.length === 0, "a whole forecast is still good for three hours");
+
+  delete ctx.fetch; delete ctx.localStorage;
+  T.addWaters(snap);
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

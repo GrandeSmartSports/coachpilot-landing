@@ -227,12 +227,23 @@
     if (p.odd && day.y % 2 === 0) return null;
     var md = mmdd(day);
     if ((p.closed || []).some(function (r) { return inRange(md, r); })) return null;
+    if (p.spring && md < "04-" + pad(fourthSatApril(day.y))) return null;
     if (stockedRecent(p, day)) return "peak";
     if (p.stockedOnly) { var lp = lastPlant(p, day); return lp && lp.age <= 60 ? "ok" : null; }
     if ((p.peak || []).indexOf(day.m) !== -1) return "peak";
     if ((p.ok || []).indexOf(day.m) !== -1) return "ok";
     return null;
   }
+
+  // Spring-only lakes open on the 4th Saturday in April: the 25th in 2026,
+  // the 24th in 2027. Day of the month, Apr 22 to 28.
+  function fourthSatApril(y) {
+    var first = new Date(Date.UTC(y, 3, 1)).getUTCDay();
+    return 1 + ((6 - first + 7) % 7) + 21;
+  }
+  // Closed for every spring-only lake in every year. season() adds the days
+  // from Apr 22 up to that year's opener.
+  var SPRING_CLOSED = [["11-01", "04-21"]];
 
   // The latest trout plant on or before this day (WDFW stocking, via the
   // CastAI feed), with its age in days. Plants are {d, sp, n, fpp} or "YYYY-MM-DD".
@@ -272,9 +283,12 @@
       if (!stocked.length || w.lat == null) return;
       var r = w.rule || ruleByGeo[w.geo] || { status: "check", why: "Lake rules not checked yet" };
       var id = "w-" + String(w.geo).toLowerCase();
+      // A spring-only lake: the snapshot's own closed dates are a fixed
+      // guess at the opener. season() knows the real day for each year.
+      var spring = r.open === "spring";
       spots.push({ id: id, name: w.name, lat: w.lat, lon: w.lon, drive: Math.round(w.km * 1.05 + 8), gen: true, county: w.county });
       plans.push({ id: "trout-" + id, gen: true, species: "perch", spot: id, name: "Trout at " + w.name,
-        stockedOnly: true, stocked: stocked, closed: r.closed || [], how: "shore", kind: "lake-trout",
+        stockedOnly: true, stocked: stocked, closed: spring ? SPRING_CLOSED : (r.closed || []), spring: spring, how: "shore", kind: "lake-trout",
         rules: r.status === "ok" ? "confirmed" : (r.why || "Lake rules not checked yet"),
         site: { name: w.name, county: w.county, geo: w.geo,
           lines: [w.name + ", " + w.county + " County.", "Trout plants come from WDFW's stocking records, through CastAI, refreshed nightly."],
@@ -308,7 +322,7 @@
       var day = addDays(start, i);
       if (!hasWx(wx, day.iso)) break;
       var out = { iso: day.iso, label: (i === 0 ? "Today" : i === 1 ? "Tomorrow" : DAYS[day.dow]) + " " + MONTHS[day.m - 1] + " " + day.d, trips: [] };
-      var blocked = [], tried = 0, darkCut = [], sunset = 0;
+      var blocked = [], tried = 0, darkCut = [], hoursCut = [], sunset = 0;
       slotsFor(day.dow, day.iso).forEach(function (slot) {
         plans.forEach(function (p) {
           var spot = spotById(p.spot);
@@ -322,8 +336,14 @@
           var t = scoreTrip(p, spot, slot, day, s, wx[spot.id], tides[spot.tide], flow[spot.id]);
           // In season, fine weather, but the sun is down before the slot
           // opens. Worth saying out loud: it is why a stocked lake 10
-          // minutes away never shows on a December weeknight.
-          if (t.darkCut) { darkCut.push(p); sunset = t.sunset; return; }
+          // minutes away never shows on a December weeknight. When there
+          // was daylight left and the spot's own hours cut the window
+          // (Tokul Creek shuts at 5 PM), that is the reason given instead.
+          if (t.darkCut) {
+            if (t.miss) hoursCut.push({ p: p, why: t.miss });
+            else { darkCut.push(p); sunset = t.sunset; }
+            return;
+          }
           if (t.score === 0 && !t.blocked) return;
           tried++;
           if (t.blocked) { t.blocked.name = p.name; blocked.push(t.blocked); return; }
@@ -363,13 +383,21 @@
       }
       // One weeknight window, and it starts after sunset: say so, and name
       // what is sitting there waiting for the weekend.
-      if (darkCut.length && slotsFor(day.dow, day.iso).length === 1) {
+      if ((darkCut.length || hoursCut.length) && slotsFor(day.dow, day.iso).length === 1) {
         // Closest first: the 10 minute lake is the one worth knowing about.
-        var waiting = darkCut.sort(function (a, b) {
-          return (spotById(a.spot) || { drive: 999 }).drive - (spotById(b.spot) || { drive: 999 }).drive;
-        }).map(function (p) { return (p.site && p.site.name) || p.name; });
-        waiting = waiting.filter(function (x, i) { return waiting.indexOf(x) === i; }).slice(0, 2);
-        out.dark = "No daylight after work, sunset " + clock(sunset) + ". Waiting for the weekend: " + waiting.join(", ") + ".";
+        var near = function (a, b) { return (spotById(a.spot) || { drive: 999 }).drive - (spotById(b.spot) || { drive: 999 }).drive; };
+        var called = function (p) { return (p.site && p.site.name) || p.name; };
+        var first2 = function (list) { return list.filter(function (x, i) { return list.indexOf(x) === i; }).slice(0, 2); };
+        var said = [];
+        if (darkCut.length) {
+          said.push("No daylight after work, sunset " + clock(sunset) + ". Waiting for the weekend: " + first2(darkCut.sort(near).map(called)).join(", ") + ".");
+        }
+        if (hoursCut.length) {
+          // "the spot closes at 5:00 PM" becomes "Tokul Creek closes at 5:00 PM".
+          var shut = first2(hoursCut.sort(function (a, b) { return near(a.p, b.p); }).map(function (x) { return called(x.p) + x.why.replace(/^the spot/, ""); }));
+          said.push(shut.join(". ") + (darkCut.length ? "." : ". Waiting for the weekend."));
+        }
+        out.dark = said.join(" ");
         out.note = out.note ? out.note.replace(/[.\s]*$/, "") + ". " + out.dark : out.dark;
       }
       days.push(out);
@@ -411,20 +439,30 @@
   }
 
   function scoreTrip(p, spot, slot, day, s, w, tideList, fl) {
-    var sun = (w && w.sun && w.sun[day.iso]) || { rise: 7.5, set: 16.5 };
+    // No forecast for this spot (a lake that is new in today's feed, before
+    // its weather lands): no trip, and no guess at its sunset either.
+    if (!w) return { score: 0 };
+    var sun = (w.sun && w.sun[day.iso]) || { rise: 7.5, set: 16.5 };
     var from = slot.from, to = slot.to, need = slot.min || 1.5;
     // Daylight fishing ends at sunset. Dark fishing starts at full dark.
     if (p.dark) from = Math.max(from, sun.set + 0.6);
     else { from = Math.max(from, sun.rise, p.opens || 0); to = Math.min(to, sun.set, p.closes || 24); }
     var dig = p.digs && p.digs[day.iso];
     // Why the asked window leaves nothing to fish, in words, or "" when it is
-    // the sun. Only detail() reads it. The week drops the trip, or names it
-    // in its no-daylight note, as before.
+    // the sun. detail() answers with it. The week uses it to tell a spot's
+    // own hours from darkness in its weeknight note.
     function miss() {
       if (dig) return "the dig is around the " + clock(dig.low) + " low";
       if (p.dark) return "this one fishes after dark, from " + clock(sun.set + 0.6);
-      if (Math.min(slot.to, sun.set) - Math.max(slot.from, sun.rise) < need) return "";
-      return "the spot " + [p.opens && "opens at " + clock(p.opens), p.closes && "closes at " + clock(p.closes)].filter(Boolean).join(" and ");
+      var light = [Math.max(slot.from, sun.rise), Math.min(slot.to, sun.set)];
+      if (light[1] - light[0] < need) return "";
+      // Name the hour that cut into the daylight that was asked for: the one
+      // that leaves too little on its own, or both when it takes both.
+      var opensLate = p.opens > light[0], shutsEarly = p.closes < light[1];
+      var openAlone = opensLate && light[1] - p.opens < need, shutAlone = shutsEarly && p.closes - light[0] < need;
+      var hours = [opensLate && (openAlone || !shutAlone) ? "opens at " + clock(p.opens) : "",
+        shutsEarly && (shutAlone || !openAlone) ? "closes at " + clock(p.closes) : ""].filter(Boolean);
+      return hours.length ? "the spot " + hours.join(" and ") : "";
     }
     if (dig) {
       // WDFW: the best digging is 1 to 2 hours before the low.
@@ -433,15 +471,17 @@
     // An incoming-tide fish gets the incoming tide, or no trip. The window
     // shrinks to the stretch of flood that fits inside the slot and daylight.
     if (p.tide === "flood") {
-      var fl = (tideList || []).filter(function (x) { return x.t.slice(0, 10) === day.iso; }), best = null;
-      for (var q = 1; q < fl.length; q++) {
-        if (fl[q].type !== "H") continue;
-        var a0 = Math.max(from, hourOf(fl[q - 1].t)), b0 = Math.min(to, hourOf(fl[q].t) + 0.5);
+      // (Not "fl": that name is the river flow handed in above, and a var
+      // here would overwrite it before the river check below reads it.)
+      var turns = (tideList || []).filter(function (x) { return x.t.slice(0, 10) === day.iso; }), best = null;
+      for (var q = 1; q < turns.length; q++) {
+        if (turns[q].type !== "H") continue;
+        var a0 = Math.max(from, hourOf(turns[q - 1].t)), b0 = Math.min(to, hourOf(turns[q].t) + 0.5);
         if (b0 - a0 > (best ? best[1] - best[0] : 0)) best = [a0, b0];
       }
       if (!best || best[1] - best[0] < need) {
         if (to - from < need) return { score: 0, sunset: sun.set, miss: miss() };
-        return { score: 0, miss: fl.length ? "no incoming tide in that window" : "" };
+        return { score: 0, miss: turns.length ? "no incoming tide in that window" : "" };
       }
       from = best[0]; to = best[1];
     }
@@ -554,15 +594,22 @@
   // one NOAA call per tide station. Cached so the pier with no signal still
   // shows the last plan, with its age.
   var CACHE_KEY = "rig.wx.v1";
+  // The weather call for a list of spots. The answer comes back in the same order.
+  function wxUrl(list) {
+    return "https://api.open-meteo.com/v1/forecast?latitude=" + list.map(function (s) { return s.lat; }).join(",") +
+      "&longitude=" + list.map(function (s) { return s.lon; }).join(",") +
+      "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
+      "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7";
+  }
   function urls(today, end) {
-    var la = spots.map(function (s) { return s.lat; }).join(","), lo = spots.map(function (s) { return s.lon; }).join(",");
     var ms = spots.filter(function (s) { return s.marine; });
     var stations = spots.map(function (s) { return s.tide; }).filter(function (t, i, a) { return t && a.indexOf(t) === i; });
     var b = today.replace(/-/g, ""), e = end.replace(/-/g, "");
     return {
-      wx: "https://api.open-meteo.com/v1/forecast?latitude=" + la + "&longitude=" + lo +
-        "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
-        "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7",
+      wx: wxUrl(spots),
+      // The spots that call asked for, in order. The lake list can change
+      // before the answer lands, so shape() goes by this, not by the list then.
+      wxSpots: spots.map(function (s) { return s.id; }),
       marine: "https://marine-api.open-meteo.com/v1/marine?latitude=" + ms.map(function (s) { return s.lat; }).join(",") +
         "&longitude=" + ms.map(function (s) { return s.lon; }).join(",") +
         "&hourly=wave_height&length_unit=imperial&timezone=America%2FLos_Angeles&forecast_days=7",
@@ -578,14 +625,16 @@
     };
   }
   function toHour(iso) { var m = /T(\d\d):(\d\d)/.exec(iso); return +m[1] + m[2] / 60; }
-  function shape(wxJson, marineJson, marineSpots, tideJson) {
+  // wxSpots: the spot ids the weather call asked for (urls().wxSpots). Left
+  // out, the answer is matched to the spot list as it stands.
+  function shape(wxJson, marineJson, marineSpots, tideJson, wxSpots) {
     var wx = {};
     var list = Array.isArray(wxJson) ? wxJson : [wxJson];
-    spots.forEach(function (s, i) {
+    (wxSpots || spots.map(function (s) { return s.id; })).forEach(function (id, i) {
       var r = list[i]; if (!r || !r.hourly) return;
       var H = r.hourly, sun = {};
       (r.daily.time || []).forEach(function (d, j) { sun[d] = { rise: toHour(r.daily.sunrise[j]), set: toHour(r.daily.sunset[j]) }; });
-      wx[s.id] = { sun: sun, hours: H.time.map(function (t, j) {
+      wx[id] = { sun: sun, hours: H.time.map(function (t, j) {
         return { t: t, temp: H.temperature_2m[j], rain: H.precipitation[j], wind: H.wind_speed_10m[j], gust: H.wind_gusts_10m[j],
           clouds: H.cloud_cover ? H.cloud_cover[j] : null };
       }) };
@@ -631,7 +680,10 @@
   function load(force) {
     var c = cached();
     var now = new Date();
-    if (!force && c && Date.now() - c.at < 3 * 3600e3 && c.today === localIso(now)) return Promise.resolve(c);
+    // Good for three hours. A forecast that is missing a spot's weather is
+    // only good for ten minutes, so the next open asks again.
+    var life = c && c.missing && c.missing.length ? 10 * 60e3 : 3 * 3600e3;
+    if (!force && c && Date.now() - c.at < life && c.today === localIso(now)) return Promise.resolve(c);
     var today = localIso(now), end = localIso(new Date(now.getTime() + 7 * 864e5));
     var u = urls(today, end);
     // Every call gives up after 12 seconds. One stalled server on a weak
@@ -655,16 +707,31 @@
     })).concat(u.flow.map(function (f) { return j(f.url).catch(function () { return null; }); }))
       .concat([j(u.waters).catch(function () { return null; })])).then(function (res) {
       var tj = {}; u.tides.forEach(function (t, i) { tj[t.id] = res[2 + i]; });
-      var data = shape(res[0], res[1], u.marineSpots, tj);
+      var data = shape(res[0], res[1], u.marineSpots, tj, u.wxSpots);
       var flow = {}; u.flow.forEach(function (f, i) { var r = res[2 + nt + i]; if (r) flow[f.spot] = shapeFlow(r); });
       var wl = res[res.length - 1];
       var waters = wl && wl.waters ? { at: wl.at, waters: wl.waters.map(function (w) {
         return { geo: w.geo, name: w.name, county: w.county, lat: w.lat, lon: w.lon, km: w.km,
           plants: (w.plants || []).filter(function (x) { return x.fpp != null && x.fpp <= 6; }) };
       }) } : null;
-      var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides, flow: flow, waters: waters };
-      try { root.localStorage.setItem(CACHE_KEY, JSON.stringify(out)); } catch (e) { /* full storage: still show it */ }
-      return out;
+      function done() {
+        var missing = spots.filter(function (s) { return !data.wx[s.id]; }).map(function (s) { return s.id; });
+        var out = { at: Date.now(), today: today, wx: data.wx, tides: data.tides, flow: flow, waters: waters };
+        if (missing.length) out.missing = missing;
+        try { root.localStorage.setItem(CACHE_KEY, JSON.stringify(out)); } catch (e) { /* full storage: still show it */ }
+        return out;
+      }
+      // The weather call above was built before the feed answered, from the
+      // lake list as it stood (often yesterday's, off the saved forecast). A
+      // lake that is new today is not in it. Take the feed now, and ask for
+      // the weather of just the spots that came back without any.
+      if (waters) addWaters(waters);
+      var late = spots.filter(function (s) { return !data.wx[s.id]; });
+      if (!late.length) return done();
+      return jRetry(wxUrl(late)).then(function (more) {
+        var got = shape(more, null, [], {}, late.map(function (s) { return s.id; })).wx;
+        Object.keys(got).forEach(function (id) { data.wx[id] = got[id]; });
+      }, function () { /* those spots wait: scoreTrip lists none without weather, and the saved copy is short-lived */ }).then(done);
     }).catch(function (e) {
       if (c) { c.stale = true; return c; }
       throw e;
