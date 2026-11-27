@@ -12,10 +12,10 @@
 // count. Text inside the rig drawings (.dia) and on map tiles is left out.
 // Nothing here reaches a real server.
 import { chromium } from "@playwright/test";
-import { inflateSync } from "node:zlib";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { startServer } from "./helpers/rigs-server.mjs";
+import { NOW, SKIES, fake, unreadable } from "./helpers/rigs-look-kit.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PORT = 8807;
@@ -26,124 +26,6 @@ const ok = (c, m, extra) => {
 };
 const watchdog = setTimeout(() => { console.log("FAIL watchdog\n\n0 passed, 1 failed"); process.exit(1); }, 240000);
 watchdog.unref?.();
-
-const pad = (n) => String(n).padStart(2, "0");
-const NOW = new Date("2026-11-23T12:00:00-08:00"); // a Monday, noon
-const DAYS = ["2026-11-23", "2026-11-24", "2026-11-25", "2026-11-26", "2026-11-27", "2026-11-28", "2026-11-29"];
-const SKIES = ["night", "firstLight", "dawn", "overcast", "rain", "bright", "golden", "dusk"];
-const CORS = { "access-control-allow-origin": "*" };
-const json = (r, status, body) => r.fulfill({ status, contentType: "application/json", headers: CORS, body: JSON.stringify(body) });
-function wxPoint() {
-  const time = [], t = [], p = [], w = [], g = [], c = [];
-  for (const d of DAYS) for (let h = 0; h < 24; h++) {
-    time.push(`${d}T${pad(h)}:00`); t.push(45); p.push(0); c.push(90);
-    const bad = d === "2026-11-25";
-    w.push(bad ? 28 : 4); g.push(bad ? 42 : 8);
-  }
-  return { hourly: { time, temperature_2m: t, precipitation: p, wind_speed_10m: w, wind_gusts_10m: g, cloud_cover: c },
-    daily: { time: DAYS, sunrise: DAYS.map((d) => `${d}T07:31`), sunset: DAYS.map((d) => `${d}T16:24`) } };
-}
-function marine() {
-  const time = [], wave = [];
-  for (const d of DAYS) for (let h = 0; h < 24; h++) { time.push(`${d}T${pad(h)}:00`); wave.push(4); }
-  return { hourly: { time, wave_height: wave } };
-}
-const tides = { predictions: DAYS.flatMap((d) => [
-  { t: `${d} 04:30`, v: "11.0", type: "H" }, { t: `${d} 11:00`, v: "2.0", type: "L" },
-  { t: `${d} 17:15`, v: "12.0", type: "H" }, { t: `${d} 21:00`, v: "-0.5", type: "L" }]) };
-async function fake(ctx) {
-  await ctx.route(/castai-waters/, (r) => r.abort());
-  await ctx.route(/castai-rules/, (r) => json(r, 200, { checked: NOW.toISOString(), rules: [] }));
-  await ctx.route(/api\.water\.noaa\.gov/, (r) => json(r, 200, { observed: { data: [{ validTime: "2026-11-23T19:00:00Z", primary: 0.41 }] },
-    forecast: { data: DAYS.map((d) => ({ validTime: `${d}T20:00:00Z`, primary: 0.4 })) } }));
-  await ctx.route(/api\.open-meteo\.com|marine-api\.open-meteo\.com|api\.tidesandcurrents\.noaa\.gov/, (route) => {
-    const u = route.request().url(), n = (new URL(u).searchParams.get("latitude") || "").split(",").length;
-    return json(route, 200, /marine-api/.test(u) ? Array.from({ length: n }, marine) : /open-meteo/.test(u) ? Array.from({ length: n }, wxPoint) : tides);
-  });
-}
-
-// ---- a PNG, down to its pixels (8 bit RGB or RGBA, which is what a
-// screenshot is) ---------------------------------------------------------
-function decodePng(buf) {
-  let p = 8, w = 0, h = 0, type = 0;
-  const idat = [];
-  while (p < buf.length) {
-    const len = buf.readUInt32BE(p), kind = buf.toString("ascii", p + 4, p + 8), body = buf.subarray(p + 8, p + 8 + len);
-    if (kind === "IHDR") { w = body.readUInt32BE(0); h = body.readUInt32BE(4); type = body[9]; if (body[8] !== 8 || (type !== 2 && type !== 6)) throw new Error("png kind " + body[8] + "/" + type); }
-    if (kind === "IDAT") idat.push(body);
-    p += 12 + len;
-  }
-  const bpp = type === 6 ? 4 : 3, row = w * bpp, raw = inflateSync(Buffer.concat(idat)), px = Buffer.alloc(row * h);
-  for (let y = 0; y < h; y++) {
-    const f = raw[y * (row + 1)], src = y * (row + 1) + 1, dst = y * row;
-    for (let x = 0; x < row; x++) {
-      const a = x >= bpp ? px[dst + x - bpp] : 0, b = y ? px[dst + x - row] : 0, c = x >= bpp && y ? px[dst + x - row - bpp] : 0;
-      let v = raw[src + x];
-      if (f === 1) v += a; else if (f === 2) v += b; else if (f === 3) v += (a + b) >> 1;
-      else if (f === 4) { const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c); v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c; }
-      px[dst + x] = v & 255;
-    }
-  }
-  return { w, h, bpp, px };
-}
-const lin = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
-const lum = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
-const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
-
-// Every piece of text on the screen, with its colour, against what is
-// painted behind it. Returns the ones that cannot be read. within: a
-// selector, to check only the text inside those parts.
-async function unreadable(page, within) {
-  // The whole page in view, so nothing pinned sits on top of something else.
-  const tall = await page.evaluate(() => document.documentElement.scrollHeight);
-  await page.setViewportSize({ width: 390, height: Math.max(844, tall) });
-  await page.waitForTimeout(120);
-  const texts = await page.evaluate((within) => {
-    const out = [], app = document.getElementById("app");
-    // A computed colour can come back as rgb(), rgba() or color(srgb ...).
-    // Painting one pixel with it gives the same four numbers every time.
-    const cx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
-    const rgba = (c) => { cx.clearRect(0, 0, 1, 1); cx.fillStyle = "#000"; cx.fillStyle = c; cx.fillRect(0, 0, 1, 1); const d = cx.getImageData(0, 0, 1, 1).data; return [d[0], d[1], d[2], d[3] / 255]; };
-    const walk = document.createTreeWalker(app, NodeFilter.SHOW_TEXT);
-    for (let n = walk.nextNode(); n; n = walk.nextNode()) {
-      if (!n.nodeValue.trim()) continue;
-      const el = n.parentElement;
-      if (!el || el.closest(".dia, .tyer, .leaflet-container, svg, [hidden], .vh, option")) continue;
-      if (within && !el.closest(within)) continue;
-      const cs = getComputedStyle(el);
-      if (cs.visibility === "hidden" || cs.display === "none") continue;
-      let alpha = 1;
-      for (let e = el; e && e !== document.documentElement; e = e.parentElement) alpha *= parseFloat(getComputedStyle(e).opacity);
-      const m = rgba(cs.color);
-      const r = document.createRange(); r.selectNodeContents(n);
-      for (const b of r.getClientRects()) {
-        if (b.width < 3 || b.height < 3) continue;
-        // Covered by something else (a pinned bar): not what is on screen here.
-        const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
-        if (!hit || !(el === hit || el.contains(hit) || hit.contains(el))) continue;
-        out.push({ t: n.nodeValue.trim().slice(0, 28), x: b.left, y: b.top, w: b.width, h: b.height, c: m.slice(0, 3), a: m[3] * alpha,
-          px: parseFloat(cs.fontSize), cls: (el.className && String(el.className).slice(0, 30)) || el.tagName });
-      }
-    }
-    return out;
-  }, within || "");
-  // The same screen with its words taken out: what is left is what they sit on.
-  const style = await page.addStyleTag({ content: "#app *{color:transparent!important;text-shadow:none!important}#app input::placeholder{color:transparent!important}" });
-  const img = decodePng(await page.screenshot());
-  await style.evaluate((n) => n.remove());
-  await page.setViewportSize({ width: 390, height: 844 });
-  const k = img.w / 390, bad = [];
-  for (const t of texts) {
-    const x0 = Math.max(0, Math.floor(t.x * k)), x1 = Math.min(img.w, Math.ceil((t.x + t.w) * k)), y0 = Math.max(0, Math.floor(t.y * k)), y1 = Math.min(img.h, Math.ceil((t.y + t.h) * k));
-    if (x1 <= x0 || y1 <= y0) continue;
-    let r = 0, g = 0, b = 0, n = 0;
-    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) { const i = (y * img.w + x) * img.bpp; r += img.px[i]; g += img.px[i + 1]; b += img.px[i + 2]; n++; }
-    const bg = [r / n, g / n, b / n], ink = t.c.map((v, i) => v * t.a + bg[i] * (1 - t.a));
-    const got = ratio(ink, bg), need = t.px >= 24 ? 3 : 4.5;
-    if (got < need) bad.push(`"${t.t}" ${got.toFixed(2)} < ${need} (${Math.round(t.px)}px .${t.cls})`);
-  }
-  return { n: texts.length, bad };
-}
 
 const server = await startServer(ROOT, PORT);
 let browser;
@@ -196,16 +78,19 @@ try {
     ok(await page.locator("[data-call] .tile svg").count() === 1, id + ": and so does the call");
     const days = await page.evaluate(() => [...document.querySelectorAll("[data-day]")].map((d) => {
       const r = d.querySelector("h2 .ribbon");
-      return { iso: d.dataset.day, ribbon: !!r && /gradient/.test(r.style.background), beads: r ? r.querySelectorAll("b").length : -1, trips: d.querySelectorAll("[data-hot]").length, w: r ? r.getBoundingClientRect().width : 0 };
+      // A bead stands for one trip, or carries the count of the trips it stands for.
+      return { iso: d.dataset.day, ribbon: !!r && /gradient/.test(r.style.background), beads: r ? [...r.querySelectorAll("b")].reduce((a, b) => a + (+b.dataset.n || 0), 0) : -1, trips: d.querySelectorAll("[data-hot]").length, w: r ? r.getBoundingClientRect().width : 0 };
     }));
-    ok(days.length === 7 && days.every((d) => d.ribbon && d.w > 60 && d.beads === d.trips), id + ": every day has its ribbon of light, a bead for each trip", days.filter((d) => !(d.ribbon && d.beads === d.trips)));
-    // Trips that start at the same hour do not hide behind one bead.
+    ok(days.length === 7 && days.every((d) => d.ribbon && d.w > 60 && d.beads === d.trips), id + ": every day has its ribbon of light, with every trip counted on it", days.filter((d) => !(d.ribbon && d.beads === d.trips)));
+    // Trips that start close together do not pile into a chain: they share
+    // one bead that says how many. No two beads touch, and none leaves the ribbon.
     const stacked = await page.evaluate(() => [...document.querySelectorAll("[data-day] h2 .ribbon")].map((r) => {
-      const x = [...r.querySelectorAll("b")].map((b) => b.getBoundingClientRect().left).sort((a, b) => a - b), box = r.getBoundingClientRect();
-      const gaps = x.slice(1).map((v, i) => v - x[i]);
-      return { n: x.length, min: gaps.length ? Math.min(...gaps) : 99, inside: x.every((v) => v >= box.left - 1 && v + 7 <= box.right + 1) };
+      const bs = [...r.querySelectorAll("b")].map((b) => ({ r: b.getBoundingClientRect(), n: +b.dataset.n, t: b.textContent.trim() })).sort((a, b) => a.r.left - b.r.left), box = r.getBoundingClientRect();
+      const gaps = bs.slice(1).map((b, i) => b.r.left - bs[i].r.right);
+      return { n: bs.length, most: Math.max(0, ...bs.map((b) => b.n)), min: gaps.length ? Math.min(...gaps) : 99, inside: bs.every((b) => b.r.left >= box.left - 1 && b.r.right <= box.right + 1),
+        said: bs.every((b) => (b.n > 1 ? b.t === String(b.n) && b.r.width >= 13 : b.t === "")) };
     }));
-    ok(stacked.some((r) => r.n >= 4) && stacked.every((r) => r.min >= 4 && r.inside), id + ": beads that share an hour fan out, so every one can be counted, and none leaves the ribbon", stacked);
+    ok(stacked.some((r) => r.most >= 3) && stacked.every((r) => r.min >= 2 && r.inside && r.said), id + ": trips that share an hour share one bead with their count, no two beads touch, and none leaves the ribbon", stacked);
     ok(await page.locator(".dock [data-tab]").count() === 4 && await page.locator(".dock [data-skymode] .skytok").count() === 1, id + ": the dock is there: four tabs and the sky button");
     ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 390, id + ": Hot Trips fits the phone");
 
@@ -316,8 +201,9 @@ try {
   const phoneLook = await page.evaluate(() => { const cs = getComputedStyle(document.getElementById("scene")); return (cs.maskImage || cs.webkitMaskImage || "none") === "none" && getComputedStyle(document.documentElement).backgroundImage === "none"; });
   ok(phoneLook, "and on a phone it is edge to edge, untouched");
 
-  // A title under a filter row sits low in the sky. It and the dock can be
-  // read under every sky too (the rest of those screens is a later stage).
+  // A screen with a filter row under its tabs stands its picture lower, so
+  // the title keeps its place in the sky. It and the dock can be read under
+  // every sky (the whole of those screens is in rigs-look-library.smoke.mjs).
   for (const id of SKIES) {
     const bad = [];
     for (const hash of ["#/water", "#/fish", "#/learn", "#/coho"]) {

@@ -15,7 +15,7 @@
    Parts, in order: tokens, base, shell, dock, hero, chips, surfaces, tags,
    people, stamp, day heading and ribbon, lists and rows, thumbnail, the call,
    plan and timeline, tiles, rules row, conditions, section heading, answers,
-   badge, checklist, main action. */
+   badge, checklist, main action, picture tiles, plates, notes in a card. */
 
 @font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format("woff2")}
 @font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:600;font-display:swap;src:url(/rigs/fonts/barlow-condensed-600.woff2) format("woff2")}
@@ -61,6 +61,10 @@
        var(--shx) var(--shy) 30px -12px color-mix(in srgb,var(--shade) 38%,transparent),
        calc(var(--shx)*2) 30px 60px -30px color-mix(in srgb,var(--shade) 34%,transparent);
   --sw:min(100vw,430px);
+  /* how tall the picture stands, and where the first card meets it, in 390ths
+     of the screen's width. A screen with a filter row under its tabs lifts
+     both by that row (data-lift); a quiet band is a shorter picture. */
+  --sceneh:330;--cardy:268;--lift:0px;
   --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.7 -0.5'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
 }
 :root[data-dark="1"]{
@@ -77,6 +81,8 @@
        var(--shx) var(--shy) 34px -10px var(--shore),
        0 0 0 1px color-mix(in srgb,var(--ink) 5%,transparent);
 }
+:root[data-lift]{--lift:52px}
+:root[data-band="quiet"]{--sceneh:262;--cardy:204}
 :root[data-sky="night"]{--hz:color-mix(in oklab,var(--sky2) 76%,var(--ink2));--shx:-3px}
 :root[data-sky="firstLight"]{--shx:4px}
 :root[data-sky="dawn"]{--shx:5px;--shy:16px}
@@ -145,8 +151,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .dock .jump .chip:not([aria-current="true"]){background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* ================= the hero: the title sits in the sky ================= */
-.hero{min-height:calc(var(--sw)*268/390 - 70px - var(--jumph,0px));padding:10px 4px 0;display:flex;flex-direction:column;align-items:flex-start}
-.dock:has(.jump)~* .hero{--jumph:44px}
+.hero{min-height:calc(var(--sw)*var(--cardy)/390 - 70px - var(--jumph,0px) + var(--lift));padding:10px 4px 0;display:flex;flex-direction:column;align-items:flex-start}
+:root[data-lift] .hero{--jumph:44px}
 /* The title's shadow is the sky's own air, in up to three parts: a thin dark
    edge under a pale title by day, a close halo when the title sits low, and
    a wide soft one always. */
@@ -156,13 +162,6 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;ba
 .hero h1.long{font-size:37px;line-height:1}
 .hero h1.xl{font-size:30px;line-height:1.02}
 :root[data-title="pale"] .hero h1{--title-edge:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent)}
-/* Under a filter row the title sits down in the air near the horizon. That
-   air can be the pale side of the sky when the top is the dark side (dawn),
-   so the title takes the tone that reads there (set by RIG.water.dress), and
-   a closer halo of that air keeps it clear of the firs. */
-.dock:has(.jump)~* .hero h1{color:var(--sky-ink-low,var(--sky-ink,var(--ink)));--halo:var(--sky-halo-low,var(--sky-halo,var(--sky1)));
-  --title-edge:0 0 0 transparent;--title-near:0 0 7px color-mix(in srgb,var(--halo) 92%,transparent)}
-:root[data-title-low="pale"] .dock:has(.jump)~* .hero h1{--title-edge:0 1px 3px color-mix(in srgb,var(--shore) 50%,transparent)}
 .chips{display:flex;flex-wrap:wrap;align-items:center;align-self:stretch;gap:6px;margin:10px 0 0;padding:0}
 .chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:28px;max-width:100%;padding:4px 11px;border:0;border-radius:999px;
   background:var(--glass);-webkit-backdrop-filter:blur(12px) saturate(1.4);backdrop-filter:blur(12px) saturate(1.4);
@@ -275,12 +274,16 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .day>h2 span{font-weight:600;font-size:16px;letter-spacing:.08em;color:var(--t2);white-space:nowrap}
 /* the day as a ribbon of its own light, five in the morning to eleven at
    night, with a bead where each trip starts: gold if it is hot */
-.ribbon{position:relative;flex:0 1 96px;min-width:56px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
+.ribbon{position:relative;flex:0 1 96px;min-width:76px;height:11px;margin-left:auto;align-self:center;border-radius:6px;text-decoration:none;
   box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shore) 40%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 55%,transparent)}
 .ribbon b{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--paper);
   box-shadow:0 0 0 1.2px var(--ink),0 1px 2px color-mix(in srgb,var(--shade) 50%,transparent)}
 :root[data-dark="1"] .ribbon b{background:var(--ink);box-shadow:0 0 0 1.2px var(--bg)}
 .ribbon b.h,:root[data-dark="1"] .ribbon b.h{z-index:1;background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
+/* trips that start within the same hour or so share one bead, with their count */
+.ribbon b.n{z-index:2;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;display:grid;place-items:center;font:700 10.5px/1 "Barlow Condensed",sans-serif;letter-spacing:0;color:var(--ink)}
+:root[data-dark="1"] .ribbon b.n{color:var(--paper)}
+.ribbon b.n.h,:root[data-dark="1"] .ribbon b.n.h{color:var(--on-gold)}
 .ribbon+i{margin-left:10px!important}
 .day>h2 i{margin-left:auto;font:600 12.5px/1 Inter,sans-serif;font-style:normal;letter-spacing:0;text-transform:none;color:var(--t3);white-space:nowrap}
 .day>.well+.panel,.day>.panel+.well{margin-top:10px}
@@ -299,6 +302,15 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .trip+.trip::before,.row+.row::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
 .row+.row::before{left:16px}
 .trip:active,.row:active{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+/* a row that leads with a picture: a small painting, or a fish */
+.row.pic{padding-left:12px}
+.row.pic+.row.pic::before{left:72px}
+.fishtile{flex:0 0 78px;width:78px;display:grid;place-items:center}
+.fishtile+.tx{margin-left:-2px}
+@media (max-width:379px){.fishtile{flex-basis:60px;width:60px}}
+.row.pic:has(.fishtile)+.row.pic::before{left:100px}
+/* a third, smaller line: what is there */
+.tx>span.rm{margin-top:3px;font-size:12.5px;font-weight:600;color:var(--t2)}
 /* the small painting: this trip's own water under its own hour */
 .tile{flex:0 0 48px;width:48px;height:48px;border-radius:13px;overflow:hidden;position:relative;
   box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 16%,transparent),var(--shx) 5px 9px -5px color-mix(in srgb,var(--shade) 55%,transparent)}
@@ -359,6 +371,14 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .tide .t-win{fill:color-mix(in srgb,var(--gold) 26%,transparent)}
 :root[data-dark="1"] .tide .t-fill{fill:color-mix(in oklab,var(--water1) 55%,var(--ink2));opacity:.5}
 :root[data-dark="1"] .tide .t-line{stroke:var(--ink2)}
+/* wind through the trip, for water with no tide: a bar an hour, the gusts paler above */
+.windbars .t-base{stroke:var(--t3);stroke-width:1;opacity:.5}
+.windbars .t-grid{stroke:var(--t3);stroke-width:1;stroke-dasharray:2 3;opacity:.55}
+.windbars .w-g{fill:color-mix(in oklab,var(--water1) 34%,var(--paper))}
+.windbars .w-w{fill:color-mix(in oklab,var(--water2) 72%,var(--ink))}
+.windbars .w-w.wet{fill:color-mix(in oklab,var(--accent) 70%,var(--water2))}
+:root[data-dark="1"] .windbars .w-g{fill:color-mix(in oklab,var(--water1) 45%,var(--ink2));opacity:.55}
+:root[data-dark="1"] .windbars .w-w{fill:var(--ink2)}
 .duo+.panel{margin-top:12px}
 
 /* ================= the rules row: a red edge ================= */
@@ -404,7 +424,8 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .noterow .row{min-height:60px}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 8px;border-radius:999px;font-size:12.5px;font-weight:650;
   background:color-mix(in srgb,var(--accent) 10%,var(--paper));color:var(--accent)}
-.badge svg{width:14px;height:14px}
+.badge svg{flex:0 0 auto;width:14px;height:14px}
+.row>.badge{flex:0 0 auto;white-space:nowrap}
 
 /* ================= the checklist ================= */
 .check{position:relative;display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 14px 10px 14px}
@@ -451,3 +472,83 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 /* the same light, smaller: the one button inside a card */
 .gold.sm{width:auto;min-height:44px;padding:6px 16px 6px 18px;border-radius:14px;font-size:17px;gap:8px}
 .gold.sm svg{width:8px;height:14px}
+
+/* ================= picture tiles: a painting over a name ================= */
+.ptiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ptile{position:relative;display:flex;flex-direction:column;overflow:hidden;width:100%;padding:0;border:0;border-radius:20px;cursor:pointer;text-align:left;
+  font:inherit;color:var(--t1);background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+.ptile:active{transform:translateY(1px)}
+.ptile.wide{grid-column:1/-1}
+/* the one that crosses the waterline stands higher than the rest */
+.ptile.float{border-radius:22px;-webkit-backdrop-filter:none;backdrop-filter:none;
+  box-shadow:var(--e2),inset 0 1px 0 var(--rim),inset 0 0 0 1px color-mix(in srgb,var(--lum) 26%,transparent)}
+.ptile .pic{position:relative;display:block;height:calc(var(--sw)*98/390);overflow:hidden;
+  background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 50%,var(--r3) 50% 55%,var(--water1) 55%,var(--water2) 100%)}
+.ptile.wide .pic{height:calc(var(--sw)*132/390)}
+.ptile .pic svg{display:block;width:100%;height:100%}
+/* the painting is set into the card: a lit lip above, a shade where it meets the paper */
+.ptile .pic::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 34%,transparent),inset 0 -7px 9px -8px color-mix(in srgb,var(--shade) 60%,transparent)}
+.ptile .cap{display:flex;flex-direction:column;gap:5px;padding:10px 13px 12px 14px}
+.ptile.wide .cap{flex-direction:row;align-items:baseline;justify-content:space-between;gap:8px}
+.ptile .nm{display:block;font:700 21px/1 "Barlow Condensed",sans-serif;letter-spacing:.045em;text-transform:uppercase;color:var(--t1)}
+.ptile.wide .nm{font-size:25px}
+.ptile .meta{display:block;font:600 12.5px/1.2 Inter,system-ui,sans-serif;color:var(--t3);white-space:nowrap}
+@media (max-width:379px){.ptile .nm{font-size:19px;letter-spacing:.03em}}
+/* a thing drawn on the bench instead of a place: it lies on a wash */
+.ptile .pic.bench{display:grid;place-items:center;padding:8px 12px;
+  background:radial-gradient(ellipse 50% 48% at 50% 52%,color-mix(in oklab,var(--wash-c,var(--water1)) 56%,transparent),transparent)}
+:root[data-dark="1"] .ptile .pic.bench{background:radial-gradient(ellipse 50% 48% at 50% 52%,color-mix(in oklab,var(--gold) 15%,transparent),transparent)}
+.ptile .pic.bench svg{height:auto}
+
+/* ================= plates: an animal laid on a wash of its own water ================= */
+.wash-river{--wash-c:color-mix(in oklab,color-mix(in oklab,var(--shore) 46%,var(--gold)) 46%,var(--water1))}
+.wash-salt{--wash-c:var(--water1)}
+.wash-lake{--wash-c:color-mix(in oklab,var(--sky1) 60%,var(--water1))}
+.wash-sand{--wash-c:color-mix(in oklab,var(--gold) 62%,var(--water1))}
+.ptile .art{position:relative;display:grid;place-items:center;height:calc(var(--sw)*96/390);padding:12px 12px 4px;
+  background:radial-gradient(ellipse 50% 47% at 50% 55%,color-mix(in oklab,var(--wash-c,var(--water1)) 60%,transparent),transparent)}
+.ptile .art svg{max-height:100%}
+:root[data-dark="1"] .ptile .art,:root[data-dark="1"] .platecard .art{
+  background:radial-gradient(ellipse 50% 47% at 50% 55%,color-mix(in oklab,var(--gold) 15%,transparent),transparent)}
+.ptile .body{display:block;padding:4px 14px 13px}
+.ptile .sub{display:block;margin-top:5px;font-size:12.5px;line-height:1.4;color:var(--t3)}
+.ptile .body .meta{margin-top:8px;color:var(--accent)}
+/* a wide plate tile: the words beside the animal, not under it */
+.ptile.side{flex-direction:row;align-items:center}
+.ptile.side .art{order:2;flex:1 1 58%;height:calc(var(--sw)*124/390);padding:12px 12px 12px 0}
+.ptile.side .body{flex:1 1 42%;padding:14px 4px 14px 16px}
+.ptile.side .nm{font-size:27px}
+/* the plate on a fish's own page: the drawing rides up over the card's lip */
+.platecard{padding:0 16px 14px}
+.platecard .art{display:block;margin:0 -8px;padding:6px 0 2px;transform:translateY(calc(var(--sw)*-24/390));margin-bottom:calc(var(--sw)*-24/390);
+  background:radial-gradient(ellipse 50% 48% at 50% 56%,color-mix(in oklab,var(--wash-c,var(--water1)) 58%,transparent),transparent)}
+.platecard .names{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;margin:6px 0 0}
+.platecard .names b{font:700 24px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.01em;color:var(--t1)}
+.platecard .names i{font:italic 500 13.5px/1.3 Inter,system-ui,sans-serif;color:var(--t3)}
+.platecard .hint{margin:5px 0 0;font-size:14px;line-height:1.45;color:var(--t2)}
+.platecard .meta{font-weight:600;color:var(--accent);white-space:nowrap}
+
+/* ================= notes in a card ================= */
+/* A plain note is a heading and its words under a hairline. The three that
+   mean something are surfaces of their own: .law is pressed in with the red
+   edge of a rule, .tip is the green of something that helps, .red is an alarm. */
+.box{position:relative;margin:16px 0 0;padding:13px 0 0;border-top:1px solid var(--edge);font-size:14.5px;line-height:1.5;color:var(--t2)}
+.box>b:first-child{display:block;margin-bottom:5px;font:700 13.5px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--t1)}
+.box strong{font-weight:680;color:var(--t1)}
+.box a{text-decoration:underline;text-underline-offset:2px}
+.box.law,.box.red,.box.tip{padding:12px 14px 13px;border-top:0;border-radius:14px}
+.box.law{padding-left:18px;overflow:hidden;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .box.law{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
+.box.law::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--no)}
+.box.law>b:first-child{color:var(--no)}
+.box.red{background:color-mix(in srgb,var(--no) 10%,var(--pan-a));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--no) 30%,transparent)}
+.box.tip{background:color-mix(in srgb,var(--go) 9%,var(--pan-a));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--go) 26%,transparent)}
+.box.red>b:first-child,.box.tip>b:first-child{display:flex;align-items:center;gap:8px}
+.box.red>b:first-child{color:var(--no)}
+/* on a dark sky the red is thinned with the light tone, so it still reads on its own tint */
+:root[data-dark="1"] .box.red>b:first-child,:root[data-dark="1"] .box.law>b:first-child{color:color-mix(in srgb,var(--no) 72%,var(--t1))}
+.box.tip>b:first-child{color:var(--go)}
+.box.red>b:first-child::before,.box.tip>b:first-child::before{content:"";flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 0 3px color-mix(in srgb,currentColor 22%,transparent)}

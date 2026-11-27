@@ -54,9 +54,11 @@ try {
   // Screen one is tiles, not reading. Few words is a rule, so it is counted.
   const words = await page.evaluate(() => document.querySelector('[data-view="home"]').innerText.split(/\s+/).filter(Boolean).length);
   ok(words <= 40, "home screen is under 40 words", words);
+  // Each tile carries a small painting of its own water (it used to be a thin
+  // outline icon in an empty box).
   const blank = await page.evaluate(() => [...document.querySelectorAll("[data-type-tile]")]
-    .filter((t) => !t.querySelector(".ic path, .ic circle, .ic ellipse")).map((t) => t.dataset.typeTile));
-  ok(blank.length === 0, "every tile draws its icon", blank.join(","));
+    .filter((t) => { const s = t.querySelector(".pic svg"); return !s || s.querySelectorAll("path, rect, circle, ellipse").length < 12; }).map((t) => t.dataset.typeTile));
+  ok(blank.length === 0, "every tile draws its picture", blank.join(","));
   const wide = await page.evaluate(() => document.documentElement.scrollWidth);
   ok(wide <= 390, "nothing runs off the side at phone width", wide);
 

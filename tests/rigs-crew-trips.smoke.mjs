@@ -298,6 +298,10 @@ try {
     await p.locator("[data-cw-past]").click();
     await p.waitForSelector('[data-cw-trip="t-past"]');
     ok(await p.locator('[data-cw-trip="t-done"]').count() === 1 && (await text(p, '[data-cw-trip="t-done"] [data-cw-tag]')).trim().toLowerCase() === "done", "a tap opens them, the done one tagged Done");
+    // A past trip this phone has not opened says so in a word, the same pill
+    // the trip card has, never a lone dot.
+    const pastNew = await p.locator('[data-cw-trip="t-past"] [data-cw-new]').evaluateAll((els) => els.map((e) => ({ t: e.textContent.trim(), pill: e.classList.contains("pill"), w: Math.round(e.getBoundingClientRect().width) })));
+    ok(pastNew.length === 1 && /^new$/i.test(pastNew[0].t) && pastNew[0].pill && pastNew[0].w > 30, "an unseen past trip is marked New, in a word", pastNew);
     ok((await short(p, "[data-cw-trips] a, [data-cw-trips] button")).length === 0, "every crew trips row is a full tap target", await short(p, "[data-cw-trips] a, [data-cw-trips] button"));
     await fits(p, "the Trips tab with crew trips");
     await p.locator("[data-cw-past]").click();

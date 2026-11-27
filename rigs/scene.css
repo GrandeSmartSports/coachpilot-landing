@@ -50,11 +50,18 @@
    lies on the bend, where the water is widest, so the river is lit like the
    Sound and the pier are. Its one window is in scene.js (litWindow). */
 :root[data-sky="night"] .scene[data-scene="river"]{--lx:182px;--ly:146px;--glow:.4;--glowx:1.3;--glowy:.46;--road:.5;--gr:.85;--gl:.42}
+/* The lake after dark: the same low light, lying on still water, with the
+   dock's lamp and a cabin window across it. The beach: the last light out
+   over the sea, a long road of it on the swells and the wet sand. */
+:root[data-sky="night"] .scene[data-scene="lake"]{--lx:150px;--ly:150px;--glow:.36;--glowx:1.3;--glowy:.44;--road:.42;--gr:.7;--gl:.4}
+:root[data-sky="night"] .scene[data-scene="surf"]{--lx:122px;--ly:158px;--glow:.4;--glowx:1.7;--glowy:.34;--road:.42;--gr:.8;--gl:.4}
 
 /* ================= the scene ================= */
-.scene{position:absolute;left:-16px;right:-16px;top:0;height:calc(var(--sw)*330/390 + env(safe-area-inset-top));z-index:-1;overflow:hidden;
+.scene{position:absolute;left:-16px;right:-16px;top:0;height:calc(var(--sw)*var(--sceneh)/390 + env(safe-area-inset-top) + var(--lift));z-index:-1;overflow:hidden;
   background:var(--sky1);contain:strict}
-.sc{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* The paintings hang from the lift, with plain sky above them: the top of
+   every sky is one colour, so the join does not show. */
+.sc{position:absolute;left:0;right:0;top:var(--lift);bottom:0;width:100%;height:calc(100% - var(--lift));display:block}
 /* the picture never ends on a cut: its last inch settles into the ground */
 .scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:17%;pointer-events:none;
   background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 70%,transparent) 55%,var(--bg))}
@@ -136,6 +143,46 @@
 .w-cob-l{fill:none;stroke:var(--lum);stroke-width:1.3;stroke-linecap:round;opacity:.7}
 .w-log .w-pile{fill:var(--r4)}
 
+/* the lake */
+.w-streak{fill:none;stroke:var(--glintc);stroke-linecap:round;opacity:calc(.25 + var(--gl)*.5)}
+.w-pad{fill:color-mix(in oklab,var(--r4) 70%,var(--water1))}
+.w-pad-l{fill:none;stroke:var(--glowc);stroke-width:.7;stroke-linecap:round;opacity:calc(.2 + var(--litl) + var(--litr))}
+.w-reed{fill:var(--r5)}
+.w-reed2{fill:var(--r4)}
+/* the ocean beach */
+.w-surf{fill:color-mix(in oklab,var(--hz) 30%,var(--lum));opacity:.92}
+.w-surfsh{fill:none;stroke:var(--water2);opacity:.34;stroke-linecap:round;stroke-linejoin:round}
+.w-wash{fill:color-mix(in oklab,var(--water1) 55%,var(--hz));opacity:.7}
+.w-wetsand{fill:color-mix(in oklab,var(--bg) 52%,var(--water1))}
+.w-sandroad{opacity:calc(var(--road)*1.5)}
+.w-sheen{fill:none;stroke:var(--glintc);stroke-linecap:round;opacity:calc(.2 + var(--gl)*.6)}
+.w-lace{fill:none;stroke:var(--lum);stroke-width:.8;stroke-linecap:round;stroke-dasharray:9 5 3 7 15 4 6 9;opacity:.5}
+.w-lantern{fill:var(--lampc)}
+/* The beach is one thing or the other, never both half seen: rods in the
+   wash while there is daylight, the dig and its lanterns once the lamps are
+   more than half up. */
+.w-dayonly{opacity:clamp(0,calc((.5 - var(--lamps))*100),1)}
+.w-dig,.w-lights.w-farlamps{opacity:clamp(0,calc((var(--lamps) - .5)*100),1)}
+:root[data-dark="1"] .w-surf{fill:color-mix(in oklab,var(--hz) 62%,var(--ink));opacity:.8}
+:root[data-dark="1"] .w-lace{opacity:.26}
+:root[data-dark="1"] .w-wetsand{fill:color-mix(in oklab,var(--bg) 62%,var(--water1))}
+
+/* views: the tile-sized paintings (RIG.water.view) */
+.view{display:block;width:100%;height:100%}
+.view .v-gl{stroke-width:.6}
+.view .v-rf{opacity:.42}
+.view .v-glow{transform:none}
+.view .v-mtn .w-mtn{opacity:calc(var(--mtn)*.9)}
+.view .w-foam{stroke-width:.8}
+.view .w-beach{stroke-width:.7}
+.view .w-liteb{stroke-width:.6}
+.view .w-line{stroke-width:.35;opacity:.7}
+.view .v-flyline{stroke:var(--lum);stroke-width:.5;opacity:.85}
+.view .w-rail{stroke-width:.6}
+.view .w-ring{stroke-width:.4}
+.view .w-surfsh{opacity:.3}
+.view .v-farlamps{fill:var(--lampc)}
+
 /* rain is grain, not drops */
 .sc-rain{position:absolute;inset:0;opacity:var(--rain);
   background:repeating-linear-gradient(101deg,transparent 0 10px,color-mix(in srgb,var(--lum) 34%,transparent) 10px 10.7px,transparent 10.7px 23px),
@@ -145,7 +192,7 @@
    water, and the painting's sides melt into it: never a hard-edged picture
    on a flat page. */
 @media (min-width:431px){
-  html{background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 51%,color-mix(in oklab,var(--water1) 50%,var(--hz)) 58%,var(--water1) 76%,color-mix(in oklab,var(--water1) 50%,var(--bg)) 89%,var(--bg) 100%) top/100% calc(var(--sw)*330/390) no-repeat var(--bg)}
+  html{background:linear-gradient(180deg,var(--sky1) 0,var(--hz) 51%,color-mix(in oklab,var(--water1) 50%,var(--hz)) 58%,var(--water1) 76%,color-mix(in oklab,var(--water1) 50%,var(--bg)) 89%,var(--bg) 100%) top/100% calc(var(--sw)*var(--sceneh)/390 + var(--lift)) no-repeat var(--bg)}
   .scene{-webkit-mask-image:linear-gradient(90deg,transparent,#000 64px,#000 calc(100% - 64px),transparent);mask-image:linear-gradient(90deg,transparent,#000 64px,#000 calc(100% - 64px),transparent)}
 }
 .sc-grain{position:absolute;inset:0;background:var(--ink);opacity:.045;
