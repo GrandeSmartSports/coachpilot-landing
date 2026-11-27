@@ -261,6 +261,53 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 .wxlab.ends{height:18px}
 .wxlab.ends span{transform:none}
 .wxfig+.when{margin-top:2px}
+/* The read: one trip, said the way a guide would say it. The answer first,
+   in the colour of the call; a picture of the trip's hours; then a few
+   labelled lines. On a run card it is the first card; under a row on Plan a
+   trip it is pressed in; the colour of the call runs down its left edge. */
+.read{position:relative;display:block}
+.read.float{padding:14px 16px 12px 18px;overflow:hidden}
+.read::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--go)}
+.read[data-heat="hot"]::before{background:var(--gold)}
+.read[data-call="slow"]::before{background:var(--warn)}
+.read[data-call="no"]::before{background:var(--no)}
+.read[data-call="none"]::before{background:var(--t3)}
+.rd-head{display:block}
+.rd-call{display:block;margin-top:7px;font:700 30px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1);text-wrap:balance}
+.rd-call.slow{color:color-mix(in srgb,var(--warn) 80%,var(--t1))}
+.rd-call.no{color:color-mix(in srgb,var(--no) 82%,var(--t1))}
+:root[data-dark="1"] .rd-call.slow{color:color-mix(in srgb,var(--warn) 70%,var(--t1))}
+:root[data-dark="1"] .rd-call.no{color:color-mix(in srgb,var(--no) 72%,var(--t1))}
+.rd-why{display:block;margin-top:6px;font-size:14.5px;line-height:1.4;font-weight:600;color:var(--t2)}
+.rd-fig{margin:12px 0 0}
+.rd-fig svg{display:block;width:100%;height:auto}
+.rd-fig .rd-win{fill:color-mix(in srgb,var(--water1) 16%,transparent)}
+.rd-fig .rd-best{fill:color-mix(in srgb,var(--gold) 26%,transparent);stroke:color-mix(in srgb,var(--gold) 70%,transparent);stroke-width:1}
+.rd-fig .t-fill{fill:color-mix(in oklab,var(--water1) 30%,var(--paper))}
+.rd-fig .t-line{fill:none;stroke:color-mix(in oklab,var(--water2) 70%,var(--ink));stroke-width:1.6;stroke-linecap:round}
+.rd-fig .t-now{fill:var(--pan-a);stroke:var(--ink);stroke-width:1.4}
+.rd-fig .t-now.key{stroke-width:1.8}
+.rd-fig .t-tick{stroke:var(--ink);stroke-width:1;opacity:.35}
+.rd-fig .r-base{stroke:var(--t3);stroke-width:1;opacity:.6}
+.rd-fig .r-bar{fill:color-mix(in oklab,var(--accent) 38%,var(--paper))}
+.rd-fig .r-bar.wet{fill:color-mix(in oklab,var(--accent) 78%,var(--water2))}
+:root[data-dark="1"] .rd-fig .t-fill{fill:color-mix(in oklab,var(--water1) 55%,var(--ink2));opacity:.5}
+:root[data-dark="1"] .rd-fig .t-line{stroke:var(--ink2)}
+:root[data-dark="1"] .rd-fig .r-bar{fill:color-mix(in oklab,var(--accent) 45%,var(--ink2))}
+:root[data-dark="1"] .rd-fig .r-bar.wet{fill:color-mix(in oklab,var(--accent) 80%,var(--ink2))}
+.rd-lab{position:relative;display:block;height:17px;margin-top:4px}
+.rd-lab span{position:absolute;top:0;font:700 13.5px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--t2);white-space:nowrap}
+.rd-lines{margin:10px 0 0;padding:0}
+.rd-lines>div{display:grid;grid-template-columns:52px minmax(0,1fr);column-gap:10px;padding:7px 0;border-top:1px solid var(--edge)}
+.rd-lines>div:first-child{border-top:0}
+.rd-lines dt{font:700 13px/1.45 "Barlow Condensed",sans-serif;letter-spacing:.11em;text-transform:uppercase;color:var(--accent)}
+.rd-lines dd{margin:0;font-size:14px;line-height:1.42;color:var(--t1);overflow-wrap:anywhere}
+.rd-pick{display:block;margin-top:4px;font-weight:700;color:var(--t1)}
+.rd-go{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:46px;margin:4px 0 -4px;padding:0;border-top:1px solid var(--edge);
+  font-weight:650;font-size:15px;color:var(--accent)}
+.rd-go .chev{color:var(--accent)}
+/* first on the run card, with the plan right under it */
+.read.float+.float{margin-top:12px}
 /* The gear list opens with its tile's count and pips. */
 .gearhead{padding:0 0 12px;border-bottom:1px solid var(--edge)}
 .gearhead .bignum{margin-top:0}
@@ -770,6 +817,17 @@ button.cw-prow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px
 .cw-day[aria-pressed="true"] i{background:var(--gold);color:var(--on-gold)}
 .cw-day:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .cw-picks{margin:0 0 12px}
+/* a tapped row's read, pressed in under it */
+.cw-read{padding:0 10px 10px}
+.cw-read .read{padding:12px 13px 8px 16px;border-radius:16px;overflow:hidden;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
+.cw-read .rd-call{font-size:27px}
+/* pressed in, the accent's words take a little ink so they read on the well under every sky */
+.cw-read .eyebrow,.cw-read .rd-lines dt,.cw-read .rd-go,.cw-read .rd-go .chev,.cw-condslot .rd-lines dt,.cw-condslot .rd-go,.cw-condslot .rd-go .chev{color:color-mix(in srgb,var(--accent) 72%,var(--t1))}
+.cw-read+button.cw-pickrow::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
+:root[data-dark="1"] .cw-read .read,:root[data-dark="1"] .cw-condslot .read{background:color-mix(in srgb,var(--pan-b) 50%,var(--well))}
+.cw-condslot .read{margin-top:8px;padding:6px 13px 8px 16px;border-radius:16px;overflow:hidden;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
 .cw-pickrow{width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
 button.cw-pickrow{grid-template-columns:48px minmax(0,1fr) auto 22px;min-height:70px}
 button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--edge)}
@@ -932,6 +990,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
 <script src="/rigs/runs.js"></script>
+<script src="/rigs/read.js"></script>
 <script src="/rigs/crew.js"></script>
 <script src="/rigs/rules.js"></script>
 <script src="/rigs/waters.js"></script>
@@ -1954,11 +2013,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<section class="float call" data-call data-call-none><div class="call-top"><span class="tx"><em class="eyebrow">The call</em>' +
         "<b data-call-headline>" + esc(c.headline) + "</b><span data-call-why>" + esc(c.why) + "</span></span></div></section>";
     }
+    // Its line is the read's first words, so the call and the trip's own
+    // read never say two different things.
+    var r = readOf(c.trip.planId, c.day.iso, c.trip.from, c.trip.to, sky.saved);
+    var why = r && r.call ? [r.headline + ".", r.reason].filter(Boolean).join(" ") : c.why;
     return '<section class="float call" data-call><div class="call-top">' +
       miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg", placePaint(c.trip.spot, c.trip.species, tripAt(c.day.iso, c.trip, sky.saved))) +
       '<span class="tx"><span class="caprow"><em class="eyebrow">The call</em>' + heatTag(c.trip) + "</span>" +
       "<b data-call-headline>" + esc(c.headline) + "</b>" +
-      (c.why ? "<span data-call-why>" + esc(c.why) + "</span>" : "") + "</span></div>" +
+      (why ? "<span data-call-why>" + esc(why) + "</span>" : "") + "</span></div>" +
       '<div class="call-foot"><b data-call-leave>' + esc(c.leave) + "</b>" +
       '<a class="gold sm cw-go" href="#/trips/' + encodeURIComponent(hotKey(c.day, c.trip)) + '" data-call-go>See the plan' + IC.go + "</a></div></section>";
   }
@@ -3153,7 +3216,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (t.closest("[data-invite-addnum]")) { crewUi.invNum = true; crewRedraw(); focusKeep("invPhone"); return true; }
     if ((hit = t.closest("[data-pick-plan]"))) {
       // The week's call, picked: Plan a trip opens with it and its day chosen.
-      v.newPlan = hit.getAttribute("data-pick-plan"); v.newDate = hit.getAttribute("data-pick-day"); cwT.newMsg = null;
+      v.newPlan = hit.getAttribute("data-pick-plan"); v.newDate = hit.getAttribute("data-pick-day"); cwT.newMsg = null; cwT.readOpen = v.newPlan;
       return true;
     }
     if ((hit = t.closest("[data-newlink]"))) {
@@ -3914,6 +3977,87 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       '<span class="wxlab ends"><span style="left:0">' + esc(clk(t.from)) + '</span><span style="right:0">' + esc(clk(t.to)) + "</span></span></figure>";
     return out;
   }
+  // ---- the read: one trip said the way a guide would say it ----------------
+  // rigs/read.js finds the words; these draw them. The same read is under a
+  // tapped row on Plan a trip, first on a run card, and in the call's words.
+  // readOf(planId, iso, from, to, saved): from the forecast this phone saved,
+  // or null when there is none (or read.js did not load).
+  function readOf(planId, iso, from, to, saved) {
+    if (!plannerReady() || !RIG.trips.read) return null;
+    var c = saved || RIG.trips.cached();
+    if (!c) return null;
+    if (c.waters && cwT.watersAt !== c.at) { cwT.watersAt = c.at; RIG.trips.addWaters(c.waters); }
+    var n = new Date(), now = iso === todayIso() ? n.getHours() + n.getMinutes() / 60 : null;
+    try {
+      return RIG.trips.read({ planId: planId, iso: iso, from: from, to: to, wx: c.wx || {}, tides: c.tides || {}, flow: c.flow || {}, nowHour: now });
+    } catch (e) { return null; }
+  }
+  // o.head: false leaves out the call and its reason (a seal beside it says
+  // the call already). o.leave: say when to leave. o.href: the full run card.
+  // o.cls: "float" on a run card. o.fig: false leaves out the picture.
+  function readHtml(r, o) {
+    o = o || {};
+    if (!r || !r.headline) return "";
+    var why = [r.reason, o.leave && r.leave ? r.leave + ", " + driveWords(r.drive) + " drive." : ""].filter(Boolean).join(" ");
+    var head = o.head === false ? "" : '<div class="rd-head"><em class="eyebrow">The read</em><b class="rd-call ' + esc(r.call || "none") + '" data-read-headline>' + esc(r.headline) + "</b>" +
+      (why ? '<span class="rd-why" data-read-reason>' + esc(why) + "</span>" : "") + "</div>";
+    var lines = r.lines.length ? '<dl class="rd-lines">' + r.lines.map(function (l) {
+      // The pick closes the Or line, on its own line.
+      var i = l.k === "or" ? l.text.indexOf(" Pick: ") : -1;
+      var dd = i < 0 ? esc(l.text) : esc(l.text.slice(0, i)) + '<b class="rd-pick" data-read-pick>' + esc(l.text.slice(i + 1)) + "</b>";
+      return '<div data-read-line="' + esc(l.k) + '"><dt>' + esc(l.label) + "</dt><dd>" + dd + "</dd></div>";
+    }).join("") + "</dl>" : "";
+    return '<section class="read' + (o.cls ? " " + o.cls : "") + '" data-read="' + esc(r.planId) + '" data-call="' + esc(r.call || "none") + '" data-heat="' + esc(String(r.heat || "").toLowerCase()) + '">' +
+      head + (o.fig === false ? "" : readFigHtml(r)) + lines +
+      (o.href ? '<a class="rd-go" href="' + esc(o.href) + '" data-read-go><span>The full plan</span>' + IC.chev + "</a>" : "") + "</section>";
+  }
+  // The trip's hours as one small picture: the tide across them, the hours
+  // you fish shaded, the best of them in gold, and the chance of rain as a
+  // bar an hour underneath. Left out when there is neither tide nor rain.
+  function readFigHtml(r) {
+    var f = r.fig;
+    if (!f) return "";
+    var rain = (f.rain || []).filter(function (x) { return x.pop != null || x.rain != null; });
+    var wet = rain.some(function (x) { return (x.pop || 0) >= 10 || (x.rain || 0) >= 0.01; });
+    var tide = f.tide && f.tide.length >= 2 ? f.tide : null;
+    if (!tide && !wet) return "";
+    var a = f.a - 0.75, b = f.b + 0.75, W = 320, TH = tide ? 46 : 0, RH = wet ? 18 : 0, gap = tide && wet ? 8 : 0, H = TH + gap + RH + 1;
+    var X = function (h) { return Math.round(((Math.max(a, Math.min(b, h)) - a) / (b - a)) * W * 10) / 10; };
+    // The water under the curve first, then the hours (the trip pale, its
+    // best hours gold) over it, then the line and the turns on top.
+    var bands = '<rect class="rd-win" x="' + X(f.a) + '" y="0" width="' + Math.round((X(f.b) - X(f.a)) * 10) / 10 + '" height="' + H + '" rx="5"/>' +
+      (f.best ? '<rect class="rd-best" x="' + X(f.best[0]) + '" y="0.5" width="' + Math.round((X(f.best[1]) - X(f.best[0])) * 10) / 10 + '" height="' + (H - 1) + '" rx="5"/>' : "");
+    var out = "";
+    if (tide) {
+      var N = 48, v = [], lo = Infinity, hi = -Infinity, i;
+      for (i = 0; i <= N; i++) { v.push(tideAt(tide, a + ((b - a) * i) / N)); lo = Math.min(lo, v[i]); hi = Math.max(hi, v[i]); }
+      if (hi - lo < 0.5) { lo -= 1; hi += 1; }
+      var Y = function (x) { return Math.round((TH - 3 - ((x - lo) / (hi - lo)) * (TH - 10)) * 10) / 10; };
+      var d = v.map(function (x, k) { return (k ? "L" : "M") + Math.round((k / N) * W * 10) / 10 + " " + Y(x); }).join("");
+      out += '<path class="t-fill" d="' + d + "V" + TH + 'H0Z"/>' + bands + '<path class="t-line" d="' + d + '"/>';
+      bands = "";
+      tide.filter(function (x) { return x.h > a + 0.2 && x.h < b - 0.2; }).forEach(function (x) {
+        var key = f.key && Math.abs(f.key.h - x.h) < 0.01;
+        out += (key ? '<path class="t-tick" d="M' + X(x.h) + " " + (Y(x.v) + 4) + "V" + TH + '"/>' : "") +
+          '<circle class="t-now' + (key ? " key" : "") + '" cx="' + X(x.h) + '" cy="' + Y(x.v) + '" r="' + (key ? 4 : 3) + '"/>';
+      });
+    }
+    out += bands;
+    if (wet) {
+      var y0 = TH + gap;
+      out += '<path class="r-base" d="M0 ' + (y0 + RH) + "H" + W + '"/>';
+      rain.forEach(function (x) {
+        var p = x.pop != null ? x.pop / 100 : Math.min(1, (x.rain || 0) / 0.1);
+        if (p < 0.03) return;
+        var x0 = X(x.h), x1 = X(x.h + 1), hh = Math.max(2, Math.round(p * (RH - 2) * 10) / 10);
+        out += '<rect class="r-bar' + (p >= 0.3 ? " wet" : "") + '" x="' + Math.round((x0 + 2) * 10) / 10 + '" y="' + Math.round((y0 + RH - hh) * 10) / 10 + '" width="' + Math.max(2, Math.round((x1 - x0 - 4) * 10) / 10) + '" height="' + hh + '" rx="1.5"/>';
+      });
+    }
+    var L = function (h) { return pct((h - a) / (b - a)); };
+    return '<figure class="rd-fig" data-read-fig><svg viewBox="0 0 ' + W + " " + H + '" aria-hidden="true">' + out + "</svg>" +
+      '<span class="rd-lab"><span style="left:' + L(f.a) + '%">' + esc(clk(f.a)) + "</span>" +
+      '<span style="right:' + (100 - +L(f.b)).toFixed(1) + '%">' + esc(clk(f.b)) + "</span></span></figure>";
+  }
   // The river: the gauge's forecast for the days around the trip, the line
   // it has to stay under, and a dot on the day.
   function riverTileHtml(t, day, href, saved) {
@@ -4004,6 +4148,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species, tripAt(day.iso, t, sky.saved))) +
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' + hero +
         '<div data-rules-slot' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></div>" +
+        readHtml(readOf(t.planId, day.iso, t.from, t.to, sky.saved), { cls: "float" }) +
         planFloatHtml(t, day, base + "/plan", sky) +
         '<div class="duo">' + gearTileHtml(run, base + "/gear") +
           (t.flow ? riverTileHtml(t, day, base + "/river", sky.saved) : tideTileHtml(t, by.wx.title, base + "/wx")) + "</div>" +
@@ -4035,7 +4180,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var DAYFULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var cwT = { past: false, hotKey: "", hotMsg: null, nav: true, watersAt: 0, newStatus: "idea", newMsg: null, tell: {}, repeat: false };
+  var cwT = { past: false, hotKey: "", hotMsg: null, nav: true, watersAt: 0, newStatus: "idea", newMsg: null, tell: {}, repeat: false, readOpen: "" };
   // ask: what a Delete is waiting on a yes for ("note:<id>", "item:<id>", "catch:<id>"). open: the list line
   // whose picker is open. rename: the line being renamed. nMsg, lMsg, pMsg, cMsg: what the note box, the
   // list, the picker and the catches last said. cOpen, cBusy, photo, photoUrl: the Log a fish form.
@@ -4282,10 +4427,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function newCondHtml() {
     var v = crewUi.vals;
     if (!v.newPlan || !/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) return "";
+    // The pick's read is open under its row already: it says all of this.
+    if (readUnderRow(v.newDate, v.newPlan)) return "";
     var trip = { planId: v.newPlan, date: v.newDate, from: boxHour(v.newFrom), to: boxHour(v.newTo), status: "idea" };
     var det = tripDetail(trip), seal = callSeal(trip, det), cond = condHtml(trip, det, true), t = det && det.status === "ok" ? det.trip : null;
+    // Picked from the list, or with its own hours: the call, then the read's
+    // lines under it (the seal and the line beside it are its answer).
+    var r = t ? readOf(trip.planId, trip.date, trip.from, trip.to) : null, key = trip.date + "~" + trip.planId;
+    var more = r && r.lines.length ? readHtml(r, { head: false, href: findTrip(key) ? "#/trips/" + encodeURIComponent(key) : "" }) : "";
     return cond ? '<div class="cwcall"><span class="seal ' + seal.k + '" aria-hidden="true">' + seal.w + "</span>" + cond +
-      (t ? callPicHtml(t, trip.date, skyReader().saved) : "") + "</div>" : "";
+      (t ? callPicHtml(t, trip.date, skyReader().saved) : "") + "</div>" + more : "";
   }
   // The picture over the form follows the pick: the water of the trip being planned.
   function newScene() {
@@ -4315,15 +4466,23 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       .sort(function (a, b) { return (a.t.heat === "Hot" ? 0 : 1) - (b.t.heat === "Hot" ? 0 : 1) || a.i - b.i; })
       .slice(0, 4).map(function (x) { return x.t; });
   }
+  // A tapped row opens its read right under it, one at a time, with the way
+  // to the full run card (cwT.readOpen is the plan whose read is open).
   function newPicksHtml(iso, picked) {
     var picks = newPicks(iso), sky = skyReader();
     if (!picks.length) return "";
     return '<div class="panel list cw-picks">' + picks.map(function (t) {
-      return '<button class="trip cw-pickrow" type="button" data-cw-pickplan="' + esc(t.planId) + '" aria-pressed="' + (t.planId === picked ? "true" : "false") + '">' +
+      var open = cwT.readOpen === t.planId, r = open ? readOf(t.planId, iso, t.from, t.to, sky.saved) : null;
+      return '<button class="trip cw-pickrow" type="button" data-cw-pickplan="' + esc(t.planId) + '" aria-pressed="' + (t.planId === picked ? "true" : "false") + '" aria-expanded="' + (open && r ? "true" : "false") + '">' +
         miniHtml(waterKind(t), sky(iso, t.from, t.spot), "", placePaint(t.spot, t.species, tripAt(iso, t, sky.saved))) +
         '<span class="tx"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span></span>" + heatTag(t) +
-        '<i class="cw-picked" aria-hidden="true">' + TICK + "</i></button>";
+        '<i class="cw-picked" aria-hidden="true">' + TICK + "</i></button>" +
+        (r ? '<div class="cw-read" data-cw-read="' + esc(t.planId) + '">' + readHtml(r, { leave: true, href: "#/trips/" + encodeURIComponent(iso + "~" + t.planId) }) + "</div>" : "");
     }).join("") + "</div>";
+  }
+  // Is a plan's read open under its own row on this day?
+  function readUnderRow(iso, planId) {
+    return !!planId && cwT.readOpen === planId && newPicks(iso).some(function (t) { return t.planId === planId; });
   }
   // The parts of the form that follow the day and the pick, changed in place.
   // The whole screen is not redrawn: that would shut a date wheel mid-spin.
@@ -4339,7 +4498,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       if (lost || sel.getAttribute("data-sig") !== sig) { sel.innerHTML = planOptions(v.newDate || "", v.newPlan || ""); sel.setAttribute("data-sig", sig); }
       if (sel.value !== (v.newPlan || "")) sel.value = v.newPlan || "";
     }
-    var picks = view.querySelector("[data-cw-picks]"), psig = (v.newDate || "") + "|" + (v.newPlan || "") + "|" + (lastPlan ? lastPlan.at : "");
+    var picks = view.querySelector("[data-cw-picks]"), psig = (v.newDate || "") + "|" + (v.newPlan || "") + "|" + (lastPlan ? lastPlan.at : "") + "|" + (cwT.readOpen || "");
     if (picks && picks.getAttribute("data-sig") !== psig) { picks.innerHTML = newPicksHtml(v.newDate || "", v.newPlan || ""); picks.setAttribute("data-sig", psig); }
     [].forEach.call(view.querySelectorAll("[data-cw-day]"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-cw-day") === v.newDate ? "true" : "false"); });
     var box = view.querySelector("[data-cw-date]");
@@ -4369,7 +4528,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       app.innerHTML = head + '<div class="cw float cwcard">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
       return;
     }
-    var psig = v.newDate + "|" + (v.newPlan || "") + "|" + (lastPlan ? lastPlan.at : "");
+    var psig = v.newDate + "|" + (v.newPlan || "") + "|" + (lastPlan ? lastPlan.at : "") + "|" + (cwT.readOpen || "");
     app.innerHTML = head + '<div class="cw float cwcard" data-cw-new-form><em class="eyebrow">A crew trip</em>' +
       '<p class="cw-k2">When</p><div class="cw-days" role="group" aria-label="When">' + newDaysHtml(v.newDate) + "</div>" +
       cwField("Or another day", '<input data-cw-date data-keep="newDate" type="date" min="' + today + '" max="' + isoPlus(today, 60) + '" value="' + kv("newDate") + '">') +
@@ -4424,7 +4583,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         // The sign-in is gone: the sign-in screen, right here, as on the trip page.
         if (r && r.signedOut) { cwT.newMsg = null; crewRedraw(true); return; }
         if (r && r.ok && r.trip) {
-          v.newPlan = ""; v.newDate = ""; v.newFrom = ""; v.newTo = ""; v.newNote = ""; cwT.newMsg = null; cwT.newStatus = "idea";
+          v.newPlan = ""; v.newDate = ""; v.newFrom = ""; v.newTo = ""; v.newNote = ""; cwT.newMsg = null; cwT.newStatus = "idea"; cwT.readOpen = "";
           if (location.hash === here) location.hash = "#/crew/trip/" + r.trip.id;
           return;
         }
@@ -5081,7 +5240,11 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
 
     if ((hit = t.closest("[data-cw-pick]"))) { cwT.newStatus = hit.getAttribute("data-cw-pick") === "planned" ? "planned" : "idea"; newSync(); return true; }
     if ((hit = t.closest("[data-cw-day]"))) { crewUi.vals.newDate = hit.getAttribute("data-cw-day"); cwT.newMsg = null; newSync(); return true; }
-    if ((hit = t.closest("[data-cw-pickplan]"))) { crewUi.vals.newPlan = hit.getAttribute("data-cw-pickplan"); cwT.newMsg = null; newSync(); return true; }
+    if ((hit = t.closest("[data-cw-pickplan]"))) {
+      var pid = hit.getAttribute("data-cw-pickplan");
+      cwT.readOpen = cwT.readOpen === pid ? "" : pid;
+      crewUi.vals.newPlan = pid; cwT.newMsg = null; newSync(); return true;
+    }
     if (t.closest("[data-cw-create]")) { newCreate(); return true; }
 
     var id = view.getAttribute("data-trip"), d = id && tripData(id);
@@ -5707,7 +5870,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var f = e.target.closest('[data-view="crewnew"] [data-keep]');
     if (f) {
       crewUi.vals[f.getAttribute("data-keep")] = f.value;
-      if (f.matches("[data-cw-what]")) cwT.newMsg = null;
+      // A plan picked from the list closes a row's read that is not its own.
+      if (f.matches("[data-cw-what]")) { cwT.newMsg = null; if (cwT.readOpen !== f.value) cwT.readOpen = ""; }
       if (f.matches("[data-cw-what],[data-cw-date],[data-cw-from],[data-cw-to]")) newSync();
     }
   });

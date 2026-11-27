@@ -39,6 +39,9 @@
       bait: { first: "Two squid jigs, 2.0 to 2.5, early in the season.",
         backup: ["Move up to 3.0 and 3.5 later in the season as the squid grow."],
         note: "Colour changes night to night. Ask the rail what is working." },
+      // What the read (rigs/read.js) says once the current runs hard. From the
+      // squid rig card in rigs/content.js ("Weight only if you need it").
+      current: "Add only enough weight to hang straight down.",
       how: ["Stand where you can drop straight down into the light edge.",
         "Underhand lob, 20 to 30 ft. A hard cast tangles the two jigs.",
         "Let it sink on a tight line. Count, so you know your depth.",
@@ -469,7 +472,7 @@
         setup: ["Get there in the last light and take rail space where the lit water meets the dark.",
           "Hang your light off the rail, aimed out and down, with its own safety tether.",
           "Rig one line with two jigs to start."],
-        during: base.during, wrap: base.wrap, gear: base.gear, bait: base.bait, how: base.how,
+        during: base.during, wrap: base.wrap, gear: base.gear, bait: base.bait, current: base.current, how: base.how,
         spot: { lines: site.lines, unknown: site.unknown || [] },
         expect: ["Squid come in waves. Long quiet stretches are normal.", "Cold and damp. You stand still for hours.",
           "Bright moon nights are slower. Dark moon nights beat full.", "Crowds at this pier not seen for the card yet."],

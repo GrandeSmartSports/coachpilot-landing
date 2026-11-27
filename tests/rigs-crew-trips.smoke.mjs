@@ -175,7 +175,8 @@ try {
     const p = await open(ctx, base);
     await p.waitForSelector("[data-call] [data-call-go]");
     ok((await text(p, "[data-call-headline]")).trim() === "Thursday evening. Razor clams, Copalis and Mocrocks.", "the call says when and what, in plain words", await text(p, "[data-call-headline]"));
-    ok((await text(p, "[data-call-why]")).trim() === "WDFW dig at Copalis, light wind.", "then one line of why, from that trip's own reasons", await text(p, "[data-call-why]"));
+    ok((await text(p, "[data-call-why]")).trim() === "Go, best 5:35 to 7:35 PM. WDFW dig at Copalis, low 7:35 PM, -1.8 ft.",
+      "then one line of why: the trip's own read, its answer and its reason, in the same words", await text(p, "[data-call-why]"));
     ok((await text(p, "[data-call-leave]")).trim() === "Leave by 2:50 PM.", "then the next step: when to leave", await text(p, "[data-call-leave]"));
     ok(/^See the plan$/i.test((await text(p, "[data-call-go]")).trim()), "and one button: See the plan");
     const same = await p.evaluate(() => {
@@ -433,12 +434,55 @@ try {
     await p.waitForFunction(() => /pick/i.test(document.querySelector("[data-cw-new-msg]")?.innerText || ""));
     ok(calls.fn.filter((b) => b.action === "trip_create").length === 0, "with nothing picked it says so and sends nothing");
 
+    // Tapping a trip in the What list opens its read right under it, one at
+    // a time, with the way to its full run card.
+    await p.locator('[data-cw-day="2026-11-28"]').click();
+    await p.waitForFunction(() => document.querySelectorAll("[data-cw-pickplan]").length >= 2);
+    const rowIds = await p.locator("[data-cw-pickplan]").evaluateAll((els) => els.map((e) => e.dataset.cwPickplan));
+    const sq = rowIds.find((x) => /^squid-/.test(x)) || rowIds[0], other = rowIds.find((x) => x !== sq);
+    ok(await p.locator("[data-cw-read]").count() === 0, "no read until a row is tapped");
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-headline]`);
+    const rd = await p.evaluate((id) => {
+      const row = document.querySelector(`[data-cw-pickplan="${id}"]`), box = document.querySelector(`[data-cw-read="${id}"]`), go = box.querySelector("[data-read-go]");
+      return { under: row.nextElementSibling === box, expanded: row.getAttribute("aria-expanded"), pressed: row.getAttribute("aria-pressed"),
+        head: box.querySelector("[data-read-headline]").textContent, why: (box.querySelector("[data-read-reason]") || {}).textContent || "",
+        lines: [...box.querySelectorAll("[data-read-line] dt")].map((d) => d.textContent).join(","), fig: box.querySelectorAll("[data-read-fig] svg path, [data-read-fig] svg rect").length,
+        go: go && go.getAttribute("href"), cond: document.querySelectorAll("[data-cw-cond]").length };
+    }, sq);
+    ok(rd.under && rd.expanded === "true" && rd.pressed === "true", "a tapped row is picked, and its read opens right under it", rd);
+    ok(/^Go, best 5:00 to 6:30 PM$/.test(rd.head) && /^High slack 5:15 PM, right at dark\. Leave by \d+:\d\d PM, \d+ min drive\.$/.test(rd.why),
+      "the read leads with the answer, then why those hours and when to leave", rd.head + " | " + rd.why);
+    ok(rd.lines === "Tide,Rain,Wind,Expect,Or" && rd.fig >= 4, "then a small picture of the hours and its labelled lines: Tide, Rain, Wind, Expect, Or", rd);
+    ok(rd.go === "#/trips/" + encodeURIComponent("2026-11-28~" + sq), "with a link to the full run card", rd.go);
+    ok(rd.cond === 0, "the read says it all: no second call line under the list while it is open");
+    ok((await short(p, "[data-cw-read] a, [data-cw-pickplan]")).length === 0, "its link and the rows are full tap targets");
+    await fits(p, "the plan a trip screen with a read open");
+    await p.locator(`[data-cw-pickplan="${other}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${other}"] [data-read-headline]`);
+    ok(await p.locator("[data-cw-read]").count() === 1 && await p.locator(`[data-cw-read="${sq}"]`).count() === 0, "one read at a time: tapping another row moves it there");
+    await p.locator(`[data-cw-pickplan="${other}"]`).click();
+    await p.waitForFunction(() => !document.querySelector("[data-cw-read]"));
+    ok(await p.locator(`[data-cw-pickplan="${other}"]`).getAttribute("aria-pressed") === "true", "tapping the open row again closes its read, and it stays picked");
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-go]`);
+    await p.locator(`[data-cw-read="${sq}"] [data-read-go]`).click();
+    await p.waitForSelector(`[data-view="hot"][data-run="${sq}"] [data-read] [data-read-headline]`);
+    ok((await text(p, '[data-view="hot"] [data-read-headline]')).trim() === rd.head, "the link opens that trip's run card, which leads with the same read");
+    await p.goBack();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-headline]`);
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForFunction(() => !document.querySelector("[data-cw-read]"));
+    await p.locator('[data-cw-day="2026-11-23"]').click();
+
     // Plan and day chosen: the conditions line is there at once.
     await p.locator("[data-cw-what]").selectOption("squid-redondo");
     await p.waitForSelector('[data-cw-cond][data-status="ok"]');
     ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "Hot" && /\w/.test(await text(p, "[data-cw-cond]")) && !/^Hot\b/.test((await text(p, "[data-cw-cond]")).trim()),
       "the call shows as soon as plan and day are chosen: Hot on the seal, the reasons beside it, the word said once", await text(p, "[data-cw-cond]"));
     ok(await p.locator("[data-cw-cond-slot] .cw-callpic").count() === 1, "with the water's own small picture beside it");
+    ok(await p.locator("[data-cw-cond-slot] [data-read] [data-read-line]").count() >= 3 && await p.locator("[data-cw-cond-slot] [data-read-headline]").count() === 0,
+      "and a trip picked from the list gets its read's lines under the call (the seal is its answer)");
     await p.locator("[data-cw-date]").fill("2026-12-20");
     await p.waitForSelector('[data-cw-cond][data-status="nodata"]');
     ok(/forecast reaches 7 days out/i.test(await text(p, "[data-cw-cond]")), "and follows the day: past the forecast it says so", await text(p, "[data-cw-cond]"));

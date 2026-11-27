@@ -816,7 +816,7 @@
   function wxUrl(list) {
     return "https://api.open-meteo.com/v1/forecast?latitude=" + list.map(function (s) { return s.lat; }).join(",") +
       "&longitude=" + list.map(function (s) { return s.lon; }).join(",") +
-      "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
+      "&hourly=temperature_2m,precipitation,precipitation_probability,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
       "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7";
   }
   function urls(today, end) {
@@ -862,8 +862,10 @@
       var H = r.hourly, sun = {};
       (r.daily.time || []).forEach(function (d, j) { sun[d] = { rise: toHour(r.daily.sunrise[j]), set: toHour(r.daily.sunset[j]) }; });
       wx[id] = { sun: sun, hours: H.time.map(function (t, j) {
+        // pop: the chance of rain in that hour, 0 to 100 (the read says it by
+        // the hour). A saved forecast from before it was asked for has none.
         return { t: t, temp: H.temperature_2m[j], rain: H.precipitation[j], wind: H.wind_speed_10m[j], gust: H.wind_gusts_10m[j],
-          clouds: H.cloud_cover ? H.cloud_cover[j] : null };
+          clouds: H.cloud_cover ? H.cloud_cover[j] : null, pop: H.precipitation_probability ? H.precipitation_probability[j] : null };
       }) };
     });
     var ml = marineJson ? (Array.isArray(marineJson) ? marineJson : [marineJson]) : [];
@@ -993,5 +995,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, ruleOn: ruleOn, flowField: flowField, puyallupFlow: PUYALLUP_FLOW, plan: plan, detail: detail, theCall: theCall, whyLine: whyLine, leaveBy: leaveBy, plansOn: plansOn, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, ruleOn: ruleOn, flowField: flowField, puyallupFlow: PUYALLUP_FLOW, plan: plan, detail: detail, theCall: theCall, whyLine: whyLine, leaveBy: leaveBy, plansOn: plansOn, daysOff: DAYS_OFF, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);

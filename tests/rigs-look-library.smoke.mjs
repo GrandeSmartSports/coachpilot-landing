@@ -60,8 +60,8 @@ const SCREENS = [
   { name: "a section page (the gear list)", hash: PIER + "/gear", view: "card", scene: "pier", first: ".card" },
   { name: "a section page (tide and weather)", hash: PIER + "/wx", view: "card", scene: "pier", first: ".card" },
   { name: "a section page (the rules on a lake trip)", hash: LAKE + "/rules", view: "card", scene: "lake", first: ".card" },
-  { name: "a lake trip's run card", hash: LAKE, view: "hot", scene: "lake", first: '[data-sec-row="plan"]' },
-  { name: "a razor clam dig's run card", hash: CLAMS, view: "hot", scene: "surf", first: '[data-sec-row="plan"]' },
+  { name: "a lake trip's run card", hash: LAKE, view: "hot", scene: "lake", first: '[data-view="hot"] [data-read]' },
+  { name: "a razor clam dig's run card", hash: CLAMS, view: "hot", scene: "surf", first: '[data-view="hot"] [data-read]' },
   { name: "the map", hash: "#/trips/map", view: "map", scene: "sound", first: ".mapbox" }
 ];
 
@@ -210,8 +210,8 @@ try {
     for (const [hash, kind, mini] of [[LAKE, "lake", "lake"], [CLAMS, "surf", "surf"]]) {
       await sky(id, hash);
       await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
-      const p = await painted(), c = await crosses('[data-sec-row="plan"]');
-      ok(p.kind === kind && p.kids > 30 && c && c.ok, id + ": a " + (kind === "lake" ? "lake trip's" : "razor clam dig's") + " run card stands under the " + kind + ", its plan crossing the waterline", [p, c]);
+      const p = await painted(), c = await crosses('[data-view="hot"] [data-read]');
+      ok(p.kind === kind && p.kids > 30 && c && c.ok, id + ": a " + (kind === "lake" ? "lake trip's" : "razor clam dig's") + " run card stands under the " + kind + ", its read crossing the waterline, the plan under it", [p, c]);
     }
   }
   await sky("overcast", "#/trips");
@@ -495,11 +495,11 @@ try {
       await p3.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
       await p3.waitForTimeout(80);
       const got = await p3.evaluate(() => {
-        const s = document.getElementById("scene"), sb = s.getBoundingClientRect(), b = document.querySelector('[data-sec-row="plan"]').getBoundingClientRect();
+        const s = document.getElementById("scene"), sb = s.getBoundingClientRect(), b = document.querySelector('[data-view="hot"] [data-read]').getBoundingClientRect();
         return { kind: s.dataset.scene, kids: s.querySelectorAll("svg *").length, crosses: b.top < sb.bottom - 24 && b.bottom > sb.bottom };
       });
       const r = await unreadable(p3);
-      ok(got.kind === "surf" && got.kids > 30 && got.crosses && r.n >= 8 && r.bad.length === 0, id + ": a surf perch trip's run card stands under the ocean beach, its plan crossing the waterline, every word readable", [got, r.bad.slice(0, 4)]);
+      ok(got.kind === "surf" && got.kids > 30 && got.crosses && r.n >= 8 && r.bad.length === 0, id + ": a surf perch trip's run card stands under the ocean beach, its read crossing the waterline, every word readable", [got, r.bad.slice(0, 4)]);
     }
     // (fix-1, look-14) Lake Fenwick's run card: its near shore tree stands clear of the title's tags,
     // so the title, the chips and the tag read under every sky
