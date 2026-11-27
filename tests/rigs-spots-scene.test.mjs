@@ -480,5 +480,64 @@ const css = readFileSync(join(ROOT, "rigs/scene.css"), "utf8");
 const grOf = (sel) => { const m = new RegExp(sel.replace(/[[\]().*+?^$|]/g, "\\$&") + "\\{[^}]*--gr:([^;}]+)").exec(css); return m ? m[1] : null; };
 ok(+grOf(':root[data-sky="night"] .scene:is([data-moonpos="behind"],[data-moonpos="none"])') <= 0.04 && +grOf(':root[data-sky="night"] .scene[data-moonpos="down"]') <= 0.04, "at night with the moon behind you, down, or no facing (a feed lake), the water ahead keeps no light road");
 
+// ---- fix round 2 ------------------------------------------------------------------------------
+const nums2 = (d) => { const a = (d.match(/-?\d+(?:\.\d+)?/g) || []).map(Number), o = []; for (let i = 0; i + 1 < a.length; i += 2) o.push([a[i], a[i + 1]]); return o; };
+// (V1-1) a spot's night is the sky's: the towns' glow over its skyline and its sheen on its water,
+// at every kind of spot, whatever the moon; a bright moon off a side marks that side, a sliver of one is no light
+for (const [id, extra] of [["green-river", { fish: "coho" }], ["green-river", {}], ["tokul", {}], ["cowlitz", {}], ["lake-fenwick", {}], ["fox-island", {}], ["westport", { standAsk: "float" }], ["dash-point", { how: "shore" }]]) {
+  const h = paint(S[id], Object.assign({ now: { date: D } }, extra)).innerHTML;
+  ok(/class="w-townsky"/.test(h) && /class="w-townwater"/.test(h), id + (extra.fish ? " (" + extra.fish + ")" : "") + ": after dark the towns' glow lies over its skyline and on its water");
+}
+{
+  const bright = paint(S["green-river"], { fish: "coho", now: { date: "2026-11-26T07:31", moon: 0.9 } }), thin = paint(S["green-river"], { fish: "coho", now: { date: "2026-11-26T07:31", moon: 0.1 } });
+  ok(/^(left|right)$/.test(bright.dataset.moonlit || "") && /class="w-moonwater"/.test(bright.innerHTML) && /class="w-moonrim"/.test(bright.innerHTML),
+    "the Narrows under a bright moon off a side: silver on that side of the water, the trees and trunks rimmed (data-moonlit)", bright.dataset);
+  ok(!thin.dataset.moonlit && thin.dataset.moonweak === "" && !/class="w-moonwater"/.test(thin.innerHTML), "under a sliver of a moon: no moonlight, its night the towns' (data-moonweak)", thin.dataset);
+  ok(/:root\[data-sky="night"\] \.scene\[data-spot\]:is\([^)]*\[data-moonweak\]\)\{[^}]*--glow:\.46/.test(css), "scene.css lights a spot under a sliver of a moon with the towns' glow, wherever that moon stands");
+}
+// (V1-3) Point Defiance: the pilings and the lamps' light on the water are cut at the walk's edge
+{
+  const h = paint(S["point-defiance"], { now: { date: "2026-11-26T08:00" } }).innerHTML, cid = (/<clipPath id="([^"]+-wc)">/.exec(h) || [])[1];
+  const n = cid ? (h.match(new RegExp('clip-path="url\\(#' + cid + '\\)"', "g")) || []).length : 0;
+  ok(cid && n >= 8, "Point Defiance: its pilings and the lamps' light on the water stand beyond the walk's edge, never on the paving", n);
+  ok(/class="w-wallw w-wallside"/.test(h) && /class="w-winhead"/.test(h) && /class="w-wallw w-conc2"/.test(h), "and its buildings take the light: a shade face, the panes under their heads, the office darker toward you");
+}
+// (V1-8) Float 20's crab rings lie on its own stretch, over the card and clear of the tag side
+{
+  const h = paint(S.westport, { standAsk: "float", now: { date: "2027-09-18T10:00" } }).innerHTML, b = [...h.matchAll(/class="w-buoy" cx="([\d.-]+)" cy="([\d.-]+)"/g)].map((m) => [+m[1], +m[2]]);
+  ok(b.length === 2 && b.every((q) => q[0] > 20 && q[0] < 330 && q[1] > 180 && q[1] < 240), "Float 20: the crab rings lie on the float in sight, left of x 330 and over the card", b);
+}
+// (V1-11) the clam dig stands clear of the card (its top at about 248 here at every width) whatever the tide
+{
+  const ys = [0, 0.5, 1].map((tide) => Math.max(...[...paint(S["ocean-shores"], { activity: "clams", now: { date: D + "T19:00", tide } }).innerHTML.matchAll(/class="w-lantern" cx="[\d.-]+" cy="([\d.-]+)"/g)].map((m) => +m[1])));
+  ok(ys.every((y) => y > 150 && y <= 240), "the clam dig's nearest lantern stands clear of the card at low, mid and high water", ys);
+}
+// (V1-10) Les Davis: its shade tree stands in from the edge, its crown under the tabs
+{
+  const h = paint(S["les-davis"], { now: { date: D + "T17:00" } }).innerHTML, m = /<g transform="rotate\(([-\d.]+) ([-\d.]+) ([-\d.]+)\)"><path class="w-rim" d="([^"]*)"/.exec(h);
+  const a = m ? (+m[1] * Math.PI) / 180 : 0, cx = m ? +m[2] : 0, cy = m ? +m[3] : 0, pts = m ? nums2(m[4]).map((q) => [cx + (q[0] - cx) * Math.cos(a) - (q[1] - cy) * Math.sin(a), cy + (q[0] - cx) * Math.sin(a) + (q[1] - cy) * Math.cos(a)]) : [];
+  ok(m && cx <= 380 && Math.min(...pts.map((q) => q[1])) >= 44, "Les Davis: its shade tree stands in from the frame's edge, its crown starting under the tabs", m && [cx, Math.round(Math.min(...pts.map((q) => q[1])))]);
+}
+// (V1-2) Dash Point's flats painted with value: ripple rows by depth, the near sand wet and darker, pools, dark runnels, drift on the berm, the angler near and his copy in the sand
+{
+  const h = dsh("shore"), ops = [...h.matchAll(/<g opacity="([\d.]+)"><path class="w-riprow"/g)].map((m) => +m[1]);
+  ok(ops.length >= 20 && ops[0] < 0.3 && ops[ops.length - 1] > 0.9 && ops.every((v, i) => !i || v >= ops[i - 1]), "Dash Point's flats: ripple rows faint by the water, bolder toward you", ops.slice(0, 3));
+  ok(/class="w-runnel"/.test(h) && !/class="w-runs"/.test(h) && (h.match(/class="w-sandwet"/g) || []).length === 3 && /class="w-poolnear"/.test(h) && /class="w-berm"/.test(h) && /class="w-drift"/.test(h),
+    "and the near sand wet and darker in steps, its sheen in pools, dark runnels, drift logs on the berm at the top of the beach");
+  const fig = /<path class="w-figh" d="([^"]*)"/.exec(h), fy = fig ? nums2(fig[1]).map((q) => q[1]) : [];
+  ok(fy.length && Math.max(...fy) - Math.min(...fy) >= 18 && /class="w-figrefl"/.test(h), "the angler near enough to read (20 px or so), his copy in the wet sand", fy.length && Math.round(Math.max(...fy) - Math.min(...fy)));
+}
+// (V1-4, V1-9) thumbnails cropped on what each spot is known by
+{
+  const crab = RIG.water.mini("pier", pal.overcast, Object.assign({ now: { date: "2027-09-18T10:00" } }, S.westport, { standAsk: "float" }));
+  ok(!/M-1 41.5H49/.test(crab) && /fill="none" stroke="#\w{6}" stroke-width=".6"\/>/.test(crab), "Westport crab's thumbnail: Float 20 running away from you with a crab ring on it, never a level strip");
+  const kay = RIG.water.mini("sound", pal.overcast, Object.assign({ now: { date: "2027-09-18T10:00" } }, S["dash-point"], { how: "kayak" })), vb = +((/viewBox="[\d.-]+ [\d.-]+ ([\d.]+)/.exec(kay) || [])[1]), hull = /<ellipse cx="[\d.-]+" cy="[\d.-]+" rx="([\d.]+)" ry="[\d.]+" fill="#\w{6}" opacity=".3"\/>/.exec(kay);
+  ok(hull && (2 * +hull[1]) / vb >= 0.3, "the kayak rows' thumbnail: the hull a third of the tile across, at the waterline", hull && [2 * +hull[1], vb]);
+  const tk = RIG.water.mini("river", pal.overcast, Object.assign({ now: { date: "2026-12-12T08:00" } }, S.tokul));
+  ok(/stroke-width=".55" fill="none" opacity=".75"/.test(tk) && (tk.match(/Z" fill="#\w{6}"\/>/g) || []).length >= 4, "Tokul's thumbnail: firs in two values, the dark bank, the creek mouth and its foam");
+  const fx = RIG.water.mini("pier", pal.overcast, Object.assign({ now: { date: "2027-05-08T08:00" } }, S["fox-island"]));
+  ok(/<g opacity="0.95">(<path d="M[^"]*" fill="#\w{6}"\/>){4}<\/g>/.test(fx), "Fox Island's thumbnail: Rainier with its lower slopes, snow line and shade side");
+}
+
 console.log("\n" + pass + " passed, " + fail + " failed");
 process.exit(fail ? 1 : 0);

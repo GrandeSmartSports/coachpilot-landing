@@ -109,8 +109,8 @@
 .w-prints{fill:var(--shade);opacity:.32}
 .w-runs{opacity:.5}
 .w-deckglow{opacity:.62}
-.w-wallao{fill:var(--shade);opacity:.1}
-.w-eavesh{fill:var(--shade);opacity:.22}
+.w-wallao{fill:var(--shade);opacity:.12}
+.w-eavesh{fill:var(--shade);opacity:.3}
 .w-shopw{fill:var(--r4);opacity:.78}
 .w-awning{fill:color-mix(in oklab,var(--r3) 70%,var(--go));opacity:.9}
 .w-joint{fill:none;stroke:var(--shade);stroke-width:.6;opacity:.2}
@@ -121,8 +121,9 @@
 :root[data-dark="1"] .w-rutl{opacity:.08}
 .w-gravelwl{fill:var(--r4);opacity:.3}
 .w-conc1{filter:brightness(.92)}.w-conc2{filter:brightness(.84)}.w-conc3{filter:brightness(.74)}
-.w-ring{fill:none;stroke:var(--r5);stroke-width:1.1;opacity:.85}
-.w-ringnet{fill:none;stroke:var(--r5);stroke-width:.45;opacity:.5}
+/* a crab ring set down on a float: its own class (.w-ring is a piling's ring on the water) */
+.w-crabring{fill:none;stroke:var(--r5);stroke-width:1.3;opacity:.9}
+.w-ringnet{fill:none;stroke:var(--r5);stroke-width:.5;opacity:.6}
 .w-buoy{fill:color-mix(in oklab,var(--gold) 70%,var(--r2))}
 .w-ringline{fill:none;stroke:var(--r5);stroke-width:.5;opacity:.55}
 .w-stepdrop{fill:none;stroke:var(--r5);stroke-width:1.4;opacity:.55}
@@ -250,7 +251,32 @@
    of every spot on a card: the towns' glow on the low cloud (warm), low
    along the skyline, and its soft sheen on the water under it. */
 :root[data-sky="night"] .scene[data-spot][data-moonpos="side"]{--road:.14}
-:root[data-sky="night"] .scene[data-spot]:is([data-moonpos="down"],[data-moonpos="behind"],[data-moonpos="none"]){--lx:195px;--ly:170px;--glow:.46;--glowx:3.4;--glowy:.36;--glowc:color-mix(in oklab,var(--lampc) 30%,var(--ink2));--road:.24;--gr:.3}
+/* a moon of no strength (a sliver, data-moonweak) lights nothing wherever it
+   stands, so its night is the towns' like a moonless one; a bright one just
+   off a side lights the sky on that side wide and strong */
+:root[data-sky="night"] .scene[data-spot][data-moonpos="side"][data-moonlit]{--glow:calc(.14 + var(--moon)*.46);--glowx:2.2;--glowy:.9}
+:root[data-sky="night"] .scene[data-spot]:is([data-moonpos="down"],[data-moonpos="behind"],[data-moonpos="none"],[data-moonweak]){--lx:195px;--ly:170px;--glow:.46;--glowx:3.4;--glowy:.36;--glowc:color-mix(in oklab,var(--lampc) 30%,var(--ink2));--road:.24;--gr:.3}
+/* The night at a spot (scene.js nightSky, nightWater): the towns' glow on
+   the low cloud over the skyline, its sheen and faint glints on the water
+   under it, whatever the moon (less of it under a bright moon); a bright
+   moon in the picture or just off a side (data-moonlit) lays silver on its
+   side of the water, sparkles the ripples and rims the trees, the brush and
+   the trunks on that side. A card's lamps and lanterns stay the brightest
+   thing in the picture. Never by day. */
+.w-townsky,.w-townwater,.w-moonwater,.w-moonrim{opacity:0}
+.w-townc{fill:color-mix(in oklab,var(--lampc) 64%,var(--hz))}
+.w-townfl{fill:color-mix(in oklab,var(--lampc) 62%,var(--glintc))}
+.w-moonfl{fill:color-mix(in oklab,var(--ink2) 55%,var(--lum))}
+.w-moonrim{fill:color-mix(in oklab,var(--ink2) 72%,var(--r5));transform:translate(var(--rimx),var(--rimy))}
+:root[data-sky="night"]{--town:1}
+:root:is([data-sky="dusk"],[data-sky="firstLight"]){--town:.7}
+:root[data-sky="night"] [data-moonlit]{--town:.55}
+:root:is([data-sky="night"],[data-sky="dusk"],[data-sky="firstLight"]) :is(.w-townsky,.w-townwater){opacity:var(--town)}
+:root[data-sky="night"] .w-moonwater{opacity:1}
+:root[data-sky="night"] [data-moonlit] .w-moonrim{opacity:.85}
+:root[data-sky="night"] [data-moonlit="left"]{--rimx:-1.3px;--rimy:-.4px;--litl:.34;--litr:0}
+:root[data-sky="night"] [data-moonlit="right"]{--rimx:1.3px;--rimy:-.4px;--litl:0;--litr:.34}
+:root[data-sky="night"] [data-moonlit] .w-riffle{stroke:color-mix(in oklab,var(--ink2) 70%,var(--lum));opacity:.75}
 /* fog: the far things go first */
 .w-fog{fill:var(--hz);opacity:calc(var(--fog,0)*.66)}
 .w-fog2{opacity:calc(var(--fog,0)*.28)}
@@ -327,9 +353,13 @@
 /* walls: a seawall's face; a building's wall and roof (white siding and a
    pale green roof at the boathouse, their own classes below) */
 .w-wall{fill:color-mix(in oklab,var(--r3) 70%,var(--bg))}
-.w-wallside{filter:brightness(.86)}
+.w-wallside{filter:brightness(.72)}
+:root[data-dark="1"] .w-wallside{filter:brightness(.78)}
 .w-roofside{filter:brightness(.82)}
 .w-win{fill:var(--r4);opacity:.7}
+/* by day a pane holds a little of the sky, under the dark head of its frame */
+.w-pane{fill:color-mix(in oklab,var(--r4) 62%,var(--hz));opacity:.85}
+.w-winhead{fill:var(--r5);opacity:.45}
 .w-wallw{fill:color-mix(in oklab,var(--hz) 26%,var(--lum))}
 .w-roofg{fill:color-mix(in oklab,color-mix(in oklab,var(--hz) 62%,var(--go)) 70%,var(--lum))}
 .w-flag{fill:color-mix(in oklab,var(--r2) 60%,var(--lum))}
@@ -421,6 +451,16 @@
 .w-lawndap{fill:var(--glowc);opacity:.16}
 .w-tuft2{fill:var(--r5);opacity:.7}
 .w-sandnear{fill:var(--shade);opacity:.13}
+/* a long flat (Dash Point): the sand toward you wet and darker in steps,
+   its sheen broken into pools that hold the sky, dark runnels draining it */
+.w-sandwet{fill:color-mix(in oklab,var(--water2) 55%,var(--shade));opacity:.17}
+.w-poolnear{fill:color-mix(in oklab,var(--hz) 60%,var(--water1));opacity:.8}
+.w-poollip{fill:none;stroke:var(--shade);stroke-width:.8;opacity:.28;stroke-linecap:round}
+.w-runnel{fill:color-mix(in oklab,var(--water2) 60%,var(--shade));opacity:.34}
+.w-figrefl{fill:var(--r5);opacity:.2}
+/* the dry storm berm at the top of a beach: dry sand, paler than the wet, its edge soft */
+.w-berm{fill:color-mix(in oklab,var(--bg) 70%,var(--r3));opacity:.6;filter:blur(1.4px)}
+:root[data-dark="1"] .w-berm{fill:color-mix(in oklab,var(--bg) 70%,var(--r3));opacity:.5}
 /* a Sound flat with value: its wetter middle darker, ripple crests lit */
 .w-flatdk{fill:var(--shade);opacity:.15}
 /* a feed lake's bare earth bank: a dark bank, its stones small and dim (never a pale spit or a ramp) */
@@ -488,7 +528,7 @@
 .w-leveesl{fill:color-mix(in oklab,var(--r3) 70%,var(--glowc));opacity:.22}
 .w-pathv{fill:var(--r4);opacity:.45}
 /* a big tree's bark: one side lit, furrows down it */
-.w-barkl{fill:var(--glowc);opacity:calc(.08 + var(--litl) + var(--litr))}
+.w-barkl,.w-barkg{fill:var(--glowc);opacity:calc(.08 + var(--litl) + var(--litr))}
 .w-barkd{fill:none;stroke:var(--shade);stroke-width:1.1;opacity:.35;stroke-linecap:round}
 /* drawdown stumps: weathered wood, lit tops, dark wet rings */
 .w-stump{fill:color-mix(in oklab,var(--r3) 70%,var(--gold))}

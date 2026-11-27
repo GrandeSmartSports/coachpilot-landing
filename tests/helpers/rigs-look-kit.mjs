@@ -19,6 +19,9 @@ export const SPRING_DAYS = ["2027-05-03", "2027-05-04", "2027-05-05", "2027-05-0
 // kayak at Dash Point, coho on the Green, crab off the Westport float.
 export const SEPT_NOW = new Date("2027-09-13T12:00:00-07:00"); // a Monday, noon
 export const SEPT_DAYS = ["2027-09-13", "2027-09-14", "2027-09-15", "2027-09-16", "2027-09-17", "2027-09-18", "2027-09-19"];
+// a December week: the winter steelhead trips (Tokul, the Cowlitz)
+export const DEC_NOW = new Date("2026-12-07T12:00:00-08:00"); // a Monday, noon
+export const DEC_DAYS = ["2026-12-07", "2026-12-08", "2026-12-09", "2026-12-10", "2026-12-11", "2026-12-12", "2026-12-13"];
 // rain: { "2026-11-28": [8, 9] }, the hours it rains (a tenth of an inch).
 function wxPoint(days, rain = {}) {
   const time = [], t = [], p = [], w = [], g = [], c = [];
