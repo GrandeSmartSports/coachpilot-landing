@@ -1068,6 +1068,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       out = out.concat(own(sp.cards));
       (sp.locations || []).forEach(function (l) { out = out.concat(own(l.cards)); });
     });
+    // and a spot's own cards (Orting's rules), so they go in a trip too
+    spots().forEach(function (s) { out = out.concat(own(spotCards(s))); });
     return out;
   }
 
@@ -1193,8 +1195,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     });
   }
   // A spot with no cards behind it is an empty widget, so it never shows.
+  // Its cards are its fish's, or its own (Orting: rules, and no fish).
+  function spotCards(s) { return (s && s.cards) || []; }
   function spotsOfType(t) {
-    return spots().filter(function (s) { return s.types.indexOf(t) !== -1 && speciesAt(s.id).length; });
+    return spots().filter(function (s) { return s.types.indexOf(t) !== -1 && (speciesAt(s.id).length || spotCards(s).length); });
   }
 
   // ---- pictures for the library --------------------------------------------
@@ -1410,7 +1414,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     cameFrom = t.id;
     var list = spotsOfType(t.id), wx = plannerReady() && RIG.trips.cached ? RIG.trips.cached() : null;
     var rows = list.map(function (s) {
-      var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
+      var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ") || s.fish || "";
       return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id, "", { data: wx, type: t.id })) +
         '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + '</span><span class="rm">' + esc(names) + "</span></span>" + IC.chev + '</a>';
     }).join("");
@@ -1438,11 +1442,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<a class="row pic" href="#/' + esc(sp.id) + "/" + esc(s.id) + '" data-row-species="' + esc(sp.id) + '">' + fishHtml(sp.id, "fishtile") +
         '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? '<span class="whole">' + esc(sp.hint) + "</span>" : "") + '<span class="rm">' + n + (n === 1 ? " card" : " cards") + "</span></span>" + IC.chev + '</a>';
     }).join("");
+    // A spot's own cards (Orting: its rules and its park) follow its fish,
+    // and a closed fish is said plainly under them, on the red edge.
+    rows += spotCards(s).map(function (c) { return rowHtml(c, "#/spot/" + s.id + "/" + c.id); }).join("");
+    var closed = s.closed ? '<div class="rule" data-spot-closed><span class="tx"><b>' + esc(s.closed.head) + "</b><span>" + esc(s.closed.line) + "</span></span></div>" : "";
     var t = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
     app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id, "", t ? { type: t.id } : null)) +
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
         chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
-        '<div class="float list">' + rows + "</div></div>" + tripBarHtml();
+        (spotCards(s).some(function (c) { return c.dated; }) ? '<div data-rules-slot' + slotAttrs(s.id, "", oldestDated(spotCards(s))) + "></div>" : "") +
+        '<div class="float list">' + rows + "</div>" + closed + "</div>" + tripBarHtml();
   }
 
   function renderFish() {
@@ -3221,7 +3230,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (f.ends) lines.push("The NOAA river forecast runs to " + f.ends + ".");
     return whenP(head) + stepsHtml(lines) +
       boxHtml("tip", "the numbers", stepsHtml(["Up to " + cfsTxt(f.good) + " cfs: fishable.", cfsTxt(f.good) + " to " + cfsTxt(f.high) + " cfs: high, tough.",
-        "Over " + cfsTxt(f.high) + " cfs: blown out, no trip.", "Guide numbers for " + f.gauge + ". They get tuned after real trips."])) +
+        "Over " + cfsTxt(f.high) + " cfs: blown out, no trip.", (f.lead ? "Starting numbers for " : "Guide numbers for ") + f.gauge + ". They get tuned after real trips."])) +
       boxHtml("", "check it live", '<a href="https://waterdata.usgs.gov/monitoring-location/' + esc(f.usgs) + '/" target="_blank" rel="noopener">USGS gauge, ' + esc(f.gauge) + '</a>');
   }
   function moreRows(run) {
@@ -5229,9 +5238,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (parts[0] === "spot") {
       var s = findSpot(parts[1]);
       if (!s) { renderHome(); return; }
-      var at = speciesAt(s.id);
+      var at = speciesAt(s.id), own = spotCards(s), sc = parts[2] && own.filter(function (c) { return c.id === parts[2]; })[0];
+      if (sc) {
+        var ty = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
+        renderCard({ tab: "water", active: ty && ty.id, card: sc, list: ordered(own), scene: spotKind(s.id), paint: placePaint(s.id, "", ty ? { type: ty.id } : null),
+          rules: sc.dated ? { spot: s.id, species: "", since: sc.dated } : null,
+          hrefFor: function (c) { return "#/spot/" + s.id + "/" + c.id; }, upHref: "#/spot/" + s.id, upText: s.name });
+        return;
+      }
       // One fish at this spot: a menu of one is a wasted tap.
-      if (at.length === 1) { location.replace("#/" + at[0].id + "/" + s.id); return; }
+      if (at.length === 1 && !own.length) { location.replace("#/" + at[0].id + "/" + s.id); return; }
       renderSpot(s);
       return;
     }
