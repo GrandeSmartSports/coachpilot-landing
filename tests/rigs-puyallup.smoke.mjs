@@ -31,9 +31,10 @@ const DAYS = ["2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-1
 const CORS = { "access-control-allow-origin": "*" };
 const json = (r, body) => r.fulfill({ status: 200, contentType: "application/json", headers: CORS, body: JSON.stringify(body) });
 // Calm and dry all week, September's sun. The 128th St E bridge gets a breeze
-// (12 mph), so Sumner is the Puyallup trip this week.
-function wxPoint(lat) {
-  const time = [], t = [], p = [], w = [], g = [], c = [], breezy = Math.abs(lat - 47.1402) < 0.001;
+// (12 mph), so Sumner is the Puyallup trip this week. windy: the latitudes
+// that get the breeze instead.
+function wxPoint(lat, windy = [47.1402]) {
+  const time = [], t = [], p = [], w = [], g = [], c = [], breezy = windy.some((x) => Math.abs(lat - x) < 0.001);
   for (const d of DAYS) for (let h = 0; h < 24; h++) { time.push(`${d}T${pad(h)}:00`); t.push(58); p.push(0); c.push(70); w.push(breezy ? 12 : 4); g.push(breezy ? 16 : 8); }
   return { hourly: { time, temperature_2m: t, precipitation: p, wind_speed_10m: w, wind_gusts_10m: g, cloud_cover: c },
     daily: { time: DAYS, sunrise: DAYS.map((d) => `${d}T06:48`), sunset: DAYS.map((d) => `${d}T19:20`) } };
@@ -47,7 +48,7 @@ const puyw1 = { observed: Object.assign({ data: [{ validTime: "2026-09-14T18:00:
   forecast: Object.assign({ data: DAYS.map((d) => ({ validTime: `${d}T20:00:00Z`, primary: 9.9, secondary: 1.2 })) }, STAGE_FIRST) };
 const other = { observed: { primaryName: "River Discharge", primaryUnits: "kcfs", secondaryName: "Stage", secondaryUnits: "ft", data: [{ validTime: "2026-09-14T18:00:00Z", primary: 0.41, secondary: 50 }] },
   forecast: { primaryName: "River Discharge", primaryUnits: "kcfs", secondaryName: "Stage", secondaryUnits: "ft", data: DAYS.map((d) => ({ validTime: `${d}T20:00:00Z`, primary: 0.4, secondary: 50 })) } };
-async function fake(ctx) {
+async function fake(ctx, windy) {
   const asked = [];
   await ctx.route(/castai-waters/, (r) => r.abort());
   await ctx.route(/castai-rules/, (r) => json(r, { checked: NOW.toISOString(), rules: [] }));
@@ -55,7 +56,7 @@ async function fake(ctx) {
   await ctx.route(/api\.open-meteo\.com|marine-api\.open-meteo\.com|api\.tidesandcurrents\.noaa\.gov/, (route) => {
     const u = route.request().url(), lats = (new URL(u).searchParams.get("latitude") || "").split(",").map(Number);
     if (/marine-api/.test(u)) return json(route, lats.map(() => ({ hourly: { time: DAYS.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${pad(h)}:00`)), wave_height: DAYS.flatMap(() => Array(24).fill(4)) } })));
-    return json(route, /open-meteo/.test(u) ? lats.map(wxPoint) : tides);
+    return json(route, /open-meteo/.test(u) ? lats.map((lat) => wxPoint(lat, windy)) : tides);
   });
   return asked;
 }
@@ -83,8 +84,15 @@ try {
   ok(byDay.every(([, ids]) => ids.every((id) => id === "coho-puyallup-sumner")), "mid September is coho, and this week Sumner's", byDay);
   ok(!(await page.evaluate(() => [...document.querySelectorAll("[data-hot]")].some((r) => /orting/.test(r.dataset.hot)))), "no trip at Orting");
   const row = await page.evaluate(() => { const r = document.querySelector('[data-day="2026-09-16"] [data-hot="coho-puyallup-sumner"]'), t = r && r.querySelector(".tile");
-    return r ? { kind: t.dataset.mini, kids: t.querySelectorAll("svg *").length, text: r.innerText.replace(/\s+/g, " ") } : null; });
-  ok(row && row.kind === "river" && row.kids > 20 && /Coho on the Puyallup at Sumner/.test(row.text) && /After work/.test(row.text), "the Wednesday row: Sumner's river thumbnail, the name, after work", row);
+    return r ? { kind: t.dataset.mini, spot: t.dataset.miniSpot, kids: t.querySelectorAll("svg *").length, text: r.innerText.replace(/\s+/g, " ") } : null; });
+  ok(row && row.kind === "river" && row.spot === "puyallup-sumner" && row.kids > 20 && /Coho on the Puyallup at Sumner/.test(row.text) && /After work/.test(row.text), "the Wednesday row: Sumner's own river thumbnail, the name, after work", row);
+  // Whose picture each row shows: the Puyallup rows Sumner's, the Green's rows the Green's, and the two differ.
+  const thumbs = await page.evaluate(() => [...document.querySelectorAll("[data-day] [data-hot]")].map((r) => { const t = r.querySelector(".tile");
+    return { plan: r.dataset.hot, spot: t && t.dataset.miniSpot, svg: t && t.querySelector("svg") ? t.querySelector("svg").innerHTML : "" }; }));
+  const puyT = thumbs.filter((x) => /puyallup-sumner$/.test(x.plan)), greenT = thumbs.filter((x) => /green-river$/.test(x.plan));
+  ok(puyT.length && puyT.every((x) => x.spot === "puyallup-sumner") && greenT.length && greenT.every((x) => x.spot === "green-river") &&
+    !greenT.some((g) => puyT.some((p) => p.svg === g.svg)), "each row's thumbnail is its own spot's: Sumner on the Puyallup rows, the Green on the Green's, never the same drawing",
+    thumbs.map((x) => x.plan + ":" + x.spot));
   ok(await wide() <= 390, "Hot Trips fits the phone");
 
   // ---- the Sumner run card ----------------------------------------------------------------
@@ -95,7 +103,10 @@ try {
   ok(secs.join(",") === "plan,gear,river,what,bait,how,wx,spot,expect,rules", "the Green's sections: the plan, gear and river as pictures, then what, bait, how, weather, the spot, what to expect, rules", secs.join(","));
   const riverTile = (await page.locator('[data-sec-row="river"]').innerText()).replace(/\s+/g, " ");
   ok(/Go: 1,200 cfs/.test(riverTile) && /fishable to 1,800/.test(riverTile), "the river tile reads the flow, not the stage: go at 1,200 cfs, fishable to 1,800", riverTile);
-  ok((await page.locator('[data-sec-row="rules"] .tx > span').innerText()).trim() === "6 salmon a day, no more than 2 adults", "the rules row leads with the limit", await page.locator('[data-sec-row="rules"] .tx > span').innerText());
+  ok((await page.locator('[data-sec-row="rules"] .tx > span').innerText()).replace(/\s+/g, " ").trim() === "The White is closed to salmon. 6 salmon a day, no more than 2 adults",
+    "the rules row: the White is closed to salmon, then the limit", await page.locator('[data-sec-row="rules"] .tx > span').innerText());
+  ok((await page.locator('[data-sec-row="spot"] .tx > span').innerText()).replace(/\s+/g, " ").trim() === "Cast into the Puyallup only, never into the White behind you",
+    "the spot row: cast into the Puyallup only, never into the White", await page.locator('[data-sec-row="spot"] .tx > span').innerText());
   ok(/Leave by/.test(await page.locator('[data-sec-row="plan"]').innerText()) && /14 min drive/.test(await page.locator('[data-sec-row="plan"]').innerText()), "the plan says when to leave and the drive");
   ok(await wide() <= 390, "the run card fits the phone");
   // Each row says one thing, whole, on a line or two, at 390 and 360 px.
@@ -131,6 +142,8 @@ try {
   await page.waitForSelector('[data-view="card"] [data-card="puyallup-rules"]');
   const pr = await page.locator(".card").innerText();
   ok(/Aug 19 to Oct 31, 2026/.test(pr) && /closed to salmon/i.test(pr), "the Puyallup rules card opens", pr.slice(0, 300));
+  ok(/From 400 ft above Clark's Creek up to the Carbon River/.test(pr) && /400 ft below to 400 ft above Clark's Creek: closed to all fishing/.test(pr) && /from the Carbon River mouth upstream/.test(pr) &&
+    /Release cutthroat and wild rainbow trout/.test(pr), "and names its stretch, the Clark's Creek closure, the Carbon mouth and the trout rule", pr.slice(0, 900));
 
   // A Sunday in September is not a trip, even asked for by its address.
   await page.evaluate(() => { location.hash = "#/learn"; location.hash = "#/trips/" + encodeURIComponent("2026-09-20~coho-puyallup-sumner"); });
@@ -168,6 +181,46 @@ try {
   await go("#/coho/puyallup-sumner", '[data-view="species"] [data-row="puyallup-rules"]');
   ok(await page.locator('[data-view="species"] [data-row="puyallup-sumner-spot"]').count() === 1 && await page.locator('[data-view="species"] [data-row="green-river-rules"]').count() === 0,
     "coho at Sumner: the Puyallup's rules and the point, not the Green's rules");
+
+  // The same week with the breeze at Sumner and on the Green (a tie with a
+  // proven bank goes to the proven one): the 128th is the coho trip, and its
+  // face says to stay below the Carbon, closed to salmon above it.
+  const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles", serviceWorkers: "block" });
+  await fake(ctx2, [47.1996, 47.3]);
+  const p2 = await ctx2.newPage();
+  p2.on("pageerror", (e) => errors.push(e.message));
+  await p2.clock.setFixedTime(NOW);
+  await p2.goto(base + "#/trips", { waitUntil: "load" });
+  await p2.waitForSelector('[data-day="2026-09-17"] [data-hot="coho-puyallup-128th"] .tile svg');
+  ok(await p2.evaluate(() => document.querySelector('[data-day="2026-09-17"] [data-hot="coho-puyallup-128th"] .tile').dataset.miniSpot) === "puyallup-128th", "a breeze at Sumner and the Green: the 128th's row, with its own thumbnail");
+  for (const w of [390, 360]) {
+    await p2.setViewportSize({ width: w, height: 844 });
+    await p2.evaluate((h) => { location.hash = "#/learn"; location.hash = h; }, T("2026-09-17", "coho-puyallup-128th"));
+    await p2.waitForSelector('[data-view="hot"][data-run="coho-puyallup-128th"] [data-sec-row="plan"]');
+    const face = await p2.evaluate(() => ({ spot: document.querySelector('[data-sec-row="spot"] .tx > span').textContent, rules: document.querySelector('[data-sec-row="rules"] .tx > span').textContent,
+      cut: [...document.querySelectorAll('[data-view="hot"] .row .tx > span, [data-view="hot"] .rule .tx > span')].filter((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().height > 44).map((e) => e.textContent) }));
+    ok(face.spot === "Stay below the Carbon River mouth, 3/4 mile upstream" && face.rules === "Salmon closed above the Carbon. 6 salmon a day, no more than 2 adults" && !face.cut.length,
+      "at " + w + " px the 128th's spot and rules rows say the Carbon closure, whole", face);
+  }
+  await p2.setViewportSize({ width: 390, height: 844 });
+  await p2.evaluate((h) => { location.hash = "#/learn"; location.hash = h; }, T("2026-09-17", "coho-puyallup-128th", "spot"));
+  await p2.waitForSelector('[data-view="card"] [data-card="spot"]');
+  const s128 = await p2.locator(".card").innerText();
+  ok(/The Carbon River comes in about 3\/4 mile upstream\. Above it the Puyallup is closed to salmon all year\./.test(s128) && /One 2018 report saw two people fishing the river bed at the bridge\./.test(s128),
+    "the 128th's spot card: the Carbon closure, and the river bed as one 2018 report", s128.slice(0, 700));
+
+  // August 2027: pinks run, but no pink plan's rules are read for 2027, so
+  // the Fish tab never says "In now" for them.
+  const p27 = await ctx2.newPage();
+  p27.on("pageerror", (e) => errors.push(e.message));
+  await p27.clock.setFixedTime(new Date("2027-08-25T12:00:00-07:00"));
+  await p27.goto(base + "#/fish", { waitUntil: "load" });
+  await p27.waitForSelector('.pickcard[data-species="pink"]');
+  const pink27 = await p27.evaluate(() => { const t = document.querySelector('.pickcard[data-species="pink"]'), c = document.querySelector('.pickcard[data-species="coho"]');
+    return { now: t.dataset.now, tag: (t.querySelector(".st") || {}).textContent || "", coho: c.dataset.now }; });
+  ok(pink27.now !== "on" && pink27.now !== "hot" && !/In now/i.test(pink27.tag), "August 2027: pinks are not In now until their rules are read", pink27);
+  await p27.close();
+  await ctx2.close();
 
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 } catch (e) {

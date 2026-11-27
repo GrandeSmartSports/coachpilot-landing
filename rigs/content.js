@@ -960,7 +960,7 @@
     // on the spot itself (added with the salmon below), and `fish` is the
     // line its row says instead of a list of fish.
     { id: "puyallup-sumner", name: "Puyallup at Sumner", where: "Two-Rivers Point, Sumner", types: ["river"] },
-    { id: "puyallup-128th", name: "Puyallup at 128th St E", where: "128th St E bridge, Alderton", types: ["river"] },
+    { id: "puyallup-128th", name: "Puyallup at 128th St E", where: "128th St E bridge, Pierce County", types: ["river"] },
     { id: "puyallup-orting", name: "Puyallup at Orting", where: "Calistoga Park, Orting", types: ["river"],
       fish: "Trout and game fish. No salmon",
       closed: { head: "No salmon here", line: "Salmon is closed above the Carbon River, all year." } },
@@ -1268,19 +1268,31 @@
   var PUY_RIVER = RIVER.filter(function (id) { return GREEN_ONLY.indexOf(id) === -1; });
   R.shared.push(
     { id: "puyallup-rules", tab: "River rules", group: "before", title: "Puyallup rules", dated: "2026-11-27", shelfDays: 180,
-      body: when("Below the Carbon River: Aug 19 to Oct 31, 2026. Each year's dates come in that year's WDFW pamphlet.") +
+      // The pamphlet's stretches, top to bottom: "from Carbon River upstream"
+      // (no salmon line), "from 400' upstream of Clark's Creek to Carbon
+      // River" (Sumner and the 128th), "from 400' downstream to 400'
+      // upstream of Clark's Creek: All species CLOSED WATERS.", and "from
+      // the 11th St. Bridge to 400' downstream of Clark's", with the same
+      // dates and rules as the stretch above Clark's Creek. Below the 11th
+      // St. Bridge is not in this listing.
+      body: when("From 400 ft above Clark's Creek up to the Carbon River: Aug 19 to Oct 31, 2026. Each year's dates come in that year's WDFW pamphlet.") +
         box("law", "closed days", "Sundays, Mondays and Tuesdays, Aug 19 to Sept 30. Open every day in October.") +
         box("", "salmon", "6 a day, no more than 2 adults. 12 inch minimum. Release chum and wild Chinook. Adults are kings 24 inches and up, coho 20, pinks and chum 12. Once you keep 2 adults, your salmon day is done.") +
-        box("law", "every rig", "Barbless hooks. Anti-snagging rule: one single point hook, 3/4 inch or less point to shank, at or below the lure or bait, and no weight below it or less than 12 inches above it. The one exception is a buoyant lure with no weight added to the line or lure: then up to three hooks on one line, still barbless.") +
+        box("", "trout", "Aug 19 to Oct 31. Statewide size and daily limit. Release cutthroat and wild rainbow trout.") +
+        box("law", "every rig", "Barbless hooks. Anti-snagging rule: one single point hook, 3/4 inch or less point to shank, at or below the lure or bait. No weight below the lure or bait, and none less than 12 inches above it. The one exception is a buoyant lure with no weight added to the line or lure: then up to three hooks on one line, still barbless.") +
         box("law", "night closure", "Off the water one hour after sunset, back on one hour before sunrise.") +
-        box("law", "closed water", "The White River, all of it, is closed to salmon. So is the Puyallup above the Carbon River, at Orting.") +
+        box("law", "closed water", "The White River, all of it, is closed to salmon. So is the Puyallup from the Carbon River mouth upstream, Orting included. The Puyallup from 400 ft below to 400 ft above Clark's Creek: closed to all fishing.") +
+        box("", "downstream", "From the 11th St Bridge to 400 ft below Clark's Creek: the same dates and rules. Below the 11th St Bridge is not in this listing.") +
         box("", "source", "2026-27 WDFW pamphlet, Puget Sound coastal rivers. Check the " + EMERG + " before you go.") },
     { id: "puyallup-sumner-spot", tab: "Two-Rivers Point", group: "before", title: "Two-Rivers Point, Sumner",
       body: when("The strip of land between the Puyallup and the White, just above where they join.") +
         box("law", "cast into the Puyallup", "Stand on the point and cast across the Puyallup. Never into the White behind you: it is closed to salmon.") +
-        box("", "parking", "City of Sumner State Street Trailhead, 13114 63rd St E. Public parking and restrooms, the restrooms in daylight hours. Walk west on the Sumner Link Trail past the wastewater plant.") },
+        box("", "parking", "City of Sumner State Street Trailhead, 13114 63rd St E. Public parking and restrooms, the restrooms in daylight hours. The point is a few hundred feet west of the trailhead.") +
+        box("law", "not confirmed", "The walking route from the trailhead to the point.") },
     { id: "puyallup-128th-spot", tab: "128th St E", group: "before", title: "The 128th St E bridge",
-      body: when("About 3/4 mile below the Carbon River. Anglers fish the river bed at the bridge.") +
+      body: when("About 3/4 mile below the Carbon River.") +
+        box("law", "closed water upstream", "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon itself opens Sept 1, Wednesday to Saturday only in September.") +
+        box("", "one report", "In 2018 one angler saw two people fishing the river bed at the bridge.") +
         box("", "parking", "WDFW Weiss access, at the end of 116th St E, on the west bank about 3/4 mile below the bridge. Open to cars only in the fishing season. One unimproved ramp, no restrooms.") +
         box("law", "pass", "A Discover Pass, or the Vehicle Access Pass that comes free with an annual fishing license.") +
         box("law", "not confirmed", "Parking at the bridge itself, and which bank there is public. Stay off the private roads and farm fields.") }
@@ -1426,12 +1438,19 @@
   // species; trout and other game fish "Sat. before Memorial Day-Jan. 15",
   // trout "Statewide min. size/daily limit. Except: release cutthroat trout
   // and wild rainbow trout." No salmon line: closed to salmon all year.
+  // Selective gear rules, as WDFW defines them
+  // (https://www.eregulations.com/washington/fishing/definitions, 2026-27):
+  // "Gear is limited to artificial flies with barbless single-point hooks or
+  // lures with barbless single-point hooks and bait is prohibited. Up to 3
+  // hooks may be used. Only knotless nets may be used to land fish." And
+  // bait: "Any substance which attracts fish by scent or flavors, including
+  // any lure which uses scent or flavoring to attract fish."
   R.spots.filter(function (x) { return x.id === "puyallup-orting"; })[0].cards = [
     { id: "orting-rules", tab: "Rules", group: "before", title: "What is open at Orting", dated: "2026-11-27", shelfDays: 180,
       body: when("Trout and game fish, selective gear.") +
         box("law", "no salmon", "The Puyallup above the Carbon River has no salmon season. Salmon fishing here is closed all year.") +
         box("law", "season", "Trout and other game fish, from the Saturday before Memorial Day to Jan 15.") +
-        box("law", "selective gear rules", "Artificial flies or lures only, on barbless single point hooks. No bait. Up to 3 hooks. Only a knotless net to land a fish.") +
+        box("law", "selective gear rules", "Artificial flies or lures only, on barbless single point hooks. No bait. Scented yarn or lures count as bait. Up to 3 hooks. Only a knotless net to land a fish.") +
         box("", "trout", "Statewide size and daily limit. Release cutthroat and wild rainbow trout.") +
         box("", "other game fish", "Statewide size and daily limit.") +
         box("", "source", "2026-27 WDFW pamphlet, Puget Sound coastal rivers. Check the " + EMERG + " before you go.") },

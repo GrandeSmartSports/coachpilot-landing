@@ -71,7 +71,11 @@
     // carry no drive times, so these are the map estimate the feed lakes use
     // (straight line from Bonney Lake, km x 1.05 + 8 minutes).
     { id: "puyallup-sumner", name: "Puyallup at Sumner", lat: 47.1996, lon: -122.2565, drive: 14, river: puyallupRiver() },
-    { id: "puyallup-128th", name: "Puyallup at 128th St E", lat: 47.1402, lon: -122.2267, drive: 13, river: puyallupRiver() },
+    // bankUnproven: no public bank is proven at the stand itself (the 128th
+    // St E bridge: OSM has no park, path or lot within 900 m, and WDFW lists
+    // no site there; only the Weiss lot 3/4 mile down is proven). On a tie it
+    // gives way to a spot whose bank is proven, so the call is Sumner's.
+    { id: "puyallup-128th", name: "Puyallup at 128th St E", lat: 47.1402, lon: -122.2267, drive: 13, river: puyallupRiver(), bankUnproven: true },
     { id: "puyallup-orting", name: "Puyallup at Orting", lat: 47.0899, lon: -122.211, drive: 18 }
   ];
 
@@ -458,19 +462,20 @@
       out.trips.forEach(function (t) { if (!best[t.planId] || t.score > best[t.planId].score) best[t.planId] = t; });
       // Same fish, same way of fishing (four squid piers, five stocked
       // lakes): only the best one is listed, and it names the others as
-      // backups. A tie goes to the shorter drive.
+      // backups. A tie goes to a spot whose bank is proven, then the shorter
+      // drive.
       var lead = {};
       Object.keys(best).forEach(function (k) {
         var t = best[k], g = t.species + "|" + t.how, l = lead[g];
         if (!l) { lead[g] = { top: t, alts: [] }; return; }
-        if (t.score > l.top.score || (t.score === l.top.score && t.drive < l.top.drive)) { l.alts.push(l.top); l.top = t; }
+        if (t.score > l.top.score || (t.score === l.top.score && tieBreak(t, l.top) < 0)) { l.alts.push(l.top); l.top = t; }
         else l.alts.push(t);
       });
       best = {};
       Object.keys(lead).forEach(function (g) {
         var l = lead[g], t = l.top;
         if (l.alts.length) {
-          t.alts = l.alts.sort(function (a, b) { return b.score - a.score || a.drive - b.drive; }).map(function (x) { return x.planId; });
+          t.alts = l.alts.sort(function (a, b) { return b.score - a.score || tieBreak(a, b); }).map(function (x) { return x.planId; });
           t.why = t.why.concat("Also good: " + l.alts.slice(0, 3).map(function (x) { return x.name.replace(/^.* (at|from) (the )?/, ""); }).join(", "));
         }
         best[t.planId] = t;
@@ -516,6 +521,10 @@
     }
     return { days: days, notListed: Object.keys(notListed).map(function (k) { return notListed[k]; }) };
   }
+
+  // Two trips that score the same: the one whose bank is proven first, then
+  // the shorter drive. Below 0: a goes first.
+  function tieBreak(a, b) { return (a.unproven ? 1 : 0) - (b.unproven ? 1 : 0) || a.drive - b.drive; }
 
   // One trip on one day, asked for by id: what a crew trip page shows.
   // Same season, rules and scoring as the week, but it answers whatever the
@@ -660,7 +669,7 @@
       planId: p.id, species: p.species, spot: p.spot, how: p.how, name: p.name,
       slot: slot.id === "long" && to - from <= 4 ? "Quick trip" : slot.label,
       from: from, to: to, when: clock(from) + " to " + clock(to),
-      drive: spot.drive, score: score, heat: score >= 8 ? "Hot" : score >= 6 ? "Good" : "Slow", why: why, gear: p.gear || "",
+      drive: spot.drive, unproven: !!spot.bankUnproven, score: score, heat: score >= 8 ? "Hot" : score >= 6 ? "Good" : "Slow", why: why, gear: p.gear || "",
       wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) },
       hours: hrs.map(function (h) { return { h: hourOf(h.t), wind: Math.round(h.wind), gust: Math.round(h.gust), temp: Math.round(h.temp), rain: h.rain, wave: h.wave }; }),
       tides: dayT.map(function (x) { return { h: hourOf(x.t), v: x.v, type: x.type }; }),
@@ -780,8 +789,9 @@
       (day.trips || []).forEach(function (t) {
         if (now != null && isToday(day) && t.to <= now) return;
         // Days come soonest first, so on a tie the sooner day is already
-        // holding the spot. Only the same day and a shorter drive takes it.
-        if (!best || t.score > best.t.score || (t.score === best.t.score && i === best.i && t.drive < best.t.drive)) best = { t: t, day: day, i: i };
+        // holding the spot. Only the same day and a proven bank or a shorter
+        // drive takes it.
+        if (!best || t.score > best.t.score || (t.score === best.t.score && i === best.i && tieBreak(t, best.t) < 0)) best = { t: t, day: day, i: i };
       });
     });
     if (!best) return { none: true, headline: "Nothing worth the drive this week.", why: noCall(days) };

@@ -1034,6 +1034,60 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
     T.runs["coho-puyallup-128th"].expect.some((l) => /Oct 17 was low and slow here, 862 cfs/.test(l)), "Coach's own days: Aug 22 crowded, the Aug 28 king on corkies, Oct 17 low and slow");
   ok(Object.keys(T.runs).filter((k) => PUY.test(k)).every((k) => T.runs[k].checked === "2026-11-27"), "the cards were checked against WDFW on 11/27");
 
+  // Reviewers' round (11/27). The closed water is on the face of the card:
+  // the spot row and the rules row each name their own line.
+  ok(sum.spot.head === "Cast into the Puyallup only, never into the White behind you." && /^The White is closed to salmon\. 6 salmon a day, no more than 2 adults\.$/.test(sum.ruleHead),
+    "Sumner's spot row says cast into the Puyallup only, never the White, and its rules row that the White is closed to salmon", [sum.spot.head, sum.ruleHead].join(" | "));
+  // The 128th: the Carbon closure about 3/4 mile upstream, in its rules, its spot, its steps and on its face.
+  const CARB = /The Carbon River comes in about 3\/4 mile upstream\. Above it the Puyallup is closed to salmon all year\. The Carbon itself opens Sept 1, Wednesday to Saturday only in September\./;
+  ok(["king-puyallup-128th", "coho-puyallup-128th", "pink-puyallup-128th"].every((k) => T.runs[k].rules.some((l) => CARB.test(l)) && T.runs[k].spot.lines.some((l) => CARB.test(l)) &&
+    T.runs[k].during.some((l) => /Stay below the Carbon River mouth\. Above it is closed to salmon\./.test(l)) && T.runs[k].spot.head === "Stay below the Carbon River mouth, 3/4 mile upstream." && /^Salmon closed above the Carbon\. 6 salmon a day, no more than 2 adults\.$/.test(T.runs[k].ruleHead)),
+    "the 128th: closed to salmon above the Carbon, 3/4 mile up, on every card and on its face", b128.rules.join(" | "));
+  ok(!Object.keys(T.runs).filter((k) => /-puyallup-sumner$/.test(k)).some((k) => T.runs[k].rules.some((l) => CARB.test(l))), "and the Carbon line is the 128th's, not Sumner's");
+  // The 2018 river bed report is said as one report, never as a fact.
+  ok(!b128.spot.lines.some((l) => /Anglers fish the river bed/.test(l)) && b128.spot.lines.includes("One 2018 report saw two people fishing the river bed at the bridge."), "the river bed line is one 2018 report", b128.spot.lines.join(" | "));
+  // Anti-snagging: the 12 inches is measured from the lure or bait, never the hook, and no unclear "it".
+  ok(Object.keys(T.runs).filter((k) => PUY.test(k)).every((k) => T.runs[k].how.includes("Keep the weight 12 inches or more above the corky, jig or bait, never below it. That is the anti-snagging rule.") &&
+    !T.runs[k].how.some((l) => /above the hook/.test(l))), "the how: weight 12 inches above the corky, jig or bait, never below it", b128.how.join(" | "));
+  ok(/No weight below the lure or bait, and none less than 12 inches above it\./.test(rl) && !/below it, or less than/.test(rl), "the rules say what the weight is measured from", rl);
+  // Sumner's walk: only what is proven (the point is west of the trailhead), and the route is not confirmed.
+  ok(!sum.spot.lines.some((l) => /wastewater/.test(l)) && sum.spot.lines.some((l) => /The point is a few hundred feet west of the trailhead\./.test(l)) && sum.spot.unknown.includes("The walking route from the trailhead to the point"),
+    "Sumner: a few hundred feet west of the trailhead, the route not confirmed", sum.spot.lines.join(" | "));
+
+  // The library's Puyallup cards (rigs/content.js).
+  const C = ctx.RIG.content, card = (id) => C.shared.find((c) => c.id === id) || C.spots.flatMap((x) => x.cards || []).find((c) => c.id === id);
+  const prc = card("puyallup-rules").body;
+  ok(/From 400 ft above Clark's Creek up to the Carbon River: Aug 19 to Oct 31, 2026\./.test(prc) && !/Below the Carbon River: Aug 19/.test(prc), "the rules card names its stretch, not all of the river below the Carbon", prc.slice(0, 300));
+  ok(/The Puyallup from 400 ft below to 400 ft above Clark's Creek: closed to all fishing\./.test(prc) && /the Puyallup from the Carbon River mouth upstream, Orting included/.test(prc) && !/at Orting\./.test(prc),
+    "its closed water: the White, the Puyallup from the Carbon mouth up, and Clark's Creek", prc);
+  ok(/From the 11th St Bridge to 400 ft below Clark's Creek: the same dates and rules\. Below the 11th St Bridge is not in this listing\./.test(prc), "and the stretch below Clark's Creek, as the pamphlet lists it");
+  ok(/Aug 19 to Oct 31\. Statewide size and daily limit\. Release cutthroat and wild rainbow trout\./.test(prc), "and the trout rule", prc);
+  ok(/No weight below the lure or bait, and none less than 12 inches above it\./.test(prc), "and the weight rule, measured from the lure or bait");
+  const c128 = card("puyallup-128th-spot").body;
+  ok(CARB.test(c128) && /In 2018 one angler saw two people fishing the river bed at the bridge\./.test(c128) && !/Anglers fish the river bed/.test(c128), "the 128th's library card: the Carbon closure, and the river bed as one report", c128);
+  ok(!/wastewater/.test(card("puyallup-sumner-spot").body) && /walking route from the trailhead to the point/.test(card("puyallup-sumner-spot").body), "the Sumner card: no unproven walking route");
+  ok(/No bait\. Scented yarn or lures count as bait\./.test(card("orting-rules").body), "Orting's selective gear: scented yarn or lures count as bait");
+  ok(C.spots.find((x) => x.id === "puyallup-128th").where === "128th St E bridge, Pierce County", "the 128th's place name is a checked one, not Alderton (the gauge 5 km down)");
+
+  // The call: Sumner and the 128th tie, and Sumner's bank is proven. The
+  // listed king trip is Sumner's, the 128th its backup, and the call is Sumner.
+  ok(T.spots.find((x) => x.id === "puyallup-128th").bankUnproven === true && !T.spots.find((x) => x.id === "puyallup-sumner").bankUnproven, "the 128th's bank is marked unproven, Sumner's is not");
+  const tie = kw.days.flatMap((d) => tripsOn(kw, d.iso).filter((t) => PUY.test(t.planId)));
+  ok(tie.length > 0 && tie.every((t) => t.planId === "king-puyallup-sumner" && (t.alts || []).includes("king-puyallup-128th") && t.why.includes("Also good: 128th St E")),
+    "on a tie the listed Puyallup trip is Sumner's, the 128th its backup, though the 128th is a minute closer", JSON.stringify(tie.map((t) => [t.planId, t.alts])));
+  const only = T.plan({ today: k0, wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: flowWeek(k0, 1300) });
+  for (const d of only.days) d.trips = d.trips.filter((t) => PUY.test(t.planId));
+  const call = T.theCall(only);
+  ok(call.trip && call.trip.planId === "king-puyallup-sumner", "the call goes to Sumner, the proven bank", call.headline);
+  // The 128th still leads when it is the better trip.
+  const bwx = week(k0, (s) => (s === "puyallup-sumner" ? { wind: 12, gust: 16 } : {}));
+  for (const k of Object.keys(bwx)) for (const d of Object.keys(bwx[k].sun)) bwx[k].sun[d] = SEP_SUN;
+  const breezy = T.plan({ today: k0, wx: bwx, tides: tidesFor(k0), flow: flowWeek(k0, 1300) });
+  const bk = breezy.days.flatMap((d) => tripsOn(breezy, d.iso).filter((t) => PUY.test(t.planId)));
+  ok(bk.length > 0 && bk.every((t) => t.planId === "king-puyallup-128th"), "and a breeze at Sumner hands the day to the 128th", JSON.stringify(bk.map((t) => [t.planId, t.score])));
+  // The tie-break for any other water is unchanged: the shorter drive.
+  ok(!T.spots.filter((x) => !/^puyallup-/.test(x.id)).some((x) => x.bankUnproven), "no other spot is marked, so a tie elsewhere still goes to the shorter drive");
+
   // The closed-weekday rule, for any water: no dates means all season.
   const test = { id: "test-days", species: "perch", spot: "lake-fenwick", ok: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], closedDays: [{ dow: [5] }], rules: "confirmed" };
   ok(T.season(test, { y: 2026, m: 12, d: 4, iso: "2026-12-04" }) === null && T.season(test, { y: 2026, m: 12, d: 5, iso: "2026-12-05" }) === "ok", "a closed weekday with no dates is shut every week (Fridays here)");

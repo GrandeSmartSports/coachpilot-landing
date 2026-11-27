@@ -1256,15 +1256,19 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), dow: dt.getDay(),
       iso: dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2) };
   }
-  // A fish now: "hot" (a hot trip for it this week), "on" (in season), or
-  // { back: "Back in March" } with when it comes back. null: no plan says.
+  // A fish now: "hot" (a hot trip for it this week), "on" (in season, and
+  // its rules read for today), or { back: "Back in March" } with when it
+  // comes back. null: no plan says, or it is in season but no plan's rules
+  // hold today (2027 pinks before the pamphlet is read): never "In now" then.
   function fishNow(sp) {
     var plans = ((RIG.trips && RIG.trips.plans) || []).filter(function (p) { return p.species === sp.id; });
     if (!plans.length || !RIG.trips.season) return null;
     var trips = weekTrips().filter(function (t) { return t.species === sp.id; });
     if (trips.some(function (t) { return t.heat === "Hot"; })) return "hot";
     var now = new Date(), today = dayOf(now);
-    if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today); })) return "on";
+    var ruled = function (p) { return !RIG.trips.ruleOn || RIG.trips.ruleOn(p, today) === "confirmed"; };
+    if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today) && ruled(p); })) return "on";
+    if (plans.some(function (p) { return RIG.trips.season(p, today); })) return null;
     for (var i = 0; i < 26; i++) {
       var dt = new Date(now.getFullYear(), now.getMonth() + (i >> 1), i % 2 ? 15 : 1), day = dayOf(dt);
       if (dt <= now) continue;
@@ -1726,7 +1730,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         if (miniKeys.length > 160) delete miniMemo[miniKeys.shift()];
       }
     }
-    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' + art + "</span>";
+    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '"' +
+      (paint && paint.spot ? ' data-mini-spot="' + esc(paint.spot) + '"' : "") + ">" + art + "</span>";
   }
   function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
 
@@ -3202,7 +3207,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
     }
     out.push(
-      { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
+      // head: a run may name the line its spot row says (closed water first).
+      { id: "spot", tab: "The spot", title: "The spot", body: (run.spot.head ? whenP(run.spot.head) : "") + stepsHtml(run.spot.lines) +
         (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
       { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
       { id: "rules", tab: "Rules", title: "Rules", body:
@@ -3356,13 +3362,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var w = document.documentElement.clientWidth;
     if (w !== fitWidth) { fitWidth = w; refit(); }
   });
-  // The rules row: the limit, whole. A rule is never trimmed into a different
-  // rule, so a clause is only left off when it holds no number and no
-  // restriction. If that leaves it long, the row takes a second line.
+  // The rules row: the limit, whole, or the line the run names for it
+  // (ruleHead: closed water next to the spot goes on the face of the card).
+  // A rule is never trimmed into a different rule, so a clause is only left
+  // off when it holds no number and no restriction. If that leaves it long,
+  // the row takes a second line.
   function ruleLine(run) {
     var all = [];
     (run.rules || []).forEach(function (r) { all = all.concat(sentences(r)); });
-    var line = all.filter(function (x) { return /\ba day\b/.test(x); })[0] || all[0] || "", room = lineRoom(), cuts = [], re = /[,;](?=\s)/g, m, i;
+    var line = (run.ruleHead && sentences(run.ruleHead).join(". ")) || all.filter(function (x) { return /\ba day\b/.test(x); })[0] || all[0] || "", room = lineRoom(), cuts = [], re = /[,;](?=\s)/g, m, i;
     if (lineWidth(line) <= room) return line;
     while ((m = re.exec(line))) cuts.push(m.index);
     for (i = cuts.length - 1; i >= 0; i--) {
@@ -3399,6 +3407,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function secLineHtml(c, t, run, planId, less) {
     if (c.id === "plan" || c.id === "river" || c.id === "wx") return "<span>" + esc(secLine(c, t, run)) + "</span>";
     if (c.id === "rules") return '<span class="whole" data-fit-rule="' + esc(planId) + '">' + esc(ruleLine(run)) + "</span>";
+    // A spot row the run names (closed water beside the stand) says it whole.
+    if (c.id === "spot" && run.spot && run.spot.head) return '<span class="whole">' + esc(sentences(run.spot.head).join(". ")) + "</span>";
     return lineHtml(secText(c, run), less);
   }
   // ---- the run card's own pictures ----------------------------------------
