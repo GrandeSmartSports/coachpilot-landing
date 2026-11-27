@@ -109,10 +109,13 @@ try {
       lines: [...r.querySelectorAll("[data-read-line]")].map((l) => l.querySelector("dt").textContent + ": " + l.querySelector("dd").textContent) } : null;
   });
   ok(read && read.first && read.plan, "the run card opens with the read, the plan right under it", read);
-  ok(read && read.head === "Go, best 5:00 to 6:30 PM" && read.why === "High slack 5:15 PM, right at dark.", "the read's first line is the answer, then why", read && read.head + " | " + read.why);
-  ok(read && read.fig >= 2 && read.lines[0] === "Tide: High 5:15 PM, 12.0 ft, right at dark. Then a 13 ft drop by 9:00 PM, current strongest 6:30 to 7:45 PM." &&
-    read.lines[1] === "Rain: Dry." && read.lines[2] === "Wind: Light, 4 mph. 45°F." && /^Expect: After 6:30 PM, add only enough weight/.test(read.lines[3]) &&
-    /^Or: .*Pick: Redondo, 5 min closer\.$/.test(read.lines[4]), "then the tide curve and its lines: tide, rain, wind, what to expect, and the other squid piers with a pick", read && read.lines.join(" | "));
+  ok(read && read.head === "Go, best 5:00 to 6:30 PM" && read.why === "High slack 5:15 PM, right at dark. Leave by 4:10 PM, 35 min drive.",
+    "the read's first line is the answer, then why, and when to leave", read && read.head + " | " + read.why);
+  ok(read && read.fig >= 2 && read.lines.length === 2 && read.lines[0] === "Rain: Dry." &&
+    /^Or: Des Moines: same tide and weather, 5\smin farther, outlets at the end for your light\.\s*Pick: Redondo, the closest\.$/.test(read.lines[1]),
+    "then the tide curve, the rain and the other squid piers with a pick; the tide and the wind are the tile's, what to expect is its row's", read && read.lines.join(" | "));
+  const leaveSeen = await page.evaluate(() => { const b = document.querySelector('[data-sec-row="plan"] .planhead').getBoundingClientRect(); return { bottom: Math.round(b.bottom), h: innerHeight }; });
+  ok(leaveSeen.bottom <= leaveSeen.h, "THE PLAN's Leave by is still on the first screen, under the read", leaveSeen);
   const words = await page.evaluate(() => { const v = document.querySelector('[data-view="hot"]'), r = v.querySelector("[data-read]"), n = (e) => e.innerText.split(/\s+/).length;
     return { rest: n(v) - (r ? n(r) : 0), read: r ? n(r) : 0 }; });
   ok(words.rest < 340 && words.read < 140, "the run card overview is headlines, not an essay, and so is its read", words);

@@ -116,8 +116,8 @@ try {
         return { first: first === r, next: r.nextElementSibling === p, gap: Math.round(p.getBoundingClientRect().top - r.getBoundingClientRect().bottom),
           head: (r.querySelector("[data-read-headline]") || {}).textContent || "", lines: [...r.querySelectorAll("[data-read-line] dt")].map((d) => d.textContent).join(",") };
       });
-      ok(under.first && under.next && under.gap >= 0 && under.gap <= 20 && /^(Go|Slow),/.test(under.head) && /Rain,Wind/.test(under.lines),
-        id + ": it is the first thing under the title, it leads with the answer and its labelled lines, and the plan sits right under it", under);
+      ok(under.first && under.next && under.gap >= 0 && under.gap <= 20 && /^(Go|Slow),/.test(under.head) && /^Rain(,Or)?$/.test(under.lines),
+        id + ": it is the first thing under the title, it leads with the answer, the rain and the pick (the tile and rows say the rest), and the plan sits right under it", under);
       ok(await page.locator(".duo .tcard").count() === 2 && await page.locator(".duo .tcard svg").count() >= 1 && await page.locator('[data-view="hot"] .tl-sky').evaluate((e) => /gradient/.test(e.style.background)),
         id + ": " + name + " has its two picture tiles and the plan's strip of sky");
       ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 390, id + ": " + name + " fits the phone");

@@ -93,9 +93,11 @@ const GROUPS = [
     { name: "the crew, the owner with two others", hash: "#/crew", view: "crew", scene: "pier", first: "[data-crew-card]", wait: "[data-crew-add] [data-crew-add-open]" },
     { name: "a join link on a phone signed in as someone else", hash: "#/join/" + TOKEN, view: "join", scene: "pier", first: "[data-join]", wait: "[data-join-switch]" },
     { name: "planning a crew trip", hash: "#/crew/new", view: "crewnew", scene: "pier", first: "[data-cw-new-form]", wait: "[data-cw-what]",
-      act: async (p) => { await p.selectOption("[data-cw-what]", "squid-redondo"); await p.waitForSelector("[data-cw-cond-slot] .seal"); } },
+      act: async (p) => { await p.selectOption("[data-cw-what]", "squid-redondo"); await p.waitForSelector("[data-cw-cond-slot] [data-cw-cond]"); } },
     { name: "planning a crew trip, a trip's read open under its row", hash: "#/crew/new", view: "crewnew", scene: "pier", first: "[data-cw-new-form]", wait: "[data-cw-pickplan]",
-      act: async (p) => { if (!(await p.locator("[data-cw-read]").count())) await p.click("[data-cw-pickplan]"); await p.waitForSelector("[data-cw-read] [data-read-headline]"); } }] },
+      act: async (p) => { if (!(await p.locator("[data-cw-read]").count())) await p.click("[data-cw-pickplan]"); await p.waitForSelector("[data-cw-read] [data-read-headline]");
+        // Opening it scrolls it into view; the screen's top is what is measured here.
+        await p.evaluate(() => window.scrollTo(0, 0)); } }] },
   { who: "member", screens: [
     { name: "the crew, a member", hash: "#/crew", view: "crew", scene: "pier", first: "[data-crew-card]", wait: "[data-al-sw]" },
     { name: "a crew trip's own page", hash: "#/crew/trip/t-sat", view: "crewtrip", scene: "river", spot: "green-river", stand: "narrows", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-cond]" },
