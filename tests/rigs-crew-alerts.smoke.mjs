@@ -197,7 +197,8 @@ try {
     ok(/off/i.test(await text(p, "[data-al-sum]")), "the headline says it is off", await text(p, "[data-al-sum]"));
     ok(await p.locator("[data-al-kinds]").count() === 0 && await p.locator("[data-al-quiet]").count() === 0, "with nothing on there are no kinds or quiet hours to read through");
     ok(await p.locator("[data-al-test]").count() === 1 && /^Send me a test$/.test((await text(p, "[data-al-test]")).trim()), "Send me a test is there");
-    ok(await p.locator("[data-al] .cw-go").count() === 0 && await p.locator('[data-view="crew"] .cw-go').count() === 0, "alerts add no gold button");
+    ok(await p.locator("[data-al] .cw-go").count() === 0 && await p.locator('[data-view="crew"] .cw-go').count() === await p.locator("[data-crew-card] .cw-go").count() && await p.locator('[data-view="crew"] .cw-go').count() <= 1,
+      "alerts add no gold button: the only one is the first card's next step");
     ok(await p.locator("[data-addnum]").count() === 0, "an account with a number is not asked for one");
     ok(await p.locator('[data-member="u-russ"] [data-member-alerts]').count() === 0, "my own row has no alerts mark yet");
     const below = await p.evaluate(() => {
@@ -684,7 +685,8 @@ try {
     ok(await p.locator('[data-member="u-russ"] [data-member-alerts]').count() === 1 && /^alerts on$/i.test((await text(p, '[data-member="u-russ"] [data-member-alerts]')).trim()), "a member with alerts on carries a small alerts on mark");
     ok(await p.locator('[data-member="u-dad"] [data-member-alerts]').count() === 0 && await p.locator('[data-member="u-coach"] [data-member-alerts]').count() === 0, "and people with alerts off do not");
     ok(await p.locator('[data-view="crew"] .cw-go').count() === 1, "the owner's screen still has one gold button", await p.locator('[data-view="crew"] .cw-go').count());
-    ok(await p.locator('[data-remove="u-russ"]').count() === 1 && await p.locator('[data-newlink="u-russ"]').count() === 1, "and the owner's buttons are all still there");
+    await p.locator('[data-member-open="u-russ"]').click();
+    ok(await p.locator('[data-remove="u-russ"]').count() === 1 && await p.locator('[data-newlink="u-russ"]').count() === 1, "and the owner's buttons are all still there, under the row");
     ok(await wide(p) <= 390, "the owner's screen fits the phone", await wide(p));
     const words = await screenText(p);
     ok(!PHONE.test(words) && !EMAIL.test(words), "no phone number or email is on the screen");

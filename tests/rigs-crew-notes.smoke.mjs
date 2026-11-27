@@ -562,8 +562,11 @@ try {
     const p = await open(ctx, base + "#/crew/trip/t-sat", "member");
     await p.waitForSelector('[data-view="crewtrip"] [data-cw-item="i1"]');
     const sum = async () => (await text(p, "[data-cw-list-sum]")).trim();
+    // Who has what is on each line, as a face and a name: counted off the lines.
+    const tally = () => p.evaluate(() => { const m = {}; document.querySelectorAll('[data-view="crewtrip"] [data-cw-who]').forEach((b) => { const k = b.innerText.trim(); m[k] = (m[k] || 0) + 1; }); return Object.keys(m).sort().map((k) => k + " " + m[k]).join(", "); });
     const item = (id) => db.list["t-sat"].find((i) => i.id === id);
-    ok(await sum() === "7 of 12 packed. Russell has 3, Coach has 4, 5 nobody.", "the summary on top: how many are packed, and who has how many", await sum());
+    ok(await sum() === "7 of 12 packed" && await p.locator('[data-cw-listbox] .sect [data-cw-list-sum]').count() === 1, "the heading says how many are packed", await sum());
+    ok(await tally() === "Coach 4, Russell 3, nobody 5", "and each line shows who has it: Russell 3, Coach 4, nobody 5", await tally());
     ok(await p.locator("[data-cw-item]").count() === 12, "one line for each thing on the list");
     const row = await p.evaluate(() => {
       const li = document.querySelector('[data-cw-item="i1"]'), k = [...li.children].filter((e) => e.offsetParent);
@@ -581,7 +584,7 @@ try {
     await p.waitForFunction(() => document.querySelector('[data-cw-tick="i4"]').getAttribute("aria-checked") === "true" && !document.querySelector('[data-cw-item="i4"] [data-cw-wait]'));
     const ticks = calls.landed.filter((b) => b.action === "list_update");
     ok(ticks.length === 1 && ticks[0].itemId === "i4" && ticks[0].done === true && !("assignedTo" in ticks[0]) && !("tell" in ticks[0]), "a tick sends done for that line and nothing else", ticks);
-    ok(await sum() === "8 of 12 packed. Russell has 3, Coach has 4, 5 nobody.", "and the summary follows", await sum());
+    ok(await sum() === "8 of 12 packed" && await tally() === "Coach 4, Russell 3, nobody 5", "and the summary follows", await sum());
     await settle();
     await p.locator('[data-cw-tick="i4"]').click();
     await p.waitForFunction(() => document.querySelector('[data-cw-tick="i4"]').getAttribute("aria-checked") === "false" && !document.querySelector('[data-cw-item="i4"] [data-cw-wait]'));
@@ -600,7 +603,7 @@ try {
     const gave = calls.landed.filter((b) => b.action === "list_update" && "assignedTo" in b);
     ok(gave.length === 1 && gave[0].itemId === "i8" && gave[0].assignedTo === "u-dad" && !("done" in gave[0]), "picking a name sends who has it", gave);
     ok(same(gave[0] && gave[0].tell, ["u-coach"]), "with the ticked names as tell", gave[0] && gave[0].tell);
-    ok(await p.locator("[data-cw-panel]").count() === 0 && await sum() === "7 of 12 packed. Russell has 3, Coach has 4, Dad has 1, 4 nobody.", "the picker shuts and the summary follows", await sum());
+    ok(await p.locator("[data-cw-panel]").count() === 0 && await sum() === "7 of 12 packed" && await tally() === "Coach 4, Dad 1, Russell 3, nobody 4", "the picker shuts and the lines follow", await tally());
     await p.locator('[data-cw-who="i8"]').click();
     await p.waitForSelector('[data-cw-item="i8"] [data-cw-panel]');
     ok(await p.locator('[data-cw-item="i8"] [data-cw-give="u-dad"]').getAttribute("aria-pressed") === "true", "the picker shows who has it now");
@@ -659,7 +662,7 @@ try {
     await p.waitForFunction(() => document.querySelector('[data-cw-who="i11"]').innerText.trim() === "Russell" && /waiting to send/i.test(document.querySelector('[data-cw-item="i11"]').innerText));
     ok(item("i11").assignedTo === null, "so does a name");
     const sumOff = await sum();
-    ok(/^8 of 12 packed\. Russell has 3, Coach has 4, 5 nobody\.$/.test(sumOff), "the summary counts what is waiting", sumOff);
+    ok(sumOff === "8 of 12 packed" && await tally() === "Coach 4, Russell 3, nobody 5", "the summary and the lines count what is waiting", sumOff + " / " + await tally());
     await fits(p, "the list with a tick and a name waiting");
     // A new line with no signal, ticked while it still waits.
     await p.locator("[data-cw-item-new]").fill("Extra jigs");
@@ -669,7 +672,7 @@ try {
     const qid = await p.evaluate(() => [...document.querySelectorAll("[data-cw-item]")].pop().getAttribute("data-cw-item"));
     await p.locator(`[data-cw-tick="${qid}"]`).click();
     await p.waitForFunction((id) => document.querySelector(`[data-cw-tick="${id}"]`)?.getAttribute("aria-checked") === "true", qid);
-    ok(/^9 of 13 packed\./.test(await sum()) && !db.list["t-sat"].some((i) => i.label === "Extra jigs"), "a line added with no signal shows at once and can be ticked while it waits", await sum());
+    ok(/^9 of 13 packed$/.test(await sum()) && !db.list["t-sat"].some((i) => i.label === "Extra jigs"), "a line added with no signal shows at once and can be ticked while it waits", await sum());
     await p.reload({ waitUntil: "load" });
     await p.waitForFunction(() => document.querySelector('[data-cw-tick="i9"]')?.getAttribute("aria-checked") === "true" && document.querySelector('[data-cw-who="i11"]')?.innerText.trim() === "Russell");
     ok(await p.locator('[data-cw-item="i9"] [data-cw-wait]').count() === 1 && await p.locator('[data-cw-item="i11"] [data-cw-wait]').count() === 1, "both are still there, still waiting, after the app is closed and opened");

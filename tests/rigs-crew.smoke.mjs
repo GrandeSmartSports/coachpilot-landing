@@ -355,7 +355,10 @@ try {
     const p = await ctx.newPage();
     await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
     await p.waitForSelector("[data-join-go]");
-    ok(/see the crew's trips, say if you are going/i.test(await text(p, '[data-view="join"]')), "the join screen says in one line what joining gets you", await text(p, '[data-view="join"]'));
+    ok(await p.locator("[data-join-gets] li").count() === 3 && /see the trips/i.test(await text(p, "[data-join-gets]")) && /say if you are going/i.test(await text(p, "[data-join-gets]")) && /split the gear/i.test(await text(p, "[data-join-gets]")) &&
+      await p.locator("[data-join-gets] svg").count() >= 1 && await p.locator("[data-join-gets] .av").count() === 3,
+      "the join screen says what joining gets you in three small pictures: the trips, who is going, the gear", await text(p, '[data-view="join"]'));
+    ok(await p.locator('[data-view="join"] .cw-meet .av').count() === 2, "with the face of who added you, and yours");
     ok(await p.locator('[data-view="join"] .float').count() === 1 && await p.evaluate(() => {
       const c = document.querySelector('[data-view="join"] .float').getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect();
       return c.top < s.bottom - 24 && c.bottom > s.bottom;
@@ -363,9 +366,12 @@ try {
     await p.locator("[data-join-go]").click();
     await p.waitForSelector('[data-view="trips"]');
     await p.waitForSelector("[data-welcome]");
-    ok((await text(p, "[data-welcome]")).trim() === "You are in, Russell. This is ZZTEST crew's week.", "landing on the week: You are in, the name, and whose week it is", await text(p, "[data-welcome]"));
+    ok((await text(p, "[data-welcome]")).trim() === "You are in, Russell. Here is the crew's week.", "landing on the week: You are in, the name, and that this is the crew's week", await text(p, "[data-welcome]"));
+    ok(await p.locator("[data-welcome] .av[data-i]").count() === 1, "led by the person's face");
     const box = await p.locator("[data-welcome]").boundingBox(), title = await p.locator(".hero h1").boundingBox();
+    const first = await p.evaluate(() => { let c = document.querySelector('[data-view="trips"] > .hero').nextElementSibling; while (c && !c.offsetHeight) c = c.nextElementSibling; const r = c && c.getBoundingClientRect(); return r ? { y: r.top, height: r.height } : null; });
     ok(box.y > title.y + title.height, "the word does not cover the title", { box, title });
+    ok(!first || box.y + box.height <= first.y + 24, "and sits on the picture, above the first card, not at the foot of the screen", { box, first });
     await later(7600);
     ok(await p.locator("[data-welcome]").count() === 0, "it goes away by itself");
     await p.reload({ waitUntil: "load" });
@@ -417,6 +423,40 @@ try {
     await p.locator("[data-join-stay]").click();
     await p.waitForSelector('[data-view="trips"]');
     ok(calls.verify.length === 0, "and opening the week asks nothing");
+    await ctx.close();
+  }
+
+  // The same person, with a rename still waiting to send: still the same
+  // person. The name the server last confirmed is what the link is checked
+  // against, not one still on its way.
+  {
+    const ctx = await browser.newContext(phone);
+    await stub(ctx, { who: "member", fn: (b) => b.action === "me_rename" ? "down" : undefined });
+    const p = await ctx.newPage();
+    await signIn(p, { userId: "u-russ" });
+    await save(p, "rig.crew.v1", stateFor("member", members()));
+    await save(p, "rig.crewq.v1", [{ clientId: "q-1", userId: "u-russ", kind: "me_rename", tripId: null, body: { name: "Russ B" }, at: Date.now() }]);
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-same],[data-join-signedin]");
+    ok(await p.locator("[data-join-same]").count() === 1 && await p.locator("[data-join-switch]").count() === 0, "a rename still waiting does not make your own link look like someone else's", await text(p, '[data-view="join"]'));
+    await ctx.close();
+  }
+
+  // Signed in on an account that is on no crew: nothing to keep, so the link
+  // is the plain invite, with Join the one gold button.
+  {
+    const ctx = await browser.newContext(phone);
+    const calls = await stub(ctx, { who: "member", fn: (b) => b.action === "state" ? { status: 200, body: { me: { id: "u-dad", name: "You" }, crew: null, members: [], trips: [], sms: true } } : undefined });
+    const p = await ctx.newPage();
+    await signIn(p, { userId: "u-dad" });
+    await save(p, "rig.crew.v1", { me: { id: "u-dad", name: "You" }, crew: null, members: [], trips: [], sms: true });
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-go]");
+    const t = await text(p, '[data-view="join"]');
+    ok(!/signed in as you|stay as|switch/i.test(t) && await p.locator("[data-join-stay]").count() === 0 && await p.locator('[data-view="join"] .cw-go[data-join-go]').count() === 1,
+      "an account on no crew gets the invite, with Join gold, and no Stay or Switch", t);
+    ok(/signed in, but not on a crew/i.test(await text(p, "[data-join-msg]")), "and one neutral line about it", await text(p, "[data-join-msg]"));
+    ok(calls.other.length === 0, "nothing unexpected was asked of Supabase", calls.other);
     await ctx.close();
   }
 
@@ -487,9 +527,17 @@ try {
     let dialogs = 0; p.on("dialog", (d) => { dialogs++; d.dismiss(); });
     await signIn(p);
     await p.goto(base + "#/crew", { waitUntil: "load" });
-    await p.waitForSelector("[data-invite-name]");
+    await p.waitForSelector("[data-crew-add-open]");
     ok(/ZZTEST crew/i.test(await text(p, "[data-crewname]")), "the owner sees the crew name");
-    ok(/optional/i.test(await text(p, '[data-view="crew"]')), "the phone number is marked optional");
+    ok(await p.locator("[data-crew-add] .av.seat").count() === 1 && /add someone/i.test(await text(p, "[data-crew-add]")) && await p.locator("[data-invite-name]").count() === 0,
+      "adding someone is the empty seat at the foot of the list, folded until it is tapped");
+    ok(await p.locator('[data-member="u-russ"] [data-member-line]').count() === 1 && /signs in|gets in/i.test(await text(p, '[data-member="u-russ"] [data-member-line]')),
+      "each person has one plain line under their name", await text(p, '[data-member="u-russ"]'));
+    ok(await p.locator("[data-newlink]").count() === 0 && await p.locator("[data-remove]").count() === 0, "New link and Remove wait behind a tap on the row");
+    await p.locator("[data-crew-add-open]").click();
+    await p.waitForSelector("[data-invite-name]");
+    ok(/optional/i.test(await text(p, "[data-invite-addnum]")) && await p.locator("[data-invite-phone]").count() === 0, "the phone number is optional, behind a link");
+    ok(await p.locator('[data-view="crew"] .cw-go').count() === 1, "one gold button with the form open: Add them", await p.locator('[data-view="crew"] .cw-go').count());
 
     // No name: says so, sends nothing.
     await p.locator("[data-invite-send]").click();
@@ -497,10 +545,13 @@ try {
     ok(calls.invite === 0, "adding with no name says so and sends nothing");
 
     await p.locator("[data-invite-name]").fill("Grandpa");
+    await p.locator("[data-invite-addnum]").click();
     await p.locator("[data-invite-phone]").fill("253 555 0148");
     await p.locator("[data-invite-send]").dblclick();
     await p.waitForSelector("[data-share]");
     ok(calls.invite === 1, "a double tap adds one person", calls.invite);
+    const sb = await p.evaluate(() => { const r = document.querySelector("[data-share]").getBoundingClientRect(), g = document.querySelector("[data-share-text]").getBoundingClientRect(); return { top: r.top, gt: g.top, gb: g.bottom, h: innerHeight }; });
+    ok(await p.locator("[data-crew-add] [data-share]").count() === 1 && sb.top >= 0 && sb.gb <= sb.h, "the link to text them is drawn where Add them was tapped, on the screen", sb);
     const inv = calls.fn.find((b) => b.action === "invite");
     ok(inv.name === "Grandpa" && inv.phone === "253 555 0148", "the name and number go to the function", inv);
     ok(/^Text Grandpa the link$/i.test((await text(p, "[data-share-text]")).trim()), "after adding: Text Grandpa the link", await text(p, "[data-share-text]"));
@@ -517,19 +568,26 @@ try {
     ok((await p.locator("[data-member]").allInnerTexts()).join(" ").includes("Grandpa"), "the new person is on the list");
     await p.locator("[data-share-done]").click();
     await p.waitForSelector("[data-invite-name]");
-    ok(await p.locator("[data-invite-name]").inputValue() === "" && await p.locator("[data-invite-phone]").inputValue() === "", "the form is empty for the next person");
+    ok(await p.locator("[data-invite-name]").inputValue() === "" && await p.locator("[data-invite-phone]").count() === 0, "the form is empty for the next person");
 
     // New link only for accounts the invite made.
-    ok(await p.locator('[data-newlink="u-russ"]').count() === 1, "a member who signs in by link gets New link");
-    ok(await p.locator('[data-newlink="u-dad"]').count() === 0, "a member who signs in with a code does not");
-    ok(await p.locator('[data-newlink="u-coach"]').count() === 0 && await p.locator('[data-remove="u-coach"]').count() === 0, "the owner's own row has neither New link nor Remove");
+    await p.locator('[data-member-open="u-russ"]').click();
+    ok(await p.locator('[data-newlink="u-russ"]').count() === 1 && await p.locator('[data-remove="u-russ"]').count() === 1, "a member who signs in by link gets New link, under their row");
+    await p.locator('[data-member-open="u-dad"]').click();
+    ok(await p.locator('[data-newlink="u-dad"]').count() === 0 && await p.locator('[data-remove="u-dad"]').count() === 1, "a member who signs in with a code does not");
+    ok(await p.locator('[data-member-open="u-coach"]').count() === 0 && await p.locator('[data-newlink="u-coach"]').count() === 0 && await p.locator('[data-remove="u-coach"]').count() === 0, "the owner's own row has neither New link nor Remove");
+    await p.locator('[data-member-open="u-russ"]').click();
+    await p.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
     await p.locator('[data-newlink="u-russ"]').click();
     await p.waitForSelector("[data-share]");
+    const nb = await p.evaluate(() => { const r = document.querySelector("[data-share]").getBoundingClientRect(), g = document.querySelector("[data-share-text]").getBoundingClientRect(); return { top: r.top, gb: g.bottom, h: innerHeight }; });
+    ok(await p.locator('[data-member="u-russ"] [data-share]').count() === 1 && nb.top >= 0 && nb.gb <= nb.h, "a new link is drawn under that person's row, on the screen", nb);
     ok(calls.fn.some((b) => b.action === "link" && b.userId === "u-russ"), "New link asks for one");
     ok(/^Text Russell the link$/i.test((await text(p, "[data-share-text]")).trim()), "and offers to text it to them", await text(p, "[data-share-text]"));
     await p.locator("[data-share-done]").click();
 
     // Remove asks once, inside the page.
+    await p.locator('[data-member-open="u-dad"]').click();
     await p.locator('[data-remove="u-dad"]').click();
     await p.waitForSelector('[data-remove-yes="u-dad"]');
     ok(dialogs === 0 && !calls.fn.some((b) => b.action === "member_remove"), "Remove asks first, inside the page, with no browser box");
@@ -607,7 +665,8 @@ try {
 
     // No signal: the new name shows at once, waiting to send.
     const ctx2 = await browser.newContext(phone);
-    await stub(ctx2, { who: "member", fn: (b) => b.action === "me_rename" ? "down" : undefined });
+    let renameDown = true;
+    await stub(ctx2, { who: "member", fn: (b) => b.action === "me_rename" && renameDown ? "down" : undefined });
     const p2 = await ctx2.newPage();
     await signIn(p2, { userId: "u-russ" });
     await p2.goto(base + "#/crew", { waitUntil: "load" });
@@ -618,7 +677,43 @@ try {
     await p2.waitForFunction(() => /no signal/i.test(document.querySelector("[data-me-msg]")?.innerText || ""));
     ok(/Russell B/.test(await text(p2, '[data-member="u-russ"] .cw-who b')) && /waiting to send/i.test(await text(p2, '[data-member="u-russ"] [data-name-wait]')), "with no signal the new name shows at once, waiting to send", await text(p2, '[data-member="u-russ"]'));
     ok(await p2.evaluate(async () => (await window.RIG.crew.pending()).items.filter((x) => x.kind === "me_rename").length) === 1, "and it is in the queue");
+    // The signal comes back while the crew screen is open: the name goes up,
+    // and the screen stops saying it is waiting.
+    renameDown = false;
+    await p2.evaluate(() => window.RIG.crew.flush());
+    await p2.waitForFunction(() => !document.querySelector("[data-name-wait]"), null, { timeout: 8000 }).catch(() => {});
+    ok(await p2.locator("[data-name-wait]").count() === 0 && !/no signal/i.test(await text(p2, '[data-view="crew"]')) && /saved/i.test(await text(p2, "[data-me-msg]")),
+      "once it goes, Waiting to send and No signal leave the screen, and it says saved", await text(p2, '[data-member="u-russ"]'));
     await ctx2.close();
+
+    // Refused while the person was on another screen: back on the crew screen
+    // the old name is there, and one line says why.
+    const ctx5 = await browser.newContext(phone);
+    let refuse = false;
+    await stub(ctx5, { who: "member", fn: (b) => b.action === "me_rename" ? (refuse ? { status: 400, body: { error: "That name is not allowed." } } : "down") : undefined });
+    const p5 = await ctx5.newPage();
+    await signIn(p5, { userId: "u-russ" });
+    await p5.goto(base + "#/crew", { waitUntil: "load" });
+    await p5.waitForSelector("[data-me-edit]");
+    await p5.locator("[data-me-edit]").click();
+    await p5.locator("[data-me-name]").fill("Rusty");
+    await p5.locator("[data-me-save]").click();
+    await p5.waitForSelector("[data-name-wait]");
+    await p5.evaluate(() => { location.hash = "#/trips"; });
+    await p5.waitForSelector('[data-view="trips"]');
+    refuse = true;
+    await p5.evaluate(() => window.RIG.crew.flush());
+    await p5.waitForFunction(async () => (await window.RIG.crew.pending()).items.length === 0);
+    await p5.evaluate(() => { location.hash = "#/crew"; });
+    await p5.waitForSelector("[data-member]");
+    ok((await text(p5, '[data-member="u-russ"] .cw-who b')).trim() === "Russell" && /not saved/i.test(await text(p5, "[data-me-msg]").catch(() => "")),
+      "a rename refused while away: the old name, and a line that says why", await text(p5, '[data-member="u-russ"]'));
+    await p5.evaluate(() => { location.hash = "#/trips"; });
+    await p5.waitForSelector('[data-view="trips"]');
+    await p5.evaluate(() => { location.hash = "#/crew"; });
+    await p5.waitForSelector("[data-member]");
+    ok(await p5.locator("[data-me-msg]").count() === 0, "said once, not on every visit after");
+    await ctx5.close();
 
     // A server that refuses: the old name comes back, and says why.
     const ctx3 = await browser.newContext(phone);
@@ -665,7 +760,25 @@ try {
     await p.goto(base + "#/crew", { waitUntil: "load" });
     await p.waitForSelector("[data-phone]");
     ok(await p.evaluate(() => localStorage.getItem("rig.session.v1")) === null && !/no signal/i.test(await screenText(p)), "validation_failed signs out to the sign-in screen, with no talk of signal");
+    ok(/your sign-in ended/i.test(await text(p, "[data-crew-ended]")), "and says the sign-in ended", await screenText(p));
     await ctx.close();
+
+    // The same on Plan a trip: the session dies at Make the trip, and the
+    // sign-in screen takes the page, not a red line under the form.
+    const ctx2 = await browser.newContext(phone);
+    await stub(ctx2, { fn: (b) => b.action === "trip_create" ? { status: 401, body: { error: "Sign in first." } } : undefined,
+      token: () => ({ status: 400, body: { code: 400, error_code: "validation_failed", msg: "Invalid Refresh Token" } }) });
+    const p2 = await ctx2.newPage();
+    await signIn(p2);
+    await save(p2, "rig.crew.v1", stateFor("owner", members()));
+    await p2.goto(base + "#/crew/new", { waitUntil: "load" });
+    await p2.waitForSelector("[data-cw-what] option[value]:not([value=''])", { state: "attached" });
+    await p2.selectOption("[data-cw-what]", await p2.locator("[data-cw-what] option[value]:not([value=''])").first().getAttribute("value"));
+    await p2.locator("[data-cw-create]").click();
+    await p2.waitForSelector("[data-signin] [data-phone]");
+    ok(await p2.locator("[data-cw-create]").count() === 0 && /#\/crew\/new$/.test(p2.url()) && /your sign-in ended/i.test(await text(p2, "[data-crew-ended]")),
+      "a dead session on Plan a trip lands on the sign-in screen, on the same page, saying the sign-in ended", await screenText(p2));
+    await ctx2.close();
   }
 
   // Someone who already has an account with that number signs in with a code.
@@ -675,8 +788,10 @@ try {
     const p = await ctx.newPage();
     await signIn(p);
     await p.goto(base + "#/crew", { waitUntil: "load" });
+    await p.locator("[data-crew-add-open]").click();
     await p.waitForSelector("[data-invite-name]");
     await p.locator("[data-invite-name]").fill("Nephew");
+    await p.locator("[data-invite-addnum]").click();
     await p.locator("[data-invite-phone]").fill("2535550149");
     await p.locator("[data-invite-send]").click();
     await p.waitForSelector("[data-share]");
@@ -705,6 +820,7 @@ try {
     await p.locator("[data-signout]").click();
     await p.waitForSelector("[data-phone]");
     ok(await p.evaluate(() => localStorage.getItem("rig.session.v1")) === null && await p.evaluate(() => localStorage.getItem("rig.crew.v1")) === null, "Sign out signs out and forgets the saved crew");
+    ok(await p.locator("[data-crew-ended]").count() === 0, "Sign out is not called a sign-in that ended");
     ok((await sky(p)).trim().length > 0, "the Sky button keeps its label after signing out", await sky(p));
     for (let i = 0; i < 30 && calls.logout === 0; i++) await later(100);
     ok(calls.logout === 1, "and tells the sign-in server", calls.logout);
@@ -770,8 +886,10 @@ try {
     const p = await ctx.newPage();
     await signIn(p);
     await p.goto(base + "#/crew", { waitUntil: "load" });
+    await p.locator("[data-crew-add-open]").click();
     await p.waitForSelector("[data-invite-name]");
     await p.locator("[data-invite-name]").fill("Dad");
+    await p.locator("[data-invite-addnum]").click();
     await p.locator("[data-invite-phone]").fill("253 555 0148");
     await p.locator("[data-invite-send]").click();
     await p.waitForFunction(() => /nobody was added/i.test(document.querySelector("[data-invite-msg]")?.innerText || ""));
@@ -786,11 +904,13 @@ try {
     const p2 = await ctx2.newPage();
     await signIn(p2);
     await p2.goto(base + "#/crew", { waitUntil: "load" });
+    await p2.locator("[data-crew-add-open]").click();
     await p2.waitForSelector("[data-invite-name]");
     await p2.locator("[data-invite-name]").fill("Dad");
     await p2.locator("[data-invite-send]").click();
     await p2.waitForFunction(() => /nobody was added/i.test(document.querySelector("[data-invite-msg]")?.innerText || ""));
     ok(await p2.locator("[data-invite-name]").inputValue() === "Dad" && await p2.locator("[data-share]").count() === 0, "a server fault while adding says nobody was added and keeps the name");
+    await p2.locator('[data-member-open="u-dad"]').click();
     await p2.locator('[data-remove="u-dad"]').click();
     await p2.locator('[data-remove-yes="u-dad"]').click();
     await p2.waitForFunction(() => /went wrong/i.test(document.querySelector('[data-member-msg="u-dad"]')?.innerText || ""));

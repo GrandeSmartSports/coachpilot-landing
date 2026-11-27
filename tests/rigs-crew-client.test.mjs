@@ -145,6 +145,42 @@ function server(log = []) {
   ok(log[2] && log[2].verify && log[2].verify.type === "magiclink" && log[2].verify.token_hash === "hash-9", "the hash is traded at the sign-in server", log[2]);
   ok(u.crew.session() && u.crew.session().token === "tok-j" && u.crew.session().userId === "u-russ", "and the person is signed in");
 
+  // Signed in as someone else, joining as the link's person signs the one
+  // before out properly: their alert subscription on this phone and their
+  // session at the sign-in server, each with their own old token. A join that
+  // fails leaves them signed in.
+  {
+    const st = phoneStore(); signedIn(st, { token: "tok-sam", userId: "u-sam" });
+    const slog = []; let unsub = 0;
+    const sub = { endpoint: "https://push.example/sam", unsubscribe: () => { unsub++; return Promise.resolve(true); } };
+    const reg = { pushManager: { getSubscription: () => Promise.resolve(sub) } };
+    const net = (req) => {
+      if (req.url === FN) { slog.push({ fn: req.body, auth: req.headers.Authorization || "" }); return { status: 200, body: Object.assign({ ok: true, name: "Russell", crew: "ZZTEST crew", by: "Coach" }, req.body.action === "join" && !req.body.peek ? { token_hash: "hash-9" } : {}) }; }
+      if (req.url === AUTH + "/verify") return { status: 200, body: { access_token: "tok-russ", refresh_token: "ref-r", expires_in: 3600, user: { id: "u-russ" } } };
+      if (req.url.indexOf(AUTH + "/logout") === 0) { slog.push({ logout: req.headers.Authorization || "" }); return { status: 204, body: {} }; }
+      return { status: 404, body: {} };
+    };
+    const sw = tab({ store: st, net, navigator: { serviceWorker: { ready: Promise.resolve(reg) } }, extra: { PushManager: function () {} } });
+    const j = await sw.crew.join(TOKEN);
+    for (let i = 0; i < 20 && !slog.some((x) => x.logout); i++) await tick(5);
+    const outs = slog.filter((x) => x.logout), offs = slog.filter((x) => x.fn && x.fn.action === "push_unsubscribe");
+    ok(j.ok && sw.crew.session().userId === "u-russ" && sw.crew.session().token === "tok-russ", "switching on a join link signs the link's person in", sw.crew.session());
+    ok(outs.length === 1 && outs[0].logout === "Bearer tok-sam", "and signs the one before out at the sign-in server, once, with their own token", outs);
+    ok(offs.length === 1 && offs[0].auth === "Bearer tok-sam" && offs[0].fn.endpoint === "https://push.example/sam" && unsub === 1, "and stops their alerts on this phone, with their own token", offs);
+
+    const st2 = phoneStore(); signedIn(st2, { token: "tok-sam", userId: "u-sam" });
+    const flog = [];
+    const bad = tab({ store: st2, net: (req) => {
+      if (req.url === FN) { flog.push(req.body); return { status: 200, body: { ok: true, name: "Russell", crew: "ZZTEST crew", token_hash: "hash-9" } }; }
+      if (req.url === AUTH + "/verify") return { status: 400, body: { error_code: "otp_expired" } };
+      if (req.url.indexOf(AUTH + "/logout") === 0) { flog.push({ logout: true }); return { status: 204, body: {} }; }
+      return { status: 404, body: {} };
+    } });
+    const no = await bad.crew.join(TOKEN);
+    await tick(20);
+    ok(!no.ok && bad.crew.session().token === "tok-sam" && !flog.some((x) => x.logout), "a join that fails leaves the one before signed in", no);
+  }
+
   const dead = tab({ net: () => ({ status: 410, body: { error: "That link is not good any more. Ask for a new one." } }) });
   const d = await dead.crew.join(TOKEN, { peek: true });
   ok(/not good any more/.test(d.error || "") && d.dead === true, "a dead link says so", d);

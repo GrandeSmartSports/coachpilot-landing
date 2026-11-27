@@ -299,8 +299,20 @@
     var m = text.match(/\/join\/([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/);
     return m ? m[1] : "";
   }
+  // A phone signed in as someone else that joins as the link's person signs
+  // the one before out properly, as Sign out does: this phone's alerts stop
+  // going to them, and the sign-in server forgets their session. Only once
+  // the new sign-in has worked: a join that fails leaves them signed in.
+  function retire(before) {
+    var now = session();
+    if (!before || !before.token || !now || before.token === now.token) return;
+    if (before.userId && now.userId && before.userId === now.userId) return;
+    pushOff(before.token).then(nil, nil).then(function () {
+      return http("POST", BASE + "/auth/v1/logout?scope=local", {}, { Authorization: "Bearer " + before.token });
+    }).then(nil, nil);
+  }
   function join(input, opts) {
-    var token = joinToken(input), peek = !!(opts && opts.peek);
+    var token = joinToken(input), peek = !!(opts && opts.peek), before = peek ? null : session();
     if (!token) return Promise.resolve({ error: "That does not look like a crew link. Paste the whole text you were sent.", status: 400 });
     return http("POST", FN, peek ? { action: "join", token: token, peek: true } : { action: "join", token: token }).then(function (r) {
       if (!r.ok || !isObject(r.body) || !r.body.ok) {
@@ -314,6 +326,7 @@
       return http("POST", BASE + "/auth/v1/verify", { type: "magiclink", token_hash: r.body.token_hash }).then(function (v) {
         if (!v.ok || !v.body || !v.body.access_token) return { error: "That link did not let you in. Tap it again, or ask for a new one.", status: v.status };
         signedIn(v.body, null);
+        retire(before);
         return who;
       });
     }).catch(function () { return { offline: true }; });
@@ -610,6 +623,12 @@
     var name = "";
     q.forEach(function (e) { if (e.kind === kind && e.body && e.body.name) name = e.body.name; });
     return name;
+  }
+  // Who this phone is and its crew as the server last said, with no waiting
+  // rename laid over: what a join link is checked against.
+  function confirmed() {
+    var c = crewRaw();
+    return c ? { me: { id: c.me.id, name: c.me.name }, crew: c.crew ? { id: c.crew.id, name: c.crew.name } : null } : null;
   }
   function cached() {
     var c = crewRaw();
@@ -1386,7 +1405,7 @@
   RIG.crew = {
     session: session, sendCode: sendCode, verify: verify, join: join, joinToken: joinToken, signOut: signOut, refresh: refresh,
     addMyNumber: addMyNumber, confirmMyNumber: confirmMyNumber, normalizePhone: normalizePhone, cooldownLeft: cooldownLeft,
-    hello: hello, state: state, trip: trip, cached: cached, cachedTrip: tripView,
+    hello: hello, state: state, trip: trip, cached: cached, confirmed: confirmed, cachedTrip: tripView,
     createTrip: createTrip, updateTrip: updateTrip, deleteTrip: deleteTrip, invite: invite, link: link, removeMember: removeMember,
     prefsGet: prefsGet, prefsSet: prefsSet, pushSubscribe: pushSubscribe, pushUnsubscribe: pushUnsubscribe, testAlert: testAlert, alerts: alerts,
     going: going, addComment: addComment, deleteComment: deleteComment, addItem: addItem, updateItem: updateItem, deleteItem: deleteItem,

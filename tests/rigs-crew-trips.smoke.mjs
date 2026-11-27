@@ -436,7 +436,9 @@ try {
     // Plan and day chosen: the conditions line is there at once.
     await p.locator("[data-cw-what]").selectOption("squid-redondo");
     await p.waitForSelector('[data-cw-cond][data-status="ok"]');
-    ok(/^Hot: /.test((await text(p, "[data-cw-cond]")).trim()), "the conditions line shows as soon as plan and day are chosen", await text(p, "[data-cw-cond]"));
+    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "Hot" && /\w/.test(await text(p, "[data-cw-cond]")) && !/^Hot\b/.test((await text(p, "[data-cw-cond]")).trim()),
+      "the call shows as soon as plan and day are chosen: Hot on the seal, the reasons beside it, the word said once", await text(p, "[data-cw-cond]"));
+    ok(await p.locator("[data-cw-cond-slot] .cw-callpic").count() === 1, "with the water's own small picture beside it");
     await p.locator("[data-cw-date]").fill("2026-12-20");
     await p.waitForSelector('[data-cw-cond][data-status="nodata"]');
     ok(/forecast reaches 7 days out/i.test(await text(p, "[data-cw-cond]")), "and follows the day: past the forecast it says so", await text(p, "[data-cw-cond]"));
@@ -446,7 +448,7 @@ try {
     await p.locator("[data-cw-from]").fill("09:00");
     await p.locator("[data-cw-to]").fill("13:00");
     await p.waitForSelector('[data-cw-cond][data-status="nogo"]');
-    ok(/^No-go: this one fishes after dark/.test((await text(p, "[data-cw-cond]")).trim()), "and the window: squid at nine in the morning is a no-go", await text(p, "[data-cw-cond]"));
+    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "No" && /^This one fishes after dark/.test((await text(p, "[data-cw-cond]")).trim()), "and the window: squid at nine in the morning is a no-go", await text(p, "[data-cw-cond]"));
     await p.locator("[data-cw-from]").fill("17:00");
     await p.locator("[data-cw-to]").fill("16:00");
     await p.locator("[data-cw-create]").click();
@@ -489,7 +491,7 @@ try {
     await p.locator("[data-cw-what]").selectOption("salmon-redondo");
     await p.locator("[data-cw-date]").fill("2026-11-28");
     await p.waitForSelector('[data-cw-cond][data-status="ok"]');
-    ok(/^Go: /.test((await text(p, "[data-cw-cond]")).trim()), "a good day that is not hot reads Go", await text(p, "[data-cw-cond]"));
+    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "Go" && !/^Go\b/.test((await text(p, "[data-cw-cond]")).trim()), "a good day that is not hot reads Go", await text(p, "[data-cw-cond]"));
     await p.locator("[data-cw-create]").click();
     await p.waitForSelector('[data-view="crewtrip"][data-trip="t-new-2"]');
     const c = calls.landed.filter((x) => x.action === "trip_create")[1] || {};
@@ -512,6 +514,8 @@ try {
       mkTrip({ id: "t-soon", title: "Squid at Les Davis Pier", planId: "squid-les-davis", spotId: "les-davis", date: "2026-11-30" }),
       mkTrip({ id: "t-far", title: "Squid at Les Davis Pier", planId: "squid-les-davis", spotId: "les-davis", date: "2026-12-12" }),
       mkTrip({ id: "t-ghost", title: "Somewhere new", planId: "ghost-plan", spotId: "ghost", species: "squid", date: "2026-11-26" }),
+      mkTrip({ id: "t-shut", date: "2026-11-24", status: "done", counts: { comments: 0, list: 0, listDone: 0, catches: 2 },
+        note: "Meet at the north end of the pier by the bait shop, bring the long net and the headlamps, and text if you are running late because parking fills up fast on a clear night like this one." }),
       mkTrip({ id: "t-slow", title: "Perch and trout, Lake Fenwick", planId: "trout-fenwick", spotId: "lake-fenwick", species: "perch", date: "2026-11-28" }),
       mkTrip({ id: "t-gone-by", title: "Chum on the Green", planId: "chum-green-river", spotId: "green-river", species: "chum", date: "2026-11-21" })];
     const ctx = await browser.newContext({ ...phone, userAgent: IPHONE });
@@ -529,8 +533,9 @@ try {
       return getComputedStyle(document.querySelector(s)).color === want;
     }, [sel, name]);
 
+    const seal = async () => (await text(p, '[data-view="crewtrip"] [data-cw-plan] .seal')).trim();
     const hot = await at("t-hot", "ok");
-    ok(/^Hot: high slack right at dark, /.test(hot) && /\.$/.test(hot), "ok and hot: Hot, with the top reasons", hot);
+    ok(await seal() === "Hot" && /^High slack right at dark, /.test(hot) && /[^.]\.$/.test(hot), "ok and hot: Hot on the seal, the top reasons beside it, said once", hot);
     ok((await text(p, "[data-cw-title]")).trim() === "Squid at Redondo" && /Tue Nov 24/.test(await text(p, "[data-cw-when]")), "the page has the title, the day and the date", await text(p, "[data-cw-when]"));
     ok(/5:00 PM to 10:00 PM/.test(await text(p, "[data-cw-when]")), "and the window the conditions give it when the crew set none", await text(p, "[data-cw-when]"));
     ok((await text(p, '[data-view="crewtrip"] [data-cw-tag]')).trim().toLowerCase() === "on" && /Coach/.test(await text(p, "[data-cw-by]")) && !/Grande/.test(await text(p, "[data-cw-by]")),
@@ -539,6 +544,8 @@ try {
     const secRows = await p.locator('[data-view="crewtrip"] [data-sec-row]').evaluateAll((els) => els.map((e) => e.getAttribute("data-sec-row") + "=" + e.getAttribute("href")));
     ok(secRows.join().startsWith("plan=#/crew/trip/t-hot/plan,what=#/crew/trip/t-hot/what,gear=#/crew/trip/t-hot/gear") && secRows.some((r) => r.startsWith("wx=")) && secRows.some((r) => r.startsWith("rules=")),
       "the run card's headline rows, each opening its section under this trip", secRows.join());
+    ok(await p.locator('[data-view="crewtrip"] a.rule[data-sec-row="rules"]').count() === 1 && await p.locator('[data-view="crewtrip"] .panel.list [data-sec-row="rules"]').count() === 0,
+      "Rules is its own red-edged card under the rows, as on the run card");
     // The plan is the card on the waterline, as on a Hot Trip: leave, fish, done.
     const planTxt = (await text(p, '[data-sec-row="plan"]')).replace(/\s+/g, " ");
     ok(/Leave by 4:10 PM/.test(planTxt) && /5:00 PM Fish/.test(planTxt) && /10:00 PM Done/.test(planTxt) && await p.locator('[data-sec-row="plan"].float [data-cw-cond]').count() === 1,
@@ -577,16 +584,16 @@ try {
     ok(await p.locator('[data-view="card"] .tag').count() === 10, "a Hot Trip's own gear card still has its tags");
 
     const go = await at("t-go", "ok");
-    ok(/^Go: moving water, /.test(go), "ok and good: Go, with the top reasons", go);
+    ok(await seal() === "Go" && /^(Low|High) (tide|slack) [\d:]+ [AP]M\. Moving water, /.test(go), "ok and good: Go on the seal, the line leads with the tide's turn, then the top reasons", go);
     ok((await text(p, '[data-view="crewtrip"] [data-cw-tag]')).trim().toLowerCase() === "idea" && /Russell/.test(await text(p, "[data-cw-by]")), "an idea is tagged Idea, with its maker");
     const river = await at("t-river", "ok");
-    ok(/^Hot: good flow, /.test(river) && await p.locator('[data-view="crewtrip"] [data-sec-row="river"]').count() === 1, "a river trip leads with its flow and has its river row", river);
+    ok(await seal() === "Hot" && /^[\d,]+ cfs, \w+\. Good flow, /.test(river) && await p.locator('[data-view="crewtrip"] [data-sec-row="river"]').count() === 1, "a river trip leads with its flow, the number first, and has its river row", river);
     // Even a one line call is a card that crosses the waterline.
     const condBox = await p.evaluate(() => { const c = document.querySelector("[data-cw-cond]").closest(".float").getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect(); return { top: Math.round(c.top), bottom: Math.round(c.bottom), scene: Math.round(s.bottom) }; });
     ok(condBox.top < condBox.scene - 24 && condBox.bottom > condBox.scene, "the go or no-go card starts on the picture and ends below it", condBox);
 
     const nogo = await at("t-nogo", "nogo");
-    ok(nogo === "No-go: gusts to 42 mph.", "nogo: No-go and why", nogo);
+    ok(await seal() === "No" && nogo === "Gusts to 42 mph.", "nogo: No on the seal, and why", nogo);
     ok(await colour("[data-cw-cond]", "--no"), "in the no colour");
     const bare = await p.locator('[data-view="crewtrip"] [data-sec-row]').evaluateAll((els) => els.map((e) => e.getAttribute("data-sec-row")));
     ok(bare.includes("gear") && bare.includes("how") && bare.includes("rules") && !bare.includes("wx") && !bare.includes("river"), "a no-go still shows the run card, without the weather rows", bare.join());
@@ -601,7 +608,7 @@ try {
     ok(noLeave === "sms:&body=Squid at Redondo, Wed Nov 25. " + SITE + "#/crew/trip/t-nogo", "and its text gives no leave time", noLeave);
 
     const dark = await at("t-dark", "dark");
-    ok(/sunset is 4:24 PM/i.test(dark) && /dark/i.test(dark), "dark: says it will be dark, and when the sun sets", dark);
+    ok(await seal() === "Dark" && /sunset is 4:24 PM/i.test(dark), "dark: says it will be dark, and when the sun sets", dark);
     const closed = await at("t-closed", "closed");
     ok(/out of season/i.test(closed), "closed: says it is out of season that day", closed);
     const soon = await at("t-soon", "nodata");
@@ -609,9 +616,20 @@ try {
     const far = await at("t-far", "nodata");
     ok(far === "The forecast reaches 7 days out. Check back Sun Dec 6.", "nodata, further out: the day the forecast will reach it", far);
     const slow = await at("t-slow", "ok");
-    ok(/^Go, but slow: /.test(slow), "ok but under the week's cut: Go, but slow", slow);
+    ok(await seal() === "Slow" && !/^Go\b/.test(slow), "ok but under the week's cut: Slow on the seal", slow);
     const goneBy = await at("t-gone-by", "past");
     ok(goneBy === "That day has passed.", "a day that has passed says so, with no forecast talk", goneBy);
+    // A trip that is done: the seal and one line, never a time to leave.
+    await p.goto(base + "#/crew/trip/t-shut", { waitUntil: "load" });
+    await p.waitForSelector('[data-view="crewtrip"][data-trip="t-shut"] [data-cw-plan]');
+    const shut = (await text(p, "[data-cw-plan]")).replace(/\s+/g, " ");
+    ok((await text(p, "[data-cw-plan] .seal")).trim() === "Done" && /This trip is done\./.test(shut) && !/Leave by|min drive|Fish|Done Leave/.test(shut.replace(/^.*?done\./i, "")) && await p.locator("[data-cw-plan] .tl").count() === 0,
+      "a done trip's plan card is the seal and one line: no leave time, no timeline", shut);
+    // The trip's note is not on the picture: it is a line on the plan card.
+    ok(await p.locator(".hero [data-cw-tripnote]").count() === 0 && await p.locator("[data-cw-plan] [data-cw-tripnote]").count() === 1 &&
+      await p.evaluate(() => { const n = document.querySelector("[data-cw-tripnote]"); return n.getBoundingClientRect().height <= parseFloat(getComputedStyle(n).lineHeight) * 2 + 1; }),
+      "a long note sits on the plan card, held to two lines, not on the picture");
+    ok(await p.locator(".hero .chips > *").count() === 2, "and the picture keeps one row of chips: back, and the day", await p.locator(".hero .chips > *").count());
     const ghost = await at("t-ghost", "unknown");
     ok(/no plan for this one/i.test(ghost), "unknown: says the app has no plan for it", ghost);
     ok(await p.locator('[data-view="crewtrip"] [data-cw-answer]').count() === 3, "and the trip still takes answers");
@@ -822,7 +840,7 @@ try {
     await p.waitForSelector('[data-view="crewtrip"][data-trip="t-sat"] [data-cw-title]');
     await p.waitForSelector("[data-cw-trip-note]");
     ok((await text(p, "[data-cw-title]")).trim() === "Squid at Redondo" && /Sat Nov 28/.test(await text(p, "[data-cw-when]")), "with no signal a trip that was opened before still opens");
-    ok(/^Hot: /.test((await text(p, "[data-cw-cond]")).trim()), "with its conditions, from the forecast the phone saved", await text(p, "[data-cw-cond]"));
+    ok((await text(p, '[data-view="crewtrip"] [data-cw-plan] .seal')).trim() === "Hot" && /\w/.test(await text(p, "[data-cw-cond]")), "with its conditions, from the forecast the phone saved", await text(p, "[data-cw-cond]"));
     ok((await p.locator('[data-cw-names="going"] li').allInnerTexts()).join() === "Coach" && await p.locator('[data-view="crewtrip"] [data-sec-row]').count() >= 8, "who is going, and the run card");
     ok(/no signal/i.test(await text(p, "[data-cw-trip-note]")), "and it says this is the saved copy", await text(p, "[data-cw-trip-note]"));
     await p.locator('[data-view="crewtrip"] [data-sec-row="how"]').click();
