@@ -62,6 +62,12 @@
 /* The paintings hang from the lift, with plain sky above them: the top of
    every sky is one colour, so the join does not show. */
 .sc{position:absolute;left:0;right:0;top:var(--lift);bottom:0;width:100%;height:calc(100% - var(--lift));display:block}
+/* A spot's own picture hangs 20px lower: its skyline (the island, the far
+   shore's houses, the jetty) clears the chips under the title however many
+   lines the title takes (the page's fitBand keeps the chips a set distance
+   over the card), and the band shows the spot's framing, not a wide plain
+   of near ground. */
+.scene[data-spot] .sc{top:calc(var(--lift) + 20px)}
 /* the picture never ends on a cut: its last inch settles into the ground */
 .scene::after{content:"";position:absolute;left:0;right:0;bottom:0;height:17%;pointer-events:none;
   background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--bg) 70%,transparent) 55%,var(--bg))}
@@ -92,6 +98,38 @@
 .w-lights{fill:var(--lampc);stroke:var(--lampc);stroke-linecap:round;opacity:var(--lights)}
 .w-lights path{fill:none}
 .w-beach{fill:none;stroke:color-mix(in oklab,var(--r2) 55%,var(--lum));stroke-width:1.1;stroke-dasharray:14 2 31 3 9 1 22 4;opacity:.75;stroke-linecap:round}
+.w-beachb .w-beach{stroke-dasharray:none;opacity:.6}
+.w-lawnn{fill:var(--r4);opacity:.45}
+.w-hzband{fill:var(--hz)}
+.w-skyglow{opacity:0}
+:root[data-sky="night"] .w-skyglow{opacity:.44}
+.w-riprow{fill:none;stroke:var(--shade);stroke-width:.7;opacity:.16;stroke-linecap:round}
+.w-riprowl{fill:none;stroke:var(--lum);stroke-width:.6;opacity:.32;stroke-linecap:round}
+:root[data-dark="1"] .w-riprowl{opacity:.1}
+.w-prints{fill:var(--shade);opacity:.32}
+.w-runs{opacity:.5}
+.w-deckglow{opacity:.62}
+.w-wallao{fill:var(--shade);opacity:.1}
+.w-eavesh{fill:var(--shade);opacity:.22}
+.w-shopw{fill:var(--r4);opacity:.78}
+.w-awning{fill:color-mix(in oklab,var(--r3) 70%,var(--go));opacity:.9}
+.w-joint{fill:none;stroke:var(--shade);stroke-width:.6;opacity:.2}
+.w-cobshore{fill:color-mix(in oklab,var(--r4) 60%,var(--bg));opacity:.5}
+.w-cobedge{fill:var(--r5);opacity:.35}
+.w-rut{fill:var(--shade);opacity:.2}
+.w-rutl{fill:none;stroke:var(--lum);stroke-width:.6;opacity:.3}
+:root[data-dark="1"] .w-rutl{opacity:.08}
+.w-gravelwl{fill:var(--r4);opacity:.3}
+.w-conc1{filter:brightness(.92)}.w-conc2{filter:brightness(.84)}.w-conc3{filter:brightness(.74)}
+.w-ring{fill:none;stroke:var(--r5);stroke-width:1.1;opacity:.85}
+.w-ringnet{fill:none;stroke:var(--r5);stroke-width:.45;opacity:.5}
+.w-buoy{fill:color-mix(in oklab,var(--gold) 70%,var(--r2))}
+.w-ringline{fill:none;stroke:var(--r5);stroke-width:.5;opacity:.55}
+.w-stepdrop{fill:none;stroke:var(--r5);stroke-width:1.4;opacity:.55}
+.w-klit{fill:none;stroke:var(--lampc);stroke-width:.9;opacity:.85;stroke-linecap:round}
+.w-klitp{fill:var(--lampc);opacity:.55}
+:root[data-dark="1"] .w-kayaks{fill:color-mix(in oklab,var(--r4) 70%,var(--lampc))}
+.w-wade{fill:color-mix(in oklab,var(--water1) 55%,var(--water2));opacity:.92}
 .w-rim{fill:color-mix(in oklab,var(--r5) 58%,var(--glowc));transform:translate(var(--rimx),var(--rimy))}
 .w-pile{fill:var(--r5)}
 .w-pile2{fill:var(--r3)}
@@ -208,6 +246,11 @@
 :root[data-sky="night"] .scene[data-moonpos="side"]{--lx:var(--moonx);--ly:var(--moony);--glowx:1.6;--glowy:.6;--road:0;--gr:calc(.12 + var(--moon)*.2)}
 :root[data-sky="night"] .scene:is([data-moonpos="behind"],[data-moonpos="none"]){--lx:195px;--ly:120px;--glow:calc(.05 + var(--moon)*.16);--glowx:2.6;--glowy:.5;--road:0;--gr:.03}
 :root[data-sky="night"] .scene[data-moonpos="down"]{--lx:195px;--ly:140px;--glow:.06;--glowx:2.6;--glowy:.5;--road:0;--gr:.03;--stars:.92}
+/* A spot's night with no moon in its picture is still lit, by what is true
+   of every spot on a card: the towns' glow on the low cloud (warm), low
+   along the skyline, and its soft sheen on the water under it. */
+:root[data-sky="night"] .scene[data-spot][data-moonpos="side"]{--road:.14}
+:root[data-sky="night"] .scene[data-spot]:is([data-moonpos="down"],[data-moonpos="behind"],[data-moonpos="none"]){--lx:195px;--ly:170px;--glow:.46;--glowx:3.4;--glowy:.36;--glowc:color-mix(in oklab,var(--lampc) 30%,var(--ink2));--road:.24;--gr:.3}
 /* fog: the far things go first */
 .w-fog{fill:var(--hz);opacity:calc(var(--fog,0)*.66)}
 .w-fog2{opacity:calc(var(--fog,0)*.28)}
@@ -244,6 +287,8 @@
 .w-grass{fill:var(--r5)}.w-sedge{fill:var(--r4)}
 .w-ramp{fill:color-mix(in srgb,var(--bg) 74%,var(--lum))}
 .w-dock{fill:color-mix(in oklab,var(--r4) 62%,var(--lum))}
+:root[data-dark="1"] .w-dock{fill:color-mix(in oklab,var(--r4) 84%,var(--ink2))}
+:root[data-dark="1"] .w-planksn{opacity:.12}
 .w-rampr{fill:color-mix(in srgb,var(--bg) 72%,var(--shade))}
 .w-rampw{fill:color-mix(in oklab,var(--water2) 72%,var(--bg));opacity:.7}
 .w-groove{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.16}
@@ -371,7 +416,7 @@
 /* fix round 1: the parts the checkers asked for */
 /* a lawn lit by day, darker toward you, the tree's shade dappled */
 .w-lawnlit{fill:color-mix(in oklab,color-mix(in oklab,var(--r2) 55%,var(--r3)) 84%,var(--go))}
-:root[data-dark="1"] .w-lawnlit{fill:color-mix(in oklab,var(--r4) 85%,var(--go))}
+:root[data-dark="1"] .w-lawnlit{fill:color-mix(in oklab,var(--r4) 95%,var(--go))}
 .w-lawnd{fill:var(--r4);opacity:.26}
 .w-lawndap{fill:var(--glowc);opacity:.16}
 .w-tuft2{fill:var(--r5);opacity:.7}

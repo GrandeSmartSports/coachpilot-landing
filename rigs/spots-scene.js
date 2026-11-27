@@ -73,7 +73,7 @@
         { t: "pier", deck: 5.8, build: "steel", bent: 6.5, rail: "wood",                            // proven: steel piling, grated deck (2026); Coach: wooden rails both sides
           segs: [{ a: [19.3, 8.4], b: [19.3, 53.3], w: 4.6 },                                        // Coach's satellite: the walk runs straight out from the seawall, ahead-right of the ramp
             { a: [6.7, 56], b: [25.2, 56], w: 5.5, gap: [10.3, 14.9] }],                             // Coach: a wide T-head, wider than the walk on both sides
-          lamps: [{ kind: "arm", every: 16, from: 10, to: 44, side: "near", h: 6.2, segs: [0] },      // Coach: tall single-arm lamp posts along the pier, three on the walk
+          lamps: [{ kind: "arm", every: 15.25, from: 13.5, to: 44, side: "near", h: 6.2, segs: [0] }, // Coach: tall single-arm lamp posts along the pier, three on the walk (the nearest a little out, so its head stands clear of the title's tags)
             { kind: "arm", every: 30, from: 12.6, to: 13, side: "far", h: 6.2, segs: [1] }],          // and one on the T-head
           crowd: 15, head: 1, own: "water" },                                                        // proven: the squid crowd under the lamps, on the rail and the T-head; proven: squid lights on the water
         { t: "float", a: [-8, 8], b: [-8, 58], w: 2.2, piles: 7.5, top: 6.6 },                       // Coach: the ramp's long narrow float to its left, a row of bare pilings
@@ -169,15 +169,15 @@
           facing: 355, fov: 42,                                  // a little left of the Look Around's heading (the walk runs at 31), so the boathouse and its green roof stand at the right side of the frame, clear of the title
           facingFrom: "Coach's Look Around from N Waterfront Dr, on the walk in to the dock",
           eye: 7, site: { bearing: 345 },                        // the walk's deck about 4.8 m over low water, the camera about 2.2 m up; the plan below is laid square to the two buildings (their faces run 75 and 165)
-          ground: { shore: 7, top: 4.3, slope: 0.18, cobble: true }, // the rock shore at the walk's root, under its left rail: it shows at low water (Coach's picture: weed on the stones below the rail) and goes under at high water
+          ground: { shore: 7, top: 4.3, slope: 0.32, cobble: true }, // the rock shore at the walk's root, under its left rail, steep: it shows at low water (Coach's picture: weed on the stones below the rail) and goes under at high water; the pilings further out stand in the water
           skyline: [
             { t: "shore", name: "maury", from: 49, to: 100, mi: 3.8, h: 7 },                          // likely: Maury further off to the right (mostly behind the buildings from here)
             { t: "shore", name: "vashon", from: 300, to: 26, mi: 1.75, h: 22, tree: 12, taper: 3 }      // proven: Vashon's wooded shore across the water (mostly behind the boathouse from here)
           ],                                                     // NO mountains, NO Seattle, NO Narrows Bridge, NO Olympics
           parts: [
-            { t: "ground", pts: [[-14, -2], [28.8, -2], [28.8, 21.2], [60, 21], [60, 40.2], [19.1, 40.4], [18.6, 27.1], [-2.3, 6.8], [-14, 6.8]], y: 4.8, cls: "w-lot", near: 0.8 }, // OSM 414285099: the concrete walk and plaza (Coach's picture)
-            { t: "house", at: [38, 49], w: 28, d: 18, h: 6.4, y: 4.8, roof: "hip", rh: 3.6, wall: "w-wallw", roofc: "w-roofg", win: 2, wgap: 2.4, lit: false }, // Coach: the boathouse ahead, white siding, pale green hipped roof (OSM 414285102's south face); its windows are not known to be lit after dark
-            { t: "house", at: [45.5, 10.5], w: 33, d: 21, h: 8.5, y: 4.8, roof: "hip", rh: 1.6, wall: "w-wallw", roofc: "w-roofg", win: 1, wgap: 7, lit: false }, // Coach: the long white shingled wall at the right (OSM 414060508, the boathouse shed)
+            { t: "ground", pts: [[-14, -2], [28.8, -2], [28.8, 21.2], [60, 21], [60, 40.2], [19.1, 40.4], [18.6, 27.1], [-2.3, 6.8], [-14, 6.8]], y: 4.8, cls: "w-lot", near: 0.8, joints: 3 }, // OSM 414285099: the concrete walk and plaza (Coach's picture), its slabs' joints across it
+            { t: "house", at: [38, 49], w: 28, d: 18, h: 6.4, y: 4.8, roof: "hip", rh: 3.6, wall: "w-wallw", roofc: "w-roofg", win: 1, wgap: 1.9, shop: true, door: -1.5, lit: false }, // Coach: the boathouse ahead, white siding, pale green hipped roof (OSM 414285102's south face): in his picture a shopfront of tall panes and a door under an awning, a row of small windows under the eave; not known to be lit after dark
+            { t: "house", at: [45.5, 10.5], w: 33, d: 21, h: 8.5, y: 4.8, roof: "hip", rh: 1.6, wall: "w-wallw", roofc: "w-roofg", win: 0, siding: "shingle", lit: false }, // Coach: the long white shingled wall at the right, no windows on it in his picture (OSM 414060508, the boathouse shed)
             { t: "facade", pts: [[-16, 17], [13, 44]], y: 4.8, h: 2.8, rh: 1.4, dep: 5, base: 0.7, win: 3.4 }, // Coach: low white buildings beyond the water at the left (OSM 414285102's west side, the marina office)
             { t: "woods", a: [-5, 25], b: [7, 36], h: 7.5, kind: "fir", y: 4.8, gap: 2.8, land: false }, // Coach: dark firs at the left, west of the boathouse, in front of the low buildings
                                                                                                          // Coach's flagpoles are left out: from here they would stand up through the title
@@ -216,7 +216,8 @@
       ground: { shore: 2.5, top: 4.5, slope: 0.09, cobble: true }, // proven: cobble beach approach; its top above the highest tides
       skyline: [
         { t: "rainier", at: 123.4, size: 0.95 },                 // proven: Rainier big and white right of centre (123.4, 47 mi)
-        { t: "shore", name: "up", from: 40, to: 170, mi: 1.2, h: 6, tree: 8 } // likely: the low University Place shore close across, nothing tall
+        { t: "shore", name: "up", from: 40, to: 170, mi: 1.2, h: 6, tree: 8 }, // likely: the low University Place shore close across, nothing tall
+        { t: "lights", on: "up", n: 12, from: 70, to: 150 }      // the houses along that shore: their windows lit across the water after dark (the pier itself has no lamps)
       ],                                                         // NO Olympics, NO bridges, NO Tacoma skyline or cranes
       parts: [
         { t: "pier", deck: 6, build: "concrete", bent: 7, pile: 0.6, beam: 0.8, rail: "plain",         // proven: concrete deck on octagonal concrete piles, with handrails
@@ -232,7 +233,7 @@
       standBy: { how: { kayak: "city", shore: "state" } },       // altStands: the state park beach for a shore trip
       view: "beach",
       eye: 5.7, tideRange: 3.7,                                  // standing on the upper beach, above the highest tides
-      ground: { shore: 2, top: 4.1, slope: 0.032 },              // proven: sandy shore, large areas exposed at low tide; its dry top above the highest tides
+      ground: { shore: 2, top: 4.1, slope: 0.032, flats: true }, // proven: sandy shore, large areas exposed at low tide; its dry top above the highest tides (the flats drawn to the picture's foot)
       stands: {
         city: {                                                  // Coach (11/26): he launches the kayak from the city park beach beside the pier
           facing: 4,                                             // facingDeg 4 at the pier (likely)
@@ -241,7 +242,8 @@
           // the sand about 20 m west of its root (the beach runs on both sides
           // of it in his picture); the stem runs out nearly due north and the
           // L turns east (right) at its end, side on from here
-          skyline: [{ t: "island", name: "maury", from: 322, to: 27, mi: 3.2, h: 15, tree: 4, taper: 6 }], // proven: Maury low and wooded across, its south tip ahead-left (322)
+          skyline: [{ t: "island", name: "maury", from: 322, to: 27, mi: 3.2, h: 15, tree: 4, taper: 6 }, // proven: Maury low and wooded across, its south tip ahead-left (322)
+            { t: "lights", on: "maury", n: 9, from: 325, to: 20 }],                                 // Maury's shore is lived on: a scatter of house lights across after dark (likely)
           parts: [
             { t: "pier", deck: 6, build: "timber", bent: 6, rail: "wood",                            // proven: the old pier, about 384 ft straight out (NNE; his satellite picture: nearly due north)
               segs: [{ a: [20, 2], b: [16, 114], w: 3.8 }, { a: [14.1, 116.5], b: [46.6, 116.5], w: 5, gap: [0, 4] }] }, // proven: then 100 ft turning east (right); closed since 2021, nobody on it, its lights long dead
@@ -250,8 +252,10 @@
         },
         state: {                                                 // Dash Point State Park day-use beach
           facing: 351,                                           // altStands facingDeg 351
-          skyline: [{ t: "island", name: "maury", from: 322, to: 27, mi: 3.2, h: 15, tree: 4, taper: 6 }] // proven: Maury across, its south tip ahead-left
-        }                                                        // the wooded ravine is behind you; NO Rainier, NO Olympics, NO Seattle
+          skyline: [{ t: "island", name: "maury", from: 322, to: 27, mi: 3.2, h: 15, tree: 4, taper: 6 }, // proven: Maury across, its south tip ahead-left
+            { t: "lights", on: "maury", n: 9, from: 325, to: 20 }],                                 // Maury's shore is lived on: a scatter of house lights across after dark (likely)
+          parts: [{ t: "angler", x: -6, z: { edge: 3, min: 14, max: 34 }, dir: 1 }] // the trip: someone after cutthroat at the tide's edge (or walking out to it over the flats at low water); the beach closes at dusk, so nobody after dark
+        }                                                        // the wooded ravine is behind you; NO Rainier, NO Olympics, NO Seattle; daylight only, no lights on the beach
       }
     },
 
@@ -262,11 +266,13 @@
       standBy: { activity: { perch: "beach" }, kind: { pier: OPEN.westportCrab, sound: OPEN.westportCrab, surf: "beach" } },
       stands: {
         float: {                                                 // Float 20, the public fishing float (crab)
-          scene: "pier", facing: 60, fov: 56,                    // facingDeg 60 (likely): square to the float, toward the breakwater; wide enough that the float's far edge shows at your feet
+          scene: "pier", facing: 88, fov: 60,                    // facingDeg 60 (likely) is square to the float, toward the breakwater; turned right along the float, so it runs away from your feet to the right with the breakwater beyond it
+          facingFrom: "on Float 20, looking out along it toward the breakwater",
+          site: { bearing: 60 },                                 // the parts below are laid out square to the float (Z toward the breakwater at 60)
           eyeFloat: 1.6, tideRange: 2.9,                         // standing on the float, which rides the tide (the coast's range at Westport)
-          own: { x: 214, y: 228 },                               // crab rings go in after dark too: your own lantern's light on the basin off the float's edge (the card has no lamps)
+          glow: "behind",                                        // proven: no crabbing in the marina after sunset, gear out overnight: nobody on the float after dark. The town and marina behind you (Westhaven Dr) glow on the low cloud and the basin
           parts: [
-            { t: "float", a: [-70, 3.1], b: [70, 3.1], w: 4.4, piles: 0, planks: true, cleats: 4.5 }, // proven: Float 20 runs 150/330, so it lies across your view, left to right; long low floating dock (you stand at its back edge; its width is not on the card)
+            { t: "float", a: [-70, 3.1], b: [70, 3.1], w: 4.4, piles: 0, planks: true, cleats: 4.5, rings: [[74.6, 1.1], [77.2, 0.7]] }, // proven: Float 20 runs 150/330, a long low floating dock (you stand at its back edge; its width is not on the card); the crab rings set down on it by day
             { t: "rocks", pts: [[-150, 84, 5], [-70, 81, 5.6], [0, 80, 6], [70, 81, 5.6], [150, 84, 5]], angular: true, tall: 1.3, wet: 4.5, reflect: true, cls: "w-midrock" } // proven: the rock breakwater about 80 m ahead, high enough that no horizon shows past it; calm basin water
           ]
         },                                                       // the moored boats are behind you; NO Olympics, NO towns
@@ -293,9 +299,9 @@
           dune: "right"                                          // proven: dune grass ridge behind
         },
         perch: {
-          facing: 272, fov: 54,                                  // altStands facingDeg 272: straight out to sea from the surf perch beach
-          facingFrom: "the surf perch beach, out to sea",
-          jetty: { side: "left", tip: 203, root: 180, mi: 0.68 }, // proven: the north jetty on your left running into the sea, its tip at 203 (0.68 mi), by bearing: 69 degrees left of this facing, so out of the picture (not drawn; a mile off it would only be a thread on the horizon)
+          facing: 234, fov: 68,                                  // altStands facingDeg 272 is straight out to sea; the card's surfperch view has the jetty on the left running into the sea (proven), so you look out a little south of west, down the beach toward it
+          facingFrom: "the surf perch beach, out to sea and down toward the north jetty",
+          jetty: { side: "left", tip: 203, root: 180, mi: 0.68 }, // proven: the north jetty on your left running into the sea, its tip at 203 (0.68 mi): at the picture's left edge, running in from the frame
           dune: "right", ridge: true,                            // proven: dunes with dune grass behind the beach: here a long high grass ridge running away up the beach on the right (Westport's perch beach has a low dune edge at the left and its jetty on the right)
           after: "empty",                                        // no lighting, and the card's only night is the clam dig: no one here after dark
           glow: "right"                                          // Ocean Shores itself, just behind the dunes: after dark its lights glow on the low sky over the dune ridge
@@ -315,8 +321,9 @@
           river: {
             flow: "left",                                        // likely: the river flows from your right to your left
             far: { kind: "mixed", h: 30, mix: 0.25 },            // likely: the far bank (college and DNR land) low and wooded
-            meadow: true,                                        // likely: meadow edge on the Narrows side, where you stand
-            trunk: "right"                                       // likely: cottonwood floodplain forest on the Narrows side
+            meadow: "diag",                                      // likely: meadow edge on the Narrows side, where you stand (its edge on a slant, the water opening downstream to the left)
+            grove: "right",                                      // likely: cottonwood floodplain forest on the Narrows side, a stand of it at the right
+            wader: { x: 168, s: 1.7 }                            // proven: the riverbanks are popular with anglers in the fall (one wading in, casting across)
           }                                                      // NO gravel bar, NO bridge, NO highway (unproven), NO boats, NO Rainier (behind you)
         },
         geyser: {                                                // card green-flaming-geyser: the park's south bank, where he wades
@@ -409,7 +416,8 @@
         across: 100,                                             // likely: about 100 m of still water to the wooded east shore
         mix: 0.25,                                               // trees as the whole skyline, no peaks (kinds not named)
         stand: "pier",                                           // proven: a short pier under your feet, plain build
-        near: [[-24, 34, 248, 22], [338, 414, 234, 104]],        // likely: forest park around the lake, the lake running away left and right (kept low under the title at the left)
+        near: [[-24, 34, 248, 22]],                              // likely: forest park around the lake, the lake running away left and right (kept low under the title at the left)
+        nearTree: { x: 396, base: 240, h: 150, spread: 0.5 },    // and one big shore tree of that forest at your right, trunk and limbs and its crown (clear of the title's tags)
         taper: "left"                                            // the far trees kept low on the left, under the title, and full on the right
       },                                                         // NO mountains, NO houses, NO lily pads
       dock: { ahead: 10, l: 1.1, r: 1.1, above: 0.9 }

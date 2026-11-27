@@ -106,6 +106,31 @@ try {
     await page.waitForSelector('[data-view="spot"] [data-row-species]');
     const gp = await scene(page);
     ok(gp.kind === "river" && gp.spot === "green-river" && gp.stand === "geyser" && !gp.fish, "the Green's own spot page: Flaming Geyser", gp);
+    // (fix-1, function-1) a fish's own page at a spot paints the stand that fish is fished from
+    await sky(page, "overcast", "#/cutthroat/dash-point");
+    await page.waitForSelector('[data-view] .hero h1');
+    const cutP = await scene(page);
+    ok(cutP.spot === "dash-point" && cutP.stand === "state" && cutP.kayak === 0, "the cutthroat page at Dash Point: the state park beach, no kayak", cutP);
+    await sky(page, "overcast", "#/coho/dash-point");
+    await page.waitForSelector('[data-view] .hero h1');
+    const cohoP = await scene(page);
+    ok(cohoP.stand === "city" && cohoP.kayak >= 1, "the coho page at Dash Point: the kayak launch", cohoP);
+    // (fix-1, function-2 and function-7) the list a page is opened from picks the stand: its rows and the spot page
+    const rowsOf = async (hash) => { await sky(page, "overcast", hash); await page.waitForSelector('[data-view="water"] .row[data-spot] svg'); return page.evaluate(() => Object.fromEntries([...document.querySelectorAll('[data-view="water"] .row[data-spot]')].map((r) => { const v = r.querySelector(".tile svg"); return [r.dataset.spot, { spot: v.getAttribute("data-paint-spot") || "", stand: v.getAttribute("data-stand") || "", scene: v.getAttribute("data-scene") }]; }))); };
+    const pierRows = await rowsOf("#/water/pier");
+    ok(pierRows.westport && pierRows.westport.spot === "westport" && pierRows.westport.stand === "float" && pierRows.westport.scene === "pier", "the Pier list: Westport's row is Float 20 (a pier), not the surf beach", pierRows.westport);
+    ok(Object.values(pierRows).every((r) => r.spot), "and every row's thumbnail says which spot it paints (data-paint-spot)", pierRows);
+    await page.evaluate(() => { location.hash = "#/spot/westport"; });
+    await page.waitForSelector('[data-view="spot"] [data-row-species]');
+    const wps = await scene(page);
+    ok(wps.spot === "westport" && wps.stand === "float" && wps.kind === "pier", "Westport's spot page opened from the Pier list: Float 20", wps);
+    const beachRows = await rowsOf("#/water/beach");
+    ok(beachRows["dash-point"] && beachRows["dash-point"].stand === "state", "the Beach list: Dash Point's row is the state park beach", beachRows["dash-point"]);
+    // (fix-1, look-19) a kind of water with one spot shows that spot's own picture on its home tile
+    await sky(page, "overcast", "#/water");
+    await page.waitForSelector('[data-view="home"] [data-type-tile]');
+    const tiles = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-type-tile]")].map((t) => [t.dataset.typeTile, { n: +((t.querySelector(".meta") || {}).textContent || "0").replace(/\D/g, ""), spot: (t.querySelector("svg") || { getAttribute: () => "" }).getAttribute("data-paint-spot") || "" }])));
+    ok(Object.values(tiles).filter((t) => t.n === 1).every((t) => t.spot) && tiles.river && tiles.river.spot === "green-river", "a kind of water with one spot paints that spot on its home tile (River: the Green)", tiles);
     const cut = await card(page, T("2026-11-26", "cutthroat-dash-point"));
     ok(cut.spot === "dash-point" && cut.stand === "state" && cut.kayak === 0, "a cutthroat trip at Dash Point: the state park beach, no kayak", cut);
     const bon = await card(page, T("2026-11-26", "trout-w-l466"));

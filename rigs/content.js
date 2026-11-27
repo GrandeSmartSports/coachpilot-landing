@@ -953,7 +953,7 @@
   ];
   RIG.content.spots = [
     { id: "redondo", name: "Redondo Pier", where: "Des Moines, WA", types: ["pier"] },
-    { id: "green-river", name: "Green River", where: "Auburn to Kent, WA", types: ["river"] },
+    { id: "green-river", name: "Green River", where: "Flaming Geyser, Auburn", types: ["river"] },
     // The Dash Point pier is closed, so this spot is fished from the kayak.
     { id: "dash-point", name: "Dash Point", where: "Tacoma, WA", types: ["kayak-sound", "beach", "fly"] },
     { id: "lake-fenwick", name: "Lake Fenwick", where: "Kent, WA", types: ["lake"] },

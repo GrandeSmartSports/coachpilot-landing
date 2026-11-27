@@ -125,24 +125,25 @@ try {
   const lit = await page.evaluate(() => ({ dark: document.documentElement.getAttribute("data-dark"), lamps: getComputedStyle(document.documentElement).getPropertyValue("--lamps").trim(),
     pools: document.querySelectorAll("#scene .w-lampson *").length }));
   ok(lit.dark === "1" && lit.lamps === "1" && lit.pools > 3, "at night the pier's lamps are on", lit);
-  // And so is the river. The Green is painted as its own place now (the
-  // Auburn Narrows for a chum trip), and its card puts no lamp or window on
-  // either bank: after dark it is lit by your own headlamp, its pool of
-  // light on the water in front of you and gold in the riffles there, warm
-  // against the night, on the water above the plan's card.
+  // And so is the river. The Green is painted as its own place (the Auburn
+  // Narrows for a chum trip), and its card closes it at night (the salmon
+  // night closure) with no lamp or window on either bank: after dark nobody
+  // is painted there by a light of their own (fix-1, function-3). It is lit
+  // by the sky, as every spot on a card is: the towns' warm glow low over
+  // the skyline and its sheen on the water, above the plan's card (the moon
+  // too, where it truly stands in the picture).
   await sky("night", RIVER);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
   const rlit = await page.evaluate(() => {
-    const s = document.getElementById("scene"), o = s.querySelector(".w-ownlamp"), pool = o && o.querySelector(".w-pool"), card = document.querySelector('[data-sec-row="plan"]').getBoundingClientRect();
-    const pr = pool ? pool.getBoundingClientRect() : null;
-    return { scene: s.getAttribute("data-scene"), spot: s.dataset.spot || "", on: o ? getComputedStyle(o).opacity : "", gold: o ? o.querySelectorAll(".w-poolg rect").length : 0,
-      seen: pr ? Math.round(Math.min(pr.bottom, card.top) - pr.top) : 0, window: s.querySelectorAll(".w-window").length };
+    const s = document.getElementById("scene"), g = s.querySelector(".w-glow"), rd = s.querySelector(".w-road"), card = document.querySelector('[data-sec-row="plan"]').getBoundingClientRect(), gr = g ? g.getBoundingClientRect() : null;
+    return { scene: s.getAttribute("data-scene"), spot: s.dataset.spot || "", own: s.querySelectorAll(".w-ownlamp").length, window: s.querySelectorAll(".w-window").length, moon: s.dataset.moonpos,
+      glow: g ? +getComputedStyle(g).opacity : 0, road: rd ? +getComputedStyle(rd).opacity : 0, glowSeen: gr ? Math.round(card.top - gr.top) : 0 };
   });
-  ok(rlit.scene === "river" && rlit.spot === "green-river" && rlit.on === "1" && rlit.gold >= 20 && rlit.seen >= 12 && rlit.window === 0,
-    "at night the river is lit: your own headlamp's pool on the water and gold in its riffles, above the card, and no window the card does not have", rlit);
+  ok(rlit.scene === "river" && rlit.spot === "green-river" && rlit.own === 0 && rlit.window === 0 && rlit.glow >= 0.2 && rlit.road >= 0.12 && rlit.glowSeen > 40,
+    "at night the river is lit by the sky: the towns' glow low over the skyline and its sheen on the water, above the card; nobody's own light at a spot closed at night, and no window the card does not have", rlit);
   await sky("overcast", RIVER);
-  const rday = await page.evaluate(() => { const o = document.querySelector("#scene .w-ownlamp"); return o ? getComputedStyle(o).opacity : ""; });
-  ok(rday === "0", "by day that headlamp is off", rday);
+  const rday = await page.evaluate(() => { const o = document.querySelector("#scene .w-lampson"); return { own: document.querySelectorAll("#scene .w-ownlamp").length, lamps: o ? getComputedStyle(o).opacity : "0" }; });
+  ok(rday.own === 0 && rday.lamps === "0", "by day nothing on the river is lit", rday);
 
   // The dock switches tabs, from any screen.
   await sky("overcast", "#/trips");

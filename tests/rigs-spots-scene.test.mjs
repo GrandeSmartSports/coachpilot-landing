@@ -240,14 +240,16 @@ ok(L("tokul", D) === "right" && L("cowlitz", D) === "right", "Tokul and the Cowl
 const wp = (kind, act) => { const e = paint(S.westport, Object.assign({ now: { date: D } }, act ? { activity: act } : {}), kind); return e.dataset.scene; };
 ok(wp("pier") === "pier" && wp("surf", "perch") === "surf" && wp("surf") === "surf", "Westport: the crab float for a crab trip, the beach for surf perch");
 const os = (act) => paint(S["ocean-shores"], { activity: act, now: { date: D } }).innerHTML;
-ok(S["ocean-shores"].stands.perch.facing === 272 && !/w-midrock|w-farrock/.test(os("perch")) && !/w-midrock|w-farrock/.test(os("clams")),
-  "Ocean Shores: the surf perch stand faces the card's own 272, so the north jetty is not in its picture (nor on the Copalis dig)");
+// (fix-1, function-4) the card's surfperch view: the rock jetty on the left running into the sea (proven)
+ok(/w-midrock|w-farrock/.test(os("perch")) && !/w-midrock|w-farrock/.test(os("clams")),
+  "Ocean Shores: the surf perch picture shows the proven north jetty running into the sea (the Copalis dig does not)");
 // everything across the water by bearing: the jetty's tip and Copalis Rock
 const osP = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.perch), osC = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.copalis);
 const rel = (b, f) => ((((b - f) % 360) + 540) % 360) - 180;
 const noJetty = Object.assign({}, osP); delete noJetty.jetty;
-ok(osP.jetty.tip === 203 && osP.jetty.tipX === undefined && Math.abs(rel(203, osP.facing)) > osP.fov && paint(osP, { now: { date: D } }).innerHTML === paint(noJetty, { now: { date: D } }).innerHTML,
-  "the north jetty is placed by its bearing (203): 69 degrees left of the card's 272, outside the surf perch picture, so not drawn");
+ok(osP.jetty.tip === 203 && osP.jetty.tipX === undefined && rel(203, osP.facing) < 0 && Math.abs(rel(203, osP.facing)) < osP.fov / 2 && Math.abs(rel(osP.jetty.root, osP.facing)) > osP.fov / 2 &&
+  paint(osP, { now: { date: D } }).innerHTML !== paint(noJetty, { now: { date: D } }).innerHTML && Math.abs(rel(272, osP.facing)) <= 40,
+  "the north jetty is placed by its bearing (203): its tip inside the picture's left side, running in from the frame (its root is off the left), the stand turned no more than 40 degrees from the card's 272");
 const noStack = Object.assign({}, osC); delete noStack.stack;
 ok(osC.stack && osC.stack.at === 347 && Math.abs(rel(347, osC.facing)) > 45 && paint(osC, { now: { date: D } }).innerHTML === paint(noStack, { now: { date: D } }).innerHTML, "Copalis Rock is placed by its bearing (84 degrees right): outside the clam picture, so not drawn");
 const wpB = Object.assign({}, S.westport, S.westport.stands.beach);
@@ -263,8 +265,8 @@ ok(/class="w-s[2-5]"/.test(dsh("kayak")) && !/class="w-s[2-5]"/.test(dsh("shore"
 ok(RIG.spotOpen && ["tappsLaunch", "tappsRainier", "cowlitz", "westportCrab", "pointDefiance"].every((k) => k in RIG.spotOpen), "each open question is one setting");
 // a lamp of the place's own (a post, a window, a lantern); your own headlamp at a river (w-ownlamp) is not one
 // (the groups are cut out whole, nested groups and all)
-const ownGroups = (h) => {
-  const out = [], tag = '<g class="w-lampson w-ownlamp">';
+const ownGroups = (h, tag0) => {
+  const out = [], tag = tag0 || '<g class="w-lampson w-ownlamp">';
   let i = h.indexOf(tag);
   while (i >= 0) {
     let depth = 0, j = i;
@@ -275,20 +277,27 @@ const ownGroups = (h) => {
   }
   return out;
 };
-const withoutOwn = (h) => ownGroups(h).reduce((a, g) => a.replace(g, ""), h);
+const withoutOwn = (h) => ownGroups(h).concat(ownGroups(h, '<g class="w-lampson w-townglow"')).reduce((a, g) => a.replace(g, ""), h);
 const lit = (id, extra) => /w-lampson[^>]*>[\s\S]*?(w-lantern|w-bulb|w-window|lamp\))/.test(withoutOwn(paint(S[id], Object.assign({ now: { date: D } }, extra || {})).innerHTML));
 ok(lit("redondo") && lit("les-davis") && lit("des-moines-pier") && lit("point-defiance") && lit("ocean-shores", { activity: "clams" }), "squid piers, the boathouse dock and the clam dig are lit after dark");
 ok(!lit("fox-island") && !lit("dash-point") && !lit("green-river") && !lit("lake-fenwick") && !lit("tokul"), "spots that close at dusk carry no lamps");
-// a river after dark is lit by your own headlamp and nothing else: its pool on the water in front of you, gold in the riffles
-for (const id of ["green-river", "tokul", "cowlitz"]) {
-  const h = paint(S[id], { now: { date: D + "T07:00" } }).innerHTML, own = ownGroups(h);
-  ok(own.length === 1 && /class="w-pool[ "]/.test(own[0]) && (own[0].match(/<rect /g) || []).length >= 20 && !lit(id), id + " after dark: your own headlamp's pool on the water, its riffles catching gold, and no lamp the card does not have");
+// (fix-1, function-3) a spot whose card closes it after dark (night closures, parks shut at dusk,
+// no crabbing after sunset) paints nobody there by a light of their own, and no lamp: its night is
+// the sky's (the towns' glow and the moon, checked in the look smoke)
+for (const [id, extra] of [["green-river", {}], ["green-river", { fish: "coho" }], ["tokul", {}], ["cowlitz", {}], ["w-l466", {}], ["lake-fenwick", {}], ["lake-tapps", {}], ["fox-island", {}], ["westport", { standAsk: "float" }], ["dash-point", { how: "shore" }]]) {
+  const h = paint(S[id], Object.assign({ now: { date: D + "T07:00" } }, extra)).innerHTML;
+  ok(!ownGroups(h).length && !/class="w-bulb"|class="w-lantern"|class="w-deckglow/.test(withoutOwn(h)), id + (extra.fish ? " (" + extra.fish + ")" : "") + (extra.standAsk ? " (" + extra.standAsk + ")" : "") + " after dark: closed by its card, so no one's own light and no lamp post (lived-in houses keep their windows)");
 }
+// and where it is lived on across the water, its house lights (Maury from Dash Point, University Place from Fox Island)
+ok(/class="w-lights"/.test(dsh("shore")) && /class="w-lights"/.test(paint(S["fox-island"], { now: { date: D } }).innerHTML), "Dash Point and Fox Island after dark: the lived-on shore across shows its house lights");
 ok(/w-crowd/.test(paint(S.redondo, { now: { date: D } }).innerHTML) && !/w-crowd/.test(dsh("kayak")), "a squid crowd on Redondo's T after dark; nobody on the closed Dash Point pier");
 // your own light where people fish into the dark with one: the kayak's white light at the Dash Point launch, a lantern on the Westport crab float
 ok(ownGroups(dsh("kayak")).some((g) => /w-lantern/.test(g)) && !ownGroups(dsh("shore")).length, "Dash Point: the kayak carries its white light after dark; the state park beach (closed at dusk) has none");
-ok(ownGroups(paint(S.westport, { now: { date: D + "T19:00" } }, "pier").innerHTML).length === 1 && !ownGroups(paint(S.westport, { activity: "perch", now: { date: D + "T19:00" } }).innerHTML).length,
-  "Westport: your lantern's light on the basin off Float 20; the day-use beach has none");
+{
+  const fl = paint(S.westport, { now: { date: D + "T19:00" } }, "pier").innerHTML;
+  ok(!ownGroups(fl).length && /w-townglow/.test(fl) && !ownGroups(paint(S.westport, { activity: "perch", now: { date: D + "T19:00" } }).innerHTML).length,
+    "Westport: no crabbing in the marina after sunset (proven), so no lantern on Float 20: the town and marina behind glow on the cloud and the basin; the day-use beach has no one either");
+}
 
 // ---- 11. today, out of what the page already keeps ----------------------------------------------
 const data = {
@@ -330,8 +339,14 @@ ok(/class="w-mudb"/.test(paint(S["puyallup-sumner"], { now: { river: 0, date: D 
 // Flaming Geyser's gravel: less of it as the river rises
 ok(bankY("green-river", "w-barg", 0) < bankY("green-river", "w-barg", 1), "Flaming Geyser: the gravel at your feet goes under as the river rises");
 // the Cowlitz steps: the farthest (lowest) tier goes under first
-const tiers = (lvl) => { const m = /class="w-conc" d="([^"]*)"/.exec(paint(S.cowlitz, { now: { river: lvl, date: D } }).innerHTML); return m ? (m[1].match(/Z/g) || []).length : 0; };
-ok(tiers(0) === 3 && tiers(0.35) === 3 && tiers(0.6) === 2 && tiers(1) === 1, "the Cowlitz platforms: the river covers the lowest tier first, then the next", [tiers(0), tiers(0.35), tiers(0.6), tiers(1)]);
+const tiers = (lvl) => (paint(S.cowlitz, { now: { river: lvl, date: D } }).innerHTML.match(/class="w-conc w-conc\d" d="/g) || []).length;
+ok(tiers(0) >= 3 && tiers(0.35) === tiers(0) && tiers(0.6) === tiers(0) - 1 && tiers(1) === tiers(0) - 2, "the Cowlitz platforms: the river covers the lowest tier first, then the next", [tiers(0), tiers(0.35), tiers(0.6), tiers(1)]);
+// (fix-1, look-13) the steps are where you stand: they reach the bottom right of the picture, joined to the frame's right edge, the nearest tread lowest and biggest
+{
+  const h = paint(S.cowlitz, { now: { river: 0.3, date: D } }).innerHTML, tr = [...h.matchAll(/class="w-conc w-conc(\d)" d="M([^"]*)"/g)].map((m) => ({ v: +m[1], ys: m[2].split(/[MLZ]/).filter(Boolean).map((q) => +q.split(" ")[1]), xs: m[2].split(/[MLZ]/).filter(Boolean).map((q) => +q.split(" ")[0]) }));
+  const near = tr[tr.length - 1];
+  ok(near && Math.max(...near.ys) > 250 && Math.max(...near.xs) >= 400 && near.v === 3 && tr.every((t, i) => !i || Math.min(...t.ys) > Math.min(...tr[i - 1].ys)), "the Cowlitz steps run down from the bottom right of the picture to the water, the nearest the biggest and darkest", tr.map((t) => [t.v, Math.min(...t.ys), Math.max(...t.ys)]));
+}
 // no land under the highest tide: each beach's top is above its range, and so is every thing on it
 for (const id of Object.keys(S)) for (const [name, o] of stands(S[id])) {
   if (!o.ground) continue;
@@ -402,8 +417,9 @@ ok(cobX(gey) >= 380 && cobX(geyLo) >= 380, "Flaming Geyser: the wet cobbles reac
     const mapY = (x, y) => k[1] * x + k[3] * y + k[5];
     ok(k && [0, 97, 195, 292, 390].every((x) => Math.abs(mapY(x, foot(x)) - foot(x)) < 1 && mapY(x, foot(x) - 20) > foot(x)),
       "Flaming Geyser at river " + lv + ": the far bank's copy in the water is mirrored along its sloping foot, so it lies below the trees all the way across", k);
-    const beach = /class="w-beach" d="M(-?[\d.]+) (-?[\d.]+)L(-?[\d.]+) (-?[\d.]+)"/.exec(h);
-    ok(beach && Math.abs(+beach[2] - foot(+beach[1])) < 1.2 && Math.abs(+beach[4] - foot(+beach[3])) < 1.2, "and its strip of beach runs along that foot, not level across", beach && beach.slice(1));
+    // (fix-1) the strip is broken into short pieces, each lying along the foot
+    const bd = /class="w-beach" d="([^"]*)"/.exec(h), segs = bd ? [...bd[1].matchAll(/M(-?[\d.]+) (-?[\d.]+)L(-?[\d.]+) (-?[\d.]+)/g)] : [];
+    ok(segs.length >= 3 && segs.every((q) => Math.abs(+q[2] - foot(+q[1])) < 2.2 && Math.abs(+q[4] - foot(+q[3])) < 2.2), "and its strip of beach runs along that foot in broken pieces, not level across", segs.slice(0, 3).map((q) => q.slice(1)));
     // no straight level line over 100 px long anywhere among the far trees (between the ridge and the foot)
     const flat = [];
     for (const d of h.match(/ d="[^"]*"/g) || []) {
@@ -418,6 +434,27 @@ ok(cobX(gey) >= 380 && cobX(geyLo) >= 380, "Flaming Geyser: the wet cobbles reac
     }
     ok(!flat.length, "Flaming Geyser at river " + lv + ": no straight level band over 100 px lies across the far trees", flat.slice(0, 3));
   }
+}
+// (fix-1, look-7) no river's far bank meets the water on a ruled line: at the Narrows, Tokul and the
+// Cowlitz too, no straight level line over 60 px lies along the far bank's foot or among its trees,
+// its beach strip is in short pieces, and its copy in the water is broken by the ripples (a mask)
+for (const [id, extra] of [["green-river", { fish: "coho" }], ["tokul", {}], ["cowlitz", {}]]) {
+  const h = paint(S[id], Object.assign({ now: { date: D, river: 0.4 } }, extra)).innerHTML, RY = 198, flat = [];
+  for (const d of h.match(/ d="[^"]*"/g) || []) {
+    const pts = [], re = /([ML])\s*(-?[\d.]+)[ ,](-?[\d.]+)|H\s*(-?[\d.]+)/g; let q;
+    while ((q = re.exec(d))) { if (q[4] !== undefined) pts.push([+q[4], pts.length ? pts[pts.length - 1][1] : 0, "L"]); else pts.push([+q[2], +q[3], q[1]]); }
+    for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i]; if (b[2] === "L" && Math.abs(b[1] - a[1]) <= 1 && Math.abs(b[0] - a[0]) >= 60 && (a[1] + b[1]) / 2 > RY - 70 && (a[1] + b[1]) / 2 < RY + 3) flat.push([a, b]); }
+  }
+  const bd = /class="w-beach" d="([^"]*)"/.exec(h), pieces = bd ? (bd[1].match(/M/g) || []).length : 0;
+  ok(!flat.length && pieces >= 3 && /mask="url\(#\w+m-ff\)"/.test(h), id + ": the far bank's foot is ragged, its beach strip in pieces and its reflection broken, with no ruled level line", { flat: flat.slice(0, 2), pieces });
+}
+// (fix-1, look-1) the Narrows has mass and depth: the cottonwood grove on your bank, the meadow's edge on a slant, and someone wading in
+{
+  const h = paint(S["green-river"], { fish: "coho", now: { date: D, river: 0.4 } }).innerHTML, lw = /class="w-lawn" d="M([^"]*)"/.exec(h);
+  const ys = lw ? lw[1].split(/[MLZ]/).filter(Boolean).map((q) => q.split(" ").map(Number)).filter((q) => q[1] < 300) : [];
+  const left = ys.filter((q) => q[0] < 60).map((q) => q[1]), right = ys.filter((q) => q[0] > 300).map((q) => q[1]);
+  ok(left.length && right.length && Math.min(...left) - Math.max(...right) > 12 && (h.match(/class="w-l5"/g) || []).length >= 3 && /class="w-wade"/.test(h) && !/w-barkl/.test(h),
+    "the Narrows: the meadow's edge runs on a slant (up at the right), a dark grove of cottonwoods stands on it, and an angler wades in", [left.length && Math.min(...left), right.length && Math.max(...right)]);
 }
 // Orting: the braid's bars have body, the levee its slope
 const ort = (river) => paint(S["puyallup-orting"], { now: { date: D, river } }).innerHTML;

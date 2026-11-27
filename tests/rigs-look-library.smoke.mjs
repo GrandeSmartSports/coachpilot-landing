@@ -161,7 +161,7 @@ try {
   ok(new Set(water.map((t) => t.view)).size === 7, "and no two ways to fish share a painting", water.map((t) => t.view).join(","));
   await sky("overcast", "#/water/beach");
   await page.waitForSelector("[data-spot] .tile svg");
-  const spots = await page.evaluate(() => [...document.querySelectorAll('[data-view="water"] [data-spot]')].map((r) => ({ id: r.dataset.spot, kind: (r.querySelector(".tile") || {}).dataset?.viewKind, shapes: r.querySelectorAll(".tile svg *").length })));
+  const spots = await page.evaluate(() => [...document.querySelectorAll('[data-view="water"] .row[data-spot]')].map((r) => ({ id: r.dataset.spot, kind: (r.querySelector(".tile") || {}).dataset?.viewKind, shapes: r.querySelectorAll(".tile svg *").length })));
   ok(spots.length === 3 && spots.every((r) => r.shapes > 10) && spots.find((r) => r.id === "dash-point").kind === "sound" && spots.find((r) => r.id === "ocean-shores").kind === "surf",
     "each spot in the list has its own small painting: the Sound for Dash Point, the surf for the coast", spots);
 
@@ -230,9 +230,13 @@ try {
   await sky("night", LAKE);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
   const lakeLit = await lit();
-  const lakeOwn = await page.evaluate(() => { const o = document.querySelector("#scene .w-ownlamp"); return { gold: o ? o.querySelectorAll(".w-poolg rect").length : 0, pool: o ? o.querySelectorAll(".w-pool").length : 0, spot: document.getElementById("scene").dataset.spot || "" }; });
-  ok(lakeLit.scene === "lake" && lakeOwn.spot === "w-l466" && lakeLit.lamps >= 2 && lakeLit.shapes > 12 && lakeLit.on === "1" && lakeOwn.pool === 1 && lakeOwn.gold >= 20,
-    "at night the lake is lit: your own light's pool on the water off the launch, gold in its ripples, and the houses' windows across", [lakeLit, lakeOwn]);
+  // (fix-1, function-3 and function-5) Bonney Lake closes at dusk (its card), so nobody is there by a
+  // light of their own: its night is the houses' windows across the water and the towns' glow on the
+  // low cloud, lying on the still water as a sheen
+  const lakeOwn = await page.evaluate(() => { const s = document.getElementById("scene"), g = s.querySelector(".w-glow"), rd = s.querySelector(".w-road"); return { own: s.querySelectorAll(".w-ownlamp").length, spot: s.dataset.spot || "", windows: s.querySelectorAll(".w-window rect").length,
+    glow: g ? +getComputedStyle(g).opacity : 0, road: rd ? +getComputedStyle(rd).opacity : 0, moon: s.dataset.moonpos }; });
+  ok(lakeLit.scene === "lake" && lakeOwn.spot === "w-l466" && lakeOwn.own === 0 && lakeOwn.windows >= 6 && lakeOwn.glow >= 0.2 && lakeOwn.road >= 0.12,
+    "at night the lake is lit by what is true there: the houses' windows across and the towns' glow on the cloud and the water; no one's own light at a lake that closes at dusk", [lakeLit, lakeOwn]);
   await sky("night", CLAMS);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
   const digLit = await lit();
@@ -497,6 +501,18 @@ try {
       const r = await unreadable(p3);
       ok(got.kind === "surf" && got.kids > 30 && got.crosses && r.n >= 8 && r.bad.length === 0, id + ": a surf perch trip's run card stands under the ocean beach, its plan crossing the waterline, every word readable", [got, r.bad.slice(0, 4)]);
     }
+    // (fix-1, look-14) Lake Fenwick's run card: its near shore tree stands clear of the title's tags,
+    // so the title, the chips and the tag read under every sky
+    const FEN = "#/trips/" + encodeURIComponent(SPRING_DAYS[5] + "~trout-fenwick"), fenBad = [];
+    for (const id of SKIES) {
+      await p3.evaluate(([i, h]) => { const p = RIG.sky.palettes[i]; RIG.sky.resolve = () => ({ id: i, forced: false, p, skyName: p.name }); location.hash = "#/crew"; location.hash = h; }, [id, FEN]);
+      await p3.waitForFunction((i) => document.documentElement.getAttribute("data-sky") === i, id);
+      await p3.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
+      await p3.waitForTimeout(80);
+      const r = await unreadable(p3, ".hero");
+      if (r.n < 4 || r.bad.length) fenBad.push(id + ": " + (r.bad.join(" | ") || "only " + r.n));
+    }
+    ok(fenBad.length === 0, "Lake Fenwick's run card: its title, chips and tag read under every sky", fenBad.join(" || "));
     // and its long title reads at dawn, at 360 and at 390
     const perchDawn = [];
     for (const w of [360, 390]) {

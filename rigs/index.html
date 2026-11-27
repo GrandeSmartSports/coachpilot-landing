@@ -967,21 +967,45 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // moon is the trip's own (0 to 100), data the forecast already read for
   // this draw (skyReader().saved), so a list never parses it once a row.
   // Without at, the spot as it is this hour (its own page, a fish page).
+  // at.type: the list a page was opened from (#/water/pier), so the picture
+  // is that list's place at the spot: Westport from the Pier list is the
+  // crab float, Dash Point from a kayak list the kayak launch and from any
+  // other list the state park beach.
   var BEACH_DOING = { clams: "clams", surfperch: "perch" };
   function placePaint(spotId, speciesId, at) {
     var c = spotPaint(spotId), doing = BEACH_DOING[speciesId] || "", o = {}, k;
-    if (!speciesId) speciesAt(spotId).some(function (sp) { return (doing = BEACH_DOING[sp.id] || ""); });
+    at = at || {};
+    var listScene = at.type ? TYPE_SCENE[at.type] : "", byKind = c && c.standBy && c.standBy.kind && listScene ? c.standBy.kind[listScene] : "";
+    if (!speciesId && !byKind) speciesAt(spotId).some(function (sp) { return (doing = BEACH_DOING[sp.id] || ""); });
     if (!c) return doing ? { activity: doing } : null;
     for (k in c) o[k] = c[k];
     if (doing) o.activity = doing;
+    if (byKind) o.standAsk = byKind;
     if (speciesId) o.fish = speciesId;
-    at = at || {};
-    var plan = at.planId ? planOf(at.planId) : null, how = at.how || (plan && plan.how);
+    // how the trip fishes it: the trip's own, else its plan's, else the plan
+    // for this fish at this spot (the cutthroat page at Dash Point is the
+    // state park beach), else the list's (a kayak list or the shore)
+    var plan = at.planId ? planOf(at.planId) : null;
+    if (!plan && speciesId) plan = ((RIG.trips && RIG.trips.plans) || []).filter(function (x) { return x.spot === spotId && x.species === speciesId; })[0] || null;
+    var how = at.how || (plan && plan.how) || (at.type ? (/^kayak/.test(at.type) ? "kayak" : "shore") : "");
     if (how) o.how = how;
     if (RIG.spotNow) {
-      try { o.now = RIG.spotNow(spotId, whenAt(at, plan), at.data, at.moon != null && !isNaN(+at.moon) ? { moon: +at.moon / 100 } : null); } catch (e) { /* the picture paints an ordinary day */ }
+      try { o.now = spotNowOnce(spotId, whenAt(at, plan), at.data, at.moon != null && !isNaN(+at.moon) ? { moon: +at.moon / 100 } : null); } catch (e) { /* the picture paints an ordinary day */ }
     }
     return o;
+  }
+  // A week of rows asks for the same spot at the same moment many times
+  // (Redondo squid five evenings, the same row in the call and its day):
+  // today's water at a spot and minute is read once per forecast.
+  var nowMemo = { key: null, at: {} };
+  function spotNowOnce(spotId, when, data, extra) {
+    if (!data) return RIG.spotNow(spotId, when, data, extra);
+    if (nowMemo.key !== data) nowMemo = { key: data, at: {} };
+    var key = spotId + "|" + when.getTime() + "|" + (extra ? extra.moon : "");
+    if (!(key in nowMemo.at)) nowMemo.at[key] = RIG.spotNow(spotId, when, data, extra);
+    var out = {}, v = nowMemo.at[key], q;
+    for (q in v) out[q] = v[q];
+    return out;
   }
   // The local moment a paint stands at: the trip's start on its day, or a
   // day with no hour at its plan's own time (after dark for a night trip,
@@ -1364,12 +1388,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     // even count there is no odd one out, so all of them are the same size.
     var lead = shown.length % 2 === 1;
     // A way to fish with a hot trip this week wears the gold tag.
-    var hot = {};
-    weekTrips().forEach(function (x) { if (x.heat === "Hot") hot[tripType(x)] = 1; });
+    var hot = {}, hotSpot = {};
+    weekTrips().forEach(function (x) { if (x.heat === "Hot") { hot[tripType(x)] = 1; if (!hotSpot[tripType(x)]) hotSpot[tripType(x)] = x.spot; } });
+    // A way to fish with one spot shows that spot's own picture; with more,
+    // the spot of this week's hot trip, else the kind of water.
+    var wx = plannerReady() && RIG.trips.cached ? RIG.trips.cached() : null;
     var tiles = shown.map(function (t, i) {
-      var n = spotsOfType(t.id).length, wide = lead && i === 0;
+      var sl = spotsOfType(t.id), n = sl.length, wide = lead && i === 0, own = n === 1 ? sl[0].id : hotSpot[t.id] && sl.some(function (s) { return s.id === hotSpot[t.id]; }) ? hotSpot[t.id] : "";
       return '<a class="wtile ptile' + (wide ? " wide float" : "") + '" href="#/water/' + esc(t.id) + '" data-type-tile="' + esc(t.id) + '"' + (hot[t.id] ? " data-hot-type" : "") + ">" +
-        viewHtml(TYPE_VIEW[t.id] || "sound", "pic") + (hot[t.id] ? nowTag("hot") : "") +
+        viewHtml(TYPE_VIEW[t.id] || "sound", "pic", own ? placePaint(own, "", { data: wx, type: t.id }) : null) + (hot[t.id] ? nowTag("hot") : "") +
         '<span class="cap"><span class="nm">' + esc(t.label) + '</span><span class="meta">' + n + (n === 1 ? " spot" : " spots") + "</span></span></a>";
     }).join("");
     app.innerHTML = topHtml("water", "", "sound") +
@@ -1384,7 +1411,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var list = spotsOfType(t.id), wx = plannerReady() && RIG.trips.cached ? RIG.trips.cached() : null;
     var rows = list.map(function (s) {
       var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
-      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id, "", { data: wx })) +
+      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id, "", { data: wx, type: t.id })) +
         '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + '</span><span class="rm">' + esc(names) + "</span></span>" + IC.chev + '</a>';
     }).join("");
     // Kayak water also gets the boat itself, and Fly gets the casting course.
@@ -1412,7 +1439,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? '<span class="whole">' + esc(sp.hint) + "</span>" : "") + '<span class="rm">' + n + (n === 1 ? " card" : " cards") + "</span></span>" + IC.chev + '</a>';
     }).join("");
     var t = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
-    app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id)) +
+    app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id, "", t ? { type: t.id } : null)) +
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
         chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
         '<div class="float list">' + rows + "</div></div>" + tripBarHtml();
@@ -1676,9 +1703,21 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // Without the painter (its file did not load) a plain swatch of sky over
   // water holds the picture's place, so the row keeps its shape.
   // paint: the place's own (placePaint), so the row shows what its card does.
+  // A week repeats rows (Redondo squid five evenings, a trip in the call
+  // and in its day): the same spot, sky and water is painted once and kept.
+  var miniMemo = {}, miniKeys = [];
   function miniHtml(kind, under, cls, paint) {
-    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' +
-      (LOOK ? RIG.water.mini(kind, RIG.sky.paletteFor(under), paint || undefined) : "") + "</span>";
+    var art = "";
+    if (LOOK) {
+      var key = kind + "|" + under + "|" + (paint ? JSON.stringify(paint) : "");
+      art = miniMemo[key];
+      if (art == null) {
+        art = miniMemo[key] = RIG.water.mini(kind, RIG.sky.paletteFor(under), paint || undefined);
+        miniKeys.push(key);
+        if (miniKeys.length > 160) delete miniMemo[miniKeys.shift()];
+      }
+    }
+    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' + art + "</span>";
   }
   function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
 
@@ -1689,12 +1728,12 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // the ribbon's width. Trips too close to tell apart share one bead that
   // carries their count, so nothing overlaps at any size: [{ x, n, hot }].
   // Trips share one counted bead only where their beads would come within a
-  // few px of each other on the ribbon (a bead is 7 px, a counted one 15 px,
+  // few px of each other on the ribbon (a bead is 7 px, a counted one 17 px,
   // the ribbon 76 to 96 px). The shared bead stands where the first of them
   // starts, so every bead is on the hour a trip starts.
   function beadSpots(trips) {
     var lo = 0.1, hi = 0.9, RW = 84;
-    var size = function (g) { return g.n > 1 ? 15 : 7; };
+    var size = function (g) { return g.n > 1 ? 17 : 7; };
     var groups = trips.map(function (t) { return { x: Math.max(lo, Math.min(hi, (t.from - 5) / 18)), n: 1, hot: t.heat === "Hot" }; })
       .sort(function (a, b) { return a.x - b.x; });
     for (var merged = true; merged;) {

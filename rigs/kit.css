@@ -324,7 +324,9 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 :root[data-dark="1"] .ribbon b{background:var(--ink);box-shadow:0 0 0 1.2px var(--bg)}
 .ribbon b.h,:root[data-dark="1"] .ribbon b.h{z-index:1;background:var(--gold);box-shadow:0 0 0 1.2px var(--on-gold),0 0 6px color-mix(in srgb,var(--gold) 80%,transparent)}
 /* trips that start within the same hour or so share one bead, with their count */
-.ribbon b.n{z-index:2;width:15px;height:15px;margin:-7.5px 0 0 -7.5px;display:grid;place-items:center;font:700 10.5px/1 "Barlow Condensed",sans-serif;letter-spacing:0;color:var(--ink)}
+.ribbon b.n{z-index:2;width:17px;height:17px;margin:-8.5px 0 0 -8.5px;display:grid;place-items:center;font:800 11px/1 "Barlow Condensed",sans-serif;letter-spacing:0;color:var(--ink)}
+/* the count sits on one flat colour: no glow spills under the digit */
+.ribbon b.n.h,:root[data-dark="1"] .ribbon b.n.h{box-shadow:0 0 0 1.2px var(--on-gold),0 1px 2px color-mix(in srgb,var(--shade) 50%,transparent)}
 :root[data-dark="1"] .ribbon b.n{color:var(--paper)}
 .ribbon b.n.h,:root[data-dark="1"] .ribbon b.n.h{color:var(--on-gold)}
 .ribbon+i{margin-left:10px!important}
@@ -375,8 +377,8 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 
 /* ================= the plan and its timeline ================= */
 .plan{padding:14px 16px 15px}
-.planhead{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:7px}
-.planhead b{font:700 30px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1)}
+.planhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 10px;margin-top:7px}
+.planhead b{font:700 30px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1);white-space:nowrap}
 .planhead span{font-size:13.5px;font-weight:600;color:var(--t2);white-space:nowrap}
 /* the trip as a strip of its own skies; gold marks the hours you fish */
 .tl{position:relative;display:block;height:34px;margin:14px 2px 0}
