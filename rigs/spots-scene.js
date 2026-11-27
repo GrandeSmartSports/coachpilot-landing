@@ -420,9 +420,18 @@
     "lake-fenwick": {
       spot: "lake-fenwick", scene: "lake",
       facing: 105,                                               // facingDeg 105 (likely)
-      tile: [130, 108, 260, 146],                                 // its tile frames the big shore tree as the dark mass at the right, the pier running out under it
+      tile: [50, 96, 340, 191],                                 // its tile looks down the lake from the same pier (tileView): the east shore falling away to the far end, the sky's road under it, your own shore's trees and its big tree as the dark mass at the right, the pier at your feet at the left
+      // the tile turns 45 degrees right, toward the lake's south end (bearing 165 to 168, about 610 m off,
+      // between the east shore and your own west shore coming back in: OSM way 5884919, rays from the pier's end),
+      // on a wider lens so the pier (its axis 115) and the far end both stand in it
+      tileView: { facing: 150, fov: 60, glass: true, dock: { turn: -35 }, lake: { taper: "none", nearTree: { x: 378, base: 296, h: 168, spread: 0.62 } } },
       lake: {
         across: 100,                                             // likely: about 100 m of still water to the wooded east shore
+        // proven (OSM way 5884919, rays from the pier's end, node 13042464637): the far shore, bearing by bearing, in metres.
+        // 92 to 102 m across the bay ahead (60 to 105), falling away to the right as the lake runs south to its far end
+        // (about 610 m at 165 to 168), where your own west shore comes back in (295 m at 170, a point of it 70 m off at 187, 38 m at 200)
+        profile: [[20, 148], [30, 136], [40, 120], [50, 108], [60, 100], [70, 98], [80, 93], [85, 92], [90, 93], [100, 98], [110, 108], [120, 118], [125, 121], [130, 130],
+          [135, 144], [140, 173], [145, 193], [150, 255], [155, 308], [160, 420], [163, 474], [165, 607], [168, 611], [169.2, 300], [175, 219], [180, 199], [185, 162], [186, 155], [186.8, 70], [190, 66], [195, 51], [200, 38], [205, 33], [210, 30]],
         mix: 0.25,                                               // trees as the whole skyline, no peaks (kinds not named)
         stand: "pier",                                           // proven: a short pier under your feet, plain build
         near: [[-24, 34, 248, 22]],                              // likely: forest park around the lake, the lake running away left and right (kept low under the title at the left)

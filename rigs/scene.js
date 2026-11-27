@@ -294,14 +294,16 @@
     // land; scene.css shows it only at night
     return '<rect class="w-skyf" width="' + W + '" height="' + (HZ + 2) + '" fill="url(#' + id + '-sky)"/>' +
       '<g class="w-lightpos"><circle r="150" fill="url(#' + id + '-glow)" class="w-glow"/></g>' +
-      (o.town ? '<ellipse class="w-skyglow" cx="' + (W / 2 + ((o.seed || 0) % 7 - 3) * 22) + '" cy="' + (HZ + 4) + '" rx="300" ry="40" fill="url(#' + id + '-lamp)"/>' : "") +
+      (o.town ? '<ellipse class="w-skyglow" cx="' + (o.townX != null ? n(o.townX) : W / 2 + ((o.seed || 0) % 7 - 3) * 22) + '" cy="' + (HZ + 4) + '" rx="300" ry="40" fill="url(#' + id + '-lamp)"/>' : "") +
       stars(o.seed + 5) + clouds(o.seed + 3, id) +
       (o.mtn ? '<g mask="url(#' + id + '-mtnm)">' + mountain(o.mtn[0], o.mtn[1], o.mtn[2]) + "</g>" : "");
   }
   function reflect(id, key, hl, k, cls, along) {
     // a tile (a list row's thumbnail, 48 px) leaves the land's copy in the
     // water out: it does not show at that size and doubles the drawing
-    if (TILE) return { def: "", svg: "" };
+    // (a Water tab tile whose card asks for it, o.glass, keeps it: a still
+    // lake is known by its trees in the water)
+    if (TILE && !GLASS) return { def: "", svg: "" };
     // the land again, upside down and squashed, fading as it leaves the shore.
     // along: the shore's foot slopes across the picture (a far bank running
     // away into it), so the mirror lies along that foot and not along a
@@ -1553,7 +1555,11 @@
   //   beside [x0, x1, z0, z1]: another float alongside, in metres
   //   back   after dark, light falls on it from behind you
   function onDock(id, p, t, r, V) {
-    var e = 1.6, cx = W / 2 + (p.vx || 0) * V.ud, pj = eye(V, cx), fl = V.fl;
+    var e = 1.6, cx = W / 2 + (p.vx || 0) * V.ud, pj0 = eye(V, cx), fl = V.fl;
+    // p.turn: degrees the pier runs off your line of sight (less than 0: to
+    // the left), so a view turned along the shore keeps the pier true
+    var tq = ((p.turn || 0) * Math.PI) / 180, ctq = Math.cos(tq), stq = Math.sin(tq);
+    var pj = tq ? function (X, Y, Z) { return pj0(X * ctq + Z * stq, Y, Math.max(0.3, -X * stq + Z * ctq)); } : pj0;
     var Zn = 2.4, Z1 = p.ahead || 8, L = -(p.l || 1.4), R = p.r || 1.4, dk = -e, z, x;
     var deck = quad(pj(L, dk, Zn), pj(R, dk, Zn), pj(R, dk, Z1), pj(L, dk, Z1)), lines = "", side = "", cleats = "", shadow = "";
     if (p.planks === "along") for (x = L + 0.22; x < R; x += 0.22) lines += "M" + n(pj(x, dk, Zn)[0]) + " " + n(pj(x, dk, Zn)[1]) + "L" + n(pj(x, dk, Z1)[0]) + " " + n(pj(x, dk, Z1)[1]);
@@ -2152,7 +2158,7 @@
   // the ends a haze of twigs (winter) or lumps of leaves (summer). Screen
   // units: x, base (its foot), h (its height). Never a ball on a stick.
   function bigTree(r, x, base, h, isBare, spread) {
-    var wood = "", twig = "", leaf = "", top = base;
+    var wood = "", twig = "", leaf = "", top = base, tips = [];
     spread = spread || 1;
     function limb(x0, y0, ang, len, w, depth) {
       var bend = (r() - 0.5) * 0.35, mx = x0 + Math.cos(ang + bend) * len * 0.5, my = y0 - Math.sin(ang + bend) * len * 0.5;
@@ -2160,6 +2166,7 @@
       wood += poly([[x0 - nx * w / 2, y0 - ny * w / 2], [mx - nx * w * 0.42, my - ny * w * 0.42], [ex - nx * w1 / 2, ey - ny * w1 / 2], [ex + nx * w1 / 2, ey + ny * w1 / 2], [mx + nx * w * 0.42, my + ny * w * 0.42], [x0 + nx * w / 2, y0 + ny * w / 2]]);
       if (ey < top) top = ey;
       if (depth >= 4 || len < 3) {
+        tips.push([ex, ey]);
         if (isBare) for (var t = 0; t < 6; t++) { var ta = ang + (r() - 0.5) * 1.6, tl = len * (0.5 + r() * 0.7); twig += poly([[ex - 0.25, ey], [ex + Math.cos(ta) * tl, ey - Math.sin(ta) * tl], [ex + 0.25, ey]]); }
         else { var lr = len * (0.9 + r() * 0.6), pts = [], m = 11; for (var i = 0; i < m; i++) { var a = (i / m) * Math.PI * 2, k = 0.7 + r() * 0.45; pts.push([ex + Math.cos(a) * lr * k, ey + Math.sin(a) * lr * k * 0.72]); } leaf += poly(pts); }
         return;
@@ -2174,7 +2181,30 @@
     var fork = base - h * (0.3 + r() * 0.08), tw = Math.max(1.2, h * 0.05);
     wood += poly([[x - tw * 0.9, base], [x - tw * 0.55, base - h * 0.06], [x - tw * 0.42, fork], [x + tw * 0.42, fork], [x + tw * 0.55, base - h * 0.06], [x + tw * 0.9, base]]);
     limb(x, fork + tw * 0.2, Math.PI / 2 + (r() - 0.5) * 0.2, (base - fork) * 0.55 + h * 0.08, tw * 0.85, 0);
-    return { wood: wood, twig: twig, leaf: leaf, top: top };
+    return { wood: wood, twig: twig, leaf: leaf, top: top, tips: tips };
+  }
+  // A bare crown seen near, massed: one body round its limbs' ends, lobed
+  // where its limbs reach and close in where they do not, held up under the
+  // crown (the limbs show below it), its rim broken into fine twig tips.
+  function crownMass(r, tips, pad) {
+    var N = 90, rad = [], cx = 0, cy = 0, i, k, it;
+    tips.forEach(function (q) { cx += q[0] / tips.length; cy += q[1] / tips.length; });
+    for (i = 0; i < N; i++) rad.push(0);
+    tips.forEach(function (q) {
+      var b = Math.round(((Math.atan2(q[1] - cy, q[0] - cx) + Math.PI) / (2 * Math.PI)) * N) % N, d = Math.hypot(q[0] - cx, q[1] - cy) + pad;
+      for (k = -3; k <= 3; k++) { var j = (b + k + N) % N; rad[j] = Math.max(rad[j], d * (1 - Math.abs(k) * 0.035)); }
+    });
+    for (it = 0; it < N; it++) for (i = 0; i < N; i++) if (!rad[i]) { var a1 = rad[(i + N - 1) % N], a2 = rad[(i + 1) % N]; if (a1 || a2) rad[i] = (((a1 || a2) + (a2 || a1)) / 2) * 0.97; }
+    // (smoothed twice over five bins, so the body swells and draws in, never in steps)
+    for (it = 0; it < 2; it++) rad = rad.map(function (v, j) { return (rad[(j + N - 2) % N] + rad[(j + N - 1) % N] + v + rad[(j + 1) % N] + rad[(j + 2) % N]) / 5; });
+    var pts = [];
+    for (i = 0; i < N; i++) {
+      var a = (i / N) * 2 * Math.PI - Math.PI, R = rad[i] * (1 - 0.42 * clamp(Math.sin(a) / 0.7, 0, 1));
+      // the rim: fine twig tips standing out of it at their own lengths
+      pts.push([cx + Math.cos(a) * R * (0.97 + r() * 0.03), cy + Math.sin(a) * R * (0.97 + r() * 0.03)]);
+      if (Math.sin(a) < 0.15 && r() < 0.7) { var ta = a + (r() - 0.5) * 0.05, tl = 1.03 + r() * 0.1; pts.push([cx + Math.cos(ta) * R * tl, cy + Math.sin(ta) * R * tl], [cx + Math.cos(a + 0.012) * R * 0.98, cy + Math.sin(a + 0.012) * R * 0.98]); }
+    }
+    return poly(pts);
   }
   // Trees standing on the ground near you, placed in metres: "broad" (a
   // leafy tree, bare in winter), "fir", "cedar" (a drooping fir).
@@ -2747,18 +2777,46 @@
   //   stand    "dock" (floating, o.dock), "pier" (o.dock), "ramp", "gravel"
   //            or none (the bank)
   //   wetland  "right" or "left": a marshy edge and a small park
+  //   profile  [[bearing, m], ...]: the far shore bearing by bearing, read
+  //            off the lake's outline on the map (in place of shores):
+  //            where the lake runs off, its shores fall away to its far end,
+  //            the sky over that end lies on the water as a pale road, and
+  //            after dark the towns' glow stands over it
   function lakeSpot(id, o) {
     var t = today(o), V = lens(o), sd = idSeed(o.spot), r = rnd(sd + 131), wd = windOf(t.wind * 0.75), lk = o.lake || {}, E = 1.7;
     var isBare = bare(t.date), mix = lk.mix == null ? 0.3 : lk.mix, sky = o.skyline || [], low = within(t.date, lk.drawdown) ? 2.2 : 0, k;
     var Lt = lightOf(V.f, t.date);
-    var shores = (lk.shores || [{ from: V.f - 80, to: V.f + 80, m: lk.across || 300, houses: lk.houses || 0 }]).slice();
+    var shores = lk.profile ? [] : (lk.shores || [{ from: V.f - 80, to: V.f + 80, m: lk.across || 300, houses: lk.houses || 0 }]).slice();
     // a point of the far shore coming in nearer from one side (seeded for a
     // lake from the feed: which side, how far in, how near)
     if (lk.point) { var pL = lk.point.side === "left", pf = V.f + (pL ? -80 : 80 - lk.point.span), pt = pf + lk.point.span; shores.push({ from: pf, to: pt, m: lk.point.m, point: pL ? "left" : "right", trees: lk.point.trees }); }
     var yTop = 999;
     shores.forEach(function (s) { var y = HZ + (V.fl * E) / s.m; if (y < yTop) yTop = y; });
     (lk.islands || []).forEach(function (s) { var y = HZ + (V.fl * E) / s.m; if (y < yTop) yTop = y; });
-    var back = defs(id) + skyLayer(id, { seed: sd + 700, town: 1 }) + nightSky(id, sd) + peaksOf(id, sky, V, yTop - 1, sd, Lt.set.rel < 0) + waterLayer(id, yTop - 1);
+    // the profile: its distance at each x, the far end (the farthest in the
+    // frame, when it is far past the rest: the lake runs off there)
+    var mAt = null, PX = [], gapX = null;
+    if (lk.profile) {
+      var pf = lk.profile, gm = 0, mn = 1e9;
+      mAt = function (x) {
+        var b = V.f + (x - W / 2) / V.ud, j;
+        if (b <= pf[0][0]) return pf[0][1];
+        for (j = 1; j < pf.length; j++) if (b <= pf[j][0]) return pf[j - 1][1] + ((b - pf[j - 1][0]) / (pf[j][0] - pf[j - 1][0])) * (pf[j][1] - pf[j - 1][1]);
+        return pf[pf.length - 1][1];
+      };
+      for (k = -44; k <= W + 44; k += 2) {
+        var mk0 = mAt(k);
+        PX.push([k, mk0]);
+        if (k < 6 || k > W - 6) continue;
+        if (HZ + (V.fl * E) / mk0 < yTop) yTop = HZ + (V.fl * E) / mk0;
+        if (mk0 > gm) { gm = mk0; gapX = k; }
+        if (mk0 < mn) mn = mk0;
+      }
+      // (a far end only where the shore comes back in past it on both sides:
+      // a shore still falling away at the frame's edge has no end in sight)
+      if (gm < mn * 2.2 || gm < 1.6 * Math.max(mAt(6), mAt(W - 6))) gapX = null;
+    }
+    var back = defs(id) + skyLayer(id, { seed: sd + 700, town: 1, townX: gapX }) + nightSky(id, sd, gapX) + peaksOf(id, sky, V, yTop - 1, sd, Lt.set.rel < 0) + waterLayer(id, yTop - 1);
     var mdef = "", mid = "", near = "";
     // the far shore, stretch by stretch, farthest first
     shores.slice().sort(function (a, b) { return b.m - a.m; }).concat((lk.islands || []).map(function (s) { var c = {}, q; for (q in s) c[q] = s[q]; c.island = 1; return c; }).sort(function (a, b) { return b.m - a.m; })).forEach(function (s, i) {
@@ -2799,7 +2857,34 @@
       }
       mid += '<path class="w-beach" d="M' + n(x0) + " " + n(wy + 0.3) + "H" + n(x1) + '"/>' + mist(id + "m", sd + 90 + i, wy + 2, 0.7);
     });
-    mid += nightWater(id + "m", sd, o, t, yTop, yTop + 44);
+    if (mAt) {
+      // the far shore drawn from the profile in steps of distance (each step
+      // paler than the one nearer), farthest first
+      var clsOf = function (m) { return m < 120 ? 5 : m < 220 ? 4 : m < 450 ? 3 : m < 1300 ? 2 : 1; }, runs = [], cur = null;
+      PX.forEach(function (q) { var c = clsOf(q[1]); if (!cur || cur.c !== c) runs.push(cur = { c: c, x0: q[0], x1: q[0] }); else cur.x1 = q[0]; });
+      var baseP = function (x) { return HZ + (V.fl * E) / mAt(x); }, tp = lk.taper === "left";
+      var growP = function (x) { return (100 / mAt(x)) * (tp ? 0.14 + 0.86 * Math.pow(clamp(x / W, 0, 1), 1.7) : 1); };
+      runs.sort(function (a, b) { return a.c - b.c; }).forEach(function (rn, i) {
+        var cl = "w-l" + rn.c, wl = wall({ seed: sd + 17 * (i + 1), x0: rn.x0 - 3, x1: rn.x1 + 3, base: baseP, h: (V.fl * 24) / 100, mix: mix, bare: isBare, land: Math.max(1, (V.fl * 24) / 100 * 0.06), grow: growP });
+        var rf = reflect(id, "p" + i, wl.glass, 0.92, cl === "w-l4" ? "w-l5" : cl);
+        mdef += rf.def;
+        mid += '<g opacity="' + n(wd.refl) + '">' + rf.svg + "</g>" + paintWall(wl, cl);
+      });
+      mid += '<path class="w-beach" d="' + line(PX.map(function (q) { return [q[0], baseP(q[0]) + 0.3]; })) + '"/>' + mist(id + "m", sd + 90, yTop + 2, 0.7);
+      if (gapX != null) {
+        // the sky over the far end, on the still water: a pale road under
+        // it, widening toward you, broken by a breath of air into strokes
+        var y0g = baseP(gapX) + 1, rgp = rnd(sd + 59), gsp = "";
+        for (k = 0; k < (TILE ? 26 : 90); k++) {
+          var vg = Math.pow(rgp(), 1.15), yg = y0g + 1 + vg * 70, spg = 3 + vg * 26, lg = (2.6 + vg * 18) * (0.4 + rgp() * 0.8), xg = gapX + gauss(rgp) * spg - lg / 2;
+          gsp += '<path d="M' + n(xg) + " " + n(yg) + "h" + n(lg) + '" stroke-width="' + n(0.6 + vg * 1.3) + '" opacity="' + n(0.3 + rgp() * 0.7) + '"/>';
+        }
+        mid += '<ellipse class="w-gapsh" cx="' + n(gapX) + '" cy="' + n(y0g + 22) + '" rx="' + (TILE ? 40 : 46) + '" ry="30" fill="url(#' + id + 'm-glow)"/>' +
+          '<g class="w-townwater"><ellipse cx="' + n(gapX) + '" cy="' + n(y0g + 16) + '" rx="70" ry="34" fill="url(#' + id + 'm-lamp)" opacity=".7"/></g>' +
+          '<g class="w-gaprd">' + gsp + "</g>";
+      }
+    }
+    mid += nightWater(id + "m", sd, o, t, yTop, yTop + 44, gapX);
     // still water keeps long quiet streaks where a breath of air touches it
     var streaks = "";
     for (k = 0; k < 7; k++) {
@@ -2820,9 +2905,11 @@
     if (lk.nearTree) {
       // (bare, its crown is a soft haze round the limbs' ends, never a twig fan)
       var nt = lk.nearTree, ntr = rnd(sd + 127), btn = bigTree(ntr, TILE && nt.tileX != null ? nt.tileX : nt.x, TILE && nt.tileBase ? nt.tileBase : nt.base, TILE && nt.tileH ? nt.tileH : nt.h, false, nt.spread || 0.6);
-      // (on a tile it is the tile's dark mass: its bare crown painted as the
-      // twigs' massed lace, not the big picture's faint haze)
-      near += '<path class="w-rim" d="' + btn.wood + '"/><g class="w-l5">' + '<path' + (isBare ? ' class="' + (TILE ? "w-twigm" : "w-haze") + '"' : "") + ' d="' + btn.leaf + '"/><path d="' + btn.wood + '"/></g>';
+      // (on a tile it is the tile's dark mass: its bare crown's twigs massed
+      // into one dark body with a ragged rim, the limbs darker in it, not the
+      // big picture's faint haze)
+      near += '<path class="w-rim" d="' + btn.wood + '"/><g class="w-l5">' + (TILE && isBare ? '<path class="w-crownm" d="' + crownMass(rnd(sd + 129), btn.tips, 4) + '"/>' :
+        '<path' + (isBare ? ' class="w-haze"' : "") + ' d="' + btn.leaf + '"/>') + '<path d="' + btn.wood + '"/></g>';
     }
     // the bank beside you
     if (lk.wetland) {
@@ -2991,8 +3078,8 @@
     return m.pos === "side" || m.pos === "ahead" ? (m.x < W / 2 ? "left" : "right") : "";
   }
   function townX(sd) { return W / 2 + ((sd % 9) - 4) * 18; }
-  function nightSky(id, sd) {
-    var r = rnd(sd + 401), cx = townX(sd), cl = "", k;
+  function nightSky(id, sd, tx) {
+    var r = rnd(sd + 401), cx = tx != null ? tx : townX(sd), cl = "", k;
     for (k = 0; k < 6; k++) {
       var cy = HZ - 12 - r() * 34, near = 1 - (HZ - cy) / 56;
       cl += '<ellipse cx="' + n(cx + (r() - 0.5) * 340) + '" cy="' + n(cy) + '" rx="' + n(60 + r() * 120) + '" ry="' + n(2.2 + r() * 3.6) + '" opacity="' + n((0.3 + r() * 0.4) * near) + '"/>';
@@ -3001,8 +3088,8 @@
       '<g class="w-townc" filter="url(#' + id + '-b5)">' + cl + "</g></g>";
   }
   // y0, y1: the water you see, from the far shore's foot to the card's edge
-  function nightWater(gid, sd, o, t, y0, y1) {
-    var r = rnd(sd + 403), cx = townX(sd), h = y1 - y0, fl = "", k, side = moonlit(o, t);
+  function nightWater(gid, sd, o, t, y0, y1, tx) {
+    var r = rnd(sd + 403), cx = tx != null ? tx : townX(sd), h = y1 - y0, fl = "", k, side = moonlit(o, t);
     for (k = 0; k < (TILE ? 22 : 80); k++) {
       var u = r(), x = cx + (r() - 0.5) * 440 * (0.45 + u * 0.55), y = y0 + 1.5 + Math.pow(u, 1.3) * (h + 6), l = (2.5 + r() * 9) * (0.5 + u), a = (1 - Math.abs(x - cx) / 240) * (0.3 + r() * 0.55);
       if (a > 0.06) fl += '<rect x="' + n(x - l / 2) + '" y="' + n(y) + '" width="' + n(l) + '" height="' + n(0.5 + u * 0.7) + '" rx=".4" opacity="' + n(a) + '"/>';
@@ -3896,9 +3983,22 @@
   // on the waterline. It says which spot and stand it is (data-paint-spot,
   // data-stand; not data-spot, which the list row around it carries).
   function viewSpot(kind, o) {
+    // o.tileView: the tile looks its own way from the same stand (its
+    // facing, and what changes with it: the pier's turn under you, the
+    // trees kept low for a title it does not have), one level deep
+    if (o.tileView) {
+      var o2 = {}, q, q2;
+      for (q in o) if (q !== "tileView") o2[q] = o[q];
+      for (q in o.tileView) {
+        var tv = o.tileView[q];
+        if (tv && typeof tv === "object" && !Array.isArray(tv) && o[q] && typeof o[q] === "object") { o2[q] = {}; for (q2 in o[q]) o2[q][q2] = o[q][q2]; for (q2 in tv) o2[q][q2] = tv[q2]; }
+        else o2[q] = tv;
+      }
+      o = o2;
+    }
     var b = o.scene || kind, id = "vs" + (view.n = (view.n || 0) + 1), html;
-    TILE = true;
-    try { html = (BUILD[b] || BUILD.sound)(id, o); } finally { TILE = false; }
+    TILE = true; GLASS = !!o.glass;
+    try { html = (BUILD[b] || BUILD.sound)(id, o); } finally { TILE = false; GLASS = false; }
     html = html.replace(/<svg class="sc sc-gl[\s\S]*?<\/svg>/g, "").replace(/<svg[^>]*>/g, "").replace(/<\/svg>/g, "");
     var t = today(o), L = o.facing != null ? lightOf(o.facing, t.date) : null, ml = moonlit(o, t);
     // o.tile [x, y, w, h]: a stand's own frame for its tile, on what it is known by
@@ -3906,7 +4006,7 @@
     return '<svg class="view vspot" viewBox="' + vb + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" data-scene="' + b + '" data-paint-spot="' + o.spot + '"' + (o.standName ? ' data-stand="' + o.standName + '"' : "") + (ml ? ' data-moonlit="' + ml + '"' : "") +
       (L ? ' data-set="' + L.set.side + '" data-rise="' + L.rise.side + '" style="--setx:' + L.set.x + "px;--risex:" + L.rise.x + 'px"' : ' data-set="none"') + ">" + html + "</svg>";
   }
-  var TILE = false;
+  var TILE = false, GLASS = false;
 
   // The row's thumbnail for a spot: its own few facts, small, in one hour's
   // palette (as mini() is), so a row looks like its spot. 48 by 48.
@@ -4203,8 +4303,16 @@
         // the frame's foot at one side to meet the far bank, the meadow or
         // the bar at your feet at the other, someone at its edge
         var rr9 = rv.reach.side !== "left", MX9 = function (x) { return rr9 ? x : 48 - x; }, rg9 = rnd(sd + 59), road9 = "";
-        for (var q9 = 0; q9 < 9; q9++) { var v9 = q9 / 9; road9 += "M" + n(MX9(19 - v9 * 3 + (rg9() - 0.5) * 3)) + " " + n(HZm + 1.5 + v9 * 12) + "h" + n(2 + v9 * 6); }
-        s += '<path d="' + road9 + '" stroke="' + mixHex(hz, lum, 0.5) + '" stroke-width=".7" fill="none" opacity=".8"/>';
+        // (the road a soft sheen widening toward you, a few broken glints on it
+        // at their own spacing and strength, never an even ladder of bars)
+        var rc9 = mixHex(hz, lum, 0.5), rq9 = rnd(sd + 61), sh9 = "M" + n(MX9(18.4)) + " " + n(HZm + 0.8) + "L" + n(MX9(19.4)) + " " + n(HZm + 0.8) + "L" + n(MX9(22)) + " " + n(HZm + 14) + "L" + n(MX9(12.5)) + " " + n(HZm + 14) + "Z";
+        s += '<path d="' + sh9 + '" fill="' + rc9 + '" opacity="' + (lampOn ? 0.12 : 0.16) + '"/>';
+        for (var q9 = 0; q9 < 10; q9++) {
+          var v9 = Math.pow(rq9(), 1.2), l9 = (1 + v9 * 5) * (0.4 + rq9() * 0.8), x9 = 18.4 - v9 * 1.6 + (rq9() - 0.5) * (1.2 + v9 * 6) - l9 / 2;
+          road9 += '<path d="M' + n(MX9(rr9 ? x9 : x9 + l9)) + " " + n(HZm + 1.3 + v9 * 12.6) + "h" + n(l9) + '" opacity="' + n((0.45 + rq9() * 0.45) * (1 - v9 * 0.3)) + '"/>';
+          if (q9 < 9) rg9(); // (the bank's trees keep the draws they were drawn with)
+        }
+        s += '<g stroke="' + rc9 + '" stroke-width=".5" stroke-linecap="round" fill="none">' + road9 + "</g>";
         var nb9 = function (x) { var u = Math.max(0, x - 26) / 22; return HZm + 0.6 + 14 * Math.pow(u, 1.2); }, bank9 = "M" + n(MX9(25)) + " " + n(HZm + 0.6), tr9 = "", xq;
         for (xq = 26; xq <= 49; xq += 1.5) bank9 += "L" + n(MX9(xq)) + " " + n(nb9(xq) - 0.4);
         for (xq = 26.5; xq < 50; xq += 1.4 + rg9() * 1.2) { var u9 = (xq - 26) / 22, th9 = (2 + u9 * 26) * (0.7 + rg9() * 0.5), fb9 = nb9(xq);

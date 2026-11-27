@@ -483,6 +483,26 @@ const mn = (id, extra) => RIG.water.mini(S[id].scene, pal.golden, Object.assign(
 ok(/M8.4 39.6h1.6/.test(mn("puyallup-sumner")) && !/M8.4 39.6h1.6/.test(mn("puyallup-orting")) && /M41 /.test(mn("puyallup-orting")), "Sumner's thumbnail has the joining and an angler, Orting's the bridge and the bars");
 ok(/rx="7" ry=".8"/.test(RIG.water.mini("sound", pal.golden, Object.assign({ now: { date: D }, how: "shore" }, S["dash-point"]))), "the Dash Point state beach thumbnail shows its flats and a pool");
 ok(paint(RIG.spotScene("w-l2668"), { now: { date: D } }).innerHTML !== paint(RIG.spotScene("w-l1536"), { now: { date: D } }).innerHTML, "two feed lakes never paint the same");
+// (E3 fix-2) the Green's row thumbnail: the sky's road is a soft sheen with glints at their own lengths and
+// spacing, never an even ladder of pale bars (a lamp's ladder, which the Green has none of)
+{
+  const th = mn("green-river", { fish: "coho" }), g = /<g stroke="[^"]+" stroke-width="\.5" stroke-linecap="round" fill="none">(.*?)<\/g>/.exec(th);
+  const st = g ? [...g[1].matchAll(/d="M([\d.-]+) ([\d.-]+)h([\d.-]+)"/g)].map((m) => [+m[2], +m[3]]).sort((a, b) => a[0] - b[0]) : [];
+  const L = st.map((q) => q[1]), gaps = st.slice(1).map((q, i) => q[0] - st[i][0]), mean = gaps.reduce((a, b) => a + b, 0) / (gaps.length || 1);
+  const sd = Math.sqrt(gaps.reduce((a, b) => a + (b - mean) * (b - mean), 0) / (gaps.length || 1));
+  ok(st.length >= 8 && Math.max(...L) / Math.min(...L) >= 2.5 && sd / mean >= 0.35 && /<path d="M[^"]*Z" fill="[^"]+" opacity="0?\.1[0-9]*"\/>/.test(th),
+    "the Green's thumbnail: its road a faint sheen with glints of their own lengths and spacing, not a ladder", { n: st.length, L, gaps });
+}
+// (E3 fix-2) Lake Fenwick's far shore is its outline on the map, bearing by bearing: about 100 m across the bay
+// ahead, falling away south to the lake's far end (about 610 m), your own shore coming back in past it
+{
+  const pf = S["lake-fenwick"].lake.profile, at = (b) => { for (let j = 1; j < pf.length; j++) if (b <= pf[j][0]) return pf[j - 1][1] + ((b - pf[j - 1][0]) / (pf[j][0] - pf[j - 1][0])) * (pf[j][1] - pf[j - 1][1]); return pf[pf.length - 1][1]; };
+  ok([60, 80, 105].every((b) => at(b) >= 90 && at(b) <= 104) && at(166) >= 600 && at(175) < 250 && at(195) < 60 && pf.every((q, i) => !i || q[0] > pf[i - 1][0]),
+    "Lake Fenwick's far shore: 92 to 102 m across the bay ahead, its far end about 610 m off at 165 to 168, your own shore back in at 195", [at(60), at(105), at(166), at(175), at(195)]);
+  const big = paint(S["lake-fenwick"], { now: { date: D } }).innerHTML;
+  ok(!/class="w-gaprd"/.test(big) && !/class="w-crownm"/.test(big) && /class="w-l3"/.test(big),
+    "Lake Fenwick's big picture (facing 105): its far shore falls away at the right, no far end in sight (no road there), its tree's crown the big picture's haze");
+}
 // no moon road where no moon stands: the light road's glints all but gone (scene.css)
 const css = readFileSync(join(ROOT, "rigs/scene.css"), "utf8");
 const grOf = (sel) => { const m = new RegExp(sel.replace(/[[\]().*+?^$|]/g, "\\$&") + "\\{[^}]*--gr:([^;}]+)").exec(css); return m ? m[1] : null; };

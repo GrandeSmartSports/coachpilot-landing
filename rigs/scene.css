@@ -559,6 +559,8 @@
 .w-meadt{fill:var(--r3);opacity:.42}
 :root[data-dark="1"] .w-mead{fill:color-mix(in oklab,var(--bg) 66%,var(--r2))}
 .w-twigm{opacity:.6}.w-twign{opacity:.78}
+/* a big shore tree on a tile: its bare crown's twigs massed into one dark body */
+.w-crownm{opacity:.86}
 .w-gapsh{opacity:calc(.22 + var(--glow)*.46)}
 .w-gaprd{fill:none;stroke:var(--roadc);stroke-linecap:round;opacity:calc(.28 + var(--gl)*.72)}
 :root[data-sky="night"] .w-gaprd{stroke:color-mix(in oklab,var(--lampc) 58%,var(--glintc));opacity:.62}

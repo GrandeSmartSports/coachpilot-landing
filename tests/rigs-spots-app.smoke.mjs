@@ -166,6 +166,32 @@ try {
     await page.waitForSelector('[data-view="spot"] [data-row-species]');
     const gp = await scene(page);
     ok(gp.kind === "river" && gp.spot === "green-river" && gp.stand === "geyser" && !gp.fish, "the Green's own spot page: Flaming Geyser", gp);
+    // (E3 fix-2, V2-9) its week's trips stand under their days' headings, as on Hot Trips: every row under a heading
+    // that names its day, each day once, no two rows in a day the same trip, and a day's count is its rows here
+    const spotWeek = await page.evaluate(() => [...document.querySelectorAll("[data-spot-trips] > [data-spot-day]")].map((d) => ({
+      iso: d.dataset.spotDay, head: [...((d.querySelector(":scope > h2") || {}).childNodes || [])].filter((q) => q.nodeType === 3 || q.tagName === "SPAN").map((q) => q.textContent.trim()).join(" "), count: ((d.querySelector(":scope > h2 i") || {}).textContent || "").replace(/\D/g, ""),
+      rows: [...d.querySelectorAll(".trip[data-hot]")].map((r) => r.dataset.hot) })));
+    const loose = await page.evaluate(() => document.querySelectorAll("[data-spot-trips] .trip").length - document.querySelectorAll("[data-spot-trips] [data-spot-day] .trip").length);
+    const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    ok(spotWeek.length >= 2 && !loose && new Set(spotWeek.map((d) => d.iso)).size === spotWeek.length &&
+      spotWeek.every((d) => d.rows.length && new Set(d.rows).size === d.rows.length && +d.count === d.rows.length && new RegExp(MON[+d.iso.slice(5, 7) - 1] + " " + (+d.iso.slice(8)) + "\\b", "i").test(d.head)),
+      "the Green's spot page: its week's trips under their days' headings (each day named once, its own count, no row twice in a day)", spotWeek);
+    // (E3 fix-2, V2-9) and when each of its trips fishes: twelve months from this one, this month ringed, the
+    // strip true to the trips' seasons (a trip on this week's list is in season this month on its strip)
+    const seasonsOf = () => page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-spot-seasons] [data-season]")].map((r) => [r.dataset.season, {
+      line: (r.querySelector(".tx > span") || {}).textContent || "", cells: [...r.querySelectorAll(".months b")].map((b) => b.textContent + ":" + (b.classList.contains("pk") ? "pk" : b.classList.contains("ok") ? "ok" : "") + (b.classList.contains("now") ? "*" : "")),
+      link: r.getAttribute("href") || "" }])));
+    const gSeasons = await seasonsOf();
+    ok(gSeasons["coho-green-river"] && gSeasons["chum-green-river"] && !gSeasons["steelhead-green-river"] && spotWeek.every((d) => d.rows.every((id) => /^N:(ok|pk)\*$/.test((gSeasons[id] || { cells: [] }).cells[0] || ""))) &&
+      gSeasons["chum-green-river"].line === "Best Nov" && gSeasons["coho-green-river"].link === "#/coho/green-river",
+      "the Green's spot page: when coho and chum fish (steelhead, its rules unsettled, left off), this month ringed and in season for each trip on the week's list", gSeasons);
+    await sky(page, "overcast", "#/spot/westport");
+    await page.waitForSelector('[data-view="spot"] [data-spot-seasons] [data-season]');
+    const wSeasons = await seasonsOf();
+    const cr = wSeasons["crab-westport"], pe = wSeasons["surfperch-westport"];
+    ok(cr && pe && cr.cells.length === 12 && cr.cells.every((c) => /:ok/.test(c)) && cr.line === "All year" && /^N:ok\*$/.test(cr.cells[0]) &&
+      pe.line === "Best Apr to Jun" && pe.cells.filter((c) => /:pk/.test(c)).map((c) => c[0]).join("") === "AMJ" && /^N:\*$/.test(pe.cells[0]),
+      "Westport's spot page: crab off the docks all year, surf perch best April to June and out of season now (a short page no more)", wSeasons);
     // (fix-1, function-1) a fish's own page at a spot paints the stand that fish is fished from
     await sky(page, "overcast", "#/cutthroat/dash-point");
     await page.waitForSelector('[data-view] .hero h1');
@@ -194,8 +220,21 @@ try {
     // (fix-2, V1-5) and frames it on what that spot is known by: Flaming Geyser's bar and riffle, Lake Fenwick's pier and its big shore tree
     const frames = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-type-tile] svg[data-paint-spot]")].map((v) => [v.getAttribute("data-paint-spot"), v.getAttribute("viewBox")])));
     // (E3, V2-3) the River tile frames the reach (the bar at the left, your own bank's dark trees closing in at
-    // the right), the Lake tile the big shore tree as the dark mass at the right with the pier running out under it
-    ok(frames["green-river"] === "0 150 390 132" && frames["lake-fenwick"] === "130 108 260 146", "the River tile frames Flaming Geyser's reach, the Lake tile Lake Fenwick's shore tree over its pier", frames);
+    // the right); (E3 fix-2) the Lake tile looks down Lake Fenwick from the same pier to its far end
+    ok(frames["green-river"] === "0 150 390 132" && frames["lake-fenwick"] === "50 96 340 191", "the River tile frames Flaming Geyser's reach, the Lake tile Lake Fenwick looking down the lake", frames);
+    // (E3 fix-2, V2-3) the Lake tile is built like the River tile: its shores close in on the lake's far end (the far
+    // shore in steps of distance, paler as it goes), the sky's road on the water under that end, your own shore's
+    // point and big tree as the dark mass at the right (the tree's bare crown massed, not lace), the pier at your
+    // feet, the trees in the still water; and it is its own view (facing 150), not the big picture's crop
+    const ltile = await page.evaluate(() => {
+      const v = document.querySelector('[data-type-tile="lake"] svg[data-paint-spot="lake-fenwick"]');
+      if (!v) return null;
+      const steps = new Set([...v.querySelectorAll(".sc-mid > g[class^='w-l'], g[class^='w-l']")].map((g) => g.getAttribute("class")).filter((c) => /^w-l[0-5]$/.test(c)));
+      return { steps: [...steps].sort(), road: v.querySelectorAll(".w-gaprd path").length, sheen: !!v.querySelector(".w-gapsh"), town: !!v.querySelector(".w-townwater"), crown: !!v.querySelector(".w-crownm"), lace: !!v.querySelector(".w-twigm"),
+        dock: v.querySelectorAll(".w-dock").length, glass: v.querySelectorAll("[id*='-rfp']").length, set: v.getAttribute("data-set") };
+    });
+    ok(ltile && ltile.steps.length >= 3 && ltile.road >= 12 && ltile.sheen && ltile.town && ltile.crown && !ltile.lace && ltile.dock === 1 && ltile.glass >= 2,
+      "the Lake tile: shores closing in on the far end in three or more steps of distance, the sky's road under it, the dark mass of your own shore and its massed crown, the pier, the trees in the water", ltile);
     const rtile = await page.evaluate(() => { const v = document.querySelector('[data-type-tile="river"] svg[data-paint-spot]'); return { reach: !!(v && v.querySelector('.w-reach[data-reach="mixed"]')), road: !!(v && v.querySelector(".w-gaprd")), bar: !!(v && v.querySelector(".w-barg")) }; });
     ok(rtile.reach && rtile.road && rtile.bar, "the River tile has a dark mass at one side (your own bank's trees), the sky's road on the water and the bar at your feet", rtile);
     const cut = await card(page, T("2026-11-26", "cutthroat-dash-point"));
@@ -247,6 +286,14 @@ try {
       for (let i = 0; i < nn; i++) { const o = i * img.bpp; Y[i] = 0.2126 * img.px[o] + 0.7152 * img.px[o + 1] + 0.0722 * img.px[o + 2]; }
       Y.sort();
       ok(rt.h > 50 && Y[Math.floor(nn * 0.99)] >= 105, "the Water tab's River tile is lit at night below its pill (brightest 1% at least 105)", [rt, Math.round(Y[Math.floor(nn * 0.99)])]);
+    }
+    // (E3 fix-2, V2-3) and the Lake tile's water at night: the towns' glow over the far end lies on it (brightest 1% at least 105)
+    {
+      const lt = await page.evaluate(() => { const b = document.querySelector('[data-type-tile="lake"] svg').getBoundingClientRect(); return { x: b.left, y: b.top + b.height * 0.45, w: b.width, h: b.height * 0.55 }; });
+      const img = decodePng(await page.screenshot({ clip: { x: lt.x, y: lt.y, width: lt.w, height: lt.h } })), nn = img.w * img.h, Y = new Float32Array(nn);
+      for (let i = 0; i < nn; i++) { const o = i * img.bpp; Y[i] = 0.2126 * img.px[o] + 0.7152 * img.px[o + 1] + 0.0722 * img.px[o + 2]; }
+      Y.sort();
+      ok(lt.h > 30 && Y[Math.floor(nn * 0.99)] >= 105, "the Water tab's Lake tile is lit at night on its water (brightest 1% at least 105)", [lt, Math.round(Y[Math.floor(nn * 0.99)])]);
     }
     ok(!errors.length, "no page errors in the November week", errors);
     await ctx.close();
