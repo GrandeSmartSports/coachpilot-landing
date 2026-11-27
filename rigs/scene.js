@@ -94,11 +94,13 @@
     var base = typeof o.base === "function" ? o.base : function () { return o.base; };
     var freq = o.freq || 0.018, shape = o.shape || 2.4;
     function u(x) { var v = (x - o.from) / (o.to - o.from); return v < 0 ? 0 : v > 1 ? 1 : v; }
+    // o.env (optional): the land's own rise and fall along its length, k
+    // from 0 to 1, for an island that tapers at both ends
     function land(x) {
-      var k = u(x), env = Math.pow(1 - Math.pow(k, shape), 0.9);
+      var k = u(x), env = o.env ? o.env(k) : Math.pow(1 - Math.pow(k, shape), 0.9);
       return o.h * env * (0.5 + 0.5 * (nz(x * freq) * 0.7 + nz(x * freq * 3.1 + 9) * 0.3));
     }
-    function fade(x) { return Math.min(1, (1 - u(x)) * (o.tipFade || 7) + 0.12); }
+    function fade(x) { return o.env ? Math.min(1, o.env(u(x)) * 1.6 + 0.08) : Math.min(1, (1 - u(x)) * (o.tipFade || 7) + 0.12); }
     var out = { base: base, a: a, b: b, top: 9999, land: "", trees: "", maxH: 0 };
     var pts = [], x;
     if (!o.trees) {
@@ -139,6 +141,7 @@
       }
     }
     out.maxH = base(a) - out.top;
+    out.height = land;
     return out;
   }
 
@@ -183,13 +186,15 @@
   }
 
   // A piling with a lit edge and a wet foot.
-  function pile(r, x, top, bot, w, cls) {
+  // wetH (optional): how high the wet band climbs, for a tide that is known
+  function pile(r, x, top, bot, w, cls, wetH) {
     var tilt = (r() - 0.5) * w * 0.5, cut = (r() - 0.3) * w * 0.4, wt = w * 0.84;
     var s = '<path class="' + (cls || "w-pile") + '" d="' + poly([[x - wt / 2 + tilt, top + cut], [x + wt / 2 + tilt, top], [x + w / 2, bot], [x - w / 2, bot]]) + '"/>';
     s += '<path class="w-litl" d="' + poly([[x - wt / 2 + tilt, top + cut], [x - wt / 2 + tilt + w * 0.26, top + cut * 0.7], [x - w / 2 + w * 0.26, bot], [x - w / 2, bot]]) + '"/>';
     s += '<path class="w-litr" d="' + poly([[x + wt / 2 + tilt - w * 0.26, top + cut * 0.3], [x + wt / 2 + tilt, top], [x + w / 2, bot], [x + w / 2 - w * 0.26, bot]]) + '"/>';
     s += '<path class="w-cap" d="' + poly([[x - wt / 2 + tilt, top + cut], [x + wt / 2 + tilt, top], [x + wt / 2 + tilt, top + 1.3], [x - wt / 2 + tilt, top + cut + 1.3]]) + '"/>';
     var wet = Math.min(16, (bot - top) * 0.3) * (0.7 + r() * 0.5);
+    if (wetH != null) wet = Math.min(bot - top - 1, wetH);
     s += '<path class="w-wet" d="' + poly([[x - w / 2 - 0.2, bot - wet], [x + w / 2 + 0.2, bot - wet + (r() - 0.5) * 2], [x + w / 2 + 0.3, bot], [x - w / 2 - 0.3, bot]]) + '"/>';
     return s;
   }
@@ -671,9 +676,13 @@
   //   log      false leaves the drift log out
   function surf(id, o) {
     o = o || {};
-    var sd = o.seed || 0, r = rnd(211 + sd), k, x, tide = o.tide == null ? 0.5 : o.tide;
+    // a spot's card (rigs/spots-scene.js) adds: its id (a beach of its own),
+    // o.now (today: the tide, the wind), jetty, stack, dune "left", after
+    // "empty" (no one on the beach after dark), cars (headlamps on the sand)
+    var T = o.spot ? today(o) : null, wd = windOf(T ? T.wind : 0.3), bk = T ? 0.72 + wd.w * 0.6 : 1;
+    var sd = o.seed || (o.spot ? idSeed(o.spot) % 997 : 0), r = rnd(211 + sd), k, x, tide = o.tide == null ? (T ? T.tide : 0.5) : o.tide;
     var SW = 236 - (tide - 0.5) * 14;          // where the wash stops on the sand
-    var skyline = o.skyline || "head", farD = "";
+    var skyline = typeof o.skyline === "string" ? o.skyline : o.spot ? "none" : "head", farD = "";
     if (skyline === "head") farD = headland({ seed: 5 + sd, from: 430, to: 236, base: HZ, h: 6.5, tree: 1.2, gap: 2.4, shape: 1.7, freq: 0.014, tipFade: 9 }).land;
     if (skyline === "jetty") {
       // a rock jetty running out, low and uneven, with a mark at its end
@@ -683,7 +692,7 @@
       farD = poly(jp) + poly([[233, HZ - 2], [233.6, HZ - 9], [235, HZ - 9], [235.6, HZ - 2]]);
     }
     var back = defs(id) + skyLayer(id, { seed: 900 + sd }) + (farD ? '<path class="w-far" d="' + farD + '"/>' : "") + waterLayer(id) +
-      swell(27 + sd, 187, 1.4, 2.4) + swell(28 + sd, 196, 2, 3.4);
+      swell(27 + sd, 187, 1.4 * bk, 2.4) + swell(28 + sd, 196, 2 * bk, 3.4);
 
     // one line of surf: broken lengths of foam, ragged above and below, each
     // with the dark of its own face just ahead of it
@@ -719,7 +728,8 @@
       sheen += '<path d="M' + n(wx) + " " + n(wy2) + "h" + n(wl) + '" stroke-width="' + n(0.5 + r() * 0.7) + '" opacity="' + n(0.25 + r() * 0.6) + '"/>';
     }
     // the lines of surf spread out and thicken as they come in
-    var mid = defs(id + "m") + breaker(31 + sd, 199, 1.6, 1.2) + breaker(37 + sd, 207, 3.2, 2) + breaker(43 + sd, 221, 6.6, 3.4) +
+    var mid = defs(id + "m") + breaker(31 + sd, 199, 1.6 * bk, 1.2) + breaker(37 + sd, 207, 3.2 * bk, 2) + breaker(43 + sd, 221, 6.6 * bk, 3.4) +
+      (o.spot ? oceanParts(o, tide, sd) : "") +
       '<path class="w-wash" d="' + wash + '"/><path class="w-wetsand" d="' + wet + '"/>' +
       '<g class="w-lightx"><ellipse class="w-sandroad" cx="0" cy="' + n(SW + 12) + '" rx="54" ry="20" fill="url(#' + id + 'm-glow)"/></g>' +
       '<g class="w-sheen">' + sheen + "</g>" + '<path class="w-lace" d="' + lace + '"/><path class="w-foam" d="' + line(lip) + '"/>';
@@ -836,8 +846,1148 @@
     if (act === "clams") people = '<g class="w-diggers">' + dig + '</g><g class="w-lampson">' + lamps + '</g><g class="w-lights w-farlamps">' + far2 + "</g>";
     else if (act === "perch") people = '<g class="w-anglers">' + day + '</g><g class="w-lampson">' + heads + "</g>";
     else people = '<g class="w-dayonly">' + day + "</g>" + '<g class="w-lights w-farlamps">' + far2 + "</g>" + '<g class="w-lampson w-dig">' + lamps + dig + "</g>";
+    if (o.after === "empty") people = '<g class="w-dayonly">' + (act === "clams" ? dig : day) + "</g>";
+    if (o.cars) people += beachCar(id + "f", 338, SW + 3);
+    if (o.dune === "left") near = '<g transform="translate(' + W + ' 0) scale(-1 1)">' + near + "</g>";
     var front = defs(id + "f") + wrack + log + people + near;
     return svg("sc sc-back", back) + glintLayers(1000 + sd, HZ + 2.5, 204, 1.1) + svg("sc sc-mid", mid) + svg("sc sc-front", front);
+  }
+
+  // ==== a spot's own picture ===================================================
+  // A spot's card (rigs/spots-scene.js) says which way you face where you
+  // stand and what is truly in front of you: an island, a mountain, a pier,
+  // a gravel bar. Everything below paints those facts in the same hand as
+  // the five scenes above, placed by bearing: the picture spans FOV degrees
+  // either side of the way you face, so a thing a few degrees right of your
+  // facing sits a little right of centre, and one sixty degrees off is out of
+  // the picture. A spot's id seeds its own treeline and ridges, so it looks
+  // the same every visit and unlike any other spot.
+  // Today rides in on o.now (see today()): the tide on the pilings and the
+  // beach, the river's level on its bar and in its colour, the wind on the
+  // water, rain, fog and the moon. The five scenes above, called with no
+  // spot, paint exactly as they always have.
+  var FOV = 45;
+  function idSeed(s) {
+    var h = 2166136261, i;
+    s = String(s || "");
+    for (i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return (h >>> 0) % 99991;
+  }
+  function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
+  function relB(b, f) { return ((((b - f) % 360) + 540) % 360) - 180; }
+  // The lens for one spot: x of a bearing, units a degree, and the focal
+  // length in units (for things placed in metres: a deck, a rail, a dock).
+  function lens(o) {
+    var ud = W / 2 / ((o && o.fov) || FOV), f = (o && o.facing) || 0;
+    return { f: f, ud: ud, fl: ud * 57.2958, x: function (b) { return W / 2 + relB(b, f) * ud; } };
+  }
+
+  // Today, each 0 to 1. Unset, an ordinary day: half tide, a light breeze,
+  // the river fishable, no rain, no fog, the moon as it is that night.
+  //   tide   0 low water, 1 high water
+  //   river  0 low, 1 at the no-go line
+  //   wind   0 glass, .33 ripple, .66 chop, 1 whitecaps (or those words)
+  //   rain, fog  0 to 1
+  //   moon   0 new, 1 full
+  //   date   the day: where the sun sets and how full the moon is
+  var WINDS = { glass: 0, calm: 0, ripple: 0.33, light: 0.33, chop: 0.66, whitecaps: 1 };
+  function today(o) {
+    var t = (o && o.now) || {}, d = t.date ? new Date(t.date) : new Date();
+    if (isNaN(d.getTime())) d = new Date();
+    function c(v, def) { v = v == null || v === "" || isNaN(+v) ? def : +v; return clamp(v, 0, 1); }
+    var w = typeof t.wind === "string" ? WINDS[t.wind] : t.wind;
+    return { tide: c(t.tide, 0.5), river: c(t.river, 0.35), wind: c(w, 0.3), rain: c(t.rain, 0), fog: c(t.fog, 0),
+      moon: t.moon == null ? moonLit(d) : c(t.moon, 0.5), date: d };
+  }
+  // Where the sun rises or sets on day d at this latitude, degrees true.
+  function sunAz(d, set) {
+    var y0 = Date.UTC(d.getFullYear(), 0, 1), N = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - y0) / 864e5 + 1;
+    var dec = (-23.44 * Math.cos((2 * Math.PI * (N + 10)) / 365) * Math.PI) / 180, lat = (47.3 * Math.PI) / 180;
+    var a = (Math.acos(clamp(Math.sin(dec) / Math.cos(lat), -1, 1)) * 180) / Math.PI;
+    return set ? 360 - a : a;
+  }
+  // How much of the moon is lit on day d, 0 new to 1 full.
+  function moonLit(d) {
+    var P = 29.530588, age = ((d.getTime() - 947182440000) / 864e5) % P;
+    if (age < 0) age += P;
+    return (1 - Math.cos((2 * Math.PI * age) / P)) / 2;
+  }
+  // Where the light comes from, for a stand facing f on day d: the x the
+  // sunset and the sunrise sit at, and which side. Out of the picture the
+  // light waits just past the edge so its glow still reaches in; behind you
+  // the water ahead has no road and the far shore takes the light instead.
+  function lightOf(f, d) {
+    function one(b) {
+      var rl = relB(b, f), a = Math.abs(rl);
+      var side = a > 100 ? "behind" : a < 14 ? "ahead" : rl < 0 ? "left" : "right";
+      var x = a > 100 ? W / 2 + (rl < 0 ? -1 : 1) * 40 : W / 2 + clamp(rl, -58, 58) * (W / 2 / FOV);
+      return { rel: Math.round(rl), side: side, x: Math.round(x) };
+    }
+    return { set: one(sunAz(d, true)), rise: one(sunAz(d, false)), noon: one(195) };
+  }
+  // What the wind does to the water: how busy the glints are, how long the
+  // reflections hold, how high the swells ride, and whitecaps past a chop.
+  function windOf(w) {
+    return { w: w, dens: 0.28 + w * 1.25, amp: 0.45 + w * 1.5, refl: clamp(1.08 - w * 0.8, 0.22, 1), caps: clamp((w - 0.7) / 0.3, 0, 1) };
+  }
+  function bare(d) { var m = d.getMonth(); return m >= 10 || m <= 3; }
+
+  // ---- parts: the skyline ---------------------------------------------------------
+  // Land across the water, bearing to bearing: an island (both ends taper
+  // into the water) or a shore (an end runs off the picture). mi, how far:
+  // how pale, how low, and whether it carries real trees or a canopy edge.
+  function distCls(mi) { return mi >= 7 ? "w-far" : mi >= 4.5 ? "w-l1" : mi >= 2.6 ? "w-l2" : mi >= 0.9 ? "w-l3" : "w-l5"; }
+  function farLand(p, V, seed, hz) {
+    var x0 = V.x(p.from), x1 = V.x(p.to), mi = p.mi || 5, sw;
+    if (x1 < x0) { sw = x0; x0 = x1; x1 = sw; }
+    var oa = x0 < 2, ob = x1 > W - 2, ta = p.taper || 5, tb = p.taperB || p.taper || 5;
+    var near = mi < 2.6, h = p.h != null ? p.h : clamp(14 / mi, 3, 18);
+    function env(k) {
+      var a = oa ? 1 : Math.pow(clamp(k * ta, 0, 1), 0.6), b = ob ? 1 : Math.pow(clamp((1 - k) * tb, 0, 1), 0.6);
+      return a * b;
+    }
+    var hl = headland({ seed: seed, from: oa ? x0 - 40 : x0, to: ob ? x1 + 40 : x1, base: hz + (p.dy != null ? p.dy : clamp(4.5 / mi, 0.3, 8)), h: h,
+      tree: p.tree || (near ? clamp(11 / mi, 5, 16) : clamp(4.6 / mi, 0.8, 3.6)), gap: 2.1, trees: near, env: env, freq: p.freq || 0.02, tfreq: 0.05 });
+    hl.cls = p.cls || distCls(mi); hl.mi = mi; hl.x0 = x0; hl.x1 = x1;
+    return hl;
+  }
+  // The Olympics from the Sound: a long jagged row of snow, never one cone.
+  // Each summit its own height and lean; between them the ridge sags and
+  // saws. Snow body, shade falling down each summit's far side, one lit
+  // face toward the light. The same classes as Rainier.
+  function range(x0, x1, base, peaks, seed, litLeft) {
+    var nz = noise(seed), nj = noise(seed + 7), r = rnd(seed + 3), top = [], x, top0 = 9999;
+    var mh = 0; peaks.forEach(function (p) { mh = Math.max(mh, p[1]); });
+    function hgt(x) {
+      var h = 0, u = (x - x0) / (x1 - x0), env = Math.pow(clamp(Math.min(u, 1 - u) * 3.2, 0, 1), 0.9);
+      peaks.forEach(function (p) { var d = Math.abs(x - p[0]) / p[2]; h = Math.max(h, p[1] * Math.max(0, 1 - Math.pow(d, 1.45))); });
+      var ridge = mh * (0.4 + nz(x * 0.07) * 0.28), jag = (nj(x * 0.8) - 0.5) * mh * 0.16 + (nj(x * 2.1 + 5) - 0.5) * mh * 0.07;
+      return Math.max(0, (Math.max(h, ridge) + jag) * env);
+    }
+    for (x = x0; x <= x1; x += 1.2) { var y = base - hgt(x); top.push([x, y]); if (y < top0) top0 = y; }
+    var body = poly([[x0, base]].concat(top, [[x1, base]]));
+    var shade = "", lit = "", gully = "";
+    peaks.forEach(function (p) {
+      var sx = p[0], sy = base - hgt(sx), side = litLeft ? 1 : -1, w = p[2] * 0.7;
+      shade += poly([[sx, sy], [sx + side * w * 0.35, sy + p[1] * 0.3], [sx + side * w, base], [sx + side * w * 0.2, base]]);
+      lit += poly([[sx - side * 0.4, sy + 0.6], [sx - side * w * 0.55, sy + p[1] * 0.55], [sx - side * w * 0.3, sy + p[1] * 0.6]]);
+      for (var g = 0; g < 2; g++) {
+        var gx = sx + side * (0.6 + r() * w * 0.5), gy = base - hgt(gx) + 1;
+        gully += poly([[gx, gy], [gx + 0.7, gy], [gx + side * (2 + r() * 3), base], [gx + side * (0.6 + r() * 2), base]]);
+      }
+    });
+    return '<path class="w-mtn-b" d="' + body + '"/><path class="w-mtn-s" d="' + shade + '"/><path class="w-mtn-s2" d="' + gully + '"/><path class="w-mtn-l" d="' + lit + '"/>';
+  }
+  // The mountains a card puts in the sky: Rainier's dome, the Olympics' row.
+  function peaksOf(id, sky, V, hz, seed, litLeft) {
+    var s = "";
+    sky.forEach(function (p, i) {
+      if (p.t === "rainier") { var sc = p.size || 0.8, x = V.x(p.at); s += mountain(n(x - 119 * sc), n(hz - (p.sink == null ? 6 : p.sink) - 66 * sc), sc); }
+      if (p.t === "olympics") {
+        var pk = (p.peaks || []).map(function (q) { return [V.x(q[0]), q[1], (q[2] || 4) * V.ud]; });
+        s += '<g class="w-mtn">' + range(V.x(p.from), V.x(p.to), hz - (p.sink == null ? 3 : p.sink), pk, seed + 31 * i, litLeft) + "</g>";
+      }
+    });
+    return s ? '<g mask="url(#' + id + '-mtnm)">' + s + "</g>" : "";
+  }
+  // A small white lighthouse on a point: a tapered tower, its dark lantern
+  // room, and after dark its light.
+  function tower(id, x, base, h) {
+    var w = h * 0.3;
+    return '<path class="w-tower" d="' + poly([[x - w / 2, base], [x - w * 0.36, base - h], [x + w * 0.36, base - h], [x + w / 2, base]]) + '"/>' +
+      '<path class="w-pile" d="' + poly([[x - w * 0.4, base - h], [x - w * 0.3, base - h - h * 0.24], [x + w * 0.3, base - h - h * 0.24], [x + w * 0.4, base - h]]) + '"/>' +
+      '<g class="w-lampson"><circle cx="' + n(x) + '" cy="' + n(base - h * 1.12) + '" r="' + n(h * 2.2) + '" fill="url(#' + id + '-lamp)"/>' +
+      '<circle class="w-lantern" cx="' + n(x) + '" cy="' + n(base - h * 1.12) + '" r="' + n(Math.max(0.5, h * 0.09)) + '"/></g>';
+  }
+  // A ferry landing on a far shore: a low dark pier, its dolphins, its slip.
+  function ferry(x, base, s) {
+    var d = poly([[x - 9 * s, base + 0.2], [x + 5 * s, base + 0.2], [x + 6 * s, base + 2.4 * s], [x - 7 * s, base + 2.6 * s]]), p = "";
+    for (var i = 0; i < 5; i++) { var px = x - 8 * s + i * 3.2 * s; p += poly([[px - 0.35 * s, base + 2.4 * s], [px + 0.35 * s, base + 2.4 * s], [px + 0.4 * s, base + 4.4 * s], [px - 0.4 * s, base + 4.4 * s]]); }
+    p += poly([[x + 8 * s, base + 0.6 * s], [x + 9.6 * s, base + 0.6 * s], [x + 9.8 * s, base + 4.6 * s], [x + 7.8 * s, base + 4.6 * s]]);
+    p += poly([[x - 12 * s, base + 1.4 * s], [x - 10.6 * s, base + 1.4 * s], [x - 10.4 * s, base + 4.6 * s], [x - 12.2 * s, base + 4.6 * s]]);
+    return '<path class="w-l5" d="' + d + p + '"/><path class="w-liteb" d="M' + n(x - 9 * s) + " " + n(base + 0.4) + "H" + n(x + 5 * s) + '"/>';
+  }
+  // A suspension bridge far off: two towers, the cables between, the deck.
+  function bridge(x, base, s) {
+    var t1 = x - 30 * s, t2 = x + 30 * s, th = 22 * s, dk = base - 5 * s, st = "";
+    [t1, t2].forEach(function (tx) {
+      st += poly([[tx - 1.4 * s, base], [tx - 1 * s, base - th], [tx - 0.3 * s, base - th], [tx - 0.4 * s, base]]) + poly([[tx + 0.4 * s, base], [tx + 0.3 * s, base - th], [tx + 1 * s, base - th], [tx + 1.4 * s, base]]) +
+        poly([[tx - 1.1 * s, base - th * 0.62], [tx + 1.1 * s, base - th * 0.62], [tx + 1.1 * s, base - th * 0.58], [tx - 1.1 * s, base - th * 0.58]]);
+    });
+    var cab = "M" + n(x - 58 * s) + " " + n(dk) + "Q" + n((x - 58 * s + t1) / 2) + " " + n(dk - th * 0.3) + " " + n(t1) + " " + n(base - th) +
+      "Q" + n(x) + " " + n(dk + th * 0.55) + " " + n(t2) + " " + n(base - th) + "Q" + n((x + 58 * s + t2) / 2) + " " + n(dk - th * 0.3) + " " + n(x + 58 * s) + " " + n(dk);
+    return '<path class="w-l1" d="' + st + poly([[x - 60 * s, dk], [x + 60 * s, dk], [x + 60 * s, dk + 1.2 * s], [x - 60 * s, dk + 1.2 * s]]) + '"/>' +
+      '<path class="w-bcab" d="' + cab + '"/>';
+  }
+  // A rock breakwater or jetty: a heap of boulders along a line, each its
+  // own lump with a lit top and a dark foot, and the wet band at the
+  // waterline as high as the tide leaves it. pts: [x, waterline y, size],
+  // one end to the other, size falling away with distance.
+  function rocks(seed, pts, o) {
+    o = o || {};
+    var r = rnd(seed), body = "", lit = "", dark = "", wet = "", heap = [], foot = [], i, j;
+    for (i = 0; i < pts.length - 1; i++) {
+      var a = pts[i], b = pts[i + 1], len = Math.hypot(b[0] - a[0], b[1] - a[1]), t = 0;
+      while (t < 1) {
+        var x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t, s = (a[2] + (b[2] - a[2]) * t) * (0.55 + r() * 0.8), hgt = s * (o.tall || 1.1);
+        var cx = x + (r() - 0.5) * s * 0.5, cy = y - hgt * (0.25 + r() * 0.55), rx = s * (0.5 + r() * 0.45), ry = s * (0.32 + r() * 0.26), m = 9, pp = [], tilt = (r() - 0.5) * 0.5;
+        for (j = 0; j < m; j++) { var an = Math.PI + (j / (m - 1)) * Math.PI, k2 = 0.82 + r() * 0.26; pp.push([cx + Math.cos(an) * rx * k2, cy + Math.sin(an) * ry * k2 + Math.cos(an) * tilt * ry]); }
+        pp.push([cx + rx * 0.95, y + 0.4], [cx - rx * 0.95, y + 0.4]);
+        body += poly(pp);
+        lit += poly([pp[1], pp[2], pp[3], pp[4], pp[5], [pp[5][0], pp[5][1] + ry * 0.16], [pp[3][0], pp[3][1] + ry * 0.2], [pp[1][0], pp[1][1] + ry * 0.12]]);
+        dark += poly([[cx + rx * 0.2, cy + ry * 0.15], [cx + rx * 0.95, cy + ry * 0.05], [cx + rx * 0.95, y + 0.4], [cx + rx * 0.05, y + 0.4]]);
+        heap.push([x, cy - ry * 0.75]);
+        foot.push([x, y]);
+        t += (s * (0.38 + r() * 0.3)) / Math.max(1, len);
+      }
+    }
+    var wh = o.wet || 0;
+    if (wh > 0) foot.forEach(function (q, k) { if (k) { var p0 = foot[k - 1], s0 = Math.max(0.4, wh * (q[1] - (pts[0][1] - 40)) / 60); wet += poly([[p0[0], p0[1] - s0], [q[0], q[1] - s0], [q[0], q[1] + 0.4], [p0[0], p0[1] + 0.4]]); } });
+    var under = heap.length > 1 ? poly(heap.concat(foot.slice().reverse())) : "";
+    return '<g class="w-rocks ' + (o.cls || "") + '"><path class="w-rockb" d="' + under + '"/><path class="w-rockm" d="' + body + '"/><path class="w-rockd" d="' + dark + '"/>' +
+      '<path class="w-rockt" d="' + lit + '"/>' + (wet ? '<path class="w-rockw" d="' + wet + '"/>' : "") + "</g>";
+  }
+  // Masts of a marina behind its breakwater: thin, each its own height, a
+  // spreader on some. No boats drawn: the masts say it.
+  function masts(seed, x0, x1, base, hmax) {
+    var r = rnd(seed), d = "", x = x0;
+    while (x < x1) {
+      var h = hmax * (0.45 + r() * 0.55), w = 0.5 + r() * 0.35;
+      d += poly([[x - w, base], [x - w * 0.4, base - h], [x + w * 0.4, base - h], [x + w, base]]);
+      if (r() < 0.5) d += poly([[x - h * 0.08, base - h * 0.62], [x + h * 0.08, base - h * 0.62], [x + h * 0.08, base - h * 0.6], [x - h * 0.08, base - h * 0.6]]);
+      x += 3 + r() * 7;
+    }
+    return '<path class="w-mast" d="' + d + '"/>';
+  }
+  // A broadleaf tree as one filled shape: a trunk and a ragged, lumpy crown,
+  // never a ball. In winter (o.bare) the crown is a thin fuzz of twigs over
+  // the limbs that hold it up.
+  function broadleaf(r, x, base, h, o) {
+    o = o || {};
+    var lean = (r() - 0.5) * h * 0.1, top = base - h, tw = Math.max(0.45, h * 0.026), cx = x + lean, i;
+    if (o.bare) {
+      // winter: the trunk forks low into limbs that reach up and out, and the
+      // twigs make a soft crown round their ends
+      var fork = base - h * (0.24 + r() * 0.1), rx = h * (o.wide || 0.3 + r() * 0.12) * (o.vase ? 1.15 : 1), ry = (fork - top) * 0.56, cy = top + ry * 0.95, m = 30, pts = [], limbs = "";
+      for (i = 0; i < m; i++) {
+        var a = (i / m) * Math.PI * 2, k = (0.8 + r() * 0.28) * (i % 2 ? 0.9 : 1), up = Math.sin(a) < 0;
+        pts.push([cx + Math.cos(a) * rx * k * (up && o.vase ? 1.08 : 0.92), cy + Math.sin(a) * ry * k * (up ? 1 : 1.05)]);
+      }
+      var trunk = poly([[x - tw, base], [cx - tw * 0.7, fork], [cx + tw * 0.7, fork], [x + tw, base]]);
+      var nl = 4 + Math.floor(r() * 2);
+      for (i = 0; i < nl; i++) {
+        var ang = -Math.PI / 2 + (i / (nl - 1) - 0.5) * 1.7 + (r() - 0.5) * 0.25, len = (fork - top) * (0.78 + r() * 0.2);
+        var ex = cx + Math.cos(ang) * rx * 0.85, ey = fork + Math.sin(ang) * len, mx = cx + (ex - cx) * 0.4 + (r() - 0.5) * tw, my = fork + (ey - fork) * 0.5;
+        var lw = tw * (0.62 - Math.abs(i / (nl - 1) - 0.5) * 0.4);
+        limbs += poly([[cx - lw, fork + 0.4], [mx - lw * 0.55, my], [ex, ey], [mx + lw * 0.55, my], [cx + lw, fork + 0.4]]);
+        // one fork off each limb
+        var fx = mx + (ex - mx) * 0.4, fy = my + (ey - my) * 0.4, fa = ang + (r() < 0.5 ? -0.5 : 0.5);
+        limbs += poly([[fx - lw * 0.3, fy], [fx + Math.cos(fa) * len * 0.32, fy + Math.sin(fa) * len * 0.36], [fx + lw * 0.3, fy]]);
+      }
+      return { crown: poly(pts), trunk: trunk + limbs, top: cy - ry };
+    }
+    var cb = base - h * (o.clear || 0.28 + r() * 0.14), rx2 = h * (o.wide || 0.24 + r() * 0.12), ry2 = (cb - top) / 2, cy2 = top + ry2, pts2 = [];
+    for (i = 0; i < 20; i++) {
+      var a2 = (i / 20) * Math.PI * 2, k2 = 0.74 + r() * 0.36, vase = o.vase && Math.sin(a2) < 0 ? 1.12 : 1;
+      pts2.push([cx + Math.cos(a2) * rx2 * k2 * vase, cy2 + Math.sin(a2) * ry2 * k2 * (Math.sin(a2) > 0 ? 0.82 : 1)]);
+    }
+    return { crown: poly(pts2), trunk: poly([[x - tw, base], [cx - tw * 0.55, cb + ry2 * 0.4], [cx + tw * 0.55, cb + ry2 * 0.4], [x + tw, base]]), top: top };
+  }
+  // A bank of trees whose kinds no card names: broadleaf crowns with a fir
+  // among them now and then (mix: the share of firs). Bare in winter. Shaped
+  // like a headland, so it reflects and paints the same way.
+  function wall(o) {
+    var r = rnd(o.seed), nt = noise(o.seed + 5), base = typeof o.base === "function" ? o.base : function () { return o.base; };
+    var out = { base: base, land: "", trees: "", twigs: "", top: 9999, maxH: 0 }, pts = [], x;
+    pts.push([o.x0 - 6, base(o.x0 - 6) + 0.6]);
+    for (x = o.x0 - 6; x <= o.x1 + 6; x += 5) pts.push([x, base(x) - (o.land || 1.4) * (0.5 + nt(x * 0.031) * 0.9)]);
+    pts.push([o.x1 + 6, base(o.x1 + 6) + 0.6]);
+    out.land = poly(pts);
+    x = o.x0;
+    while (x < o.x1) {
+      var th = o.h * (0.5 + 0.8 * nt(x * (o.freq || 0.028))) * (0.72 + r() * 0.5) * (o.grow ? o.grow(x) : 1), foot = base(x) + 0.4;
+      if (th > 3 && r() < (o.mix == null ? 0.3 : o.mix)) {
+        out.trees += conifer(r, x, foot, th * 1.16, { full: 0.2 + r() * 0.06 });
+        if (foot - th * 1.16 < out.top) out.top = foot - th * 1.16;
+        x += Math.max(1.4, th * (0.13 + r() * 0.12));
+      } else if (th > 2) {
+        var b = broadleaf(r, x, foot, th, { bare: o.bare, vase: o.vase });
+        if (o.bare) out.twigs += b.crown; else out.trees += b.crown;
+        out.trees += b.trunk;
+        if (b.top < out.top) out.top = b.top;
+        x += Math.max(1.4, th * (o.bare ? 0.16 + r() * 0.14 : 0.2 + r() * 0.16));
+      } else x += 2;
+    }
+    out.maxH = base(o.x0) - out.top;
+    // reflect() reads land and trees: let the winter twigs show in the water too
+    out.glass = { base: base, maxH: out.maxH, land: out.land, trees: out.trees + out.twigs };
+    return out;
+  }
+  function paintWall(wl, cls) {
+    return '<g class="' + cls + '"><path d="' + wl.land + '"/>' + (wl.twigs ? '<path class="w-twig" d="' + wl.twigs + '"/>' : "") + '<path d="' + wl.trees + '"/></g>';
+  }
+  // Houses along a far bank, small and half in the trees: a pale wall, a
+  // dark low roof, and after dark a window or two lit with its thread of
+  // light on the water at wy.
+  function houses(id, r, xs, base, sz, wy) {
+    var walls = "", roofs = "", lit = "", glows = "";
+    xs.forEach(function (x) {
+      var w = sz * (1.5 + r() * 1.3), h = sz * (0.75 + r() * 0.35), rh = sz * (0.3 + r() * 0.25), y = base(x) - 0.3, ridge = x + (r() - 0.5) * w * 0.4;
+      walls += poly([[x - w / 2, y], [x - w / 2, y - h], [x + w / 2, y - h], [x + w / 2, y]]);
+      roofs += poly([[x - w / 2 - sz * 0.2, y - h + 0.2], [ridge, y - h - rh], [x + w / 2 + sz * 0.2, y - h + 0.2]]);
+      if (r() < 0.75) {
+        var wx = x + (r() - 0.5) * w * 0.5, wy0 = y - h * 0.55, ww = Math.max(0.6, sz * 0.32);
+        lit += '<rect x="' + n(wx - ww / 2) + '" y="' + n(wy0 - ww * 0.6) + '" width="' + n(ww) + '" height="' + n(ww * 1.2) + '"/>';
+        glows += '<circle cx="' + n(wx) + '" cy="' + n(wy0) + '" r="' + n(sz * 4) + '" fill="url(#' + id + '-lamp)"/>';
+        for (var k = 0; k < 6; k++) { var q = k / 6, l = sz * (0.8 + q * 2.4) * (0.6 + r() * 0.6); lit += '<rect x="' + n(wx - l / 2 + (r() - 0.5) * sz) + '" y="' + n(wy + 1 + k * (1 + q * 1.6)) + '" width="' + n(l) + '" height="' + n(0.5 + q * 0.6) + '" rx=".3" opacity="' + n((1 - q * 0.8) * 0.8) + '"/>'; }
+      }
+    });
+    return '<path class="w-house" d="' + walls + '"/><path class="w-roof" d="' + roofs + '"/>' +
+      '<g class="w-lampson w-window">' + glows + '<g class="w-poolg">' + lit + "</g></g>";
+  }
+  // Whitecaps: short ragged lips of foam, each with the dark of its own face
+  // under it, few and small far off, more and bigger toward you.
+  function whitecaps(seed, y0, y1, k) {
+    if (!(k > 0)) return "";
+    var r = rnd(seed), s = "", sh = "", cnt = Math.round(8 + k * 34), i, q;
+    for (i = 0; i < cnt; i++) {
+      var u = Math.pow(r(), 0.75), y = y0 + u * (y1 - y0), x = r() * (W + 20) - 10, len = (2 + u * 15) * (0.5 + r()), th = 0.4 + u * 2.4 * (0.6 + r() * 0.6), pts = [[x, y]];
+      for (q = 1; q <= 4; q++) pts.push([x + (len * q) / 4, y - th * (q === 4 ? 0.3 : 0.7 + r() * 0.5)]);
+      pts.push([x + len + 1, y + 0.3]);
+      for (q = 3; q >= 1; q--) pts.push([x + (len * q) / 4 + (r() - 0.5), y + th * (0.2 + r() * 0.3)]);
+      s += poly(pts);
+      sh += poly([[x + len * 0.1, y + th * 0.4], [x + len * 0.95, y + th * 0.4], [x + len * 0.8, y + th * 1.5 + 0.8], [x + len * 0.2, y + th * 1.3 + 0.8]]);
+    }
+    return '<g class="w-caps" opacity="' + n(0.45 + k * 0.55) + '"><path class="w-capsh" d="' + sh + '"/><path class="w-capf" d="' + s + '"/></g>';
+  }
+  // Tide rips: where the current runs fast off a point the water is rougher
+  // in long bands, short broken lights crowded along each.
+  function rips(seed, bands) {
+    var r = rnd(seed), d = "";
+    bands.forEach(function (b) {
+      for (var i = 0; i < b[4]; i++) {
+        var t = r(), x = b[0] + (b[2] - b[0]) * t + (r() - 0.5) * 6, y = b[1] + (b[3] - b[1]) * t + (r() - 0.5) * 2.4, l = 1.5 + r() * 4 * (y - HZ) / 30;
+        d += "M" + n(x) + " " + n(y) + "q" + n(l / 2) + " " + n(-0.5 - r() * 0.6) + " " + n(l) + " 0";
+      }
+    });
+    return '<path class="w-rip" d="' + d + '"/>';
+  }
+
+  // ---- parts: where you stand ------------------------------------------------------
+  // Things you stand on are placed in metres and seen through the spot's
+  // lens from eye height: pj(X across, Y up from your eye, Z ahead).
+  function eye(V, cx) { return function (X, Y, Z) { return [cx + (V.fl * X) / Z, HZ - (V.fl * Y) / Z]; }; }
+  function quad(a, b, c, d) { return poly([a, b, c, d]); }
+  // Someone at a rail on a squid night, from behind: legs, a coat, a hood,
+  // the rod out over the rail and the line down. Their own light is a
+  // separate piece (it is lit only after dark).
+  function angler(pj, X, Z, dk, r) {
+    var u = (r() - 0.5) * 0.1, sh = dk + 1.44 + u, hp = dk + 0.92, hd = dk + 1.6 + u, dir = r() < 0.5 ? -1 : 1, wd = 0.2 + r() * 0.05, lean = (r() - 0.5) * 0.08;
+    var body = poly([pj(X - wd * 0.55 + lean, sh + 0.08, Z), pj(X - wd + lean, sh - 0.05, Z), pj(X - wd * 0.92, hp + 0.1, Z), pj(X - wd * 0.8, hp - 0.05, Z), pj(X - 0.16, dk, Z), pj(X - 0.05, dk, Z), pj(X, hp - 0.32, Z),
+      pj(X + 0.05, dk, Z), pj(X + 0.16, dk, Z), pj(X + wd * 0.8, hp - 0.05, Z), pj(X + wd * 0.92, hp + 0.1, Z), pj(X + wd + lean, sh - 0.05, Z), pj(X + wd * 0.55 + lean, sh + 0.08, Z)]);
+    var h = pj(X + lean, hd, Z), hr = Math.abs(pj(X + 0.12, hd, Z)[0] - pj(X, hd, Z)[0]);
+    var hand = pj(X + dir * 0.26, dk + 1.12, Z), tip = pj(X + dir * 0.7, dk + 1.75, Z + 2.6), wl = pj(X + dir * 0.7, dk + 0.4, Z + 2.6);
+    return { fig: body + "M" + n(h[0] + hr) + " " + n(h[1]) + "a" + n(hr) + " " + n(hr * 1.1) + " 0 1 0 " + n(-hr * 2) + " 0a" + n(hr) + " " + n(hr * 1.1) + " 0 1 0 " + n(hr * 2) + " 0Z",
+      rod: "M" + n(hand[0]) + " " + n(hand[1]) + "L" + n(tip[0]) + " " + n(tip[1]), line: "M" + n(tip[0]) + " " + n(tip[1]) + "L" + n(wl[0]) + " " + n(wl[1]),
+      w: Math.max(0.4, (hr * 2) / 5), head: h, hand: hand };
+  }
+  // A lit pool on the water, far off: a soft glow and a ladder of gold.
+  function waterPool(id, r, x, y, s) {
+    var ps = "";
+    for (var k = 0; k < 7; k++) { var q = k / 7, ww = (6 + q * 14) * s * (0.6 + r() * 0.7); ps += '<rect x="' + n(x - ww / 2 + (r() - 0.5) * 6 * s) + '" y="' + n(y + k * (1.1 + q * 1.8) * s) + '" width="' + n(ww) + '" height="' + n((0.6 + q * 0.8) * s) + '" rx=".5" opacity="' + n((1 - q * 0.8) * (0.5 + r() * 0.5)) + '"/>'; }
+    return '<ellipse class="w-pool" cx="' + n(x) + '" cy="' + n(y + 5 * s) + '" rx="' + n(22 * s) + '" ry="' + n(6 * s) + '" fill="url(#' + id + '-lamp)"/><g class="w-poolg">' + ps + "</g>";
+  }
+
+  // A pier seen from on it: you stand on the deck a few steps back from its
+  // end, or at the head of a T, looking out. p, the card's pier:
+  //   end    "straight", "T", "L" (the head turns right) or "Lleft"
+  //   ahead  metres from you to the end (to the head's near edge for a T or L)
+  //   arm    metres across the head
+  //   l, r   metres from you to the left and right rails
+  //   deck   "grate", "plank" or "plain"
+  //   lamps  lamp posts on the head's far rail, metres left (-) or right (+)
+  //   cover  [from, to] metres: a rain cover over that part of the head
+  //   crowd  how many people along the rail on a squid night, with their
+  //          own lights (and their lights on the water), when p.own is set
+  function onPier(id, p, t, r, V) {
+    var e = 1.6, cx = W / 2 + (p.vx || 0) * V.ud, end = p.end || "straight", fl = V.fl, pj = eye(V, cx);
+    var Zn = 2.4, Z1 = p.ahead == null ? 9 : p.ahead, head = end !== "straight", Z2 = head ? Z1 + (p.arm || 5) : Z1, Zh = Math.max(Z1, 0.9);
+    var L = -(p.l || 1.8), R = p.r || 2.4, AL = end === "T" || end === "Lleft" ? -90 : L, AR = end === "T" || end === "L" ? 90 : R;
+    var dk = -e, rt = 1.06 - e, rm = 0.55 - e, bar = 0.07;
+    function vis(Z) { return [-(cx + 24) * Z / fl, (W - cx + 24) * Z / fl]; }
+    function railZ(X, Za, Zb, step) {
+      var s = quad(pj(X, rt, Za), pj(X, rt, Zb), pj(X, rt - bar, Zb), pj(X, rt - bar, Za)) + quad(pj(X, rm, Za), pj(X, rm, Zb), pj(X, rm - bar * 0.8, Zb), pj(X, rm - bar * 0.8, Za));
+      for (var z = Zb; z >= Za - 0.01; z -= step) s += quad(pj(X - 0.045, dk, z), pj(X + 0.045, dk, z), pj(X + 0.045, rt, z), pj(X - 0.045, rt, z));
+      return s;
+    }
+    function railX(Z, Xa, Xb, step) {
+      var v = vis(Z); Xa = Math.max(Xa, v[0]); Xb = Math.min(Xb, v[1]);
+      if (Xb <= Xa) return "";
+      var s = quad(pj(Xa, rt, Z), pj(Xb, rt, Z), pj(Xb, rt - bar, Z), pj(Xa, rt - bar, Z)) + quad(pj(Xa, rm, Z), pj(Xb, rm, Z), pj(Xb, rm - bar * 0.8, Z), pj(Xa, rm - bar * 0.8, Z));
+      for (var x = Math.ceil(Xa / step) * step; x <= Xb; x += step) s += quad(pj(x - 0.045, dk, Z), pj(x + 0.045, dk, Z), pj(x + 0.045, rt, Z), pj(x - 0.045, rt, Z));
+      return s;
+    }
+    var deck = "", lines = "", farR = "", nearR = "", edge = "", x, z, v;
+    if (Z1 > Zn) deck += quad(pj(L, dk, Zn), pj(R, dk, Zn), pj(R, dk, Z1), pj(L, dk, Z1));
+    if (head) { var a0 = Math.max(AL, vis(Z2)[0] * 1.1), a1 = Math.min(AR, vis(Z2)[1] * 1.1); deck += quad(pj(a0, dk, Zh), pj(a1, dk, Zh), pj(a1, dk, Z2), pj(a0, dk, Z2)); }
+    // the deck's own surface: a grating's mesh, or planks across
+    var dz = p.deck === "grate" ? 0.42 : p.deck === "plank" ? 0.2 : 1.6;
+    if (Z1 > Zn) for (z = Zn; z < Z1; z += dz * (1 + (z - Zn) * 0.04)) lines += "M" + n(pj(L, dk, z)[0]) + " " + n(pj(L, dk, z)[1]) + "H" + n(pj(R, dk, z)[0]);
+    if (p.deck === "grate" && Z1 > Zn) for (x = L + 0.3; x < R; x += 0.3) lines += "M" + n(pj(x, dk, Zn)[0]) + " " + n(pj(x, dk, Zn)[1]) + "L" + n(pj(x, dk, Z1)[0]) + " " + n(pj(x, dk, Z1)[1]);
+    if (head) {
+      for (z = Zh; z < Z2; z += dz * 1.2) { v = vis(z); lines += "M" + n(pj(Math.max(AL, v[0]), dk, z)[0]) + " " + n(pj(0, dk, z)[1]) + "H" + n(pj(Math.min(AR, v[1]), dk, z)[0]); }
+      if (p.deck === "plank" || p.deck === "grate") { v = vis(Z2); for (x = Math.max(AL, v[0]); x < Math.min(AR, v[1]); x += p.deck === "grate" ? 0.5 : 0.22) lines += "M" + n(pj(x, dk, Math.max(Zh, 1.6))[0]) + " " + n(pj(x, dk, Math.max(Zh, 1.6))[1]) + "L" + n(pj(x, dk, Z2)[0]) + " " + n(pj(x, dk, Z2)[1]); }
+    }
+    // the rails
+    if (Z1 > Zn) nearR += railZ(L, Zn, Z1, 2.2) + railZ(R, Zn, Z1, 2.2);
+    if (!head) farR += railX(Z1, L, R, 1.4);
+    else {
+      farR += railX(Z2, AL, AR, 2.2);
+      if (Z1 > 1.6) { if (AL < L) farR += railX(Z1, AL, L, 2.2); if (AR > R) farR += railX(Z1, R, AR, 2.2); }
+      if (end === "L") farR += railZ(L, Z1, Z2, 1.6);
+      if (end === "Lleft") farR += railZ(R, Z1, Z2, 1.6);
+    }
+    var zf = head ? Z2 : Z1, ve = vis(zf);
+    edge += "M" + n(pj(Math.max(AL, ve[0]), dk, zf)[0]) + " " + n(pj(0, dk, zf)[1]) + "H" + n(pj(Math.min(AR, ve[1]), dk, zf)[0]);
+    // lamp posts on the far rail, each with its glow, its pool on the deck and
+    // a broken ladder of its light on the water beyond
+    var lamps = "", arms = "", bulbs = "", glows = "", pools = "", ladders = "";
+    (p.lamps || []).forEach(function (X) {
+      var b = pj(X, dk, zf), tp = pj(X, dk + 4.3, zf), w2 = Math.max(0.6, Math.abs(pj(X + 0.07, 0, zf)[0] - b[0])), sc = fl / zf / 28, side = X < 0 ? 1 : -1;
+      var hd = [tp[0] + side * 7.5 * sc, tp[1] + 0.5 * sc];
+      lamps += quad([b[0] - w2, b[1]], [b[0] + w2, b[1]], [tp[0] + w2 * 0.7, tp[1] + 4 * sc], [tp[0] - w2 * 0.7, tp[1] + 4 * sc]) +
+        poly([[hd[0] - 4 * sc, hd[1] - 0.9 * sc], [hd[0] + 3 * sc, hd[1] - 1.7 * sc], [hd[0] + 3.6 * sc, hd[1] + 1.2 * sc], [hd[0] - 4.4 * sc, hd[1] + 1.8 * sc]]);
+      arms += "M" + n(tp[0]) + " " + n(tp[1] + 4 * sc) + "Q" + n(tp[0]) + " " + n(tp[1]) + " " + n(hd[0] - side * 1.4 * sc) + " " + n(hd[1]);
+      glows += '<circle cx="' + n(hd[0]) + '" cy="' + n(hd[1] + 2 * sc) + '" r="' + n(fl * 1.6 / zf) + '" fill="url(#' + id + '-lamp)"/>';
+      lamps += "";
+      bulbs += '<ellipse class="w-bulb" cx="' + n(hd[0] - 0.4 * sc) + '" cy="' + n(hd[1] + 2.2 * sc) + '" rx="' + n(3 * sc) + '" ry="' + n(1.3 * sc) + '"/>';
+      var dp = pj(X, dk, zf - 1.6);
+      pools += '<ellipse cx="' + n(dp[0]) + '" cy="' + n(dp[1]) + '" rx="' + n(fl * 2.6 / zf) + '" ry="' + n(fl * 0.7 / zf) + '" fill="url(#' + id + '-lamp)"/>';
+      var yE = b[1] - 2;
+      for (var k = 0; k < 11; k++) { var q = k / 11, ww = (2 + q * 9) * (0.6 + r() * 0.8), yy = HZ + 4 + q * (yE - HZ - 6); ladders += '<rect x="' + n(hd[0] - ww / 2 + (r() - 0.5) * (2 + q * 6)) + '" y="' + n(yy) + '" width="' + n(ww) + '" height="' + n(0.6 + q * 0.9) + '" rx=".4" opacity="' + n((0.4 + q * 0.6) * (0.5 + r() * 0.5)) + '"/>'; }
+    });
+    // a rain cover over part of the head: its posts, its front edge, and the
+    // dark of its underside toward you
+    var cover = "", roof = "";
+    if (p.cover) {
+      var c0 = p.cover[0], c1 = p.cover[1], ry = dk + 3.2, zc = Math.max(Zh, 1.4);
+      for (x = c0; x <= c1 + 0.01; x += 3) cover += quad(pj(x - 0.09, dk, zf - 0.3), pj(x + 0.09, dk, zf - 0.3), pj(x + 0.09, ry, zf - 0.3), pj(x - 0.09, ry, zf - 0.3));
+      roof = quad(pj(c0, ry, zf), pj(c1, ry, zf), pj(c1, ry, zc), pj(c0, ry, zc));
+      cover += quad(pj(c0, ry + 0.4, zf), pj(c1, ry + 0.4, zf), pj(c1, ry, zf), pj(c0, ry, zf));
+    }
+    // the crowd at the rail on a squid night, and the light they bring
+    var figs = "", rods = "", flines = "", own = "", wpools = "";
+    if (p.crowd) {
+      var spots = [];
+      if (head) { for (var i = 0; i < p.crowd; i++) spots.push([-7 + (i / Math.max(1, p.crowd - 1)) * 15 + (r() - 0.5) * 1.2, zf - 0.5]); }
+      else {
+        for (i = 0; i < p.crowd; i++) {
+          var u = i / Math.max(1, p.crowd - 1);
+          spots.push(u < 0.34 ? [L + 0.45, Z1 - 1 - u * 9] : u > 0.66 ? [R - 0.45, Z1 - 1 - (1 - u) * 9] : [L + 0.6 + (u - 0.34) * 3 * (R - L - 1.2), Z1 - 0.45]);
+        }
+      }
+      spots.sort(function (a, b) { return b[1] - a[1]; }).forEach(function (sp) {
+        if (sp[1] < Zn + 1.4) return;
+        var g = angler(pj, sp[0], sp[1], dk, r);
+        figs += g.fig; rods += '<path class="w-rod" d="' + g.rod + '" stroke-width="' + n(g.w) + '"/>'; flines += g.line;
+        if (p.own) {
+          own += '<circle cx="' + n(g.hand[0]) + '" cy="' + n(g.hand[1]) + '" r="' + n(fl * 0.9 / sp[1]) + '" fill="url(#' + id + '-lamp)"/><circle class="w-lantern" cx="' + n(g.hand[0]) + '" cy="' + n(g.hand[1]) + '" r="' + n(Math.max(0.5, fl * 0.035 / sp[1])) + '"/>';
+        }
+      });
+      if (p.own) for (i = 0; i < 6; i++) { var wz = 45 + r() * 50, wx = (r() - 0.5) * 20; wpools += waterPool(id, r, pj(wx, dk - (p.height || 5), wz)[0], pj(wx, dk - (p.height || 5), wz)[1] - 2, 0.5 + 18 / wz); }
+    }
+    return '<g class="w-lampson">' + wpools + '<g class="w-poolg">' + ladders + "</g></g>" +
+      '<path class="w-decktop" d="' + deck + '"/><path class="w-grate" d="' + lines + '"/><path class="w-liteb" d="' + edge + '"/>' +
+      '<g class="w-lampson w-deckpool">' + pools + "</g>" +
+      '<path class="w-roofu" d="' + roof + '"/><path class="w-pile" d="' + cover + '"/>' +
+      '<path class="w-rail2" d="' + farR + '"/><path class="w-pile" d="' + lamps + '"/><path class="w-pole" d="' + arms + '" stroke-width="' + n(Math.max(0.8, fl * 0.1 / zf)) + '"/>' + bulbs +
+      '<g class="w-lampson w-crowd"><path class="w-figh" d="' + figs + '"/>' + rods + '<path class="w-line" d="' + flines + '"/>' + own + "</g>" +
+      '<path class="w-rail2 w-railn" d="' + nearR + '"/>' +
+      '<g class="w-lampson">' + glows + "</g>";
+  }
+
+  // A pier seen from the shore beside its root, running out ahead (the
+  // approved pier, given its own length, end and build). p:
+  //   from   "right" (default) or "left": the side its root comes in from
+  //   vx     where it heads for, x on the picture
+  //   bays   how many spans you can count (its length), k how fast they shrink
+  //   end    "straight", "T", "L" (turns right) or "Lleft"; arm: the head's reach
+  //   bend   units the last few spans swing (left -, right +)
+  //   build  "timber" (cross braced), "concrete" (heavy, plain) or "steel"
+  //   lamps  which spans carry a lamp post, rail: false for none
+  //   table  a picnic table at the tip; own: anglers' own lights at the end
+  //          after dark; crowd: people along the rail after dark, each
+  //          with a light and its pool on the water (a squid night)
+  //   deck   "grate": the deck seen through, a fine mesh
+  //   yN, yF how far below the horizon the deck runs (negative: above you)
+  function sidePier(id, p, t, r) {
+    var left = p.from === "left", VX = left ? W - (p.vx || 200) : p.vx || 200;
+    var off = p.off || 214, NX = VX + off, FX = NX - (p.wid || 9), yN = p.yN == null ? 26 : p.yN, yF = p.yF == null ? 18 : p.yF, TH = p.th || 5.2;
+    var drop = (p.drop || 46) - t.tide * (p.range || 13), ySea = yN + TH + drop, ySeaF = ySea - 11, wetH = (1 - t.tide) * (p.range || 13);
+    var nb = p.bays || 12, kk = p.k || 0.3, S = [], i;
+    for (i = 0; i <= nb; i++) S.push(1 / (1 + kk * i));
+    var s0 = 1.04, sE = S[nb], bdx = (p.bend || 0) * (left ? -1 : 1), sb = S[Math.max(1, nb - (p.bendBays || 3))];
+    function P(x1, dy, s) { var x = VX + (x1 - VX) * s; if (bdx && s < sb) x += (bdx * (sb - s)) / (sb - sE); return [x, HZ + dy * s]; }
+    function seg(x1, dy) { var pts = []; S.forEach(function (s) { pts.push(P(x1, dy, s)); }); pts.unshift(P(x1, dy, s0)); return pts; }
+    function band(x1, d0, d1) { var a = seg(x1, d0), b = seg(x1, d1).reverse(); return poly(a.concat(b)); }
+    var conc = p.build === "concrete", steel = p.build === "steel";
+    var under = "", pilesN = "", pilesF = "", glass = "", braces = "", railN = "", railF = "", planks = "", deck = "";
+    var dN = seg(NX, yN), dF = seg(FX, yF);
+    deck = poly(dN.concat(dF.slice().reverse()));
+    under = poly(seg(NX, ySeaF).concat(seg(NX, ySea + 14).reverse()));
+    S.forEach(function (s, k) {
+      var t0 = P(NX, yN + TH, s), bt = P(NX, ySea, s), w = (conc ? 1.6 : steel ? 0.75 : 1.1) + (conc ? 9 : steel ? 5.5 : 7.8) * s;
+      var tf = P(FX, yF + TH, s), bf = P(FX, ySeaF, s);
+      pilesF += '<path class="w-pile2" d="' + poly([[tf[0] - w * 0.36, tf[1]], [tf[0] + w * 0.36, tf[1]], [bf[0] + w * 0.4, bf[1]], [bf[0] - w * 0.4, bf[1]]]) + '"/>';
+      glass += pileGlass(r, bt[0], bt[1], w, 5 + 30 * s * (0.4 + (1 - t.wind) * 0.6));
+      pilesN += pile(r, bt[0], t0[1], bt[1], w, "w-pp", wetH * s);
+      if (k > 0 && !conc && !steel) {
+        var ps = S[k - 1], q0 = P(NX, yN + TH + 3, ps), b0 = P(NX, ySea - 7, ps), q1 = P(NX, yN + TH + 3, s), b1 = P(NX, ySea - 7, s);
+        braces += '<path d="M' + n(q0[0]) + " " + n(q0[1]) + "L" + n(b1[0]) + " " + n(b1[1]) + "M" + n(q1[0]) + " " + n(q1[1]) + "L" + n(b0[0]) + " " + n(b0[1]) + '" stroke-width="' + n(0.4 + 1.2 * s) + '"/>';
+      }
+      var rn = P(NX, yN, s), rf = P(FX, yF, s);
+      if (p.rail !== false) { railN += "M" + n(rn[0]) + " " + n(rn[1]) + "v" + n(-11 * s); railF += "M" + n(rf[0]) + " " + n(rf[1]) + "v" + n(-11 * s); }
+      planks += "M" + n(rn[0]) + " " + n(rn[1]) + "L" + n(rf[0]) + " " + n(rf[1]);
+      if (p.deck === "grate" && k > 0) for (var gq = 1; gq < 4; gq++) { var gs = s + ((S[k - 1] - s) * gq) / 4, ga = P(NX, yN, gs), gb = P(FX, yF, gs); planks += "M" + n(ga[0]) + " " + n(ga[1]) + "L" + n(gb[0]) + " " + n(gb[1]); }
+    });
+    if (p.deck === "grate") for (var gl2 = 0.2; gl2 < 1; gl2 += 0.2) planks += line(seg(NX + (FX - NX) * gl2, yN + (yF - yN) * gl2));
+    if (p.rail !== false) { railN += line(seg(NX, yN - 11)) + line(seg(NX, yN - 5.6)); railF += line(seg(FX, yF - 11)); }
+    var fascia = band(NX, yN, yN + TH);
+    // the head: a T across the end, or an L to one side, with its own piles
+    var headS = "", headP = "", headR = "", e0 = P(NX, yN, sE), e1 = P(FX, yF, sE);
+    if (p.end && p.end !== "straight") {
+      var turnR = p.end === "L" ? !left : p.end === "Lleft" ? left : null, reach = (p.arm || 60) * sE, dpt = Math.max(1.2, (yN - yF) * sE * 0.9);
+      var xa = p.end === "T" ? e1[0] - reach * 0.7 : turnR ? e0[0] - 1 : e1[0] - reach, xb = p.end === "T" ? e0[0] + reach : turnR ? e0[0] + reach : e1[0] + 1;
+      var hy = e1[1], hth = Math.max(1, TH * sE * 1.1), hsea = HZ + ySea * sE;
+      headS = poly([[xa, hy - dpt * 0.2], [xb, hy - dpt * 0.2], [xb, hy + dpt], [xa, hy + dpt]]);
+      headP = poly([[xa, hy + dpt], [xb, hy + dpt], [xb, hy + dpt + hth], [xa, hy + dpt + hth]]);
+      for (var hx = xa + 1; hx < xb; hx += Math.max(2.2, 9 * sE)) headP += poly([[hx - 0.5, hy + dpt + hth], [hx + 0.5, hy + dpt + hth], [hx + 0.55, hsea], [hx - 0.55, hsea]]);
+      if (p.rail !== false) headR = "M" + n(xa) + " " + n(hy - dpt * 0.2 - 11 * sE) + "H" + n(xb);
+    }
+    // a lamp post on some spans, as on the approved pier
+    var lamps = "", glows = "", pools = "", deckPools = "";
+    (p.lamps || []).forEach(function (bi) {
+      var s = S[bi], f = P(FX, yF, s), hgt = 44 * s, hx2 = f[0] - 7.5 * s, hy2 = f[1] - hgt;
+      lamps += '<path class="w-pole" d="M' + n(f[0]) + " " + n(f[1]) + "V" + n(hy2 + 4 * s) + "Q" + n(f[0]) + " " + n(hy2) + " " + n(hx2 + 1.4 * s) + " " + n(hy2) + '" stroke-width="' + n(0.6 + 1.8 * s) + '"/>' +
+        '<ellipse class="w-bulb" cx="' + n(hx2 - 0.5 * s) + '" cy="' + n(hy2 + 2.3 * s) + '" rx="' + n(3 * s) + '" ry="' + n(1.3 * s) + '"/>';
+      glows += '<circle cx="' + n(hx2) + '" cy="' + n(hy2 + 3 * s) + '" r="' + n(46 * s + 7) + '" fill="url(#' + id + '-lamp)"/>';
+      var dn = P(NX, yN, s);
+      deckPools += '<ellipse cx="' + n(hx2 - 2 * s) + '" cy="' + n((dn[1] + f[1]) / 2) + '" rx="' + n(24 * s) + '" ry="' + n(3.1 * s) + '"/>';
+      pools += waterPool(id, r, hx2 - 4 * s, HZ + ySea * s + 3 * s, 0.7 + s);
+    });
+    // a picnic table at the tip, and after dark the anglers' own small lights
+    var tip = "", own = "";
+    if (p.table) { var tx = (e0[0] + e1[0]) / 2, ty = (e0[1] + e1[1]) / 2, ts = Math.max(1.2, 9 * sE); tip = poly([[tx - ts, ty - ts * 0.55], [tx + ts, ty - ts * 0.55], [tx + ts, ty - ts * 0.4], [tx - ts, ty - ts * 0.4]]) + poly([[tx - ts * 0.8, ty - ts * 0.4], [tx - ts * 0.6, ty - ts * 0.4], [tx - ts * 0.7, ty], [tx - ts * 0.9, ty]]) + poly([[tx + ts * 0.6, ty - ts * 0.4], [tx + ts * 0.8, ty - ts * 0.4], [tx + ts * 0.9, ty], [tx + ts * 0.7, ty]]); }
+    // a squid night: people along the rail, rods out, each with a light
+    // that lays its pool on the water under the pier
+    var crowd = "", crods = "", clit = "";
+    if (p.crowd) {
+      for (i = 0; i < p.crowd; i++) {
+        var ci = 1 + Math.floor((i * (nb - 3)) / p.crowd + r() * 0.6), cs = S[ci], dn = P(NX, yN, cs), fx = dn[0] + (r() - 0.6) * 14 * cs, fy = dn[1] - 1.2 * cs, fh = (14 + r() * 2.4) * cs;
+        crowd += '<path class="w-fig" d="M' + n(fx) + " " + n(fy) + "V" + n(fy - fh * 0.74) + '" stroke-width="' + n(3.5 * cs) + '"/><circle class="w-figh" cx="' + n(fx - 0.3 * cs) + '" cy="' + n(fy - fh) + '" r="' + n(1.8 * cs) + '"/>';
+        crods += '<path class="w-rod" d="M' + n(fx - 1.2 * cs) + " " + n(fy - fh * 0.55) + "L" + n(fx - 15 * cs) + " " + n(fy - fh * 0.25) + '" stroke-width="' + n(0.4 + 0.55 * cs) + '"/>' +
+          '<path class="w-line" d="M' + n(fx - 15 * cs) + " " + n(fy - fh * 0.25) + "V" + n(HZ + ySea * cs) + '"/>';
+        clit += '<circle cx="' + n(fx - 3 * cs) + '" cy="' + n(fy - fh * 0.45) + '" r="' + n(16 * cs + 3) + '" fill="url(#' + id + '-lamp)"/><circle class="w-lantern" cx="' + n(fx - 3 * cs) + '" cy="' + n(fy - fh * 0.45) + '" r="' + n(Math.max(0.5, 1.1 * cs)) + '"/>';
+        if (i % 2 === 0) clit += waterPool(id, r, fx - 10 * cs, HZ + ySea * cs + 3 * cs, 0.5 + cs * 0.9);
+      }
+    }
+    if (p.own) {
+      for (i = 0; i < 4; i++) {
+        var oi = Math.min(nb, nb - i), so = S[oi], op = P((NX + FX) / 2, yN - 7, so);
+        own += '<circle cx="' + n(op[0]) + '" cy="' + n(op[1]) + '" r="' + n(28 * so + 5) + '" fill="url(#' + id + '-lamp)"/><circle class="w-lantern" cx="' + n(op[0]) + '" cy="' + n(op[1]) + '" r="' + n(Math.max(0.45, 1.6 * so)) + '"/>';
+        own += waterPool(id, r, op[0], HZ + ySea * so + 2, 0.45 + so);
+      }
+    }
+    var extra = '<linearGradient id="' + id + '-deck" gradientUnits="userSpaceOnUse" x1="' + n(P(NX, 0, sE)[0]) + '" y1="0" x2="' + n(NX) + '" y2="0">' +
+      '<stop offset="0" style="stop-color:var(--r3)"/><stop offset=".4" style="stop-color:var(--r4)"/><stop offset="1" style="stop-color:var(--r5)"/></linearGradient>';
+    var g = '<g filter="url(#' + id + '-wv)"><path class="w-under" d="' + under + '" filter="url(#' + id + '-b2)"/></g>' +
+      '<g class="w-lampson">' + pools + own.replace(/<circle class="w-lantern"[^>]*>/g, "") + "</g>" +
+      '<g filter="url(#' + id + '-wv)">' + glass + "</g>" +
+      '<path class="w-pile2" d="' + headP + '"/>' + pilesF + '<path class="w-rail w-railf" d="' + railF + '"/>' +
+      '<path class="' + (yN < yF ? "w-pile2" : "w-decktop") + '" d="' + deck + '"/><path class="w-planks" d="' + planks + '"/><path class="w-decktop" d="' + headS + '"/>' +
+      '<path class="w-rail w-railf" d="' + headR + '"/><path class="w-pile" d="' + tip + '"/>' +
+      '<g class="w-lampson w-deckpool">' + deckPools + "</g>" +
+      '<g class="w-braces">' + braces + "</g>" +
+      '<g fill="url(#' + id + '-deck)">' + pilesN + '<path d="' + fascia + '"/></g>' +
+      '<path class="w-liteb" d="' + line(dN) + '"/>' + lamps + '<g class="w-lampson w-crowd">' + crowd + crods + "</g>" + '<path class="w-rail" d="' + railN + '"/>' +
+      '<g class="w-lampson">' + clit + "</g>" +
+      '<g class="w-lampson">' + glows + (own.match(/<circle class="w-lantern"[^>]*>/g) || []).join("") + "</g>";
+    return { svg: left ? '<g transform="translate(' + W + ' 0) scale(-1 1)">' + g + "</g>" : g, def: extra };
+  }
+
+  // A dock, a float or a short pier under your feet: its deck running out to
+  // an edge a few steps ahead, the water right there past it. p:
+  //   ahead  metres to the edge; l, r: metres to its sides
+  //   above  how high the deck stands over the water (a float rides low)
+  //   planks "across" (default) or "along"; cleats: along its edges
+  //   beside [x0, x1, z0, z1]: another float alongside, in metres
+  //   back   after dark, light falls on it from behind you
+  function onDock(id, p, t, r, V) {
+    var e = 1.6, cx = W / 2 + (p.vx || 0) * V.ud, pj = eye(V, cx), fl = V.fl;
+    var Zn = 2.4, Z1 = p.ahead || 8, L = -(p.l || 1.4), R = p.r || 1.4, dk = -e, z, x;
+    var deck = quad(pj(L, dk, Zn), pj(R, dk, Zn), pj(R, dk, Z1), pj(L, dk, Z1)), lines = "", side = "", cleats = "", shadow = "";
+    if (p.planks === "along") for (x = L + 0.22; x < R; x += 0.22) lines += "M" + n(pj(x, dk, Zn)[0]) + " " + n(pj(x, dk, Zn)[1]) + "L" + n(pj(x, dk, Z1)[0]) + " " + n(pj(x, dk, Z1)[1]);
+    else for (z = Zn; z < Z1; z += 0.2 * (1 + (z - Zn) * 0.03)) lines += "M" + n(pj(L, dk, z)[0]) + " " + n(pj(L, dk, z)[1]) + "H" + n(pj(R, dk, z)[0]);
+    // the float's lit end edge and the dark it lays on the water past it
+    var eL = pj(L, dk, Z1), eR = pj(R, dk, Z1), wl = pj(L, dk - (p.above || 0.5), Z1 + 0.6), wr = pj(R, dk - (p.above || 0.5), Z1 + 0.6);
+    shadow = quad([eL[0] - 2, eL[1]], [eR[0] + 2, eR[1]], [wr[0] + 6, eR[1] + 5], [wl[0] - 6, eL[1] + 5]);
+    if (p.cleats) for (z = Zn + 1.5; z < Z1; z += 3) [L + 0.12, R - 0.12].forEach(function (cx2) { var c = pj(cx2, dk, z), s2 = fl * 0.09 / z; cleats += quad([c[0] - s2 * 1.6, c[1]], [c[0] + s2 * 1.6, c[1]], [c[0] + s2, c[1] - s2 * 1.2], [c[0] - s2, c[1] - s2 * 1.2]); });
+    if (p.beside) {
+      var b = p.beside;
+      side += quad(pj(b[0], dk - 0.05, b[2]), pj(b[1], dk - 0.05, b[2]), pj(b[1], dk - 0.05, b[3]), pj(b[0], dk - 0.05, b[3]));
+      var se = "";
+      for (z = b[2]; z < b[3]; z += 0.24) se += "M" + n(pj(b[0], dk - 0.05, z)[0]) + " " + n(pj(b[0], dk - 0.05, z)[1]) + "H" + n(pj(b[1], dk - 0.05, z)[0]);
+      side = '<path class="w-under" d="' + quad(pj(b[0], dk - 0.4, b[2]), pj(b[1], dk - 0.4, b[2]), pj(b[1], dk - 0.6, b[3] + 0.5), pj(b[0], dk - 0.6, b[3] + 0.5)) + '"/>' +
+        '<path class="w-decktop" d="' + side + '"/><path class="w-planks" d="' + se + '"/><path class="w-liteb" d="M' + n(pj(b[0], dk - 0.05, b[3])[0]) + " " + n(pj(b[0], dk - 0.05, b[3])[1]) + "H" + n(pj(b[1], dk - 0.05, b[3])[0]) + '"/>';
+    }
+    var back = p.back ? '<g class="w-lampson"><ellipse cx="' + n(cx) + '" cy="' + n(pj(0, dk, Z1 - 1.5)[1]) + '" rx="' + n(fl * 3.4 / (Z1 - 1.5)) + '" ry="' + n(fl * 0.9 / (Z1 - 1.5)) + '" fill="url(#' + id + '-lamp)"/>' +
+      '<ellipse class="w-pool" cx="' + n(cx) + '" cy="' + n(eL[1] - 10) + '" rx="' + n(Math.abs(eR[0] - eL[0]) * 1.4) + '" ry="12" fill="url(#' + id + '-lamp)"/></g>' : "";
+    return side + '<path class="w-under" d="' + shadow + '" filter="url(#' + id + '-b2)"/><path class="w-dock" d="' + deck + '"/><path class="w-planks w-planksn" d="' + lines + '"/>' +
+      '<path class="w-pile" d="' + cleats + '"/><path class="w-liteb" d="M' + n(eL[0]) + " " + n(eL[1]) + "H" + n(eR[0]) + '"/>' + back;
+  }
+
+  // ---- parts: the bank ---------------------------------------------------------------
+  // A Sound beach from the shore: the tide's edge (yW, high in the picture
+  // at low water, close at high water), the wet flat below it shining with
+  // the sky, ripple marks and a pool or two the tide left, then dry sand.
+  function flats(id, seed, yW, low) {
+    var r = rnd(seed), nz = noise(seed + 3), x, k, edge = [], dry = [];
+    for (x = -6; x <= W + 6; x += 8) edge.push([x, yW + (nz(x * 0.014) - 0.5) * 7 + (nz(x * 0.08 + 4) - 0.5) * 2]);
+    var yD = yW + 20 + low * 22;
+    for (x = W + 6; x >= -6; x -= 12) dry.push([x, yD + (nz(x * 0.01 + 20) - 0.5) * 10]);
+    var wet = poly(edge.map(function (q) { return [q[0], q[1] - 0.6]; }).concat(dry));
+    var sheen = "", rip = "", pools = "";
+    for (k = 0; k < 40 + low * 30; k++) {
+      var wy = yW + 3 + r() * (yD - yW), wx = r() * W, wl = 5 + r() * 22;
+      sheen += '<path d="M' + n(wx) + " " + n(wy) + "h" + n(wl) + '" stroke-width="' + n(0.4 + r() * 0.7) + '" opacity="' + n(0.2 + r() * 0.55) + '"/>';
+    }
+    for (k = 0; k < 70 * low; k++) {
+      var ry = yW + 6 + Math.pow(r(), 0.8) * (yD - yW - 4), rx = r() * W, rl = 1.5 + (ry - yW) * 0.12 * (0.6 + r());
+      rip += poly([[rx, ry], [rx + rl * 0.5, ry - 0.35 - (ry - yW) * 0.008], [rx + rl, ry], [rx + rl * 0.5, ry + 0.25]]);
+    }
+    for (k = 0; k < Math.round(low * 4); k++) {
+      var py = yW + 10 + r() * (yD - yW - 12), px = r() * W, pw = 14 + r() * 40 * (0.6 + (py - yW) / 50);
+      pools += '<ellipse cx="' + n(px) + '" cy="' + n(py) + '" rx="' + n(pw) + '" ry="' + n(1.2 + (py - yW) * 0.05) + '"/>';
+    }
+    var lace = line(edge.map(function (q) { return [q[0] + 2, q[1] + 1.8]; }));
+    return '<path class="w-flat" d="' + wet + '"/>' + '<g class="w-lightx"><ellipse class="w-sandroad" cx="0" cy="' + n(yW + 14) + '" rx="54" ry="22" fill="url(#' + id + '-glow)"/></g>' +
+      '<g class="w-pools">' + pools + '</g><g class="w-sheen">' + sheen + '</g><path class="w-ripm" d="' + rip + '"/>' +
+      '<path class="w-lace" d="' + lace + '"/><path class="w-foam" d="' + line(edge) + '"/>' +
+      '<path class="w-shore" d="' + line(dry.slice().reverse()) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>';
+  }
+  // Cobbles, many small and a few big enough to carry a shade, from y0 down.
+  function cobbles(seed, x0, x1, y0, y1, cnt) {
+    var r = rnd(seed), s = "";
+    cnt = Math.round(cnt * (TILE ? 0.35 : 1));
+    for (var k = 0; k < cnt; k++) {
+      var u = r(), sx = x0 + r() * (x1 - x0), sy = y0 + u * u * (y1 - y0), sz = (0.6 + r() * 1.6) * (0.6 + (sy - y0) / 40);
+      s += '<ellipse class="' + (r() < 0.32 ? "w-st-l" : "w-st-d") + '" cx="' + n(sx) + '" cy="' + n(sy) + '" rx="' + n(sz) + '" ry="' + n(sz * (0.45 + r() * 0.2)) + '"/>';
+    }
+    return s;
+  }
+  // Grass in tufts along an edge: blades as thin filled wedges.
+  function grass(seed, pts, hmax, cls) {
+    var r = rnd(seed), d = "";
+    pts.forEach(function (q) {
+      for (var k = 0; k < (q[2] || 6); k++) {
+        var x = q[0] + (r() - 0.5) * 8, b = q[1] + r() * 2, h = hmax * (0.35 + r() * 0.65), lean = (r() - 0.4) * h * 0.5;
+        d += poly([[x - 0.7, b], [x + lean * 0.5, b - h * 0.6], [x + lean, b - h], [x + 0.7, b]]);
+      }
+    });
+    return '<path class="' + (cls || "w-grass") + '" d="' + d + '"/>';
+  }
+  // A boat ramp at your feet running into the water: concrete with its
+  // grooves, or gravel; where it goes under it darkens into the water.
+  function ramp(seed, kind, yW, x0, x1) {
+    var r = rnd(seed), cx = (x0 + x1) / 2, top = [[x0 - 26, H + 4], [x1 + 26, H + 4], [cx + (x1 - x0) * 0.32, yW], [cx - (x1 - x0) * 0.32, yW]];
+    var sub = quad([cx - (x1 - x0) * 0.32, yW], [cx + (x1 - x0) * 0.32, yW], [cx + (x1 - x0) * 0.22, yW - 8], [cx - (x1 - x0) * 0.22, yW - 8]);
+    var marks = "", k;
+    if (kind === "gravel") return '<path class="w-rampw" d="' + sub + '"/><path class="w-gravel" d="' + poly(top) + '"/>' + cobbles(seed + 1, x0 - 10, x1 + 10, yW + 2, H, 160);
+    for (k = 0; k < 14; k++) { var y = yW + 2 + k * k * 0.42, u = (y - yW) / (H - yW), hw = (x1 - x0) * (0.32 + u * 0.5) + u * 26; marks += "M" + n(cx - hw * 0.96) + " " + n(y) + "H" + n(cx + hw * 0.96); }
+    return '<path class="w-rampw" d="' + sub + '"/><path class="w-ramp" d="' + poly(top) + '"/><path class="w-groove" d="' + marks + '"/>' +
+      '<path class="w-liteb" d="M' + n(cx - (x1 - x0) * 0.32) + " " + n(yW) + "H" + n(cx + (x1 - x0) * 0.32) + '"/>';
+  }
+
+  // ---- the Sound from a spot ---------------------------------------------------------
+  // o.view: "deck" (on the pier, o.pier), "side" (the pier from the shore by
+  // its root, o.pier), "dock" or "float" (under your feet, o.dock), or
+  // "beach" (from the sand). o.skyline: what is across the water. o.near:
+  // what stands between (a breakwater, masts, tide rips). o.bank: what is
+  // at your feet beside the stand (the flats, cobbles, a lawn, grass).
+  // Returns the painting's layers; scene() hangs them, view() flattens them.
+  function seaSpot(id, o) {
+    var t = today(o), V = lens(o), sd = idSeed(o.spot), r = rnd(sd + 41), wd = windOf(t.wind), Lt = lightOf(V.f, t.date);
+    var sky = o.skyline || [], litLeft = Lt.set.rel < 0;
+    var back = defs(id) + skyLayer(id, { seed: sd + 100 }) + peaksOf(id, sky, V, HZ, sd, litLeft) + waterLayer(id) +
+      swell(sd + 7, 214, 1 + wd.amp * 1.4, 3.5) + swell(sd + 8, 243, 1.4 + wd.amp * 2, 5) + swell(sd + 9, 281, 1.8 + wd.amp * 2.8, 7);
+    // the land across, far to near, each with its copy in the water
+    var lands = sky.filter(function (p) { return p.t === "island" || p.t === "shore"; }).sort(function (a, b) { return (b.mi || 5) - (a.mi || 5); });
+    var mdef = "", mid = "", named = {};
+    lands.forEach(function (p, k) {
+      var hl = farLand(p, V, sd + 13 * (k + 1), HZ);
+      named[p.name || "land" + k] = hl;
+      if (hl.cls === "w-far") { back += '<path class="w-far" d="' + hl.land + '"/>'; return; }
+      var rf = reflect(id, "i" + k, hl, 0.55, hl.cls);
+      mdef += rf.def;
+      mid += '<g opacity="' + n(wd.refl) + '">' + rf.svg + "</g>" + land(hl, hl.cls, hl.mi < 1.5) + mist(id + "m", sd + 60 + k, hl.base(0) + 2, 0.6);
+    });
+    sky.forEach(function (p, k) {
+      var hl = named[p.on], x = p.at != null ? V.x(p.at) : 0, b = hl ? hl.base(x) : HZ + 1;
+      if (p.t === "light") mid += tower(id + "m", x, b - 0.2, p.h || 6);
+      if (p.t === "ferry") mid += ferry(x, b, p.s || 1);
+      if (p.t === "bridge") back += '<g class="w-bridge">' + bridge(x, HZ + 0.5, p.s || 1) + "</g>";
+      if (p.t === "lights" && hl) mid += '<g class="w-lights">' + shoreLights(sd + k, hl, p.n || 12, 6, V.x(p.from), V.x(p.to)) + "</g>";
+    });
+    (o.near || []).forEach(function (q, k) {
+      if (q.t === "breakwater") mid += rocks(sd + 70 + k, q.pts, { wet: (1 - t.tide) * (q.wet || 3), cls: q.cls || "", tall: q.tall });
+      if (q.t === "masts") mid += masts(sd + 80 + k, q.x0, q.x1, q.base, q.h);
+      if (q.t === "rips") mid += rips(sd + 90 + k, q.bands);
+    });
+    mid += whitecaps(sd + 5, HZ + 8, 300, wd.caps);
+    // where you stand
+    var fdef = "", front = "", under = "", over = "";
+    (o.bank || []).forEach(function (b, k) {
+      var s = "";
+      if (b.t === "flats") s = flats(id + "f", sd + 300 + k, (b.low || 200) + t.tide * ((b.high || 258) - (b.low || 200)), 1 - t.tide);
+      if (b.t === "cobbles") s = '<path class="w-shore" d="' + line(b.edge) + "L" + (W + 4) + " " + (H + 4) + "L-4 " + (H + 4) + 'Z"/><path class="w-foam" d="' + line(b.edge) + '"/>' + cobbles(sd + 310 + k, -4, W + 4, b.edge[0][1] + 2, H, b.n || 220);
+      if (b.t === "lawn") s = '<path class="w-lawn" d="' + poly(b.pts) + '"/>' + grass(sd + 320 + k, b.pts.slice(0, 2).map(function (q) { return [q[0], q[1], 8]; }), 5);
+      if (b.t === "grass") s = grass(sd + 330 + k, b.pts, b.h || 16);
+      if (b.layer === "over") over += s; else under += s;
+    });
+    front += under;
+    if (o.view === "deck") front += onPier(id + "f", o.pier || {}, t, r, V);
+    else if (o.view === "side") { var sp = sidePier(id + "f", o.pier || {}, t, r); fdef += sp.def; front += sp.svg; }
+    else if (o.view === "dock" || o.view === "float") front += onDock(id + "f", o.dock || {}, t, r, V);
+    front += over;
+    if (!under && o.view !== "deck" && o.view !== "dock" && o.view !== "float") front += shoreEdge([[-2, 305], [60, 302], [130, 304], [200, 308], [270, 309], [330, 307], [392, 310]]);
+    var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
+    return { back: back, gl: [sd + 200, HZ + 2.5, H, wd.dens], mid: defs(id + "m", mdef) + fog + mid, front: defs(id + "f", fdef) + (fog ? '<rect class="w-fog w-fog2" width="' + W + '" height="' + H + '"/>' : "") + front };
+  }
+
+  // ---- a lake from a spot ------------------------------------------------------------------
+  // o.lake:
+  //   across   metres to the far shore ahead
+  //   shores   [{from, to, m, houses}]: stretches of far shore by bearing,
+  //            nearer or farther than across, and how many houses on each
+  //   islands  [{from, to, m}]
+  //   mix      the share of firs in the trees (no card names the kinds)
+  //   drawdown the water is let down: a mud band and stumps along the shore
+  //   stand    "dock" (floating, o.dock), "pier" (o.dock), "ramp", "gravel"
+  //            or none (the bank)
+  //   wetland  "right" or "left": a marshy edge and a small park
+  function lakeSpot(id, o) {
+    var t = today(o), V = lens(o), sd = idSeed(o.spot), r = rnd(sd + 131), wd = windOf(t.wind * 0.75), lk = o.lake || {}, E = 1.7;
+    var isBare = bare(t.date), mix = lk.mix == null ? 0.3 : lk.mix, sky = o.skyline || [], low = lk.drawdown ? 2.2 : 0, k;
+    var Lt = lightOf(V.f, t.date);
+    var shores = lk.shores || [{ from: V.f - 80, to: V.f + 80, m: lk.across || 300, houses: lk.houses || 0 }];
+    var yTop = 999;
+    shores.forEach(function (s) { var y = HZ + (V.fl * E) / s.m; if (y < yTop) yTop = y; });
+    (lk.islands || []).forEach(function (s) { var y = HZ + (V.fl * E) / s.m; if (y < yTop) yTop = y; });
+    var back = defs(id) + skyLayer(id, { seed: sd + 700 }) + peaksOf(id, sky, V, yTop - 1, sd, Lt.set.rel < 0) + waterLayer(id, yTop - 1);
+    var mdef = "", mid = "", near = "";
+    // the far shore, stretch by stretch, farthest first
+    shores.slice().sort(function (a, b) { return b.m - a.m; }).concat((lk.islands || []).map(function (s) { var c = {}, q; for (q in s) c[q] = s[q]; c.island = 1; return c; }).sort(function (a, b) { return b.m - a.m; })).forEach(function (s, i) {
+      var x0 = V.x(s.from), x1 = V.x(s.to), sw0;
+      if (x1 < x0) { sw0 = x0; x0 = x1; x1 = sw0; }
+      var wy = HZ + (V.fl * E) / s.m, vy = HZ + (V.fl * (E - low)) / s.m, th = (V.fl * (s.trees || 24)) / s.m;
+      var cls = s.m < 120 ? "w-l5" : s.m < 220 ? "w-l4" : s.m < 450 ? "w-l3" : s.m < 1300 ? "w-l2" : s.m < 2600 ? "w-l1" : "w-l0";
+      var seed = sd + 17 * (i + 1), tilt = s.tilt || 0;
+      var base = function (x) { return vy + tilt * (x - x0) / Math.max(1, x1 - x0); };
+      if (th < 4) {
+        var hl = headland({ seed: seed, from: s.island ? x0 : x0 - 30, to: s.island ? x1 : x1 + 30, base: vy, h: th * 0.6, tree: Math.max(1, th * 0.7), gap: 2, freq: 0.03, tipFade: 60,
+          env: s.island ? function (u) { return Math.pow(clamp(Math.min(u, 1 - u) * 5, 0, 1), 0.6); } : null });
+        mid += '<path class="' + cls + '" d="' + hl.land + '"/>';
+        return;
+      }
+      var wl = wall({ seed: seed, x0: s.island ? x0 : x0 - 20, x1: s.island ? x1 : x1 + 20, base: base, h: th, mix: s.mix == null ? mix : s.mix, bare: isBare, land: Math.max(1, th * 0.06),
+        grow: s.island ? function (x) { var u = (x - x0) / Math.max(1, x1 - x0); return (s.blunt || 0.35) + (1 - (s.blunt || 0.35)) * Math.pow(clamp(Math.min(u, 1 - u) * 4, 0, 1), 0.5); } : null });
+      var rf = reflect(id, "s" + i, wl.glass, 0.92, cls === "w-l0" ? "w-l1" : cls === "w-l4" ? "w-l5" : cls);
+      mdef += rf.def;
+      mid += '<g opacity="' + n(wd.refl) + '">' + rf.svg + "</g>";
+      if (low) mid += '<path class="w-mud" d="' + quad([x0 - 30, vy - 0.5], [x1 + 30, vy - 0.5], [x1 + 30, wy + 0.6], [x0 - 30, wy + 0.6]) + '"/>';
+      mid += paintWall(wl, cls);
+      if (s.houses) {
+        var xs = [], hr = rnd(seed + 3);
+        for (k = 0; k < s.houses; k++) xs.push(x0 + ((k + 0.3 + hr() * 0.5) / s.houses) * (x1 - x0));
+        // the houses stand at the water's edge, in front of their trees
+        mid += houses(id + "m", hr, xs, function () { return vy; }, clamp((V.fl * 8) / s.m, 2.4, 12), wy);
+      }
+      mid += '<path class="w-beach" d="M' + n(x0) + " " + n(wy + 0.3) + "H" + n(x1) + '"/>' + mist(id + "m", sd + 90 + i, wy + 2, 0.7);
+    });
+    // still water keeps long quiet streaks where a breath of air touches it
+    var streaks = "";
+    for (k = 0; k < 7; k++) {
+      var sy = yTop + 12 + k * (6 + k * 2.4) + r() * 5, sx = r() * 300 - 20, sl = 90 + r() * 190;
+      streaks += '<path d="M' + n(sx) + " " + n(sy) + "q" + n(sl / 2) + " " + n(-0.8 - r()) + " " + n(sl) + ' 0" stroke-width="' + n(0.8 + k * 0.3) + '" opacity="' + n((0.3 + r() * 0.5) * (1 - t.wind)) + '"/>';
+    }
+    mid += '<g class="w-streak">' + streaks + "</g>" + whitecaps(sd + 5, yTop + 8, 300, wd.caps * 0.6);
+    // trees on your own shore either side of you, framing the picture
+    (lk.near || []).forEach(function (q, i2) {
+      var nw = wall({ seed: sd + 120 + i2, x0: q[0], x1: q[1], base: q[2], h: q[3], mix: mix, bare: isBare, land: 3, freq: 0.05 });
+      var nrf = reflect(id, "n" + i2, nw.glass, 0.5, "w-l5");
+      mdef += nrf.def;
+      near += '<g opacity="' + n(wd.refl * 0.8) + '">' + nrf.svg + "</g>" + '<path class="w-rim" d="' + nw.trees + '"/>' + paintWall(nw, "w-l5");
+    });
+    // the bank beside you
+    if (lk.wetland) {
+      var wl2 = lk.wetland === "left", wx0 = wl2 ? -10 : 286, wx1 = wl2 ? 104 : 400, wy2 = yTop + 22;
+      var edgeP = [[wl2 ? wx1 : wx0, wy2 + 3], [wl2 ? wx0 : wx1, wy2 - 4], [wl2 ? wx0 : wx1, wy2 + 40], [wl2 ? wx1 + 20 : wx0 - 20, wy2 + 40]];
+      near += '<path class="w-lawn" d="' + poly(edgeP) + '"/>' + grass(sd + 77, [[wx0 + 12, wy2 + 2, 9], [wx0 + 40, wy2 + 1, 9], [wx0 + 70, wy2, 9], [wx0 + 96, wy2 - 1, 7]], 12, "w-sedge");
+      var bx = wl2 ? 30 : 352, by = wy2 + 9;
+      near += '<path class="w-pile" d="' + poly([[bx - 6, by - 2.4], [bx + 6, by - 2.4], [bx + 6, by - 1.6], [bx - 6, by - 1.6]]) + poly([[bx - 5, by - 1.6], [bx - 4.2, by - 1.6], [bx - 4.2, by + 1], [bx - 5, by + 1]]) + poly([[bx + 4.2, by - 1.6], [bx + 5, by - 1.6], [bx + 5, by + 1], [bx + 4.2, by + 1]]) + poly([[bx - 6, by - 4.6], [bx + 6, by - 4.6], [bx + 6, by - 3.9], [bx - 6, by - 3.9]]) + '"/>';
+    }
+    if (low) {
+      // let down for the winter: mud at the near shore and the old stumps standing in it
+      var mud = '<path class="w-mud" d="' + poly([[-6, 228], [70, 236], [120, 252], [130, 272], [-6, 272]]) + '"/><path class="w-mud" d="' + poly([[400, 222], [330, 232], [292, 250], [286, 272], [400, 272]]) + '"/>', st = "";
+      [[22, 238, 7], [58, 246, 5], [96, 256, 6], [352, 236, 8], [318, 247, 5.5], [372, 252, 6.5]].forEach(function (q) {
+        var x = q[0], y = q[1], s = q[2];
+        st += poly([[x - s * 0.9, y], [x - s * 0.55, y - s * 0.4], [x - s * 0.45, y - s * 1.5], [x - s * 0.1, y - s * 1.3], [x + s * 0.15, y - s * 1.7], [x + s * 0.45, y - s * 1.35], [x + s * 0.55, y - s * 0.4], [x + s, y]]);
+      });
+      st += poly([[40, 254], [104, 246], [106, 249], [44, 258]]) + poly([[300, 258], [360, 262], [358, 265], [298, 261.5]]);
+      near += mud + '<path class="w-pile" d="' + st + '"/>';
+    }
+    var stand = lk.stand, front = "", yW = yTop + 60;
+    if (stand === "dock" || stand === "pier") front += onDock(id + "f", o.dock || {}, t, r, V);
+    else if (stand === "ramp" || stand === "gravel") front += ramp(sd + 9, stand === "gravel" ? "gravel" : "concrete", Math.min(242, yW), 160, 236);
+    else front += shoreEdge([[-2, 306], [60, 303], [130, 305], [200, 309], [270, 310], [330, 308], [392, 311]]);
+    var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
+    return { back: back, gl: [sd + 800, yTop + 5, H, 0.45 * wd.dens], mid: defs(id + "m", mdef) + fog + mid + near, front: defs(id + "f") + front };
+  }
+
+  // ---- a river from a spot -------------------------------------------------------------------
+  // o.river:
+  //   flow     "right" or "left": the way the water runs past you
+  //   far      { kind: "cottonwood", "mixed" or "plain", h }: the far bank
+  //   valley   steep forested walls rising behind the far bank
+  //   bar      the gravel and sand you stand on (how much shows: the level)
+  //   trunk    "right": a big tree on your bank framing the picture
+  //   creek    { x }: a creek pouring in from your bank, and its eddy
+  //   cobble   [x0, x1]: a low cobble edge out in the river
+  //   steps    concrete platforms stepping down to the water (the level
+  //            covers the lowest), rods: plunkers' rods up the bank to the left
+  //   weir     a hatchery outlet weir pouring in at your left, crowd: anglers
+  function riverSpot(id, o) {
+    var t = today(o), V = lens(o), sd = idSeed(o.spot), r = rnd(sd + 91), rv = o.river || {}, lvl = t.river, RY = rv.y || 198, k, x;
+    var isBare = bare(t.date), dir = rv.flow === "left" ? -1 : 1, far = rv.far || { kind: "mixed" };
+    // the water's colour: clear and green-dark when the river is low, milky
+    // with the sky's own pale when it runs high
+    var clear = Math.round((1 - lvl) * 26), milk = Math.round(lvl * lvl * 44);
+    function wc(v) { return "color-mix(in oklab,color-mix(in oklab," + v + ",var(--shore) " + clear + "%),var(--hz) " + milk + "%)"; }
+    var wdef = '<linearGradient id="' + id + '-rw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + wc("var(--water1)") + '"/><stop offset="1" style="stop-color:' + wc("var(--water2)") + '"/></linearGradient>';
+    var back = defs(id, wdef) + skyLayer(id, { seed: sd + 500 });
+    if (rv.valley) {
+      var v1 = headland({ seed: sd + 7, from: -60, to: 230, base: RY - 4, h: 74, tree: 2.6, gap: 2.1, shape: 1.5, freq: 0.012, tipFade: 3 });
+      var v2 = headland({ seed: sd + 8, from: 460, to: 150, base: RY - 3, h: 88, tree: 3.2, gap: 2.2, shape: 1.7, freq: 0.011, tipFade: 3 });
+      back += '<path class="w-l0" d="' + v1.land + '"/>' + mist(id, sd + 81, RY - 30, 1.6) + '<path class="w-l1" d="' + v2.land + '"/>' + mist(id, sd + 82, RY - 12, 1.3);
+    }
+    back += '<rect y="' + (RY - 2) + '" width="' + W + '" height="' + (H - RY + 2) + '" fill="url(#' + id + '-rw)"/>' +
+      '<rect y="' + (RY - 2) + '" width="' + W + '" height="40" fill="url(#' + id + '-hzr)"/>' +
+      '<g class="w-lightx"><ellipse cx="0" cy="' + (RY - 2) + '" rx="58" ry="' + (H - RY) + '" fill="url(#' + id + '-glow)" class="w-road"/></g>';
+    // the far bank
+    var fb, mdef = "", mid = "";
+    if (far.kind === "plain") {
+      fb = headland({ seed: sd + 31, from: -30, to: 430, base: RY, h: far.h || 5, tree: far.tree || 6, gap: 3.2, shape: 12, freq: 0.012, tipFade: 60 });
+      fb.trees = "";
+    } else fb = wall({ seed: sd + 31, x0: -24, x1: 414, base: RY, h: far.h || 44, mix: far.kind === "cottonwood" ? 0.05 : far.mix || 0.4, bare: isBare, vase: far.kind === "cottonwood", land: 2.4, freq: 0.022 });
+    if (far.kind === "cottonwood") {
+      var fb2 = wall({ seed: sd + 37, x0: -24, x1: 414, base: RY - 3, h: (far.h || 44) * 1.18, mix: 0.04, bare: isBare, vase: true, land: 1.5, freq: 0.016 });
+      back += paintWall(fb2, "w-l1");
+    }
+    var rf = reflect(id, "b", fb.glass || fb, 0.62, "w-l3");
+    mdef += rf.def;
+    mid += '<g opacity="' + n(1 - lvl * 0.62) + '">' + rf.svg + "</g>" + (far.kind === "plain" ? '<path class="w-l3" d="' + fb.land + '"/>' : paintWall(fb, "w-l3")) + '<path class="w-beach" d="M-4 ' + n(RY + 0.4) + 'H394"/>' + mist(id + "m", sd + 83, RY + 3, 0.45);
+    // cottonwoods at the water's edge: pale trunks leaning out, in winter bare
+    if (far.kind === "cottonwood") {
+      var al = "", ar = rnd(sd + 71);
+      for (k = 0; k < 9; k++) {
+        var ax = 20 + k * 41 + (ar() - 0.5) * 22, ah = 26 + ar() * 20, alean = (ar() - 0.4) * 9, ad = "M" + n(ax) + " " + (RY + 0.5) + "Q" + n(ax + alean * 0.2) + " " + n(RY - ah * 0.55) + " " + n(ax + alean) + " " + n(RY - ah);
+        al += '<path d="' + ad + '" stroke-width="' + n(1.2 + ah * 0.03) + '"/>';
+        for (var q2 = 0; q2 < 6; q2++) {
+          var f2 = 0.32 + q2 * 0.11 + ar() * 0.05, bx2 = ax + alean * f2 * f2, by2 = RY - ah * f2, d2 = q2 % 2 ? 1 : -1, bl2 = ah * (0.36 - q2 * 0.035) * (0.7 + ar() * 0.6);
+          al += '<path d="M' + n(bx2) + " " + n(by2) + "Q" + n(bx2 + d2 * bl2 * 0.5) + " " + n(by2 - bl2 * 0.25) + " " + n(bx2 + d2 * bl2 * 0.8) + " " + n(by2 - bl2 * 0.85) + '" stroke-width="' + n(0.5 + (1 - f2) * 0.6) + '"/>';
+        }
+      }
+      mid += '<g class="w-alder">' + al + "</g>";
+    }
+    // the river moving: riffles that crowd and lengthen as it rises, each a
+    // little dragged the way the water runs
+    var rf2 = "";
+    for (k = 0; k < 40 + lvl * 60; k++) {
+      var ry = RY + 4 + r() * r() * (40 + lvl * 20), rx = r() * W, rl = (2 + r() * 7 + (ry - RY) * 0.3) * (0.8 + lvl * 0.7);
+      rf2 += '<path d="M' + n(rx) + " " + n(ry) + "q" + n((dir * rl) / 2) + " " + n(-0.6 - r() * 0.6) + " " + n(dir * rl) + " " + n(0.3 + lvl * 0.4) + '" opacity="' + n(0.3 + r() * 0.6) + '"/>';
+    }
+    mid += '<g class="w-riffle">' + rf2 + "</g>";
+    // a low cobble edge out in the river
+    if (rv.cobble && lvl < 0.85) { var cz = 1 - lvl * 0.9; mid += rocks(sd + 41, [[rv.cobble[0], RY + 22, 3 * cz], [(rv.cobble[0] + rv.cobble[1]) / 2, RY + 26, 4.6 * cz], [rv.cobble[1], RY + 31, 6 * cz]], { tall: 0.62, wet: (1 - lvl) * 2.4 }); }
+    // a creek pouring in from your bank, and the eddy turning where it meets the river
+    if (rv.creek) {
+      // your own bank comes in from the left; the creek cuts through it
+      var cx = rv.creek.x, bk = [[-6, RY + 8], [cx - 34, RY + 12], [cx - 18, RY + 22], [cx - 30, 262], [-6, 262]], bk2 = [[cx + 16, 262], [cx + 6, RY + 30], [cx + 40, RY + 40], [cx + 70, 262]];
+      var wh = "", ed = "", tongue = poly([[cx - 30, RY + 17], [cx + 2, RY + 13], [cx + 22, RY + 15], [cx + 12, 262], [cx - 22, 262]]);
+      for (k = 0; k < 70; k++) { var u = r(), yy = RY + 13 + u * 50, xx = cx - 22 + r() * 36 + u * 4, ll = 1.2 + u * 6; wh += poly([[xx, yy], [xx + ll * 0.5, yy - 0.4 - u * 0.8], [xx + ll, yy], [xx + ll * 0.5, yy + 0.4 + u * 0.6]]); }
+      for (k = 0; k < 4; k++) { var er = 10 + k * 9, ex = cx + 18 + 24 * dir, ey = RY + 16 + k * 1.8; ed += "M" + n(ex - er) + " " + n(ey) + "a" + n(er) + " " + n(er * 0.24) + " 0 1 " + (dir > 0 ? 1 : 0) + " " + n(er * 1.6) + " " + n(er * 0.14); }
+      var bkt = wall({ seed: sd + 44, x0: -10, x1: cx - 30, base: function (x) { return RY + 10 + Math.max(0, x - (cx - 60)) * 0.4; }, h: 70, mix: 0.45, bare: isBare, land: 4, freq: 0.04 });
+      mid += '<path class="w-creek" d="' + tongue + '"/><path class="w-capf" d="' + wh + '"/><path class="w-eddy" d="' + ed + '"/>' +
+        '<path class="w-l5" d="' + poly(bk) + poly(bk2) + '"/>' + '<path class="w-rim" d="' + bkt.trees + '"/>' + paintWall(bkt, "w-l5");
+    }
+    // a hatchery outlet weir: a low concrete lip with the white of it pouring over
+    if (rv.weir) {
+      var wxa = -6, wxb = 118, wy = 236;
+      mid += '<path class="w-ramp" d="' + poly([[wxa, wy - 9], [wxb, wy - 13], [wxb + 4, wy - 9], [wxb + 2, wy - 4], [wxa, wy + 1]]) + '"/>' +
+        '<path class="w-liteb" d="M' + wxa + " " + n(wy - 9) + "L" + wxb + " " + n(wy - 13) + '"/>' +
+        '<path class="w-capf" d="' + poly([[wxa, wy + 1], [wxb + 2, wy - 4], [wxb + 12, wy + 2], [wxb - 10, wy + 9], [wxa, wy + 10]]) + '"/>';
+    }
+    // plunkers' rods along your bank, upstream to the left, getting smaller
+    var front = "", rods = "", figs = "";
+    if (rv.rods) {
+      var bank = [[-6, RY + 10], [60, RY + 22], [130, RY + 44], [176, 268]];
+      front += '<path class="w-shore" d="' + line(bank) + "L-6 " + (H + 4) + 'Z"/><path class="w-foam" d="' + line(bank) + '"/>';
+      for (k = 0; k < rv.rods; k++) {
+        var q = (k + 0.5) / rv.rods, bxp = -2 + q * 150, byp = RY + 10 + Math.pow(q, 1.6) * 52, sc = 0.45 + q * 1.1;
+        rods += "M" + n(bxp) + " " + n(byp) + "L" + n(bxp + 22 * sc) + " " + n(byp - 26 * sc);
+        front += '<path class="w-line" d="M' + n(bxp + 22 * sc) + " " + n(byp - 26 * sc) + "Q" + n(bxp + 40 * sc) + " " + n(byp - 10 * sc) + " " + n(bxp + 56 * sc) + " " + n(byp + 6 * sc) + '"/>';
+        if (k % 3 === 1) figs += poly([[bxp - 5 * sc, byp], [bxp - 4.4 * sc, byp - 9 * sc], [bxp - 1.6 * sc, byp - 9.4 * sc], [bxp - 1 * sc, byp]]) + "M" + n(bxp - 3 * sc + 1.6 * sc) + " " + n(byp - 11.2 * sc) + "a" + n(1.6 * sc) + " " + n(1.7 * sc) + " 0 1 0 " + n(-3.2 * sc) + " 0a" + n(1.6 * sc) + " " + n(1.7 * sc) + " 0 1 0 " + n(3.2 * sc) + " 0Z";
+      }
+      front += '<path class="w-rod" d="' + rods + '" stroke-width=".9"/><path class="w-figh" d="' + figs + '"/>';
+    }
+    // concrete platforms stepping down to the water ahead and right, with
+    // the bumpers on their river side; a high river covers the lowest
+    if (rv.steps) {
+      // the water stands at wl: higher with the river, over the lowest tier
+      var wl = 226 + (1 - lvl) * 8, st = "", rs = "", bp = "", lit = "", sub = "";
+      [[250, 214, 236], [232, 236, 228], [218, 258, 221]].forEach(function (tr, k2) {
+        var xl = tr[0], top = tr[2], y0 = top + 7, xr = 412;
+        var slab = poly([[xl, top], [xr, top - 2.4], [xr, y0 - 2.4], [xl - 5, y0]]), riser = poly([[xl - 5, y0], [xr, y0 - 2.4], [xr, y0 + 6], [xl - 5, y0 + 8]]);
+        if (top + 2 > wl) { sub += slab; return; }
+        st += slab; rs += riser;
+        lit += "M" + n(xl) + " " + n(top) + "L" + xr + " " + n(top - 2.4);
+        for (x = xl + 4; x < xr; x += 15) bp += poly([[x, top + 0.2 - (x - xl) * 0.016], [x + 7, top - (x - xl + 7) * 0.016], [x + 7, top - 3.2 - (x - xl + 7) * 0.016], [x, top - 3 - (x - xl) * 0.016]]);
+      });
+      front += '<path class="w-rampw" d="' + sub + '"/><path class="w-rampr" d="' + rs + '"/><path class="w-ramp" d="' + st + '"/><path class="w-rampr" d="' + bp + '"/><path class="w-liteb" d="' + lit + '"/>' +
+        '<path class="w-foam" d="M180 ' + n(wl + 1) + 'L412 ' + n(wl - 2) + '"/>';
+    }
+    // a crowd along the bank when the fish are in
+    if (rv.crowd) {
+      var cr = "", crod = "";
+      for (k = 0; k < rv.crowd; k++) {
+        var cq = k / Math.max(1, rv.crowd - 1), fx = 150 + cq * 230 + (r() - 0.5) * 8, fy = RY + 26 + cq * 22, s2 = 0.7 + cq * 0.6;
+        cr += poly([[fx - 2.4 * s2, fy], [fx - 2 * s2, fy - 9 * s2], [fx + 2 * s2, fy - 9 * s2], [fx + 2.4 * s2, fy]]) + "M" + n(fx + 1.8 * s2) + " " + n(fy - 11 * s2) + "a" + n(1.8 * s2) + " " + n(1.9 * s2) + " 0 1 0 " + n(-3.6 * s2) + " 0a" + n(1.8 * s2) + " " + n(1.9 * s2) + " 0 1 0 " + n(3.6 * s2) + " 0Z";
+        crod += "M" + n(fx + 1.5 * s2) + " " + n(fy - 6 * s2) + "L" + n(fx - 14 * s2) + " " + n(fy - 24 * s2);
+      }
+      front += '<path class="w-figh" d="' + cr + '"/><path class="w-rod" d="' + crod + '" stroke-width=".7"/>';
+    }
+    // the gravel and sand you stand on: the lower the river, the more of it shows
+    if (rv.bar) {
+      var g = (lvl - 0.35) * 50, gx = (0.35 - lvl) * 90;
+      var bar = [[-2, 222 + g], [34 + gx * 0.4, 224 + g], [78 + gx * 0.7, 231 + g * 0.8], [124 + gx, 244 + g * 0.6], [168 + gx, 262 + g * 0.4], [206 + gx * 0.6, 284], [236, 308], [252, 332]];
+      var stones = "", s5 = rnd(sd + 5);
+      for (k = 0; k < (TILE ? 70 : 190); k++) {
+        var sx = -4 + s5() * 250, e = bar[0][1] + Math.pow(Math.max(0, sx) / 250, 1.7) * 108, sy = e + 3 + s5() * s5() * 56, sz = 0.45 + s5() * s5() * 2.4 * (0.6 + (sy - 224) / 120);
+        stones += '<ellipse class="' + (s5() < 0.3 ? "w-st-l" : "w-st-d") + '" cx="' + n(sx) + '" cy="' + n(sy) + '" rx="' + n(sz) + '" ry="' + n(sz * (0.45 + s5() * 0.2)) + '"/>';
+      }
+      front += '<path class="w-shorewet" d="' + line(bar.map(function (q) { return [q[0] + 6, q[1] - 6]; })) + 'L-2 332Z"/>' +
+        '<path class="w-shore" d="' + line(bar) + 'L-2 332Z"/><path class="w-sand" d="' + poly([[-2, bar[0][1] + 3], [70, bar[2][1] + 2], [128, bar[3][1] + 4], [60, bar[3][1] + 12], [-2, bar[2][1] + 14]]) + '"/>' +
+        '<path class="w-foam" d="' + line(bar) + '"/>' + stones;
+    }
+    // a big tree on your own bank, its trunk framing the right edge
+    if (rv.trunk) {
+      var tx = 368, tr2 = rnd(sd + 63), tk = poly([[tx - 14, 334], [tx - 9, 250], [tx - 8, 170], [tx - 10, 90], [tx - 7, -4], [tx + 7, -4], [tx + 8, 96], [tx + 10, 176], [tx + 14, 252], [tx + 22, 334]]), limbs = "", twig = "";
+      [[176, 52, -0.55], [132, 66, -0.75], [88, 74, -0.95], [46, 62, -1.2], [118, 34, 0.35]].forEach(function (lb) {
+        var ly = lb[0], len = lb[1], dx = lb[2] < 0 ? -1 : 1, ex = tx + dx * len, ey = ly - len * Math.abs(lb[2]) * 0.9, w0 = 2.6 + len * 0.03;
+        var c1x = tx + dx * len * 0.45, c1y = ly - len * 0.05;
+        limbs += "M" + n(tx) + " " + n(ly + w0) + "Q" + n(c1x) + " " + n(c1y + w0 * 0.6) + " " + n(ex) + " " + n(ey) + "Q" + n(c1x) + " " + n(c1y - w0 * 0.6) + " " + n(tx) + " " + n(ly - w0) + "Z";
+        for (var t2 = 0; t2 < 3; t2++) {
+          var tf = 0.45 + t2 * 0.2, sx2 = tx + (ex - tx) * tf, sy2 = ly + (ey - ly) * tf - len * 0.08 * tf, sl = len * (0.3 - t2 * 0.05);
+          limbs += poly([[sx2 - 0.7, sy2], [sx2 + dx * sl * 0.4, sy2 - sl * 0.9], [sx2 + 0.7, sy2]]);
+          if (isBare) limbs += poly([[sx2 + dx * sl * 0.2 - 0.4, sy2 - sl * 0.45], [sx2 + dx * sl * 0.75, sy2 - sl * 0.7], [sx2 + dx * sl * 0.2 + 0.4, sy2 - sl * 0.45]]);
+        }
+      });
+      if (!isBare) { var bl = broadleaf(tr2, tx - 40, 130, 140, { wide: 0.52 }); twig = bl.crown; }
+      front += (twig ? '<path class="w-l5' + (isBare ? ' w-twig' : "") + '" d="' + twig + '"/>' : "") + '<path class="w-l5" d="' + tk + limbs + '"/>' +
+        '<path class="w-liteb" d="M' + (tx - 9) + " 250L" + (tx - 8) + " 170L" + (tx - 10) + " 90L" + (tx - 7) + ' -4"/>';
+    }
+    if (!rv.bar && !rv.rods) front += shoreEdge([[-2, 304], [60, 301], [130, 303], [200, 307], [270, 308], [330, 306], [392, 309]]);
+    var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
+    return { back: back, gl: [sd + 600, RY + 14, H, 0.7 + lvl * 0.6], mid: defs(id + "m", mdef) + fog + mid, front: defs(id + "f") + front };
+  }
+
+  // ---- the ocean beach at a spot (added to surf) -------------------------------------
+  // o.jetty { side, tip }: a rock jetty running out low along the horizon,
+  // its tip at that bearing (tip) or at x (tipX). o.stack: a sea stack, its
+  // x on the picture, far up the beach. Both wet as high as the tide leaves.
+  function oceanParts(o, tide, sd) {
+    var s = "", V = lens(o);
+    if (o.jetty) {
+      var j = o.jetty, left = j.side === "left", tx = j.tipX != null ? j.tipX : V.x(j.tip), pts = left ?
+        [[-20, HZ + 16, 9], [tx * 0.45, HZ + 6, 4.2], [tx, HZ + 1.4, 1.6]] : [[W + 20, HZ + 16, 9], [(W + tx) / 2 + 12, HZ + 6, 4.2], [tx, HZ + 1.4, 1.6]];
+      s += rocks(sd + 51, pts, { tall: 1, wet: (1 - tide) * 2.4, cls: "w-farrock" });
+    }
+    if (o.stack != null) {
+      var x = o.stack, r = rnd(sd + 53), pp = [[x - 5.5, HZ + 1.2]], k;
+      for (k = 0; k <= 6; k++) pp.push([x - 4.6 + k * 1.5 + (r() - 0.5) * 0.6, HZ - 5.2 - Math.sin((k / 6) * Math.PI) * 1.6 - r() * 0.8]);
+      pp.push([x + 5.2, HZ + 1.2]);
+      s += '<path class="w-l2" d="' + poly(pp) + '"/><path class="w-foam" d="M' + n(x - 7) + " " + n(HZ + 1.4) + "H" + n(x + 7) + '"/>';
+    }
+    return s;
+  }
+  // A truck out on the beach after dark, far down it: two headlamps and
+  // the light they throw along the sand.
+  function beachCar(id, x, y) {
+    return '<g class="w-lampson"><path class="w-cone" d="' + poly([[x, y - 1], [x - 90, y + 4], [x - 70, y + 9], [x, y + 0.6]]) + '"/>' +
+      '<circle cx="' + n(x) + '" cy="' + n(y) + '" r="9" fill="url(#' + id + '-lamp)"/><circle class="w-lantern" cx="' + n(x - 1.1) + '" cy="' + n(y) + '" r=".55"/><circle class="w-lantern" cx="' + n(x + 1.1) + '" cy="' + n(y) + '" r=".55"/></g>';
+  }
+
+  // ---- hanging a spot's painting --------------------------------------------------------
+  // A spot card's stand for this picture. A card with more than one stand
+  // (Westport: the crab float and the surf perch beach) picks by what the
+  // people are doing (o.activity), then how they fish (o.how), then the kind
+  // of picture the page asks for, then the card's own default stand.
+  function standOf(kind, o) {
+    if (!o || !o.stands) return o;
+    var by = o.standBy || {}, name = (by.activity && by.activity[o.activity]) || (by.how && by.how[o.how]) || (by.kind && by.kind[kind]) || o.stand;
+    var s = o.stands[name] || o.stands[o.stand] || {}, out = {}, k;
+    for (k in o) if (k !== "stands" && k !== "standBy") out[k] = o[k];
+    for (k in s) out[k] = s[k];
+    out.standName = name;
+    return out;
+  }
+  function hang(p) { return svg("sc sc-back", p.back) + glintLayers(p.gl[0], p.gl[1], p.gl[2], p.gl[3]) + svg("sc sc-mid", p.mid) + svg("sc sc-front", p.front); }
+  // The spot's own light, on the element that holds the painting: where its
+  // sun sets and rises (scene.css moves the glow there in golden hour, dusk,
+  // dawn and first light), the moon, the fog, the rain. A spot with no
+  // facing (a lake from the feed) gets a soft light from nowhere in
+  // particular. Cleared for a picture that is not a spot's.
+  function lightUp(el, o) {
+    var st = el.style, ds = el.dataset;
+    ["--setx", "--risex", "--moon", "--fog", "--rain"].forEach(function (k) { st.removeProperty(k); });
+    ["set", "rise", "noon", "moon", "fog"].forEach(function (k) { delete ds[k]; });
+    if (!o || !o.spot) return;
+    var t = today(o);
+    if (o.facing != null) {
+      var L = lightOf(o.facing, t.date);
+      st.setProperty("--setx", L.set.x + "px"); st.setProperty("--risex", L.rise.x + "px");
+      ds.set = L.set.side; ds.rise = L.rise.side; ds.noon = L.noon.side;
+    } else ds.set = ds.rise = "none";
+    ds.moon = ""; st.setProperty("--moon", String(n(t.moon)));
+    if (t.fog > 0) { ds.fog = ""; st.setProperty("--fog", String(n(t.fog))); }
+    if (t.rain > 0) st.setProperty("--rain", String(n(t.rain)));
+  }
+  // A tile-sized painting of a spot: the spot's own scene, flattened into
+  // one picture without its glints (the shimmer is the big scene's), framed
+  // on the waterline.
+  function viewSpot(kind, o) {
+    var b = o.scene || kind, id = "vs" + (view.n = (view.n || 0) + 1), html;
+    TILE = true;
+    try { html = (BUILD[b] || BUILD.sound)(id, o); } finally { TILE = false; }
+    html = html.replace(/<svg class="sc sc-gl[\s\S]*?<\/svg>/g, "").replace(/<svg[^>]*>/g, "").replace(/<\/svg>/g, "");
+    var t = today(o), L = o.facing != null ? lightOf(o.facing, t.date) : null;
+    return '<svg class="view vspot" viewBox="0 64 390 234" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false" data-scene="' + b + '"' +
+      (L ? ' data-set="' + L.set.side + '" data-rise="' + L.rise.side + '" style="--setx:' + L.set.x + "px;--risex:" + L.rise.x + 'px"' : ' data-set="none"') + ">" + html + "</svg>";
+  }
+  var TILE = false;
+
+  // The row's thumbnail for a spot: its own few facts, small, in one hour's
+  // palette (as mini() is), so a row looks like its spot. 48 by 48.
+  function miniSpot(kind, p, o) {
+    var dark = p.dark, lum = dark ? p.ink : p.paper, gid = "mn" + (mini.n = (mini.n || 0) + 1), b = o.scene || kind, sd = idSeed(o.spot), r = rnd(sd + 7);
+    var t = today(o), V = lens(o), fov = o.fov || FOV, sky = o.skyline || [];
+    var hz = dark ? mixHex(p.sky[1], p.ink2, 0.3) : p.sky[1];
+    var f0 = mixHex(hz, p.shore, 0.16), f1 = mixHex(hz, p.shore, 0.3), f2 = mixHex(hz, p.shore, 0.55), f3 = p.shore, sand = mixHex(p.ground, p.ink, dark ? 0.1 : 0.16);
+    var lampOn = dark || p.name === "Dawn", gold = p.gold, HZm = b === "river" ? 27 : 25;
+    function X(bb) { return 24 + (relB(bb, V.f) * 24) / fov; }
+    function mcol(mi) { return mi >= 7 ? f0 : mi >= 4.5 ? f1 : mi >= 2.6 ? mixHex(hz, p.shore, 0.42) : f2; }
+    var s = '<defs><linearGradient id="' + gid + 's" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.sky[0] + '"/><stop offset="1" stop-color="' + hz + '"/></linearGradient>' +
+      '<linearGradient id="' + gid + 'w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + mixHex(p.water[0], hz, 0.35) + '"/><stop offset="1" stop-color="' + p.water[1] + '"/></linearGradient>' +
+      '<radialGradient id="' + gid + 'g"><stop offset="0" stop-color="' + gold + '" stop-opacity=".95"/><stop offset=".3" stop-color="' + gold + '" stop-opacity=".35"/><stop offset="1" stop-color="' + gold + '" stop-opacity="0"/></radialGradient>' +
+      '<radialGradient id="' + gid + 'l"><stop offset="0" stop-color="' + mixHex(hz, p.paper, 0.6) + '" stop-opacity=".9"/><stop offset="1" stop-color="' + hz + '" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect width="48" height="48" fill="url(#' + gid + 's)"/>';
+    // the evening light on the side the sun goes down, when it is in front
+    if (o.facing != null && !dark && (p.name === "Golden hour" || p.name === "Dusk")) {
+      var Ls = lightOf(o.facing, t.date).set;
+      if (Ls.side !== "behind") s += '<ellipse cx="' + n(clamp(24 + (Ls.rel * 24) / fov, -8, 56)) + '" cy="' + (HZm - 2) + '" rx="22" ry="10" fill="url(#' + gid + 'l)"/>';
+    }
+    function gl(x, y, l, op) { return '<path d="M' + n(x) + " " + n(y) + "h" + n(l) + '" stroke="' + lum + '" stroke-width=".7" stroke-linecap="round" opacity="' + op + '"/>'; }
+    function trees(x0, x1, base, hh, fill, round) {
+      var d = "M" + n(x0) + " " + n(base), x = x0;
+      while (x < x1) { var h = hh * (0.5 + r() * 0.7); if (round) d += "L" + n(x) + " " + n(base - h * 0.7) + "Q" + n(x + 1.2) + " " + n(base - h * 1.1) + " " + n(x + 2.4) + " " + n(base - h * 0.75); else d += "L" + n(x) + " " + n(base - h) + "L" + n(x + 0.9 + r()) + " " + n(base - h * (0.45 + r() * 0.3)); x += round ? 2.6 + r() * 1.6 : 1.5 + r() * 1.8; }
+      return '<path d="' + d + "L" + n(x1) + " " + n(base) + 'Z" fill="' + fill + '"/>';
+    }
+    // mountains a card shows, then the land across
+    sky.forEach(function (q) {
+      if (q.t === "rainier") { var mx0 = X(q.at), w = 15 * (q.size || 0.8); s += '<path d="M' + n(mx0 - w) + " " + HZm + "Q" + n(mx0 - w * 0.3) + " " + n(HZm - w * 0.5) + " " + n(mx0 - w * 0.1) + " " + n(HZm - w * 0.62) + "Q" + n(mx0 + 0.4) + " " + n(HZm - w * 0.68) + " " + n(mx0 + w * 0.25) + " " + n(HZm - w * 0.58) + "Q" + n(mx0 + w * 0.5) + " " + n(HZm - w * 0.35) + " " + n(mx0 + w) + " " + HZm + 'Z" fill="' + mixHex(hz, p.paper, dark ? 0.05 : 0.5) + '" opacity="' + (dark ? 0.35 : 0.85) + '"/>'; }
+      if (q.t === "olympics") { var a = X(q.from), c = X(q.to), d = "M" + n(a) + " " + HZm, xx = a; while (xx < c) { d += "L" + n(xx + 0.8) + " " + n(HZm - 2.4 - r() * 2.6) + "L" + n(xx + 1.7) + " " + n(HZm - 1.4 - r()); xx += 1.8; } s += '<path d="' + d + "L" + n(c) + " " + HZm + 'Z" fill="' + mixHex(hz, p.paper, dark ? 0.05 : 0.55) + '" opacity="' + (dark ? 0.3 : 0.9) + '"/>'; }
+    });
+    var lands = sky.filter(function (q) { return q.t === "island" || q.t === "shore"; }).sort(function (a, c) { return (c.mi || 5) - (a.mi || 5); });
+    lands.forEach(function (q) {
+      var a = X(q.from), c = X(q.to), hh = clamp((q.h != null ? q.h : 14 / (q.mi || 5)) * 0.16, 0.8, 4.5), m = (a + c) / 2, base = HZm + clamp(0.5 / (q.mi || 5), 0, 1.2);
+      s += '<path d="M' + n(a - 1) + " " + n(base) + "Q" + n(a + (m - a) * 0.4) + " " + n(base - hh) + " " + n(m) + " " + n(base - hh * 1.05) + "Q" + n(c - (c - m) * 0.4) + " " + n(base - hh) + " " + n(c + 1) + " " + n(base) + 'Z" fill="' + mcol(q.mi || 5) + '"/>';
+    });
+    var stand = "", glints = "";
+    if (b === "pier" || b === "sound") {
+      s += '<rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="url(#' + gid + 'w)"/>';
+      glints = gl(4, HZm + 5, 7, 0.5) + gl(30, HZm + 8, 9, 0.4) + gl(10, HZm + 13, 12, 0.35);
+      (o.near || []).forEach(function (q) {
+        if (q.t === "breakwater") { var y = Math.min(HZm + 2, 24 + (q.pts[0][1] - HZ) * 0.12), d2 = "M-1 " + n(y + 3), xx = -1; while (xx < 49) { d2 += "Q" + n(xx + 1.5) + " " + n(y - 3.2 - r() * 1.6) + " " + n(xx + 3) + " " + n(y - 0.6); xx += 3; } s += '<path d="' + d2 + "L49 " + n(y + 3) + 'Z" fill="' + f2 + '"/>'; }
+        if (q.t === "masts") for (var mi2 = 0; mi2 < 7; mi2++) s += '<path d="M' + n(q.x0 * 0.123 + mi2 * 1.6) + " " + HZm + "v" + n(-4 - r() * 4) + '" stroke="' + f2 + '" stroke-width=".4"/>';
+      });
+      var pr = o.pier || {};
+      if (o.view === "deck") {
+        var ey = pr.end === "T" || pr.end === "L" || pr.end === "Lleft" ? 34 : 33, el = pr.end === "T" || pr.end === "Lleft" ? -2 : 17, er = pr.end === "T" || pr.end === "L" ? 50 : 31;
+        stand += '<path d="M6 48L' + el + " " + ey + "H" + er + 'L42 48Z" fill="' + mixHex(f3, hz, 0.25) + '"/>';
+        stand += '<path d="M' + el + " " + (ey - 2.6) + "H" + er + "M6 44L" + (el + 1) + " " + (ey - 2.4) + "M42 44L" + (er - 1) + " " + (ey - 2.4) + '" stroke="' + f3 + '" stroke-width=".9" fill="none"/>';
+        (pr.lamps || []).forEach(function (lx, i2) { var px = 24 + lx * 3; if (px < 1 || px > 47) return; stand += '<path d="M' + n(px) + " " + (ey - 1) + "V" + (ey - 13) + '" stroke="' + f3 + '" stroke-width=".7"/>' + (lampOn ? '<circle cx="' + n(px) + '" cy="' + (ey - 12.5) + '" r="5" fill="url(#' + gid + 'g)"/><circle cx="' + n(px) + '" cy="' + (ey - 12.5) + '" r=".8" fill="' + p.accent2 + '"/>' : ""); });
+        if (pr.crowd && lampOn) for (var ci = 0; ci < 4; ci++) { var cx2 = 14 + ci * 6.5 + r() * 2; stand += '<path d="M' + n(cx2) + " " + (ey - 0.4) + "v-5.6" + '" stroke="' + f3 + '" stroke-width="1.8" stroke-linecap="round"/><circle cx="' + n(cx2) + '" cy="' + (ey - 7) + '" r=".95" fill="' + f3 + '"/>' + (pr.own ? '<circle cx="' + n(cx2 + 1.2) + '" cy="' + (ey - 4) + '" r="3.2" fill="url(#' + gid + 'g)"/>' : ""); }
+        if (pr.own && lampOn) glints += '<path d="M18 ' + (HZm + 3) + "h6M22 " + (HZm + 5) + 'h7" stroke="' + gold + '" stroke-width=".8" stroke-linecap="round" opacity=".8"/>';
+      } else if (o.view === "side") {
+        var lft = pr.from === "left", vx = (pr.vx || 200) * 0.123, sx = lft ? -2 : 50, ys = HZm + 6, ex2 = vx + (lft ? -2 : 2);
+        stand += '<path d="M' + sx + " " + ys + "L" + n(ex2) + " " + (HZm + 1.2) + "V" + (HZm + 2.2) + "L" + sx + " " + (ys + 2.6) + 'Z" fill="' + f3 + '"/>';
+        for (var pi = 0; pi < 6; pi++) { var u = pi / 6, px2 = sx + (ex2 - sx) * u, py = ys + 2.6 - (ys - HZm) * u, ph = 7 * (1 - u) + 1; stand += '<rect x="' + n(px2 - 0.5) + '" y="' + n(py) + '" width="' + n(1.4 * (1 - u) + 0.4) + '" height="' + n(ph) + '" fill="' + f3 + '"/>'; }
+        if (pr.end === "T" || pr.end === "L" || pr.end === "Lleft") { var ar = pr.end === "T" ? 3.5 : 5, dirL = (pr.end === "L") !== lft ? 1 : -1; stand += '<rect x="' + n(pr.end === "T" ? ex2 - ar : dirL > 0 ? ex2 : ex2 - ar) + '" y="' + (HZm + 1) + '" width="' + n(pr.end === "T" ? ar * 2 : ar) + '" height="1.1" fill="' + f3 + '"/>'; }
+        if (pr.own && lampOn) stand += '<circle cx="' + n(ex2) + '" cy="' + (HZm) + '" r="3" fill="url(#' + gid + 'g)"/>';
+      } else if (o.view === "dock" || o.view === "float") {
+        stand += '<path d="M10 48L' + n(o.view === "float" ? 21 : 17) + " 36H" + n(o.view === "float" ? 27 : 31) + 'L38 48Z" fill="' + mixHex(f3, hz, 0.3) + '"/><path d="M' + n(o.view === "float" ? 21 : 17) + " 36H" + n(o.view === "float" ? 27 : 31) + '" stroke="' + lum + '" stroke-width=".5" opacity=".6"/>';
+      }
+      (o.bank || []).forEach(function (q) {
+        if (q.t === "flats") { var yw = 33 + t.tide * 7; s += '<path d="M0 ' + n(yw) + "Q16 " + n(yw - 1.4) + " 30 " + n(yw + 0.6) + "T48 " + n(yw) + 'V48H0Z" fill="' + mixHex(p.ground, p.water[0], dark ? 0.3 : 0.4) + '"/><path d="M0 44Q20 42 48 44V48H0Z" fill="' + sand + '"/>'; glints += gl(6, yw + 3, 9, 0.45) + gl(26, yw + 5, 11, 0.35); }
+        if (q.t === "cobbles") { s += '<path d="M0 43Q20 41 48 43V48H0Z" fill="' + sand + '"/>'; for (var k2 = 0; k2 < 8; k2++) s += '<circle cx="' + n(r() * 48) + '" cy="' + n(44 + r() * 3) + '" r=".5" fill="' + p.ink + '" opacity=".3"/>'; }
+        if (q.t === "lawn") s += '<path d="M48 36L34 39L30 48H48Z" fill="' + mixHex(f3, hz, 0.15) + '"/>';
+      });
+      s += glints + stand;
+    } else if (b === "lake") {
+      var lk = o.lake || {}, shores = lk.shores || [{ from: V.f - 80, to: V.f + 80, m: lk.across || 300, houses: lk.houses }];
+      s += '<rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="url(#' + gid + 'w)"/>';
+      shores.slice().sort(function (a, c) { return c.m - a.m; }).forEach(function (q) {
+        var a = Math.max(-2, X(q.from)), c = Math.min(50, X(q.to)), hh = clamp(26 * 3.4 / q.m * 10, 1.4, 16), col = q.m < 160 ? f3 : q.m < 450 ? f2 : f1;
+        s += trees(a, c, HZm + 0.5, hh, col, true);
+        s += '<g transform="translate(0 ' + n(2 * HZm + 1) + ') scale(1 -1)" opacity=".35">' + trees(a, c, HZm + 0.5, hh * 0.8, col, true) + "</g>";
+        if (q.houses) for (var hi = 0; hi < Math.min(4, q.houses); hi++) { var hx = a + ((hi + 0.5) / Math.min(4, q.houses)) * (c - a); s += '<rect x="' + n(hx - 1.2) + '" y="' + (HZm - 1.6) + '" width="2.4" height="1.6" fill="' + (lampOn ? gold : mixHex(hz, p.paper, 0.5)) + '" opacity="' + (lampOn ? 0.9 : 0.8) + '"/>'; }
+      });
+      (lk.islands || []).forEach(function (q) { var a = X(q.from), c = X(q.to), hh = clamp(26 * 3.4 / q.m * 10, 1.2, 14); s += trees(Math.min(a, c), Math.max(a, c), HZm + 0.6, hh, q.m < 300 ? f3 : f1, true); });
+      s += gl(28, HZm + 5, 9, 0.5) + gl(10, HZm + 8, 8, 0.4) + gl(20, HZm + 12, 12, 0.35);
+      if (lk.drawdown) s += '<path d="M0 40Q8 38 14 48H0Z" fill="' + sand + '"/><path d="M48 39Q38 38 35 48H48Z" fill="' + sand + '"/><path d="M4 41v-3M8 43v-2.6M42 41v-3.2" stroke="' + f3 + '" stroke-width="1.2"/>';
+      if (lk.wetland) s += '<path d="M48 31Q38 32 34 36L48 38Z" fill="' + mixHex(f3, hz, 0.2) + '"/>';
+      if (lk.stand === "dock" || lk.stand === "pier") s += '<path d="M14 48L19 37H29L34 48Z" fill="' + mixHex(f3, hz, 0.3) + '"/><path d="M19 37H29" stroke="' + lum + '" stroke-width=".5" opacity=".6"/>';
+      if (lk.stand === "ramp" || lk.stand === "gravel") s += '<path d="M12 48L20 38H28L36 48Z" fill="' + (lk.stand === "ramp" ? mixHex(p.ground, p.paper, 0.4) : sand) + '" opacity=".9"/>';
+    } else if (b === "river") {
+      var rv = o.river || {}, fk = (rv.far || {}).kind, winter = bare(t.date);
+      s += '<rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="url(#' + gid + 'w)"/>';
+      if (rv.valley) s += '<path d="M-1 ' + HZm + 'L-1 8Q10 10 24 22Q34 6 49 4V' + HZm + 'Z" fill="' + f0 + '"/>';
+      s += trees(-1, 49, HZm, fk === "plain" ? 2 : fk === "cottonwood" ? 12 : 15, fk === "cottonwood" && winter ? mixHex(hz, p.shore, 0.38) : fk === "plain" ? f1 : f2, fk !== "plain");
+      for (var ri = 0; ri < 5; ri++) s += gl(4 + r() * 36, HZm + 3 + ri * 3.6, 4 + ri * 1.5, 0.5 - ri * 0.05);
+      if (rv.creek) s += '<path d="M2 48L12 34L17 34L14 48Z" fill="' + mixHex(p.water[0], lum, 0.4) + '" opacity=".8"/>';
+      if (rv.bar) s += '<path d="M0 36Q14 37 24 42T34 48H0Z" fill="' + sand + '"/>';
+      if (rv.steps) s += '<path d="M26 48V44H33V41H39V38H48V48Z" fill="' + mixHex(p.ground, p.paper, 0.35) + '"/>';
+      if (rv.rods) s += '<path d="M0 32L12 36L18 48H0Z" fill="' + sand + '"/><path d="M3 33l4-5M8 35l5-6M13 39l6-7" stroke="' + f3 + '" stroke-width=".5"/>';
+      if (rv.weir) s += '<path d="M0 35H16V37H0Z" fill="' + mixHex(p.ground, p.paper, 0.35) + '"/><path d="M0 37H17L15 39H0Z" fill="' + lum + '" opacity=".7"/>';
+      if (rv.trunk) s += '<path d="M43 48L44 0H47L49 48Z" fill="' + f3 + '"/><path d="M44 12L34 2M44 20L36 14" stroke="' + f3 + '" stroke-width=".9"/>';
+    } else {
+      // the ocean: the stock beach painting, with this beach's jetty or stack
+      var base = mini("surf", p, { activity: o.activity }).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");
+      s = base;
+      if (o.jetty) s += o.jetty.side === "left" ? '<path d="M-1 28L6 24.6L9 25.4L-1 30Z" fill="' + f2 + '"/>' : '<path d="M49 28L40 24.6L37 25.4L49 30Z" fill="' + f2 + '"/>';
+      if (o.stack != null) s += '<path d="M43 25L43.6 21.6L46 21.2L46.8 25Z" fill="' + f2 + '"/>';
+    }
+    return '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">' + s + "</svg>";
   }
 
   // ---- thumbnails ------------------------------------------------------------
@@ -847,6 +1997,7 @@
   // o: the place's own paint: o.dock false (a lake with none), o.activity
   // (an ocean beach: "clams" or "perch").
   function mini(kind, pal, o) {
+    if (o && o.spot) return miniSpot(kind, pal, standOf(kind, o));
     o = o || {};
     var p = pal, dark = p.dark, lum = dark ? p.ink : p.paper, gid = "mn" + (mini.n = (mini.n || 0) + 1);
     function mx(a, b, t) {
@@ -979,6 +2130,7 @@
   // now the lake reads o.dock (false: no dock, a lit cabin across the water
   // instead, so the night still has its light).
   function view(kind, o) {
+    if (o && o.spot) return viewSpot(kind, standOf(kind, o));
     o = o || {};
     var id = "vw" + (view.n = (view.n || 0) + 1), base = kind === "fly" ? "sound" : kind.replace(/^kayak-/, "");
     var r = rnd(kind.length * 17 + 5), s = "", k, x, wl = VZ;
@@ -1131,14 +2283,27 @@
     return "linear-gradient(90deg," + out.join(",") + ")";
   }
 
-  var BUILD = { sound: sound, pier: pier, river: river, lake: lake, surf: surf };
+  // With a spot's card (o.spot) each builder paints that spot; without one,
+  // the painting of its kind of water, as it always has.
+  var BUILD = {
+    sound: function (id, o) { return o && o.spot ? hang(seaSpot(id, o)) : sound(id); },
+    pier: function (id, o) { return o && o.spot ? hang(seaSpot(id, o)) : pier(id); },
+    river: function (id, o) { return o && o.spot ? hang(riverSpot(id, o)) : river(id); },
+    lake: function (id, o) { return o && o.spot ? hang(lakeSpot(id, o)) : lake(id, o); },
+    surf: surf
+  };
   RIG.water = {
     // Paint a scene into a .scene element. Safe to call twice. opts is the
     // builder's own options (see lake and surf): what a spot's card will pass.
+    // A spot's card (RIG.spotScenes[id], plus o.now for today and o.activity
+    // or o.how for which of its stands) paints that spot: its builder
+    // (o.scene) wins over the element's data-scene, which follows it.
     scene: function (el, opts) {
       if (!el || el.dataset.painted) return;
-      var kind = el.dataset.scene || "sound";
-      el.innerHTML = (BUILD[kind] || sound)("w" + kind, opts) + '<div class="sc-rain"></div><div class="sc-grain"></div>';
+      var kind = el.dataset.scene || "sound", o = standOf(kind, opts);
+      if (o && o.spot && o.scene && BUILD[o.scene] && o.scene !== kind) { kind = o.scene; el.setAttribute("data-scene", kind); }
+      el.innerHTML = (BUILD[kind] || BUILD.sound)("w" + kind, o) + '<div class="sc-rain"></div><div class="sc-grain"></div>';
+      lightUp(el, o);
       el.dataset.painted = "1";
     },
     // A 48 by 48 thumbnail: kind is pier, river, lake, surf or beach; o is

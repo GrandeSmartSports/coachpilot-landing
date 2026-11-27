@@ -1,0 +1,2148 @@
+{
+ "_meta": {
+  "built": "2026-11-26",
+  "rule": "Facts, not assumptions. Draw lists use only proven or likely facts. Geometry-only items (bearings computed from mapped points) are tagged likely unless a page or photo backs them.",
+  "angles": "Bearings are degrees true from the stand. Late-November sunset about 238, June sunset about 306 at this latitude.",
+  "sides": "left/right/centre/behind are relative to facingDeg. na = not tied to a direction.",
+  "extraKeys": "cowlitz-blue-creek is not an app spot id. It is the second Cowlitz bank site the app names (Blue Creek / trout hatchery outlet). The builder should decide with Coach which one the cowlitz id paints."
+ },
+ "redondo": {
+  "name": "Redondo Pier (Des Moines)",
+  "kind": "pier",
+  "stand": {
+   "what": "Outer end of the Redondo Fishing Pier, Redondo Beach Drive S, Des Moines (rebuilt pier, same location as the 1980 pier)",
+   "lat": 47.34853,
+   "lon": -122.32562,
+   "proof": "OSM way 739901552 tip node 6928009138 (old-pier outline); DNR work approval says the replacement is in the same location. App coords 47.349,-122.324 are about 130 m inland."
+  },
+  "facingDeg": 289.5,
+  "facingWords": "West-northwest off the end of the pier, across the Sound at Maury Island, with Vashon to the right",
+  "facingProof": "OSM shore node (47.3483211,-122.3247597) to tip (47.348528,-122.3256232) = 289.5 deg. The new pier is in the same location (DNR) but its own outline was not found, so likely.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Late Nov sun (about 238) sets about 51 deg left, at the far left edge over the Browns Point / NE Tacoma shore. June sun (about 306) sets about 17 deg right of ahead, over Vashon and the Olympics.",
+  "skyline": [
+   {
+    "what": "Maury Island, low shore straight ahead across the water",
+    "bearingDeg": 294,
+    "distanceMi": 5.3,
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "Spans from Piner Point (267, 6.1 mi) to Point Robinson (320, 3.6 mi).",
+    "proof": "https://www.wta.org/go-hiking/hikes/redondo-beach-boardwalk ('see Maury Island across the water'); bearings recomputed in assembly."
+   },
+   {
+    "what": "Vashon Island, right of centre, higher ridge behind and beyond Maury",
+    "bearingDeg": 305.7,
+    "distanceMi": 7.3,
+    "side": "right",
+    "confidence": "proven",
+    "detail": "South end (Neill Point) at 264, 8.1 mi, left of centre behind Maury's south end.",
+    "proof": "https://www.yearofseattleparks.com/?p=2668 ; https://parentmap.com/article/great-hidden-parks-and-playgrounds-with-a-view-seattle-eastside/9"
+   },
+   {
+    "what": "Olympic Mountains above Vashon, right of centre",
+    "bearingDeg": 303,
+    "side": "right",
+    "confidence": "proven",
+    "detail": "Range runs about 296 to 310, 7 to 20 deg right of the facing. The June sun sets into it.",
+    "proof": "https://northwestvistas.blogspot.com/2022/02/redondo-beach-earns-applause.html ; parentmap (above)"
+   },
+   {
+    "what": "The Brothers and Mount Constance as the tallest peaks in that stretch",
+    "bearingDeg": 299.3,
+    "distanceMi": 43.0,
+    "side": "right",
+    "confidence": "likely",
+    "detail": "Brothers 299.3 (43 mi), Constance 308.4 (47.5 mi). About 1.4 to 1.5 deg above the horizon versus about 0.6 to 0.7 for the Vashon ridge, so they clear it. No labelled photo from the pier.",
+    "proof": "Geometry from Wikipedia summit coords."
+   },
+   {
+    "what": "Shore of Dash Point and Browns Point at the far left edge",
+    "bearingDeg": 243,
+    "distanceMi": 4.5,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "Dash Point State Park 244.7 (4.6 mi), Browns Point 242.0 (6.3 mi), about 46 deg left. The Narrows Bridge sits behind this land and is hidden.",
+    "proof": "Bearings recomputed; Esri imagery coastline. No photo from the pier."
+   }
+  ],
+  "structure": [
+   {
+    "what": "New fishing pier replaced the 1980 timber pier in the same spot: steel piling, fully grated deck; reopened 2026",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "Old pier closed July 2019. Groundbreaking Nov 3, 2025. Grand opening scheduled June 13, 2026 (no post-event report). Length, shape and railing style not published.",
+    "proof": "DNR work approval PDF ; https://waterlandblog.com/?p=180907 ; https://waterlandblog.com/?p=183314 ; https://www.seattlesouthside.com/blog/squidding/"
+   },
+   {
+    "what": "Boat launch and dock beside the pier; Salty's restaurant on timber piles at the NE end of the boardwalk",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "northwestvistas blog ; https://www.federalwaymirror.com/2019/09/09/city-of-des-moines-weighs-5-9-7-2m-reconstruction-plans-for-redondo-waterfront/"
+   },
+   {
+    "what": "MaST Center aquarium (Highline College) on its own pier just north of the fishing pier",
+    "side": "right",
+    "confidence": "proven",
+    "proof": "https://www.seattleaquarium.org/wp-content/uploads/2025/01/Redondo-Beach-Park-One-Pager.pdf ; Esri imagery"
+   },
+   {
+    "what": "Boardwalk about 1.1 miles long along the seawall, running south from the pier",
+    "side": "left",
+    "confidence": "proven",
+    "proof": "northwestvistas blog ; https://www.seattlesouthside.com/blog/best-parks-to-watch-the-sunset/"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Small beach of cobble, gravel and sand, slippery with algae; eelgrass offshore at minus tides",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Seattle Aquarium one-pager ; WTA"
+   },
+   {
+    "what": "Seawall and sidewalk behind the beach, then Redondo Beach Drive, parking, condos and multi-story beach houses",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "northwestvistas blog ; yearofseattleparks"
+   }
+  ],
+  "night": [
+   {
+    "what": "Busy night squid pier, October to December",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "'Hundreds of people' on the old pier in peak season; squid circling through the lights. The 2026 squid guide recommends the reopened pier. Lamp type on the new pier is not documented.",
+    "proof": "federalwaymirror 2019 ; https://northwestfishingreports.com/Reports/Details/57725 ; seattlesouthside squidding"
+   }
+  ],
+  "oneLine": "A rebuilt pier off the Redondo boardwalk, looking west-northwest across the water at Maury Island, Vashon to the right and the Olympics above it where the June sun goes down.",
+  "draw": [
+   {
+    "do": "Low dark island (Maury) filling the centre of the far shore across open water",
+    "confidence": "proven"
+   },
+   {
+    "do": "A second, higher wooded ridge (Vashon) behind Maury and running off to the right",
+    "confidence": "proven"
+   },
+   {
+    "do": "Snow-capped Olympic range above Vashon on the right, two taller peaks near right of centre",
+    "confidence": "proven (range), likely (which peaks)"
+   },
+   {
+    "do": "Far left edge: a low wooded shore (Dash Point / Browns Point), nothing tall",
+    "confidence": "likely"
+   },
+   {
+    "do": "Pier deck under your feet: plain, grated, straight out; no L or T head, no specific lamp posts",
+    "confidence": "likely (shape of the new pier is not published)"
+   },
+   {
+    "do": "Night scene: crowd along the rail, squid lights on the water",
+    "confidence": "proven"
+   },
+   {
+    "do": "Winter sunset glow at the far left; summer sunset over the mountains on the right",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Mount Rainier (it is behind you), NO Seattle skyline (far right, out of view), NO Narrows Bridge",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/way/739901552",
+   "https://desmoineswa.gov/DocumentCenter/View/734/App-D3---20-A073543-Des-Moines-Redondo-Pier_Work-Approval-PDF?bidId=",
+   "https://waterlandblog.com/?p=180907",
+   "https://waterlandblog.com/?p=183314",
+   "https://www.seattlesouthside.com/blog/squidding/",
+   "https://northwestvistas.blogspot.com/2022/02/redondo-beach-earns-applause.html",
+   "https://www.yearofseattleparks.com/?p=2668",
+   "https://parentmap.com/article/great-hidden-parks-and-playgrounds-with-a-view-seattle-eastside/9",
+   "https://www.wta.org/go-hiking/hikes/redondo-beach-boardwalk",
+   "https://www.seattleaquarium.org/wp-content/uploads/2025/01/Redondo-Beach-Park-One-Pager.pdf",
+   "https://www.federalwaymirror.com/2019/09/09/city-of-des-moines-weighs-5-9-7-2m-reconstruction-plans-for-redondo-waterfront/",
+   "https://northwestfishingreports.com/Reports/Details/57725"
+  ],
+  "dropped": [
+   "Point Robinson lighthouse from Redondo (geometry only, 320 deg 3.6 mi, no source)",
+   "Mount Olympus as a named peak (marginal; no source)",
+   "Mount Rainier (142, behind) and Seattle skyline (357-359, far right): outside the view",
+   "Tacoma Narrows Bridge (hidden behind Dash Point / Browns Point)",
+   "Shape and length of the NEW pier: not published",
+   "Lamp posts on the new pier: no source says what was installed",
+   "'Covered at high tide' for the beach: not in the cited source",
+   "Trees or bluff at the pier foot: no source",
+   "Assembly: Maury centre recomputed to 294 (was 292); Dash Point shore to 243-245"
+  ]
+ },
+ "des-moines-pier": {
+  "name": "Des Moines Pier",
+  "kind": "pier",
+  "stand": {
+   "what": "West end of the Des Moines Marina public fishing pier, north end of the marina",
+   "lat": 47.40201,
+   "lon": -122.33403,
+   "proof": "OSM way 40140078 end node 483116967; Waymarking N 47 24.120 W 122 20.046. App coords are about 300 m east, on land."
+  },
+  "facingDeg": 259,
+  "facingWords": "West-southwest along the pier, out over the Sound to Maury Island, with Vashon to the right",
+  "facingProof": "OSM: main span 528 ft runs 262 deg, the last 118 ft bends to 245; shore to tip 259.2 deg, 666 ft. Esri imagery matches. Length matches the 670 ft in dmhs.org.",
+  "facingConfidence": "proven",
+  "sunsetSide": "Late Nov sun (about 238) sets about 21 deg left of ahead, right over the south end of Vashon (Neill Point 239). June sun (about 306) sets about 47 deg right, over Vashon and the Olympics.",
+  "skyline": [
+   {
+    "what": "Maury Island, nearest land, ahead and slightly left",
+    "bearingDeg": 251,
+    "distanceMi": 4.7,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "Spans about 235 (Piner Point) to 268 (Portage, where it joins Vashon). NE tip Point Robinson is closest at 243, 2.1 mi.",
+    "proof": "Audio tour calls Maury the closest landmass (search text only); bearings recomputed in assembly."
+   },
+   {
+    "what": "Point Robinson lighthouse on Maury's NE tip, across open water",
+    "bearingDeg": 243,
+    "distanceMi": 2.1,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "16 deg left. 38 ft tower.",
+    "proof": "https://en.wikipedia.org/wiki/Point_Robinson_Light ; geometry. No photo from the pier."
+   },
+   {
+    "what": "Vashon Island, right of centre",
+    "bearingDeg": 275.6,
+    "distanceMi": 5.5,
+    "side": "right",
+    "confidence": "likely",
+    "detail": "16 deg right of the facing, open water between.",
+    "proof": "Geometry only."
+   },
+   {
+    "what": "Olympic Mountains, at the right edge above Vashon",
+    "bearingDeg": 300,
+    "side": "right",
+    "confidence": "proven",
+    "detail": "Brothers 295 (41 mi), Constance 305 (45 mi): 36 to 46 deg right, clear of the Vashon ridge.",
+    "proof": "https://www.seattlesouthside.com/directory/des-moines-marina/ ('panoramic views of the Olympic Mountains')"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Long straight concrete pier, about 670 ft, out from the north end of the marina beside the public boat launch; the last stretch bends slightly southwest",
+    "bearingDeg": 259,
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://dmhs.org/map-photos/marina_25.html ; OSM way 40140078 ; Esri imagery"
+   },
+   {
+    "what": "Fish cleaning station and public washroom; picnic table at the very end; crowded with crab traps on sunny weekends",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.waymarking.com/waymarks/wmPYPN_Des_Moines_Marina_Pier_Des_Moines_WA"
+   },
+   {
+    "what": "Electrical outlets at the very end of the pier; squid anglers plug in a small shop light",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.seattlesouthside.com/blog/squidding/"
+   },
+   {
+    "what": "Artificial reef under the pier (36,000+ tires, concrete, porcelain); snags off the front",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "dmhs.org"
+   },
+   {
+    "what": "Rock breakwater just south (left) of the pier, the 900-slip marina behind it",
+    "side": "left",
+    "confidence": "proven",
+    "detail": "Dock replacement started August 2025.",
+    "proof": "Esri imagery ; seattlesouthside directory ; https://waterlandblog.com/?p=179951"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Des Moines Beach Park next door to the north: grassy field, rocky beach, trails",
+    "side": "right",
+    "confidence": "proven",
+    "proof": "seattlesouthside directory ; Esri imagery"
+   },
+   {
+    "what": "Pier foot is a paved marina plaza and parking lot, not a natural bank",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "Esri imagery"
+   }
+  ],
+  "night": [
+   {
+    "what": "Night squid pier; anglers bring their own lights, outlets at the end",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "No pier lamp posts documented beyond an OSM lit=yes tag.",
+    "proof": "https://northwestfishingreports.com/Reports/Details/42388 ; https://northwestfishingreports.com/Reports/Details/60070 ; seattlesouthside squidding"
+   }
+  ],
+  "oneLine": "A long straight concrete pier off the north end of the marina, Maury Island and the Point Robinson light just across the water ahead-left, Vashon to the right and the Olympics at the right edge.",
+  "draw": [
+   {
+    "do": "Long straight concrete pier running out ahead of you, a slight bend near the end, picnic table at the tip",
+    "confidence": "proven"
+   },
+   {
+    "do": "Rock breakwater and marina masts off to the left",
+    "confidence": "proven"
+   },
+   {
+    "do": "Low island close across the water ahead-left (Maury), with a small white lighthouse on its near tip",
+    "confidence": "likely"
+   },
+   {
+    "do": "Wooded island (Vashon) on the right of the far shore",
+    "confidence": "likely"
+   },
+   {
+    "do": "Olympic Mountains low at the right edge",
+    "confidence": "proven"
+   },
+   {
+    "do": "Grass and beach park on the right at the shore end",
+    "confidence": "proven"
+   },
+   {
+    "do": "Night: anglers' own small lights at the end of the pier, not a row of tall lamps",
+    "confidence": "proven"
+   },
+   {
+    "do": "Winter sunset just left of ahead, over the island tips",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Mount Rainier (behind you), NO Seattle skyline (far right, out of view)",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/way/40140078",
+   "https://dmhs.org/map-photos/marina_25.html",
+   "https://www.waymarking.com/waymarks/wmPYPN_Des_Moines_Marina_Pier_Des_Moines_WA",
+   "https://www.seattlesouthside.com/directory/des-moines-marina/",
+   "https://www.seattlesouthside.com/blog/best-parks-to-watch-the-sunset/",
+   "https://www.seattlesouthside.com/blog/squidding/",
+   "https://waterlandblog.com/?p=179951",
+   "https://en.wikipedia.org/wiki/Point_Robinson_Light",
+   "https://northwestfishingreports.com/Reports/Details/42388",
+   "https://northwestfishingreports.com/Reports/Details/60070",
+   "https://wdfw.wa.gov/fishing/basics/squid"
+  ],
+  "dropped": [
+   "Individual peak labels (Brothers, Constance, Olympus) from this pier",
+   "Gig Harbor, Point Defiance, Fox Island, Narrows Bridge on the left horizon: low, no source",
+   "Mount Rainier (144, behind) and Seattle skyline (about 100 deg right): out of view",
+   "Pier lamp posts: only an OSM lit=yes tag",
+   "Tree species at the foot: no source",
+   "Marinascope public art: not in the cited page",
+   "Assembly: Maury centre recomputed to 251, 4.7 mi (was 248.9, 4.8)"
+  ]
+ },
+ "les-davis": {
+  "name": "Les Davis Pier",
+  "kind": "pier",
+  "stand": {
+   "what": "Junction where the stem meets the T head, Les Davis Pier, 3427 Ruston Way, Tacoma",
+   "lat": 47.28353,
+   "lon": -122.48126,
+   "proof": "OSM way 39369922; WDFW pier page pin 47.282814,-122.482206 is the pier foot. Open 24 hours. App coords are about 390 m north, in the water."
+  },
+  "facingDeg": 33,
+  "facingWords": "Northeast out the stem toward the mouth of Commencement Bay: Browns Point ahead-right, Maury Island ahead and a little left, the south end of Vashon off to the left",
+  "facingProof": "OSM: stem 31.6 deg; T cross-arm 125.6, perpendicular 35.6; use 33. Esri imagery shows the T.",
+  "facingConfidence": "proven",
+  "sunsetSide": "The sun sets behind you on the left in both seasons: late Nov (about 238) is about 155 deg left, over North Tacoma; June (about 306) is about 87 deg left, over Point Defiance. No sunset over the water ahead.",
+  "skyline": [
+   {
+    "what": "Browns Point and the Northeast Tacoma shore across the bay, ahead-right",
+    "bearingDeg": 48.7,
+    "distanceMi": 2.3,
+    "side": "right",
+    "confidence": "likely",
+    "detail": "Browns Point Light 48.7 (16 deg right), Dash Point 51 (4.1 mi). Low wooded shore across open water.",
+    "proof": "Seattle and Sound names Northeast Tacoma in Ruston Way's views (search text); bearings recomputed."
+   },
+   {
+    "what": "Maury Island, low island ahead and a little left across the water",
+    "bearingDeg": 20,
+    "distanceMi": 7.1,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "South tip (Piner Point) at 16, 4.3 mi; NE end toward Point Robinson about 35. Spans about 17 deg left to 2 deg right of the facing.",
+    "proof": "Geometry recomputed in assembly; no page names Maury from the pier."
+   },
+   {
+    "what": "Vashon Island south end, left, across Dalco Passage",
+    "bearingDeg": 344,
+    "distanceMi": 3.6,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "South shore from Tahlequah (340, 3.6 mi) to Neill Point (348, 3.7 mi), 45 to 53 deg left. The gap from 348 to 16 is the mouth of Quartermaster Harbor, with low island land behind it.",
+    "proof": "Seattle and Sound lists Vashon in Ruston Way's views (search text); bearings recomputed in assembly."
+   }
+  ],
+  "structure": [
+   {
+    "what": "T-shaped pier: stem running NE from shore, cross-arm across the end",
+    "bearingDeg": 33,
+    "side": "na",
+    "confidence": "proven",
+    "detail": "Lengths come from OSM tracing only (about 270 and 320 ft), so do not print them.",
+    "proof": "OSM way 39369922 ; Esri imagery"
+   },
+   {
+    "what": "Rain cover, railings, lights, fish cleaning station, restrooms, parking, ADA access; open 24 hours",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "How much of the pier the rain cover spans is not stated.",
+    "proof": "https://wdfw.wa.gov/places-to-go/fishing-piers/les-davis-pier"
+   },
+   {
+    "what": "Underwater reef: tires by the pier and concrete roadway slabs to the west; octopus preserve",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://wdfw.wa.gov/node/115256 ; https://www.zentacle.com/Beach/516/les-davis-fishing-pier-tacoma"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Rock and concrete-block shore with stairs to the water, a grassy area and picnic tables beside the pier",
+    "side": "behind",
+    "confidence": "likely",
+    "proof": "zentacle divers' notes"
+   },
+   {
+    "what": "Ruston Way road and parking at the pier foot, a line of leafy trees along the road",
+    "side": "behind",
+    "confidence": "likely",
+    "detail": "Tree species unknown; generic leafy trees only.",
+    "proof": "Esri imagery ; https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington"
+   }
+  ],
+  "night": [
+   {
+    "what": "Lit pier, open all night, with shoulder-to-shoulder squid crowds in November",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "KUOW photos Nov 17, 2023: crowds, anglers hold glow jigs toward a light.",
+    "proof": "WDFW pier page ('Lights', 'Open 24 hours') ; https://kuow.org/stories/photos-squidding-from-tacoma-s-les-davis-pier"
+   }
+  ],
+  "oneLine": "A lit T-shaped pier on Ruston Way pointing up Commencement Bay at Browns Point, with Maury Island ahead-left, Vashon off the left and the sun going down behind your left shoulder.",
+  "draw": [
+   {
+    "do": "T-shaped pier: you stand where the stem meets the cross-arm, the arm running left and right in front of you, a rain cover over part of it",
+    "confidence": "proven"
+   },
+   {
+    "do": "Low wooded point across the bay ahead-right (Browns Point), close",
+    "confidence": "likely"
+   },
+   {
+    "do": "Low island far ahead and slightly left (Maury), and another low island shore further left (Vashon) with a gap between them",
+    "confidence": "likely"
+   },
+   {
+    "do": "Pier lights on at night, crowd along the rails in November",
+    "confidence": "proven"
+   },
+   {
+    "do": "Sunset light from behind-left; the water ahead is NOT where the sun goes down",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO mountains ahead: no Rainier (far right, behind), no Olympics (behind-left), no Seattle skyline (hidden behind Maury), no Mount Baker",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Narrows Bridge, NO port cranes in the forward view",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/way/39369922",
+   "https://wdfw.wa.gov/places-to-go/fishing-piers/les-davis-pier",
+   "https://wdfw.wa.gov/node/115256",
+   "https://www.zentacle.com/Beach/516/les-davis-fishing-pier-tacoma",
+   "https://kuow.org/stories/photos-squidding-from-tacoma-s-les-davis-pier",
+   "https://seattleandsound.com/ruston-way",
+   "https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington"
+  ],
+  "dropped": [
+   "Point Robinson light (34.7, 8.8 mi): geometry only, too small",
+   "Seattle skyline (about 18): hidden behind Maury",
+   "Mount Baker: on Maury's ridge line, not proven either way",
+   "Mount Rainier (131, 98 deg right): out of the forward view",
+   "Olympics (302-318): behind-left, screened by Point Defiance woods",
+   "Tacoma Narrows Bridge (252): behind, hidden",
+   "Downtown Tacoma (141, behind-right) and port cranes (about 107): out of view",
+   "'Waters within 100 yds closed except from the pier': not on a fetched WDFW page",
+   "Lamp type or post count",
+   "Assembly correction: Maury south tip is 16 deg 4.3 mi, not 23 deg 4.1 mi; centre 20 deg 7.1 mi",
+   "Assembly correction: Vashon south shore is 340 to 348 deg at 3.6-3.7 mi, not 348 to 10 at 5 mi"
+  ]
+ },
+ "point-defiance": {
+  "name": "Point Defiance boathouse dock",
+  "kind": "pier",
+  "stand": {
+   "what": "Public fishing dock at the Point Defiance Boathouse, 5912 N Waterfront Dr, Tacoma, reached by walking under the boathouse boat storage. One of Parks Tacoma's two free public fishing piers (the other is Les Davis).",
+   "lat": 47.3076,
+   "lon": -122.5176,
+   "proof": "OSM boathouse way 414060508; pier deck area way 414285099; https://northwestfishingreports.com/Articles/Details/872"
+  },
+  "facingDeg": 20,
+  "facingWords": "North to north-northeast across Dalco Passage to the south end of Vashon Island",
+  "facingProof": "OSM pier deck projects north from the boathouse; open water lies N to NE. The exact way the end of the dock points is not proven.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Late-Nov sunset (about 238) is behind you. June sunset (about 306) is about 75 deg left and cut off by the Point itself.",
+  "skyline": [
+   {
+    "what": "Vashon Island, south end at Tahlequah (ferry dock), close across the water",
+    "bearingDeg": 15.2,
+    "distanceMi": 1.75,
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "Neill Point at 25, 2.2 mi.",
+    "proof": "Bearing to Tahlequah terminal 47.3320,-122.5078 (Nominatim); ferries run straight across from Point Defiance to Tahlequah."
+   },
+   {
+    "what": "Maury Island south tip (Piner Point)",
+    "bearingDeg": 49.4,
+    "distanceMi": 3.8,
+    "side": "right",
+    "confidence": "likely",
+    "proof": "Bearing to Piner Point 47.3438,-122.4553; open water line. No photo."
+   }
+  ],
+  "structure": [
+   {
+    "what": "Boathouse building on the shore at the foot of the dock, with tackle shop and boat rentals; current building opened 1988",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "northwestfishingreports Articles/872 ; OSM way 414060508"
+   },
+   {
+    "what": "Rod holders, benches and fish-cleaning stations at the pier",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "Parks Tacoma marina page (search summary; page 403)"
+   },
+   {
+    "what": "Narrow wooden walkway at the outer end of the deck, tagged lit, to a small round platform",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "OSM ways 1483950407 and 414285089 (mapped only)"
+   }
+  ],
+  "bank": [],
+  "night": [
+   {
+    "what": "Squid fishing from the boathouse dock past dusk (derby 11/09/2019 3:30-5:45 pm; catch 11/25/2019)",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.northwestfishingreports.com/Reports/Details/59238 ; https://northwestfishingreports.com/Reports/Details/59270"
+   },
+   {
+    "what": "Dock lighting exists; lamp style unknown",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "OSM lit=yes on way 1483950407"
+   }
+  ],
+  "oneLine": "Small dock under the Point Defiance boathouse, looking north across the water to the south tip of Vashon.",
+  "draw": [
+   {
+    "do": "Small low dock, the boathouse building close behind you",
+    "confidence": "proven"
+   },
+   {
+    "do": "Wooded island shore close across the water straight ahead (Vashon, 1.7 mi), a small ferry dock on it",
+    "confidence": "proven"
+   },
+   {
+    "do": "Low island further off to the right (Maury)",
+    "confidence": "likely"
+   },
+   {
+    "do": "Moving water: fast current off the point (app text)",
+    "confidence": "app content"
+   },
+   {
+    "do": "Some light on the dock at night, no specific lamp style",
+    "confidence": "likely"
+   },
+   {
+    "do": "Sunset is behind you or blocked by the Point: no sun on the water ahead",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO mountains, NO Seattle skyline, NO Narrows Bridge, NO Olympics",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://northwestfishingreports.com/Articles/Details/872",
+   "https://www.northwestfishingreports.com/Reports/Details/59238",
+   "https://northwestfishingreports.com/Reports/Details/59270",
+   "https://www.parkstacoma.gov/pointdefiancemarina",
+   "https://www.openstreetmap.org/way/414285099",
+   "https://www.openstreetmap.org/way/1483950407",
+   "https://nominatim.openstreetmap.org"
+  ],
+  "dropped": [
+   "Vashon 'Dockton shore 5.1 mi': wrong, nearest Vashon land is Tahlequah 1.7 mi",
+   "'Two public fishing piers at the marina': wrong",
+   "'Boathouse since 1903': current building is 1988; 1925 Old Boathouse section closed since Jan 2024 (search summary only)",
+   "Squid derby 'Dec 17 2019': not in the report",
+   "Point Robinson: line runs along Maury's shore",
+   "Seattle skyline: hidden",
+   "Browns Point lighthouse: blocked by the ferry terminal and yacht club",
+   "Mount Rainier: bluff behind, no source",
+   "Olympics, Narrows Bridge, Gig Harbor: behind the Point",
+   "Dock shape and length; forested bluff"
+  ]
+ },
+ "fox-island": {
+  "name": "Fox Island public fishing pier",
+  "kind": "pier",
+  "stand": {
+   "what": "Fox Island Fishing Pier, 1453 Ozette Dr, east tip of Fox Island (PenMet Parks; WDFW built it in 1995). App coords 47.251,-122.600 are about 1.6 mi too far north, on the north shore.",
+   "lat": 47.2287,
+   "lon": -122.5906,
+   "proof": "https://www.wwta.org/sites/fox-island-fishing-pier/ (47.228217,-122.590567); OSM pier way 238142781"
+  },
+  "facingDeg": 101,
+  "facingWords": "East, straight out from the island's east shore toward the University Place mainland, with Mount Rainier to the right of centre",
+  "facingProof": "East is proven (WWTA: pier 'extends from the Eastern shore'). 101 is likely: first OSM segment runs 101 deg.",
+  "facingConfidence": "proven (east), likely (101)",
+  "sunsetSide": "Behind. Late-Nov sunset (about 238) is about 137 deg right, behind-right. June sunset (about 306) is behind.",
+  "skyline": [
+   {
+    "what": "Mount Rainier",
+    "bearingDeg": 123.4,
+    "distanceMi": 47.0,
+    "side": "right",
+    "confidence": "proven",
+    "detail": "22 deg right of the facing.",
+    "proof": "https://penmetparks.org/parks/fox-island-fishing-pier/ ('Views of Puget Sound, Vashon Island, and Mt. Rainier')"
+   },
+   {
+    "what": "University Place mainland shore across the water",
+    "bearingDeg": 97,
+    "distanceMi": 1.2,
+    "side": "centre",
+    "confidence": "likely",
+    "proof": "OSM coastline; geometry. No photo."
+   },
+   {
+    "what": "Vashon Island, far off up the Narrows",
+    "bearingDeg": 29,
+    "distanceMi": 8.3,
+    "side": "left",
+    "confidence": "likely",
+    "detail": "Tahlequah 28.5 (8.1 mi), Neill Point 30 (8.6 mi): about 70 deg left. Far left only, never in the forward view.",
+    "proof": "PenMet lists a Vashon view; bearings recomputed in assembly."
+   }
+  ],
+  "structure": [
+   {
+    "what": "Concrete pier: 1,200 sq ft accessible Double Tee deck on 24-inch octagonal prestressed concrete piles, with handrails. Built by WDFW in 1995.",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WWTA ; PenMet"
+   },
+   {
+    "what": "Straight run east with a short cross-piece at the outer end (likely a T-head)",
+    "side": "centre",
+    "confidence": "likely",
+    "proof": "OSM ways 238142781 and 238142783 (2013 trace)"
+   },
+   {
+    "what": "Hand-launch trail and a kayak rack for non-motorized boats, restrooms, picnic areas, parking, automatic gate",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "PenMet"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Cobble beach approach",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WWTA"
+   },
+   {
+    "what": "Grassy upland area",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "WWTA"
+   }
+  ],
+  "night": [
+   {
+    "what": "Park open 7 AM to sunset, so no night fishing. No lights mentioned.",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "PenMet (general hours rule)"
+   }
+  ],
+  "oneLine": "Concrete pier off the east tip of Fox Island, looking east across the water toward University Place, with Rainier to the right.",
+  "draw": [
+   {
+    "do": "Concrete pier with handrails running straight out ahead, a short cross-piece at the end",
+    "confidence": "proven (concrete, rails), likely (T end)"
+   },
+   {
+    "do": "Low mainland shore close across the water ahead (University Place), nothing tall",
+    "confidence": "likely"
+   },
+   {
+    "do": "Mount Rainier big and white to the right of centre",
+    "confidence": "proven"
+   },
+   {
+    "do": "Cobble beach and grass at the foot of the pier",
+    "confidence": "proven"
+   },
+   {
+    "do": "Daylight scene only; no lamp posts",
+    "confidence": "likely"
+   },
+   {
+    "do": "Sunset behind you: evening light comes from behind, not over the water",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Olympics, NO bridges in the forward view, NO Tacoma skyline or cranes",
+    "confidence": "likely"
+   }
+  ],
+  "sources": [
+   "https://penmetparks.org/parks/fox-island-fishing-pier/",
+   "https://www.wwta.org/sites/fox-island-fishing-pier/",
+   "https://www.openstreetmap.org/way/238142781",
+   "https://www.openstreetmap.org/way/238142783"
+  ],
+  "dropped": [
+   "App coords are on the north shore, not at the pier",
+   "Facing 111 (start-to-end line); main segment is 101",
+   "Downtown Tacoma and port cranes at 76: likely hidden behind University Place",
+   "Tacoma Narrows bridges (35, 66 deg left): no source from the pier",
+   "Pier length (190 or 325 ft): sources conflict",
+   "Mount St Helens, Olympics: out of view, no source",
+   "Trees, lamp posts, building at the pier foot, squid: no source",
+   "Assembly: Vashon distance corrected to 8.1-8.6 mi (was 9)"
+  ]
+ },
+ "dash-point": {
+  "name": "Dash Point (Dash Point Park and Pier kayak launch, and state park beach)",
+  "kind": "sound-beach",
+  "stand": {
+   "what": "Two stands. (1) Dash Point Park and Pier, 1500 Beach Dr NE, Tacoma: kayak launch and beach; the pier has been closed since July 2021. (2) Dash Point State Park day-use beach at about 47.3203,-122.4135. The app coords 47.32,-122.415 sit on the state park bank, about 0.6 mi east of Dash Point Park.",
+   "lat": 47.3193,
+   "lon": -122.4271,
+   "proof": "OSM 'Dash Point Pier' way 39995937 root; OSM 'Dash Point Beach' node 47.3191,-122.4132; OSM coastline way 4970902"
+  },
+  "altStands": [
+   {
+    "what": "Dash Point State Park beach (cutthroat, shore)",
+    "lat": 47.3203,
+    "lon": -122.4135,
+    "facingDeg": 351
+   }
+  ],
+  "facingDeg": 4,
+  "facingWords": "North across East Passage to Maury Island (the state park beach faces a touch west of north, about 351)",
+  "facingProof": "From mapped geometry: shoreline at Dash Point Park runs about 274, so water is due north; the pier runs out at 14. State park shore runs about 81, so it faces about 351.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Left. June sunset (about 306) is about 60 deg left, over Vashon and Maury. Late-Nov sunset (about 238) is far left, behind-left.",
+  "skyline": [
+   {
+    "what": "Maury Island, low wooded island across the water; south tip (Piner Point) ahead-left",
+    "bearingDeg": 358,
+    "distanceMi": 4.2,
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "Island centre at 358, 4.2 mi. South tip (Piner Point) at 322, 2.15 mi, ahead-left; south shore about 2.7 mi due north, running NE toward Point Robinson.",
+    "proof": "OSM/Nominatim (Piner Point); reviewer 'Best Island views' https://wanderlog.com/place/details/12698980/dash-point-park--pier"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Dash Point Pier is L-shaped: about 384 ft straight out (NNE), then 100 ft parallel to shore turning east. Closed July 2021 in critical condition. Old corner navigation lights deteriorated.",
+    "side": "centre",
+    "confidence": "proven",
+    "proof": "https://ca.news.yahoo.com/upgrade-northeast-tacoma-fishing-pier-225318441.html ; OSM way 39995937"
+   },
+   {
+    "what": "Pier still closed; Parks Tacoma bond passed April 28, 2026; rebuild is one of the first projects; no reopening date",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.kiro7.com/news/local/tacoma-voters-decide-parks-bond-which-includes-reconstruction-dash-point-pier/CQQUH3Q5D5DHDEWCULNLHL336A/"
+   },
+   {
+    "what": "Small beach beside the pier at Dash Point Park, restrooms, parking, restored historic water fountain",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "Yahoo/News Tribune ; wanderlog"
+   },
+   {
+    "what": "State park beach: 3,301 ft of saltwater shoreline, sandy shores, skim boarding, large areas exposed at low tide; open 8 AM to dusk",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://parks.wa.gov/find-parks/state-parks/dash-point-state-park ; https://en.wikipedia.org/wiki/Dash_Point_State_Park"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Woodsy ravine behind the state park beach",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "https://parks.wa.gov/node/1991"
+   },
+   {
+    "what": "Private homes along the shore around Dash Point Park",
+    "side": "behind",
+    "confidence": "likely",
+    "proof": "wanderlog reviewer"
+   }
+  ],
+  "night": [],
+  "oneLine": "Sandy Dash Point shore facing north across East Passage to Maury Island, with the old L-shaped pier closed since 2021.",
+  "draw": [
+   {
+    "do": "Sandy beach at your feet, wide flats at low tide",
+    "confidence": "proven"
+   },
+   {
+    "do": "Low wooded island (Maury) across the water ahead, its south tip ahead-left",
+    "confidence": "proven"
+   },
+   {
+    "do": "Kayak-launch view: old pier running out ahead-right with an L turning right at the end, shown closed (no anglers on it)",
+    "confidence": "proven"
+   },
+   {
+    "do": "State park view: wooded ravine behind the beach",
+    "confidence": "proven"
+   },
+   {
+    "do": "Homes along the shore behind the Dash Point Park beach",
+    "confidence": "likely"
+   },
+   {
+    "do": "Summer sunset off to the left; winter sun gone behind-left",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only: both sites close around dusk; no lights",
+    "confidence": "proven (state park), likely (city park)"
+   },
+   {
+    "do": "NO Rainier (behind), NO Olympics, NO Seattle skyline (hidden behind Maury)",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://ca.news.yahoo.com/upgrade-northeast-tacoma-fishing-pier-225318441.html",
+   "https://www.kiro7.com/news/local/tacoma-voters-decide-parks-bond-which-includes-reconstruction-dash-point-pier/CQQUH3Q5D5DHDEWCULNLHL336A/",
+   "https://parks.wa.gov/find-parks/state-parks/dash-point-state-park",
+   "https://parks.wa.gov/node/1991",
+   "https://en.wikipedia.org/wiki/Dash_Point_State_Park",
+   "https://wanderlog.com/place/details/12698980/dash-point-park--pier",
+   "https://www.openstreetmap.org/way/39995937"
+  ],
+  "dropped": [
+   "Facing 315: wrong; both stands face about north",
+   "'Vashon (Dockton) 336': wrong; the land across is Maury",
+   "Pier L turns west: wrong, it turns east",
+   "Point Robinson lighthouse (27, 5.4 mi): no source",
+   "Vashon south end (283-290, 3.5-3.9 mi, about 75-80 deg left): geometry only, no source",
+   "Olympics: no source",
+   "Seattle skyline: hidden behind Maury",
+   "Browns Point (220) and Mount Rainier (136): behind",
+   "Night lights or squid: nothing found",
+   "Depth figures and the kayak 35-40 ft band: left to the app's own content"
+  ]
+ },
+ "westport": {
+  "name": "Westport (marina docks and ocean beach south of south jetty)",
+  "kind": "ocean-beach",
+  "stand": {
+   "what": "Float 20, the Westport public fishing pier inside the boat basin (crab). Second site for surfperch: sand beach just south of the south jetty, by the Jetty Haul lot (Westport Light State Park).",
+   "lat": 46.9106,
+   "lon": -124.1101,
+   "proof": "https://chinookobserver.com/?p=93277 (public fishing pier is Float 20); OSM way 558668600. Beach stand 46.9022,-124.1318 beside the Jetty Haul lot."
+  },
+  "altStands": [
+   {
+    "what": "Ocean beach south of the south jetty (surfperch)",
+    "lat": 46.9022,
+    "lon": -124.1318,
+    "facingDeg": 255
+   }
+  ],
+  "facingDeg": 60,
+  "facingWords": "From Float 20, east-northeast toward the rock breakwater about 80 m away, open harbor water beyond it. The basin entrance is ahead-right (115). Moored boats and the basin are behind you. Beach site: facing 255, west-southwest over the open Pacific, the jetty running out on your right.",
+  "facingProof": "OSM coastline and Esri tiles: closed rock spit on the north side of the basin, entrance at the east end. Float 20 runs 150, so square to it toward the breakwater is about 60. Beach: OSM ocean coastline runs 165.5, so square to shore is 255.",
+  "facingConfidence": "likely (float), proven (beach)",
+  "sunsetSide": "Float 20 facing 60: the sun sets behind you all year. Beach facing 255: late Nov sun sets about 17 deg left of ahead; June sun about 51 deg right, past the jetty.",
+  "skyline": [
+   {
+    "what": "Open Pacific horizon (beach site)",
+    "bearingDeg": 255,
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "Nothing offshore. The jetty fills the right side.",
+    "proof": "https://parks.wa.gov/find-parks/state-parks/westport-light-state-park ; OSM coastline way 157810517",
+    "standRef": "beach (facing 255)"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Float 20: long floating dock inside the rock breakwater at the NE corner of the basin, the public fishing pier; 'Float 20; Fishermen's Boardwalk' sign at the north end",
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "Most popular float for crab rings, often clear of boats, close to the entrance.",
+    "proof": "https://riptidefish.com/dungeness-crab-in-westport-washington/ ; chinookobserver ; OSM"
+   },
+   {
+    "what": "Rock breakwaters and riprap around the basin, floats, pilings, dock ramps",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://northwestfishingreports.com/Articles/Details/1106 ; OSM"
+   },
+   {
+    "what": "Fishermen's Boardwalk, Observation Tower (14 m), viewing platform, bathrooms, showers",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "https://www.portofgraysharbor.com/westport-facilities-services ; OSM"
+   },
+   {
+    "what": "South jetty: rock breakwater running out to sea on the right of the beach site",
+    "bearingDeg": 283,
+    "distanceMi": 1.27,
+    "side": "right",
+    "confidence": "proven",
+    "detail": "Leaves shore 0.23 mi from the stand and runs out at 274 for 1.13 mi.",
+    "proof": "OSM way 558994929 ; https://wdfw.wa.gov/fishing/washington/MarineArea/10002/",
+    "standRef": "beach (facing 255)"
+   },
+   {
+    "what": "ADA concrete boardwalk and trail along the beach (Westport Light Trail)",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "State Parks",
+    "standRef": "beach (facing 255)"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Beach site: grassy dunes behind the sand, unstable sand cliffs",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "State Parks",
+    "standRef": "beach (facing 255)"
+   },
+   {
+    "what": "Marina site: no natural bank; breakwater one side, boats, floats and Westhaven Dr shops the other",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "OSM ; Esri imagery"
+   }
+  ],
+  "night": [
+   {
+    "what": "No crabbing in the marina after sunset; gear out of the water overnight. Dock lighting not documented.",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "chinookobserver"
+   },
+   {
+    "what": "Beach: day use only, 8am-6pm winter, 8am-10pm summer. No lighting.",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "State Parks",
+    "standRef": "beach (facing 255)"
+   }
+  ],
+  "oneLine": "Dropping crab rings off Float 20 inside the rock breakwater, or surf perch off the sand just south of the long jetty with open ocean ahead.",
+  "draw": [
+   {
+    "do": "Crab scene: long low floating dock, a rock breakwater close ahead, moored boats and masts behind",
+    "confidence": "proven (dock, breakwater, boats), likely (exact angle)"
+   },
+   {
+    "do": "Crab scene: calm basin water, no surf, no open horizon",
+    "confidence": "proven"
+   },
+   {
+    "do": "Surfperch scene: flat sand, breaking surf, open ocean horizon with nothing on it",
+    "confidence": "proven"
+   },
+   {
+    "do": "Surfperch scene: long rock jetty running out to sea on the right",
+    "confidence": "proven"
+   },
+   {
+    "do": "Surfperch scene: grassy dunes behind",
+    "confidence": "proven"
+   },
+   {
+    "do": "Winter sunset just left of ahead over the ocean (beach); behind you at the float",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only at both: no night crabbing, beach closes in the evening",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO mountains at either site, NO lighthouse in view",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://chinookobserver.com/?p=93277",
+   "https://riptidefish.com/dungeness-crab-in-westport-washington/",
+   "https://wdfw.wa.gov/news/recreational-crabbing-closes-grays-harbor-except-westport-boat-basin",
+   "https://northwestfishingreports.com/Articles/Details/1106",
+   "https://www.portofgraysharbor.com/westport-facilities-services",
+   "https://parks.wa.gov/find-parks/state-parks/westport-light-state-park",
+   "https://wdfw.wa.gov/fishing/washington/MarineArea/10002/"
+  ],
+  "dropped": [
+   "Crab stand moved from Float 16 to Float 20",
+   "Basin does not open north; facing changed from 355 to 60",
+   "Damon Point, Ocean Shores town, Olympics, Aberdeen from dock level: breakwater in the way, no source (Olympics only from the 14 m tower)",
+   "'Docks closed to night fishing': the real rule is no crabbing after sunset",
+   "'17 public access docks': not on the Port page",
+   "Jetty tip bearing 283, not 287",
+   "Rainier, St Helens, Grays Harbor lighthouse: behind",
+   "Jetty closed to perch mid-Oct to early March: 2019 article only",
+   "Fish shack and store specifics: blog only"
+  ]
+ },
+ "ocean-shores": {
+  "name": "Ocean Shores beaches (Copalis and Mocrocks razor clam beaches, and the Ocean Shores ocean beach)",
+  "kind": "ocean-beach",
+  "stand": {
+   "what": "Sand beach at the waterline off Copalis Beach village, inside the Copalis razor clam beach (north jetty to Copalis River). Second stand for surfperch: Ocean Shores beach just north of the north jetty. Which approach a digger uses is not known.",
+   "lat": 47.1085,
+   "lon": -124.181,
+   "proof": "https://wdfw.wa.gov/places-to-go/shellfish-beaches/600060 ; Copalis River mouth 47.1408,-124.185 (OSM). Surfperch stand 46.9355,-124.1745 on OSM coastline way 494235810."
+  },
+  "altStands": [
+   {
+    "what": "Ocean Shores beach north of the north jetty (surfperch)",
+    "lat": 46.9355,
+    "lon": -124.1745,
+    "facingDeg": 272
+   }
+  ],
+  "facingDeg": 263,
+  "facingWords": "West over the open Pacific from a flat sand beach. The surfperch stand faces about 272, also west.",
+  "facingProof": "OSM coastline near the stand runs 172.5, so square to shore is about 263. Ocean Shores coast runs 1.7, giving 272.",
+  "facingConfidence": "proven",
+  "sunsetSide": "Copalis facing 263: late Nov sun sets 25 deg left; June sun 43 deg right. Surfperch stand facing 272: Nov 34 deg left, June 34 deg right.",
+  "skyline": [
+   {
+    "what": "Open Pacific horizon",
+    "bearingDeg": 263,
+    "side": "centre",
+    "confidence": "proven",
+    "detail": "No land or rock ahead.",
+    "proof": "OSM coastline ; WDFW beach page"
+   },
+   {
+    "what": "Copalis Rock, a small sea-stack islet up the coast (Copalis stand only)",
+    "bearingDeg": 347,
+    "distanceMi": 2.9,
+    "side": "right",
+    "confidence": "likely",
+    "detail": "Far right (84 deg off facing), just offshore up the beach, clear days. Not visible from the surfperch stand.",
+    "proof": "OSM islet 47.1493,-124.1947 ; https://www.wta.org/go-outside/seasonal-hikes/go-hiking/hikes/copalis-river-spit"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Broad flat sand beach open to vehicles, 25 mph",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "Driving allowed unless posted; restrooms at approaches; approaches 2nd St Ocean City, Hwy 115 Oyhut, Chance A La Mer, Pacific Ave, Ocean Lake Way, Tarus St.",
+    "proof": "WDFW 600060 ; WAC 352-37-130"
+   },
+   {
+    "what": "Razor clam reserve marked with signed posts (no digging), starting 0.4 mi south of the Ocean City approach, 1/4 mi long",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://wdfw.wa.gov/fishing/regulations/emergency-rules/razor-clam-digs-approved-copalis-beach-2023-01"
+   },
+   {
+    "what": "North jetty, rock, to the left (south) of the surfperch stand, running out to sea",
+    "bearingDeg": 203,
+    "distanceMi": 0.68,
+    "side": "left",
+    "confidence": "proven",
+    "detail": "Tip 46.9265,-124.1802 at Point Brown; 69 deg left of the 272 facing.",
+    "proof": "OSM way 951446646 and parking way 240717103",
+    "standRef": "surfperch stand (facing 272)"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Sand dunes with dune grass behind the beach",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "https://osgov.com/visitors/beach_safety___rules.php ; https://parks.wa.gov/find-parks/state-parks/griffiths-priday-state-park"
+   },
+   {
+    "what": "Copalis Beach village, resort and RV parks behind the dunes",
+    "side": "behind",
+    "confidence": "likely",
+    "proof": "OSM"
+   }
+  ],
+  "night": [
+   {
+    "what": "Evening digs: noon to midnight on evening low tides; late-Nov tides fall after sunset (about 4:30 pm), so digging is in the dark; no beach lighting",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://wdfw.wa.gov/fishing/regulations/emergency-rules/razor-clam-digs-approved-march-26-april-3-2025-03"
+   }
+  ],
+  "oneLine": "Wide flat sand with dune grass behind and open ocean to the west. At Copalis, a lone rock sticks out of the surf up the beach.",
+  "draw": [
+   {
+    "do": "Wide flat wet sand, low surf lines, empty ocean horizon ahead",
+    "confidence": "proven"
+   },
+   {
+    "do": "Dune grass ridge behind",
+    "confidence": "proven"
+   },
+   {
+    "do": "Clam night: dark beach, diggers' headlamps and lanterns dotted along the sand, maybe vehicle lights on the beach",
+    "confidence": "proven (dark digs, vehicles allowed), likely (headlamps)"
+   },
+   {
+    "do": "Copalis view: one small sea stack far up the beach on the right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Surfperch view: rock jetty on the left running into the sea",
+    "confidence": "proven"
+   },
+   {
+    "do": "Winter sunset left of ahead over the ocean",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO mountains, NO piers, NO islands ahead",
+    "confidence": "proven"
+   }
+  ],
+  "sources": [
+   "https://wdfw.wa.gov/places-to-go/shellfish-beaches/600060",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/razor-clam-digs-approved-copalis-beach-2023-01",
+   "https://lawfilesext.leg.wa.gov/Law/WACArchive/2024/htm/WAC%20352%20-%2037%20%20CHAPTER/WAC%20352%20-%2037%20-130.htm",
+   "https://osgov.com/visitors/beach_safety___rules.php",
+   "https://parks.wa.gov/find-parks/state-parks/griffiths-priday-state-park",
+   "https://www.wta.org/go-outside/seasonal-hikes/go-hiking/hikes/copalis-river-spit"
+  ],
+  "dropped": [
+   "'Open Pacific, nothing else': Copalis Rock sits up the beach",
+   "Speed limit and markers re-sourced to WAC and WDFW emergency rules",
+   "'State highway' wording: not re-verified",
+   "interpretivecenter.org itinerary: replaced",
+   "North jetty tip corrected to 46.9265,-124.1802",
+   "Seasonal vehicle limit Apr 15 to Sep 1: OSM tag only",
+   "Olympics, Rainier, Westport shore: behind",
+   "Tsunami siren",
+   "Mocrocks stand: no coords in the app",
+   "Damon Point: closed",
+   "Assembly correction: north jetty is to the LEFT of the surfperch stand (203 vs facing 272), not behind"
+  ]
+ },
+ "green-river": {
+  "name": "Green River (Auburn to Kent)",
+  "kind": "river",
+  "stand": {
+   "what": "West bank of the Green River in Fenster Nature Park (Auburn), the west gate to Auburn Narrows. Second stand: Metzler trailhead lot (47.2867,-122.0916), bank point not mapped.",
+   "lat": 47.3056,
+   "lon": -122.2002,
+   "proof": "OSM Fenster park way 25738702; https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park ; King County Auburn Narrows page"
+  },
+  "facingDeg": 90,
+  "facingWords": "East across the river from the west bank at Fenster.",
+  "facingProof": "OSM river reach beside the park runs 353 to 4.6; the park is west of it, so looking across is about 90.",
+  "facingConfidence": "likely (Fenster); Metzler not established",
+  "sunsetSide": "Facing 90: the sun sets behind you all year (late Nov behind-right, June behind-left).",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Setback revetment so the river carves a natural sloping bank; sandy beach just upstream; 1/3 mi gravel trail set back from the river",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Auburn Fenster page"
+   },
+   {
+    "what": "Auburn Narrows: meadows, wetlands, side channels, mature cottonwood floodplain forest, about 100 acres, upstream of Fenster",
+    "side": "right",
+    "confidence": "proven",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/auburn-narrows"
+   },
+   {
+    "what": "Metzler: small lot at the end of a gravel road south of SE Green Valley Rd, trails down to the river, portable toilet",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "King County Green River Natural Area page ; OSM way 872392654"
+   },
+   {
+    "what": "Green River Water Access (WDFW) and Hatchery Natural Area east of the Narrows: closed water per the app",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "OSM ways 1449723374 and 1488751204"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Metzler: steep valley walls, forest on the upper slopes, black cottonwoods lining the banks; chum hug the bank",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "King County Green River Natural Area ; https://northwestfishingreports.com/Reports/Details/50441"
+   },
+   {
+    "what": "Fenster: restored, replanted bank; cottonwood floodplain forest just upstream",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Auburn ; King County"
+   }
+  ],
+  "night": [
+   {
+    "what": "Fenster closes at dusk; Metzler hours and lighting not found",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Auburn Fenster page"
+   }
+  ],
+  "oneLine": "A gravel trail down to a restored, cottonwood-lined river, working the bank for chum and coho.",
+  "draw": [
+   {
+    "do": "Mid-size river flowing left to right across the view at Fenster (it runs north)",
+    "confidence": "likely"
+   },
+   {
+    "do": "Natural sloping bank with gravel and sand at your feet",
+    "confidence": "proven"
+   },
+   {
+    "do": "Cottonwoods on the banks and floodplain forest",
+    "confidence": "proven"
+   },
+   {
+    "do": "Metzler variant: steep forested valley walls rising behind the cottonwoods",
+    "confidence": "proven"
+   },
+   {
+    "do": "Daylight only (Fenster closes at dusk)",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO mountain on the skyline, NO Rainier, NO buildings, NO bridge",
+    "confidence": "proven (no source shows any)"
+   }
+  ],
+  "sources": [
+   "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park",
+   "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/auburn-narrows",
+   "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/green-river-natural-area",
+   "https://northwestfishingreports.com/Reports/Details/50441"
+  ],
+  "dropped": [
+   "Fenster is on the WEST bank; facing changed from 275 to 90",
+   "Stand moved off the river centerline to the park edge",
+   "Lea Hill is ENE of the reach, not west",
+   "Mount Rainier (146, 56 deg right): no page or photo from either site",
+   "Olympics: behind",
+   "Valley wall as a Metzler skyline item: facing not pinned",
+   "Metzler '2 mi west of 218th Ave SE'",
+   "Keta Creek gravel bar, river width: no source",
+   "Flaming Geyser and Puyallup: not app spots"
+  ]
+ },
+ "tokul": {
+  "name": "Tokul Creek mouth (Plum #1) and the Snoqualmie River below the Falls",
+  "kind": "river",
+  "stand": {
+   "what": "Plum #1 parking lot at the Tokul Creek confluence, river-right (northeast) bank of the Snoqualmie. WDFW access; pass rules disagree. App coords 47.556,-121.886 are about 3 km west of this stand.",
+   "lat": 47.5512,
+   "lon": -121.8448,
+   "proof": "https://www.americanwhitewater.org/content/River/view/river-detail/2216/main ; OSM way 393535538"
+  },
+  "facingDeg": 212,
+  "facingWords": "South-southwest across the Snoqualmie from its northeast bank. The Tokul Creek mouth is just left of straight ahead, upstream and the Falls are off to your left, the river runs away downstream to your right, the bridge and hatchery behind you.",
+  "facingProof": "Nearest point on the Snoqualmie centerline (OSM way 440498296) is 99 m away at 212; edge flows 309, so the lot is on river right.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Late November sunset (about 238) is 26 deg right of ahead, over the river. June sunset (about 306) is 94 deg right, downstream.",
+  "skyline": [
+   {
+    "what": "Wooded far bank",
+    "bearingDeg": 211,
+    "distanceMi": 0.08,
+    "side": "centre",
+    "confidence": "likely",
+    "detail": "Trees across the water, no peaks. Species unknown.",
+    "proof": "OSM natural=wood relation 15576027"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Tokul Creek entering the Snoqualmie, 20 deg left",
+    "bearingDeg": 192,
+    "distanceMi": 0.07,
+    "side": "left",
+    "confidence": "proven",
+    "proof": "OSM way 1286890826 ; AW"
+   },
+   {
+    "what": "Big eddy at the creek mouth, a crowded steelhead spot",
+    "bearingDeg": 192,
+    "side": "left",
+    "confidence": "proven",
+    "proof": "https://www.gameandfishmag.com/editorial/fishing_salmon-steelhead-fishing_nw_0209_01/194389"
+   },
+   {
+    "what": "Fish Hatchery Road bridge over Tokul Creek, 63 m behind",
+    "bearingDeg": 84,
+    "distanceMi": 0.04,
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "OSM way 797245384 ; WDFW rule naming the bridge"
+   },
+   {
+    "what": "Tokul Creek Hatchery with weir and fishway, 357 m up the creek, out of view",
+    "bearingDeg": 52,
+    "distanceMi": 0.22,
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "https://www.kpff.com/?p=18474 ; OSM relation 17640051"
+   },
+   {
+    "what": "Plum Boat Launch (concrete ramp) 457 m downstream, at the right edge",
+    "bearingDeg": 274,
+    "distanceMi": 0.28,
+    "side": "right",
+    "confidence": "proven",
+    "proof": "AW ; OSM ; https://www.howsyourriver.com/access_sites/plum"
+   },
+   {
+    "what": "Bare rock or cobble bar mapped in the river, downstream right",
+    "bearingDeg": 246,
+    "distanceMi": 0.13,
+    "side": "right",
+    "confidence": "likely",
+    "proof": "OSM way 1010338704 ; AW 2026 cobble bars"
+   }
+  ],
+  "bank": [],
+  "night": [
+   {
+    "what": "Tokul Creek fishing closed 5 p.m. to 7 a.m. daily (2024-25 rule); no lighting",
+    "side": "na",
+    "confidence": "proven",
+    "detail": "Recheck each season.",
+    "proof": "https://wdfw.wa.gov/fishing/regulations/emergency-rules/tokul-creek-opens-game-fish-seasons-nov-8-2024-11"
+   }
+  ],
+  "oneLine": "The Plum #1 lot at the mouth of Tokul Creek below Snoqualmie Falls: the creek enters the Snoqualmie just left of ahead, the far bank is wooded, the river runs away to your right, and the Fish Hatchery Road bridge is just behind you.",
+  "draw": [
+   {
+    "do": "River running from left to right in front of you (downstream is right)",
+    "confidence": "likely"
+   },
+   {
+    "do": "Small creek pouring in just left of ahead, a big swirling eddy where it meets the river",
+    "confidence": "proven"
+   },
+   {
+    "do": "Wall of trees on the far bank close across the water, no peaks above it",
+    "confidence": "likely"
+   },
+   {
+    "do": "Low cobble or rock edge in the river on the right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Winter sunset glow ahead-right over the river",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only (closed 5 p.m. to 7 a.m.)",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO waterfall in view (the Falls are in a gorge 59 deg left), NO Mount Si, NO Rainier",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://www.americanwhitewater.org/content/River/view/river-detail/2216/main",
+   "https://www.gameandfishmag.com/editorial/fishing_salmon-steelhead-fishing_nw_0209_01/194389",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/tokul-creek-opens-game-fish-seasons-nov-8-2024-11",
+   "https://www.kpff.com/?p=18474",
+   "https://www.howsyourriver.com/access_sites/plum"
+  ],
+  "dropped": [
+   "Mount Rainier (175): no source",
+   "Mount Si: earlier point was not the summit; real summit 127 deg, 84 deg left, no source",
+   "Rattlesnake Ridge: no source",
+   "Bridge 63 m at 84 (not 52 m at 70)",
+   "'Small' creek: sources disagree",
+   "Hatchery grounds description: behind the angler",
+   "Golf course: out of view",
+   "Basin-wide forest note",
+   "SQUW1 gauge distance",
+   "Snoqualmie Falls as a visible landmark: in a gorge, 59 deg left",
+   "Discover Pass vs free: sources disagree"
+  ]
+ },
+ "cowlitz": {
+  "name": "Cowlitz River at the Barrier Dam launch (Salkum)",
+  "kind": "river",
+  "stand": {
+   "what": "Tacoma Power Barrier Dam Boat Launch, river-right (north) bank below the dam, 279 Barrier Dam Lane. Free public access. App coords 46.497,-122.646 are about 2.2 km south of this stand.",
+   "lat": 46.516,
+   "lon": -122.6381,
+   "proof": "OSM node 11930837344 ; https://www.mytpu.org/tacomapower/fish-wildlife-environment/cowlitz-river-project/cowlitz-fisheries-programs/cowlitz-salmon-hatchery.htm"
+  },
+  "facingDeg": 215,
+  "facingWords": "South-southwest across the Cowlitz, about 80 m of water to the far bank. The Barrier Dam and the salmon hatchery are well off to your left upstream; the river runs away downstream to your right.",
+  "facingProof": "Ray cast against OSM river polygon (relation 10559423): far bank 78-87 m between 195 and 225. Centerline 46 m at 211, flow 310, so the launch is on river right.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Late November sunset (about 238) is 23 deg right of ahead. June sunset (about 306) is 91 deg right, down the river.",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Barrier Dam and the Cowlitz Salmon Hatchery, 536 m upstream, 76 deg left, outside the frame",
+    "bearingDeg": 139,
+    "distanceMi": 0.33,
+    "side": "left",
+    "confidence": "proven",
+    "proof": "OSM way 453410792 ; Tacoma Power"
+   },
+   {
+    "what": "Wire-fenced fish-ladder intake and a no-fishing pool below the ladder",
+    "side": "left",
+    "confidence": "proven",
+    "proof": "https://leeroysramblings.com/Cowlitz_Bank_fishing.htm ; Tacoma Power"
+   },
+   {
+    "what": "ADA fishing ramp: sloping concrete switchback with 4 level platforms, concrete bumpers on the water side",
+    "side": "centre",
+    "confidence": "proven",
+    "proof": "Leeroy ; Tacoma Power"
+   },
+   {
+    "what": "Plunkers lined up on the bank between the dam and the launch",
+    "side": "left",
+    "confidence": "proven",
+    "proof": "Leeroy photo captions"
+   },
+   {
+    "what": "Mill Creek mouth 31 m downstream of the launch",
+    "bearingDeg": 302,
+    "distanceMi": 0.02,
+    "side": "right",
+    "confidence": "likely",
+    "proof": "OSM way 1286287190"
+   },
+   {
+    "what": "Free paved parking, restrooms, picnic tables about 77 m behind",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "Leeroy ; Tacoma Power"
+   }
+  ],
+  "bank": [],
+  "night": [
+   {
+    "what": "Gate hours: May 1-Nov 4, 4 a.m.-10 p.m.; Nov 7-Apr 20, 6 a.m.-6 p.m. No lighting found. Steelhead season is daylight only.",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Tacoma Power"
+   }
+  ],
+  "oneLine": "The Barrier Dam launch below the Salkum salmon hatchery: a free concrete ramp and ADA fishing ramp on the north bank, about 80 m of river to the far side, with plunkers lined up between the launch and the dam upstream on your left.",
+  "draw": [
+   {
+    "do": "Wide river (about 80 m) flowing from left to right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Concrete ramp and stepped concrete fishing platforms at your feet",
+    "confidence": "proven"
+   },
+   {
+    "do": "A line of plunkers' rods along the bank upstream to the left",
+    "confidence": "proven"
+   },
+   {
+    "do": "Far bank across the water: plain, no detail (not described by any source)",
+    "confidence": "unknown, keep plain"
+   },
+   {
+    "do": "Winter sunset ahead-right",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only in steelhead season (gate 6 a.m. to 6 p.m.)",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO dam in the frame (it is far left), NO Mount St. Helens, NO Rainier",
+    "confidence": "proven (geometry)"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/node/11930837344",
+   "https://www.mytpu.org/tacomapower/fish-wildlife-environment/cowlitz-river-project/cowlitz-fisheries-programs/cowlitz-salmon-hatchery.htm",
+   "https://leeroysramblings.com/Cowlitz_Bank_fishing.htm",
+   "https://www.howsyourriver.com/access_sites/barrier-dam"
+  ],
+  "dropped": [
+   "Dam ID corrected to way 453410792; dam is 76 deg LEFT, not behind",
+   "Mill Creek mouth is 31 m downstream at 302, not below the dam",
+   "Gravel bank: not said for Barrier Dam",
+   "Wooded valley side across the river: no source",
+   "Mount St. Helens, Rainier, Adams: out of frame, no source",
+   "'River bends away south': it runs WNW downstream",
+   "Hatchery ponds and Barrier Dam Lane: not in view",
+   "Numeric no-fishing distance below the dam: sources conflict",
+   "App text puts Blue Creek at Salkum: Blue Creek is about 5 mi downstream (see cowlitz-blue-creek)"
+  ]
+ },
+ "cowlitz-blue-creek": {
+  "name": "Cowlitz River at the Trout Hatchery / Blue Creek launch (Toledo)",
+  "kind": "river",
+  "appId": "cowlitz",
+  "isAppId": false,
+  "stand": {
+   "what": "Blue Creek Boat Launch / Cowlitz Trout Hatchery launch, north bank, 273 Blue Creek Lane. Free public access. About 4.9 mi downstream (west) of the Barrier Dam launch and about 6.6 km west of the app coords.",
+   "lat": 46.4838,
+   "lon": -122.7305,
+   "proof": "OSM node 3099061167 ; https://mytpu.org/?p=1315"
+  },
+  "facingDeg": 160,
+  "facingWords": "South-southeast across the Cowlitz, about 85 m of water to the far bank. The lot, restrooms and hatchery are behind your left shoulder; the trail to the Blue Creek mouth runs downstream behind your right shoulder.",
+  "facingProof": "Ray cast against OSM river polygon: far bank 82-85 m between 135 and 165. Centerline 46 m at 159, flow 247, so the launch is on the north (right) bank.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Late November sunset (about 238) is 78 deg to your right. June sunset (about 306) is behind your right shoulder.",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Concrete pad ramp to the water right next to the hatchery outlet weir",
+    "side": "centre",
+    "confidence": "proven",
+    "proof": "Leeroy"
+   },
+   {
+    "what": "Wheelchair-only fishing site within 100 ft of the hatchery outfall (2007 rule, recheck)",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "WDFW news release July 6, 2007 ; Tacoma Power"
+   },
+   {
+    "what": "Cowlitz Trout Hatchery 455 m behind-left; restrooms 134 m",
+    "bearingDeg": 50,
+    "distanceMi": 0.28,
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "Tacoma Power ; OSM relation 17626244"
+   },
+   {
+    "what": "Trail downstream to the Blue Creek mouth (0.59 mi); fish landed in a shallow pool below the mouth; crowded",
+    "bearingDeg": 259,
+    "distanceMi": 0.59,
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "Leeroy ; OSM ways 453410782, 793943055"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Hatchery wildlife area around the lot; trees and plants not described",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "OSM relation 10559424"
+   }
+  ],
+  "night": [
+   {
+    "what": "Camping allowed in a designated part of the lot up to three days; lots mapped as not lit",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Tacoma Power ; OSM lit=no"
+   }
+  ],
+  "oneLine": "The Blue Creek launch at the Cowlitz Trout Hatchery: a free lot, ramp and ADA platforms on the north bank by the hatchery outlet, about 85 m of river to the far side, and a trail downstream to the Blue Creek mouth. It is a zoo when the fish are in.",
+  "draw": [
+   {
+    "do": "Wide river (about 85 m) flowing from left to right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Concrete pad ramp at your feet beside a hatchery outlet weir",
+    "confidence": "proven"
+   },
+   {
+    "do": "Crowd of anglers when fish are in",
+    "confidence": "proven"
+   },
+   {
+    "do": "Far bank plain, no detail",
+    "confidence": "unknown, keep plain"
+   },
+   {
+    "do": "Winter sunset off to the right",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "No lights",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO Mount St. Helens (no source, bank trees likely hide it), NO Rainier",
+    "confidence": "likely"
+   }
+  ],
+  "sources": [
+   "https://www.openstreetmap.org/node/3099061167",
+   "https://mytpu.org/?p=1315",
+   "https://leeroysramblings.com/Cowlitz_Bank_fishing.htm",
+   "https://wdfw.wa.gov/newsroom/news-release/new-fishing-site-anglers-who-use-wheelchairs-opens-july-7-near-cowlitz-river-trout-hatchery"
+  ],
+  "dropped": [
+   "Facing corrected to 160; far bank 82-85 m",
+   "Blue Creek mouth 0.59 mi at 259",
+   "'Summer hole' trail name: OSM only",
+   "Mount St. Helens (128, 32 deg left): no photo from the launch",
+   "Blue Creek WAC night closure: snippet only",
+   "Fee: sources disagree",
+   "Rainier, Adams: no source"
+  ]
+ },
+ "lake-fenwick": {
+  "name": "Lake Fenwick (Kent), city fishing pier",
+  "kind": "lake",
+  "stand": {
+   "what": "City of Kent fishing pier in Lake Fenwick Park, west shore. Closed 2014, replaced spring 2018, photographed in place 2023-03-31. No 2025-26 status found. Park open dawn to dusk.",
+   "lat": 47.36746,
+   "lon": -122.27182,
+   "proof": "https://wdfw.wa.gov/fishing/locations/lowland-lakes/lake-fenwick ; https://commons.wikimedia.org/wiki/File:Fishing_pier_7934.jpg ; Kent Reporter 2015 ; ilovekent 2018 ; OSM way 1376002070"
+  },
+  "facingDeg": 105,
+  "facingWords": "East-southeast off the end of the short pier, about 100 m of water to the wooded east shore and its trail. The lake runs long and narrow to your left (north) and right (south); the boat launch is along the shore to your right.",
+  "facingProof": "Ray cast through OSM lake way 5884919: water 94-102 m between 60 and 105; 204 m north, 200 m south. Pier axis 295/115.",
+  "facingConfidence": "likely",
+  "sunsetSide": "The sun sets behind you over the west shore (late Nov behind-right, June behind-left).",
+  "skyline": [
+   {
+    "what": "Forest on the far (east) shore: the whole horizon, no peaks",
+    "side": "centre",
+    "confidence": "likely",
+    "proof": "OSM wood relation 21203813 ; https://en.wikipedia.org/wiki/Lake_Fenwick ; https://www.wta.org/go-hiking/hikes/lake-fenwick-park"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Short fishing pier, about 14 m, off the west shore; material unconfirmed (wooden vs floating)",
+    "side": "centre",
+    "confidence": "proven",
+    "proof": "OSM ; Commons photo 2023 ; WDFW"
+   },
+   {
+    "what": "WDFW boat launch on the west shore, 173 m south, to your right",
+    "bearingDeg": 186,
+    "distanceMi": 0.11,
+    "side": "right",
+    "confidence": "proven",
+    "proof": "WDFW ; OSM node 3665170908"
+   },
+   {
+    "what": "Gravel trail around the lake; free parking; disc golf. Lake 17.2 acres, max 31 ft",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "OSM ; Wikipedia ; WDFW"
+   },
+   {
+    "what": "Invasive Brazilian elodea; carp stocked in 2009 to eat it; current cover unknown",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "Kent Reporter 2015"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Forest park around the lake (140.9 acres); do not name tree species",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "Wikipedia"
+   }
+  ],
+  "night": [
+   {
+    "what": "Park open dawn to dusk; trails not lit; no pier lighting",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "OSM park way 632268924"
+   }
+  ],
+  "oneLine": "A small, long, north-south lake in a forested Kent park: you stand on the short city fishing pier off the west shore, about 100 m of still water to the wooded east shore, with the sun setting behind you.",
+  "draw": [
+   {
+    "do": "Short pier under your feet, plain build",
+    "confidence": "proven (pier), unknown (material)"
+   },
+   {
+    "do": "Small still lake, wooded far shore close across (about 100 m), the lake stretching away left and right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Trees as the whole skyline, no peaks",
+    "confidence": "likely"
+   },
+   {
+    "do": "Evening light from behind you",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only, no lamps",
+    "confidence": "likely"
+   },
+   {
+    "do": "NO mountains, NO houses on the far shore, NO lily pads",
+    "confidence": "likely"
+   }
+  ],
+  "sources": [
+   "https://wdfw.wa.gov/fishing/locations/lowland-lakes/lake-fenwick",
+   "https://en.wikipedia.org/wiki/Lake_Fenwick",
+   "https://commons.wikimedia.org/wiki/File:Fishing_pier_7934.jpg",
+   "https://kentreporter.com/news/kent-starts-to-shut-down-deteriorating-city-park-facilities-lake-fenwick-park-hit-first",
+   "https://ilovekent.net/?p=18373",
+   "https://www.wta.org/go-hiking/hikes/lake-fenwick-park"
+  ],
+  "dropped": [
+   "Launch is to your RIGHT, not behind",
+   "Steel steps are on the east-shore trail; footbridge 64 m behind",
+   "Dock closed 2014, not 2013",
+   "Facing 105, not 90",
+   "'Hand launch': WDFW says boat ramp",
+   "'Grass carp': source says carp",
+   "Mount Si and Rainier: low behind trees, no source",
+   "Houses and apartments: mapped only",
+   "St Helens, Adams",
+   "Lily pads; pier length beyond OSM"
+  ]
+ },
+ "lake-tapps": {
+  "name": "Lake Tapps",
+  "kind": "lake",
+  "stand": {
+   "what": "Allan Yorke Park launch and floating docks, south end of Lake Tapps (Bonney Lake city park, 7203 West Tapps Hwy). Alternate public stand: North Lake Tapps Park launch (Pierce County), 47.2408,-122.1691. App point 47.23,-122.18 is mid-lake.",
+   "lat": 47.192,
+   "lon": -122.16495,
+   "proof": "OSM slipway way 1088077058 and piers 1023706752/53/56 ; https://bonneylake.hosted.civiclive.com/residents/community/boating"
+  },
+  "altStands": [
+   {
+    "what": "North Lake Tapps Park launch (Pierce County)",
+    "lat": 47.2408,
+    "lon": -122.1691,
+    "facingDeg": 185
+   }
+  ],
+  "facingDeg": 90,
+  "facingWords": "Due east off the end of the docks across a bay about 280 m wide to houses on the far bank; the long open water runs north-northeast. From North Lake Tapps Park you face south (about 185) down 1.7 to 3.4 km of open water.",
+  "facingProof": "Pier ways run due east, 13-19 m. Ray cast over OSM relation 102278: east 280 m; 10-30 deg 1.1-1.8 km.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Allan Yorke facing 90: sunset behind you all year. North park facing 185: late Nov 53 deg right, June 121 deg right.",
+  "skyline": [
+   {
+    "what": "Mount Rainier",
+    "bearingDeg": 140.8,
+    "distanceMi": 30.3,
+    "side": "right",
+    "confidence": "likely",
+    "detail": "51 deg right of the Allan Yorke east facing. From North Lake Tapps Park 144.2, 33 mi, 41 deg left of a south facing (stronger source there). Not confirmed from the Allan Yorke dock itself.",
+    "proof": "https://www.islands.com/2185904/lake-tapps-washington-outside-tacoma-artificial-parks-golf-mountain-views/ ; https://www.piercecountywa.gov/1326/North-Lake-Tapps-Park"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Allan Yorke 2-lane asphalt ramp with short floating wooden piers running east; city fishing dock",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Bonney Lake parks page ; OSM"
+   },
+   {
+    "what": "Launches closed for drawdown (Allan Yorke late July 2026, North park Aug 14); stumps and logs exposed; Allan Yorke residents only ($43.80 pass) when open; lake normally drawn down in winter",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "KOMO ; Bonney Lake boating page ; WDFW"
+   },
+   {
+    "what": "Lake 2,433 acres, 546 ft; owned by Cascade Water Alliance",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW ; KOMO"
+   },
+   {
+    "what": "North Lake Tapps Park: boat ramp, bathrooms, plenty of bank access, about 10,000 ft of waterfront with a sandy swim area",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW ; Pierce County"
+   },
+   {
+    "what": "Driftwood Point: named cape at 47.2332,-122.1868 on the west shore; gated residents-only HOA park, a spot reached by water",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "GNIS via hometownlocator"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Houses around the shore; public access only at the access sites; the far bank of the Allan Yorke bay is residential",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW"
+   },
+   {
+    "what": "Allan Yorke park and ballfields behind you",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "Bonney Lake parks page"
+   }
+  ],
+  "night": [
+   {
+    "what": "Park and launch close at dusk; no lighting source",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Bonney Lake boating page"
+   }
+  ],
+  "oneLine": "Standing on the Allan Yorke docks, the park and ballfields behind you, looking east across a small bay to houses on the far bank.",
+  "draw": [
+   {
+    "do": "Short floating wooden docks under your feet",
+    "confidence": "proven"
+   },
+   {
+    "do": "Small bay ahead with houses along the far bank",
+    "confidence": "proven"
+   },
+   {
+    "do": "Long open water opening to the left (north)",
+    "confidence": "likely"
+   },
+   {
+    "do": "Drawdown look: low water, stumps and logs showing near shore (this season)",
+    "confidence": "proven"
+   },
+   {
+    "do": "Mount Rainier off to the right, only if the builder accepts a likely item; safer from the North Lake Tapps view",
+    "confidence": "likely"
+   },
+   {
+    "do": "Evening light from behind you; daylight only",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO St. Helens, NO Olympics, NO wild wooded shore (it is houses)",
+    "confidence": "proven"
+   }
+  ],
+  "sources": [
+   "https://wdfw.wa.gov/fishing/locations/lowland-lakes/lake-tapps",
+   "https://bonneylake.hosted.civiclive.com/residents/community/boating",
+   "https://bonneylake.hosted.civiclive.com/Government/departments/Public_Services/Public_Works/Parks_Trails",
+   "https://komonews.com/newsletter-daily/public-boat-launch-access-at-lake-tapps-to-close-due-to-low-water-levels-bonney-lake-hazardous-conditions-boaters-snowpack-cascades-ceo-john-taylor-pierce-county",
+   "https://www.islands.com/2185904/lake-tapps-washington-outside-tacoma-artificial-parks-golf-mountain-views/",
+   "https://www.piercecountywa.gov/1326/North-Lake-Tapps-Park"
+  ],
+  "dropped": [
+   "Mount St. Helens and Mount Adams: no source",
+   "Olympics, Narrows Bridge, Seattle: no source",
+   "Rainier as proven from the Allan Yorke dock: kept as likely",
+   "'10,000 ft of sandy waterfront' is Pierce County's figure",
+   "Owner from KOMO, not WDFW",
+   "Snack shack, volleyball, swim pier, police boat pier, second pier: not confirmed",
+   "Tree species",
+   "Lighting or night fishing"
+  ]
+ },
+ "american-lake": {
+  "name": "American Lake (Lakewood)",
+  "kind": "lake",
+  "stand": {
+   "what": "WDFW American Lake access ramp, south end of the lake off Portland St (I-5 exit 122, Tillicum), on Military Department land. Best match to the app's 'paved two-lane ramp'. Other public stands: American Lake Park (north shore, 47.1408,-122.5613) and the Harry Todd Park fishing pier (east shore, 47.1280,-122.5573).",
+   "lat": 47.12196,
+   "lon": -122.56906,
+   "proof": "OSM node 6403354937 ; https://wdfw.wa.gov/places-to-go/water-access-sites/american-lake-244"
+  },
+  "altStands": [
+   {
+    "what": "American Lake Park launch and docks",
+    "lat": 47.1408,
+    "lon": -122.5613,
+    "facingDeg": 190
+   },
+   {
+    "what": "Harry Todd Park fishing pier",
+    "lat": 47.128,
+    "lon": -122.5573,
+    "facingDeg": 305
+   }
+  ],
+  "facingDeg": 5,
+  "facingWords": "North up the lake from the WDFW ramp, 1.6 to 2.1 km of open water, with Beard Island close on your left. From American Lake Park you face south-southwest (about 190). From the Harry Todd pier you face west-northwest (about 305).",
+  "facingProof": "Ray cast over OSM relation 22652 from the ramp: water spans 300 to 20, 1.64 km at 0, 2.13 km at 10.",
+  "facingConfidence": "likely",
+  "sunsetSide": "WDFW ramp facing 5: late Nov sunset behind-left (127 deg left); June 59 deg left. American Lake Park facing 190: Nov 48 right, June 116 right. Harry Todd facing 305: Nov 67 left, June almost straight ahead.",
+  "skyline": [
+   {
+    "what": "Mount Rainier",
+    "bearingDeg": 115.8,
+    "distanceMi": 42.4,
+    "side": "behind",
+    "confidence": "likely",
+    "detail": "Behind your right shoulder at the WDFW ramp (111 right). From American Lake Park (117.6) it is 72 deg left. Behind you at Harry Todd. Sources say it is seen from the north park and the lake.",
+    "proof": "Tacoma News Tribune via aol ; https://www.visitpiercecounty.com/blog/post/putting-the-lake-in-lakewood/"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Beard Island close off the ramp on your left (106-172 m, bearings 269-310); Short Island behind-left (109-149 m, 233-254)",
+    "side": "left",
+    "confidence": "likely",
+    "proof": "OSM ways 5094171, 5094189 ; https://en.wikipedia.org/wiki/American_Lake"
+   },
+   {
+    "what": "WDFW ramp: concrete, restrooms, one lot, no boarding float, no fishing platforms, open year-round; Discover Pass or Vehicle Access Pass",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW access and lake pages"
+   },
+   {
+    "what": "American Lake Park: swim beach, shelter, playground, restroom, $15 launch, four docks running south; launch reopened January 2026",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://cityoflakewood.us/american-lake-park ; aol/News Tribune"
+   },
+   {
+    "what": "Harry Todd Park: fishing pier, boat docks, swim beach, open 7am-9pm",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "lakewood-chamber ; wildliferecreation.org"
+   },
+   {
+    "what": "Lake 1,091 acres, average 53 ft, max 90 ft; five islands, Silcox wooded and inhabited; JBLM on part of the shore",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "Wikipedia ; WDFW"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Wooded, residential Silcox Island mid-lake",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "visitpiercecounty"
+   },
+   {
+    "what": "Swimming beaches at the parks",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "cityoflakewood"
+   }
+  ],
+  "night": [
+   {
+    "what": "Harry Todd open until 9pm; no source on lighting or night fishing",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "lakewood-chamber"
+   }
+  ],
+  "oneLine": "Standing at the WDFW ramp at the south end, looking north up the long lake with small Beard Island just off your left.",
+  "draw": [
+   {
+    "do": "Big open lake running away ahead (north), wide water",
+    "confidence": "likely"
+   },
+   {
+    "do": "Small island very close on the left (Beard), another behind-left",
+    "confidence": "likely"
+   },
+   {
+    "do": "Concrete ramp at your feet, no dock",
+    "confidence": "proven"
+   },
+   {
+    "do": "A larger wooded island further out in the lake (Silcox)",
+    "confidence": "likely"
+   },
+   {
+    "do": "Summer sunset ahead-left; winter sunset behind-left",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Rainier in the forward view at this ramp (it is behind your right shoulder)",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO Olympics, NO bridges, NO city skyline",
+    "confidence": "likely"
+   }
+  ],
+  "sources": [
+   "https://wdfw.wa.gov/places-to-go/water-access-sites/american-lake-244",
+   "https://wdfw.wa.gov/fishing/locations/lowland-lakes/american-lake",
+   "https://wdfw.wa.gov/newsroom/news-release/new-partnership-starts-work-party-saturday-american-lake-boat-launch",
+   "https://cityoflakewood.us/american-lake-park",
+   "https://lakewood-chamber.org/places/harry-todd-park-at-american-lake/",
+   "https://wildliferecreation.org/projects/harry-todd-waterfront-improvements/",
+   "https://en.wikipedia.org/wiki/American_Lake",
+   "https://www.visitpiercecounty.com/blog/post/putting-the-lake-in-lakewood/"
+  ],
+  "dropped": [
+   "'Wind builds fast': app note only",
+   "American Lake Park launch hours",
+   "Harry Todd facing is 305, not 255",
+   "WDFW access page lists 1 ramp; lake page says two-lane",
+   "Narrows Bridge, Browns Point, Seattle, Olympics, St. Helens, Adams: no source",
+   "Tree species",
+   "Lighting or night fishing",
+   "Assembly correction: Short Island is behind-left of the ramp facing, not left"
+  ]
+ },
+ "w-l466": {
+  "name": "Bonney Lake (Pond)",
+  "kind": "pond",
+  "stand": {
+   "what": "Public non-motorized gravel launch on 74th St E, northwest shore, just before Ken Simmons Park (18207 74th St E). The city says you can fish at the park. App point is about 150 m SE, in the lake.",
+   "lat": 47.18997,
+   "lon": -122.18706,
+   "proof": "OSM slipway way 1429806533 ; https://www.howsyourriver.com/access_sites/bonney-lake ; Bonney Lake boating and parks pages"
+  },
+  "facingDeg": 160,
+  "facingWords": "South-southeast from the foot of the ramp across the little lake, about 250 to 280 m to the far shore.",
+  "facingProof": "Ramp runs about 184. Ray cast over OSM way 98568843 from the water end: water 120 to 280, longest 245-280 m at 150-170.",
+  "facingConfidence": "likely",
+  "sunsetSide": "Facing 160: late Nov sunset is 78 deg right; June is behind your right shoulder.",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Shallow gravel launch, no restroom, limited parking; small boats, no combustion engines",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://wdfw.wa.gov/fishing/locations/lowland-lakes/bonney-lake ; city boating page"
+   },
+   {
+    "what": "No fishing pier, despite the WDFW plant name 'BONNEY LK (PIER)'",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW, city, Willhite, OSM show none"
+   },
+   {
+    "what": "Lake 16.9 acres, 608 ft; shore access good but limited",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "WDFW"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Ken Simmons Park, very small (picnic spots, benches, small playground), through wetlands to the west: on your right and behind",
+    "side": "right",
+    "confidence": "likely",
+    "proof": "https://www.willhiteweb.com/washington/bonney_lake/lake_ken_simmons_park_144.htm ; OSM way 1429806534"
+   },
+   {
+    "what": "Houses around the lake (OSM residential land use, private HOA launches)",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "city boating page ; OSM"
+   }
+  ],
+  "night": [
+   {
+    "what": "Ken Simmons Park closes at dusk; no lighting",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "city parks page"
+   }
+  ],
+  "oneLine": "At the foot of the little gravel ramp off 74th St E, looking south-southeast across a small lake about 250 m wide, with the park and wetlands off to your right.",
+  "draw": [
+   {
+    "do": "Small pond-sized lake, far shore close (about 250 m)",
+    "confidence": "proven (size), likely (facing)"
+   },
+   {
+    "do": "Gravel ramp at your feet, NO pier or dock",
+    "confidence": "proven"
+   },
+   {
+    "do": "Wetland edge and a little park off to the right",
+    "confidence": "likely"
+   },
+   {
+    "do": "Houses among trees around the shore",
+    "confidence": "likely"
+   },
+   {
+    "do": "Winter sunset off to the right",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Daylight only",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO Mount Rainier (no source shows it here), NO mountains at all",
+    "confidence": "likely"
+   }
+  ],
+  "sources": [
+   "https://wdfw.wa.gov/fishing/locations/lowland-lakes/bonney-lake",
+   "https://bonneylake.hosted.civiclive.com/residents/community/boating",
+   "https://bonneylake.hosted.civiclive.com/Government/departments/Public_Services/Public_Works/Parks_Trails",
+   "https://www.howsyourriver.com/access_sites/bonney-lake",
+   "https://www.willhiteweb.com/washington/bonney_lake/lake_ken_simmons_park_144.htm",
+   "https://www.openstreetmap.org/way/98568843",
+   "https://www.openstreetmap.org/way/1429806533"
+  ],
+  "dropped": [
+   "Mount Rainier (139.2, 21 deg left): no source; islands.com says views here are less dramatic than Tapps",
+   "Facing 160 from the water's edge, not 130",
+   "Wetlands and park on your right, not left",
+   "Swim area with diving board: not confirmed",
+   "St. Helens, Adams, Olympics, Narrows Bridge, Tacoma, Seattle: no source",
+   "Tree species and cattails",
+   "Lighting or night fishing"
+  ]
+ }
+}

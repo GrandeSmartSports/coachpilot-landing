@@ -167,6 +167,80 @@
 :root[data-dark="1"] .w-lace{opacity:.26}
 :root[data-dark="1"] .w-wetsand{fill:color-mix(in oklab,var(--bg) 62%,var(--water1))}
 
+/* ================= a spot's own picture =================
+   rigs/scene.js paints a spot from its card (rigs/spots-scene.js) and marks
+   the element that holds it (lightUp): where that spot's sun sets
+   (data-set, --setx) and rises (data-rise, --risex), the moon (--moon), fog
+   (--fog). Side on, the low light rakes in from that edge; at your back the
+   water ahead has no road and the far shore takes the light instead; a lake
+   with no known facing gets a soft light from nowhere in particular. */
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set],:root[data-sky="dusk"] :is(.scene,.vspot)[data-set]{--lx:var(--setx)}
+:root[data-sky="dawn"] :is(.scene,.vspot)[data-rise],:root[data-sky="firstLight"] :is(.scene,.vspot)[data-rise]{--lx:var(--risex)}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="left"]{--road:.4;--litl:.36;--litr:0;--rimx:-1.3px}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="right"]{--road:.4;--litl:0;--litr:.36;--rimx:1.3px}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"]{--lx:195px;--ly:110px;--glow:.34;--glowx:2.6;--glowy:.55;--road:.05;--gr:.3;--litl:.2;--litr:.2;--rimx:0px;--rimy:-1.3px;--mtn:1}
+:root[data-sky="dusk"] :is(.scene,.vspot)[data-set="behind"]{--lx:195px;--glow:.3;--glowx:2.6;--road:.04;--gr:.25}
+:root[data-sky="dawn"] :is(.scene,.vspot)[data-rise="behind"],:root[data-sky="firstLight"] :is(.scene,.vspot)[data-rise="behind"]{--lx:195px;--glow:.42;--glowx:2.6;--road:.06;--gr:.3}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="none"],:root[data-sky="dusk"] :is(.scene,.vspot)[data-set="none"],
+:root[data-sky="dawn"] :is(.scene,.vspot)[data-rise="none"],:root[data-sky="firstLight"] :is(.scene,.vspot)[data-rise="none"]{--lx:195px;--glowx:2.8;--glowy:.5;--road:.1;--gr:.4}
+:root[data-sky="bright"] :is(.scene,.vspot)[data-noon="behind"]{--road:.06;--gr:.55}
+/* the sun at your back: the far shore and the mountain take its warmth */
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"] :is(.w-far,.w-l0){fill:color-mix(in oklab,var(--r0) 62%,var(--glowc))}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"] .w-l1{fill:color-mix(in oklab,var(--r1) 70%,var(--glowc))}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"] .w-l2{fill:color-mix(in oklab,var(--r2) 76%,var(--glowc))}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"] .w-l3{fill:color-mix(in oklab,var(--r3) 82%,var(--glowc))}
+:root[data-sky="golden"] :is(.scene,.vspot)[data-set="behind"] .w-mtn-l{opacity:.8}
+/* the moon: how much light the night has to lay on the water */
+:root[data-sky="night"] :is(.scene,.vspot)[data-moon]{--glow:calc(.08 + var(--moon)*.34);--road:calc(.05 + var(--moon)*.45);--gr:calc(.22 + var(--moon)*.55);--stars:calc(.92 - var(--moon)*.42)}
+/* fog: the far things go first */
+.w-fog{fill:var(--hz);opacity:calc(var(--fog,0)*.66)}
+.w-fog2{opacity:calc(var(--fog,0)*.28)}
+[data-fog] .w-mtn{opacity:calc(var(--mtn)*(1 - var(--fog)))}
+[data-fog] .w-stars{opacity:calc(var(--stars)*(1 - var(--fog)))}
+/* the parts */
+.w-l4{fill:var(--r4)}.w-l4-stop{stop-color:var(--r4)}
+.w-tower{fill:color-mix(in oklab,var(--hz) 22%,var(--lum))}
+.w-bcab{fill:none;stroke:var(--r1);stroke-width:.5}
+.w-rockb{fill:var(--r5)}.w-rockm{fill:var(--r4)}.w-rockd{fill:var(--r5);opacity:.5}
+.w-rockt{fill:var(--glowc);opacity:calc(.14 + var(--litl) + var(--litr))}
+.w-rockw{fill:color-mix(in oklab,var(--r5) 65%,var(--water2))}
+.w-farrock .w-rockb,.w-farrock .w-rockd{fill:var(--r3)}.w-farrock .w-rockm{fill:var(--r2)}
+.w-midrock .w-rockb{fill:var(--r4)}.w-midrock .w-rockm{fill:var(--r3)}.w-midrock .w-rockd{fill:var(--r4)}
+.w-mast{fill:var(--r3)}
+.w-twig{opacity:.62}
+.w-house{fill:color-mix(in oklab,var(--r1) 50%,var(--lum))}
+.w-roof{fill:var(--r4)}
+.w-capf{fill:color-mix(in oklab,var(--hz) 25%,var(--lum));opacity:.85}
+.w-capsh{fill:var(--water2);opacity:.35}
+.w-rip{fill:none;stroke:var(--glintc);stroke-width:.7;stroke-linecap:round;opacity:calc(.3 + var(--gl)*.7)}
+.w-grate{fill:none;stroke:var(--r5);stroke-width:.45;opacity:.26}
+.w-rail2{fill:var(--r5)}
+.w-roofu{fill:var(--r4);opacity:.94}
+.w-planksn{opacity:.24}
+.w-ripm{fill:color-mix(in oklab,var(--bg) 55%,var(--shade));opacity:.2}
+.w-pools{fill:color-mix(in oklab,var(--water1) 45%,var(--hz));opacity:.8}
+.w-lawn{fill:var(--r3)}
+.w-grass{fill:var(--r5)}.w-sedge{fill:var(--r4)}
+.w-ramp{fill:color-mix(in srgb,var(--bg) 74%,var(--lum))}
+.w-dock{fill:color-mix(in oklab,var(--r4) 62%,var(--lum))}
+.w-rampr{fill:color-mix(in srgb,var(--bg) 72%,var(--shade))}
+.w-rampw{fill:color-mix(in oklab,var(--water2) 72%,var(--bg));opacity:.7}
+.w-groove{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.16}
+.w-gravel{fill:color-mix(in srgb,var(--bg) 82%,var(--shade))}
+.w-flat{fill:color-mix(in srgb,var(--bg) 64%,var(--water1))}
+:root[data-dark="1"] .w-flat{fill:color-mix(in srgb,var(--bg) 70%,var(--water1))}
+.w-mud{fill:color-mix(in oklab,var(--r4) 55%,var(--bg))}
+.w-creek{fill:color-mix(in oklab,var(--water1) 50%,var(--lum));opacity:.5}
+.w-eddy{fill:none;stroke:var(--lum);stroke-width:.8;stroke-dasharray:18 5 30 7;opacity:.42;stroke-linecap:round}
+.w-sand{fill:color-mix(in srgb,var(--bg) 84%,var(--gold));opacity:.55}
+:root[data-dark="1"] .w-tower{fill:color-mix(in oklab,var(--r2) 70%,var(--ink))}
+:root[data-dark="1"] .w-house{fill:var(--r3)}
+:root[data-dark="1"] .w-capf{opacity:.4}
+:root[data-dark="1"] .w-ramp{fill:color-mix(in srgb,var(--bg) 84%,var(--ink))}
+:root[data-dark="1"] .w-rampr{fill:color-mix(in srgb,var(--bg) 70%,var(--shore))}
+:root[data-dark="1"] .w-roofu{fill:color-mix(in oklab,var(--r4) 80%,var(--lampc))}
+:root[data-dark="1"] .w-sand{opacity:.2}
+
 /* views: the tile-sized paintings (RIG.water.view) */
 .view{display:block;width:100%;height:100%}
 .view .v-gl{stroke-width:.6}
