@@ -1,0 +1,523 @@
+# The 2026-27 Washington pamphlet, as eregulations.com serves it (text of two pages, read 2026-11-27):
+# https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules (printed page 25)
+# https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations (printed pages 23 and 24)
+# tests/rigs-lakes.test.mjs holds each rule quote in rigs/lakefish.js to this text.
+
+ Washington Statewide Freshwater Species Rules | eRegulations 
+ Skip to main content 
+ [img:eRegulations] 
+ Menu
+ Washington
+ Fishing
+ [img:Fishing] 
+ Washington 
+ › 
+ Fishing 
+ › 
+ Statewide Freshwater Species Rules 
+ General Info 
+ How to Use These eRegulations 
+ Statewide General Rules 
+ Other General Information 
+ Eat Fish, Choose Wisely 
+ Definitions 
+ Message from WDFW 
+ Catch Record Cards & Codes 
+ Contact Information 
+ Licenses, Permits & Fees 
+ License Information 
+ License Fees 
+ Fishing Regulations 
+ Statewide Freshwater Regulations 
+ Fish Handling Rules 
+ Statewide Freshwater Species Rules 
+ Species 
+ Freshwater Fish Identification 
+ Saltwater Fish Identification 
+ Salmon Identification 
+ Rockfish Identification 
+ Shellfish 
+ Shellfish/Seaweed Regulations 
+ Shellfish Safety Information 
+ Statewide Gear Rules 
+ Shellfish/Seaweed Species Rules 
+ Razor Clam Rules 
+ Crab Rules 
+ Shrimp Rules 
+ Marine Preserves, Conservation, and Shellfish Protection 
+ Marine Rules & Areas 
+ Marine Area Rules & Definitions 
+ Marine Area 1 
+ Marine Area 2 
+ Marine Area 3 
+ Marine Area 4 
+ Marine Area 5 
+ Marine Area 6 
+ Marine Area 7 
+ Marine Area 8 
+ Marine Area 9 
+ Marine Area 10 
+ Marine Area 11 
+ Marine Area 12 
+ Marine Area 13 
+ Special Rules - Rivers & Lakes 
+ Puget Sound & Coastal Rivers Special Rules: A-C 
+ Puget Sound & Coastal Rivers Special Rules: D-K 
+ Puget Sound & Coastal Rivers Special Rules: L-R 
+ Puget Sound & Coastal Rivers Special Rules: S-Z 
+ Columbia Basin Rivers Special Rules: Columbia River 
+ Columbia Basin Rivers Special Rules: A-C 
+ Columbia Basin Rivers Special Rules: D-K 
+ Columbia Basin Rivers Special Rules: L-N 
+ Columbia Basin Rivers Special Rules: O-S 
+ Columbia Basin Rivers Special Rules: T-Z 
+ Westside Lakes Special Rules: A-E 
+ Westside Lakes Special Rules: F-P 
+ Westside Lakes Special Rules: Q-Z 
+ Eastside Lakes Special Rules: A-F 
+ Eastside Lakes Special Rules: G-P 
+ Eastside Lakes Special Rules: Q-Z 
+ PDF Downloads 
+ Washington Fishing Guide - Spanish 
+ Corrections & Clarifications 2026-2027 
+ [img:Washington Fishing] 
+ [img:Washington Fishing Guide - Spanish Translation] 
+ Statewide Freshwater Species Rules
+ Last Updated: June 18, 2026
+ UNLESS OTHERWISE LISTED in the Special Rules: The following Statewide Freshwater Rules and seasons apply:
+ Game Fish 
+ Possession limit for game fish is 2 daily limits in any form. 
+ Bass 
+ (See DOH advisory )
+ May be caught, retained, and released alive from a livewell until a daily limit is in possession.
+ Largemouth Bass: No min. size in lakes, ponds, and reservoirs. Only largemouth bass less than 12" may be retained, except 1 over 17" may be retained. Daily limit 5. No size restriction/daily limit in rivers, streams, and beaver ponds. 
+ Smallmouth Bass: No min. size in lakes, ponds, and reservoirs. Only 1 smallmouth bass over 14" may be retained. Daily limit 10. No size restriction/daily limit in rivers, streams, and beaver ponds.
+ Walleye: 
+ Min. size 12" in lakes, ponds, and reservoirs. Daily limit 8. Only 1 over 22" may be retained. May be caught, retained, and released alive from a livewell until daily limit is in possession. No size restriction/daily limit in rivers, streams, and beaver ponds.
+ Channel Catfish: 
+ No min. size in lakes, ponds, and reservoirs. Daily limit 5.
+ No min. size/daily limit in rivers, streams, and beaver ponds.
+ Burbot (Freshwater Ling): 
+ No min. size. Daily limit 5. 
+ Crappie, Northern Pikeminnow, Peamouth Chub, Perch, Suckers, Sunfish, Catfish (Except Channel), Rock Bass, Striped Bass: 
+ No min. size. No daily limit.
+ Grass Carp: 
+ Closed unless otherwise listed in Special Rules.
+ Kokanee : 
+ No min. size. Daily limit 10. When fishing with bait, all kokanee that are lawful to possess and are equal to or greater than the minimum size are counted as part of the daily limit whether kept or released.
+ Tiger Muskellunge (Tiger Muskie): 
+ Min. size 50". Daily limit 1.
+ Whitefish: 
+ No min. size. Daily limit 15.
+ Steelhead: 
+ Release all wild steelhead. 
+ Min. size 20". Daily limit 2. Open during salmon or game fish seasons unless as otherwise listed.
+ Trout 
+ The combined daily limit for an angler that fishes in both rivers and lakes on the same day is 5 trout, no more than 2 may be from rivers. 
+ When fishing with bait, all trout that are lawful to possess and are equal to or greater than the minimum size are counted as part of the daily limit whether kept or released.
+ Brown Trout, Cutthroat Trout, Rainbow Trout, Golden Trout, Tiger Trout, and Grayling: In rivers, streams, and beaver ponds: Min. size 8". Daily limit 2. 
+ In lakes, ponds, and reservoirs: No min. size. Daily limit 5. 
+ Char 
+ Lake Trout: No min. size. No daily limit.
+ Eastern Brook Trout (EBT): No min. size. No daily limit.
+ Dolly Varden/Bull Trout: Closed unless otherwise listed in Special Rules.
+ Food Fish
+ Common Carp : 
+ No min. size. No daily limit. No possession limit. May also be taken by spear or bow-and-arrow. Open only during open game fish or salmon seasons.
+ Shad: 
+ No min. size. No daily limit. No possession limit. Open only during open game fish or salmon seasons except Apr. 1-May 15: closed in the mainstem Columbia River downstream of Bonneville Dam.
+ Salmon: 
+ Anglers may not continue to fish for salmon after the adult portion of the daily limit has been retained.
+ Possession limit — 2 daily limits in fresh form. An additional 40 pounds of salmon may be possessed in frozen or processed form (see Definitions ). Atlantic salmon may be retained during any open trout or salmon fishery. There is no size limit or daily limit for Atlantic salmon.
+ Forage Fish: 
+ Forage Fish: No min. size. Daily limit is 10 lbs. in the aggregate with herring, sardines, sand lance, anchovies, and all species of smelt (including surf smelt, eulachon, longfin smelt, night smelt, or whitebait). Possession limit — 2 daily limits in fresh form. Additional smelt may be possessed in a frozen or processed form. All smelt caught must be kept and count toward the daily limit. Smelt may be taken by dip net. Each smelt harvester must use a separate container to hold their catch and the container must be in the harvester's presence or identified with the harvester's name. Statewide closure of eulachon (Columbia River smelt): Eulachon may not be retained unless authorized by emergency rule. Check the Cowlitz River smelt fishing webpage ( https://wdfw.wa.gov/fishing/re... ) for announcements from January through March. Fishing for other smelt species is open in all rivers — except the Columbia River and its tributaries — only during open game fish or salmon seasons, unless otherwise specified in special rules.
+ White Sturgeon: 
+ Columbia River from Bonneville Dam upstream to McNary Dam including tributaries: Min. size 38" fork length in waters downstream of The Dalles Dam, and min. size 43" fork length in waters upstream of The Dalles Dam. Max. size 54" fork length. Daily limit 1. Possession limit: is 2 daily limits in a fresh, frozen or processed form. Annual limit 2 sturgeon statewide per license year (April 1-March 31). Unless specifically noted in special rules, open only during open game fish or salmon seasons. Please note rules on Statewide Freshwater Regulations . 
+ Columbia River from Bonneville Dam Downstream, and from McNary Dam to Chief Joseph Dam, Snake River, coastal, and Puget Sound waters including their tributaries: Catch-and-release only. Open only during open game fish or salmon seasons unless specifically noted in special rules. Please note rules on Statewide Freshwater Regulations . 
+ Green Sturgeon: 
+ It is unlawful to fish for or retain green sturgeon.
+ Other
+ Lamprey: 
+ It is unlawful to take, fish for, or possess Pacific lamprey, western brook lamprey, or river lamprey or to use any species of lamprey as fishing bait.
+ Northern Pike: 
+ No min. size. No daily limit. No possession limit. Must be dead before being removed from riparian area (immediate vicinity of water body).
+ Other Fish Not Classified as Game Fish or Food Fish: 
+ Closed. See definitions .
+ Bullfrogs: 
+ (no license required) No min. size. No daily limit. Must be taken by angling, hand-dip netting, spearing (gigging), or with bow-and-arrow.
+ Washington 
+ [img:Fishing] 
+ [img:Hunting] 
+ [img:Game Bird Hunting] 
+ General Info 
+ How to Use These eRegulations 
+ Statewide General Rules 
+ Other General Information 
+ Eat Fish, Choose Wisely 
+ Definitions 
+ Message from WDFW 
+ Catch Record Cards & Codes 
+ Contact Information 
+ Licenses, Permits & Fees 
+ License Information 
+ License Fees 
+ Fishing Regulations 
+ Statewide Freshwater Regulations 
+ Fish Handling Rules 
+ Statewide Freshwater Species Rules 
+ Species 
+ Freshwater Fish Identification 
+ Saltwater Fish Identification 
+ Salmon Identification 
+ Rockfish Identification 
+ Shellfish 
+ Shellfish/Seaweed Regulations 
+ Shellfish Safety Information 
+ Statewide Gear Rules 
+ Shellfish/Seaweed Species Rules 
+ Razor Clam Rules 
+ Crab Rules 
+ Shrimp Rules 
+ Marine Preserves, Conservation, and Shellfish Protection 
+ Marine Rules & Areas 
+ Marine Area Rules & Definitions 
+ Marine Area 1 
+ Marine Area 2 
+ Marine Area 3 
+ Marine Area 4 
+ Marine Area 5 
+ Marine Area 6 
+ Marine Area 7 
+ Marine Area 8 
+ Marine Area 9 
+ Marine Area 10 
+ Marine Area 11 
+ Marine Area 12 
+ Marine Area 13 
+ Special Rules - Rivers & Lakes 
+ Puget Sound & Coastal Rivers Special Rules: A-C 
+ Puget Sound & Coastal Rivers Special Rules: D-K 
+ Puget Sound & Coastal Rivers Special Rules: L-R 
+ Puget Sound & Coastal Rivers Special Rules: S-Z 
+ Columbia Basin Rivers Special Rules: Columbia River 
+ Columbia Basin Rivers Special Rules: A-C 
+ Columbia Basin Rivers Special Rules: D-K 
+ Columbia Basin Rivers Special Rules: L-N 
+ Columbia Basin Rivers Special Rules: O-S 
+ Columbia Basin Rivers Special Rules: T-Z 
+ Westside Lakes Special Rules: A-E 
+ Westside Lakes Special Rules: F-P 
+ Westside Lakes Special Rules: Q-Z 
+ Eastside Lakes Special Rules: A-F 
+ Eastside Lakes Special Rules: G-P 
+ Eastside Lakes Special Rules: Q-Z 
+ PDF Downloads 
+ Washington Fishing Guide - Spanish 
+ Corrections & Clarifications 2026-2027 
+ [img:Washington Fishing] 
+ [img:Washington Fishing Guide - Spanish Translation] 
+ Home 
+ |
+ Privacy Policy 
+ |
+ For advertising opportunities please contact us . 
+ © eRegulations. All Rights Reserved.
+ [img:] 
+ 
+
+
+ Washington Statewide Freshwater Regulations | eRegulations 
+ Skip to main content 
+ [img:eRegulations] 
+ Menu
+ Washington
+ Fishing
+ [img:Fishing] 
+ Washington 
+ › 
+ Fishing 
+ › 
+ Statewide Freshwater Regulations 
+ General Info 
+ How to Use These eRegulations 
+ Statewide General Rules 
+ Other General Information 
+ Eat Fish, Choose Wisely 
+ Definitions 
+ Message from WDFW 
+ Catch Record Cards & Codes 
+ Contact Information 
+ Licenses, Permits & Fees 
+ License Information 
+ License Fees 
+ Fishing Regulations 
+ Statewide Freshwater Regulations 
+ Fish Handling Rules 
+ Statewide Freshwater Species Rules 
+ Species 
+ Freshwater Fish Identification 
+ Saltwater Fish Identification 
+ Salmon Identification 
+ Rockfish Identification 
+ Shellfish 
+ Shellfish/Seaweed Regulations 
+ Shellfish Safety Information 
+ Statewide Gear Rules 
+ Shellfish/Seaweed Species Rules 
+ Razor Clam Rules 
+ Crab Rules 
+ Shrimp Rules 
+ Marine Preserves, Conservation, and Shellfish Protection 
+ Marine Rules & Areas 
+ Marine Area Rules & Definitions 
+ Marine Area 1 
+ Marine Area 2 
+ Marine Area 3 
+ Marine Area 4 
+ Marine Area 5 
+ Marine Area 6 
+ Marine Area 7 
+ Marine Area 8 
+ Marine Area 9 
+ Marine Area 10 
+ Marine Area 11 
+ Marine Area 12 
+ Marine Area 13 
+ Special Rules - Rivers & Lakes 
+ Puget Sound & Coastal Rivers Special Rules: A-C 
+ Puget Sound & Coastal Rivers Special Rules: D-K 
+ Puget Sound & Coastal Rivers Special Rules: L-R 
+ Puget Sound & Coastal Rivers Special Rules: S-Z 
+ Columbia Basin Rivers Special Rules: Columbia River 
+ Columbia Basin Rivers Special Rules: A-C 
+ Columbia Basin Rivers Special Rules: D-K 
+ Columbia Basin Rivers Special Rules: L-N 
+ Columbia Basin Rivers Special Rules: O-S 
+ Columbia Basin Rivers Special Rules: T-Z 
+ Westside Lakes Special Rules: A-E 
+ Westside Lakes Special Rules: F-P 
+ Westside Lakes Special Rules: Q-Z 
+ Eastside Lakes Special Rules: A-F 
+ Eastside Lakes Special Rules: G-P 
+ Eastside Lakes Special Rules: Q-Z 
+ PDF Downloads 
+ Washington Fishing Guide - Spanish 
+ Corrections & Clarifications 2026-2027 
+ [img:Washington Fishing] 
+ [img:Washington Fishing Guide - Spanish Translation] 
+ Statewide Freshwater Regulations
+ Last Updated: June 18, 2026
+ Using Freshwater Rules
+ Read: The Statewide Freshwater Rules and Statewide Freshwater Species Rules . Determine seasons and general rules applying to the species for which you intend to fish. 
+ Check Special Rules for your location: Special Rules, list areas where the Statewide Rules have been modified. These are divided into multiple areas: Puget Sound and Coastal Rivers, Columbia Basin Rivers, Westside and Eastside lakes. Rivers lists rivers, streams, and beaver ponds. Lakes lists lakes, ponds, and reservoirs. For the purposes of this pamphlet, the Columbia and Snake are rivers (not reservoirs), and any Special Rules that apply are listed in the Columbia Basin section. 
+ If a freshwater area is not listed in Special Rules, follow the Statewide Freshwater Rules.
+ Check for Emergency Rules: Which can be found by contacting statewide customer service at (360) 902-2700 , or by visiting the WDFW website at https://wdfw.wa.gov. 
+ Westside Lakes
+ [img:Map of Westside and Eastside Lake Areas within Washington ] 
+ Eastside Lakes
+ Puget Sound and Coastal Rivers
+ [img:Map of Puget Sound and Coastal Rivers and Columbia Basin Rivers within Washington] 
+ Columbia Basin Rivers
+ UNLESS OTHERWISE LISTED in the Special Rules: The following Statewide Freshwater Rules and seasons apply:
+ Areas/Seasons
+ Areas listed within Special Rules, show all game fish and salmon fishing opportunities for the specific area listed.
+ All freshwater areas are closed to the harvest of any fish not classified as a food fish or game fish (see definitions ) except for Northern pike.
+ Freshwater areas are open 24 hours per day when open.
+ All freshwater areas are closed to fishing for salmon, Dolly Varden/bull trout, lamprey, and grass carp. 
+ Lakes, ponds, and reservoirs are open to fishing for game fish (except Dolly Varden/bull trout and grass carp) year-round .
+ Rivers, streams and beaver ponds are open the Saturday before Memorial Day through October 31. Beaver ponds located within or connected to streams listed as open to trout and other game fish follow the same rules as the stream.
+ Tackle
+ Hook and line angling only. Barbed or barbless hooks may be used, and a hook may be single-point, double, or treble, but not more than one line with up to three hooks per angler may be used.
+ Single-point barbless hooks are required in areas designated as "fly fishing only" or "selective gear rules."
+ All fishing gear must be kept in immediate control and may not be left unattended while fishing. Rodholders may be used, but the rod must be easily removed without delay; rod may be left in holder while playing the fish.
+ A club or dipnet may be used to assist landing a legal fish taken by legal gear. A gaff hook may not be used.
+ It is unlawful to possess a fish taken from freshwater that was not hooked inside the mouth or on the head. The head is defined as any portion forward of the rear margin of the gill plate.
+ Bait Rules
+ It is unlawful to chum, broadcast, feed, or distribute into freshwater any bait or other substance capable of attracting fish unless specifically authorized in Special Rules.
+ Where use of bait is prohibited, or where lures or flies are used voluntarily, game fish may be caught and released until the daily limit is retained. 
+ It is unlawful to possess or use live aquatic animals as bait, except:
+ Live aquatic animals (other than fish) collected from the water being fished.
+ Live sand shrimp.
+ Live forage fish in the Columbia River (downstream of Rocky Point/Tongue Point).
+ Special Rules Instructions
+ The Special Rules list freshwater areas where the Statewide Rules have been modified.
+ Unless otherwise listed in the Special Rules, you must follow the Statewide Rules.
+ Areas listed within Special Rules, show all game fish and salmon fishing opportunities for the specific area listed.
+ Common regulation terms and definitions can be found on the Definitions of Terms page .
+ The terms "trout", "char", "all game fish" , and "other game fish" include the trout, char, and game fish species on the definitions page , except grass carp.
+ When landlocked salmon rules apply, landlocked Atlantic, coho, and Chinook salmon are regulated as trout. See definition page .
+ County references after lakes or streams are noted to make it easier to locate the waters listed, or to differentiate between two places with the same name. They do not mean that the rules apply only to the portion of water in that county.
+ In Grant, Adams, Okanogan, and Douglas counties, you may fish up to the base of all man-made dams or other obstructions (in listed and unlisted areas), except Zosel Dam. 
+ [img:Public Boat Ramp Icon] Lakes with this icon have a public boat ramp.
+ [img:No Two Pole Endorsement Icon - indicating two poles cannot be used in this waterbody.] Lakes with this icon are excluded from the Two-Pole Endorsement.
+ Sturgeon
+ Green Sturgeon may not be retained. 
+ White sturgeon open for catch-and-release fishing during open game fish or salmon seasons.
+ Catch-and-release fishing only in the Columbia River from Bonneville Dam downstream, and from McNary Dam to Chief Joseph Dam, Snake River from Ice Harbor Dam upstream, coastal and Puget Sound waters including their tributaries.
+ Annual white sturgeon limit is 2 fish even if the angler holds both a Washington and Oregon license. 
+ Anglers may continue to fish catch-and-release after retaining a daily limit.
+ After an annual limit has been retained, catch-and-release fishing is allowed in waters open to catch-and-release fishing.
+ Catch Record Cards are required statewide. 
+ Only one single-point barbless hook and bait is allowed when fishing for sturgeon. In the field, eggs must be retained with intact carcass of fish from which they came. Night closure in effect for all sturgeon. Any sturgeon not to be retained must be released immediately. Sturgeon over 55" fork length cannot be removed totally or in part from the water. 
+ Tagged sturgeon: Do not remove tags from fish not of legal size or not to be retained, but record: tag number and color, date, location of catch, fish length, your name and address. If fish is retained, remove tag and send with above information to the address below.
+ WDFW Region 5 Office 
+ 5525 S 11th St. 
+ Ridgefield, WA 98642
+ UNLESS OTHERWISE LISTED in the Special Rules: The following Statewide Freshwater Rules and seasons apply:
+ [img:Green Sturgeon] 
+ Green Sturgeon 
+ Olive green to dark green in color. There are approximately 8-11 dorsal scutes. Vent between pelvic fins. Scutes behind vent.
+ [img:White Sturgeon] 
+ White Sturgeon 
+ Gray back shading. There are approximately 11-14 dorsal scutes. Vent behind pelvic fins. No scutes behind vent.
+ Eat Fish, Choose Wisely: 
+ Access all fish consumption advisory information using the following QR code and your cell phone camera.
+ [img:] 
+ Tips to Reduce Contaminants
+ Remove skin, organs, and fat before cooking
+ Eat a variety of fish
+ Eat younger and smaller fish (within legal limits) 
+Fish offers valuable physical and mental health benefits and DOH recommends eating at least two fish meals per week, from a variety of species and locations. However, there are 49 fish consumption advisories in Washington due to contaminants. To balance the benefits with potential risk we recommend following the meal guidance contained within our advisories. Remember, "Eat fish, choose wisely!“
+ Current Advisories (Select)
+ Chart below is a partial list of advisories. Complete list available online.
+ Waterbody
+ | 
+ Fish Species
+ | 
+ Advice
+ | 
+ All waterbodies 
+ | 
+ Northern Pikeminnow
+ | 
+ Women of childbearing age and children should not eat
+ | 
+ Columbia River – Middle – Bradford Island (Bonneville Dam to Fort Raines) 
+ | 
+ Bass, Bluegill, Carp, Catfish, Crappie, Sucker, Sturgeon, Walleye, Yellow Perch
+ | 
+ Everyone should not eat
+ | 
+ Lower Columbia River (former Vanalco Plant) 
+ | 
+ Clams
+ | 
+ Everyone should not eat
+ | 
+ Duwamish River (Lower) 
+ | 
+ All resident fish, shellfish and crab
+ | 
+ Everyone should not eat
+ | 
+ Lake Whatcom 
+ | 
+ Smallmouth Bass
+ | 
+ Women of childbearing age and children should not eat
+ | 
+ Lake Washington 
+ | 
+ Common Carp, Cutthroat Trout, Largemouth Bass, Northern Pikeminnow, and Smallmouth Bass
+ | 
+ Everyone should not eat
+ | 
+ Olympic National Park (Lake Ozette) 
+ | 
+ Largemouth Bass, Northern Pikeminnow
+ | 
+ Everyone should not eat
+ | 
+ Spokane River (Idaho Border to Upriver Dam) 
+ | 
+ All species
+ | 
+ Everyone should not eat
+ | 
+ Wenatchee River (Icicle Creek to Columbia River) 
+ | 
+ Mountain Whitefish
+ | 
+ Everyone should not eat
+ | 
+ Before you fish, check advisories at http://www.doh.wa.gov/fishmap or call 1- (877) 485-7316 . 
+ More information including advice for women and children www.doh.wa.gov/fish .
+ Washington 
+ [img:Fishing] 
+ [img:Hunting] 
+ [img:Game Bird Hunting] 
+ General Info 
+ How to Use These eRegulations 
+ Statewide General Rules 
+ Other General Information 
+ Eat Fish, Choose Wisely 
+ Definitions 
+ Message from WDFW 
+ Catch Record Cards & Codes 
+ Contact Information 
+ Licenses, Permits & Fees 
+ License Information 
+ License Fees 
+ Fishing Regulations 
+ Statewide Freshwater Regulations 
+ Fish Handling Rules 
+ Statewide Freshwater Species Rules 
+ Species 
+ Freshwater Fish Identification 
+ Saltwater Fish Identification 
+ Salmon Identification 
+ Rockfish Identification 
+ Shellfish 
+ Shellfish/Seaweed Regulations 
+ Shellfish Safety Information 
+ Statewide Gear Rules 
+ Shellfish/Seaweed Species Rules 
+ Razor Clam Rules 
+ Crab Rules 
+ Shrimp Rules 
+ Marine Preserves, Conservation, and Shellfish Protection 
+ Marine Rules & Areas 
+ Marine Area Rules & Definitions 
+ Marine Area 1 
+ Marine Area 2 
+ Marine Area 3 
+ Marine Area 4 
+ Marine Area 5 
+ Marine Area 6 
+ Marine Area 7 
+ Marine Area 8 
+ Marine Area 9 
+ Marine Area 10 
+ Marine Area 11 
+ Marine Area 12 
+ Marine Area 13 
+ Special Rules - Rivers & Lakes 
+ Puget Sound & Coastal Rivers Special Rules: A-C 
+ Puget Sound & Coastal Rivers Special Rules: D-K 
+ Puget Sound & Coastal Rivers Special Rules: L-R 
+ Puget Sound & Coastal Rivers Special Rules: S-Z 
+ Columbia Basin Rivers Special Rules: Columbia River 
+ Columbia Basin Rivers Special Rules: A-C 
+ Columbia Basin Rivers Special Rules: D-K 
+ Columbia Basin Rivers Special Rules: L-N 
+ Columbia Basin Rivers Special Rules: O-S 
+ Columbia Basin Rivers Special Rules: T-Z 
+ Westside Lakes Special Rules: A-E 
+ Westside Lakes Special Rules: F-P 
+ Westside Lakes Special Rules: Q-Z 
+ Eastside Lakes Special Rules: A-F 
+ Eastside Lakes Special Rules: G-P 
+ Eastside Lakes Special Rules: Q-Z 
+ PDF Downloads 
+ Washington Fishing Guide - Spanish 
+ Corrections & Clarifications 2026-2027 
+ [img:Washington Fishing] 
+ [img:Washington Fishing Guide - Spanish Translation] 
+ Home 
+ |
+ Privacy Policy 
+ |
+ For advertising opportunities please contact us . 
+ © eRegulations. All Rights Reserved.
+ [img:] 
+ 

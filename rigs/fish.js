@@ -1002,6 +1002,554 @@
     }
   };
 
+  // ================= the lake fish (rigs/lakes.js) =================
+  // Drawn the same way as the rest: a true silhouette, the wash, the back,
+  // the lit flank, then what names the fish on top.
+
+  // A row of bony plates (a sturgeon's scutes): small diamonds along v.
+  function scutes(c, x0, x1, count, v, w, h) {
+    var d = "";
+    for (var i = 0; i < count; i++) {
+      var x = lerp(x0, x1, (i + 0.5) / count), y = c.at(x, v), ww = w * (0.85 + c.rand() * 0.3);
+      d += "M" + n(x - ww) + " " + n(y) + "L" + n(x) + " " + n(y - h) + "L" + n(x + ww) + " " + n(y) + "L" + n(x) + " " + n(y + h * 0.8) + "Z";
+    }
+    return d;
+  }
+  // Wandering lines (a tiger trout's maze, a brook trout's worms): short
+  // random walks, each a smooth line.
+  function worms(c, count, len, step, dens, xa, xb) {
+    var d = "", r = c.rand, made = 0, tries = 0;
+    while (made < count && tries < count * 30) {
+      tries++;
+      var x = lerp(xa, xb, r()), v = r();
+      if (r() > dens(x, v)) continue;
+      var a = r() * 6.28, pts = [[x, c.at(x, v)]];
+      for (var k = 0; k < len; k++) {
+        a += (r() - 0.5) * 1.6;
+        var p = pts[pts.length - 1];
+        pts.push([p[0] + Math.cos(a) * step, p[1] + Math.sin(a) * step * 0.8]);
+      }
+      d += cr(pts, false);
+      made++;
+    }
+    return d;
+  }
+  // Barbels: whiskers, each a tapered stroke.
+  function whiskers(list) {
+    return list.map(function (w) { return '<path class="barbel' + (w[1] ? " " + w[1] : "") + '" d="' + w[0] + '"/>'; }).join("");
+  }
+
+  // ---- tiger muskie -------------------------------------------------------------
+  // A pike and muskie cross: long and round in the body, a flat duckbill
+  // snout, the back and anal fins far back by the tail, and the dark bars
+  // the name comes from on a pale olive side.
+  S.muskie = {
+    box: "0 0 440 190", name: "Tiger muskie", latin: "Esox lucius x masquinongy",
+    draw: function () {
+      return fishBody({
+        id: "fpmusk", kind: "muskie", seed: 101, gill: 106, gillBulge: 9, eye: [62, 88, 5], depth: 58, scale: 3.4, lateral: 0.5,
+        top: [[8, 100], [12, 94.5], [24, 90.5], [44, 86.5], [66, 81], [90, 75.5], [120, 71.5], [160, 69.5], [200, 69.5], [240, 71], [278, 74.5], [310, 79], [338, 84], [360, 88], [376, 90]],
+        bot: [[8, 100], [12, 104], [24, 106.5], [44, 110], [66, 115.5], [90, 120.5], [120, 124.5], [160, 126.5], [200, 126], [240, 123], [278, 116.5], [310, 109], [338, 103], [360, 99.5], [376, 98.5]],
+        backFins: ["tail", "dorsal", "anal"],
+        tail: { a: [370, 89.5], b: [370, 99.5], edge: [[392, 79], [420, 64], [428, 77], [410, 94.5], [428, 112], [420, 126], [392, 110]], r0: 1, r1: 6, rays: 21, bend: 0, bias: 1 },
+        dorsal: { a: [290, 75.5], b: [336, 83.5], edge: [[296, 57], [312, 50], [330, 57], [344, 77]], r0: 1, r1: 4, rays: 15 },
+        anal: { a: [296, 113], b: [338, 103], edge: [[300, 132], [314, 140], [332, 128], [346, 107]], r0: 1, r1: 4, rays: 13, bend: -0.04 },
+        pelvic: { a: [212, 125.5], b: [226, 125], edge: [[220, 139], [240, 147], [237, 135]], r0: 1, r1: 3, rays: 8, bend: -0.04 },
+        pectoral: { a: [108, 117], b: [110, 123], edge: [[124, 123], [144, 134], [138, 140], [120, 133]], r0: 1, r1: 3, rays: 10, bend: -0.03 },
+        finPaint: {
+          tail: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 4, 1.2, 0.15, 0.85) + '"/>'; },
+          dorsal: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 3, 1.1, 0.15, 0.85) + '"/>'; },
+          anal: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 3, 1, 0.15, 0.85) + '"/>'; }
+        },
+        // the bars: many, narrow, broken and leaning, from the back toward the belly
+        marks: function (c) {
+          return '<g filter="url(#fp-b05)">' + bars(c, { n: 19, x0: 108, x1: 368, w: 6.5, v0: 0.02, v1: 0.84, lean: 7, jit: 5 }) + "</g>" +
+            '<path class="spot" d="' + spots(c, 26, function (x, v) { return v < 0.5 && x < 150 ? 0.9 : 0; }, function (r) { return 0.9 + r() * 0.8; }, 104, 160) + '"/>';
+        },
+        headPaint: function () {
+          return '<ellipse class="cheek" cx="88" cy="106" rx="16" ry="9" filter="url(#fp-b3)"/><path class="lband" d="M42 93C60 94 80 97 100 103" filter="url(#fp-b3)"/>';
+        },
+        // the duckbill: a long flat jaw, the lower one leading, teeth in the gape
+        mouth: '<path class="jawplate" d="M10 99C28 100 48 101.6 72 104.4C50 106.4 28 106 10 102.6Z"/>' +
+          '<path class="ink mouth" d="M8 101C28 102.4 50 103.6 74 104.6"/><path class="ink thin" d="M10 104C26 107.6 46 110.6 68 112"/>' +
+          '<path class="tooth" d="M20 101.7l.9 1.9l.9-1.9ZM30 102.3l.9 2l.9-2ZM40 102.9l.9 2l.9-2ZM50 103.4l.9 1.9l.9-1.9ZM60 103.9l.8 1.7l.8-1.7Z"/>' +
+          '<circle class="nostril" cx="40" cy="91" r=".8"/><circle class="nostril" cx="45" cy="90.4" r=".7"/>'
+      });
+    }
+  };
+
+  // ---- smallmouth bass ----------------------------------------------------------
+  // Bronze, with dark bars down the side that come and go, bars fanning back
+  // from a red eye, a jaw that ends under the eye, one back fin barely notched.
+  S.smallmouth = {
+    box: "0 0 440 190", name: "Smallmouth bass", latin: "Micropterus dolomieu",
+    draw: function () {
+      return fishBody({
+        id: "fpsmb", kind: "smallmouth", seed: 113, gill: 114, gillBulge: 12, eye: [56, 86, 6], depth: 100, scale: 4.8, lateral: 0.42,
+        top: [[14, 106], [16, 97], [22, 88], [33, 78], [50, 68], [74, 58], [104, 50], [140, 45], [180, 44], [220, 46], [258, 52], [292, 61], [322, 71], [346, 78], [366, 81]],
+        bot: [[14, 106], [18, 114], [28, 121], [44, 128], [68, 135], [100, 141], [138, 145], [178, 146], [216, 143], [254, 136], [290, 125], [320, 115], [344, 109], [366, 107]],
+        backFins: ["tail", "spiny", "dorsal", "anal"],
+        tail: { a: [360, 80], b: [360, 108], edge: [[386, 66], [418, 52], [424, 74], [414, 94], [424, 114], [418, 136], [386, 122]], r0: 2, r1: 6, rays: 19, bend: 0, bias: 1 },
+        spiny: { a: [132, 46], b: [222, 46.4], spines: 10, up: -1, rake: 10, sag: 0.18, h: function (t) { return 7 + 16 * Math.sin(Math.PI * Math.pow(t, 0.8)); } },
+        dorsal: { a: [222, 46.4], b: [296, 63], edge: [[228, 26], [250, 20], [278, 26], [302, 46]], r0: 1, r1: 4, rays: 14 },
+        anal: { a: [260, 134], b: [308, 118], edge: [[262, 152], [276, 165], [298, 157], [314, 136]], r0: 1, r1: 4, rays: 12, bend: -0.04 },
+        pelvic: { a: [132, 144.5], b: [148, 145.5], edge: [[140, 160], [160, 172], [162, 157]], r0: 1, r1: 3, rays: 7, bend: -0.04 },
+        pectoral: { a: [120, 116], b: [122, 127], edge: [[140, 118], [162, 128], [158, 140], [138, 138]], r0: 1, r1: 4, rays: 11, bend: -0.02 },
+        marks: function (c) {
+          return '<g filter="url(#fp-b3)">' + bars(c, { n: 11, x0: 126, x1: 356, w: 10, v0: 0.06, v1: 0.8, lean: 3, jit: 6 }) + "</g>" +
+            '<path class="mottle" d="' + spots(c, 70, function (x, v) { return v < 0.4 ? 0.8 : 0; }, function (r) { return 0.8 + r() * 1.1; }, 120, 356) + '"/>';
+        },
+        // three bars fanning back from the eye across the cheek
+        headPaint: function () {
+          return '<ellipse class="cheek" cx="90" cy="104" rx="17" ry="13" filter="url(#fp-b3)"/>' +
+            '<path class="lband thin" d="M66 82C80 80 96 82 110 86" filter="url(#fp-b1)"/><path class="lband thin" d="M66 92C80 94 96 98 112 104" filter="url(#fp-b1)"/>' +
+            '<path class="lband thin" d="M62 100C74 106 88 112 104 118" filter="url(#fp-b1)"/>';
+        },
+        // the jaw ends under the eye, not past it
+        mouth: '<path class="jawplate" d="M24 98C38 98 52 101 62 107C48 110 32 108 22 104Z"/>' +
+          '<path class="ink mouth" d="M14 107C30 109.6 48 110 62 107.6"/><path class="ink thin" d="M24 98C38 98 52 101 62 107"/>' +
+          '<path class="ink thin" d="M15 109C26 117 40 122 58 124"/><circle class="nostril" cx="30" cy="86" r=".9"/>'
+      });
+    }
+  };
+
+  // ---- crappie ------------------------------------------------------------------
+  // A deep, thin plate of a fish: the back humps up behind a hollow over the
+  // eye, a big upturned mouth, the back and anal fins large, rounded and set
+  // well back, the side speckled dark on silver.
+  S.crappie = {
+    box: "0 0 440 190", name: "Black crappie", latin: "Pomoxis nigromaculatus",
+    draw: function () {
+      return fishBody({
+        id: "fpcrap", kind: "crappie", seed: 127, gill: 112, gillBulge: 12, eye: [60, 88, 7.6], depth: 112, scale: 4.4, lateral: 0.36,
+        top: [[22, 98], [26, 92], [36, 85], [50, 77], [70, 64], [96, 52], [128, 43], [164, 38], [202, 37], [240, 42], [276, 54], [306, 68], [332, 79], [352, 85], [368, 87]],
+        bot: [[22, 98], [26, 107], [36, 116], [56, 126], [84, 136], [118, 145], [156, 150], [196, 151], [234, 147], [268, 138], [298, 125], [324, 112], [346, 104], [368, 101]],
+        backFins: ["tail", "spiny", "dorsal", "anal"],
+        tail: { a: [362, 86], b: [362, 102], edge: [[388, 72], [420, 56], [414, 78], [404, 94], [414, 110], [420, 134], [388, 118]], r0: 2, r1: 6, rays: 19, bend: 0, bias: 1 },
+        spiny: { a: [196, 37], b: [236, 41.5], spines: 7, up: -1, rake: 8, sag: 0.26, h: function (t) { return 7 + 16 * Math.sin(Math.PI * Math.pow(t, 0.7) * 0.9); } },
+        dorsal: { a: [236, 41.5], b: [298, 64], edge: [[244, 17], [266, 12], [292, 26], [308, 52]], r0: 1, r1: 4, rays: 15 },
+        anal: { a: [214, 148.5], b: [302, 126], edge: [[220, 168], [244, 182], [282, 172], [310, 142]], r0: 1, r1: 4, rays: 18, bend: -0.03 },
+        pelvic: { a: [128, 147.5], b: [142, 148.5], edge: [[136, 162], [156, 173], [158, 160]], r0: 1, r1: 3, rays: 6, bend: -0.04 },
+        pectoral: { a: [118, 112], b: [120, 123], edge: [[138, 112], [162, 118], [160, 130], [138, 132]], r0: 1, r1: 4, rays: 12, bend: -0.02 },
+        finPaint: {
+          // the soft fins are barred in rows of spots
+          dorsal: function (c, f) { return '<path class="mottle fin" d="' + raySpots(f, c.rand, 5, 1.6, 0.1, 0.92) + '"/>'; },
+          anal: function (c, f) { return '<path class="mottle fin" d="' + raySpots(f, c.rand, 5, 1.6, 0.1, 0.92) + '"/>'; },
+          tail: function (c, f) { return '<path class="mottle fin" d="' + raySpots(f, c.rand, 4, 1.3, 0.1, 0.9) + '"/>'; }
+        },
+        marks: function (c) {
+          return '<path class="blotch" filter="url(#fp-b05)" d="' + spots(c, 150, function (x, v) { return v < 0.78 ? 0.95 - v * 0.6 : 0; }, function (r) { return 1.3 + r() * 2.6; }, 116, 362) + '"/>';
+        },
+        headPaint: function (c) {
+          return '<ellipse class="cheek" cx="90" cy="102" rx="16" ry="12" filter="url(#fp-b3)"/>' +
+            '<path class="blotch" d="' + spots(c, 14, function (x, v) { return v < 0.7 ? 0.8 : 0; }, function (r) { return 0.9 + r() * 1.3; }, 74, 112) + '"/>';
+        },
+        // the big mouth, turned up, the lower jaw leading
+        mouth: '<path class="jawplate" d="M22 97C34 99 46 102 58 108C44 110 30 106 20 101Z"/>' +
+          '<path class="ink mouth" d="M19 99C32 103 46 106 58 107.6"/><path class="ink thin" d="M22 97C34 99 46 102 58 108"/>' +
+          '<path class="ink thin" d="M20 101C26 110 38 116 54 119"/><circle class="nostril" cx="34" cy="86" r=".9"/>'
+      });
+    }
+  };
+
+  // ---- bluegill -------------------------------------------------------------------
+  // Round as a plate, a small mouth, bars down an olive side going blue, an
+  // orange breast, and the solid black flap at the back of the gill cover.
+  function sunfish(o) {
+    return {
+      id: o.id, kind: o.kind, seed: o.seed, gill: 120, gillBulge: 12, eye: [70, 92, 6.6], depth: 120, scale: 4.2, lateral: 0.36,
+      top: [[40, 104], [43, 96], [52, 84], [68, 70], [90, 56], [118, 44], [150, 36], [186, 33], [222, 36], [256, 45], [288, 58], [316, 72], [338, 83], [356, 89], [368, 91]],
+      bot: [[40, 104], [44, 112], [56, 122], [76, 134], [102, 145], [134, 153], [170, 157], [206, 155], [240, 147], [272, 134], [302, 119], [330, 106], [352, 99], [368, 97]],
+      backFins: ["tail", "spiny", "dorsal", "anal"],
+      tail: { a: [362, 89.5], b: [362, 98], edge: [[386, 74], [418, 58], [410, 79], [400, 94], [410, 110], [418, 131], [386, 114]], r0: 2, r1: 6, rays: 19, bend: 0, bias: 1 },
+      spiny: { a: [146, 37.4], b: [228, 37.4], spines: 10, up: -1, rake: 9, sag: 0.2, h: function (t) { return 6 + 13 * Math.sin(Math.PI * Math.pow(t, 0.7) * 0.85); } },
+      dorsal: { a: [228, 37.4], b: [302, 64], edge: [[236, 17], [262, 13], [290, 28], [308, 52]], r0: 1, r1: 4, rays: 13 },
+      finPaint: o.finPaint,
+      anal: { a: [238, 148.5], b: [310, 116], edge: [[242, 166], [262, 175], [296, 156], [316, 130]], r0: 1, r1: 4, rays: 13, bend: -0.03 },
+      pelvic: { a: [138, 153.5], b: [152, 155], edge: [[144, 170], [162, 180], [166, 166]], r0: 1, r1: 3, rays: 6, bend: -0.04 },
+      // a long pointed pectoral, swept back
+      pectoral: { a: [130, 114], b: [132, 124], edge: [[154, 108], [192, 104], [188, 114], [152, 128]], r0: 1, r1: 3, rays: 12, bend: -0.02 },
+      under: o.under, marks: o.marks, headPaint: o.headPaint, over: o.over,
+      mouth: '<path class="ink mouth" d="M40 105C45 106.6 51 107 57 106.4"/><path class="ink thin" d="M44 102C49 102 54 103.6 57 106"/>' +
+        '<path class="ink thin" d="M41 107C44 111 50 113.4 56 113.6"/><circle class="nostril" cx="50" cy="94" r=".8"/>'
+    };
+  }
+  // the gill flap, past the cover's edge
+  function ear(x, y, w, h, tip) {
+    return '<path class="ear" d="M' + n(x - 6) + " " + n(y - h * 0.7) + "C" + n(x + w * 0.5) + " " + n(y - h) + " " + n(x + w) + " " + n(y - h * 0.4) + " " + n(x + w) + " " + n(y) +
+      "C" + n(x + w) + " " + n(y + h * 0.5) + " " + n(x + w * 0.4) + " " + n(y + h) + " " + n(x - 6) + " " + n(y + h * 0.7) + 'Z"/>' +
+      (tip ? '<ellipse class="eartip" cx="' + n(x + w * 0.72) + '" cy="' + n(y + 0.5) + '" rx="' + n(w * 0.26) + '" ry="' + n(h * 0.5) + '"/>' : "");
+  }
+  S.bluegill = {
+    box: "0 0 440 190", name: "Bluegill", latin: "Lepomis macrochirus",
+    draw: function () {
+      return fishBody(sunfish({
+        id: "fpblue", kind: "bluegill", seed: 131,
+        finPaint: { dorsal: function () { return '<ellipse class="finblot" cx="292" cy="56" rx="9" ry="7" filter="url(#fp-b3)"/>'; } },
+        under: function () { return '<ellipse class="breast" cx="140" cy="146" rx="70" ry="20" filter="url(#fp-b6)"/>'; },
+        marks: function (c) { return '<g filter="url(#fp-b3)">' + bars(c, { n: 8, x0: 136, x1: 344, w: 13, v0: 0.04, v1: 0.82, lean: 2, jit: 5 }) + "</g>"; },
+        headPaint: function () { return '<ellipse class="cheek" cx="100" cy="108" rx="18" ry="13" filter="url(#fp-b3)"/><path class="cheekline" d="M60 108C74 114 92 116 110 114"/>'; },
+        over: function () { return ear(120, 100, 16, 10, false); }
+      }));
+    }
+  };
+  // ---- pumpkinseed ----------------------------------------------------------------
+  // The same round plate, gold and spotted orange, blue wavy lines across the
+  // cheek, and a red spot at the tip of the black gill flap.
+  S.pumpkinseed = {
+    box: "0 0 440 190", name: "Pumpkinseed", latin: "Lepomis gibbosus",
+    draw: function () {
+      return fishBody(sunfish({
+        id: "fppump", kind: "pumpkinseed", seed: 137,
+        under: function () { return '<ellipse class="breast" cx="160" cy="146" rx="96" ry="22" filter="url(#fp-b6)"/>'; },
+        marks: function (c) {
+          return '<g filter="url(#fp-b3)">' + bars(c, { n: 7, x0: 140, x1: 340, w: 12, v0: 0.04, v1: 0.7, lean: 2, jit: 5 }) + "</g>" +
+            '<path class="pspot" d="' + spots(c, 120, function (x, v) { return v > 0.12 && v < 0.86 ? 0.85 : 0; }, function (r) { return 1 + r() * 1.3; }, 128, 356) + '"/>';
+        },
+        headPaint: function () {
+          return '<ellipse class="cheek" cx="100" cy="108" rx="18" ry="13" filter="url(#fp-b3)"/>' +
+            '<path class="cheekline" d="M56 100C66 96 76 104 86 100S104 98 114 102"/><path class="cheekline" d="M58 110C68 106 78 114 88 110S104 110 114 112"/>' +
+            '<path class="cheekline" d="M62 119C72 116 82 122 92 119S106 120 112 121"/>';
+        },
+        over: function () { return ear(120, 100, 17, 10, true); }
+      }));
+    }
+  };
+
+  // ---- brown bullhead -------------------------------------------------------------
+  // A catfish: no scales, a broad flat head with eight whiskers, one short
+  // back fin, a long soft adipose, a square tail; mottled brown over cream.
+  function catBody(o) {
+    return Object.assign({
+      backFins: ["tail", "dorsal", "adipose", "anal"], scale: 30, lateral: 0.5,
+      finPaint: {}, headPaint: function () { return '<ellipse class="cheek" cx="74" cy="108" rx="16" ry="10" filter="url(#fp-b3)"/>'; }
+    }, o);
+  }
+  S.bullhead = {
+    box: "0 0 440 190", name: "Brown bullhead", latin: "Ameiurus nebulosus",
+    draw: function () {
+      return fishBody(catBody({
+        id: "fpbull", kind: "bullhead", seed: 149, gill: 94, gillBulge: 6, eye: [52, 92, 3.4], depth: 62,
+        top: [[14, 104], [16, 97], [24, 89], [40, 82], [62, 76.5], [90, 72.5], [124, 70.5], [160, 70.5], [196, 72], [232, 75.5], [268, 80.5], [304, 86], [334, 91], [356, 94], [370, 95]],
+        bot: [[14, 104], [18, 111], [30, 117], [50, 122], [78, 126], [110, 128], [146, 128.5], [184, 127], [222, 123.5], [258, 118], [292, 111.5], [322, 105.5], [348, 101.5], [370, 100]],
+        tail: { a: [364, 94], b: [364, 101], edge: [[388, 80], [410, 76], [415, 90], [413, 98], [415, 106], [410, 121], [388, 116]], r0: 1, r1: 6, rays: 17, bend: 0, bias: 1 },
+        dorsal: { a: [132, 70.5], b: [162, 70.5], edge: [[133, 48], [144, 42], [158, 49], [166, 63]], r0: 1, r1: 4, rays: 7 },
+        adipose: { a: [290, 85], b: [332, 91.5], edge: [[298, 75], [318, 76], [334, 85]], r0: 1, r1: 3, rays: 0 },
+        anal: { a: [232, 123.5], b: [314, 108], edge: [[236, 140], [270, 145], [306, 131], [318, 113]], r0: 1, r1: 4, rays: 20, bend: -0.03 },
+        pelvic: { a: [190, 127.5], b: [204, 127], edge: [[198, 140], [216, 147], [214, 135]], r0: 1, r1: 3, rays: 7, bend: -0.04 },
+        pectoral: { a: [98, 118], b: [102, 124], edge: [[118, 125], [140, 135], [134, 141], [112, 134]], r0: 1, r1: 3, rays: 8, bend: -0.03 },
+        marks: function (c) {
+          return '<path class="mottle dark" filter="url(#fp-b3)" d="' + spots(c, 60, function (x, v) { return v < 0.62 ? 0.9 - v : 0; }, function (r) { return 3 + r() * 5; }, 96, 366) + '"/>';
+        },
+        mouth: '<path class="ink mouth" d="M14 106C20 108.4 28 109.4 38 108.6"/><path class="ink thin" d="M16 104C22 104 30 105 37 107"/>',
+        // eight whiskers: two long from the jaw's corners, two over the nostrils, four under the chin
+        over: function () {
+          return whiskers([["M36 107C48 112 62 124 72 142"], ["M28 93C32 84 40 79 50 77", "short"], ["M22 113C22 123 26 134 32 143", "chin"],
+            ["M28 114C30 124 36 133 42 140", "chin"], ["M17 112C15 120 15 128 18 135", "chin"], ["M33 115C37 122 44 128 52 132", "chin"]]);
+        }
+      }));
+    }
+  };
+
+  // ---- channel catfish --------------------------------------------------------------
+  // Leaner, slate over silver with scattered black spots, long whiskers and
+  // a deeply forked tail.
+  S.catfish = {
+    box: "0 0 440 190", name: "Channel catfish", latin: "Ictalurus punctatus",
+    draw: function () {
+      return fishBody(catBody({
+        id: "fpcat", kind: "catfish", seed: 151, gill: 92, gillBulge: 6, eye: [50, 92, 3.6], depth: 56,
+        top: [[10, 103], [12, 96], [20, 89], [36, 82.5], [58, 77.5], [86, 74], [120, 72], [156, 72], [192, 73.5], [228, 77], [264, 81.5], [298, 87], [328, 92], [352, 95], [368, 96]],
+        bot: [[10, 103], [14, 109], [26, 114], [46, 118.5], [74, 122], [106, 124], [142, 124.5], [180, 123.5], [218, 120], [254, 115], [288, 109.5], [318, 104.5], [344, 101], [368, 100]],
+        tail: { a: [362, 95], b: [362, 101], edge: [[386, 82], [426, 60], [410, 86], [400, 98], [410, 110], [426, 136], [386, 114]], r0: 1, r1: 6, rays: 19, bend: 0, bias: 1 },
+        dorsal: { a: [130, 72], b: [158, 72], edge: [[131, 50], [140, 42], [154, 49], [162, 65]], r0: 1, r1: 4, rays: 7 },
+        adipose: { a: [300, 87.5], b: [324, 91.5], edge: [[306, 80], [318, 80], [328, 87]], r0: 1, r1: 3, rays: 0 },
+        anal: { a: [244, 117], b: [314, 105.5], edge: [[248, 134], [278, 138], [308, 125], [318, 110]], r0: 1, r1: 4, rays: 22, bend: -0.03 },
+        pelvic: { a: [194, 123.5], b: [208, 123], edge: [[202, 136], [220, 143], [218, 131]], r0: 1, r1: 3, rays: 7, bend: -0.04 },
+        pectoral: { a: [96, 116], b: [100, 122], edge: [[116, 123], [140, 134], [134, 140], [110, 132]], r0: 1, r1: 3, rays: 8, bend: -0.03 },
+        marks: function (c) {
+          return '<path class="spot" d="' + spots(c, 46, function (x, v) { return v > 0.12 && v < 0.62 ? 0.9 : 0; }, function (r) { return 1.1 + r() * 1.1; }, 100, 350) + '"/>';
+        },
+        mouth: '<path class="ink mouth" d="M10 104C18 106.6 26 107.6 36 107"/><path class="ink thin" d="M12 102C20 102 28 103.4 35 105.6"/>',
+        over: function () {
+          return whiskers([["M34 106C50 110 70 122 84 142"], ["M24 92C26 82 34 76 46 74", "short"], ["M18 111C17 121 20 131 26 139", "chin"],
+            ["M25 112C27 122 33 130 40 136", "chin"], ["M13 110C11 117 11 124 13 130", "chin"], ["M30 113C34 120 41 125 49 128", "chin"]]);
+        }
+      }));
+    }
+  };
+
+  // ---- walleye ---------------------------------------------------------------------
+  // Long and olive gold, dark saddles over the back, two back fins (the
+  // spiny one with a black blotch at its rear), long teeth, a white tip on
+  // the lower lobe of the tail, and the big glassy eye.
+  S.walleye = {
+    box: "0 0 440 190", name: "Walleye", latin: "Sander vitreus",
+    draw: function () {
+      return fishBody({
+        id: "fpwall", kind: "walleye", seed: 157, gill: 106, gillBulge: 10, eye: [54, 87, 8], depth: 66, scale: 3.6, lateral: 0.42,
+        top: [[14, 100], [17, 93], [26, 86], [42, 79], [64, 72.5], [92, 67], [126, 63], [164, 62], [202, 63.5], [240, 68], [278, 75], [314, 82], [342, 87], [362, 90], [376, 91]],
+        bot: [[14, 100], [18, 106], [30, 112], [48, 117], [74, 122], [106, 126], [144, 128], [184, 127], [224, 123], [262, 116.5], [298, 109.5], [330, 103.5], [354, 100], [376, 99]],
+        backFins: ["tail", "spiny", "dorsal", "anal"],
+        tail: { a: [370, 90.5], b: [370, 99.5], edge: [[392, 78], [424, 62], [414, 84], [404, 95.5], [414, 107], [426, 129], [392, 112]], r0: 1, r1: 6, rays: 21, bend: 0, bias: 1 },
+        spiny: { a: [124, 63], b: [200, 63.4], spines: 13, up: -1, rake: 9, sag: 0.22, h: function (t) { return 7 + 19 * Math.sin(Math.PI * Math.pow(t, 0.75)); } },
+        dorsal: { a: [218, 65.5], b: [272, 74], edge: [[224, 46], [242, 41], [264, 48], [280, 66]], r0: 1, r1: 4, rays: 13 },
+        anal: { a: [262, 117], b: [304, 108.5], edge: [[264, 134], [278, 143], [298, 133], [310, 113]], r0: 1, r1: 4, rays: 12, bend: -0.04 },
+        pelvic: { a: [128, 127.5], b: [142, 128], edge: [[134, 142], [152, 152], [156, 139]], r0: 1, r1: 3, rays: 6, bend: -0.04 },
+        pectoral: { a: [110, 110], b: [112, 118], edge: [[128, 114], [150, 124], [146, 132], [126, 128]], r0: 1, r1: 3, rays: 12, bend: -0.03 },
+        finPaint: {
+          // the white tip of the lower lobe
+          tail: function () { return '<ellipse class="fin-tip" cx="420" cy="125" rx="13" ry="9" filter="url(#fp-b3)"/>'; },
+          spiny: function () { return '<ellipse class="finblot" cx="192" cy="54" rx="9" ry="8" filter="url(#fp-b3)"/>'; },
+          dorsal: function (c, f) { return '<path class="mottle fin" d="' + raySpots(f, c.rand, 4, 1.2, 0.15, 0.9) + '"/>'; }
+        },
+        // dark saddles across the back, five of them, fading down the side
+        under: function (c) {
+          var out = "";
+          [118, 168, 222, 276, 330].forEach(function (x, i) {
+            var w = 16 + c.rand() * 8, top = c.at(x, 0), mid = c.at(x, 0.52);
+            out += "M" + n(x - w) + " " + n(top - 2) + "C" + n(x - w * 0.6) + " " + n(mid - 6) + " " + n(x + w * 0.4) + " " + n(mid + 2) + " " + n(x + w) + " " + n(top - 2) + "Z";
+          });
+          return '<path class="saddle" d="' + out + '" filter="url(#fp-b4)"/>';
+        },
+        marks: function (c) {
+          return '<path class="mottle" d="' + spots(c, 120, function (x, v) { return v < 0.55 ? 0.7 : 0; }, function (r) { return 0.7 + r() * 0.9; }, 108, 366) + '"/>';
+        },
+        headPaint: function () { return '<ellipse class="cheek" cx="86" cy="100" rx="15" ry="10" filter="url(#fp-b3)"/><ellipse class="sheen" cx="90" cy="94" rx="8" ry="5" filter="url(#fp-b3)"/>'; },
+        // long teeth in the gape
+        mouth: '<path class="jawplate" d="M16 99C34 100 48 102 62 105C46 108 30 107 16 103Z"/>' +
+          '<path class="ink mouth" d="M14 101C30 103 46 104.6 62 105.4"/><path class="ink thin" d="M16 103C28 108 44 111 60 112"/>' +
+          '<path class="tooth" d="M22 101.6l1 3.4l1-3.4ZM31 102.4l1 2.4l1-2.4ZM40 103l1 3l1-3ZM50 103.8l.9 2l.9-2Z"/><circle class="nostril" cx="32" cy="88" r=".8"/>'
+      });
+    }
+  };
+
+  // ---- kokanee ------------------------------------------------------------------------
+  // A sockeye that stays in fresh water: torpedo shaped, a steel blue back,
+  // bright silver sides, no spots at all, a deep fork in the tail.
+  S.kokanee = {
+    box: "0 0 440 190", name: "Kokanee", latin: "Oncorhynchus nerka",
+    draw: function () {
+      return fishBody(form({
+        id: "fpkok", kind: "kokanee", seed: 163, gill: 94, eye: [52, 90, 5.2], depth: 84, scale: 3.4, lateral: 0.46,
+        top: [[14, 100], [18, 92], [28, 86], [46, 79], [72, 71], [106, 62], [146, 56], [188, 54], [230, 56], [270, 62], [308, 70], [340, 78], [364, 82], [380, 84]],
+        bot: [[14, 100], [19, 106], [31, 110], [50, 114], [78, 120], [114, 128], [156, 134], [200, 135], [244, 131], [282, 123], [318, 114], [348, 108], [380, 106]],
+        tail: { a: [373, 83], b: [373, 107], edge: [[400, 67], [432, 48], [416, 76], [406, 95], [416, 114], [432, 142], [400, 123]], r0: 2, r1: 6, rays: 21, bend: 0, bias: 1 },
+        dorsal: { a: [186, 55], b: [238, 57], edge: [[195, 36], [207, 24], [230, 30], [248, 41]], r0: 2, r1: 4, rays: 12 },
+        adipose: { a: [320, 72], b: [334, 77], edge: [[329, 64], [339, 63], [341, 71]], r0: 1, r1: 3, rays: 0 },
+        anal: { a: [274, 125], b: [322, 113], edge: [[279, 143], [287, 156], [308, 143], [328, 130]], r0: 2, r1: 4, rays: 14, bend: -0.05 },
+        pelvic: { a: [212, 134.5], b: [229, 133.5], edge: [[224, 150], [245, 162], [242, 146]], r0: 2, r1: 3, rays: 9, bend: -0.04 },
+        pectoral: { a: [97, 119], b: [99, 129], edge: [[119, 127], [143, 143], [137, 150], [115, 140]], r0: 2, r1: 3, rays: 10, bend: -0.03 },
+        // the line where the blue back meets the silver, and the chrome below it
+        under: function (c) {
+          var pts = [];
+          for (var x = 84; x <= 374; x += 24) pts.push([x, c.at(x, 0.32)]);
+          return '<path class="steel" d="' + cr(pts, false) + '" filter="url(#fp-b4)"/>';
+        },
+        headPaint: function () { return '<ellipse class="cheek" cx="78" cy="98" rx="13" ry="10" filter="url(#fp-b3)"/><ellipse class="sheen" cx="82" cy="90" rx="8" ry="5" filter="url(#fp-b3)"/>'; },
+        mouth: '<path class="ink mouth" d="M16 102C28 104.6 40 105.6 54 107.6"/><path class="ink thin" d="M32 102.6C42 102.8 50 104.6 55 107"/><circle class="nostril" cx="32" cy="90" r=".8"/>'
+      }, { depth: 1, wrist: 1.08, head: 0.92, tail: 1.02, fork: 1.1 }));
+    }
+  };
+
+  // ---- sockeye, a spawning male ------------------------------------------------------
+  // Bright red, the head gone green, a hump behind it and the hooked jaw.
+  S.sockeye = {
+    box: "0 0 440 190", name: "Sockeye salmon", latin: "Oncorhynchus nerka",
+    draw: function () {
+      return fishBody(form({
+        id: "fpsock", kind: "sockeye", seed: 167, gill: 98, eye: [54, 92, 4.8], depth: 100, scale: 3.4, lateral: 0.48,
+        top: [[12, 105], [16, 98], [26, 92], [40, 86], [58, 77], [80, 63], [106, 50], [138, 42], [176, 40], [216, 43], [258, 51], [298, 62], [336, 73], [362, 80], [380, 83]],
+        bot: [[12, 105], [17, 110], [29, 114], [46, 117], [74, 123], [110, 131], [154, 138], [200, 140], [246, 136], [284, 128], [322, 117], [350, 110], [380, 106]],
+        tail: { a: [373, 82], b: [373, 107], edge: [[400, 67], [430, 50], [418, 74], [409, 95], [418, 116], [430, 140], [400, 122]], r0: 2, r1: 6, rays: 21, bend: 0, bias: 1 },
+        dorsal: { a: [192, 41], b: [246, 47], edge: [[201, 22], [214, 12], [237, 21], [256, 34]], r0: 2, r1: 4, rays: 12 },
+        adipose: { a: [322, 68], b: [336, 73], edge: [[331, 60], [341, 59], [343, 67]], r0: 1, r1: 3, rays: 0 },
+        anal: { a: [274, 130], b: [326, 116.5], edge: [[279, 148], [288, 163], [310, 148], [330, 134]], r0: 2, r1: 4, rays: 14, bend: -0.05 },
+        pelvic: { a: [214, 139.5], b: [231, 138.5], edge: [[226, 155], [247, 167], [244, 151]], r0: 2, r1: 3, rays: 9, bend: -0.04 },
+        pectoral: { a: [100, 122], b: [102, 132], edge: [[122, 130], [146, 146], [140, 153], [118, 143]], r0: 2, r1: 3, rays: 10, bend: -0.03 },
+        under: function (c) {
+          var pts = [];
+          for (var x = 100; x <= 374; x += 24) pts.push([x, c.at(x, 0.55)]);
+          var d = cr(pts, false);
+          return '<path class="red wide" d="' + d + '" filter="url(#fp-b6)"/><path class="red" d="' + d + '" filter="url(#fp-b4)"/>';
+        },
+        headPaint: function () {
+          return '<path class="green-head" d="M0 0H' + 112 + 'V190H0Z"/><ellipse class="cheek" cx="78" cy="104" rx="14" ry="10" filter="url(#fp-b3)"/>';
+        },
+        mouth: kype(13, 105.5, 54) + '<circle class="nostril" cx="30" cy="94" r=".9"/>'
+      }, { depth: 1, wrist: 0.86, head: 1, tail: 0.96, fork: 0.9 }));
+    }
+  };
+
+  // ---- the trout and char of the lakes --------------------------------------------
+  // One trout's build, painted four ways.
+  function troutBody(o) {
+    return form({
+      id: o.id, kind: o.kind, seed: o.seed, gill: 96, eye: [54, 88, 6], depth: 88, scale: 3.8, lateral: 0.47,
+      top: [[21, 98], [24, 90], [33, 84], [50, 76], [76, 67], [112, 58], [156, 52], [200, 51], [246, 55], [290, 63], [330, 73], [360, 80], [380, 82]],
+      bot: [[21, 98], [24, 104], [33, 109], [50, 113], [78, 121], [114, 130], [158, 137], [204, 138], [250, 134], [286, 126], [324, 115], [352, 109], [380, 107]],
+      tail: { a: [373, 81], b: [373, 108], edge: [[400, 68], [427, 55], [418, 76], [412, 95], [418, 113], [427, 134], [400, 121]], r0: 2, r1: 6, rays: 21, bend: 0, bias: 1 },
+      dorsal: { a: [190, 52], b: [242, 55], edge: [[199, 34], [211, 22], [234, 28], [250, 38]], r0: 2, r1: 4, rays: 12 },
+      adipose: { a: [318, 70], b: [332, 75], edge: [[327, 63], [337, 63], [338, 70]], r0: 1, r1: 3, rays: 0 },
+      anal: { a: [280, 127], b: [322, 116], edge: [[284, 145], [291, 157], [310, 145], [326, 133]], r0: 2, r1: 4, rays: 12, bend: -0.05 },
+      pelvic: { a: [216, 137.5], b: [232, 136.5], edge: [[227, 152], [246, 163], [243, 149]], r0: 2, r1: 3, rays: 8, bend: -0.04 },
+      pectoral: { a: [99, 121], b: [101, 131], edge: [[121, 129], [144, 145], [138, 152], [117, 142]], r0: 2, r1: 3, rays: 10, bend: -0.03 },
+      finPaint: o.finPaint, under: o.under, marks: o.marks, headPaint: o.headPaint,
+      mouth: (o.mouth || '<path class="ink mouth" d="M23 101C34 103 46 104 60 107"/><path class="ink thin" d="M38 101C48 101 55 103 61 106"/>') +
+        '<circle class="nostril" cx="37" cy="88" r=".8"/>'
+    }, o.form);
+  }
+  // white leading edges on the lower fins (a char's, a golden's)
+  var LEADS = {
+    anal: function () { return '<path class="fin-lead" d="M281 129L285 145L291 156"/>'; },
+    pelvic: function () { return '<path class="fin-lead" d="M217 139L228 152L245 162"/>'; },
+    pectoral: function () { return '<path class="fin-lead" d="M101 122L120 130L142 146"/>'; }
+  };
+  // ---- brown trout: big dark spots in pale rings, a few red ones low on the side,
+  // a square tail with few spots on it
+  S.browntrout = {
+    box: "0 0 440 190", name: "Brown trout", latin: "Salmo trutta",
+    draw: function () {
+      return fishBody(troutBody({
+        id: "fpbrown", kind: "browntrout", seed: 173, form: { depth: 1.1, wrist: 1.18, head: 1, tail: 0.96, fork: 0.22 },
+        finPaint: { dorsal: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 3, 1.3, 0.12, 0.8) + '"/>'; },
+          adipose: function () { return '<ellipse class="redspot" cx="331" cy="67" rx="3" ry="2.6"/>'; } },
+        marks: function (c) {
+          var r = c.rand, halo = "", dark = "", red = "", made = 0, tries = 0;
+          while (made < 64 && tries < 3000) {
+            tries++;
+            var x = lerp(96, 350, r()), v = r();
+            if (v > 0.68 || r() > (v < 0.5 ? 0.95 : 0.5)) continue;
+            var y = c.at(x, v), s = 2.2 + r() * 1.8;
+            halo += dot(x, y, s * 1.9, s * 1.7, 0); dark += dot(x, y, s, s * 0.9, r() * 3);
+            made++;
+          }
+          for (var i = 0; i < 16; i++) {
+            var rx = lerp(110, 350, r()), rv = 0.46 + r() * 0.2, ry = c.at(rx, rv);
+            halo += dot(rx, ry, 4.2, 3.8, 0); red += dot(rx, ry, 2, 1.8, 0);
+          }
+          return '<path class="halo" d="' + halo + '"/><path class="spot big" d="' + dark + '"/><path class="redspot" d="' + red + '"/>';
+        },
+        headPaint: function (c) {
+          return '<ellipse class="cheek" cx="80" cy="96" rx="13" ry="11" filter="url(#fp-b3)"/>' +
+            '<path class="spot big" d="' + spots(c, 9, function (x, v) { return v < 0.55 ? 1 : 0; }, function (r) { return 1.2 + r() * 1; }, 56, 92) + '"/>';
+        }
+      }));
+    }
+  };
+  // ---- brook trout: a char, dark green with pale worm marks on the back,
+  // pale spots and red ones ringed in blue, lower fins red edged white
+  S.brooktrout = {
+    box: "0 0 440 190", name: "Brook trout", latin: "Salvelinus fontinalis",
+    draw: function () {
+      return fishBody(troutBody({
+        id: "fpbrook", kind: "brooktrout", seed: 179, form: { depth: 1.08, wrist: 1.14, head: 1, tail: 0.96, fork: 0.18 },
+        finPaint: Object.assign({ dorsal: function (c, f) { return '<path class="spot oval" d="' + raySpots(f, c.rand, 4, 1.3, 0.1, 0.9) + '"/>'; } }, LEADS),
+        under: function (c) { return '<path class="worm" d="' + worms(c, 46, 5, 5, function (x, v) { return v < 0.38 ? 1 : 0; }, 80, 360) + '"/>'; },
+        marks: function (c) {
+          var r = c.rand, pale = "", blue = "", red = "";
+          pale = spots(c, 70, function (x, v) { return v > 0.3 && v < 0.75 ? 0.9 : 0; }, function (rr) { return 1.4 + rr() * 1.1; }, 100, 360);
+          for (var i = 0; i < 18; i++) {
+            var x = lerp(112, 352, r()), v = 0.42 + r() * 0.28, y = c.at(x, v);
+            blue += dot(x, y, 4, 3.6, 0); red += dot(x, y, 1.9, 1.7, 0);
+          }
+          return '<path class="palespot" d="' + pale + '"/><path class="bluehalo" d="' + blue + '"/><path class="redspot" d="' + red + '"/>';
+        },
+        headPaint: function () { return '<ellipse class="cheek" cx="80" cy="98" rx="13" ry="11" filter="url(#fp-b3)"/>'; }
+      }));
+    }
+  };
+  // ---- tiger trout: a brown and brook cross, the whole side a maze of dark
+  // wandering lines on gold
+  S.tigertrout = {
+    box: "0 0 440 190", name: "Tiger trout", latin: "Salmo trutta x Salvelinus fontinalis",
+    draw: function () {
+      return fishBody(troutBody({
+        id: "fptiger", kind: "tigertrout", seed: 181, form: { depth: 1.1, wrist: 1.16, head: 1, tail: 0.96, fork: 0.2 },
+        finPaint: { dorsal: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 4, 1.2, 0.1, 0.9) + '"/>'; },
+          tail: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 3, 1, 0.1, 0.8) + '"/>'; } },
+        marks: function (c) { return '<path class="maze" d="' + worms(c, 70, 7, 6.5, function (x, v) { return v < 0.82 ? 0.95 : 0; }, 90, 366) + '"/>'; },
+        headPaint: function (c) { return '<ellipse class="cheek" cx="80" cy="98" rx="13" ry="11" filter="url(#fp-b3)"/><path class="maze" d="' + worms(c, 6, 4, 5, function (x, v) { return v < 0.5 ? 1 : 0; }, 50, 90) + '"/>'; }
+      }));
+    }
+  };
+  // ---- golden trout: gold sides, a red band along the side line with dark
+  // oval marks on it, a red belly, spots on the back half only
+  S.goldentrout = {
+    box: "0 0 440 190", name: "Golden trout", latin: "Oncorhynchus aguabonita",
+    draw: function () {
+      return fishBody(troutBody({
+        id: "fpgold", kind: "goldentrout", seed: 191, form: { depth: 1.04, wrist: 1.1, head: 0.94, tail: 0.96, fork: 0.5 },
+        finPaint: Object.assign({ tail: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 6, 0.9, 0.08, 0.95) + '"/>'; },
+          dorsal: function (c, f) { return '<path class="spot" d="' + raySpots(f, c.rand, 4, 0.9, 0.1, 0.9) + '"/>'; } }, LEADS),
+        under: function (c) {
+          var pts = [], bel = [];
+          for (var x = 82; x <= 376; x += 24) { pts.push([x, c.at(x, 0.5)]); bel.push([x, c.at(x, 0.9)]); }
+          return '<path class="band gold wide" d="' + cr(pts, false) + '" filter="url(#fp-b6)"/><path class="band gold" d="' + cr(pts, false) + '" filter="url(#fp-b3)"/>' +
+            '<path class="belly-red" d="' + cr(bel, false) + '" filter="url(#fp-b6)"/>';
+        },
+        marks: function (c) {
+          var parr = "";
+          for (var i = 0; i < 10; i++) { var x = 112 + i * 25, y = c.at(x, 0.5); parr += dot(x, y, 5.5, 8, 0); }
+          return '<path class="parr" d="' + parr + '" filter="url(#fp-b1)"/>' +
+            '<path class="spot" d="' + spots(c, 70, function (x, v) { return v < 0.4 && x > 220 ? 1 : 0; }, function (r) { return 0.6 + r() * 0.6; }, 200, 374) + '"/>';
+        },
+        headPaint: function () { return '<ellipse class="cheek" cx="80" cy="96" rx="13" ry="11" filter="url(#fp-b3)"/>'; }
+      }));
+    }
+  };
+  // ---- lake trout: a long grey char, pale spots on dark all over it and its
+  // fins, a big head and a deep fork in the tail
+  S.laketrout = {
+    box: "0 0 440 190", name: "Lake trout", latin: "Salvelinus namaycush",
+    draw: function () {
+      return fishBody(troutBody({
+        id: "fplaker", kind: "laketrout", seed: 197, form: { depth: 0.96, wrist: 0.96, head: 1.14, tail: 1.08, fork: 1.15 },
+        finPaint: Object.assign({ tail: function (c, f) { return '<path class="palespot" d="' + raySpots(f, c.rand, 5, 1.2, 0.08, 0.92) + '"/>'; },
+          dorsal: function (c, f) { return '<path class="palespot" d="' + raySpots(f, c.rand, 4, 1.2, 0.1, 0.9) + '"/>'; } }, LEADS),
+        marks: function (c) {
+          return '<path class="palespot" d="' + spots(c, 210, function (x, v) { return v < 0.8 ? 0.95 - v * 0.5 : 0; }, function (r) { return 1 + r() * 1.6; }, 90, 372) + '"/>';
+        },
+        headPaint: function (c) {
+          return '<ellipse class="cheek" cx="82" cy="98" rx="14" ry="11" filter="url(#fp-b3)"/>' +
+            '<path class="palespot" d="' + spots(c, 20, function (x, v) { return v < 0.6 ? 1 : 0; }, function (r) { return 0.8 + r() * 0.8; }, 30, 96) + '"/>';
+        },
+        mouth: '<path class="ink mouth" d="M23 101C36 103.6 52 105 70 108"/><path class="ink thin" d="M40 101C52 101 62 103.6 70 107.4"/>'
+      }));
+    }
+  };
+
+  // ---- white sturgeon ----------------------------------------------------------------
+  // Long and grey, no scales: rows of bony plates down the back, the side
+  // and the belly edge, a pointed snout with whiskers under it in front of
+  // the mouth, and a shark's tail, its top lobe long.
+  S.sturgeon = {
+    box: "0 0 440 190", name: "White sturgeon", latin: "Acipenser transmontanus",
+    draw: function () {
+      return fishBody({
+        id: "fpstur", kind: "sturgeon", seed: 199, gill: 100, gillBulge: 6, eye: [52, 94, 3.4], depth: 56, scale: 40, lateral: 0.42,
+        top: [[4, 103], [10, 99], [24, 95], [46, 89], [72, 83], [102, 78.5], [136, 75], [172, 73.5], [210, 73.5], [248, 75.5], [284, 79], [316, 83], [344, 86.5], [366, 88]],
+        bot: [[4, 103], [10, 106], [24, 110], [46, 115.5], [72, 120.5], [102, 124], [136, 126], [172, 126.5], [210, 125], [248, 121], [284, 114], [316, 107], [344, 100.5], [366, 97]],
+        backFins: ["tail", "dorsal", "anal"],
+        // the top lobe runs on, the bottom one is short
+        tail: { a: [356, 88.5], b: [362, 98], edge: [[382, 78], [430, 50], [424, 62], [404, 84], [396, 100], [388, 114], [374, 106]], r0: 1, r1: 6, rays: 19, bend: 0.02, bias: 1 },
+        dorsal: { a: [292, 80], b: [330, 84.5], edge: [[298, 64], [312, 59], [326, 66], [336, 81]], r0: 1, r1: 4, rays: 14 },
+        anal: { a: [296, 111.5], b: [330, 104], edge: [[300, 125], [312, 130], [328, 121], [336, 107]], r0: 1, r1: 4, rays: 11, bend: -0.04 },
+        pelvic: { a: [260, 120], b: [276, 118], edge: [[266, 131], [284, 136], [284, 125]], r0: 1, r1: 3, rays: 8, bend: -0.04 },
+        pectoral: { a: [100, 121], b: [104, 127], edge: [[122, 131], [150, 143], [144, 149], [116, 138]], r0: 1, r1: 3, rays: 10, bend: -0.03 },
+        // three rows of plates
+        over: function (c) {
+          return '<path class="scute" d="' + scutes(c, 104, 290, 12, 0.03, 4.4, 4.6) + scutes(c, 104, 350, 34, 0.45, 2.6, 2.4) + scutes(c, 110, 260, 10, 0.92, 3, 2.6) + '"/>';
+        },
+        headPaint: function () { return '<ellipse class="cheek" cx="72" cy="104" rx="16" ry="8" filter="url(#fp-b3)"/>'; },
+        // the mouth is underneath, the whiskers in front of it
+        mouth: '<path class="ink mouth" d="M42 116C46 118.6 52 119 58 117"/><path class="ink thin" d="M4 103C12 100 22 98 34 97"/>' +
+          whiskers([["M22 109.6C21 113.6 21 117 22 120", "chin"], ["M26 110.6C25.6 114.6 26 117.6 27 120.4", "chin"], ["M30 111.6C30 115.4 30.6 118.4 32 121", "chin"], ["M34 112.6C34.6 116.2 35.6 119 37 121.4", "chin"]]) +
+          '<circle class="nostril" cx="42" cy="92" r=".8"/>'
+      });
+    }
+  };
+
   // ---- Dungeness crab, from above ---------------------------------------------
   // A wide shell, widest at the last and largest of the ten teeth down each
   // side, pale tipped claws folded in front, four walking legs a side. Posed

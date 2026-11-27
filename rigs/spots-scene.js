@@ -614,6 +614,9 @@
   };
 
   RIG.spotScenes = S;
+  // The plain small lake for any lake that has no card (a lake from
+  // rigs/lakes.js: its page and its row), seeded by the id asked for.
+  RIG.plainLake = plainLake;
   RIG.spotOpen = OPEN;
   RIG.spotGreenStand = greenStand;
   // A spot's paint: its entry, or the plain small lake for a feed lake that

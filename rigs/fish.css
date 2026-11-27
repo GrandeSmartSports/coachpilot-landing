@@ -499,3 +499,304 @@
 .fp .t-cord-l{fill:none;stroke:var(--f-lit);stroke-width:1.3;opacity:.7;stroke-linecap:round}
 .fp .t-tag-e{fill:none;stroke:var(--t-cord-e);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
 .fp .t-tag{fill:none;stroke:var(--t-tag);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ================= the lake fish (rigs/lakes.js) ================= */
+/* the marks that name them */
+.fp .ear{fill:var(--f-pupil);opacity:.9}
+.fp .eartip{fill:var(--vermilion);opacity:.85}
+.fp .breast{fill:color-mix(in oklab,var(--vermilion) 46%,var(--ochre));opacity:.42}
+.fp .cheekline{fill:none;stroke:color-mix(in oklab,var(--water2) 70%,var(--f-shade));stroke-width:1.7;opacity:.6;stroke-linecap:round}
+.fp .pspot{fill:color-mix(in oklab,var(--vermilion) 66%,var(--ochre));opacity:.72}
+.fp .barbel{fill:none;stroke:var(--f-line);stroke-width:1.6;stroke-linecap:round;opacity:.82}
+.fp .barbel.short{stroke-width:1.2}
+.fp .barbel.chin{stroke:color-mix(in oklab,var(--f-belly) 45%,var(--f-shade));stroke-width:1.15}
+.fp .saddle{fill:var(--f-shade);opacity:.58}
+.fp .steel{fill:none;stroke:color-mix(in oklab,var(--water2) 72%,var(--shore));stroke-width:12;opacity:.32}
+.fp .red{fill:none;stroke:var(--madder);stroke-width:22;opacity:.42}
+.fp .red.wide{stroke-width:56;opacity:.28}
+.fp .green-head{fill:color-mix(in oklab,var(--olive) 64%,var(--water2));opacity:.78}
+.fp .halo{fill:color-mix(in oklab,var(--paper) 62%,var(--ochre));opacity:.38}
+.fp .spot.big{opacity:.92}
+.fp .redspot{fill:var(--vermilion);opacity:.82}
+.fp .palespot{fill:color-mix(in oklab,var(--paper) 80%,var(--gold));opacity:.85}
+.fp .bluehalo{fill:color-mix(in oklab,var(--water2) 76%,var(--paper));opacity:.6}
+.fp .worm{fill:none;stroke:color-mix(in oklab,var(--paper) 72%,var(--gold));stroke-width:1.9;opacity:.72;stroke-linecap:round}
+.fp .maze{fill:none;stroke:var(--f-shade);stroke-width:2.7;opacity:.62;stroke-linecap:round}
+.fp .parr{fill:var(--f-shade);opacity:.36}
+.fp .band.gold{stroke:var(--vermilion)}
+.fp .belly-red{fill:none;stroke:var(--vermilion);stroke-width:16;opacity:.42}
+.fp .scute{fill:color-mix(in oklab,var(--paper) 78%,var(--f-flank));stroke:var(--f-line);stroke-width:.5;opacity:.92}
+.fp .mottle.fin{opacity:.42}
+.fp .mottle.dark{opacity:.42}
+.fp .lband.thin{stroke-width:3;opacity:.48}
+.fp-bullhead .scale,.fp-bullhead .scale-hi,.fp-catfish .scale,.fp-catfish .scale-hi,.fp-sturgeon .scale,.fp-sturgeon .scale-hi,.fp-sturgeon .lateral{display:none}
+.fp-muskie .vbar{fill:color-mix(in oklab,var(--f-shade) 82%,var(--olive));opacity:.7}
+.fp-smallmouth .vbar{fill:color-mix(in oklab,var(--f-shade) 76%,var(--ochre));opacity:.42}
+.fp-bluegill .vbar,.fp-pumpkinseed .vbar{fill:var(--f-shade);opacity:.3}
+.fp-bullhead .cheek,.fp-catfish .cheek{opacity:.28}
+.fp-walleye .glint{r:2.2}
+.fp-sockeye .head-wash{opacity:0}
+.fp-brooktrout .fin.anal>path:first-child,.fp-brooktrout .fin.pelvic>path:first-child,.fp-brooktrout .fin.pectoral>path:first-child,
+.fp-goldentrout .fin.anal>path:first-child,.fp-goldentrout .fin.pelvic>path:first-child{fill:color-mix(in srgb,var(--fin-red) 80%,transparent)}
+
+/* tiger muskie: pale olive silver, the bars dark olive, the fins rust */
+:root .fp-muskie{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 70%,var(--olive)) 90%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 58%,var(--shore)) 60%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--olive) 30%,var(--paper)) 84%,var(--water1));
+  --f-belly:color-mix(in oklab,var(--paper) 94%,var(--olive));
+  --f-head:color-mix(in oklab,var(--shore) 56%,var(--olive));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 44%,var(--olive)) 86%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 52%,var(--olive)) 70%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 40%,var(--paper)) 54%,transparent);
+}
+:root[data-dark="1"] .fp-muskie{
+  --f-back:color-mix(in oklab,var(--olive) 44%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 64%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--olive) 28%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 86%,var(--olive));
+  --f-head:color-mix(in oklab,var(--olive) 34%,var(--paper));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 56%,var(--paper)) 88%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 50%,var(--ink2)) 72%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--fin-red) 34%,var(--ink2)) 46%,transparent);
+}
+/* smallmouth: bronze, a red eye */
+:root .fp-smallmouth{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 60%,var(--ochre)) 88%,var(--madder));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 34%,var(--ochre)) 82%,var(--madder));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--ochre) 64%,var(--madder)) 36%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 90%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 50%,var(--ochre));
+  --f-iris1:color-mix(in oklab,var(--vermilion) 74%,var(--paper));
+  --f-iris2:color-mix(in oklab,var(--madder) 80%,var(--shore));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--shore) 50%,var(--ochre)) 86%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--shore) 26%,var(--ochre)) 70%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--ochre) 40%,var(--paper)) 54%,transparent);
+}
+:root[data-dark="1"] .fp-smallmouth{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--ochre) 50%,var(--madder)) 46%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 50%,var(--ink2));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--ochre) 60%,var(--madder)) 40%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 82%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ochre) 36%,var(--paper));
+  --f-iris1:color-mix(in oklab,var(--vermilion) 70%,var(--ink));
+  --f-iris2:color-mix(in oklab,var(--madder) 70%,var(--paper));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--ochre) 50%,var(--paper)) 90%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--ochre) 40%,var(--ink2)) 72%,transparent);
+  --fin3:color-mix(in srgb,color-mix(in oklab,var(--ochre) 30%,var(--ink2)) 46%,transparent);
+}
+/* crappie: silver with olive green speckles, a dark olive back */
+:root .fp-crappie{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 76%,var(--olive)) 90%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 30%,var(--olive)) 60%,var(--water1));
+  --f-flank:color-mix(in oklab,var(--water1) 18%,var(--paper));
+  --f-head:color-mix(in oklab,var(--shore) 58%,var(--olive));
+}
+:root[data-dark="1"] .fp-crappie{
+  --f-back:color-mix(in oklab,var(--olive) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 50%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink) 34%,var(--ink2));
+  --f-head:color-mix(in oklab,var(--olive) 30%,var(--paper));
+}
+/* bluegill: olive going blue, an orange breast */
+:root .fp-bluegill{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 70%,var(--olive)) 82%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 46%,var(--water2)) 70%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--water2) 40%,var(--olive)) 34%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 84%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 50%,var(--water2));
+}
+:root[data-dark="1"] .fp-bluegill{
+  --f-back:color-mix(in oklab,var(--olive) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 50%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ink2) 80%,var(--olive));
+  --f-belly:color-mix(in oklab,var(--ink) 80%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ink2) 30%,var(--paper));
+}
+/* pumpkinseed: olive and gold, an orange belly */
+:root .fp-pumpkinseed{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 66%,var(--olive)) 88%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 56%,var(--ochre)) 70%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--ochre) 50%,var(--water2)) 32%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 72%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 44%,var(--water2));
+}
+:root[data-dark="1"] .fp-pumpkinseed{
+  --f-back:color-mix(in oklab,var(--olive) 44%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 44%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 30%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 76%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ink2) 30%,var(--paper));
+}
+/* brown bullhead: mottled brown over cream */
+:root .fp-bullhead{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 72%,var(--madder)) 84%,var(--ochre));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 40%,var(--ochre)) 80%,var(--madder));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--ochre) 44%,var(--shore)) 46%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 88%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 60%,var(--ochre));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--shore) 60%,var(--ochre)) 86%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--shore) 40%,var(--ochre)) 70%,transparent);
+}
+:root[data-dark="1"] .fp-bullhead{
+  --f-back:color-mix(in oklab,var(--ochre) 34%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 40%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 24%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 84%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ochre) 26%,var(--paper));
+  --fin1:color-mix(in srgb,color-mix(in oklab,var(--ochre) 36%,var(--paper)) 90%,transparent);
+  --fin2:color-mix(in srgb,color-mix(in oklab,var(--ochre) 30%,var(--ink2)) 72%,transparent);
+}
+/* channel catfish: slate over silver */
+:root .fp-catfish{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 70%,var(--water2)) 94%,var(--olive));
+  --f-upper:color-mix(in oklab,var(--shore) 30%,var(--water2));
+  --f-flank:color-mix(in oklab,var(--water1) 22%,var(--paper));
+  --f-head:color-mix(in oklab,var(--shore) 60%,var(--water2));
+}
+:root[data-dark="1"] .fp-catfish{
+  --f-back:color-mix(in oklab,var(--ink2) 34%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 56%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink) 34%,var(--ink2));
+  --f-head:color-mix(in oklab,var(--ink2) 28%,var(--paper));
+}
+/* walleye: olive gold, the eye glassy */
+:root .fp-walleye{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 68%,var(--olive)) 90%,var(--ochre));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 50%,var(--ochre)) 74%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--ochre) 50%,var(--olive)) 36%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 94%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 54%,var(--olive));
+  --f-iris1:color-mix(in oklab,var(--paper) 92%,var(--water1));
+  --f-iris2:color-mix(in oklab,var(--water1) 60%,var(--paper));
+}
+:root[data-dark="1"] .fp-walleye{
+  --f-back:color-mix(in oklab,var(--olive) 46%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 60%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 34%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 84%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--olive) 34%,var(--paper));
+  --f-iris1:var(--paper);
+  --f-iris2:color-mix(in oklab,var(--paper) 70%,var(--ink2));
+}
+/* kokanee: a steel blue back over chrome */
+:root .fp-kokanee{
+  --f-back:color-mix(in oklab,var(--shore) 46%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--water2) 60%,var(--water1));
+  --f-flank:color-mix(in oklab,var(--water1) 14%,var(--paper));
+  --f-head:color-mix(in oklab,var(--shore) 44%,var(--water2));
+}
+:root[data-dark="1"] .fp-kokanee{
+  --f-back:color-mix(in oklab,var(--water2) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 50%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink) 30%,var(--ink2));
+  --f-head:color-mix(in oklab,var(--water2) 30%,var(--paper));
+}
+/* sockeye: red, the head green */
+:root .fp-sockeye{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--madder) 70%,var(--shore)) 90%,var(--vermilion));
+  --f-upper:color-mix(in oklab,var(--madder) 80%,var(--vermilion));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--madder) 70%,var(--vermilion)) 72%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 70%,var(--madder));
+  --f-head:color-mix(in oklab,var(--olive) 64%,var(--water2));
+}
+:root[data-dark="1"] .fp-sockeye{
+  --f-back:color-mix(in oklab,var(--madder) 70%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--madder) 70%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--madder) 56%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 70%,var(--madder));
+  --f-head:color-mix(in oklab,var(--olive) 40%,var(--paper));
+}
+/* brown trout: golden brown */
+:root .fp-browntrout{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 70%,var(--ochre)) 92%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 30%,var(--ochre)) 80%,var(--water1));
+  --f-flank:color-mix(in oklab,var(--ochre) 40%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 80%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 56%,var(--ochre));
+}
+:root[data-dark="1"] .fp-browntrout{
+  --f-back:color-mix(in oklab,var(--ochre) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 46%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 34%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 80%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ochre) 30%,var(--paper));
+}
+/* brook trout: dark green over an orange belly */
+:root .fp-brooktrout{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 80%,var(--olive)) 92%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 50%,var(--olive)) 80%,var(--water1));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--olive) 70%,var(--shore)) 46%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 56%,var(--vermilion));
+  --f-head:color-mix(in oklab,var(--shore) 70%,var(--olive));
+}
+:root[data-dark="1"] .fp-brooktrout{
+  --f-back:color-mix(in oklab,var(--olive) 36%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--olive) 56%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--olive) 34%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink2) 60%,var(--vermilion));
+  --f-head:color-mix(in oklab,var(--olive) 26%,var(--paper));
+}
+/* tiger trout: gold under the maze */
+:root .fp-tigertrout{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 64%,var(--olive)) 90%,var(--ochre));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 46%,var(--ochre)) 70%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ochre) 44%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 84%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--shore) 50%,var(--ochre));
+}
+:root[data-dark="1"] .fp-tigertrout{
+  --f-back:color-mix(in oklab,var(--ochre) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 50%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 38%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink) 80%,var(--ochre));
+  --f-head:color-mix(in oklab,var(--ochre) 30%,var(--paper));
+}
+/* golden trout: gold sides, an olive back */
+:root .fp-goldentrout{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 56%,var(--olive)) 86%,var(--ochre));
+  --f-upper:color-mix(in oklab,var(--ochre) 60%,var(--olive));
+  --f-flank:color-mix(in oklab,var(--ochre) 62%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--paper) 66%,var(--vermilion));
+  --f-head:color-mix(in oklab,var(--shore) 44%,var(--ochre));
+}
+:root[data-dark="1"] .fp-goldentrout{
+  --f-back:color-mix(in oklab,var(--ochre) 50%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ochre) 60%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--ochre) 50%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--ink2) 64%,var(--vermilion));
+  --f-head:color-mix(in oklab,var(--ochre) 40%,var(--paper));
+}
+/* lake trout: grey green, pale spots */
+:root .fp-laketrout{
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 82%,var(--olive)) 90%,var(--water2));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--shore) 56%,var(--olive)) 70%,var(--water2));
+  --f-flank:color-mix(in oklab,color-mix(in oklab,var(--shore) 40%,var(--water2)) 50%,var(--paper));
+  --f-head:color-mix(in oklab,var(--shore) 74%,var(--water2));
+}
+:root[data-dark="1"] .fp-laketrout{
+  --f-back:color-mix(in oklab,var(--ink2) 40%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 66%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink2) 88%,var(--olive));
+  --f-head:color-mix(in oklab,var(--ink2) 34%,var(--paper));
+}
+/* white sturgeon: grey over a pale belly, the plates paler */
+:root .fp-sturgeon{
+  --f-back:color-mix(in oklab,var(--shore) 64%,var(--water2));
+  --f-upper:color-mix(in oklab,var(--shore) 34%,var(--water1));
+  --f-flank:color-mix(in oklab,var(--water1) 34%,var(--paper));
+  --f-head:color-mix(in oklab,var(--shore) 54%,var(--water2));
+}
+:root[data-dark="1"] .fp-sturgeon{
+  --f-back:color-mix(in oklab,var(--ink2) 34%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--ink2) 58%,var(--paper));
+  --f-flank:color-mix(in oklab,var(--ink) 34%,var(--ink2));
+  --f-head:color-mix(in oklab,var(--ink2) 30%,var(--paper));
+}
+/* by lantern the pale marks are lit, not dark */
+:root[data-dark="1"] .fp .palespot{fill:color-mix(in oklab,var(--ink) 84%,var(--gold))}
+:root[data-dark="1"] .fp .worm{stroke:color-mix(in oklab,var(--ink) 80%,var(--gold))}
+:root[data-dark="1"] .fp .halo{fill:color-mix(in oklab,var(--ink) 58%,var(--ochre))}
+:root[data-dark="1"] .fp .scute{fill:color-mix(in oklab,var(--ink) 70%,var(--f-flank))}
+:root[data-dark="1"] .fp .bluehalo{fill:color-mix(in oklab,var(--water1) 50%,var(--ink))}
+:root[data-dark="1"] .fp-walleye{--f-iris1:var(--ink);--f-iris2:color-mix(in oklab,var(--ink) 70%,var(--ink2))}

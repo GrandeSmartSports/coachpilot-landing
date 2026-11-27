@@ -609,7 +609,8 @@ try {
     const errs2 = []; p2.on("pageerror", (e) => errs2.push(e.message));
     await p2.goto(base + "#/fish", { waitUntil: "load" });
     await p2.waitForSelector(".pickcard[data-species]");
-    const f = await p2.evaluate(() => ({ tiles: document.querySelectorAll(".pickcard[data-species]").length, named: [...document.querySelectorAll(".pickcard .nm")].filter((n) => n.textContent.trim()).length, wide: document.documentElement.scrollWidth }));
+    // (the app's own fish: the lake fish come after, with rigs/lakes.js)
+    const f = await p2.evaluate(() => ({ tiles: document.querySelectorAll(".pickcard[data-species]").length, named: [...document.querySelectorAll(".pickcard[data-species] .nm")].filter((n) => n.textContent.trim()).length, wide: document.documentElement.scrollWidth }));
     await p2.goto(base + "#/water", { waitUntil: "load" });
     await p2.waitForSelector("[data-type-tile]");
     const w = await p2.evaluate(() => ({ tiles: document.querySelectorAll("[data-type-tile]").length, held: [...document.querySelectorAll("[data-type-tile] .pic")].filter((x) => x.querySelector("svg") || /gradient/.test(getComputedStyle(x).backgroundImage)).length }));

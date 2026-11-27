@@ -938,7 +938,8 @@
 
 // Spots: one entry per place, shared by every species fished there. Plain
 // data with stable ids so it can move into CastAI as is. `types` drive the
-// Water tab. A spot id matches the location id under each species.
+// Water tab. A spot id matches the location id under each species. `lake`:
+// the same lake in rigs/lakes.js (WDFW's lake map), whose fish its page lists.
 (function () {
   "use strict";
   var RIG = window.RIG;
@@ -966,9 +967,9 @@
       closed: { head: "No salmon here", line: "Salmon is closed above the Carbon River, all year." } },
     // The Dash Point pier is closed, so this spot is fished from the kayak.
     { id: "dash-point", name: "Dash Point", where: "Tacoma, WA", types: ["kayak-sound", "beach", "fly"] },
-    { id: "lake-fenwick", name: "Lake Fenwick", where: "Kent, WA", types: ["lake"] },
-    { id: "american-lake", name: "American Lake", where: "Lakewood, WA", types: ["kayak-lake"] },
-    { id: "lake-tapps", name: "Lake Tapps", where: "Bonney Lake, WA", types: ["kayak-lake"] },
+    { id: "lake-fenwick", name: "Lake Fenwick", where: "Kent, WA", types: ["lake"], lake: "lake-fenwick-king" },
+    { id: "american-lake", name: "American Lake", where: "Lakewood, WA", types: ["kayak-lake"], lake: "american-lake-pierce" },
+    { id: "lake-tapps", name: "Lake Tapps", where: "Bonney Lake, WA", types: ["kayak-lake"], lake: "lake-tapps-pierce" },
     { id: "westport", name: "Westport", where: "Westport, WA", types: ["pier", "beach"] },
     { id: "ocean-shores", name: "Ocean Shores beaches", where: "Copalis and Mocrocks, WA", types: ["beach"] }
   ];
