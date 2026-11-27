@@ -14,7 +14,9 @@
 <link rel="preload" href="/rigs/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/rigs/kit.css">
 <link rel="stylesheet" href="/rigs/scene.css">
-<link rel="stylesheet" href="/rigs/fish.css">
+<!-- the animals' colours: not on the first screen's path (Hot Trips draws no fish) -->
+<link rel="preload" href="/rigs/fish.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/rigs/fish.css"></noscript>
 <script src="/rigs/sky.js"></script>
 <script src="/rigs/scene.js"></script>
 <script>
@@ -66,8 +68,8 @@
 .sp{background:linear-gradient(180deg,var(--panel2),var(--panel));
   border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;box-shadow:var(--sh)}
 .sp .k{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);font-weight:700}
-.sp .v{font-family:var(--mono);font-size:13.5px;font-weight:600;margin-top:4px;line-height:1.3;color:var(--ink)}
-.sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font-size:10.5px;font-family:var(--mono);color:var(--t3);line-height:1.3}
+.sp .v{font:700 16px/1.15 "Barlow Condensed",sans-serif;letter-spacing:.01em;margin-top:4px;color:var(--ink)}
+.sp .have{margin-top:5px;padding-top:5px;border-top:1px solid var(--line);font:600 11px/1.3 Inter,system-ui,sans-serif;color:var(--t3)}
 
 /* diagram */
 /* The rig and knot drawings are built for a dark ground, so they keep one in
@@ -99,8 +101,8 @@ ol.steps li::before{
 }
 ol.steps li:last-child{padding-bottom:0}
 ol.steps b{font-weight:650;color:var(--ink)}
-ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-weight:600;
-  background:color-mix(in srgb,var(--accent) 12%,transparent);padding:2px 7px;border-radius:5px;white-space:normal;overflow-wrap:anywhere}
+ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 11%,transparent);padding:2px 8px 2px 7px;border-radius:8px;white-space:normal;overflow-wrap:anywhere}
 
 .chk{display:grid;gap:7px;margin:12px 0 0}
 .chk label{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border-radius:11px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);cursor:pointer;transition:border-color .15s,opacity .15s}
@@ -123,7 +125,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .rail button{
   flex:1;height:30px;border-radius:8px;cursor:pointer;
   background:var(--panel3);border:1px solid var(--line);color:var(--t3);
-  font-family:var(--mono);font-size:12.5px;font-weight:600;transition:all .15s;
+  font:700 14px/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;transition:all .15s;
 }
 .rail button:hover{border-color:var(--line2);color:var(--ink2)}
 .rail button[aria-current="true"]{
@@ -142,11 +144,12 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .kstep.on{opacity:1}
 .kstep .draw{stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
 .kstep.on .draw{stroke-dashoffset:0;transition:stroke-dashoffset .55s cubic-bezier(.4,0,.2,1)}
-.klink{display:inline-flex;align-items:center;gap:7px;margin:12px 0 10px;font-size:14px;
-  color:var(--accent);text-decoration:none;font-weight:600;
-  border:1px solid var(--line);border-radius:9px;padding:9px 13px;background:var(--panel)}
-.klink:hover{border-color:var(--accent)}
-.klink span{color:var(--t3);font-weight:400;font-size:13px}
+/* a link to another card or page: a kit chip with its chevron, so it reads as a tap */
+.klink{display:inline-flex;align-items:center;gap:8px;margin:12px 0 10px;padding:9px 14px 9px 13px;border-radius:999px;font-size:14px;font-weight:600;
+  color:var(--accent);text-decoration:none;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+.klink::after{content:"";flex:0 0 auto;width:6px;height:6px;margin-left:2px;border:solid currentColor;border-width:2px 2px 0 0;transform:rotate(45deg)}
+.klink:active{transform:translateY(1px)}
+.klink span{color:var(--t3);font-weight:500;font-size:13px}
 .card h4{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
   letter-spacing:.08em;font-size:17px;color:var(--ink);margin:22px 0 8px}
 
@@ -166,22 +169,31 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 
 /* buy links */
 .buy{display:grid;gap:9px;margin:14px 0 0}
-.buy a{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:12px;
-  background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);text-decoration:none}
-.buy a:hover{border-color:var(--accent)}
+/* a thing to buy: a raised row on the kit's surface, its arrow the kit's chevron */
+.buy a{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:14px;text-decoration:none;
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+.buy a:active{transform:translateY(1px)}
 .buy .n{flex:1;min-width:0}
 .buy .n b{display:block;color:var(--ink);font-weight:650;font-size:14.5px;line-height:1.3}
 .buy .n span{display:block;color:var(--t3);font-size:12.5px;margin-top:3px;line-height:1.35}
-.buy .p{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
-.buy .go{color:var(--line2);font-size:17px;line-height:1;flex:0 0 auto}
+.buy .p{font:700 16px/1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--accent);white-space:nowrap}
+.buy .go{flex:0 0 8px;width:8px;height:14px;font-size:0;color:var(--t3);background:currentColor;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'><path d='M1.5 1.5 6.5 7l-5 5.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat;
+  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 14'><path d='M1.5 1.5 6.5 7l-5 5.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat}
 
 .card{scroll-margin-top:var(--toph,130px)}
 .card p a,.card .box a,.card li a{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
+/* On a law box's pressed-in well the accent alone is too faint under a warm
+   sky: a link there is mixed toward the ink. */
+.card .box.law a{color:color-mix(in oklab,var(--accent) 72%,var(--ink))}
+/* a figure that leads a rule: the limit, big, the way the gear tile leads with its count */
+.box .fig{display:block;margin:3px 0 7px;font:700 36px/1 "Barlow Condensed",sans-serif;letter-spacing:-.005em;color:var(--t1)}
+.box .fig small{font:600 15px/1 Inter,system-ui,sans-serif;letter-spacing:0;color:var(--t2);margin:0 3px}
 /* ---- video tiles ---- */
 .vids{display:grid;gap:10px;margin:12px 0 0}
 .vid{display:flex;align-items:center;gap:13px;padding:12px;border-radius:14px;text-decoration:none;
-  background:linear-gradient(180deg,var(--panel3),var(--panel2));border:1px solid var(--line2)}
-.vid:hover,.vid:active{border-color:var(--accent)}
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+.vid:active{transform:translateY(1px)}
 .vid .play{flex:0 0 52px;height:52px;border-radius:12px;position:relative;
   background:var(--gold);
   box-shadow:0 2px 12px -2px color-mix(in srgb,var(--gold) 55%,transparent)}
@@ -191,7 +203,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .vid .vt b{display:block;color:var(--ink);font-weight:650;font-size:15px;line-height:1.3}
 .vid .by{display:block;color:var(--accent);font-size:12.5px;font-weight:600;margin-top:3px}
 .vid .why{display:block;color:var(--t3);font-size:13px;line-height:1.4;margin-top:4px}
-.vid .len{flex:0 0 auto;align-self:flex-start;text-align:right;font-family:var(--mono);font-size:11.5px;color:var(--t3);line-height:1.4}
+.vid .len{flex:0 0 auto;align-self:flex-start;text-align:right;font:700 13px/1.3 "Barlow Condensed",sans-serif;letter-spacing:.03em;color:var(--t3)}
 .card .box + ol.steps,.card .box + .box{margin-top:14px}
 .card ol.steps + .box{margin-top:16px}
 
@@ -201,11 +213,17 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
    here is only where they sit on these screens. */
 .ic{fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .row .tx>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-/* a line that must not be cut (a rule): it wraps */
-.row .tx>span.whole{white-space:normal}
+/* a line that must not be cut (a rule): it wraps; so does a list of what is there */
+.row .tx>span.whole,.row.pic .tx>span.rm{white-space:normal}
+/* a row's badge stands on its title's line; the line under has the whole width */
+.row .tx.hasbadge{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:8px;align-items:start}
+.row .tx.hasbadge>b{grid-column:1;grid-row:1;align-self:center}
+.row .tx.hasbadge>.badge{grid-column:2;grid-row:1;display:inline-flex;margin:0;padding:3px 9px 3px 7px;white-space:nowrap;overflow:visible;font-size:12px;line-height:1.3;color:var(--accent)}
+.row .tx.hasbadge>span:not(.badge){grid-column:1/-1}
 .row.pic .tile{align-self:flex-start;margin-top:2px}
 .ltiles{margin-bottom:2px}
-[data-view="species"] .platecard+[data-rules-slot] .box:first-child{margin-top:12px}
+/* a new rule over a fish's plate: room for the drawing that rides up over the plate's lip */
+[data-view="species"] [data-rules-slot] .box{margin:0 0 calc(12px + var(--sw)*24/390)}
 .grp{margin:26px 0 0}
 .grp>.sect{margin-top:0}
 /* A heading that lands on the picture gets glass under it, and the title
@@ -216,6 +234,33 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .hero.tight{min-height:calc(var(--sw)*var(--cardy)/390 - 128px - var(--jumph,0px) + var(--lift))}
 .vh{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* ---- hot trips ---- */
+/* The tide and weather page opens on the tile's pictures, card wide. */
+.wxfig{margin:0 0 18px}
+.wxfig figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px}
+.wxfig figcaption b{font:700 21px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.01em;color:var(--t1)}
+.wxfig figcaption b{white-space:nowrap}
+.wxfig figcaption span{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--t3);white-space:nowrap}
+.wxfig .sw{width:11px;height:11px;border-radius:3px;background:color-mix(in srgb,var(--gold) 34%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 70%,transparent)}
+.wxfig svg{display:block;width:100%;height:auto;margin:0}
+.wxfig .windbars .t-lab{font-size:9.5px}
+.wxlab{position:relative;display:block;height:34px;margin-top:5px}
+.wxlab span{position:absolute;top:0;transform:translateX(-50%);text-align:center;font:700 15px/1.1 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--t1);white-space:nowrap}
+.wxlab small{display:block;font:600 11.5px/1.3 Inter,system-ui,sans-serif;letter-spacing:0;color:var(--t3)}
+.wxlab.ends{height:18px}
+.wxlab.ends span{transform:none}
+.wxfig+.when{margin-top:2px}
+/* The gear list opens with its tile's count and pips. */
+.gearhead{padding:0 0 12px;border-bottom:1px solid var(--edge)}
+.gearhead .bignum{margin-top:0}
+.gearhead .when{margin-top:9px}
+/* Bait and lures opens on the thing, drawn, on a wash of its water. */
+.baitplate{display:grid;place-items:center;margin:-4px -8px 10px;padding:10px 0 6px;
+  background:radial-gradient(ellipse 50% 46% at 50% 54%,color-mix(in oklab,var(--wash-c,var(--water1)) 58%,transparent),transparent)}
+:root[data-dark="1"] .baitplate{background:radial-gradient(ellipse 50% 46% at 50% 54%,color-mix(in oklab,var(--gold) 15%,transparent),transparent)}
+.baitplate svg{display:block;width:88%;height:auto}
+/* On a narrow phone the slot word gives way, so the HOT or GOOD tag stays on
+   the row with the day instead of floating alone over the picture. */
+@media (max-width:379px){.hero .chip .slot{display:none}}
 .gear{list-style:none;margin:12px 0 0;padding:0}
 .gear li{position:relative;display:flex;gap:12px;align-items:flex-start;padding:11px 0;font-size:15px;line-height:1.4;color:var(--t1)}
 .gear li+li::before{content:"";position:absolute;left:40px;right:0;top:0;height:1px;background:var(--edge)}
@@ -238,7 +283,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .gear .have>span:not(.tag){color:var(--t2)}
 .hrs{width:100%;border-collapse:collapse;margin:12px 0 0;font-size:13.5px;color:var(--ink2)}
 .hrs td{padding:7px 4px;border-top:1px solid var(--line)}
-.hrs td:first-child{font-family:var(--mono);color:var(--accent2);white-space:nowrap}
+.hrs td:first-child{font:700 15.5px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.02em;color:var(--t1);white-space:nowrap}
 /* The map follows the sky like every other surface, and sits in the look:
    a float that crosses the waterline, a chart of water and a faint grid under
    its pins (what you see with no signal, before any tile arrives), glass for
@@ -278,6 +323,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .mk.dim.group i{width:22px;height:22px;margin:2px;color:var(--t2);font-size:12px}
 .mk.dim b{opacity:.8;font-weight:600}
 .mk.home i{border-radius:5px;border-color:var(--ink);background:var(--ink)}
+.mk.athome i{position:relative}
+.mk.athome i::after{content:"";position:absolute;left:-8px;bottom:-6px;width:10px;height:10px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 2px var(--paper)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;width:fit-content;margin:12px 0 0;padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--t2);
   background:var(--glass);box-shadow:var(--e1),inset 0 1px 0 var(--rim)}
 .legend .mk{font-size:12.5px}
@@ -292,7 +339,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .mapbox .leaflet-popup-content a.pt{color:var(--t1)}
 .mapbox .leaflet-popup-content .pt{display:block;margin-top:10px;padding:9px 12px;border-radius:12px;color:var(--t1);text-decoration:none;font-weight:600;background:var(--well);
   box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent)}
-.mapbox .leaflet-popup-content .pt span{display:block;font:600 12px/1.3 Inter,system-ui,sans-serif;color:var(--accent)}
+.mapbox .leaflet-popup-content .pt span{display:block;font:600 12px/1.3 Inter,system-ui,sans-serif;color:color-mix(in oklab,var(--accent) 72%,var(--ink))}
 .mapbox .leaflet-popup-content .pq{margin:8px 0 0;color:var(--t3)}
 .mapbox.leaflet-container a.leaflet-popup-close-button{color:var(--t3)}
 .mapbox .leaflet-control-attribution{margin:0 8px 8px 0;padding:3px 9px;border-radius:999px;font:500 10.5px/1.4 Inter,system-ui,sans-serif;
@@ -496,7 +543,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .pnb span{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px;color:var(--accent)}
 .pnb b{font-weight:650;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pnb.none{visibility:hidden}
-.pos{align-self:center;font-family:var(--mono);font-size:11.5px;color:var(--t3);white-space:nowrap}
+.pos{align-self:center;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);white-space:nowrap}
 [data-view="card"] .card{margin-bottom:0}
 
 /* ---- species picker ---- */
@@ -514,23 +561,18 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .card .when{margin-bottom:2px}
 .card p{font-size:14.5px;color:var(--ink2);margin:0 0 10px}
 .card :last-child{margin-bottom:0}
-.card p.stamp{font-family:var(--mono);font-size:11px;color:var(--t3);margin:14px 0 0;
+.card p.stamp{font:500 12px/1.4 Inter,system-ui,sans-serif;color:var(--t3);margin:14px 0 0;
   padding-top:8px;border-top:1px solid var(--line)}
 /* The card's title is in the sky on a screen that shows one card. */
 [data-view="card"] .card>h3,[data-view="crewtrip"][data-sec] .card>h3{display:none}
 
 /* ---- add to trip ---- */
-/* pressed in until it is picked, then lit green with its tick */
-.addtrip{
-  display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:48px;margin:16px 0 0;padding:8px 14px;cursor:pointer;border:0;border-radius:14px;
-  font:700 15px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);background:var(--well);
-  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent);
-}
-:root[data-dark="1"] .addtrip{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
-.addtrip::before{content:"+";font:700 19px/1 "Barlow Condensed",sans-serif}
-.addtrip:active{transform:translateY(1px)}
-.addtrip[aria-pressed="true"]{
-  color:var(--go);background:color-mix(in srgb,var(--go) 12%,var(--pan-a));
+/* the card's main action: the kit's gold button until it is picked, then lit
+   green with its tick */
+.addtrip.gold{min-height:54px;margin:16px 0 0;font-size:19px;gap:9px}
+.addtrip::before{content:"+";font:700 23px/1 "Barlow Condensed",sans-serif}
+.addtrip.gold[aria-pressed="true"],:root[data-dark="1"] .addtrip.gold[aria-pressed="true"]{
+  color:var(--go);background:color-mix(in srgb,var(--go) 12%,var(--pan-a));filter:none;
   box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--go) 50%,transparent);
 }
 .addtrip[aria-pressed="true"]::before{content:"";width:6px;height:11px;margin:-3px 3px 0 0;border:solid var(--go);border-width:0 2.4px 2.4px 0;transform:rotate(45deg)}
@@ -564,7 +606,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 .fieldmode .card p,.fieldmode .box{font-size:17px;line-height:1.5}
 .fieldmode .box>b:first-child{font-size:15.5px}
 .fieldmode ol.steps li{font-size:17px;padding-left:44px}
-.fieldmode .sp .v{font-size:15px}
+.fieldmode .sp .v{font-size:18px}
 .fieldmode .sp .have{font-size:12px}
 .fieldmode .card p.stamp{font-size:12.5px}
 
@@ -626,7 +668,6 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   <div id="app" class="screen"></div>
 </div>
 
-<script src="/rigs/fish.js"></script>
 <script src="/rigs/diagrams.js"></script>
 <script src="/rigs/content.js"></script>
 <script src="/rigs/trips.js"></script>
@@ -658,9 +699,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // ---- the look -----------------------------------------------------------
   // Every screen is built from the kit (rigs/kit.css) under a painted scene
   // (rigs/scene.js, rigs/scene.css). To put a screen into the look:
-  //   topHtml(tab, active, scene, band, paint)  the dock. scene: sound, pier,
-  //                                   river, lake or surf. band "quiet": a
-  //                                   shorter picture. paint: spotPaint(id).
+  //   topHtml(tab, active, scene, paint)  the dock. scene: sound, pier,
+  //                                   river, lake or surf. paint: placePaint(spot, fish).
   //   heroHtml({ title, back, chips }) the title in the sky and its line of chips.
   //   then one .float card first (it crosses the waterline), then .panel
   //   cards, .well notes and h2.sect headings.
@@ -675,8 +715,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   var sceneEl = document.getElementById("scene");
   // kind: sound, pier, river, lake or surf. o.lift: the screen has a filter
   // row under its tabs, so the whole picture stands that much lower and the
-  // title keeps its place in the sky. o.band "quiet": a shorter band of the
-  // same picture, for a screen whose own drawing is the star. o.paint: the
+  // title keeps its place in the sky (fitBand() lowers it again for a title
+  // that wraps). o.paint: the
   // scene builder's own options (see lake and surf in rigs/scene.js: the
   // skyline, the dock or none, how high the water stands), for a spot that
   // has its own card (spotPaint).
@@ -685,7 +725,6 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     o = o || {};
     var root = document.documentElement;
     root.toggleAttribute("data-lift", !!o.lift);
-    if (o.band) root.setAttribute("data-band", o.band); else root.removeAttribute("data-band");
     kind = RIG.water.scenes.indexOf(kind) >= 0 ? kind : "sound";
     var paint = o.paint ? JSON.stringify(o.paint) : "";
     if (sceneEl.getAttribute("data-scene") === kind && sceneEl.dataset.painted && (sceneEl.dataset.paint || "") === paint) return;
@@ -700,6 +739,19 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   function spotPaint(spotId) {
     var c = RIG.spotScenes && spotId && RIG.spotScenes[spotId];
     return c && typeof c === "object" ? c : null;
+  }
+  // The paint for a place: its spot card, and on an ocean beach what the
+  // people there are doing (a razor clam dig, or surf perch fishing), by the
+  // trip's or the page's fish, else the first fish the spot is for.
+  var BEACH_DOING = { clams: "clams", surfperch: "perch" };
+  function placePaint(spotId, speciesId) {
+    var c = spotPaint(spotId), doing = BEACH_DOING[speciesId] || "";
+    if (!speciesId) speciesAt(spotId).some(function (sp) { return (doing = BEACH_DOING[sp.id] || ""); });
+    if (!doing) return c;
+    var o = {}, k;
+    for (k in c || {}) o[k] = c[k];
+    o.activity = doing;
+    return o;
   }
   // The title in the sky. o.title, o.back {href, text}, o.chips (html, on
   // glass: nothing small is ever written straight on the picture), o.attr
@@ -842,7 +894,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       : "";
     var stamp = c.dated ? '<p class="stamp">Good as of ' + esc(c.dated) + "</p>" : "";
     var add = opts.addable
-      ? '<button class="addtrip" type="button" data-addtrip="' + esc(c.id) + '" aria-pressed="' +
+      ? '<button class="addtrip gold" type="button" data-addtrip="' + esc(c.id) + '" aria-pressed="' +
         (RIG.trip.has(c.id) ? "true" : "false") + '">' +
         (RIG.trip.has(c.id) ? "In this trip" : "Add to trip") + "</button>"
       : "";
@@ -911,9 +963,60 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   }
   // A fish, drawn (rigs/fish.js). Small plates leave out the paper grain.
   // Nothing at all when there is no drawing for it: the words still stand.
-  function fishHtml(speciesId, cls, full) {
-    var k = RIG.fish && RIG.fish.of(speciesId);
-    return k ? '<span class="' + cls + '" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: !full }) + "</span>" : "";
+  // A species that is two fish is drawn as both: perch and trout. front:
+  // the second fish stands in front (the trout, come from a trout trip).
+  var PAIRED = { perch: "rainbow" };
+  function fishHtml(speciesId, cls, full, front) {
+    var k = RIG.fish && RIG.fish.of(speciesId), k2 = k && PAIRED[speciesId] && RIG.fish.of(PAIRED[speciesId]);
+    if (!k) return "";
+    var a = RIG.fish.svg(k, { lite: !full }), b = k2 ? RIG.fish.svg(k2, { lite: !full }) : "";
+    return '<span class="' + cls + (b ? " duo" : "") + '" data-plate="' + k + '"' + (b ? ' data-plate2="' + k2 + '"' : "") + ">" + (b && front ? b + a : a + b) + "</span>";
+  }
+  // ---- what is on now --------------------------------------------------------
+  // The week the Trips tab drew (or the one the phone saved), so the library
+  // can paint what is running and what is hot without a word.
+  var weekMemo = { src: null, p: null };
+  function weekTrips() {
+    var p = lastPlan, c;
+    if (!p && plannerReady() && (c = RIG.trips.cached())) {
+      if (weekMemo.src !== c) weekMemo = { src: c, p: planFrom(c) };
+      p = weekMemo.p;
+    }
+    var out = [];
+    ((p && p.days) || []).forEach(function (d) { d.trips.forEach(function (t) { out.push(t); }); });
+    return out;
+  }
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function dayOf(dt) {
+    return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), dow: dt.getDay(),
+      iso: dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2) };
+  }
+  // A fish now: "hot" (a hot trip for it this week), "on" (in season), or
+  // { back: "Back in March" } with when it comes back. null: no plan says.
+  function fishNow(sp) {
+    var plans = ((RIG.trips && RIG.trips.plans) || []).filter(function (p) { return p.species === sp.id; });
+    if (!plans.length || !RIG.trips.season) return null;
+    var trips = weekTrips().filter(function (t) { return t.species === sp.id; });
+    if (trips.some(function (t) { return t.heat === "Hot"; })) return "hot";
+    var now = new Date(), today = dayOf(now);
+    if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today); })) return "on";
+    for (var i = 0; i < 26; i++) {
+      var dt = new Date(now.getFullYear(), now.getMonth() + (i >> 1), i % 2 ? 15 : 1), day = dayOf(dt);
+      if (dt <= now) continue;
+      if (plans.some(function (p) { return RIG.trips.season(p, day); })) {
+        return { back: "Back in " + MONTH_NAMES[day.m - 1] + (dt - now > 183 * 864e5 ? " " + day.y : "") };
+      }
+    }
+    return null;
+  }
+  function nowTag(st) {
+    return st === "hot" ? '<span class="tag hot st">Hot this week</span>' : st === "on" ? '<span class="pill go st">In now</span>' :
+      st && st.back ? '<span class="pill done st">' + esc(st.back) + "</span>" : "";
+  }
+  // Which way to fish a trip is, for the Water tab's tiles.
+  function tripType(t) {
+    var k = waterKind(t), how = t.how || (planOf(t.planId) || {}).how;
+    return { river: "river", surf: "beach", pier: "pier", lake: how === "kayak" ? "kayak-lake" : "lake", beach: how === "kayak" ? "kayak-sound" : "beach" }[k] || "";
   }
   // The wash a plate lies on: the colour of the water its fish lives in.
   function washOf(sp) { return { salmon: "river", salt: "salt", lake: "lake", shellfish: "sand" }[sp.family] || "salt"; }
@@ -921,7 +1024,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   var META_IC = {
     play: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M4 2.6v8.8L11.4 7z" fill="currentColor"/></svg>',
     steps: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 11h3.2V7.6h3.2V4.2H12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    rig: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 1.4v6.2M7 7.6c0 4.6-4 4.6-4 1.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="7" cy="2.4" r="1.2" fill="currentColor"/></svg>'
+    // a float on its line: a drawing of a rig, not a letter
+    rig: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M7 .8v2.4M7 10.6v2.6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<ellipse cx="7" cy="6.9" rx="3" ry="3.8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 6.9a3 3.8 0 0 1 6 0z" fill="currentColor"/></svg>'
   };
 
   var ICONS = {
@@ -957,10 +1062,11 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   function rowHtml(c, href) {
     var s = snippet(c), m = metaOf(c);
     var ic = !m ? "" : /video/.test(m) ? META_IC.play : m === "Diagram" ? META_IC.rig : META_IC.steps;
+    // The badge rides on the title's line, so the line under it has the
+    // row's whole width and says its thought whole.
     return '<a class="row" href="' + esc(href) + '" data-row="' + esc(c.id) + '">' +
-      '<span class="tx"><b>' + esc(c.title) + "</b>" + (s ? lineHtml(s, m ? m.length * 7 + 54 : 0) : "") + "</span>" +
-      (m ? '<span class="badge rm">' + ic + esc(m) + "</span>" : "") +
-      IC.chev + '</a>';
+      '<span class="tx' + (m ? " hasbadge" : "") + '"><b>' + esc(c.title) + "</b>" + (m ? '<span class="badge">' + ic + esc(m) + "</span>" : "") +
+      (s ? lineHtml(s) : "") + "</span>" + IC.chev + '</a>';
   }
 
   function chip(attr, id, text, active) {
@@ -983,9 +1089,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // The dock, pinned: four ways in and the sky button, and under them one
   // tap filters for whichever way is open. It also sets the scene the screen
   // stands under.
-  function topHtml(tab, active, scene, band, paint) {
+  function topHtml(tab, active, scene, paint) {
     var sub = chipsFor(tab, active);
-    setScene(scene, { lift: !!sub, band: band, paint: paint });
+    setScene(scene, { lift: !!sub, paint: paint });
     var m = skyMode();
     var tabs = [["trips", "Trips"], ["water", "Water"], ["fish", "Fish"], ["learn", "Learn"]].map(function (t) {
       return '<button class="tab" type="button" role="tab" data-tab="' + t[0] + '" aria-selected="' +
@@ -997,7 +1103,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       (RIG.sky ? '<button class="skymode skybtn" type="button" data-skymode data-held="' + (m === "auto" ? "no" : "yes") +
       '" title="Screen: follows the sky, or held light or dark"><i class="skytok"></i>' +
       "<span data-skylabel>" + (m === "auto" ? "Sky" : m === "light" ? "Light" : "Dark") + "</span></button>" : "") +
-      (sub ? '<nav class="jump" aria-label="Filter">' + sub + "</nav>" : "") + "</header>";
+      (sub ? '<nav class="jump" aria-label="Filter"><span class="jumpin">' + sub + "</span></nav>" : "") + "</header>";
   }
 
   // The usual head: the title, and one chip that says where you are.
@@ -1020,10 +1126,13 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     // The first way in is a wide card that crosses the waterline. With an
     // even count there is no odd one out, so all of them are the same size.
     var lead = shown.length % 2 === 1;
+    // A way to fish with a hot trip this week wears the gold tag.
+    var hot = {};
+    weekTrips().forEach(function (x) { if (x.heat === "Hot") hot[tripType(x)] = 1; });
     var tiles = shown.map(function (t, i) {
       var n = spotsOfType(t.id).length, wide = lead && i === 0;
-      return '<a class="wtile ptile' + (wide ? " wide float" : "") + '" href="#/water/' + esc(t.id) + '" data-type-tile="' + esc(t.id) + '">' +
-        viewHtml(TYPE_VIEW[t.id] || "sound", "pic") +
+      return '<a class="wtile ptile' + (wide ? " wide float" : "") + '" href="#/water/' + esc(t.id) + '" data-type-tile="' + esc(t.id) + '"' + (hot[t.id] ? " data-hot-type" : "") + ">" +
+        viewHtml(TYPE_VIEW[t.id] || "sound", "pic") + (hot[t.id] ? nowTag("hot") : "") +
         '<span class="cap"><span class="nm">' + esc(t.label) + '</span><span class="meta">' + n + (n === 1 ? " spot" : " spots") + "</span></span></a>";
     }).join("");
     app.innerHTML = topHtml("water", "", "sound") +
@@ -1038,14 +1147,14 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var list = spotsOfType(t.id);
     var rows = list.map(function (s) {
       var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
-      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", spotPaint(s.id)) +
+      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id)) +
         '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + '</span><span class="rm">' + esc(names) + "</span></span>" + IC.chev + '</a>';
     }).join("");
     // Kayak water also gets the boat itself, and Fly gets the casting course.
     function learnLink(attr, sec, head, title, sub, view) {
       return fundamentals().some(function (c) { return c.section === sec; })
         ? '<section class="grp" ' + attr + '><h2 class="sect">' + head + '</h2><div class="panel list"><a class="row pic" href="#/learn/' + sec.toLowerCase() + '">' +
-          viewHtml(view, "tile") + '<span class="tx"><b>' + title + "</b><span>" + sub + "</span></span>" +
+          viewHtml(view, "tile") + '<span class="tx"><b>' + title + '</b><span class="whole">' + sub + "</span></span>" +
           IC.chev + '</a></div></section>'
         : "";
     }
@@ -1066,9 +1175,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? '<span class="whole">' + esc(sp.hint) + "</span>" : "") + '<span class="rm">' + n + (n === 1 ? " card" : " cards") + "</span></span>" + IC.chev + '</a>';
     }).join("");
     var t = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
-    app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), "", spotPaint(s.id)) +
+    app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id)) +
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
-        chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b> What are you after?</span>" }) +
+        chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
         '<div class="float list">' + rows + "</div></div>" + tripBarHtml();
   }
 
@@ -1078,8 +1187,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     function pick(sp, wide) {
       var n = (sp.cards || []).length;
       (sp.locations || []).forEach(function (l) { n += (l.cards || []).length; });
-      var spotsN = (sp.locations || []).length;
-      return '<button class="pickcard ptile wash-' + washOf(sp) + (wide ? " wide side" : "") + '" type="button" data-species="' + esc(sp.id) + '">' +
+      var spotsN = (sp.locations || []).length, st = fishNow(sp);
+      // Running now, hot this week, or out until a month: painted, not said.
+      return '<button class="pickcard ptile wash-' + washOf(sp) + (wide ? " wide side" : "") + (st && st.back ? " off" : "") + '" type="button" data-species="' + esc(sp.id) + '"' +
+        ' data-now="' + (st ? (st.back ? "off" : st) : "") + '">' + nowTag(st) +
         fishHtml(sp.id, "art") +
         '<span class="body"><span class="nm">' + esc(sp.name) + "</span>" +
         '<span class="sub">' + esc(sp.hint || "") + "</span>" +
@@ -1121,22 +1232,29 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var locs = sp.locations || [];
     // "Westport, Westport, WA" says the town twice: the place alone is enough.
     var place = loc ? (loc.where && loc.where.indexOf(loc.name) === 0 ? esc(loc.where) : esc(loc.name) + (loc.where ? ", " + esc(loc.where) : "")) : "";
-    // More than one place: each is a chip in the sky, the open one lit.
+    // More than one place: each is a chip in the sky, the open one lit. That
+    // is the place said once; one place is a plain chip.
     var chips = locs.length > 1
-      ? '<span class="chip wrap"><b>' + place + '</b></span><span class="locs" data-locations>' + locs.map(function (l) {
+      ? '<span class="locs" data-locations>' + locs.map(function (l) {
           return '<button class="chip loc" type="button" data-loc="' + esc(l.id) + '" aria-pressed="' +
             (l === loc ? "true" : "false") + '">' + esc(l.name) + "</button>";
         }).join("") + "</span>"
       : place ? '<span class="chip wrap" data-locations><b>' + place + "</b></span>" : "<span data-locations></span>";
     var base = speciesBase(sp, loc);
     // The first card is the fish itself: the plate, its names, one line.
-    var kind = RIG.fish && RIG.fish.of(sp.id), n = cardsFor(sp, loc).length;
-    var plate = kind ? '<div class="float platecard wash-' + washOf(sp) + '" data-plate-card>' + fishHtml(sp.id, "art", true) +
-      '<p class="names"><b>' + esc(RIG.fish.name(kind)) + "</b><i>" + esc(RIG.fish.latin(kind)) + "</i></p>" +
+    var kind = RIG.fish && RIG.fish.of(sp.id), n = cardsFor(sp, loc).length, two = kind && PAIRED[sp.id] && RIG.fish.of(PAIRED[sp.id]);
+    // Come from a trout trip, the trout stands in front.
+    var trout = two && /^#\/trips\/[^/]*~trout-/.test(prevHash);
+    var names = (kind ? [kind] : []).concat(two ? [two] : []);
+    if (trout) names.reverse();
+    var plate = kind ? '<div class="float platecard wash-' + washOf(sp) + '" data-plate-card>' + fishHtml(sp.id, "art", true, trout) +
+      '<p class="names">' + names.map(function (k) { return "<b>" + esc(RIG.fish.name(k)) + "</b><i>" + esc(RIG.fish.latin(k)) + "</i>"; }).join("") + "</p>" +
       '<p class="hint">' + (sp.hint ? esc(sp.hint) + ". " : "") + '<span class="meta">' + n + (n === 1 ? " card" : " cards") + "</span></p></div>" : "";
-    app.innerHTML = topHtml("fish", sp.id, loc ? spotKind(loc.id, sp.id) : washOf(sp) === "river" ? "river" : washOf(sp) === "lake" ? "lake" : "sound", "", loc ? spotPaint(loc.id) : null) +
+    app.innerHTML = topHtml("fish", sp.id, loc ? spotKind(loc.id, sp.id) : washOf(sp) === "river" ? "river" : washOf(sp) === "lake" ? "lake" : "sound", loc ? placePaint(loc.id, sp.id) : null) +
       '<div data-view="species">' + heroHtml({ title: sp.name, chips: chips }) +
-        noticeHtml() + plate + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") +
+        // A new WDFW rule comes first: it is the card that crosses the
+        // waterline, and the fish follows it.
+        noticeHtml() + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") + plate +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
         groupRows(cardsFor(sp, loc), function (c) { return base + "/" + c.id; }) +
       "</div>" + tripBarHtml();
@@ -1144,6 +1262,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
 
   // The picture on a Learn section's tile: the kayak and the fly rod are out
   // on the water, the rod and the knot are drawn on the bench.
+  var LEARN_SCENE = { fly: TYPE_SCENE.fly };
   function learnPic(id) {
     if (id === "kayak") return viewHtml("kayak-lake", "pic");
     if (id === "fly") return viewHtml("fly", "pic");
@@ -1155,21 +1274,24 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var names = every.filter(function (n) { return n.toLowerCase() === sec; });
     var one = names.length === 1;
     if (!one) names = every;
-    // Home: four tiles first, then every card under its heading. A section
-    // on its own: its cards, in the card that crosses the waterline.
+    // Home: four tiles, then a short Start here: the first card of each. A
+    // section on its own: its cards, in the card that crosses the waterline.
     var tiles = one ? "" : '<div class="ptiles ltiles" data-learn-tiles>' + every.map(function (n) {
       var id = n.toLowerCase(), cnt = all.filter(function (c) { return c.section === n; }).length;
       return '<a class="ptile" href="#/learn/' + esc(id) + '" data-sec-tile="' + esc(id) + '">' + learnPic(id) +
         '<span class="cap"><span class="nm">' + esc(n) + '</span><span class="meta">' + cnt + (cnt === 1 ? " card" : " cards") + "</span></span></a>";
     }).join("") + "</div>";
-    var body = names.map(function (n) {
+    var body = one ? names.map(function (n) {
       var mine = all.filter(function (c) { return c.section === n; });
-      return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2 class="sect' + (one ? " vh" : "") + '">' + esc(n) +
-        ' <span class="n">' + mine.length + '</span></h2><div class="' + (one ? "float" : "panel") + ' list">' +
+      return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2 class="sect vh">' + esc(n) +
+        ' <span class="n">' + mine.length + '</span></h2><div class="float list">' +
         mine.map(function (c) { return rowHtml(c, "#/learn/" + c.id); }).join("") + "</div></section>";
-    }).join("");
+    }).join("") : '<section class="grp" data-group="fundamental" data-start><h2 class="sect">Start here</h2><div class="panel list">' +
+      names.map(function (n) { var c = all.filter(function (x) { return x.section === n; })[0]; return c ? rowHtml(c, "#/learn/" + c.id) : ""; }).join("") + "</div></section>";
     var n1 = one ? all.filter(function (c) { return c.section === names[0]; }).length : 0;
-    app.innerHTML = topHtml("learn", one ? sec : "", "lake") +
+    // Fly stands under the water the app fly fishes (the Sound's beaches, as
+    // on the Water tab); the rest under the lake.
+    app.innerHTML = topHtml("learn", one ? sec : "", LEARN_SCENE[sec] || "lake") +
       '<div data-view="learn">' + (one
         ? heroHtml({ title: names[0], back: { href: "#/learn", text: "Learn" }, chips: '<span class="chip"><b>' + n1 + (n1 === 1 ? " card" : " cards") + "</b></span>" })
         : headHtml("Learn", "Rods, knots, kayak, fly", "True for any fish, anywhere.")) +
@@ -1184,7 +1306,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return c ? '<a class="pnb ' + cls + '" href="' + esc(o.hrefFor(c)) + '" data-step="' + esc(c.id) + '"><span>' + word +
         "</span><b>" + esc(label(c)) + "</b></a>" : '<span class="pnb ' + cls + ' none"></span>';
     }
-    app.innerHTML = topHtml(o.tab, o.active, o.scene, o.band, o.paint) +
+    app.innerHTML = topHtml(o.tab, o.active, o.scene, o.paint) +
       '<div data-view="card">' +
         heroHtml({ title: o.card.title, back: { href: o.upHref, text: o.upText } }) +
         noticeHtml() + (o.rules ? '<div data-rules-slot' + slotAttrs(o.rules.spot, o.rules.species, o.rules.since) + "></div>" : "") +
@@ -1192,7 +1314,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         '<nav class="pn">' + step(prev, "prev", "Back") +
           '<span class="pos">' + (i + 1) + " of " + o.list.length + "</span>" + step(next, "next", "Next") + "</nav>" +
       "</div>" + tripBarHtml();
-    window.scrollTo(0, 0);
+    if (!fishQuiet) window.scrollTo(0, 0);
   }
 
   // ---- WDFW rule flags ----------------------------------------------------
@@ -1243,6 +1365,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       var where = el.getAttribute("data-rules-status");
       el.innerHTML = (where === "top" && fresh) || (where === "foot" && !fresh) ? "" : statusHtml();
     });
+    // A new rule box can be the card under the title now.
+    fitBand();
   }
   function checkRules() {
     if (!rulesReady()) return;
@@ -1313,9 +1437,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // The small painting: kind of water, under the sky of one hour.
   // Without the painter (its file did not load) a plain swatch of sky over
   // water holds the picture's place, so the row keeps its shape.
-  function miniHtml(kind, under, cls) {
+  // paint: the place's own (placePaint), so the row shows what its card does.
+  function miniHtml(kind, under, cls, paint) {
     return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' +
-      (LOOK ? RIG.water.mini(kind, RIG.sky.paletteFor(under)) : "") + "</span>";
+      (LOOK ? RIG.water.mini(kind, RIG.sky.paletteFor(under), paint || undefined) : "") + "</span>";
   }
   function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
 
@@ -1325,21 +1450,26 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   // The beads on a day's ribbon. Each trip sits at its hour, as a share of
   // the ribbon's width. Trips too close to tell apart share one bead that
   // carries their count, so nothing overlaps at any size: [{ x, n, hot }].
+  // Trips share one counted bead only where their beads would come within a
+  // few px of each other on the ribbon (a bead is 7 px, a counted one 15 px,
+  // the ribbon 76 to 96 px). The shared bead stands where the first of them
+  // starts, so every bead is on the hour a trip starts.
   function beadSpots(trips) {
-    var NEAR = 0.2, lo = 0.1, hi = 0.9;
-    var groups = trips.map(function (t) { return { sum: Math.max(lo, Math.min(hi, (t.from - 5) / 18)), n: 1, hot: t.heat === "Hot" }; })
-      .sort(function (a, b) { return a.sum - b.sum; });
+    var lo = 0.1, hi = 0.9, RW = 84;
+    var size = function (g) { return g.n > 1 ? 15 : 7; };
+    var groups = trips.map(function (t) { return { x: Math.max(lo, Math.min(hi, (t.from - 5) / 18)), n: 1, hot: t.heat === "Hot" }; })
+      .sort(function (a, b) { return a.x - b.x; });
     for (var merged = true; merged;) {
       merged = false;
       for (var i = 1; i < groups.length; i++) {
         var a = groups[i - 1], b = groups[i];
-        if (b.sum / b.n - a.sum / a.n < NEAR) {
-          groups.splice(i - 1, 2, { sum: a.sum + b.sum, n: a.n + b.n, hot: a.hot || b.hot });
+        if ((b.x - a.x) * RW < (size(a) + size(b)) / 2 + 3) {
+          groups.splice(i - 1, 2, { x: a.x, n: a.n + b.n, hot: a.hot || b.hot });
           merged = true; break;
         }
       }
     }
-    return groups.map(function (g) { return { x: g.sum / g.n, n: g.n, hot: g.hot }; });
+    return groups;
   }
   function dayHeadHtml(day, sky) {
     var m = /^(Today|Tomorrow) (.*)$/.exec(day.label), bits = String(day.label).split(" ");
@@ -1358,7 +1488,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var crew = st ? sameTrip(st, t.planId, day.iso) : null;
     if (crew && crew.status === "done") crew = null;
     return '<a class="trip" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
-      miniHtml(waterKind(t), sky(day.iso, t.from, t.spot)) +
+      miniHtml(waterKind(t), sky(day.iso, t.from, t.spot), "", placePaint(t.spot, t.species)) +
       '<span class="tx"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span>" +
         '<span class="note alert" data-rule-badge hidden' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></span>" +
         (crew ? '<span class="withcrew" data-cw-with>' + avsHtml(namesFor(crew, "going")) + (crew.status === "planned" ? "Crew is on" : "Crew idea") + "</span>" : "") +
@@ -1421,7 +1551,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         "<b data-call-headline>" + esc(c.headline) + "</b><span data-call-why>" + esc(c.why) + "</span></span></div></section>";
     }
     return '<section class="float call" data-call><div class="call-top">' +
-      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg") +
+      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg", placePaint(c.trip.spot, c.trip.species)) +
       '<span class="tx"><span class="caprow"><em class="eyebrow">The call</em>' + heatTag(c.trip) + "</span>" +
       "<b data-call-headline>" + esc(c.headline) + "</b>" +
       (c.why ? "<span data-call-why>" + esc(c.why) + "</span>" : "") + "</span></div>" +
@@ -2254,7 +2384,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       var spots = RIG.trips.spots.map(function (s) {
         var info = findSpot(s.id), name = info ? info.name : (s.name || s.id), list = bySpot[s.id] || [];
         var cls = list.some(function (x) { return x.t.heat === "Hot"; }) ? "hot" : list.length ? "good" : "dim";
-        var html = "<b>" + esc(name) + "</b><br><small>" + s.drive + " min drive</small>" +
+        var html = "<b>" + esc(name) + "</b><br><small>" + driveWords(s.drive) + " drive</small>" +
           (list.length
             ? list.map(function (x) {
                 return '<a class="pt" href="#/trips/' + encodeURIComponent(x.day.iso + "~" + x.t.planId) + '" data-pin-trip="' + esc(x.t.planId) + '">' +
@@ -2267,7 +2397,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       var layer = L.layerGroup().addTo(mapObj);
       // Home is drawn in a pane of its own, under every pin, so it never covers one.
       mapObj.createPane("home").style.zIndex = 590;
-      L.marker(HOME, { icon: pin("home", ""), pane: "home", keyboard: false, interactive: false }).addTo(mapObj);
+      var homeM = L.marker(HOME, { icon: pin("home", ""), pane: "home", keyboard: false, interactive: false }).addTo(mapObj);
       // Pins closer than a fingertip merge into one, with a count; the popup
       // lists every trip in the group. Zoom in and they split again.
       function drawPins() {
@@ -2294,22 +2424,29 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
           }
         }
         groups.forEach(function (g) { g.items.sort(function (a, b) { return RANK[b.cls] - RANK[a.cls]; }); });
+        // A pin on top of home carries home as a small square at its foot,
+        // instead of home hiding half under it.
+        var hp = mapObj.latLngToContainerPoint(HOME), atHome = false;
         groups.forEach(function (g) {
-          var top = g.items[0], n = g.items.length;
+          var top = g.items[0], n = g.items.length, near = g.pt.distanceTo(hp) < 26;
+          if (near) atHome = true;
           var ll = n === 1 ? [top.s.lat, top.s.lon] : [
             g.items.reduce(function (a, x) { return a + x.s.lat; }, 0) / n,
             g.items.reduce(function (a, x) { return a + x.s.lon; }, 0) / n];
           var label = n === 1 ? top.name : n + " spots";
-          var m = L.marker(ll, { icon: pin(top.cls, label, n > 1 ? n : 0), title: n === 1 ? top.name : g.items.map(function (x) { return x.name; }).join(", "),
+          var m = L.marker(ll, { icon: pin(top.cls + (near ? " athome" : ""), label, n > 1 ? n : 0), title: n === 1 ? top.name : g.items.map(function (x) { return x.name; }).join(", "),
             zIndexOffset: RANK[top.cls] * 1000 }).addTo(layer);
           // One spot: its trips. A group: zoom in until it splits.
-          if (n === 1) m.bindPopup(top.html, { maxWidth: 250, autoPanPadding: [16, 16] });
+          // A spot with a busy week scrolls inside its card, so the card always fits the map.
+          if (n === 1) m.bindPopup(top.html, { maxWidth: 250, maxHeight: Math.max(180, mapObj.getSize().y - 110), autoPanPadding: [16, 16] });
           else m.on("click", function () {
             mapObj.fitBounds(g.items.map(function (x) { return [x.s.lat, x.s.lon]; }), { padding: [70, 70], maxZoom: 13 });
           });
           var el = m.getElement();
           if (el) el.setAttribute("data-pin", g.items.map(function (x) { return x.s.id; }).join(" "));
         });
+        var he = homeM.getElement();
+        if (he) he.style.visibility = atHome ? "hidden" : "";
       }
       mapObj.on("zoomend", drawPins);
       drawPins();
@@ -2338,6 +2475,15 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   function boxHtml(kind, head, inner) { return inner ? '<div class="box' + (kind ? " " + kind : "") + '"><b>' + esc(head) + "</b>" + inner + "</div>" : ""; }
   function whenP(t) { return '<p class="when">' + esc(t) + "</p>"; }
   function clk(h) { return RIG.trips.clock(((h % 24) + 24) % 24); }
+  // A drive in words: "35 min", "2 hr 30 min".
+  function driveWords(min) {
+    var m = Math.round(min), h = Math.floor(m / 60);
+    return h ? h + " hr" + (m % 60 ? " " + (m % 60) + " min" : "") : m + " min";
+  }
+  // Water with a tide station has a tide, whether or not today's tides came
+  // in. A lake or a river has none: its part is only Weather.
+  function tidalSpot(spotId) { return !!(tripSpot(spotId) || {}).tide; }
+  function wxName(spotId) { return tidalSpot(spotId) ? "Tide and weather" : "Weather"; }
   // t is the trip the planner scored. A crew trip the forecast cannot answer
   // for (a no-go, too far out) has none: then the parts that need its times,
   // tides and weather are left out, and everything else still shows.
@@ -2350,7 +2496,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       boxHtml("", "after", stepsHtml(run.wrap));
     if (t) {
       var drive = t.drive / 60;
-      var tl = [{ h: t.from - drive - 0.25, x: "Leave Bonney Lake (" + t.drive + " min drive)" },
+      var tl = [{ h: t.from - drive - 0.25, x: "Leave Bonney Lake (" + driveWords(t.drive) + " drive)" },
         { h: t.from - 0.25, x: "Arrive and set up" },
         { h: t.from, x: (Math.abs(t.from - t.dark) < 0.05 ? "Full dark. " : "") + (t.beach ? "Start digging at " + t.beach : "Start fishing") }];
       t.tides.forEach(function (x) {
@@ -2371,11 +2517,11 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
           return "<li><span>" + esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") + "</span></li>";
         }).join("") + "</ul>";
     } else {
-      var need = run.gear.filter(function (g) { return g.s === "need"; }).length;
-      var check = run.gear.filter(function (g) { return g.s === "check"; }).length;
-      // "The rest you own" is only said when there is a rest.
-      var counts = [need ? need + " to get" : "", check ? check + " to check" : "", run.gear.length > need + check ? (need + check ? "the rest you own" : "you own all of it") : ""].filter(Boolean).join(", ");
-      gear = whenP(counts.charAt(0).toUpperCase() + counts.slice(1) + ".") +
+      // The list opens the way its tile does: the big count, a pip a thing,
+      // and what else there is.
+      var sum = gearSum(run);
+      gear = '<div class="gearhead" data-gear-sum><span class="bignum">' + sum.big[0] + "<span>" + sum.big[1] + "</span></span>" +
+        '<span class="pips' + (sum.many ? " many" : "") + '" aria-hidden="true">' + sum.pips + "</span>" + (sum.sub ? whenP(sum.sub + ".") : "") + "</div>" +
         '<ul class="gear">' + run.gear.map(function (g) {
           var st = g.s === "have" ? "have" : g.s === "need" ? "need" : "todo";
           return '<li class="' + st + '"><i class="gtick" aria-hidden="true"></i><span>' + esc(g.i) + (g.n ? "<small>" + esc(g.n) + "</small>" : "") +
@@ -2388,25 +2534,30 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     out.push(
       { id: "what", tab: "What it is", title: "What it is", body: whenP(run.what) + (t ? boxHtml("tip", "why this day", stepsHtml(t.why)) : "") },
       { id: "gear", tab: "Gear", title: "Gear", body: gear });
+    // Bait and lures opens on the thing itself, drawn, where there is a drawing.
+    var bk = BAIT_PLATE[t ? t.species : opts.species] || "", bait = bk && RIG.fish && RIG.fish.svg(bk);
     if (run.bait) out.push({ id: "bait", tab: "Bait + lures", title: "Bait and lures",
-      body: whenP("Tie on first: " + run.bait.first) + boxHtml("", "if that is not working", stepsHtml(run.bait.backup)) +
+      body: (bait ? '<div class="baitplate wash-salt" data-plate="' + bk + '">' + bait + "</div>" : "") +
+        whenP("Tie on first: " + run.bait.first) + boxHtml("", "if that is not working", stepsHtml(run.bait.backup)) +
         (run.bait.note ? boxHtml("tip", "tip", esc(run.bait.note)) : "") });
     out.push({ id: "how", tab: "How", title: run.bait ? "How to fish it" : "How to dig it", body: stepsHtml(run.how) });
     if (t) {
       var rows = t.hours.map(function (h) {
-        return "<tr><td>" + esc(clk(h.h)) + "</td><td>" + h.wind + " mph, gusts " + h.gust + "</td><td>" + h.temp + "°F</td><td>" +
-          (h.rain >= 0.02 ? "rain" : "dry") + (h.wave != null ? ", " + Math.round(h.wave) + " ft surf" : "") + "</td></tr>";
+        return "<tr><td>" + esc(clk(h.h)) + "</td><td>" + h.wind + "&nbsp;mph, gusts " + h.gust + "</td><td>" + h.temp + "°F</td><td>" +
+          (h.rain >= 0.02 ? "rain" : "dry") + (h.wave != null ? ", " + Math.round(h.wave) + "&nbsp;ft surf" : "") + "</td></tr>";
       }).join("");
       var tides = t.tides.map(function (x) {
         var inside = x.h >= t.from && x.h <= t.to;
         return (inside ? "<strong>" : "") + esc(clk(x.h)) + " " + (x.type === "H" ? "high" : "low") + " " + x.v.toFixed(1) + " ft" + (inside ? "</strong>" : "");
       }).join("<br>");
-      var wx = whenP("Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", low of " + t.wx.temp + "°F.") +
+      // A tide that did not come in is said, never passed off as a lake.
+      var tidal = tidalSpot(t.spot);
+      var wx = wxFigHtml(t) + whenP("Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", low of " + t.wx.temp + "°F.") +
         '<table class="hrs">' + rows + "</table>" +
-        (tides ? boxHtml("", "tides today", tides) : "") +
+        (tides ? boxHtml("", "tides today", tides) : tidal ? boxHtml("red", "tides did not load", "Open the app with a signal to get them.") : "") +
         boxHtml("", "light", esc("Sunrise " + clk(t.sun.rise) + ". Sunset " + clk(t.sun.set) + ". Moon " + t.moon + "% lit."));
       // Water with no tide (a lake, a river) is only weather.
-      out.push(t.tides.length ? { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx } : { id: "wx", tab: "Weather", title: "Weather", body: wx });
+      out.push(tidal ? { id: "wx", tab: "Tide + weather", title: "Tide and weather", body: wx } : { id: "wx", tab: "Weather", title: "Weather", body: wx });
       if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
     }
     out.push(
@@ -2553,6 +2704,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       var run = RIG.trips && RIG.trips.runs && RIG.trips.runs[el.getAttribute("data-fit-rule")];
       if (run) el.textContent = ruleLine(run);
     });
+    // The title's font has arrived, or the phone turned: it may wrap anew.
+    fitBand();
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(refit);
   // A phone fires resize when its address bar slides away. Only a change of
@@ -2620,7 +2773,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var arrive = xf * (1 - 0.25 / Math.max(0.3, F - L));
     return '<a class="float plan" href="' + esc(href) + '" data-sec-row="plan">' +
       '<em class="eyebrow">The plan</em>' +
-      '<span class="planhead"><b>Leave by ' + esc(clk(L)) + "</b><span>" + t.drive + " min drive</span></span>" +
+      '<span class="planhead"><b>Leave by ' + esc(clk(L)) + "</b><span>" + driveWords(t.drive) + " drive</span></span>" +
       '<span class="tl" aria-hidden="true"><i class="tl-sky"' + (strip ? ' style="background:' + strip + '"' : "") + "></i>" +
         '<i class="tl-drive" style="left:16px;width:calc(' + pct(arrive) + '% - 16px)"></i>' +
         '<i class="tl-win" style="left:' + pct(xf) + '%;right:0"></i><i class="tl-dot"></i></span>' +
@@ -2628,21 +2781,26 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
         '<span style="left:' + pct(xf) + '%">' + esc(clk(F)) + "<small>" + (t.beach ? "Dig" : "Fish") + "</small></span>" +
         '<span style="right:0;text-align:right">' + esc(clk(D)) + "<small>Done</small></span></span></a>";
   }
-  // Gear: how many to get, and one pip a thing (to get, to check, yours).
-  function gearTileHtml(run, href) {
+  // Gear at a glance: the big count (to get, else to check), one pip a thing
+  // (to get, to check, yours), and the line of what else there is. Nothing is
+  // said to be owned when nothing is.
+  function gearSum(run) {
     var need = 0, check = 0, have = 0, pips = "", i;
     run.gear.forEach(function (g) { if (g.s === "need") need++; else if (g.s === "check") check++; else have++; });
     var n = run.gear.length;
     var big = need ? [need, "to get"] : check ? [check, "to check"] : [n, n === 1 ? "thing" : "things"];
-    // The line under the pips: what else there is. Nothing is said to be owned
-    // when nothing is.
     var sub = need ? [check ? check + " to check" : "", have ? "the rest you own" : ""].filter(Boolean).join(", ") : check ? (have ? "The rest you own" : "") : "You own all of it";
-    sub = sub.charAt(0).toUpperCase() + sub.slice(1);
     for (i = 0; i < n && i < 20; i++) pips += i < need ? "<i></i>" : i < need + check ? '<i class="c"></i>' : '<i class="h"></i>';
-    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="gear"><b>Gear' + IC.chev + "</b>" +
-      '<span class="bignum">' + big[0] + "<span>" + big[1] + "</span></span>" +
-      '<span class="pips' + (n > 8 ? " many" : "") + '" aria-hidden="true">' + pips + "</span>" + (sub ? '<span class="sub">' + sub + "</span>" : "") + "</a>";
+    return { big: big, sub: sub.charAt(0).toUpperCase() + sub.slice(1), pips: pips, many: n > 8 };
   }
+  function gearTileHtml(run, href) {
+    var s = gearSum(run);
+    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="gear"><b>Gear' + IC.chev + "</b>" +
+      '<span class="bignum">' + s.big[0] + "<span>" + s.big[1] + "</span></span>" +
+      '<span class="pips' + (s.many ? " many" : "") + '" aria-hidden="true">' + s.pips + "</span>" + (s.sub ? '<span class="sub">' + s.sub + "</span>" : "") + "</a>";
+  }
+  // What a bait is, drawn (rigs/fish.js), by the fish it is for.
+  var BAIT_PLATE = { squid: "jig" };
   // The height of the tide at an hour, from the day's highs and lows: a
   // cosine between two turns, and the same swing carried on past the ends.
   function tideAt(T, h) {
@@ -2662,62 +2820,105 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var a = hrs[i - 1], b = hrs[i];
     return a && b ? a[key] + (b[key] - a[key]) * ((h - a.h) / (b.h - a.h)) : (a || b)[key];
   }
-  // Water with no tide (a lake, a river): the wind through the trip, a bar
-  // each half hour, the gusts paler above it, against faint lines at 10 and
-  // 20 mph so a calm morning reads as calm and not as missing.
+  // The wind through the trip: a bar each half hour, the gusts paler above
+  // it, on a baseline, with the 10 mph line drawn and named, so a calm
+  // morning reads as calm and not as missing. A wet half hour is painted in:
+  // its bar takes the accent and rain falls above it.
   function windChart(t, W, H) {
-    var hrs = t.hours || [], i, out = "";
+    var hrs = t.hours || [], i, out = "", rain = "";
     if (!hrs.length) return "";
     var N = Math.max(6, Math.min(12, Math.round((t.to - t.from) * 2))), top = 22;
     hrs.forEach(function (x) { if (x.h >= t.from - 1 && x.h <= t.to + 1) top = Math.max(top, x.gust * 1.1); });
-    var gap = 4, bw = Math.round(((W - gap * (N - 1)) / N) * 10) / 10, base = H - 2;
+    var gap = W > 200 ? 6 : 4, bw = Math.round(((W - gap * (N - 1)) / N) * 10) / 10, base = H - 1.5;
     var Y = function (v) { return Math.round((base - (v / top) * (base - 3)) * 10) / 10; };
-    var grid = [10, 20].filter(function (v) { return v < top; }).map(function (v) { return "M0 " + Y(v) + "H" + W; }).join("");
     for (i = 0; i < N; i++) {
       var h = t.from + ((t.to - t.from) * (i + 0.5)) / N, x = Math.round(i * (bw + gap) * 10) / 10;
       var w = Math.max(0.6, hourVal(hrs, h, "wind")), g = Math.max(w, hourVal(hrs, h, "gust"));
       var wet = hrs.some(function (q) { return Math.abs(q.h - h) < 0.75 && q.rain >= 0.02; });
       out += '<rect class="w-g" x="' + x + '" y="' + Y(g) + '" width="' + bw + '" height="' + Math.round((base - Y(g)) * 10) / 10 + '" rx="2"/>' +
         '<rect class="w-w' + (wet ? " wet" : "") + '" x="' + x + '" y="' + Y(w) + '" width="' + bw + '" height="' + Math.round((base - Y(w)) * 10) / 10 + '" rx="2"/>';
-    }
-    return '<svg class="tide windbars" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-grid" d="' + grid + '"/><path class="t-base" d="M0 ' + base + "H" + W + '"/>' + out + "</svg>";
-  }
-  // Tide and weather: the water's own curve across the trip, with the turn
-  // that matters marked. Water with no tide (a lake) is Weather: the wind
-  // through the trip, and the temperature.
-  function tideTileHtml(t, title, href) {
-    var W = 146, H = 44, T = t.tides || [], hrs = t.hours || [], a = t.from - 1.5, b = t.to + 1.5, N = 36, i;
-    var at = T.length ? function (h) { return tideAt(T, h); } : null;
-    var svg = "", lead, sub = "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust + ", " + t.wx.temp + "°F";
-    var wet = hrs.some(function (x) { return x.rain >= 0.02; });
-    if (at) {
-      var v = [], lo = Infinity, hi = -Infinity;
-      for (i = 0; i <= N; i++) { v.push(at(a + ((b - a) * i) / N)); lo = Math.min(lo, v[i]); hi = Math.max(hi, v[i]); }
-      if (hi - lo < 0.5) { var mid = (hi + lo) / 2; lo = mid - 1; hi = mid + 1; }
-      var X = function (h) { return ((h - a) / (b - a)) * W; }, Y = function (x) { return 38 - ((x - lo) / (hi - lo)) * 30; };
-      var d = v.map(function (x, k) { return (k ? "L" : "M") + (Math.round((k / N) * W * 10) / 10) + " " + (Math.round(Y(x) * 10) / 10); }).join("");
-      // The mark: the turn inside the window, the one the trip is timed for first.
-      var want = (t.why || []).some(function (w) { return /^High slack/.test(w); }) ? "H" : (t.why || []).some(function (w) { return /^Low slack|^WDFW dig/.test(w); }) ? "L" : "";
-      var inWin = T.filter(function (x) { return x.h >= t.from - 0.5 && x.h <= t.to + 0.5; });
-      var turn = inWin.filter(function (x) { return x.type === want; })[0] || inWin[0] || null;
-      var mh = turn ? turn.h : t.from, mx = Math.round(X(mh) * 10) / 10, my = Math.round(Y(at(mh)) * 10) / 10;
-      svg = '<svg class="tide" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-fill" d="' + d + "V" + H + 'H0Z"/><path class="t-line" d="' + d + '"/>' +
-        '<path class="t-tick" d="M' + mx + " " + (my + 4) + "V" + H + '"/><circle class="t-now" cx="' + mx + '" cy="' + my + '" r="3.6"/></svg>';
-      if (T.length) {
-        var slack = (t.why || []).filter(function (w) { return / slack /.test(w); })[0];
-        lead = slack ? slack.split(",")[0] : turn ? (turn.type === "H" ? "High tide " : "Low tide ") + clk(turn.h) : at(t.to) > at(t.from) ? "Tide coming in" : "Tide going out";
+      if (wet) for (var k = 0; k < 3; k++) {
+        var rx = Math.round((x + bw * (0.2 + k * 0.3)) * 10) / 10, ry = Math.max(1, Y(g) - 4 - (k % 2) * 3);
+        rain += "M" + rx + " " + Math.round((ry - 3.5) * 10) / 10 + "l-1.2 3.5";
       }
     }
-    if (!lead) {
-      // The temperature across the trip: one number, or the low to the high.
-      var tl = Infinity, th = -Infinity;
-      hrs.forEach(function (x) { if (x.h >= t.from - 0.5 && x.h <= t.to + 0.5) { tl = Math.min(tl, x.temp); th = Math.max(th, x.temp); } });
-      var temp = tl === Infinity ? t.wx.temp + "°F" : Math.round(tl) === Math.round(th) ? Math.round(tl) + "°F" : Math.round(tl) + " to " + Math.round(th) + "°F";
-      lead = (wet ? "Rain, " : "Dry, ") + temp; sub = "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust;
-      if (!T.length) svg = windChart(t, W, H);
+    var ten = Y(10);
+    return '<svg class="tide windbars" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-grid" d="M0 ' + ten + "H" + W + '"/>' +
+      '<text class="t-lab" x="' + W + '" y="' + Math.round((ten - 2.5) * 10) / 10 + '" text-anchor="end">10 mph</text>' + out +
+      (rain ? '<path class="w-r" d="' + rain + '"/>' : "") + '<path class="t-base" d="M0 ' + base + "H" + W + '"/></svg>';
+  }
+  // The weather over the trip's hours: the temperature, one number or the
+  // low and the high, and whether it rains.
+  function tripWeather(t) {
+    var lo = Infinity, hi = -Infinity, wet = false;
+    (t.hours || []).forEach(function (x) {
+      if (x.h < t.from - 0.5 || x.h > t.to + 0.5) return;
+      lo = Math.min(lo, x.temp); hi = Math.max(hi, x.temp); if (x.rain >= 0.02) wet = true;
+    });
+    if (lo === Infinity) { lo = hi = t.wx.temp; wet = (t.hours || []).some(function (x) { return x.rain >= 0.02; }); }
+    return { lo: Math.round(lo), hi: Math.round(hi), wet: wet };
+  }
+  // The tide over hours a to b, drawn W by H: the curve, where it is at any
+  // hour, and the turn the trip is timed for (the slack the why names, else
+  // the first turn inside the trip's hours), and its words.
+  function tideCurve(t, W, H, a, b) {
+    var T = t.tides, N = 48, v = [], lo = Infinity, hi = -Infinity, i;
+    var at = function (h) { return tideAt(T, h); };
+    for (i = 0; i <= N; i++) { v.push(at(a + ((b - a) * i) / N)); lo = Math.min(lo, v[i]); hi = Math.max(hi, v[i]); }
+    if (hi - lo < 0.5) { var mid = (hi + lo) / 2; lo = mid - 1; hi = mid + 1; }
+    var X = function (h) { return Math.round(((h - a) / (b - a)) * W * 10) / 10; };
+    var Y = function (x) { return Math.round((H - 6 - ((x - lo) / (hi - lo)) * (H - 14)) * 10) / 10; };
+    var d = v.map(function (x, k) { return (k ? "L" : "M") + (Math.round((k / N) * W * 10) / 10) + " " + Y(x); }).join("");
+    var want = (t.why || []).some(function (w) { return /^High slack/.test(w); }) ? "H" : (t.why || []).some(function (w) { return /^Low slack|^WDFW dig/.test(w); }) ? "L" : "";
+    var inWin = T.filter(function (x) { return x.h >= t.from - 0.5 && x.h <= t.to + 0.5; });
+    var turn = inWin.filter(function (x) { return x.type === want; })[0] || inWin[0] || null;
+    var slack = (t.why || []).filter(function (w) { return / slack /.test(w); })[0];
+    var lead = slack ? slack.split(",")[0] : turn ? (turn.type === "H" ? "High tide " : "Low tide ") + clk(turn.h) : at(t.to) > at(t.from) ? "Tide coming in" : "Tide going out";
+    return { d: d, X: X, Y: Y, at: at, turn: turn, lead: lead };
+  }
+  // Tide and weather: the water's own curve across the trip, with the turn
+  // that matters marked. Water with no tide (a lake) is Weather: the
+  // temperature, big, as the gear tile leads with its count, then the wind
+  // through the trip. A tide that did not come in says so.
+  function tideTileHtml(t, title, href) {
+    var W = 146, H = 44, svg, lead, sub, big = "";
+    var wind = "Wind to " + t.wx.wind + " mph, gusts " + t.wx.gust;
+    if (t.tides.length) {
+      var c = tideCurve(t, W, H, t.from - 1.5, t.to + 1.5), mh = c.turn ? c.turn.h : t.from, mx = c.X(mh), my = c.Y(c.at(mh));
+      svg = '<svg class="tide" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-fill" d="' + c.d + "V" + H + 'H0Z"/><path class="t-line" d="' + c.d + '"/>' +
+        '<path class="t-tick" d="M' + mx + " " + (my + 4) + "V" + H + '"/><circle class="t-now" cx="' + mx + '" cy="' + my + '" r="3.6"/></svg>';
+      lead = c.lead; sub = wind + ", " + t.wx.temp + "°F";
+    } else if (tidalSpot(t.spot)) {
+      svg = windChart(t, W, H); lead = "Tides did not load"; sub = wind + ", " + t.wx.temp + "°F";
+    } else {
+      var w = tripWeather(t);
+      big = '<span class="bignum wxnum">' + w.lo + "°<span>" + (w.hi !== w.lo ? "to " + w.hi + "°, " : "") + (w.wet ? "rain" : "dry") + "</span></span>";
+      svg = windChart(t, W, 30); sub = wind;
     }
-    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="wx"><b>' + esc(title) + IC.chev + "</b>" + svg +
-      '<span class="lead">' + esc(lead) + '</span><span class="sub">' + esc(sub) + "</span></a>";
+    return '<a class="panel tcard' + (big ? " wxtile" : "") + '" href="' + esc(href) + '" data-sec-row="wx"><b>' + esc(title) + IC.chev + "</b>" + big + svg +
+      (lead ? '<span class="lead' + (lead === "Tides did not load" ? " miss" : "") + '">' + esc(lead) + "</span>" : "") + '<span class="sub">' + esc(sub) + "</span></a>";
+  }
+  // The tide and weather page opens on the tile's own pictures, as wide as
+  // the card: the tide with the trip's hours shaded and every turn marked,
+  // then the wind through the trip, each with its words over it.
+  function wxFigHtml(t) {
+    var W = 320, out = "", w = tripWeather(t);
+    if (t.tides.length) {
+      var a = t.from - 3, b = t.to + 3, H = 84, c = tideCurve(t, W, H, a, b), x0 = c.X(t.from), x1 = c.X(t.to);
+      var turns = t.tides.filter(function (x) { return x.h > a + 0.3 && x.h < b - 0.3; });
+      out += '<figure class="wxfig" data-wx-tide><figcaption><b>' + esc(c.lead) + '</b><span><i class="sw" aria-hidden="true"></i>' + esc(clk(t.from)) + " to " + esc(clk(t.to)) + "</span></figcaption>" +
+        '<svg class="tide big" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><rect class="t-win" x="' + x0 + '" y="0" width="' + Math.round((x1 - x0) * 10) / 10 + '" height="' + H + '" rx="6"/>' +
+          '<path class="t-fill" d="' + c.d + "V" + H + 'H0Z"/><path class="t-line" d="' + c.d + '"/>' +
+          turns.map(function (x) { var tx = c.X(x.h), ty = c.Y(x.v); return '<path class="t-tick" d="M' + tx + " " + (ty + 4) + "V" + H + '"/><circle class="t-now" cx="' + tx + '" cy="' + ty + '" r="4"/>'; }).join("") + "</svg>" +
+        '<span class="wxlab">' + turns.map(function (x) {
+          var p = Math.max(13, Math.min(87, ((x.h - a) / (b - a)) * 100));
+          return '<span style="left:' + p.toFixed(1) + '%">' + esc(clk(x.h)) + "<small>" + (x.type === "H" ? "High " : "Low ") + x.v.toFixed(1) + " ft</small></span>";
+        }).join("") + "</span></figure>";
+    }
+    out += '<figure class="wxfig" data-wx-wind><figcaption><b>' + (w.hi !== w.lo ? w.lo + " to " + w.hi : w.lo) + "°F, " + (w.wet ? "rain" : "dry") + "</b><span>Wind to " + t.wx.wind +
+      " mph, gusts " + t.wx.gust + "</span></figcaption>" + windChart(t, W, 64) +
+      '<span class="wxlab ends"><span style="left:0">' + esc(clk(t.from)) + '</span><span style="right:0">' + esc(clk(t.to)) + "</span></span></figure>";
+    return out;
   }
   // The river: the gauge's forecast for the days around the trip, the line
   // it has to stay under, and a dot on the day.
@@ -2756,7 +2957,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   var hotCold = { key: "", busy: false };
   function renderHotWait(key) {
     var plan = planOf(key.split("~")[1]), here = location.hash;
-    app.innerHTML = topHtml("trips", "", plan ? sceneFor({ planId: plan.id, spot: plan.spot }) : "sound") +
+    app.innerHTML = topHtml("trips", "", plan ? sceneFor({ planId: plan.id, spot: plan.spot }) : "sound", plan ? placePaint(plan.spot, plan.species) : null) +
       '<div data-view="hotwait">' + heroHtml({ title: plan ? plan.name : "Hot Trips", back: { href: "#/trips", text: "Hot Trips" } }) +
       '<div class="float fallback" data-hot-wait>' + whenP("Loading the forecast…") + "</div></div>" + tripBarHtml();
     // Drawn again while the forecast is on its way: it is asked for once.
@@ -2773,10 +2974,10 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var base = "#/trips/" + encodeURIComponent(key);
     var sp = findSpecies(t.species), scene = sceneFor(t);
     var hero = heroHtml({ title: t.name, back: { href: "#/trips", text: "Hot Trips" },
-      chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + "</b> " + esc(t.slot) + "</span>" + heatTag(t) });
+      chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + '</b> <span class="slot">' + esc(t.slot) + "</span></span>" + heatTag(t) });
     if (!run) {
-      app.innerHTML = topHtml("trips", "", scene, "", spotPaint(t.spot)) + '<div data-view="hot">' + hero +
-        '<div class="float fallback">' + whenP(t.when + " · " + t.drive + " min drive") + boxHtml("tip", "why", stepsHtml(t.why)) + "</div>" +
+      app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species)) + '<div data-view="hot">' + hero +
+        '<div class="float fallback">' + whenP(t.when + " · " + driveWords(t.drive) + " drive") + boxHtml("tip", "why", stepsHtml(t.why)) + "</div>" +
         (sp ? '<div class="panel list" style="margin-top:14px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards><span class="tx"><b>Open the ' +
           esc(sp.name) + " cards</b></span>" + IC.chev + "</a></div>" : "") + "</div>" + tripBarHtml();
       return;
@@ -2784,7 +2985,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var secs = runSections(t, run);
     var card = sec && secs.filter(function (c) { return c.id === sec; })[0];
     if (card) {
-      renderCard({ tab: "trips", card: card, list: secs, addable: false, scene: scene, paint: spotPaint(t.spot),
+      renderCard({ tab: "trips", card: card, list: secs, addable: false, scene: scene, paint: placePaint(t.spot, t.species),
         hrefFor: function (c) { return base + "/" + c.id; }, upHref: base, upText: t.name });
       app.querySelector('[data-view="card"]').setAttribute("data-run", t.planId);
       return;
@@ -2802,7 +3003,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
         "</b>" + secLineHtml(c, t, run, t.planId) + "</span>" + IC.chev + "</a>";
     }).join("");
-    app.innerHTML = topHtml("trips", "", scene, "", spotPaint(t.spot)) +
+    app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species)) +
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' + hero +
         '<div data-rules-slot' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></div>" +
         planFloatHtml(t, day, base + "/plan", sky) +
@@ -3253,7 +3454,8 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       return (c.section || "") === sec || (!sec && shown && c.section && shown.indexOf(c.section) === -1);
     }));
     var notes = mine.map(function (c) {
-      var id = esc(c.id), part = !sec && c.section ? SEC_NAMES[c.section] || "" : "";
+      // The weather part is named for the water: a lake has no tide.
+      var id = esc(c.id), part = !sec && c.section ? (c.section === "wx" ? wxName(d.trip && d.trip.spotId) : SEC_NAMES[c.section] || "") : "";
       return '<li class="cw-note" data-cw-note="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
         '<p class="cw-note-h"><b data-cw-note-who>' + esc(c.by ? firstName(c.by.name) : "Someone") + "</b>" +
         '<span data-cw-note-at>' + esc(noteTime(c.at)) + "</span>" + (part ? '<span data-cw-note-part>' + esc(part) + "</span>" : "") +
@@ -3626,7 +3828,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     }
     if (sub !== "edit") tripUi.edit = false;
     var st = crewSt(), d = tripData(id);
-    var open = topHtml("trips", "crew", d && d.trip ? sceneFor({ planId: d.trip.planId, spot: d.trip.spotId, species: d.trip.species, name: d.trip.title }) : "") +
+    var open = topHtml("trips", "crew", d && d.trip ? sceneFor({ planId: d.trip.planId, spot: d.trip.spotId, species: d.trip.species, name: d.trip.title }) : "", d && d.trip ? placePaint(d.trip.spotId, d.trip.species) : null) +
       '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
     var up = { href: "#/trips", text: "Hot Trips" };
     if (cwT.nav) {
@@ -4110,8 +4312,64 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
   }
   window.addEventListener("scroll", markMoved, { passive: true });
 
+  // The band fits its title. Between the last chip under the title and the
+  // first card, about BAND_GAP of the picture shows (the approved run card
+  // shows 97 px). A title that wraps, or a filter row, would press the card
+  // up into the chips; instead the picture stands taller, from the top, the
+  // way it does for a filter row (--tall adds to --lift in kit.css).
+  var BAND_GAP = 92;
+  function fitBand() {
+    var root = document.documentElement;
+    root.style.setProperty("--tall", "0px");
+    if (!LOOK || mode() === "field") return;
+    // The map is a tool, not a card: its days sit on the picture by design.
+    var hero = app.querySelector("[data-view]:not([data-view=\"map\"]) > .hero");
+    if (!hero) return;
+    var bottom = 0;
+    [].forEach.call(hero.children, function (e) { if (e.offsetHeight) bottom = Math.max(bottom, e.getBoundingClientRect().bottom); });
+    var el = hero.nextElementSibling;
+    while (el && !el.offsetHeight) el = el.nextElementSibling;
+    // A screen that opens on a heading on glass: the card is the one under it.
+    var lead = el && el.querySelector(":scope > h2.sect.lead"), card = lead ? lead.nextElementSibling : el;
+    if (!bottom || !card) return;
+    var short = BAND_GAP - (card.getBoundingClientRect().top - bottom);
+    if (short > 0.5) root.style.setProperty("--tall", Math.ceil(short) + "px");
+  }
+  function stripFade(el) {
+    var l = el.scrollLeft > 2, r = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+    if (l || r) el.setAttribute("data-fade", (l ? "l" : "") + (r ? "r" : "")); else el.removeAttribute("data-fade");
+  }
+  // A new screen opens at its top. Only a place chip on the same fish's page
+  // (#/chum/green-river to #/chum/other) keeps where you are.
+  var drawnHash = location.hash, prevHash = "";
+  function newScreen(was, now) {
+    var a = (was || "").replace(/^#\/?/, "").split("/").filter(Boolean), b = (now || "").replace(/^#\/?/, "").split("/").filter(Boolean);
+    if (a.join("/") === b.join("/")) return false;
+    return !(a.length === 2 && b.length === 2 && a[0] === b[0] && findSpecies(a[0]));
+  }
+
+  // The drawings (rigs/fish.js) are a big file the first screen never needs.
+  // They are fetched once the phone is idle after the first screen, or at
+  // once on a screen that shows a fish, and that screen is drawn again, in
+  // place, when they arrive. Without them every list still stands.
+  var fishWait = false, fishQuiet = false;
+  function loadFish(now) {
+    if (RIG.fish || fishWait) return;
+    if (!now) { if (!loadFish.idle) { loadFish.idle = true; (window.requestIdleCallback || function (f) { setTimeout(f, 1200); })(function () { loadFish(true); }); } return; }
+    fishWait = true;
+    var s = document.createElement("script");
+    s.src = "/rigs/fish.js";
+    s.onload = function () {
+      if (mode() === "field" || !app.querySelector('[data-view="fish"],[data-view="species"],[data-view="spot"],[data-view="learn"],[data-view="card"]')) return;
+      fishQuiet = true;
+      try { render(); } finally { fishQuiet = false; }
+    };
+    document.head.appendChild(s);
+  }
   function render() {
     drawnDay = todayIso(); drawnAt = Date.now();
+    var r0 = (location.hash || "").replace(/^#\/?/, "").split("/")[0];
+    loadFish(r0 === "fish" || r0 === "learn" || r0 === "spot" || !!findSpecies(r0));
     renderView();
     applySky();
     fillRules();
@@ -4124,9 +4382,12 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     while (el && !el.offsetHeight) el = el.nextElementSibling;
     var h = el && el.matches(".grp") ? el.querySelector(":scope > h2.sect:not(.vh)") : null;
     if (h) { h.classList.add("lead"); hero.classList.add("tight"); }
-    // The open filter chip is scrolled into view, not left off the edge.
-    var cur = app.querySelector('.jump [aria-current="true"]');
-    if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - (cur.parentNode.clientWidth - cur.offsetWidth) / 2;
+    // The open filter chip is scrolled into view, not left off the edge, and
+    // the strip fades at whichever end has more.
+    var cur = app.querySelector('.jump [aria-current="true"]'), strip = app.querySelector(".jumpin");
+    if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - cur.parentNode.offsetLeft - (cur.parentNode.clientWidth - cur.offsetWidth) / 2;
+    if (strip) { stripFade(strip); strip.addEventListener("scroll", function () { stripFade(strip); }, { passive: true }); }
+    fitBand();
     markMoved();
   }
 
@@ -4138,7 +4399,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
       var fc = parts[1] && fundamentals().filter(function (c) { return c.id === parts[1]; })[0];
       if (fc) {
         var sec = fc.section ? fc.section.toLowerCase() : "";
-        renderCard({ tab: "learn", active: sec, card: fc, scene: "lake", band: "quiet",
+        renderCard({ tab: "learn", active: sec, card: fc, scene: LEARN_SCENE[sec] || "lake",
           list: fundamentals().filter(function (c) { return c.section === fc.section; }),
           hrefFor: function (c) { return "#/learn/" + c.id; },
           upHref: "#/learn" + (sec ? "/" + sec : ""), upText: fc.section || "Learn" });
@@ -4178,7 +4439,7 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     var card = parts[2] && list.filter(function (c) { return c.id === parts[2]; })[0];
     if (card) {
       var base = speciesBase(sp, loc);
-      renderCard({ tab: "fish", active: sp.id, card: card, list: list, scene: loc ? spotKind(loc.id, sp.id) : "sound", band: "quiet",
+      renderCard({ tab: "fish", active: sp.id, card: card, list: list, scene: loc ? spotKind(loc.id, sp.id) : "sound", paint: loc ? placePaint(loc.id, sp.id) : null,
         rules: card.dated && loc ? { spot: loc.id, species: sp.id, since: card.dated } : null,
         hrefFor: function (c) { return base + "/" + c.id; },
         upHref: base, upText: sp.name + (loc ? " \u00b7 " + loc.name : "") });
@@ -4301,6 +4562,9 @@ ol.steps .k{font-family:var(--mono);font-size:12.5px;color:var(--accent);font-we
     // and the trip bar is already the way back.
     var h = (location.hash || "").replace(/^#\/?/, "");
     if (activeMode === "field" && h) activeMode = "library";
+    if (newScreen(drawnHash, location.hash)) window.scrollTo(0, 0);
+    if (drawnHash !== location.hash) prevHash = drawnHash;
+    drawnHash = location.hash;
     cwT.nav = true;
     cwT.tell = {};
     try { render(); } finally { cwT.nav = false; }

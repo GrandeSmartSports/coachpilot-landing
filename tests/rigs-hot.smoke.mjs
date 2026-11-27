@@ -166,8 +166,9 @@ try {
   ok(/2 to get/.test(clamGear) && /4 to check/.test(clamGear) && !/you own/i.test(clamGear), "a trip with nothing owned does not say the rest is owned", clamGear);
   await page.locator('[data-sec-row="gear"]').click();
   await page.waitForSelector('[data-card="gear"]');
-  const clamCard = await page.locator(".card .when").first().innerText();
-  ok(/^2 to get, 4 to check\.$/.test(clamCard.trim()), "and neither does its gear card", clamCard);
+  // The gear card opens the way its tile does: the big count, then what else.
+  const clamCard = (await page.locator(".card [data-gear-sum]").innerText()).replace(/\s+/g, " ").trim();
+  ok(/^2 to get 4 to check\.$/.test(clamCard), "and neither does its gear card", clamCard);
 
   // With a card in the trip, the trip bar is the only thing pinned over a
   // run card: the gold button scrolls with the page.

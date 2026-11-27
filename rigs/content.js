@@ -178,9 +178,11 @@
             shelfDays: 180,
             body:
               '<div class="box law"><b>daily limit</b>' +
+                '<span class="fig">10 lb<small>or</small>5 qt</span>' +
                 "<strong>10 pounds or 5 quarts, whichever you hit first.</strong> That is all squid species together. " +
                 "Humboldt squid are separate and capped at <strong>1 per day</strong>, down from 5 in 2026.</div>" +
               '<div class="box law"><b>new for 2026: one line each</b>' +
+                '<span class="fig">1 line</span>' +
                 "<strong>One line per harvester.</strong> You may not fish squid for personal use on more than one line. " +
                 "This is a change, so if you fished two rods in past seasons, stop.</div>" +
               '<div class="box"><b>legal gear</b>' +
@@ -679,7 +681,7 @@
   },
   {
     "id": "perch",
-    "name": "Perch + trout",
+    "name": "Perch and trout",
     "hint": "Winter lakes, anchor and drop",
     "cards": [
       {

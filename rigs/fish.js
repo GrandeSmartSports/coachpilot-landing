@@ -307,13 +307,78 @@
     return out;
   }
 
+  // ---- each salmon and trout its own build ------------------------------------
+  // They share one way of being drawn; besides the paint, the build tells
+  // them apart. form(o, f) reshapes a fishBody's options:
+  //   depth  how deep the body is (1 as drawn), wrist how deep the narrow
+  //   place before the tail is, head how long the head runs (the gill cover
+  //   sits further back), tail the tail fin's size, fork how deep its fork.
+  function form(o, f) {
+    function lin(pts, x) {
+      for (var i = 1; i < pts.length; i++) if (x <= pts[i][0]) { var a = pts[i - 1], b = pts[i]; return a[1] + (b[1] - a[1]) * ((x - a[0]) / ((b[0] - a[0]) || 1)); }
+      return pts[pts.length - 1][1];
+    }
+    var T0 = o.top, B0 = o.bot, D = f.depth || 1, Wr = f.wrist || 1;
+    function k(x) { var u = Math.max(0, Math.min(1, (x - 270) / 110)); u = u * u * (3 - 2 * u); return D + (Wr - D) * u; }
+    function map(p) { var c = (lin(T0, p[0]) + lin(B0, p[0])) / 2; return [p[0], c + (p[1] - c) * k(p[0])]; }
+    function moveFin(F, dx) {
+      if (!F) return;
+      var m = [(F.a[0] + F.b[0]) / 2, (F.a[1] + F.b[1]) / 2], dy = map(m)[1] - m[1];
+      function mv(p) { return [p[0] + dx, p[1] + dy]; }
+      F.a = mv(F.a); F.b = mv(F.b); if (F.edge) F.edge = F.edge.map(mv);
+    }
+    ["dorsal", "adipose", "anal", "pelvic"].forEach(function (key) { moveFin(o[key], 0); });
+    var hx = ((f.head || 1) - 1) * 60;
+    moveFin(o.pectoral, hx);
+    o.gill += hx;
+    o.eye = [o.eye[0], Math.round(map(o.eye)[1] * 10) / 10, o.eye[2]];
+    var T = o.tail;
+    if (T) {
+      var a = map(T.a), b = map(T.b), c = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], c0 = [(T.a[0] + T.b[0]) / 2, (T.a[1] + T.b[1]) / 2], s = f.tail || 1;
+      var e = T.edge.map(function (p) { return [c[0] + (p[0] - c0[0]) * s, c[1] + (p[1] - c0[1]) * s]; });
+      if (f.fork && e.length === 7) {
+        var tip = (e[1][0] + e[5][0]) / 2;
+        [2, 3, 4].forEach(function (i) { e[i] = [tip - (tip - e[i][0]) * f.fork, e[i][1]]; });
+      }
+      T.a = a; T.b = b; T.edge = e;
+    }
+    o.top = T0.map(map); o.bot = B0.map(map);
+    return o;
+  }
+  // The hooked jaw of a spawning male, a kype: the snout hooks down over the
+  // lower jaw, the lower jaw curls up at its tip, and the gape between them
+  // shows teeth. x, y: where the jaws meet at the front; L: the gape's length.
+  function kype(x, y, L) {
+    var tu = "", tl = "", i;
+    var SN = "M" + n(x + 16) + " " + n(y - 8) + "C" + n(x + 4) + " " + n(y - 8) + " " + n(x - 5) + " " + n(y - 4) + " " + n(x - 7.5) + " " + n(y + 4) +
+      "C" + n(x - 8.2) + " " + n(y + 7.4) + " " + n(x - 6) + " " + n(y + 8.6) + " " + n(x - 4.4) + " " + n(y + 7) + "C" + n(x - 2.4) + " " + n(y + 3.6) + " " + n(x + 3) + " " + n(y + 2) + " " + n(x + 8) + " " + n(y + 1.8);
+    for (i = 0; i < 7; i++) {
+      var tx = x + 6 + i * (L - 12) / 6, ty = y + 2.2 + i * 0.42;
+      tu += "M" + n(tx - 1.1) + " " + n(ty) + "l1.1 " + n(2.3 - i * 0.16) + "l1.1 " + n(-2.3 + i * 0.16) + "Z";
+      if (i % 2 === 0 && i < 6) tl += "M" + n(tx - 0.9) + " " + n(ty + 4.4) + "l.9 -2l.9 2Z";
+    }
+    return '<path class="gape" d="M' + n(x + 2) + " " + n(y + 1.6) + "C" + n(x + L * 0.35) + " " + n(y + 2.2) + " " + n(x + L * 0.7) + " " + n(y + 3.4) + " " + n(x + L) + " " + n(y + 5.8) +
+        "C" + n(x + L * 0.7) + " " + n(y + 6.6) + " " + n(x + L * 0.35) + " " + n(y + 6.6) + " " + n(x + 2) + " " + n(y + 6) + 'Z"/>' +
+      '<path class="tooth" d="' + tu + tl + '"/>' +
+      // the snout, hooked down over the front of the lower jaw
+      '<defs><linearGradient id="ky' + x + '" x1="0" x2="1"><stop offset=".5" style="stop-color:var(--f-head)"/><stop offset="1" style="stop-color:var(--f-head);stop-opacity:0"/></linearGradient></defs>' +
+      '<path class="kypefill" fill="url(#ky' + x + ')" d="' + SN + "L" + n(x + 16) + " " + n(y + 1) + 'Z"/>' +
+      '<path class="ink mouth" d="' + SN + "C" + n(x + L * 0.4) + " " + n(y + 2.4) + " " + n(x + L * 0.75) + " " + n(y + 3.6) + " " + n(x + L) + " " + n(y + 5.8) + '"/>' +
+      // the lower jaw, its tip curled up into the snout's hook
+      '<path class="kypefill low" d="M' + n(x + L) + " " + n(y + 5.8) + "C" + n(x + L * 0.6) + " " + n(y + 7.8) + " " + n(x + L * 0.25) + " " + n(y + 8.8) + " " + n(x + 2) + " " + n(y + 8.6) +
+        "C" + n(x - 2) + " " + n(y + 8.4) + " " + n(x - 3.4) + " " + n(y + 6) + " " + n(x - 2.6) + " " + n(y + 3.6) + "C" + n(x - 0.6) + " " + n(y + 5.6) + " " + n(x + 3) + " " + n(y + 6.2) + " " + n(x + 8) + " " + n(y + 6.2) + 'Z"/>' +
+      '<path class="ink mouth" d="M' + n(x + L) + " " + n(y + 5.8) + "C" + n(x + L * 0.6) + " " + n(y + 7.8) + " " + n(x + L * 0.25) + " " + n(y + 8.8) + " " + n(x + 2) + " " + n(y + 8.6) +
+        "C" + n(x - 2) + " " + n(y + 8.4) + " " + n(x - 3.4) + " " + n(y + 6) + " " + n(x - 2.6) + " " + n(y + 3.6) + '"/>' +
+      '<path class="ink thin" d="M' + n(x + 2) + " " + n(y + 10.6) + "C" + n(x + L * 0.4) + " " + n(y + 11.4) + " " + n(x + L * 0.8) + " " + n(y + 12) + " " + n(x + L + 6) + " " + n(y + 13.4) + '"/>';
+  }
+
   var S = {};
 
   // ---- chum salmon, a river male in November -----------------------------
   S.chum = {
     box: "0 0 440 190", name: "Chum salmon", latin: "Oncorhynchus keta",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fpchum", kind: "chum", seed: 11, gill: 98, eye: [54, 88, 5], depth: 94, scale: 4.8, lateral: 0.46,
         top: [[13, 101], [17, 93], [27, 86], [42, 79], [62, 71], [92, 61], [130, 52], [172, 47], [214, 47], [256, 51], [298, 60], [336, 71], [362, 79], [380, 83]],
         bot: [[13, 101], [18, 106], [30, 110], [46, 114], [72, 120], [108, 130], [152, 139], [198, 141], [244, 137], [282, 128], [322, 116], [350, 108], [380, 105]],
@@ -345,12 +410,9 @@
           return '<g filter="url(#fp-b1)">' + out + "</g>";
         },
         headPaint: function () { return '<ellipse class="cheek" cx="78" cy="100" rx="14" ry="11" filter="url(#fp-b3)"/><ellipse class="sheen" cx="84" cy="92" rx="8" ry="6" filter="url(#fp-b3)"/>'; },
-        // The long hooked jaw of a river male, with a pale lip.
-        mouth: '<path class="lip" d="M14 102.5C24 106 38 107.5 52 108.5"/>' +
-          '<path class="ink mouth" d="M14 102.5C27 106 44 107 58 109S70 112 75 116"/>' +
-          '<path class="ink thin" d="M36 103C50 103 64 106 74 113"/>' +
-          '<circle class="nostril" cx="31" cy="90" r=".9"/>'
-      });
+        // The hooked jaw of a river male, and his teeth.
+        mouth: kype(14, 101.5, 58) + '<circle class="nostril" cx="31" cy="90" r=".9"/>'
+      }, { depth: 1.03, wrist: 0.8, head: 1.05, tail: 1.1, fork: 1.15 }));
     }
   };
 
@@ -358,7 +420,7 @@
   S.rainbow = {
     box: "0 0 440 190", name: "Rainbow trout", latin: "Oncorhynchus mykiss",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fprbow", kind: "rainbow", seed: 23, gill: 96, eye: [54, 88, 6], depth: 87, scale: 3.9, lateral: 0.47,
         top: [[21, 98], [24, 90], [33, 84], [50, 76], [76, 67], [112, 58], [156, 52], [200, 51], [246, 55], [290, 63], [330, 73], [360, 80], [380, 82]],
         bot: [[21, 98], [24, 104], [33, 109], [50, 113], [78, 121], [114, 130], [158, 137], [204, 138], [250, 134], [286, 126], [324, 115], [352, 109], [380, 107]],
@@ -393,7 +455,7 @@
         },
         mouth: '<path class="ink mouth" d="M23 101C34 103 46 104 60 107"/><path class="ink thin" d="M38 101C48 101 55 103 61 106"/>' +
           '<circle class="nostril" cx="37" cy="88" r=".8"/>'
-      });
+      }, { depth: 1.08, wrist: 1.06, head: 0.9, tail: 0.96, fork: 0.62 }));
     }
   };
 
@@ -401,7 +463,7 @@
   S.cutthroat = {
     box: "0 0 440 190", name: "Sea-run cutthroat", latin: "Oncorhynchus clarkii clarkii",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fpcutt", kind: "cutthroat", seed: 5, gill: 96, eye: [50, 91, 5.6], depth: 75, scale: 3.6, lateral: 0.46,
         top: [[13, 100], [17, 93], [28, 87], [48, 80], [78, 72], [116, 64], [160, 59], [204, 58], [250, 62], [294, 69], [332, 77], [362, 83], [380, 85]],
         bot: [[13, 100], [17, 105], [28, 109], [46, 113], [74, 120], [110, 127], [156, 132], [204, 133], [250, 130], [288, 123], [324, 114], [352, 109], [380, 107]],
@@ -439,7 +501,7 @@
         },
         mouth: '<path class="ink mouth" d="M15 102C30 105 50 106 72 112"/><path class="ink thin" d="M32 103C48 103 62 106 72 111"/>' +
           '<circle class="nostril" cx="33" cy="91" r=".8"/>'
-      });
+      }, { depth: 0.96, wrist: 0.92, head: 1.08, tail: 0.98, fork: 1.1 }));
     }
   };
 
@@ -682,7 +744,7 @@
   S.king = {
     box: "0 0 440 190", name: "Chinook salmon", latin: "Oncorhynchus tshawytscha",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fpking", kind: "king", seed: 31, gill: 100, eye: [56, 87, 5], depth: 106, scale: 4.5, lateral: 0.45,
         top: [[13, 100], [17, 92], [27, 85], [43, 77], [65, 67], [97, 55], [136, 46], [178, 41], [220, 41], [262, 46], [302, 56], [338, 68], [362, 77], [380, 81]],
         bot: [[13, 100], [18, 106], [30, 111], [48, 116], [76, 124], [112, 135], [156, 145], [202, 148], [248, 144], [286, 134], [324, 120], [352, 111], [380, 107]],
@@ -713,7 +775,7 @@
         mouth: '<path class="gum" d="M15 102.4C28 106 44 107.6 62 110"/>' +
           '<path class="ink mouth" d="M14 102C28 105.6 46 107 64 110.6"/><path class="ink thin" d="M36 102.6C48 102.8 58 105 66 109.6"/>' +
           '<circle class="nostril" cx="33" cy="89" r=".9"/>'
-      });
+      }, { depth: 1.05, wrist: 1.28, head: 1.08, tail: 1.1, fork: 0.72 }));
     }
   };
 
@@ -723,7 +785,7 @@
   S.coho = {
     box: "0 0 440 190", name: "Coho salmon", latin: "Oncorhynchus kisutch",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fpcoho", kind: "coho", seed: 43, gill: 98, eye: [54, 89, 5], depth: 88, scale: 4.2, lateral: 0.46,
         top: [[12, 102], [16, 94], [26, 87], [42, 80], [64, 72], [96, 63], [134, 55], [174, 51], [216, 51], [258, 55], [298, 63], [336, 73], [362, 80], [380, 84]],
         bot: [[12, 102], [17, 107], [29, 111], [46, 115], [74, 121], [110, 130], [154, 137], [200, 139], [246, 135], [284, 127], [322, 116], [350, 109], [380, 106]],
@@ -756,7 +818,7 @@
           '<path class="ink mouth" d="M13 103.5C26 107 42 108 56 109.6S66 112 70 115"/>' +
           '<path class="ink thin" d="M12 102C10 105 11 107.4 14 108"/>' +
           '<path class="ink thin" d="M34 104C46 104 58 106.4 68 112.6"/><circle class="nostril" cx="31" cy="91" r=".9"/>'
-      });
+      }, { depth: 1, wrist: 1.16, head: 1, tail: 1, fork: 0.58 }));
     }
   };
 
@@ -766,7 +828,7 @@
   S.pink = {
     box: "0 0 440 190", name: "Pink salmon", latin: "Oncorhynchus gorbuscha",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fppink", kind: "pink", seed: 61, gill: 96, eye: [52, 93, 4.6], depth: 104, scale: 3.1, lateral: 0.5,
         top: [[12, 106], [16, 99], [25, 93], [39, 87], [56, 79], [76, 64], [100, 47], [130, 36], [166, 33], [206, 36], [250, 45], [294, 58], [334, 71], [362, 79], [380, 83]],
         bot: [[12, 106], [17, 111], [29, 115], [46, 118], [74, 124], [110, 132], [154, 139], [200, 141], [246, 137], [284, 129], [322, 118], [350, 110], [380, 106]],
@@ -787,11 +849,9 @@
         headPaint: function () {
           return '<ellipse class="cheek" cx="76" cy="104" rx="13" ry="10" filter="url(#fp-b3)"/><ellipse class="sheen" cx="80" cy="97" rx="7" ry="5" filter="url(#fp-b3)"/>';
         },
-        mouth: '<path class="lip" d="M13 107.5C24 110.6 36 111.6 50 112.4"/>' +
-          '<path class="ink mouth" d="M13 107.5C26 110.8 42 111.6 56 113S66 115.6 70 119"/>' +
-          '<path class="ink thin" d="M12 106C10 109 11 111.4 14 112"/>' +
-          '<path class="ink thin" d="M34 108C46 108 58 110.4 68 116.6"/><circle class="nostril" cx="29" cy="95" r=".9"/>'
-      });
+        // a humped male: the hooked jaw too
+        mouth: kype(13, 106.5, 52) + '<circle class="nostril" cx="29" cy="95" r=".9"/>'
+      }, { depth: 1, wrist: 0.82, head: 0.95, tail: 0.94, fork: 1.05 }));
     }
   };
 
@@ -801,7 +861,7 @@
   S.steelhead = {
     box: "0 0 440 190", name: "Steelhead", latin: "Oncorhynchus mykiss",
     draw: function () {
-      return fishBody({
+      return fishBody(form({
         id: "fpsteel", kind: "steelhead", seed: 71, gill: 92, eye: [50, 91, 5], depth: 70, scale: 3.6, lateral: 0.47,
         top: [[14, 100], [18, 93], [28, 87], [48, 81], [80, 74], [120, 67], [164, 62], [208, 61], [252, 64], [294, 70], [332, 77], [362, 82], [382, 84]],
         bot: [[14, 100], [18, 105], [28, 109], [46, 113], [76, 119], [114, 125], [158, 130], [204, 131], [250, 128], [288, 122], [324, 114], [352, 109], [382, 106]],
@@ -831,7 +891,7 @@
         },
         mouth: '<path class="ink mouth" d="M16 102C28 104.4 40 105.4 55 108"/><path class="ink thin" d="M32 102.4C42 102.6 50 104.4 56 107"/>' +
           '<circle class="nostril" cx="33" cy="91" r=".8"/>'
-      });
+      }, { depth: 1, wrist: 1.12, head: 0.92, tail: 1, fork: 0.45 }));
     }
   };
 
@@ -843,20 +903,21 @@
     box: "0 0 440 190", name: "Largemouth bass", latin: "Micropterus salmoides",
     draw: function () {
       return fishBody({
-        id: "fpbass", kind: "bass", seed: 17, gill: 114, gillBulge: 12, eye: [62, 85, 6.2], depth: 90, scale: 5.4, lateral: 0.42,
-        top: [[11, 107], [14, 99], [23, 91], [39, 81], [62, 71], [92, 61], [130, 54], [172, 51], [214, 53], [256, 58], [296, 66], [330, 75], [354, 81], [372, 83]],
-        bot: [[11, 107], [19, 114], [35, 120], [57, 125], [87, 131], [123, 138], [165, 142], [207, 142], [249, 138], [287, 130], [321, 120], [347, 112], [372, 109]],
+        // deep, a third as deep as it is long, with a big blunt head
+        id: "fpbass", kind: "bass", seed: 17, gill: 120, gillBulge: 14, eye: [58, 83, 6.4], depth: 116, scale: 5.6, lateral: 0.4,
+        top: [[12, 108], [14, 98], [20, 87], [31, 75], [49, 63], [73, 52], [103, 43], [140, 37.5], [180, 36], [220, 38], [258, 45], [292, 56], [322, 67], [346, 75], [364, 78.5]],
+        bot: [[12, 108], [16, 117], [26, 125], [42, 133], [66, 141], [98, 148], [136, 152], [176, 153], [214, 150], [252, 142], [288, 130], [318, 118], [342, 110], [364, 107.5]],
         backFins: ["tail", "spiny", "dorsal", "anal"],
-        tail: { a: [366, 82], b: [366, 110], edge: [[392, 69], [424, 57], [428, 78], [420, 96], [428, 114], [424, 135], [392, 123]], r0: 2, r1: 6, rays: 19, bend: 0, bias: 1 },
-        spiny: { a: [146, 52.5], b: [238, 56], spines: 9, up: -1, rake: 11, sag: 0.24, h: function (t) { return 5 + 21 * Math.sin(Math.PI * Math.pow(t, 0.85)); } },
-        dorsal: { a: [240, 57], b: [308, 69.5], edge: [[246, 34], [266, 25], [294, 33], [314, 52]], r0: 1, r1: 4, rays: 13 },
-        anal: { a: [268, 135], b: [316, 122], edge: [[270, 152], [284, 166], [306, 158], [322, 140]], r0: 1, r1: 4, rays: 11, bend: -0.04 },
-        pelvic: { a: [148, 141], b: [164, 142], edge: [[156, 159], [176, 171], [178, 155]], r0: 1, r1: 3, rays: 7, bend: -0.04 },
-        pectoral: { a: [124, 116], b: [126, 128], edge: [[144, 118], [166, 128], [162, 141], [142, 139]], r0: 1, r1: 4, rays: 11, bend: -0.02 },
+        tail: { a: [358, 77], b: [358, 109], edge: [[384, 63], [418, 49], [425, 71], [415, 93], [425, 115], [418, 138], [384, 123]], r0: 2, r1: 6, rays: 19, bend: 0, bias: 1 },
+        spiny: { a: [132, 38.8], b: [226, 38.6], spines: 9, up: -1, rake: 11, sag: 0.24, h: function (t) { return 5 + 21 * Math.sin(Math.PI * Math.pow(t, 0.85)); } },
+        dorsal: { a: [228, 39.4], b: [300, 58.4], edge: [[234, 17], [256, 9], [284, 17], [306, 40]], r0: 1, r1: 4, rays: 13 },
+        anal: { a: [262, 140], b: [312, 121], edge: [[264, 157], [278, 171], [300, 163], [316, 140]], r0: 1, r1: 4, rays: 11, bend: -0.04 },
+        pelvic: { a: [132, 151.5], b: [148, 152.5], edge: [[140, 168], [160, 180], [162, 164]], r0: 1, r1: 3, rays: 7, bend: -0.04 },
+        pectoral: { a: [126, 120], b: [128, 132], edge: [[146, 122], [168, 132], [164, 145], [144, 143]], r0: 1, r1: 4, rays: 11, bend: -0.02 },
         // The band: a chain of dark blotches from the gill to the tail, no two alike.
         under: function (c) {
-          var r = c.rand, out = "", pts = [], x = 124;
-          while (x < 366) {
+          var r = c.rand, out = "", pts = [], x = 128;
+          while (x < 358) {
             var y = c.at(x, 0.45 + (r() - 0.5) * 0.05), rx = 8 + r() * 8, ry = 5 + r() * 5;
             out += dot(x, y, rx, ry, (r() - 0.5) * 0.8);
             pts.push([x, y]);
@@ -865,17 +926,18 @@
           return '<path class="lband" d="' + cr(pts, false) + '" filter="url(#fp-b4)"/><path class="blotch" d="' + out + '" filter="url(#fp-b1)"/>';
         },
         marks: function (c) {
-          var d = spots(c, 130, function (x, v) { return v < 0.34 ? 0.9 : v > 0.56 && v < 0.8 ? 0.35 : 0; }, function (r) { return 0.8 + r() * 1.2; }, 122, 366);
+          var d = spots(c, 130, function (x, v) { return v < 0.34 ? 0.9 : v > 0.56 && v < 0.8 ? 0.35 : 0; }, function (r) { return 0.8 + r() * 1.2; }, 126, 358);
           return '<path class="mottle" d="' + d + '"/>';
         },
         headPaint: function () {
-          return '<ellipse class="cheek" cx="90" cy="100" rx="16" ry="12" filter="url(#fp-b3)"/>' +
-            '<path class="lband" d="M70 88C84 90 100 94 116 100" filter="url(#fp-b3)"/>';
+          return '<ellipse class="cheek" cx="96" cy="108" rx="18" ry="14" filter="url(#fp-b3)"/>' +
+            '<path class="lband" d="M66 86C82 89 100 94 120 101" filter="url(#fp-b3)"/>';
         },
-        // the big mouth: the upper jaw plate ends behind the eye, the lower jaw leads
-        mouth: '<path class="jawplate" d="M30 101C46 101 64 104 82 113.5C66 115 46 112 28 107Z"/>' +
-          '<path class="ink mouth" d="M11 107C28 110.6 52 113.4 82 113.6"/><path class="ink thin" d="M30 101C46 101 64 104 82 113.5"/>' +
-          '<path class="ink thin" d="M12 108C26 117 44 121 62 123"/><circle class="nostril" cx="36" cy="88" r=".9"/>'
+        // the big mouth: the upper jaw runs back past the rear of the eye, the
+        // lower jaw leads it
+        mouth: '<path class="jawplate" d="M28 100C50 99 72 104 92 114C72 117 48 114 26 107Z"/>' +
+          '<path class="ink mouth" d="M10 110.5C30 114 60 116.6 92 114.6"/><path class="ink thin" d="M28 100C50 99 72 104 92 114"/>' +
+          '<path class="ink thin" d="M11 112C26 122 46 128 70 131"/><circle class="nostril" cx="33" cy="89" r=".9"/>'
       });
     }
   };

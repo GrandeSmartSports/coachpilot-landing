@@ -177,7 +177,8 @@
 .view .w-beach{stroke-width:.7}
 .view .w-liteb{stroke-width:.6}
 .view .w-line{stroke-width:.35;opacity:.7}
-.view .v-flyline{stroke:var(--lum);stroke-width:.5;opacity:.85}
+.view .v-flyline{stroke:var(--glintc);stroke-width:.65;opacity:.85}
+.view .v-fly2{stroke-width:.35;opacity:.35}
 .view .w-rail{stroke-width:.6}
 .view .w-ring{stroke-width:.4}
 .view .w-surfsh{opacity:.3}

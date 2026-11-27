@@ -15,10 +15,11 @@ const json = (r, status, body) => r.fulfill({ status, contentType: "application/
 // beaches, March to October). Same weather, same tides, another season.
 export const SPRING_NOW = new Date("2027-05-03T12:00:00-07:00"); // a Monday, noon
 export const SPRING_DAYS = ["2027-05-03", "2027-05-04", "2027-05-05", "2027-05-06", "2027-05-07", "2027-05-08", "2027-05-09"];
-function wxPoint(days) {
+// rain: { "2026-11-28": [8, 9] }, the hours it rains (a tenth of an inch).
+function wxPoint(days, rain = {}) {
   const time = [], t = [], p = [], w = [], g = [], c = [];
   for (const d of days) for (let h = 0; h < 24; h++) {
-    time.push(`${d}T${pad(h)}:00`); t.push(45); p.push(0); c.push(90);
+    time.push(`${d}T${pad(h)}:00`); t.push(45); p.push((rain[d] || []).includes(h) ? 0.1 : 0); c.push(90);
     const bad = d === days[2];
     w.push(bad ? 28 : 4); g.push(bad ? 42 : 8);
   }
@@ -34,7 +35,8 @@ const tidesFor = (days) => ({ predictions: days.flatMap((d) => [
   { t: `${d} 04:30`, v: "11.0", type: "H" }, { t: `${d} 11:00`, v: "2.0", type: "L" },
   { t: `${d} 17:15`, v: "12.0", type: "H" }, { t: `${d} 21:00`, v: "-0.5", type: "L" }]) });
 // o.days, o.now: another week (SPRING_DAYS, SPRING_NOW). The default is the
-// week of NOW, a Monday in November.
+// week of NOW, a Monday in November. o.rain: hours it rains (see wxPoint).
+// o.noTides: the NOAA tide call fails, the way it does with a weak signal.
 export async function fake(ctx, o = {}) {
   const days = o.days || DAYS, now = o.now || NOW;
   await ctx.route(/castai-waters/, (r) => r.abort());
@@ -43,7 +45,8 @@ export async function fake(ctx, o = {}) {
     forecast: { data: days.map((d) => ({ validTime: `${d}T20:00:00Z`, primary: 0.4 })) } }));
   await ctx.route(/api\.open-meteo\.com|marine-api\.open-meteo\.com|api\.tidesandcurrents\.noaa\.gov/, (route) => {
     const u = route.request().url(), n = (new URL(u).searchParams.get("latitude") || "").split(",").length;
-    return json(route, 200, /marine-api/.test(u) ? Array.from({ length: n }, () => marine(days)) : /open-meteo/.test(u) ? Array.from({ length: n }, () => wxPoint(days)) : tidesFor(days));
+    if (o.noTides && /tidesandcurrents/.test(u)) return route.abort();
+    return json(route, 200, /marine-api/.test(u) ? Array.from({ length: n }, () => marine(days)) : /open-meteo/.test(u) ? Array.from({ length: n }, () => wxPoint(days, o.rain)) : tidesFor(days));
   });
 }
 
@@ -74,6 +77,8 @@ export function decodePng(buf) {
 const lin = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
 const lum = (c) => 0.2126 * lin(c[0]) + 0.7152 * lin(c[1]) + 0.0722 * lin(c[2]);
 const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+// the contrast between two rgb colours, 1 to 21
+export const contrast = ratio;
 
 // Every piece of text on the screen, with its colour, against what is
 // painted behind it. Returns the ones that cannot be read. within: a
@@ -93,7 +98,9 @@ export async function unreadable(page, within) {
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {
       if (!n.nodeValue.trim()) continue;
       const el = n.parentElement;
-      if (!el || el.closest(".dia, .tyer, .leaflet-container, svg, [hidden], .vh, option")) continue;
+      // map tiles, pins and controls sit on the map's own pictures; an open
+      // pin's card is the page's and is measured like any other
+      if (!el || el.closest(".dia, .tyer, .leaflet-tile-pane, .leaflet-marker-pane, .leaflet-control-container, svg, [hidden], .vh, option")) continue;
       if (within && !el.closest(within)) continue;
       const cs = getComputedStyle(el);
       if (cs.visibility === "hidden" || cs.display === "none") continue;

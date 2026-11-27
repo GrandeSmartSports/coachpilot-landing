@@ -527,15 +527,22 @@ try {
 
     // A note pinned to a part the run card no longer shows (the weather, once
     // the day is past the forecast) is not lost: it sits with the trip's notes.
-    const far = [mkTrip({ id: "t-far", date: "2026-12-12" })];
+    const far = [mkTrip({ id: "t-far", date: "2026-12-12" }),
+      mkTrip({ id: "t-lake", date: "2026-12-12", planId: "trout-fenwick", spotId: "lake-fenwick", species: "perch", title: "Perch and trout, Lake Fenwick" })];
     const ctx3 = await browser.newContext(phone);
-    await crew(ctx3, { who: "member", trips: far, comments: { "t-far": [{ id: "w1", section: "wx", body: "Wind looked bad on the long range", by: "u-coach", at: "2026-11-22T18:05:00Z" }] } });
+    await crew(ctx3, { who: "member", trips: far, comments: { "t-far": [{ id: "w1", section: "wx", body: "Wind looked bad on the long range", by: "u-coach", at: "2026-11-22T18:05:00Z" }],
+      "t-lake": [{ id: "w2", section: "wx", body: "Cold front on the long range", by: "u-coach", at: "2026-11-22T18:06:00Z" }] } });
     await weather(ctx3);
     const w = await open(ctx3, base + "#/crew/trip/t-far", "member");
     await w.waitForSelector('[data-view="crewtrip"] [data-cw-note-text]');
     ok(await w.locator('[data-sec-row="wx"]').count() === 0 && await w.locator('[data-cw-notes=""] [data-cw-note="w1"]').count() === 1 &&
       /Tide and weather/.test(await text(w, '[data-cw-note="w1"]')), "a note on a part the run card no longer shows sits with the trip's notes, and says which part it was on",
       await w.locator('[data-cw-notes=""]').innerText());
+    // On a lake that part is Weather: a lake has no tide.
+    await w.evaluate(() => { location.hash = "#/crew/trip/t-lake"; });
+    await w.waitForSelector('[data-cw-note="w2"]');
+    const lakePart = await text(w, '[data-cw-note="w2"] [data-cw-note-part]');
+    ok(/^weather$/i.test(lakePart.trim()), "and on a lake trip it says Weather, not Tide and weather", lakePart);
     await ctx3.close();
   }
 

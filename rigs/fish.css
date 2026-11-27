@@ -22,21 +22,21 @@
   --f-belly:color-mix(in oklab,var(--paper) 94%,var(--water1));
   --f-under:color-mix(in oklab,var(--paper) 78%,var(--water1));
   --f-shade:var(--shore);
-  --f-lit:#fff;
+  --f-lit:var(--paper);
   --f-scale:var(--shore);
   --f-head:color-mix(in oklab,var(--shore) 62%,var(--water2));
   --f-iris1:color-mix(in oklab,var(--gold) 52%,var(--paper));
   --f-iris2:color-mix(in oklab,var(--shore) 56%,var(--gold));
   --q-iris2:color-mix(in oklab,var(--water2) 60%,var(--shore));
-  --f-pupil:color-mix(in srgb,var(--shore) 62%,#000);
+  --f-pupil:color-mix(in srgb,var(--shore) 62%,var(--ink));
   --f-ring:color-mix(in oklab,var(--shore) 72%,var(--water2));
-  --f-glint:#fff;
+  --f-glint:var(--paper);
   --fin1:color-mix(in srgb,color-mix(in oklab,var(--shore) 52%,var(--water1)) 88%,transparent);
   --fin2:color-mix(in srgb,color-mix(in oklab,var(--shore) 30%,var(--water1)) 70%,transparent);
   --fin3:color-mix(in srgb,color-mix(in oklab,var(--water1) 60%,var(--paper)) 52%,transparent);
   --fin-ray:color-mix(in oklab,var(--ink) 70%,var(--shore));
-  --fin-tip:#fff; --fin-tip-o:.85;
-  --spot:color-mix(in srgb,var(--shore) 70%,#000);
+  --fin-tip:var(--paper); --fin-tip-o:.85;
+  --spot:color-mix(in srgb,var(--shore) 70%,var(--ink));
   --bar-m:color-mix(in oklab,var(--madder) 74%,var(--shore)); --bar-m-o:.62;
   --bar-g:color-mix(in oklab,var(--shore) 84%,var(--water2)); --bar-g-o:.5;
   --grain-o:1;
@@ -54,24 +54,24 @@
   --f-flank:color-mix(in oklab,var(--ink2) 88%,var(--gold));
   --f-belly:color-mix(in oklab,var(--ink) 90%,var(--gold));
   --f-under:color-mix(in oklab,var(--ink2) 74%,var(--paper));
-  --f-lit:color-mix(in oklab,#fff 86%,var(--gold));
+  --f-lit:color-mix(in oklab,var(--ink) 86%,var(--gold));
   --f-scale:var(--paper);
   --f-head:color-mix(in oklab,var(--ink2) 22%,var(--paper));
-  --f-iris1:color-mix(in oklab,var(--gold) 60%,#fff);
+  --f-iris1:color-mix(in oklab,var(--gold) 60%,var(--ink));
   --f-iris2:color-mix(in oklab,var(--gold) 50%,var(--paper));
   --q-iris2:color-mix(in oklab,var(--ink2) 40%,var(--paper));
-  --f-pupil:#020405;
-  --f-ring:color-mix(in oklab,var(--paper) 70%,#000);
+  --f-pupil:color-mix(in srgb,var(--shore) 80%,var(--bg));
+  --f-ring:color-mix(in oklab,var(--paper) 70%,var(--shore));
   --fin1:color-mix(in srgb,color-mix(in oklab,var(--ink2) 34%,var(--paper)) 92%,transparent);
   --fin2:color-mix(in srgb,color-mix(in oklab,var(--ink2) 48%,var(--paper)) 72%,transparent);
   --fin3:color-mix(in srgb,color-mix(in oklab,var(--ink2) 66%,var(--paper)) 44%,transparent);
   --fin-ray:color-mix(in oklab,var(--ink) 58%,var(--paper));
-  --fin-tip:color-mix(in oklab,#fff 80%,var(--gold)); --fin-tip-o:.6;
-  --spot:color-mix(in srgb,var(--paper) 55%,#000);
+  --fin-tip:color-mix(in oklab,var(--ink) 80%,var(--gold)); --fin-tip-o:.6;
+  --spot:color-mix(in srgb,var(--paper) 55%,var(--shore));
   --bar-m:color-mix(in oklab,var(--madder) 82%,var(--paper)); --bar-m-o:.78;
   --bar-g:color-mix(in oklab,var(--paper) 80%,var(--olive)); --bar-g-o:.6;
-  --sp-shadow:color-mix(in srgb,#000 42%,transparent);
-  --sp-shadow2:color-mix(in srgb,#000 18%,transparent);
+  --sp-shadow:color-mix(in srgb,var(--shore) 72%,transparent);
+  --sp-shadow2:color-mix(in srgb,var(--shore) 34%,transparent);
 }
 
 /* ---- per plate colours (outer svg and the symbol) ---- */
@@ -192,6 +192,11 @@
 .fp .sh-core{fill:none;stroke:var(--f-shade);stroke-width:13;opacity:.11}
 .fp .sh-rim.top{opacity:.16}
 .fp .lip{fill:none;stroke:var(--f-belly);stroke-width:2.2;opacity:.5;stroke-linecap:round}
+/* a spawning male's open hooked jaw: the dark of the gape, the pale teeth */
+.fp .gape{fill:var(--f-pupil);opacity:.72}
+.fp .tooth{fill:var(--f-belly);opacity:.95}
+.fp .kypefill{opacity:.9}
+.fp .kypefill.low{fill:color-mix(in oklab,var(--f-head) 60%,var(--f-flank))}
 .fp .sq-iris{stroke-width:.3}
 .fp .sh-lit{fill:none;stroke:var(--f-lit);stroke-width:8;opacity:.5;stroke-linecap:round}
 .fp .head-lit{stroke-width:6;opacity:.42}
@@ -425,7 +430,7 @@
 .fp .lband{fill:none;stroke:var(--f-shade);stroke-width:13;opacity:.3;stroke-linecap:round}
 .fp .blotch{fill:var(--f-shade);opacity:.5}
 .fp .mottle{fill:var(--f-shade);opacity:.3}
-.fp .jawplate{fill:var(--f-belly);opacity:.5}
+.fp .jawplate{fill:color-mix(in oklab,var(--f-head) 55%,var(--f-flank));opacity:.75}
 .fp .finblot{fill:var(--f-pupil);opacity:.5}
 .fp-bass .head-wash{opacity:.5}
 .fp-bass .cheek{fill:var(--f-belly);opacity:.3}
@@ -468,7 +473,7 @@
   --t-metal3:color-mix(in oklab,var(--ink2) 26%,var(--paper));
   --t-blank:color-mix(in oklab,var(--ink2) 50%,var(--paper));
   --t-cord:color-mix(in oklab,var(--ink) 88%,var(--gold));
-  --t-cord-e:color-mix(in oklab,var(--paper) 60%,#000);
+  --t-cord-e:color-mix(in oklab,var(--paper) 60%,var(--shore));
   --t-tag:color-mix(in oklab,var(--vermilion) 76%,var(--gold));
 }
 .fp .t-blank{fill:var(--t-blank)}

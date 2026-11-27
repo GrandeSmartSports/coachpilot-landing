@@ -91,6 +91,13 @@ try {
         said: bs.every((b) => (b.n > 1 ? b.t === String(b.n) && b.r.width >= 13 : b.t === "")) };
     }));
     ok(stacked.some((r) => r.most >= 3) && stacked.every((r) => r.min >= 2 && r.inside && r.said), id + ": trips that share an hour share one bead with their count, no two beads touch, and none leaves the ribbon", stacked);
+    // A mark where each trip falls: every bead stands on the hour a trip it
+    // counts starts, never at an hour where none does.
+    const off = await page.evaluate(() => [...document.querySelectorAll("[data-day]")].flatMap((d) => {
+      const starts = [...d.querySelectorAll("[data-hot]")].map((r) => { const m = /(\d{1,2}):(\d\d) (AM|PM)/.exec(r.innerText); return m ? (+m[1] % 12) + (m[3] === "PM" ? 12 : 0) + m[2] / 60 : null; }).filter((x) => x != null);
+      return [...d.querySelectorAll("h2 .ribbon b")].map((b) => 5 + (parseFloat(b.style.left) / 100) * 18).filter((h) => !starts.some((s) => Math.abs(s - h) <= 0.75)).map((h) => d.dataset.day + " " + h.toFixed(2));
+    }));
+    ok(off.length === 0, id + ": every bead stands within 45 minutes of a trip it counts", off);
     ok(await page.locator(".dock [data-tab]").count() === 4 && await page.locator(".dock [data-skymode] .skytok").count() === 1, id + ": the dock is there: four tabs and the sky button");
     ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 390, id + ": Hot Trips fits the phone");
 
