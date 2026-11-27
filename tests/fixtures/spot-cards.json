@@ -135,10 +135,6 @@
     "confidence": "likely"
    },
    {
-    "do": "Pier deck under your feet: plain, grated, straight out; no L or T head, no specific lamp posts",
-    "confidence": "likely (shape of the new pier is not published)"
-   },
-   {
     "do": "Night scene: crowd along the rail, squid lights on the water",
     "confidence": "proven"
    },
@@ -149,6 +145,26 @@
    {
     "do": "NO Mount Rainier (it is behind you), NO Seattle skyline (far right, out of view), NO Narrows Bridge",
     "confidence": "proven (geometry)"
+   },
+   {
+    "do": "The fishing pier runs straight out ahead-right of the boat ramp and ends in a wide T-head platform, wider than the walkway on both sides",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/))"
+   },
+   {
+    "do": "Tall single-arm lamp posts along the pier, three or four, and a wooden rail on both sides",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/))"
+   },
+   {
+    "do": "To the left of the pier: the boat ramp running into the water with a long narrow float dock beside it and a row of bare pilings",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/))"
+   },
+   {
+    "do": "At your feet: a low seawall with a wooden rail along the shore",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/))"
+   },
+   {
+    "do": "At night the pier lamps are lit and the squid crowd stands under them along the rail and on the T-head",
+    "confidence": "proven (lamps from Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/); squid crowd from the card)"
    }
   ],
   "sources": [
@@ -163,18 +179,18 @@
    "https://www.wta.org/go-hiking/hikes/redondo-beach-boardwalk",
    "https://www.seattleaquarium.org/wp-content/uploads/2025/01/Redondo-Beach-Park-One-Pager.pdf",
    "https://www.federalwaymirror.com/2019/09/09/city-of-des-moines-weighs-5-9-7-2m-reconstruction-plans-for-redondo-waterfront/",
-   "https://northwestfishingreports.com/Reports/Details/57725"
+   "https://northwestfishingreports.com/Reports/Details/57725",
+   "Coach's own pictures, 11/26: Apple Maps Look Around from the boat ramp and satellite view (scratchpad/port/spots/photos/coach/)"
   ],
   "dropped": [
    "Point Robinson lighthouse from Redondo (geometry only, 320 deg 3.6 mi, no source)",
    "Mount Olympus as a named peak (marginal; no source)",
    "Mount Rainier (142, behind) and Seattle skyline (357-359, far right): outside the view",
    "Tacoma Narrows Bridge (hidden behind Dash Point / Browns Point)",
-   "Shape and length of the NEW pier: not published",
-   "Lamp posts on the new pier: no source says what was installed",
    "'Covered at high tide' for the beach: not in the cited source",
    "Trees or bluff at the pier foot: no source",
-   "Assembly: Maury centre recomputed to 294 (was 292); Dash Point shore to 243-245"
+   "Assembly: Maury centre recomputed to 294 (was 292); Dash Point shore to 243-245",
+   "Note 11/26: Coach answered 'what does the new pier look like' with these pictures, so a T-head with lamp posts is drawn. The Look Around and satellite imagery may predate the 2026 rebuild; Coach squid fished it on Nov 17, 2026 and knows its shape."
   ]
  },
  "des-moines-pier": {
@@ -312,16 +328,32 @@
     "confidence": "proven"
    },
    {
-    "do": "Night: anglers' own small lights at the end of the pier, not a row of tall lamps",
-    "confidence": "proven"
-   },
-   {
     "do": "Winter sunset just left of ahead, over the island tips",
     "confidence": "proven (geometry)"
    },
    {
     "do": "NO Mount Rainier (behind you), NO Seattle skyline (far right, out of view)",
     "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Paint it from the beach park just north of the pier (the view in Coach's pictures): the pier runs out from the left across the view, long, thin and high on many slender piling bents, ending far out with a slight bend to the right",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Des Moines Beach Park and the map outline (scratchpad/port/spots/photos/coach/des-moines-*))"
+   },
+   {
+    "do": "Lamp posts evenly spaced along the whole pier, seven or eight, and a rail on both sides",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Des Moines Beach Park and the map outline (scratchpad/port/spots/photos/coach/des-moines-*))"
+   },
+   {
+    "do": "Foreground left: the marina's rock breakwater, a long pile of grey boulders; the marina's boat sheds at the foot of the pier",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Des Moines Beach Park and the map outline (scratchpad/port/spots/photos/coach/des-moines-*))"
+   },
+   {
+    "do": "Foreground right: gravel beach with bleached driftwood logs, big boulders and a low shrub",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Des Moines Beach Park and the map outline (scratchpad/port/spots/photos/coach/des-moines-*))"
+   },
+   {
+    "do": "At night the pier's lamps are lit in a row along it, with anglers' own lights at the end",
+    "confidence": "likely (lamp posts proven; lit at night not separately confirmed)"
    }
   ],
   "sources": [
@@ -335,7 +367,8 @@
    "https://en.wikipedia.org/wiki/Point_Robinson_Light",
    "https://northwestfishingreports.com/Reports/Details/42388",
    "https://northwestfishingreports.com/Reports/Details/60070",
-   "https://wdfw.wa.gov/fishing/basics/squid"
+   "https://wdfw.wa.gov/fishing/basics/squid",
+   "Coach's own pictures, 11/26: Apple Maps Look Around from Des Moines Beach Park and the map outline (scratchpad/port/spots/photos/coach/des-moines-*)"
   ],
   "dropped": [
    "Individual peak labels (Brothers, Constance, Olympus) from this pier",
@@ -344,7 +377,8 @@
    "Pier lamp posts: only an OSM lit=yes tag",
    "Tree species at the foot: no source",
    "Marinascope public art: not in the cited page",
-   "Assembly: Maury centre recomputed to 251, 4.7 mi (was 248.9, 4.8)"
+   "Assembly: Maury centre recomputed to 251, 4.7 mi (was 248.9, 4.8)",
+   "Corrected 11/26 from Coach's pictures: the card said 'not a row of tall lamps'; the pier has a row of lamp posts along its length."
   ]
  },
  "les-davis": {
@@ -417,15 +451,15 @@
    {
     "what": "Rock and concrete-block shore with stairs to the water, a grassy area and picnic tables beside the pier",
     "side": "behind",
-    "confidence": "likely",
-    "proof": "zentacle divers' notes"
+    "confidence": "proven",
+    "proof": "zentacle divers' notes | Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*)"
    },
    {
     "what": "Ruston Way road and parking at the pier foot, a line of leafy trees along the road",
     "side": "behind",
-    "confidence": "likely",
+    "confidence": "proven",
     "detail": "Tree species unknown; generic leafy trees only.",
-    "proof": "Esri imagery ; https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington"
+    "proof": "Esri imagery ; https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington | Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*)"
    }
   ],
   "night": [
@@ -466,6 +500,18 @@
    {
     "do": "NO Narrows Bridge, NO port cranes in the forward view",
     "confidence": "proven (geometry)"
+   },
+   {
+    "do": "The cross-arm of the T is long, running far to both sides, with small roofed shelters standing on it and lamp posts along the rail",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*))"
+   },
+   {
+    "do": "At the shore: a mown lawn and a paved waterfront path under big leafy shade trees, and a line of dark riprap rocks at the water's edge",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*))"
+   },
+   {
+    "do": "Off to the right along the shore: a restaurant building standing out over the water on pilings (Duke's)",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*))"
    }
   ],
   "sources": [
@@ -475,7 +521,8 @@
    "https://www.zentacle.com/Beach/516/les-davis-fishing-pier-tacoma",
    "https://kuow.org/stories/photos-squidding-from-tacoma-s-les-davis-pier",
    "https://seattleandsound.com/ruston-way",
-   "https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington"
+   "https://en.wikipedia.org/wiki/Ruston_Way,_Tacoma,_Washington",
+   "Coach's own pictures, 11/26: Apple Maps Look Around from Ruston Way and the map outline (scratchpad/port/spots/photos/coach/les-davis-*)"
   ],
   "dropped": [
    "Point Robinson light (34.7, 8.8 mi): geometry only, too small",
@@ -578,8 +625,8 @@
     "confidence": "app content"
    },
    {
-    "do": "Some light on the dock at night, no specific lamp style",
-    "confidence": "likely"
+    "do": "Lamp posts lit on the dock and plaza at night",
+    "confidence": "likely (lamp posts proven by Coach's own pictures, 11/26: Apple Maps Look Around from N Waterfront Dr and the map outline (scratchpad/port/spots/photos/coach/point-defiance-*))"
    },
    {
     "do": "Sunset is behind you or blocked by the Point: no sun on the water ahead",
@@ -588,6 +635,18 @@
    {
     "do": "NO mountains, NO Seattle skyline, NO Narrows Bridge, NO Olympics",
     "confidence": "proven (geometry)"
+   },
+   {
+    "do": "The Boathouse: a long white building with a pale green hipped roof and white siding, the marina's docks running out north from it in long fingers; put its white wall and green roof at the side of the frame",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from N Waterfront Dr and the map outline (scratchpad/port/spots/photos/coach/point-defiance-*))"
+   },
+   {
+    "do": "On the dock and plaza: tall lamp posts with lantern tops, flagpoles, wooden rails",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from N Waterfront Dr and the map outline (scratchpad/port/spots/photos/coach/point-defiance-*))"
+   },
+   {
+    "do": "Dark conifers on the shore to the left (west) of the boathouse",
+    "confidence": "proven (Coach's own pictures, 11/26: Apple Maps Look Around from N Waterfront Dr and the map outline (scratchpad/port/spots/photos/coach/point-defiance-*))"
    }
   ],
   "sources": [
@@ -597,7 +656,8 @@
    "https://www.parkstacoma.gov/pointdefiancemarina",
    "https://www.openstreetmap.org/way/414285099",
    "https://www.openstreetmap.org/way/1483950407",
-   "https://nominatim.openstreetmap.org"
+   "https://nominatim.openstreetmap.org",
+   "Coach's own pictures, 11/26: Apple Maps Look Around from N Waterfront Dr and the map outline (scratchpad/port/spots/photos/coach/point-defiance-*)"
   ],
   "dropped": [
    "Vashon 'Dockton shore 5.1 mi': wrong, nearest Vashon land is Tahlequah 1.7 mi",
@@ -851,6 +911,10 @@
    {
     "do": "NO Rainier (behind), NO Olympics, NO Seattle skyline (hidden behind Maury)",
     "confidence": "proven (geometry)"
+   },
+   {
+    "do": "Coach launches the kayak from the Dash Point (city) Park beach beside the pier: paint that stand, the pier ahead-right turning right (east) at its end",
+    "confidence": "proven (Coach 11/26, and the satellite picture he sent)"
    }
   ],
   "sources": [
@@ -860,7 +924,8 @@
    "https://parks.wa.gov/node/1991",
    "https://en.wikipedia.org/wiki/Dash_Point_State_Park",
    "https://wanderlog.com/place/details/12698980/dash-point-park--pier",
-   "https://www.openstreetmap.org/way/39995937"
+   "https://www.openstreetmap.org/way/39995937",
+   "Coach's own pictures, 11/26: Apple Maps satellite (top is north) and Look Around (older imagery)"
   ],
   "dropped": [
    "Facing 315: wrong; both stands face about north",
@@ -872,7 +937,8 @@
    "Seattle skyline: hidden behind Maury",
    "Browns Point (220) and Mount Rainier (136): behind",
    "Night lights or squid: nothing found",
-   "Depth figures and the kayak 35-40 ft band: left to the app's own content"
+   "Depth figures and the kayak 35-40 ft band: left to the app's own content",
+   "Note 11/26: Coach's Look Around picture shows a crowd on the pier; that imagery predates the 2021 closure. The pier is still closed, so it stays empty."
   ]
  },
  "westport": {
@@ -1279,7 +1345,8 @@
    "Metzler '2 mi west of 218th Ave SE'",
    "Keta Creek gravel bar, river width: no source",
    "Flaming Geyser and Puyallup: not app spots"
-  ]
+  ],
+  "note": "Coach fishes the Green in two places (11/26): green-auburn-narrows for salmon trips, green-flaming-geyser for wading and the spot page. This green-river card is the original Fenster/Auburn Narrows research; prefer the two cards above."
  },
  "tokul": {
   "name": "Tokul Creek mouth (Plum #1) and the Snoqualmie River below the Falls",
@@ -2144,5 +2211,897 @@
    "Tree species and cattails",
    "Lighting or night fishing"
   ]
+ },
+ "green-flaming-geyser": {
+  "name": "Flaming Geyser State Park (Green River)",
+  "kind": "river",
+  "checked": "2026-11-27 checker pass. Stand moved to the documented picnic-area put-in, far bank corrected (low floodplain, not cliffs), June sunset side corrected, entrance bridge added, steelhead season proven from the 2026-27 pamphlet, hatchery address and two misquotes removed.",
+  "stand": {
+   "what": "South (river-left) bank at the picnic area, just north of Picnic Shelter 3. This is the American Whitewater put-in, and the State Parks map puts a fishing symbol on the river beside the picnic shelters. The exact spot along the bank is approximate; only Coach can say where he stands. Alternatives on the same bank: the Cristy Creek mouth 190 m east (the old card stand, a river-centreline point), and the WTA 'left branch' launch spot 280 m east at the bend.",
+   "lat": 47.2736,
+   "lon": -122.0241,
+   "proof": "AW: 'The put-in is on river left in Flaming Geyser State Park' 'near picnic shelter 3 across from the bathrooms' https://www.americanwhitewater.org/content/River/view/river-detail/2124/main . OSM Shelter 3 (way 474020219) 47.27326,-122.02415; toilet building (way 474020224) 87 m south of it; nearest Green River centreline (way 821529183) 48 m from Shelter 3 at bearing 2. State Parks map (rev. 05-15-17) shows the fishing symbol in the river by picnic shelters 1-3 https://parks.wa.gov/sites/default/files/2023-08/flaming_geyser_state_park_brochure_05-17-17_final_web.pdf . Stand is 38 m toward the river from Shelter 3; the shoreline itself is not mapped in OSM, so the point is approximate."
+  },
+  "facingDeg": 0,
+  "facingWords": "North, straight across the river from the south (park) bank.",
+  "facingProof": "Recomputed from OSM centreline way 821529183: opposite Shelter 3 the river flows 269-272 deg (west, downstream). Standing on river left you face flow + 90 = 359-2 deg; bearing from Shelter 3 to the nearest centreline point is 2 deg. Allow +/-10 along this straight reach. Not valid at the bend 280 m east: at the WTA left-branch spot the same method gives 332-345 deg, and at the Cristy Creek mouth 352-357 deg.",
+  "facingConfidence": "likely (computed from OSM geometry; bank not walked; Coach pins the exact spot)",
+  "sunsetSide": "Facing 0: late November the sun sets at about 238-239 deg (Nov 27; 235 on Dec 21), behind your left shoulder. In late November the bare-earth valley wall to the SW stands 10-13 deg high, so the sun drops behind it about 14:30-15:00, well before the 16:21 sunset (trees make it earlier). June 21 sunset is about 307 deg, ahead-left, where the skyline is low (1-2 deg). Computed with the NOAA solar formulas plus USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m.",
+  "skyline": [
+   {
+    "what": "Low flat floodplain directly across: ground within 1-4 m of the bank height for 200-300 m north, mapped as woods in OSM",
+    "side": "ahead",
+    "confidence": "proven for the flat ground (DEM); likely for woods (OSM natural=wood way 1276248343)",
+    "proof": "USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m (stand 63.5 m; 64-67 m at 20-200 m north, 70 m at 300 m); OpenStreetMap via Overpass (pulled 2026-11-27) is_in query"
+   },
+   {
+    "what": "North valley wall: rises from about 0.4 km to 1.5 km away to about 175-180 m (110-115 m above the river), a low wooded skyline about 4 deg high, likely partly hidden by floodplain trees",
+    "side": "ahead",
+    "confidence": "proven for the terrain (DEM); trees on it unproven",
+    "proof": "USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m (bearing 0: 83 m at 400 m, 125 m at 900 m, 178 m at 1500 m; bearings 330 and 30 similar)"
+   },
+   {
+    "what": "Steep valley wall behind the picnic area: rises about 120 m within 400 m of the stand",
+    "side": "behind",
+    "confidence": "proven (DEM); wooded per a 2016 photo from Shelter 3 area whose view direction is not recorded",
+    "proof": "USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m (bearing 155: 75 m at 200 m, 127 m at 300 m, 184 m at 400 m); https://commons.wikimedia.org/wiki/File:Flaming_Geyser_State_Park_(2016)_-_001.jpg"
+   },
+   {
+    "what": "Mount Rainier is not visible: it lies at 157 deg (behind-right), 50.9 km away, summit about 4.7 deg up, behind a valley wall 14-16 deg high",
+    "side": "na",
+    "confidence": "proven not visible (computed)",
+    "proof": "USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m; Rainier summit 46.8529,-121.7604"
+   }
+  ],
+  "structure": [
+   {
+    "what": "Gravel and cobble edges, shallow riffles and clear runs over gravel exist on the Green inside the park (photos); exact spot relative to the stand not pinned",
+    "side": "ahead",
+    "confidence": "likely at the stand (in-park photos, no coordinates); one guide says 'a mix of riffles, runs, and pools' and 'gravel bars and submerged structure'",
+    "proof": "https://commons.wikimedia.org/wiki/File:Green_River_-_Flaming_Geyser.jpg (2016-06-05); https://commons.wikimedia.org/wiki/File:Green_River_112212.jpg (2022-10-04); https://commons.wikimedia.org/wiki/File:Flaming_Geyser_State_Park_(2016)_-_005.jpg (2016); https://washingtonfishinghub.com/the-green-river-near-auburn-washington-for-steelhead/"
+   },
+   {
+    "what": "Class II reach below the park: small surf waves, a couple of rapids; Airfield hole at 1.09 mi, Ladybug 1.76 mi, Double trouble 2.01 mi; take-out at Whitney Bridge 2.81 mi. No rapid is listed at the put-in",
+    "side": "na",
+    "confidence": "proven (below the park)",
+    "proof": "https://www.americanwhitewater.org/content/River/view/river-detail/2124/main"
+   },
+   {
+    "what": "Road bridge over the Green on the park road at the park's west edge (white pylons). 1.2 km from the stand at 297 deg, around the river bend, 63 deg left of facing: not drawn",
+    "side": "left",
+    "confidence": "proven that it exists; out of view is likely, not proven (trees not modelled)",
+    "proof": "OSM way 98568864 (bridge=yes, crosses the river at 47.2787,-122.0386); bridge symbol on the State Parks map https://parks.wa.gov/sites/default/files/2023-08/flaming_geyser_state_park_brochure_05-17-17_final_web.pdf; 'Bridge over the Green River at Flaming Geyser State Park' https://commons.wikimedia.org/wiki/File:Bridge_123030.jpg , https://commons.wikimedia.org/wiki/File:Bridge_121101.jpg; AW news 2018: 'the park entrance bridge' https://www.americanwhitewater.org/content/River/view/river-detail/2124/news"
+   },
+   {
+    "what": "No other bridge crosses the Green near the stand. The small road bridge by the geyser (OSM 515099917) is 102 m from the river and its creek is not identified; the footbridge at the Bubbling Geyser (OSM 515099928) crosses Cristy Creek",
+    "side": "na",
+    "confidence": "proven (OSM geometry; State Parks map shows one river bridge)",
+    "proof": "OpenStreetMap via Overpass (pulled 2026-11-27); https://parks.wa.gov/sites/default/files/2023-08/flaming_geyser_state_park_brochure_05-17-17_final_web.pdf; Cristy Creek photo at the footbridge https://commons.wikimedia.org/wiki/File:2024-07-14,_Cristy_Creek_(King_County,_Washington),_151643ed.jpg"
+   },
+   {
+    "what": "Cristy Creek enters the Green 190 m east (upstream) of the stand",
+    "side": "right",
+    "confidence": "proven (OSM stream way 515099927 ends at the river at 47.27381,-122.02163; WDFW 2015 rule names 'the mouth of Cristy Creek (at Flaming Geyser State Park)')",
+    "proof": "OpenStreetMap via Overpass (pulled 2026-11-27); https://lawfilesext.leg.wa.gov/law/WSR/2015/21/15-21-035.htm"
+   },
+   {
+    "what": "Picnic shelters, lawn and tables directly behind the bank; steelhead rearing ponds 225 m behind-right near the geyser",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "OSM Shelters 1-5, picnic tables, 'Salmon Ponds' viewpoint 47.2726,-122.0215; WTA: 'Walk past the steelhead rearing ponds' https://www.wta.org/go-hiking/hikes/flaming-geyser-state-park"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Western redcedar in the picnic area by the river path",
+    "side": "behind",
+    "confidence": "proven (photographer names the species)",
+    "proof": "https://commons.wikimedia.org/wiki/File:Western_Redcedar_112931.jpg 'Western Redcedar (Thuja plicata), Flaming Geyser State Park' (2022-10-04)"
+   },
+   {
+    "what": "Far bank trees: OSM maps the floodplain across as woods; in-park photos show tall deciduous trees, shrubs and conifers on low far banks. No source names the species for the bank at the stand",
+    "side": "ahead",
+    "confidence": "likely (OSM + photos, spot not pinned); species unproven",
+    "proof": "OpenStreetMap via Overpass (pulled 2026-11-27) way 1276248343; https://commons.wikimedia.org/wiki/File:Green_River_112212.jpg ; https://commons.wikimedia.org/wiki/File:Flaming_Geyser_State_Park_(2016)_-_005.jpg"
+   },
+   {
+    "what": "A steep, cliffy north bank and exposed sedimentary rock layers exist on the River Trail upstream, not at this stand",
+    "side": "na",
+    "confidence": "proven for the River Trail end, not drawn here",
+    "proof": "WTA: at the end of the River Trail 'There's a good view of the river here, and of the steep, cliffy north bank'; rock layers on the trail https://www.wta.org/go-hiking/hikes/flaming-geyser-state-park ; USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m: 50 m rise within 80 m NW of the OSM River Trail end (way 474020214, 1.3 km from the stand at 32 deg); in-park cutbank photo https://commons.wikimedia.org/wiki/File:Green_River_121310.jpg"
+   }
+  ],
+  "night": [
+   {
+    "what": "Day use only: park open 8:00 a.m. to dusk year round; 'Park closes periodically in winter'. King County notes limited parking 'due to the closure for infrastructure repairs' (undated). No lighting documented. Fishing night closure applies Nov 1 to Dec 31 in this section",
+    "side": "na",
+    "confidence": "proven (hours, winter note, night closure dates); lighting unproven",
+    "proof": "https://parks.wa.gov/504/Flaming-Geyser ; https://parks.wa.gov/sites/default/files/2023-08/flaming_geyser_state_park_brochure_05-17-17_final_web.pdf ; https://parks.wa.gov/158/Winter-Schedule ; https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/flaming-geyser ; https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k"
+   }
+  ],
+  "oneLine": "A day-use river park on the Green's south bank: fish from the picnic-area put-in across a low wooded floodplain, with a steep valley wall behind you. Hatchery steelhead and a few chum, Nov to Dec.",
+  "draw": [
+   {
+    "do": "River flowing right to left across the view (west), you face north",
+    "confidence": "likely (OSM)"
+   },
+   {
+    "do": "Gravel or cobble edge at your feet, a riffle or clear run over gravel in front",
+    "confidence": "likely (in-park photos, spot not pinned)"
+   },
+   {
+    "do": "Low, flat far bank with trees (deciduous and some conifers), no cliff",
+    "confidence": "proven flat (DEM); trees likely (OSM, photos)"
+   },
+   {
+    "do": "Low wooded ridge on the far skyline, about 4 deg high",
+    "confidence": "proven terrain (DEM)"
+   },
+   {
+    "do": "Behind: picnic lawn, shelters, a tall western redcedar, then a steep wooded valley wall",
+    "confidence": "proven (OSM, photo, DEM); wooded wall likely"
+   },
+   {
+    "do": "Daylight only (8 a.m. to dusk)",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO Rainier (behind you and blocked), NO cliff across the water, NO lights",
+    "confidence": "proven (computed, DEM, no source)"
+   },
+   {
+    "do": "NO bridge in view: the only river bridge is 1.2 km away at 297 deg, around the bend",
+    "confidence": "likely"
+   },
+   {
+    "do": "Firs, alders, cottonwoods by name",
+    "confidence": "unproven, leave a generic mix"
+   }
+  ],
+  "fish": {
+   "pamphlet": "2026-2027 Washington Sport Fishing Rules (eRegulations online version; errata updated Sept 29, 2026 has no Green River item) https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k ; https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+   "salmonSeason": "Nov 1 to Dec 31. Section: 'from 150' upstream of Keta (Crisp) Creek to the Tacoma Municipal boundary marker (1.3 miles downstream of Tacoma Headworks Dam)'. 'Min. size 12\". Daily limit 6 including no more than 3 of any combination adult coho and chum. Release Chinook.' All species Nov 1 to Dec 31: night closure, anti-snagging rule. Flaming Geyser is inside this section: the Crisp Creek mouth (OSM) is 5.4 km downstream (west) of the stand, and WDFW's 2015 rule places the park below the Tacoma Headworks. CONFIRMS the memory note.",
+   "closedWaters": "Not at Flaming Geyser. Closed: Hwy 18 Eastbound bridge to the Auburn-Black Diamond Rd Bridge; 150 ft either side of the Keta (Crisp) Creek mouth; above the Tacoma Municipal boundary marker to Friday Creek.",
+   "emergencyRules": "As of the WDFW emergency-rule feed (latest item Nov 25, 2026): 'Upper Green (Duwamish) River fishing closure rescinded', effective Nov 6, 2026 until further notice, returns Auburn Black Diamond Rd Bridge to the Tacoma marker to the pamphlet rules. The Aug 2026 Chinook retention closure covers Tukwila to S 212th St only. No other Green River rule listed. Old: a 2015 emergency rule (effective Oct 16, 2015) closed 'from the mouth of Cristy Creek (at Flaming Geyser State Park)' upstream to protect Chinook redds. Re-check before every trip. https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-fishing-closure-rescinded-2026-11 ; https://wdfw.wa.gov/fishing/regulations/emergency-rules/green-duwamish-river-chinook-retention-closed-2026-08 ; https://wdfw.wa.gov/fishing/regulations/emergency-rules/rss ; https://lawfilesext.leg.wa.gov/law/WSR/2015/21/15-21-035.htm",
+   "troutAndGamefish": "Trout and other game fish: Sat before Memorial Day to Dec 31. Statewide river rule (min 8 in, 2 per day) except cutthroat and wild rainbow min 14 in. Listed in this section's own lines. https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k ; https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules",
+   "steelhead": "PROVEN from the pamphlet: statewide steelhead rule 'Release all wild steelhead. Min. size 20\". Daily limit 2. Open during salmon or game fish seasons unless as otherwise listed.' Steelhead are game fish, and 'Areas listed within Special Rules, show all game fish and salmon fishing opportunities'. So here hatchery steelhead may be kept Sat before Memorial Day to Dec 31, and nothing is open Jan 1 to the Sat before Memorial Day. Legal winter steelhead at Flaming Geyser = December only in 2026-27. https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules ; https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations ; https://www.eregulations.com/washington/fishing/definitions",
+   "memoryNoteVerdict": "PARTLY CONFIRMED. Confirmed: Flaming Geyser sits above the hatchery; Keta Creek Hatchery is on Crisp Creek (King County 2003; Muckleshoot Messenger 2025), and the Crisp Creek mouth is 5.4 km downstream. Corrected: 'only strays' is not in the pamphlet. King County (2003): most chum return to the hatchery, but 'some spawn naturally in the side channels of the Green River mainstem near Flaming Geyser Park', in November and December. A guide: 'a few make it up the Green River to Flaming Geyser State Park or the Green River Gorge'. A chum was photographed in the river at the park on Oct 4, 2022. So chum here are few, not none. Chinook pass the park ('Chinook salmon eventually make their way upstream past Flaming Geyser') but are release-only. https://www.govlink.org/watersheds/9/pdf/AncientsofGreen_back.pdf ; https://www.muckleshoot.nsn.us/messenger/keta-creeks-chum-salmon-program ; https://www.bestfishinginamerica.com/washington-green-river-duwamish-fishing.html ; https://commons.wikimedia.org/wiki/File:Chum_salmon_(Oncorhynchus_keta)_121523.jpg",
+   "bySeason": [
+    {
+     "season": "Nov 1 to Dec 31",
+     "fish": "Chum (few; natural spawning near the park documented) and coho (no source places coho at the park itself); 6 per day, no more than 3 adult coho and chum combined; release Chinook",
+     "confidence": "chum likely; coho unproven at the park; rules proven",
+     "proof": "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k ; https://www.govlink.org/watersheds/9/pdf/AncientsofGreen_back.pdf ; https://www.bestfishinginamerica.com/washington-green-river-duwamish-fishing.html ; https://commons.wikimedia.org/wiki/File:Chum_salmon_(Oncorhynchus_keta)_121523.jpg ; State Parks: 'places to view the fall salmon runs' https://parks.wa.gov/504/Flaming-Geyser"
+    },
+    {
+     "season": "December",
+     "fish": "Hatchery winter steelhead (min 20 in, 2 per day, release wild). Guides: run starts late Nov, best late Dec to Jan",
+     "confidence": "legal dates proven; presence likely",
+     "proof": "https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules ; https://washingtonfishinghub.com/the-green-river-near-auburn-washington-for-steelhead/ ; https://www.bestfishinginamerica.com/washington-green-river-duwamish-fishing.html ; Wikipedia: 'The Green River is a popular steelheading location in the winter' https://en.wikipedia.org/wiki/Flaming_Geyser_State_Park"
+    },
+    {
+     "season": "Jan 1 to the Sat before Memorial Day",
+     "fish": "Closed. Nothing is listed open in this section",
+     "confidence": "proven (2026-27 pamphlet; check emergency rules)",
+     "proof": "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k ; https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations"
+    },
+    {
+     "season": "Sat before Memorial Day to Dec 31",
+     "fish": "Trout and game fish; hatchery summer steelhead legal. Guides say the Green has a small or modest summer run; none places summer fish at the park",
+     "confidence": "rules proven; summer steelhead at the park unproven; trout numbers here unproven",
+     "proof": "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k ; https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules ; https://www.bestfishinginamerica.com/washington-green-river-duwamish-fishing.html ; https://washingtonfishinghub.com/the-green-river-near-auburn-washington-for-steelhead/ ; https://www.govlink.org/watersheds/9/pdf/AncientsofGreen_back.pdf"
+    }
+   ]
+  },
+  "sources": [
+   "https://parks.wa.gov/504/Flaming-Geyser",
+   "https://parks.wa.gov/sites/default/files/2023-08/flaming_geyser_state_park_brochure_05-17-17_final_web.pdf",
+   "https://parks.wa.gov/158/Winter-Schedule",
+   "https://www.wta.org/go-hiking/hikes/flaming-geyser-state-park",
+   "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/flaming-geyser",
+   "https://www.americanwhitewater.org/content/River/view/river-detail/2124/main",
+   "https://www.americanwhitewater.org/content/River/view/river-detail/2124/news",
+   "https://en.wikipedia.org/wiki/Flaming_Geyser_State_Park",
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k",
+   "https://www.eregulations.com/washington/fishing/statewide-freshwater-species-rules",
+   "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+   "https://www.eregulations.com/washington/fishing/definitions",
+   "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-fishing-closure-rescinded-2026-11",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/green-duwamish-river-chinook-retention-closed-2026-08",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/rss",
+   "https://lawfilesext.leg.wa.gov/law/WSR/2015/21/15-21-035.htm",
+   "https://wdfw.wa.gov/fishing/management/hatcheries/facilities?county=All",
+   "https://www.govlink.org/watersheds/9/pdf/AncientsofGreen_back.pdf",
+   "https://www.muckleshoot.nsn.us/messenger/keta-creeks-chum-salmon-program",
+   "https://www.bestfishinginamerica.com/washington-green-river-duwamish-fishing.html",
+   "https://washingtonfishinghub.com/the-green-river-near-auburn-washington-for-steelhead/",
+   "https://commons.wikimedia.org/wiki/File:Green_River_-_Flaming_Geyser.jpg",
+   "https://commons.wikimedia.org/wiki/File:Green_River_112212.jpg",
+   "https://commons.wikimedia.org/wiki/File:Flaming_Geyser_State_Park_(2016)_-_005.jpg",
+   "https://commons.wikimedia.org/wiki/File:Flaming_Geyser_State_Park_(2016)_-_001.jpg",
+   "https://commons.wikimedia.org/wiki/File:Green_River_121310.jpg",
+   "https://commons.wikimedia.org/wiki/File:Chum_salmon_(Oncorhynchus_keta)_121523.jpg",
+   "https://commons.wikimedia.org/wiki/File:Bridge_123030.jpg",
+   "https://commons.wikimedia.org/wiki/File:Bridge_121101.jpg",
+   "https://commons.wikimedia.org/wiki/File:Western_Redcedar_112931.jpg",
+   "USGS NED 10 m elevation via https://api.opentopodata.org/v1/ned10m",
+   "OpenStreetMap via Overpass: Green River way 821529183, park relation 5944392, Shelter 3 way 474020219, toilets way 474020224, River Trail way 474020214, left-branch path way 515099923, river bridge way 98568864, Cristy Creek way 515099927, Crisp Creek way 462169490, wood way 1276248343"
+  ],
+  "dropped": [
+   "Old stand 47.2738,-122.0214: a river-centreline point at the Cristy Creek mouth, not a bank or a documented fishing spot; replaced by the picnic-area put-in 205 m west",
+   "'Steep, cliffy north bank' across from the stand: WTA places it at the end of the River Trail upstream; DEM shows flat floodplain across from the picnic area",
+   "King County 'mature floodplain forest north side, steep bluffs south side' as this view: it describes King County's 76-acre natural area west of the state park",
+   "AW gravel bar 'in the bend near the put-in': the quote is from a 2018 'Lower Green Gorge' report at 'horseshoe bend' with no distance from the put-in",
+   "Cottonwoods on the far bank: only a 2012 report of one fallen cottonwood 500 ft below the 'Yo-Yo put-in'; no species named for the stand",
+   "Rock layers and nettle 'behind' the stand: WTA puts them on the River Trail, not at the picnic-area bank",
+   "'No bridge over the Green in the park, proven': wrong, a road bridge crosses at the park's west edge (kept as structure, not drawn)",
+   "Sunset 'behind-left all year': June sunset (307 deg) is ahead-left when facing 0",
+   "Keta hatchery at 13030 SE Auburn-Black Diamond Rd: WDFW lists that address for Soos Creek and Icy Creek Pond; King County's page names no hatchery",
+   "Wikipedia 'a popular winter steelhead spot' (the park): misquote; it says 'The Green River is a popular steelheading location in the winter'",
+   "'a few chum make it as far as the park' as a quote: paraphrase; replaced with the guide's exact words",
+   "Trout 'probably thin here': unsupported; the same guide calls Flaming Geyser 'the first in a series of state parks along the middle Green River' and says the best trout is in the Middle Green",
+   "Winter steelhead Dec to Mar as a fishable season here: the 2026-27 pamphlet has nothing open Jan 1 to the Sat before Memorial Day",
+   "Steelhead dates 'unproven': resolved from the statewide steelhead rule (see fish.steelhead)",
+   "Mount Rainier: not visible (behind you at 157 deg and blocked by a 14-16 deg valley wall)",
+   "Firs and alders by name: no source",
+   "River width number: no source, and OSM has no riverbank area here",
+   "Which gravel bar Coach fishes: only Coach can pin it",
+   "Summer steelhead at the park: guides speak of the whole Green only",
+   "wafishforecast.com: covers the lower river only, nothing on Flaming Geyser",
+   "parks.wa.gov/516: 404"
+  ],
+  "appId": "green-river",
+  "isAppId": false
+ },
+ "green-auburn-narrows": {
+  "name": "Green River, Auburn Narrows (Fenster to SR 18)",
+  "kind": "river",
+  "stand": {
+   "what": "South (left) bank of the Green River in the Auburn Narrows Natural Area (King County). Primary: the mapped water edge nearest the 47.30338,-122.18838 map pin, set 5 m inland, about 176 m NNW of the pin. The pin itself is about 181 m from the mapped water edge and about 12 m outside the nearest mapped Narrows parcel. Second: Fenster Nature Park, west bank, about 4 m from the mapped water edge. Bank points come from OSM geometry, not a survey.",
+   "lat": 47.30479,
+   "lon": -122.18946,
+   "second": {
+    "name": "Fenster Nature Park",
+    "lat": 47.3056,
+    "lon": -122.2002,
+    "facingDeg": 99
+   },
+   "proof": "OSM river area way 25836238 and centerline ways 25798562, 25797405-25797408 (OpenStreetMap via Overpass, queried 2026-11-27). The previous stand 47.30493,-122.18948 sat inside the mapped water area (8 m from the centerline), so it was moved to the bank. The new point is inside OSM relation 9786013 (Auburn Narrows Natural Area), 5 m from the water edge. King County: Green River Community College and the Washington DNR own the right (north) bank in this reach, so the Narrows land is the left (south) bank; OSM agrees (286 of 315 Narrows parcel vertices lie on the left bank). The Fenster stand is inside OSM way 25738702 (Fenster Nature Park), 4 m from the water edge. https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+  },
+  "legal": {
+   "status": "OPEN for salmon Sept 16 through Dec 31, 2026. Checked 2026-11-27, which is inside the window. Both stands are in the 'South 212th Street Bridge to Highway 18 Eastbound Bridge' reach: downstream of the SR 18 EB bridge and upstream of the S 212th St Bridge in Kent.",
+   "rule": "WAC 220-312-040 (114)(c), as amended by WSR 26-13-052 (Order 26-01, filed June 11, effective July 12, 2026). The current WAC page lists this as the latest amendment. Game fish: open the Saturday before Memorial Day through Dec 31; statewide minimum length and daily limit, except cutthroat trout and wild rainbow trout 14 in minimum. Salmon: open Sept 16 through Dec 31; anti-snagging rules; night closure; daily limit 6, of which up to 3 may be any combination of adult coho and adult chum; release Chinook. The 2026-2027 pamphlet (eRegulations, Puget Sound & Coastal Rivers D-K) shows the same reach: CRC code 746, anti-snagging rule and night closure for all species Sept 16 to Dec 31, salmon minimum size 12 in. Immediately upstream, (114)(d) 'Highway 18 Eastbound Bridge to the Auburn-Black Diamond Road Bridge' is CLOSED WATERS.",
+   "emergencyRules": "None in force changes this reach. Checked 2026-11-27 with the WDFW emergency-rule search filtered to Green (Duwamish) River (all dates), the list of freshwater rules in effect Nov 26-27, 2026, and the pamphlet errata. The 2026 Green notices are: (1) Aug 17: Chinook retention closed from Aug 20, Tukwila Intl Blvd to S 212th St Bridge only (in force, not this reach). (2) Aug 17: upper Green closed Sept 16 to Oct 31, Auburn-Black Diamond Rd Bridge to the Tacoma boundary (expired, not this reach). (3) Nov 6: the same upper reach closed from Nov 7 for a low chum return. (4) Nov 6: that closure rescinded for the same upper reach, back to permanent rules. Errata (WDFW Sept 28; eRegulations PDF updated Sept 29) cover only Smith Creek and Mineral Lake. Rules change in season, so recheck the WDFW page before each trip.",
+   "closureLineDistances": "The SR 18 EB bridge is OSM way 23749684 (SR 18, one-way, heading 40, so eastbound). It crosses the OSM river centerline at 47.30295,-122.17686, within 5 m of the previous 47.30297,-122.17692. The westbound span (way 23749686, heading 220) crosses 20 m downstream at 47.30305,-122.17708, so the closure line is the upstream (east) one of the two SR 18 spans. Narrows stand: 0.97 km straight-line from the line (bearing 102), about 1.17 km downstream by the OSM centerline. Map pin: 0.87 km straight-line. Fenster stand: 1.79 km straight-line (was 1.71), about 2.27 km by river. The S 212th St Bridge (OSM way 26219950) crosses at 47.41237,-122.26476 in Kent, far downstream of both stands.",
+   "trap": "The closed reach (d) is short. The Auburn-Black Diamond Rd Bridge (OSM way 6412042, the only A-BD Rd bridge over the Green in OSM) crosses about 170 m upstream of the SR 18 EB bridge, at 47.30187,-122.17526. Big Soos Creek enters inside that closed stretch, about 70 m above the EB bridge (OSM mouth 47.30254,-122.17613). The east tip of the mapped Narrows parcel runs about 70 m past the SR 18 EB bridge on the south bank, and that strip fronts closed water. From the Narrows, fish only downstream (west) of both SR 18 spans. CORRECTION to the old card: the WDFW access just above the A-BD Rd bridge (WDFW 'Soos Creek Drift', 47.30110,-122.17510; OSM 'Green River Water Access', way 1449723374) sits about 60 m upstream of that bridge. It fronts reach (114)(e), which is open for salmon Nov 1 to Dec 31 under the permanent rule, because the Nov 7 closure was rescinded. So it is not closed water today. It is a different reach with its own rules, on WDFW land where a pass applies, and it is not part of this card. Walking downstream from it under the A-BD Rd bridge takes you into closed water. The Hatchery Natural Area's river frontage (north bank) lies mostly inside the closed stretch. Positions come from OSM geometry, not a survey.",
+   "proof": [
+    "https://app.leg.wa.gov/wac/default.aspx?cite=220-312-040",
+    "https://lawfilesext.leg.wa.gov/law/wsr/2026/13/26-13-052.htm",
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k",
+    "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+    "https://app.leg.wa.gov/wac/default.aspx?cite=220-300-160",
+    "https://app.leg.wa.gov/wac/default.aspx?cite=220-300-010",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26907",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/green-duwamish-river-chinook-retention-closed-2026-08",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-closed-fishing-sept-16-oct-31-2026-08",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-closed-fishing-2026-11",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-fishing-closure-rescinded-2026-11",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/errata-pamphlet-corrections-2026-09",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?eff_from=2026-11-26&eff_to=2026-11-27&type=26746",
+    "https://wdfw.wa.gov/places-to-go/water-access-sites/soos-creek-drift-387",
+    "OpenStreetMap via Overpass, queried 2026-11-27 (ways 23749684, 23749686, 6412042, 1240078372, 1449723374, 1488751204, 26219950; relation 9786013)"
+   ],
+   "definitions": "Anti-snagging rule (WAC 220-300-160(2)): except when fishing a buoyant lure with no added weight, or trolling from a vessel or floating device, terminal gear is one lure or bait with one single-point hook. Only single-point hooks no more than 3/4 in from point to shank, all attached to or below the lure or bait. No weight below the lure or bait, or less than 12 in above it. Night closure (WAC 220-300-160(22)): closed to fishing from one hour after official sunset to one hour before official sunrise. Adult salmon (WAC 220-300-010): Chinook over 24 in, coho over 20 in, chum over 12 in."
+  },
+  "access": {
+   "route": "King County: the western edge of the natural area may be accessed through the City of Auburn's Fenster Park at the end of 4th Avenue Southeast (vicinity of the 2000 block of 4th Ave SE). City of Auburn: Fenster Nature Park, 4th St SE, 12.5 acres, entrances on 2nd St SE and 4th St SE. It has direct river access, dawn to dusk hours, and a short 1/3 mi gravel trail set slightly back from the river. Dogs, walks, nature viewing and fishing are named uses. The two pages differ on the street type (4th Avenue SE vs 4th St SE). A sandy beach upstream of Fenster is on King County land and is reached by crossing the park.",
+   "parking": "UNPROVEN. Neither the King County nor the Auburn page names a lot, capacity or fee. OSM maps no lot at Fenster or the Narrows. The nearest mapped lot to the pin (way 660023008, 47.3006,-122.1849) is tagged access=private.",
+   "passes": "Likely no Discover Pass. WDFW says the Discover Pass is required on State Parks, DNR and WDFW lands; Fenster is a City of Auburn park and the Narrows is a King County natural area. No page states a fee or pass for either site, so fee status is unproven.",
+   "license": "A valid paper or electronic catch record card is required to fish for or possess salmon (WAC 220-310-020(2); pamphlet CRC code 746 for this reach). Record each salmon kept immediately, including whether the adipose fin was clipped (WAC 220-310-020(5)). WDFW notices also require a current Washington fishing license appropriate to the fishery.",
+   "proof": [
+    "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park",
+    "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/auburn-narrows",
+    "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection",
+    "https://wdfw.wa.gov/licenses/parking",
+    "https://app.leg.wa.gov/wac/default.aspx?cite=220-310-020",
+    "OpenStreetMap via Overpass, queried 2026-11-27 (ways 660023008, 1427238138; relation 9786013)"
+   ],
+   "routeToStand": "UNPROVEN. The Narrows stand is about 1.1 km upstream of Fenster by river, in the eastern Narrows parcel. OSM shows about 130 m of river frontage between the western and eastern parcels that no mapped Narrows parcel touches, so a continuous public bank route from Fenster is unproven. OSM maps a dirt loop path (way 1427238138, no access tag) inside the eastern parcel, about 20 m from the map pin and about 80 m from the stand. No mapped link to a public entrance was found.",
+   "boating": "King County: the river is closed to boating in this reach because of a large log jam downstream at RM 32.5."
+  },
+  "facingDeg": 331,
+  "facingWords": "North-northwest (331), straight across the river from the south bank at the Narrows. The river flows from your right to your left. At Fenster (second stand), face east (99) across the river from the west bank. The river again flows right to left, northward.",
+  "facingProof": "Narrows: perpendicular to the OSM water edge at the stand (bank segment 242/62, so straight across is 332) and to the OSM centerline flow there (240, so straight across is 330). The old 334 was the bearing from the inland pin to the centerline, not the across-river line at the bank. Fenster: centerline flow 9, so straight across is 99; the bearing from the Fenster bank point to the centerline is also 99. Geometry only, no photo.",
+  "facingConfidence": "likely (OSM geometry, not a photo or survey)",
+  "sunsetSide": "Narrows facing 331: the late-Nov sunset (about 238) is 93 deg to your left, just behind square-left. The June sunset (about 306) is about 25 deg ahead-left. Fenster facing 99: the sun sets behind you all year (late Nov behind-right, June behind-left).",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "A straightened section with little instream large wood, plus mainstem and side-channel habitat. For over 100 years, bridge crossings for Auburn-Lake Holm Road (with the rail line) have held the floodplain to about a third of its historic width and kept the channel along the north valley wall",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+   },
+   {
+    "what": "A large log jam downstream at RM 32.5 (King County). Its position relative to the stands is not mapped here",
+    "side": "na",
+    "confidence": "proven (exists); unproven (position)",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+   },
+   {
+    "what": "A buried rock revetment beneath the site access road that forms the western edge of the largest wetland. Removal is planned with a Summer 2028 construction target, so it is still there now. Where it meets the river is not mapped",
+    "side": "na",
+    "confidence": "proven (exists); unproven (position)",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+   },
+   {
+    "what": "Fenster: City of Auburn and King County removed about 700 linear ft of the old Fenster Levee and set it back (2006-2009). The work removed the rock armor, buried and anchored 60+ logs with rootwads along the toe of the bank, created 5 instream pools, and reconnected an old side channel. Pautzke Slough off-channel habitat is just upstream",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://srp.rco.wa.gov/project/250/15803 ; https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park"
+   },
+   {
+    "what": "Far bank: King County says Green River Community College and the Washington DNR own the right (north) bank in this reach, with an access trail from the college to that bank. OSM puts the campus polygon about 0.78 km NE of the stand and the 'Oxbow at Green River College' stream about 190 m NNE (bearing 35)",
+    "side": "ahead",
+    "confidence": "proven (ownership, mapped positions)",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection ; OSM ways 25795860, 1413153291"
+   },
+   {
+    "what": "OSM maps a cluster of buildings about 445-465 m NNW, across the river (bearing 310-350, inside your forward view), outside the mapped college campus. What they are, and whether they show through the trees, is NOT proven",
+    "side": "ahead",
+    "confidence": "unproven (visibility)",
+    "proof": "OpenStreetMap via Overpass, queried 2026-11-27 (building ways 655286535-655286545)"
+   },
+   {
+    "what": "The SR 18 mainline is about 0.6 km SSW of the stand (bearing 201, behind-left). The two SR 18 river spans are about 0.97 km ESE (bearing 102, behind-right). King County says the Hwy 18 bridge affects the channel about 1,500 ft upstream and downstream. Whether the road or bridges are visible from the bank is NOT proven",
+    "side": "behind",
+    "confidence": "unproven (visibility)",
+    "proof": "OSM ways 23749684, 23749686, 23749943; https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+   },
+   {
+    "what": "The BNSF Stampede Subdivision rail line runs about 340 m south of the stand (bearing 191). Houses along SE Auburn-Black Diamond Rd are about 390-420 m south. Both are behind you, and their visibility is unproven",
+    "side": "behind",
+    "confidence": "proven (mapped); unproven (visibility)",
+    "proof": "OpenStreetMap via Overpass, queried 2026-11-27 (way 318033045, building ways 655427591 etc.)"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Fenster: recently restored and replanted, with a setback revetment so the river can carve a more naturally sloping bank over time",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park"
+   },
+   {
+    "what": "Narrows: about 100 acres (107 listed) of open meadows, wetlands and side channels beside the river, plus stands of mature cottonwood floodplain forest. 65 acres have been replanted with native species. The riverbanks are popular with anglers in the fall",
+    "side": "na",
+    "confidence": "proven (site-level)",
+    "proof": "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/auburn-narrows ; https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection"
+   },
+   {
+    "what": "Bank form at the Narrows stand itself (slope, rock, mud, brush) is not described by any page or photo",
+    "side": "na",
+    "confidence": "unproven",
+    "proof": "none"
+   },
+   {
+    "what": "A sandy beach upstream of Fenster, on King County land, popular with swimmers and tubers",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park"
+   },
+   {
+    "what": "Gravel bars at the Narrows. The OSM water area at the stand is about 74 m edge to edge, while the centerline runs about 20 m off the south edge. That may mean a bar or shallow margin on the far side, but no page or photo shows one",
+    "side": "na",
+    "confidence": "unproven",
+    "proof": "none (OSM area way 25836238 only)"
+   }
+  ],
+  "width": {
+   "what": "Sources disagree, so no width is proven for drawing. RCO reports 15 yd as 'average stream-width at mid-point of worksite' for the Fenster levee project. The OSM-mapped water area measures about 44 m across at the Fenster stand and about 74 m at the Narrows stand. No official Narrows width was found.",
+   "confidence": "unproven (the RCO figure is a reported metric for the Fenster worksite; OSM areas are volunteer-mapped)",
+   "proof": "https://srp.rco.wa.gov/project/250/15803 ; OSM way 25836238"
+  },
+  "night": [
+   {
+    "what": "Fenster closes at dusk. The salmon night closure in this reach runs from one hour after official sunset to one hour before official sunrise. No hours were found for the Narrows",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park ; https://app.leg.wa.gov/wac/default.aspx?cite=220-300-160 ; https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k"
+   }
+  ],
+  "oneLine": "The last open bank below the SR 18 closure: Auburn Narrows cottonwood floodplain on a straightened reach of the Green, open for coho and chum through Dec 31.",
+  "draw": [
+   {
+    "do": "River flowing right to left across the view at both stands (WSW at the Narrows, north at Fenster). Width is not proven, so don't draw a measured width",
+    "confidence": "likely (direction from OSM geometry)"
+   },
+   {
+    "do": "Fenster only: a replanted bank with a setback revetment, and a sandy beach upstream. At the Narrows, the bank form is unproven, so keep it plain",
+    "confidence": "proven (Fenster); unproven (Narrows bank)"
+   },
+   {
+    "do": "Cottonwood floodplain forest and meadow edge on the Narrows side",
+    "confidence": "likely (true of the site per King County; no photo of this exact view)"
+   },
+   {
+    "do": "Far bank is college and DNR land. Keep it low and wooded. OSM maps buildings 445-465 m NNW, but whether they show through the trees is unproven, so don't feature them",
+    "confidence": "likely"
+   },
+   {
+    "do": "Daylight scene (Fenster closes at dusk; the night closure starts one hour after sunset)",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO Rainier: it bears 147 from the Narrows, directly behind a 331 facing, and no page or photo shows it from either stand",
+    "confidence": "proven (geometry)"
+   },
+   {
+    "do": "NO boats: King County says the river is closed to boating in this reach",
+    "confidence": "proven"
+   },
+   {
+    "do": "NO gravel bar, NO bridge, NO highway unless a photo is found. All are unproven from the bank",
+    "confidence": "unproven"
+   }
+  ],
+  "sources": [
+   "https://app.leg.wa.gov/wac/default.aspx?cite=220-312-040",
+   "https://lawfilesext.leg.wa.gov/law/wsr/2026/13/26-13-052.htm",
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k",
+   "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+   "https://app.leg.wa.gov/wac/default.aspx?cite=220-300-160",
+   "https://app.leg.wa.gov/wac/default.aspx?cite=220-300-010",
+   "https://app.leg.wa.gov/wac/default.aspx?cite=220-310-020",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26907",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/green-duwamish-river-chinook-retention-closed-2026-08",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-closed-fishing-sept-16-oct-31-2026-08",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-closed-fishing-2026-11",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/upper-green-duwamish-river-fishing-closure-rescinded-2026-11",
+   "https://wdfw.wa.gov/fishing/regulations/emergency-rules/errata-pamphlet-corrections-2026-09",
+   "https://wdfw.wa.gov/places-to-go/water-access-sites/soos-creek-drift-387",
+   "https://wdfw.wa.gov/licenses/parking",
+   "https://www.auburnwa.gov/city_hall/parks_arts_recreation/parks_trails/fenster_nature_park",
+   "https://kingcounty.gov/en/dept/dnrp/nature-recreation/parks-recreation/king-county-parks/natural-working-lands/auburn-narrows",
+   "https://kingcounty.gov/en/dept/dnrp/nature-recreation/environment-ecology-conservation/projects/auburn-narrows-floodplain-reconnection",
+   "https://srp.rco.wa.gov/project/250/15803",
+   "OpenStreetMap via Overpass, queried 2026-11-27 (river ways 25798562, 25797405-25797408; river area 25836238; SR 18 bridges 23749684/23749686; A-BD Rd bridge 6412042; Big Soos Creek 1240078372; S 212th St bridge 26219950; Narrows relation 9786013; Fenster way 25738702; parking 660023008; path 1427238138)"
+  ],
+  "changedFromGreenRiverCard": [
+   "Stand now leads with the Auburn Narrows Natural Area bank (facing 331 after check), Fenster kept as second stand (facing 99, was 90)",
+   "River flow direction corrected: right to left, not left to right (north-flowing river seen facing east flows to your left)",
+   "Removed 'NO buildings, NO bridge' as proven: GRCC is across the river and SR 18 is 0.5 km south; visibility unproven, so not drawn as certain",
+   "Added legal block quoted from WSR 26-13-052 (Order 26-01) and emergency-rule check",
+   "Added Fenster width 15 yards and levee history; gravel bars and parking/passes marked unproven",
+   "Rainier: from the Narrows it bears 147, behind a 331 facing, so never in view"
+  ],
+  "checkerChanges": [
+   "Stand moved from 47.30493,-122.18948 (inside the OSM water area) to 47.30479,-122.18946: on the south bank, 5 m from the water edge, inside the mapped Narrows parcel",
+   "Facing 334 changed to 331, straight across at the bank (the old figure was a bearing from the inland pin)",
+   "Trap corrected: closed reach (d) is only about 170 m, SR 18 EB bridge to the A-BD Rd bridge. The WDFW access above the A-BD Rd bridge fronts open reach (e), not closed water. The Narrows parcel's east tip runs about 70 m into the closed stretch",
+   "Emergency rules: also checked the Aug 17 and Nov 6 upper Green closures (missed before) and the in-force freshwater list. Neither upper Green closure touches this reach",
+   "Legal now also cites the current WAC page and the 2026-27 pamphlet (CRC 746, salmon minimum 12 in)",
+   "Anti-snagging, night closure and catch record card rules are now proven from the WAC. The anti-snagging definition gained the buoyant-lure/trolling exception and the hooks-at-or-below-lure clause",
+   "Fenster straight-line distance to the closure line corrected from 1.71 km to 1.79 km",
+   "Width downgraded to unproven: RCO says 15 yd, OSM maps 44 m at Fenster and 74 m at the Narrows",
+   "Narrows bank form marked unproven (the sloping bank fact is Fenster's, and even there it is 'over time'). Fenster fishing is no longer called 'popular' (the Auburn page only lists it as a use)",
+   "Far-bank college: side changed from right to ahead. The campus polygon is 0.78 km away, not 300 m; the 300 m figure was the Oxbow stream. Added OSM buildings 445-465 m NNW with visibility unproven",
+   "Added from King County: no boating in this reach (log jam at RM 32.5), the log jam, and the revetment's 'site access road' wording",
+   "Passes: no Discover Pass is likely, since the pass covers State Parks, DNR and WDFW land and neither site is one; fee status still unproven. Route from Fenster to the Narrows stand is marked unproven"
+  ],
+  "appId": "green-river",
+  "isAppId": false
+ },
+ "puyallup-sumner": {
+  "name": "Puyallup River (Sumner, Two-Rivers Point at the White River mouth)",
+  "kind": "river",
+  "stand": {
+   "what": "City of Sumner 'Two-Rivers Point' (Sumner Link Trail stop 7), the strip of land BETWEEN the Puyallup (south side) and the White (north side), just upstream of where they join (junction 47.1998,-122.2594, about 190 m west of the strip). Fish the Puyallup side (face south-southwest) or the joined river below the tip. The water on the north side of the strip is the White River: closed to salmon. Bank point not mapped to the metre.",
+   "lat": 47.1996,
+   "lon": -122.2565,
+   "proof": "City of Sumner Sumner Link Trail flyer (https://sumnerwa.gov/wp-content/uploads/2014/04/Trail-Map-Flyer.pdf): stop 7 'TWO-RIVERS POINT' with Fishing (in season), Picnic Area, BBQ and Parking icons, drawn between the White and the Puyallup at State St. OSM way 941156766 (centroid 47.19956,-122.25646, mapped 2021): 'city managed recreation area along a named path that contains picnic tables and fishing access'. OSM water areas: Puyallup River way 25801380 lies 38-92 m along bearing 210 from the strip; White River water way 25801925 lies 38-64 m along bearing 20. White River line 25802448 ends on the Puyallup line 25891150 at 47.19982,-122.25943."
+  },
+  "facingDeg": 210,
+  "facingWords": "South-southwest across the Puyallup from its north bank (the point). The White River is behind you.",
+  "facingProof": "OSM Puyallup River line (way 25891150) flows toward bearing 300 beside the strip; the strip is on its right (north) bank. Across from the right bank = 300 minus 90 = 210. Checked by ray-casting OSM water areas from the strip: Puyallup water from bearing 150 to 270, White water from bearing 285 round to 60.",
+  "facingConfidence": "likely (bank side proven from OSM water areas and the city map; Coach's actual stand not established)",
+  "sunsetSide": "Facing 210: the sun sets to your right. Computed sunset bearing at 47.15 N: about 288 on Aug 22 (78 degrees right), 269 on Sep 26 (59 right), 257 on Oct 17 (47 right), 250 on Oct 31 (40 right). Late-season low sun is ahead-right.",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Puyallup and White join about 190 m downstream, at the west tip of the point; the White enters from the north",
+    "side": "right",
+    "confidence": "proven",
+    "proof": "OSM White River way 25802448 end node on Puyallup way 25891150 at 47.19982,-122.25943 (bearing 280 from the strip); https://northwestfishingreports.com/Reports/Details/57439 (2018): 'the Puyallup and White converge about 200 yards west of the 410 bridge'"
+   },
+   {
+    "what": "White River channel right behind you, about 20 to 60 m back: closed to salmon",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "OSM water way 25801925; https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+   },
+   {
+    "what": "Sumner Wastewater Treatment Plant right next to the strip, behind-left",
+    "side": "behind-left",
+    "confidence": "proven",
+    "proof": "OSM way 541488411 'Sumner Wastewater Treatment Plant', about 27 m from the strip centroid at bearing 104; https://northwestfishingreports.com/Articles/Details/604 says the White 'dumps into the Puyallup River near the wastewater treatment plant'"
+   },
+   {
+    "what": "Bridges over the Puyallup about 530 to 570 m upstream: Sumner Link Trail bridge, East Main and Traffic Avenue road bridges, BNSF rail truss",
+    "side": "left",
+    "confidence": "proven",
+    "proof": "OSM ways 691257975, 12242264, 23657980, 23657924"
+   },
+   {
+    "what": "SR 410 and SR 167 freeway lanes about 230 to 280 m behind you",
+    "side": "behind",
+    "confidence": "proven",
+    "proof": "OSM SR 410 way 124272525 (233 m, bearing 37), SR 167 way 23658464 (283 m, bearing 341)"
+   },
+   {
+    "what": "Picnic tables and barbecue grills on the point",
+    "side": "na",
+    "confidence": "proven (2014 city flyer icons; 2016 city update) but not re-checked on the ground",
+    "proof": "https://sumnerwa.gov/wp-content/uploads/2014/04/Trail-Map-Flyer.pdf ; https://courierherald.com/?p=26373 (June 2, 2016: 'The City has tables and even barbecue grills at the confluence of the White & Puyallup Rivers')"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Mapped Puyallup water about 55 m wide here, White about 30 m; tracing date unknown and the wetted width changes with flow. Bank material not sourced.",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "OSM water ways 25801380 and 25801925, measured along bearings 210 and 20"
+   }
+  ],
+  "night": [
+   {
+    "what": "Night closure on the river (one hour after official sunset to one hour before official sunrise). Trailhead restrooms open daylight hours. City: 'All parking is at your own risk.' Park or trail closing hours not found.",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.eregulations.com/washington/fishing/definitions ; https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r ; https://sumnerwa.gov/trails/"
+   }
+  ],
+  "oneLine": "Sumner's Two-Rivers Point, casting south into the gray Puyallup with the White at your back and the junction off your right.",
+  "draw": [
+   {
+    "do": "Wide gray-green glacial Puyallup in front of you, flowing from your left to your right",
+    "confidence": "proven (OSM flow 300, facing 210); color from guides, likely"
+   },
+   {
+    "do": "The two rivers joining off to your right, about 190 m away",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "The smaller White River channel behind you, 20 to 60 m back",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "Wastewater plant fence and buildings close behind-left",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "Picnic tables and a barbecue grill on the grass strip",
+    "confidence": "proven for 2014-2016 (city flyer, city update); not seen since"
+   },
+   {
+    "do": "Freeway lanes and traffic noise behind you (SR 410 and SR 167)",
+    "confidence": "proven (OSM, 230 to 280 m)"
+   },
+   {
+    "do": "Road and rail bridges upstream to your left, about half a kilometre off",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "A crowd of other anglers on opening weekend",
+    "confidence": "proven at Sumner (Coach's own record Aug 22: crowded); exact stand unknown"
+   },
+   {
+    "do": "NO mountain drawn: Rainier bearing 136 (54 km) is 75 degrees left of facing and no photo proves it is visible from here",
+    "confidence": "proven geometry, view unproven"
+   },
+   {
+    "do": "NO casting into the White River behind you: salmon closed there",
+    "confidence": "proven"
+   }
+  ],
+  "sources": [
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z",
+   "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+   "https://sumnerwa.gov/wp-content/uploads/2014/04/Trail-Map-Flyer.pdf",
+   "https://sumnerwa.gov/trails/",
+   "https://www.openstreetmap.org/way/941156766",
+   "https://www.openstreetmap.org/way/25801925",
+   "https://api.water.noaa.gov/nwps/v1/gauges/PUYW1/stageflow",
+   "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=12096500&parameterCd=00060",
+   "https://northwestfishingreports.com/Articles/Details/604",
+   "https://northwestfishingreports.com/Reports/Details/57439"
+  ],
+  "dropped": [
+   "CHECKER 2026-11-27: 'south bank' and facing 28 were wrong. The OSM fishing strip is on the point between the rivers, and facing 28 from it points into the White (closed to salmon).",
+   "CHECKER: 'on the Riverwalk Trail' was wrong. The Riverwalk Trail runs on the south bank; the strip is across the Puyallup from it, on the Sumner Link Trail side.",
+   "CHECKER: Riverside Park Apartments lots are on the south bank, the wrong side of the river; replaced by the city's State Street Trailhead.",
+   "Sandy south bank across from the White mouth, reached by an old dirt road past Mama Storntini's restaurant (2015 article): landowner and legal status unknown",
+   "Traffic Ave bridge as the stand: it is upstream of the White mouth, so not 'below the confluence'",
+   "Rainier in view: no photo from Sumner found",
+   "The NWFR 48123 confluence-hole report was not re-read by the checker"
+  ],
+  "legal": {
+   "status": "CLOSED to all fishing now (2026 season Aug. 19-Oct. 31; today 2026-11-27). 2027 dates not published.",
+   "stretch": "Puyallup River, from 400' upstream of Clark's Creek to Carbon River, CRC (804). Clark's Creek is downstream in the City of Puyallup.",
+   "rule": "Puyallup River, from 400' upstream of Clark's Creek to Carbon River, CRC (804). All species Aug. 19-Sept. 30: 'CLOSED Sundays, Mondays, and Tuesdays.' All species Aug. 19-Oct. 31: 'Night closure. Anti-snagging rule. Barbless hooks required.' Salmon Aug. 19-Oct. 31: 'Min. size 12\". Daily limit 6 including no more than 2 adults. Release chum and wild Chinook.' Trout Aug. 19-Oct. 31: 'Statewide min. size/daily limit. Except: release cutthroat trout and wild rainbow trout.' Other game fish Aug. 19-Oct. 31: 'Statewide min. size/daily limit.' No other dates listed, so this reach is closed to all fishing outside Aug. 19-Oct. 31 ('Areas listed within Special Rules, show all game fish and salmon fishing opportunities').",
+   "whiteRiver": "White (Stuck) River, whole stream, CRC (808): All game fish Oct. 1-Oct. 31 'Catch and Release. Selective gear rules. Night closure.' Whitefish Dec. 1-Last Day of Feb. 'Open for whitefish only.' No salmon line, and statewide 'All freshwater areas are closed to fishing for salmon' unless listed.",
+   "emergencyRules": "None found. WDFW emergency-rule archive search filtered to Puyallup River, Carbon River and White (Stuck) River returns only the statewide golden mussel rule for 2026 (older Puyallup rules: 2003, 2004, 2010, 2013, 2016). The full list of 121 rules effective since 2026-06-01 has no Puyallup, Carbon or White entry. Checked 2026-11-27. Recheck before any 2027 trip.",
+   "gearNote": "Anti-Snagging Rule (definitions): 'Except when fishing with a buoyant lure (with no weights added to the line or lure), or trolling from a vessel or floating device, terminal fishing gear is restricted to a lure or bait with one single-point hook. Hooks must measure 3/4\" or less from point to shank, and must be attached to or below the lure or bait. Weights may not be attached below or less than 12\" above the lure or bait.' Barbless hooks are required by the listing in every case. Night closure (definitions): 'Closed to fishing from one hour after official sunset to one hour before official sunrise.'",
+   "coachDates": "Aug 22 (Sat) and Aug 28 (Fri) fall outside the Sun/Mon/Tue closure: legal days on the Puyallup side. Whether Coach cast into the White on those days is not known.",
+   "proof": [
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z",
+    "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+    "https://www.eregulations.com/washington/fishing/definitions",
+    "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26997",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?eff_from=2026-06-01"
+   ]
+  },
+  "access": {
+   "route": "City of Sumner State Street Trailhead, 'Mapping Address: 13114 63rd St E, Sumner WA 98390', on the same point of land, about 120 to 220 m east of the strip; walk west along the Sumner Link Trail past the wastewater plant. OSM: the strip footway (way 941156765) joins the Sumner Link Trail (way 1433934878), which meets State Street.",
+   "parking": "Public. City: 'This trailhead offers public parking and restrooms.' and 'All parking is at your own risk.' Capacity, hours and fee not stated.",
+   "passes": "None stated by the city. No page cited requires a Discover Pass here (absence of evidence, not proof).",
+   "restrooms": "'Public restrooms are available during daylight hours at the State Street Trailhead.'",
+   "license": "WA fishing license plus Catch Record Card: 'Fill out your Catch Record Card immediately upon retaining salmon' (statewide general rules).",
+   "trailClosure": "The city's Sumner Link Trail closure is around the 24th Street Bridge (White River Restoration Project), far north of the point on the city map; it does not reach Two-Rivers Point.",
+   "proof": [
+    "https://sumnerwa.gov/trails/",
+    "https://sumnerwa.gov/wp-content/uploads/2014/04/Trail-Map-Flyer.pdf",
+    "https://www.eregulations.com/washington/fishing/statewide-general-rules",
+    "https://geocoding.geo.census.gov (13114 63rd St E -> 47.19981,-122.25490)"
+   ]
+  },
+  "appId": null,
+  "isAppId": false,
+  "note": "Puyallup spot, verified 11/27. The app has no Puyallup trips yet; a later build adds them with these ids."
+ },
+ "puyallup-orting": {
+  "name": "Puyallup River (Orting, Calistoga Park)",
+  "kind": "river",
+  "stand": {
+   "what": "Calistoga Park, City of Orting, on the north-east (right) bank, just upstream of the Orting-Kapowsin Highway bridge, free gravel lot, Puyallup Riverwalk Trail on the levee. SALMON CLOSED here: this reach is above the Carbon River mouth. Open now for trout and other game fish under selective gear rules (Sat. before Memorial Day-Jan. 15). Coach's 'near Orting' stand is not pinned; if he fished salmon on Sep 26 he was below the Carbon mouth (47.1307,-122.2326, about 4.8 km north in a straight line) or on the lower Carbon.",
+   "lat": 47.0899,
+   "lon": -122.211,
+   "proof": "OSM way 683057785 Calistoga Park, operator City of Orting; OSM parking way 683057779 access=yes fee=no; Orting-Kapowsin Hwy bridge OSM way 34139523 at 47.0891,-122.2135; Carbon River end node 47.1307,-122.2326 (OSM way 549211427); GNIS Carbon River mouth 47.13056,-122.23278 (https://en.wikipedia.org/wiki/Carbon_River infobox, citing GNIS) agrees with OSM within about 25 m"
+  },
+  "facingDeg": 218,
+  "facingWords": "Southwest across the river from the right bank (river here flows northwest).",
+  "facingProof": "CHECKER recompute: OSM Puyallup line (way 180171953) along the park frontage runs bearing about 305 to 310 (nodes 47.08833,-122.21172 to 47.08985,-122.21460); the park is on its right (north-east) bank, river centreline 168 to 180 m from the park at bearing 206 to 212. Across = 308 minus 90 = 218 (was 228).",
+  "facingConfidence": "likely (Calistoga); Coach's stand not established",
+  "sunsetSide": "Facing 218: the sun sets to your right. Computed sunset bearing at 47.15 N: about 288 on Aug 22 (70 degrees right), 257 on Oct 17 (39 right), 250 on Oct 31 (32 right), 235 at the winter solstice (17 right). In the Dec-Jan trout season the low sun is nearly ahead.",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Orting-Kapowsin Highway road bridge about 150 to 190 m downstream (west-north-west) of the park",
+    "side": "right",
+    "confidence": "proven",
+    "proof": "OSM way 34139523 (centre 47.08922,-122.21329); on the right bank facing across, downstream is on your right"
+   },
+   {
+    "what": "Levee and gravel Riverwalk Trail along the bank; setback or armored levee type not sourced",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "OSM ways 1387923755, 12195373 (Levee Road Southwest); USGS photo https://www.usgs.gov/media/images/picture-mt-rainier-over-puyallup-river shows a Puyallup reach with riprap, gravel bar and trail, location not stated"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Gravel bars and cobble in a braided, glacial river; width not sourced",
+    "side": "na",
+    "confidence": "likely",
+    "proof": "https://www.bestfishinginamerica.com/?p=6642 ; USGS photo above"
+   }
+  ],
+  "night": [
+   {
+    "what": "Night closure applies on the river (one hour after official sunset to one hour before official sunrise). Park hours 04:00-22:00 per OSM; a search summary of the City of Orting parks page says park hours are 4 am to 10 pm (the city page refused a direct fetch).",
+    "side": "na",
+    "confidence": "proven (rule); likely (park hours)",
+    "proof": "https://www.eregulations.com/washington/fishing/definitions ; https://www.openstreetmap.org/way/683057785 ; https://cityoforting.org/recreation-events/orting-parks (403 to direct fetch)"
+   }
+  ],
+  "oneLine": "Orting's riverside park and levee trail on a reach that is closed to salmon, open to trout with selective gear.",
+  "draw": [
+   {
+    "do": "Braided gravel-bar river, cobble and logs, cloudy glacial water",
+    "confidence": "likely"
+   },
+   {
+    "do": "Park lawn, dog park and levee trail behind you",
+    "confidence": "proven"
+   },
+   {
+    "do": "Road bridge to your right, downstream",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "NO mountain drawn: Rainier is visible from Orting town (USGS photo) but no photo proves the view from this bank; if it is, it sits about 90 degrees to your left (bearing 128, 43 km)",
+    "confidence": "proven for town; at this bank unproven, so not drawn"
+   },
+   {
+    "do": "NO salmon season on this reach: trout and other game fish only, selective gear rules, release cutthroat and wild rainbow",
+    "confidence": "proven"
+   }
+  ],
+  "sources": [
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-a-c",
+   "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+   "https://www.openstreetmap.org/way/683057785",
+   "https://www.usgs.gov/media/images/mount-rainier-and-houses-built-orting-wa",
+   "https://www.usgs.gov/media/images/picture-mt-rainier-over-puyallup-river",
+   "https://api.water.noaa.gov/nwps/v1/gauges/ORTW1/stageflow"
+  ],
+  "dropped": [
+   "Any claim Coach's Sep 26 stand was at Calistoga: not known",
+   "CHECKER: 'Road bridge to your left' was wrong: the bridge is downstream, on your right",
+   "CHECKER: 'Rainier at your back / behind-left' was wrong for facing 218: it is about square to your left; still not drawn",
+   "Orting parking pass: a 2009 forum line about Orting parking passes concerned the Carbon, not verified for Calistoga",
+   "Carbon River bank spots: not researched as a spot, only as rules (lead for Q1: a 2015 article put public trail parking at the SR 162 bridge over the Carbon, about 255 m above the mouth by OSM; not verified for 2026)"
+  ],
+  "legal": {
+   "status": "Salmon CLOSED all year. Trout and other game fish OPEN Sat. before Memorial Day-Jan. 15 under selective gear rules, so open today (2026-11-27) for game fish only.",
+   "stretch": "Puyallup River, from Carbon River upstream, CRC (804).",
+   "rule": "All species: 'Selective gear rules.' Trout Sat. before Memorial Day-Jan. 15: 'Statewide min. size/daily limit. Except: release cutthroat trout and wild rainbow trout.' Other game fish Sat. before Memorial Day-Jan. 15: 'Statewide min. size/daily limit.' No salmon line; statewide: 'All freshwater areas are closed to fishing for salmon' and 'Areas listed within Special Rules, show all game fish and salmon fishing opportunities for the specific area listed.'",
+   "gearNote": "Selective Gear Rules (definitions): 'Gear is limited to artificial flies with barbless single-point hooks or lures with barbless single-point hooks and bait is prohibited. Up to 3 hooks may be used. Only knotless nets may be used to land fish.' Night closure (definitions): 'Closed to fishing from one hour after official sunset to one hour before official sunrise.'",
+   "carbonForSep26": "Carbon River, from mouth to Voight Creek, CRC (802): All species Sept. 1-Oct. 31 'Barbless hooks required. Night closure. Anti-snagging rule.' Sept. 1-Sept. 30 'Open Wednesdays through Saturdays only.' Salmon Sept. 1-Oct. 31 'Min. size 12\". Daily limit 6 including no more than 2 adults. Release wild Chinook and chum.' Voight Creek to Hwy. 162 Bridge: 'CLOSED WATERS.' Sep 26, 2026 was a Saturday.",
+   "emergencyRules": "None found. WDFW emergency-rule archive search filtered to Puyallup River, Carbon River and White (Stuck) River returns only the statewide golden mussel rule for 2026 (older Puyallup rules: 2003, 2004, 2010, 2013, 2016). The full list of 121 rules effective since 2026-06-01 has no Puyallup, Carbon or White entry. Checked 2026-11-27. Recheck before any 2027 trip.",
+   "proof": [
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-a-c",
+    "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+    "https://www.eregulations.com/washington/fishing/definitions",
+    "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26997",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26808"
+   ]
+  },
+  "access": {
+   "route": "Calistoga Park, City of Orting, off Calistoga St W by the Orting-Kapowsin Highway bridge (address 802 Calistoga St W from a search summary only).",
+   "parking": "OSM: surface lot, access=yes, fee=no (way 683057779, edited 2025-05-19). Capacity not sourced.",
+   "passes": "None found. A forum line about Orting parking passes concerns the Carbon and was not verified.",
+   "license": "WA fishing license. No Catch Record Card needed for trout only.",
+   "proof": [
+    "https://www.openstreetmap.org/way/683057785",
+    "https://www.openstreetmap.org/way/683057779"
+   ]
+  },
+  "appId": null,
+  "isAppId": false,
+  "note": "Puyallup spot, verified 11/27. The app has no Puyallup trips yet; a later build adds them with these ids."
+ },
+ "puyallup-128th": {
+  "name": "Puyallup River (128th St E bridge, Alderton)",
+  "kind": "river",
+  "stand": {
+   "what": "128th Street East bridge over the Puyallup, about 1.15 km below the Carbon River mouth. Bank, side of the river and parking NOT established; no public park, WDFW lot or mapped parking within 900 m. Closest proven public bank access: WDFW 'Weiss' water access at the end of 116th Street East, west bank, about 1.26 km downstream.",
+   "lat": 47.1402,
+   "lon": -122.2267,
+   "proof": "OSM bridge way 12203232 (128th Street East); OSM river node 47.1399837,-122.2269757; Carbon mouth 47.1307,-122.2326; Overpass search within 900 m found no park, parking or path, only private service roads"
+  },
+  "facingDeg": null,
+  "facingWords": "River flows north-northeast (bearing about 30) under a roughly ENE-WSW bridge. West bank looking across is about 120; east bank looking across is about 300. Coach's bank not known.",
+  "facingProof": "OSM river line at the bridge bearing 31 from nodes 3 either side.",
+  "facingConfidence": "not established",
+  "sunsetSide": "Depends on bank: west bank facing 120 puts the sunset behind you (behind-right); east bank facing 300 puts it ahead-left (about 12 degrees left on Aug 22, 43 left on Oct 17).",
+  "skyline": [],
+  "structure": [
+   {
+    "what": "Two-lane county road bridge, 128th Street East (also tagged McMillan Road / Colburn-McCutcheon Road)",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "OSM way 12203232"
+   },
+   {
+    "what": "Anglers fish the river bed at the bridge: a 2018 report: 'I drove over the 128th St E yesterday evening and looked into the river bed and saw two people fishing the Puyallup.' (in the river bed, not on the bridge deck)",
+    "side": "na",
+    "confidence": "proven (one 2018 report)",
+    "proof": "https://northwestfishingreports.com/Reports/Details/57439"
+   },
+   {
+    "what": "Pierce County 128th Street E setback levee project at this crossing, planning stage: 2021 fact sheet put design, property acquisition and implementation in 2023 and beyond; feasibility report final May 2023. Construction status in 2026 not found.",
+    "side": "na",
+    "confidence": "proven that the project exists; status unproven",
+    "proof": "https://www.piercecountywa.gov/8505/128th-Street-E-Setback-Levee (403 to direct fetch; search snippets) ; https://www.piercecountywa.gov/DocumentCenter/View/106041/2021_0622_128thST_Levee_Factsheet_v02 ; https://www.piercecountywa.gov/DocumentCenter/View/128896/ESA-128th-Setback-Levee-Report-FINAL-20230526"
+   }
+  ],
+  "bank": [
+   {
+    "what": "Bank material, river width: not sourced",
+    "side": "na",
+    "confidence": "unproven",
+    "proof": "none found"
+   }
+  ],
+  "night": [
+   {
+    "what": "Night closure applies (one hour after official sunset to one hour before official sunrise).",
+    "side": "na",
+    "confidence": "proven",
+    "proof": "https://www.eregulations.com/washington/fishing/definitions ; https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r"
+   }
+  ],
+  "oneLine": "A county road bridge over a wide gray river a kilometre below the Carbon, bank and parking unproven; WDFW Weiss access is the proven way in.",
+  "draw": [
+   {
+    "do": "Bridge deck and railing crossing the river, roughly east-west",
+    "confidence": "proven"
+   },
+   {
+    "do": "Wide braided gravel river with glacial color",
+    "confidence": "likely"
+   },
+   {
+    "do": "Farm fields and scattered houses on both banks, private service roads",
+    "confidence": "proven (OSM)"
+   },
+   {
+    "do": "NO park, NO lot, NO signed access drawn at the bridge",
+    "confidence": "none mapped in OSM within 900 m; none in the WDFW Pierce County access list at the bridge"
+   },
+   {
+    "do": "NO Rainier drawn: bearing 132 (48 km), nearly straight across from the west bank, but no photo proves a view",
+    "confidence": "unproven"
+   }
+  ],
+  "sources": [
+   "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+   "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+   "https://www.openstreetmap.org/way/12203232",
+   "https://wdfw.wa.gov/places-to-go/water-access-sites/weiss-220",
+   "https://waterservices.usgs.gov/nwis/dv/?format=json&sites=12096500&parameterCd=00060",
+   "https://northwestfishingreports.com/Reports/Details/57439",
+   "https://northwestfishingreports.com/Reports/Details/44397",
+   "https://www.piercecountywa.gov/8505/128th-Street-E-Setback-Levee"
+  ],
+  "dropped": [
+   "Legal parking at the bridge: none proven",
+   "CHECKER: 'anglers have fished from the bridge deck' was wrong: the 2018 report saw two people fishing in the river bed, seen from the bridge",
+   "CHECKER: car break-in warning near the bridge: source thread not read, not found in anything the checker read",
+   "CHECKER: the guide's 'WDFW unimproved launch at the end of 116th Avenue E' is real: it is WDFW 'Weiss' at the end of 116th Street East",
+   "Which bank Coach used",
+   "Facing: left null on purpose"
+  ],
+  "legal": {
+   "status": "CLOSED to all fishing now (2026 season Aug. 19-Oct. 31; today 2026-11-27). 2027 dates not published.",
+   "stretch": "Puyallup River, from 400' upstream of Clark's Creek to Carbon River, CRC (804). Bridge river crossing 47.1400,-122.2270 is about 1.15 km below the Carbon mouth (straight line and along the OSM river line) 47.13069,-122.23259 (GNIS 47.13056,-122.23278).",
+   "rule": "Puyallup River, from 400' upstream of Clark's Creek to Carbon River, CRC (804). All species Aug. 19-Sept. 30: 'CLOSED Sundays, Mondays, and Tuesdays.' All species Aug. 19-Oct. 31: 'Night closure. Anti-snagging rule. Barbless hooks required.' Salmon Aug. 19-Oct. 31: 'Min. size 12\". Daily limit 6 including no more than 2 adults. Release chum and wild Chinook.' Trout Aug. 19-Oct. 31: 'Statewide min. size/daily limit. Except: release cutthroat trout and wild rainbow trout.' Other game fish Aug. 19-Oct. 31: 'Statewide min. size/daily limit.' No other dates listed, so this reach is closed to all fishing outside Aug. 19-Oct. 31 ('Areas listed within Special Rules, show all game fish and salmon fishing opportunities').",
+   "emergencyRules": "None found. WDFW emergency-rule archive search filtered to Puyallup River, Carbon River and White (Stuck) River returns only the statewide golden mussel rule for 2026 (older Puyallup rules: 2003, 2004, 2010, 2013, 2016). The full list of 121 rules effective since 2026-06-01 has no Puyallup, Carbon or White entry. Checked 2026-11-27. Recheck before any 2027 trip.",
+   "gearNote": "Anti-Snagging Rule (definitions): 'Except when fishing with a buoyant lure (with no weights added to the line or lure), or trolling from a vessel or floating device, terminal fishing gear is restricted to a lure or bait with one single-point hook. Hooks must measure 3/4\" or less from point to shank, and must be attached to or below the lure or bait. Weights may not be attached below or less than 12\" above the lure or bait.' Barbless hooks are required by the listing in every case. Night closure (definitions): 'Closed to fishing from one hour after official sunset to one hour before official sunrise.'",
+   "coachDates": "Oct 17, 2026 (Sat) was inside the season and outside the Sun/Mon/Tue window (that window ends Sept. 30): a legal day.",
+   "proof": [
+    "https://www.eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-l-r",
+    "https://www.eregulations.com/washington/fishing/statewide-freshwater-regulations",
+    "https://www.eregulations.com/washington/fishing/definitions",
+    "https://www.eregulations.com/assets/docs/resources/WA/errata-2026_27.pdf",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?river=26997",
+    "https://wdfw.wa.gov/fishing/regulations/emergency-rules/search?eff_from=2026-06-01"
+   ]
+  },
+  "access": {
+   "route": "Bridge: legal status of the banks, any public right of way down to the river, and whether fishing from the bridge is allowed are all UNPROVEN. Proven alternative: WDFW Weiss water access, 47.15096,-122.22128, at the end of 116th Street East (OSM), west bank, about 1.26 km downstream: 'Year-round. Open to vehicles only during the regulated sport fishing season(s).' 1 unimproved boat ramp, 1 parking lot, no restrooms. Next WDFW site downstream: Sumner Sportsmen's (47.169863,-122.217928), about 2.1 km below Weiss and 3.4 km below the bridge, open year-round, 1 lot, no ramp, no restrooms.",
+   "parking": "At the bridge: UNPROVEN, none mapped. At Weiss and Sumner Sportsmen's: WDFW lots.",
+   "passes": "WDFW lands: 'A Discover Pass is also required on WDFW lands -- including water access areas ... -- unless you already have a Vehicle Access Pass issued with the purchase of an eligible hunting or fishing license.' Vehicle Access Pass 'issued at no charge by WDFW with the purchase of any annual hunting, trapping, or fishing license, excluding an annual razor clam or shellfish/seaweed license.' Discover Pass: annual $51.50, one-day $11.50 (page fetched 2026-11-27).",
+   "license": "WA fishing license plus Catch Record Card for salmon.",
+   "proof": [
+    "https://wdfw.wa.gov/places-to-go/water-access-sites/weiss-220",
+    "https://wdfw.wa.gov/places-to-go/water-access-sites/sumner-sportsmens-555",
+    "https://wdfw.wa.gov/licenses/parking",
+    "https://www.openstreetmap.org/way/12199744",
+    "https://www.bestfishinginamerica.com/?p=6642 ('There is a WDFW unimproved launch at the end of 116th Avenue E in the McMillin-Alderton area')"
+   ]
+  },
+  "appId": null,
+  "isAppId": false,
+  "note": "Puyallup spot, verified 11/27. The app has no Puyallup trips yet; a later build adds them with these ids."
  }
 }

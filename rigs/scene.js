@@ -1446,14 +1446,549 @@
       '<path class="w-pile" d="' + cleats + '"/><path class="w-liteb" d="M' + n(eL[0]) + " " + n(eL[1]) + "H" + n(eR[0]) + '"/>' + back;
   }
 
+  // ---- parts: the world in metres ---------------------------------------------------
+  // The things at a spot that a person would know it by (its pier, the float
+  // beside the ramp, the boathouse, the rocks, the big tree by the path) are
+  // placed in metres from where you stand, as a map would place them: X to
+  // your right, Z ahead, Y up from the datum (low water on the Sound and the
+  // coast, the river's own low line, a lake's top). Seen through the spot's
+  // lens from your eye (o.eye metres above that datum), so the pier keeps its
+  // real shape whichever way you look at it, and today's water stands at its
+  // real height on every piling: the tide (o.tideRange metres of it) lifts
+  // the water up the piles and drowns the flats; a low tide leaves the near
+  // bents standing on the beach with their weed line showing.
+  //   o.ground  the beach: { shore: Z where the dry top ends, top: its height,
+  //             slope: drop per metre seaward } (a shore across your view)
+  //   o.site    { bearing }: the parts are given on the site's own square
+  //             (Z out along the pier, X along the shore), turned here to the
+  //             way you face, so a pier drawn from its plan stays true
+  function world(V, o, t) {
+    var E = o.eye == null ? 3 : o.eye, rng = o.tideRange == null ? 3.7 : o.tideRange, g = o.ground, fl = V.fl, cx = W / 2;
+    var th = o.site && o.site.bearing != null ? (relB(o.site.bearing, V.f) * Math.PI) / 180 : 0, ct = Math.cos(th), stt = Math.sin(th);
+    var w = { E: E, fl: fl, rng: rng, wl: t.tide * rng, hw: rng + 0.35, V: V };
+    w.st = function (X, Z) { return [X * ct + Z * stt, -X * stt + Z * ct]; };
+    w.sz = function (X, Z) { return -X * stt + Z * ct; };
+    w.Pst = function (X, Y, Z) { Z = Math.max(Z, 0.25); return [cx + (fl * X) / Z, HZ - (fl * (Y - E)) / Z]; };
+    w.P = function (X, Y, Z) { var q = w.st(X, Z); return w.Pst(q[0], Y, q[1]); };
+    w.px = function (m, X, Z) { return (fl * m) / Math.max(w.sz(X, Z), 0.25); };
+    w.bed = function (X, Z) { return g ? g.top - g.slope * Math.max(0, Z - g.shore) : -99; };
+    w.foot = function (X, Z) { return Math.max(w.wl, w.bed(X, Z)); };
+    w.wet = function (X, Z) { return w.bed(X, Z) < w.wl; };
+    // where the water meets the beach today, in metres out from the shore
+    w.edgeZ = g ? (g.top <= w.wl ? g.shore : g.shore + (g.top - w.wl) / g.slope) : null;
+    return w;
+  }
+  // A polygon given in metres, cut at the near plane so a deck that runs
+  // under your feet ends at the frame and not behind your eye.
+  function clipZ(pts, zn) {
+    var out = [], i;
+    for (i = 0; i < pts.length; i++) {
+      var a = pts[i], b = pts[(i + 1) % pts.length], ia = a[2] >= zn, ib = b[2] >= zn;
+      if (ia) out.push(a);
+      if (ia !== ib) { var f = (zn - a[2]) / (b[2] - a[2]); out.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, zn]); }
+    }
+    return out;
+  }
+  function poly3(w, pts) {
+    var c = clipZ(pts.map(function (q) { var a = w.st(q[0], q[2]); return [a[0], q[1], a[1]]; }), 0.9);
+    return c.length > 2 ? poly(c.map(function (q) { return w.Pst(q[0], q[1], q[2]); })) : "";
+  }
+  // Far is pale and near is dark: the tone of a built thing by its distance.
+  function tone(d) { return d < 26 ? 5 : d < 70 ? 4 : d < 170 ? 3 : 2; }
+  function dist(X, Z) { return Math.sqrt(X * X + Z * Z); }
+
+  // A lamp post standing at x, z on a deck or a plaza (y its foot): "arm"
+  // (tall, one arm reaching over the deck to inX, inZ), "pole" (a plain
+  // head) or "lantern" (a lantern on top). After dark: its glow, its pool on
+  // the deck, and a broken ladder of its light on the water at p.water.
+  function lampPost(id, w, p, prims) {
+    var X = p.x, Z = p.z, D = p.y, lh = p.h || 5, kind = p.kind || "arm";
+    if (w.sz(X, Z) < 2) return false;
+    var d = dist(X, Z), tn4 = tone(d), base = w.P(X, D, Z), tp = w.P(X, D + lh, Z), pwd = Math.max(0.45, w.px(0.14, X, Z));
+    var inX = p.inX == null ? X : p.inX, inZ = p.inZ == null ? Z : p.inZ, hd = w.P(inX, D + lh - 0.15, inZ), sc = w.px(1, X, Z);
+    var sv4 = '<path class="w-s' + tn4 + '" d="' + poly([[base[0] - pwd / 2, base[1]], [base[0] + pwd / 2, base[1]], [tp[0] + pwd * 0.35, tp[1]], [tp[0] - pwd * 0.35, tp[1]]]) + '"/>', head = tp;
+    if (kind === "arm") {
+      sv4 += '<path class="w-pole w-s' + tn4 + '" d="M' + n(tp[0]) + " " + n(tp[1]) + "Q" + n(tp[0]) + " " + n(tp[1] - sc * 0.4) + " " + n(hd[0]) + " " + n(hd[1] - sc * 0.25) + '" stroke-width="' + n(pwd * 0.7) + '"/>' +
+        '<path class="w-s' + tn4 + '" d="' + poly([[hd[0] - sc * 0.32, hd[1] - sc * 0.32], [hd[0] + sc * 0.32, hd[1] - sc * 0.32], [hd[0] + sc * 0.22, hd[1] + sc * 0.05], [hd[0] - sc * 0.22, hd[1] + sc * 0.05]]) + '"/>';
+      head = [hd[0], hd[1]];
+    } else if (kind === "lantern") {
+      sv4 += '<path class="w-s' + tn4 + '" d="' + poly([[tp[0] - sc * 0.22, tp[1]], [tp[0] + sc * 0.22, tp[1]], [tp[0] + sc * 0.3, tp[1] - sc * 0.5], [tp[0] + sc * 0.08, tp[1] - sc * 0.72], [tp[0] - sc * 0.08, tp[1] - sc * 0.72], [tp[0] - sc * 0.3, tp[1] - sc * 0.5]]) + '"/>';
+      head = [tp[0], tp[1] - sc * 0.3];
+    } else {
+      sv4 += '<path class="w-s' + tn4 + '" d="' + poly([[tp[0] - sc * 0.26, tp[1] + sc * 0.05], [tp[0] + sc * 0.26, tp[1] + sc * 0.05], [tp[0] + sc * 0.16, tp[1] - sc * 0.22], [tp[0] - sc * 0.16, tp[1] - sc * 0.22]]) + '"/>';
+    }
+    sv4 += '<ellipse class="w-bulb" cx="' + n(head[0]) + '" cy="' + n(head[1] + sc * 0.06) + '" rx="' + n(Math.max(0.5, sc * 0.2)) + '" ry="' + n(Math.max(0.35, sc * 0.09)) + '"/>';
+    var ld2 = '<circle cx="' + n(head[0]) + '" cy="' + n(head[1] + sc * 0.1) + '" r="' + n(Math.min(70, sc * 3.2 + 4)) + '" fill="url(#' + id + '-lamp)"/>';
+    var dp = w.P(inX, D, inZ);
+    if (p.deck !== false && w.E > D + 0.2) {
+      var dA = w.P(inX, D, inZ - 1.6), dB = w.P(inX, D, inZ + 1.6);
+      ld2 += '<ellipse class="w-deckpoolg" cx="' + n(dp[0]) + '" cy="' + n(dp[1]) + '" rx="' + n(sc * 2.4) + '" ry="' + n(Math.max(0.4, Math.abs(dA[1] - dB[1]) * 0.5)) + '"/>';
+    }
+    var ps = "", rr = rnd(Math.round(Math.abs(X) * 7 + Z * 13));
+    if (p.water && w.wet(p.water[0], p.water[1])) {
+      var wp = w.P(p.water[0], w.wl, p.water[1]);
+      for (var kk = 0; kk < 7; kk++) { var qq = kk / 7, ww = sc * (0.8 + qq * 1.6) * (0.6 + rr() * 0.7); ps += '<rect x="' + n(wp[0] - ww / 2 + (rr() - 0.5) * sc * 0.6) + '" y="' + n(wp[1] + kk * sc * (0.12 + qq * 0.16)) + '" width="' + n(ww) + '" height="' + n(Math.max(0.4, sc * (0.06 + qq * 0.07))) + '" rx=".4" opacity="' + n((1 - qq * 0.8) * (0.5 + rr() * 0.5)) + '"/>'; }
+    }
+    prims.push([d - 0.5, sv4 + '<g class="w-lampson">' + ld2 + '<g class="w-poolg">' + ps + "</g></g>"]);
+    return true;
+  }
+  // A pier, a bridge or a float walk, from its plan. p:
+  //   segs   [{ a: [X, Z], b: [X, Z], w, gap: [d0, d1] }]: the stem, then a
+  //          T or L head as its own segment (gap: where the stem meets the
+  //          head's shore side, metres along it, so no rail crosses it)
+  //   deck   its height over the datum; beam: the depth of its edge
+  //   bent   metres between piling bents; build: "timber" (cross braced),
+  //          "concrete" (heavy) or "steel" (slender); piers: a bridge's
+  //          columns, metres apart (wide spans, no bents)
+  //   rail   "wood" (posts and two rails), "plain" (a light rail), "wall"
+  //          (a bridge's parapet) or false
+  //   lamps  { kind: "arm" (single arm over the deck), "pole" or "lantern",
+  //          every: metres, side: "both", "near" or "far", h: metres, segs }
+  //   shelters [[seg, from, to]]: small roofed shelters on that stretch
+  //   crowd  people at the rail after dark (a squid night); own: each with
+  //          their own light; head: [seg] where most of them stand
+  //   truss  a steel truss over the deck (a rail bridge)
+  function pier3d(id, w, p, t, r, prims, glass) {
+    var D = p.deck || 6, bm = p.beam || 0.7, conc = p.build === "concrete", steel = p.build === "steel", pw = p.pile || (conc ? 0.6 : steel ? 0.42 : 0.38);
+    var above = w.E > D, rh = p.railH || 1.1, segs = p.segs, lampN = 0;
+    segs.forEach(function (sg, si) {
+      var a = sg.a, b = sg.b, dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = uz, nz = -ux, hw = sg.w / 2;
+      var mx = (a[0] + b[0]) / 2, mz = (a[1] + b[1]) / 2;
+      var ns = dist(mx + nx * hw, mz + nz * hw) < dist(mx - nx * hw, mz - nz * hw) ? 1 : -1;
+      function at(d, s, k) { return [a[0] + ux * d + nx * hw * s * (k == null ? 1 : k), a[1] + uz * d + nz * hw * s * (k == null ? 1 : k)]; }
+      var bent = sg.bent || p.bent || 5, nb = Math.max(1, Math.round(L / bent)), step = L / nb, k, s;
+      var across = p.piers ? [0] : sg.w > 7 ? [-1, -0.33, 0.33, 1] : [-1, 1];
+      // the piles (or a bridge's columns) under each bent, to the water or the beach
+      for (k = sg.skip0 ? 1 : 0; k <= nb; k++) {
+        if (p.piers && k % Math.max(1, Math.round(p.piers / step)) !== 0) continue;
+        if (p.piers && (k === 0 || k === nb) && !sg.ends) continue;
+        across.forEach(function (fk) {
+          var q = at(k * step, fk * ns, 0.9), X = q[0], Z = q[1];
+          if (w.sz(X, Z) < 1.2) return;
+          var d = dist(X, Z), ft = w.foot(X, Z), wet = w.wet(X, Z), top = w.P(X, D - bm, Z), bot = w.P(X, ft, Z), pwx = Math.max(0.5, w.px(p.piers ? pw * 2.4 : pw, X, Z));
+          var wetH = Math.max(0, (Math.min(w.hw, D - bm) - ft) * w.fl / w.sz(X, Z));
+          var cls = "w-s" + tone(d), sv = pile(r, top[0], top[1], bot[1], pwx, cls, Math.min(wetH, bot[1] - top[1] - 0.5));
+          if (!wet) sv += '<ellipse class="w-cob-sh" cx="' + n(bot[0] + pwx * 0.6) + '" cy="' + n(bot[1] + 0.3) + '" rx="' + n(pwx * 1.4) + '" ry="' + n(Math.max(0.3, pwx * 0.25)) + '"/>';
+          else if (glass != null) glass.push(pileGlass(r, bot[0], bot[1], pwx, Math.min(40, w.px(6, X, Z)) * (0.35 + (1 - t.wind) * 0.65)));
+          prims.push([d + fk * ns * 0.01, sv]);
+        });
+        // timber bents carry their X braces under the near edge
+        if (!p.piers && p.build === "timber" && k > 0) {
+          var q0 = at((k - 1) * step, ns, 0.9), q1 = at(k * step, ns, 0.9), lo0 = Math.max(w.foot(q0[0], q0[1]) + 0.6, D - 4), lo1 = Math.max(w.foot(q1[0], q1[1]) + 0.6, D - 4);
+          if (w.sz(q0[0], q0[1]) > 1.5 && w.sz(q1[0], q1[1]) > 1.5) {
+            var A = w.P(q0[0], D - bm - 0.2, q0[1]), B = w.P(q1[0], lo1, q1[1]), C = w.P(q1[0], D - bm - 0.2, q1[1]), Dd = w.P(q0[0], lo0, q0[1]);
+            prims.push([dist(q1[0], q1[1]) - 0.02, '<path class="w-brace' + tone(dist(q1[0], q1[1])) + '" d="M' + n(A[0]) + " " + n(A[1]) + "L" + n(B[0]) + " " + n(B[1]) + "M" + n(C[0]) + " " + n(C[1]) + "L" + n(Dd[0]) + " " + n(Dd[1]) + '" stroke-width="' + n(Math.max(0.35, w.px(0.14, q1[0], q1[1]))) + '"/>']);
+          }
+        }
+      }
+      // the deck, bay by bay: its top when you are above it, its dark
+      // underside when you stand below it, and always its edge toward you
+      for (k = 0; k < nb; k++) {
+        var d0 = k * step, d1 = (k + 1) * step, c0 = at(d0, -1), c1 = at(d1, -1), c2 = at(d1, 1), c3 = at(d0, 1);
+        var e0 = at(d0, ns), e1 = at(d1, ns), dd = dist((e0[0] + e1[0]) / 2, (e0[1] + e1[1]) / 2), tn = tone(dd);
+        var top3 = [[c0[0], D, c0[1]], [c1[0], D, c1[1]], [c2[0], D, c2[1]], [c3[0], D, c3[1]]];
+        var sv2 = "";
+        if (above) sv2 += '<path class="w-t' + tn + '" d="' + poly3(w, top3) + '"/>';
+        else sv2 += '<path class="w-u' + tn + '" d="' + poly3(w, top3.map(function (q) { return [q[0], D - bm, q[2]]; })) + '"/>';
+        sv2 += '<path class="w-s' + tn + '" d="' + poly3(w, [[e0[0], D, e0[1]], [e1[0], D, e1[1]], [e1[0], D - bm, e1[1]], [e0[0], D - bm, e0[1]]]) + '"/>';
+        if (above && sg.w > 0) {
+          var l0 = w.P(e0[0], D, e0[1]), l1 = w.P(e1[0], D, e1[1]);
+          sv2 += '<path class="w-liteb" d="M' + n(l0[0]) + " " + n(l0[1]) + "L" + n(l1[0]) + " " + n(l1[1]) + '"/>';
+        }
+        prims.push([(dist(c0[0], c0[1]) + dist(c1[0], c1[1]) + dist(c2[0], c2[1]) + dist(c3[0], c3[1])) / 4, sv2]);
+      }
+      // the rails: posts and two rails along each edge, a gap where another
+      // part of the pier meets this one
+      if (p.rail) {
+        [ns, -ns].forEach(function (side) {
+          var gap = side === -ns || !sg.gap ? null : sg.gap, post = p.rail === "wall" ? 0 : 2.4, d = 0;
+          var runs = gap ? [[0, gap[0]], [gap[1], L]] : [[0, L]];
+          if (sg.norail && sg.norail.indexOf(side === ns ? "near" : "far") >= 0) runs = [];
+          runs.forEach(function (rn) {
+            for (d = rn[0]; d < rn[1] - 0.01; d += step) {
+              var dA = d, dB = Math.min(rn[1], d + step), qa = at(dA, side, 0.96), qb = at(dB, side, 0.96), mdist = dist((qa[0] + qb[0]) / 2, (qa[1] + qb[1]) / 2), tn2 = tone(mdist);
+              var bar = Math.max(0.12, 0.07);
+              var sv3 = "";
+              if (p.rail === "wall") sv3 += '<path class="w-s' + tn2 + '" d="' + poly3(w, [[qa[0], D + 0.9, qa[1]], [qb[0], D + 0.9, qb[1]], [qb[0], D, qb[1]], [qa[0], D, qa[1]]]) + '"/>';
+              else {
+                sv3 += '<path class="w-s' + tn2 + '" d="' + poly3(w, [[qa[0], D + rh, qa[1]], [qb[0], D + rh, qb[1]], [qb[0], D + rh - bar, qb[1]], [qa[0], D + rh - bar, qa[1]]]) +
+                  poly3(w, [[qa[0], D + rh * 0.5, qa[1]], [qb[0], D + rh * 0.5, qb[1]], [qb[0], D + rh * 0.5 - bar * 0.8, qb[1]], [qa[0], D + rh * 0.5 - bar * 0.8, qa[1]]]) + '"/>';
+                for (var pd = dA; pd <= dB + 0.01; pd += post) {
+                  var pq = at(pd, side, 0.96), pa = w.P(pq[0], D, pq[1]), pb = w.P(pq[0], D + rh, pq[1]), pwd = Math.max(0.35, w.px(p.rail === "wood" ? 0.12 : 0.07, pq[0], pq[1]));
+                  if (w.sz(pq[0], pq[1]) > 0.9) sv3 += '<path class="w-s' + tn2 + '" d="' + poly([[pa[0] - pwd / 2, pa[1]], [pa[0] + pwd / 2, pa[1]], [pb[0] + pwd / 2, pb[1]], [pb[0] - pwd / 2, pb[1]]]) + '"/>';
+                }
+              }
+              prims.push([mdist + (side === ns ? -0.4 : 0.4) * hw, sv3]);
+            }
+          });
+        });
+      }
+      // a truss over a rail bridge's deck
+      if (p.truss) {
+        var tz = "", tq0 = at(0, ns, 1), tsteps = Math.round(L / 8);
+        for (k = 0; k <= tsteps; k++) {
+          var tq = at((k * L) / tsteps, ns, 1), tqn = at(Math.min(L, ((k + 1) * L) / tsteps), ns, 1), up = w.P(tq[0], D + 5, tq[1]), dn = w.P(tq[0], D, tq[1]), dn2 = w.P(tqn[0], D, tqn[1]);
+          tz += "M" + n(dn[0]) + " " + n(dn[1]) + "L" + n(up[0]) + " " + n(up[1]) + (k < tsteps ? "L" + n(dn2[0]) + " " + n(dn2[1]) : "");
+        }
+        var t0 = w.P(tq0[0], D + 5, tq0[1]), tq1 = at(L, ns, 1), t1 = w.P(tq1[0], D + 5, tq1[1]);
+        tz += "M" + n(t0[0]) + " " + n(t0[1]) + "L" + n(t1[0]) + " " + n(t1[1]);
+        prims.push([dist(mx, mz) - hw, '<path class="w-truss" d="' + tz + '"/>']);
+      }
+      // small roofed shelters standing on this stretch
+      (p.shelters || []).forEach(function (sh) {
+        if (sh[0] !== si) return;
+        var f0 = sh[1], f1 = sh[2], q00 = at(f0, -1, 0.8), q01 = at(f1, -1, 0.8), q11 = at(f1, 1, 0.8), q10 = at(f0, 1, 0.8), ph = 2.5, rt = D + ph, rp = D + ph + 1.1;
+        var md = dist((q00[0] + q11[0]) / 2, (q00[1] + q11[1]) / 2), tn3 = tone(md), cmid = [(q00[0] + q11[0]) / 2, (q00[1] + q11[1]) / 2];
+        var posts = "";
+        [at(f0 + 0.2, ns, 0.75), at(f1 - 0.2, ns, 0.75)].forEach(function (pq) { var pa = w.P(pq[0], D, pq[1]), pb = w.P(pq[0], rt, pq[1]), pwd = Math.max(0.5, w.px(0.18, pq[0], pq[1])); posts += poly([[pa[0] - pwd / 2, pa[1]], [pa[0] + pwd / 2, pa[1]], [pb[0] + pwd / 2, pb[1]], [pb[0] - pwd / 2, pb[1]]]); });
+        var eaveN0 = at(f0 - 0.4, ns, 0.95), eaveN1 = at(f1 + 0.4, ns, 0.95), eaveF0 = at(f0 - 0.4, -ns, 0.95), eaveF1 = at(f1 + 0.4, -ns, 0.95);
+        var ridge0 = [cmid[0] - ux * (f1 - f0) * 0.18, cmid[1] - uz * (f1 - f0) * 0.18], ridge1 = [cmid[0] + ux * (f1 - f0) * 0.18, cmid[1] + uz * (f1 - f0) * 0.18];
+        var roofN = poly3(w, [[eaveN0[0], rt, eaveN0[1]], [eaveN1[0], rt, eaveN1[1]], [ridge1[0], rp, ridge1[1]], [ridge0[0], rp, ridge0[1]]]);
+        var roofF = poly3(w, [[eaveF0[0], rt, eaveF0[1]], [eaveF1[0], rt, eaveF1[1]], [ridge1[0], rp, ridge1[1]], [ridge0[0], rp, ridge0[1]]]);
+        var hipA = poly3(w, [[eaveN0[0], rt, eaveN0[1]], [eaveF0[0], rt, eaveF0[1]], [ridge0[0], rp, ridge0[1]]]), hipB = poly3(w, [[eaveN1[0], rt, eaveN1[1]], [eaveF1[0], rt, eaveF1[1]], [ridge1[0], rp, ridge1[1]]]);
+        var fasc = poly3(w, [[eaveN0[0], rt, eaveN0[1]], [eaveN1[0], rt, eaveN1[1]], [eaveN1[0], rt - 0.25, eaveN1[1]], [eaveN0[0], rt - 0.25, eaveN0[1]]]);
+        prims.push([md - 0.3, '<path class="w-s' + tn3 + '" d="' + posts + '"/><path class="w-u' + tn3 + '" d="' + (above ? "" : roofF) + '"/><path class="w-roofs' + tn3 + '" d="' + roofF + hipA + hipB + '"/><path class="w-roofn' + tn3 + '" d="' + roofN + '"/><path class="w-s' + tn3 + '" d="' + fasc + '"/>']);
+      });
+      // lamp posts along the rail: their light on the deck and on the water
+      (Array.isArray(p.lamps) ? p.lamps : p.lamps ? [p.lamps] : []).forEach(function (lp) {
+        if (lp.segs && lp.segs.indexOf(si) < 0) return;
+        var every = lp.every || 20, sides = lp.side === "near" ? [ns] : lp.side === "far" ? [-ns] : lp.side === "alt" ? null : [ns, -ns];
+        var first = lp.from == null ? every / 2 : lp.from, last = lp.to == null ? L : lp.to;
+        for (var ld = first, li = 0; ld <= last + 0.01; ld += every, li++) {
+          (sides || [li % 2 ? -ns : ns]).forEach(function (side) {
+            var q = at(ld, side, 0.96), wq = at(ld, ns, 1.6);
+            if (lampPost(id, w, { x: q[0], z: q[1], y: D, h: lp.h || 5, kind: lp.kind, inX: q[0] - nx * side * 1.1, inZ: q[1] - nz * side * 1.1, deck: above, water: [wq[0], wq[1] + 1.5] }, prims)) lampN++;
+          });
+        }
+      });
+    });
+    // a squid night: people along the rails, rods out, their own small lights
+    if (p.crowd) {
+      var cr = rnd(idSeed(id) + 17), many = p.crowd, pj = function (X, Yr, Z) { return w.P(X, Yr + w.E, Z); }, dk = D - w.E;
+      for (var i = 0; i < many; i++) {
+        var sg2 = segs[p.head != null && i % 3 !== 0 ? p.head : Math.floor(cr() * segs.length)], a2 = sg2.a, b2 = sg2.b, L2 = Math.hypot(b2[0] - a2[0], b2[1] - a2[1]);
+        var u2 = 0.06 + cr() * 0.88, nx2 = (b2[1] - a2[1]) / L2, nz2 = -(b2[0] - a2[0]) / L2, X2 = a2[0] + (b2[0] - a2[0]) * u2, Z2 = a2[1] + (b2[1] - a2[1]) * u2;
+        var hw2 = sg2.w / 2 - 0.45, sd2 = dist(X2 + nx2 * hw2, Z2 + nz2 * hw2) < dist(X2 - nx2 * hw2, Z2 - nz2 * hw2) ? 1 : -1;
+        var side2 = cr() < 0.55 ? -sd2 : sd2;
+        X2 += nx2 * hw2 * side2; Z2 += nz2 * hw2 * side2;
+        if (w.sz(X2, Z2) < 3) continue;
+        var g = angler(pj, X2, Z2, dk, cr), sc2 = w.px(1, X2, Z2);
+        var fig = '<path class="w-figh" d="' + g.fig + '"/><path class="w-rod" d="' + g.rod + '" stroke-width="' + n(g.w) + '"/><path class="w-line" d="' + g.line + '"/>';
+        if (p.own) fig += '<circle cx="' + n(g.hand[0]) + '" cy="' + n(g.hand[1]) + '" r="' + n(Math.min(30, sc2 * 1.3 + 2)) + '" fill="url(#' + id + '-lamp)"/><circle class="w-lantern" cx="' + n(g.hand[0]) + '" cy="' + n(g.hand[1]) + '" r="' + n(Math.max(0.45, sc2 * 0.06)) + '"/>';
+        prims.push([dist(X2, Z2) - 0.2, '<g class="w-lampson w-crowd">' + fig + "</g>"]);
+      }
+    }
+    return lampN;
+  }
+
+  // A float beside a ramp: a long low walk riding on the water (sitting on
+  // the beach when the tide leaves it), and the bare guide pilings standing
+  // along it, tall at low water. p: a, b, w, piles (metres apart), top.
+  function float3d(id, w, p, t, r, prims, glass) {
+    var a = p.a, b = p.b, dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), ux = dx / L, uz = dz / L, nx = uz, nz = -ux, hw = p.w / 2, k;
+    var ns = dist(a[0] + nx * hw, a[1] + nz * hw) < dist(a[0] - nx * hw, a[1] - nz * hw) ? 1 : -1, nb = Math.max(2, Math.round(L / 6)), st = L / nb;
+    for (k = 0; k < nb; k++) {
+      var d0 = k * st, d1 = (k + 1) * st, q0 = [a[0] + ux * d0, a[1] + uz * d0], q1 = [a[0] + ux * d1, a[1] + uz * d1];
+      var y0 = w.foot(q0[0], q0[1]) + 0.45, y1 = w.foot(q1[0], q1[1]) + 0.45, md = dist((q0[0] + q1[0]) / 2, (q0[1] + q1[1]) / 2), tn = tone(md);
+      var c = [[q0[0] - nx * hw, y0, q0[1] - nz * hw], [q1[0] - nx * hw, y1, q1[1] - nz * hw], [q1[0] + nx * hw, y1, q1[1] + nz * hw], [q0[0] + nx * hw, y0, q0[1] + nz * hw]];
+      var e0 = [q0[0] + nx * hw * ns, q0[1] + nz * hw * ns], e1 = [q1[0] + nx * hw * ns, q1[1] + nz * hw * ns];
+      var sv = (w.E > y0 ? '<path class="w-t' + tn + '" d="' + poly3(w, c) + '"/>' : "") +
+        '<path class="w-s' + tn + '" d="' + poly3(w, [[e0[0], y0, e0[1]], [e1[0], y1, e1[1]], [e1[0], y1 - 0.4, e1[1]], [e0[0], y0 - 0.4, e0[1]]]) + '"/>';
+      var l0 = w.P(e0[0], y0, e0[1]), l1 = w.P(e1[0], y1, e1[1]);
+      sv += '<path class="w-liteb" d="M' + n(l0[0]) + " " + n(l0[1]) + "L" + n(l1[0]) + " " + n(l1[1]) + '"/>';
+      prims.push([md, sv]);
+    }
+    // the guide piles, on the outer side, every few metres
+    for (var d = p.piles / 2; d < L; d += p.piles) {
+      var X = a[0] + ux * d + nx * (hw + 0.5) * -ns, Z = a[1] + uz * d + nz * (hw + 0.5) * -ns;
+      if (w.sz(X, Z) < 2) continue;
+      var ft = w.foot(X, Z), top = w.P(X, (p.top || 6.2) + (r() - 0.5) * 0.5, Z), bot = w.P(X, ft, Z), pwx = Math.max(0.5, w.px(0.34, X, Z)), dd = dist(X, Z);
+      var wetH = Math.max(0, (w.hw - ft) * w.fl / w.sz(X, Z));
+      if (w.wet(X, Z) && glass) glass.push(pileGlass(r, bot[0], bot[1], pwx, Math.min(34, w.px(5, X, Z)) * (0.35 + (1 - t.wind) * 0.65)));
+      prims.push([dd + 0.01, pile(r, top[0], top[1], bot[1], pwx, "w-s" + tone(dd), Math.min(wetH, bot[1] - top[1] - 0.5))]);
+    }
+  }
+
+  // A boat ramp from the top of the beach down into today's water: concrete
+  // with its grooves, or a gravel launch. Where it goes under, it darkens.
+  function ramp3d(w, p, r) {
+    var x0 = p.x0, x1 = p.x1, z0 = p.z0, z1 = p.z1 || 80, out = "", sub = "", k, g = p.kind === "gravel";
+    var ztop = function (z) { return p.top != null ? Math.min(p.top, w.bed(0, z)) : w.bed(0, z); };
+    var zEnd = Math.min(z1, w.edgeZ == null ? z1 : w.edgeZ), pts = [], subp = [];
+    // its own slope when there is no beach to follow
+    var yAt = function (z) { return p.slope ? p.y0 - p.slope * (z - z0) : ztop(z); };
+    if (p.slope) zEnd = Math.min(z1, z0 + (p.y0 - w.wl) / p.slope);
+    var top = [[x0, yAt(z0), z0], [x1, yAt(z0), z0], [x1, yAt(zEnd), zEnd], [x0, yAt(zEnd), zEnd]];
+    out += '<path class="' + (g ? "w-gravel" : "w-ramp3") + '" d="' + poly3(w, top) + '"/>';
+    var zs = Math.min(z1, zEnd + 9);
+    if (zs > zEnd + 0.5) sub = '<path class="w-rampw" d="' + poly3(w, [[x0, w.wl, zEnd], [x1, w.wl, zEnd], [x1 - 0.2, w.wl, zs], [x0 + 0.2, w.wl, zs]]) + '"/>';
+    if (!g) {
+      var gr = "";
+      for (var z = z0 + 0.5; z < zEnd; z += 0.9 * (1 + (z - z0) * 0.02)) { var a = w.P(x0 + 0.15, yAt(z), z), b = w.P(x1 - 0.15, yAt(z), z); if (w.sz((x0 + x1) / 2, z) > 1) gr += "M" + n(a[0]) + " " + n(a[1]) + "L" + n(b[0]) + " " + n(b[1]); }
+      out += '<path class="w-groove3" d="' + gr + '"/>';
+    } else {
+      var st = "";
+      for (k = 0; k < (TILE ? 40 : 150); k++) {
+        var zz = z0 + Math.pow(r(), 1.6) * (zEnd - z0), xx = x0 - 0.6 + r() * (x1 - x0 + 1.2), c = w.P(xx, yAt(zz), zz), sz = Math.max(0.35, w.px(0.05 + r() * 0.08, xx, zz));
+        st += '<ellipse class="' + (r() < 0.3 ? "w-st-l" : "w-st-d") + '" cx="' + n(c[0]) + '" cy="' + n(c[1]) + '" rx="' + n(sz) + '" ry="' + n(sz * 0.5) + '"/>';
+      }
+      out += st;
+    }
+    var e0 = w.P(x0, w.wl, zEnd), e1 = w.P(x1, w.wl, zEnd);
+    return sub + out + '<path class="w-foam" d="M' + n(e0[0]) + " " + n(e0[1]) + "L" + n(e1[0]) + " " + n(e1[1]) + '"/>';
+  }
+
+  // A rail at your feet (a seawall's, a plaza's): posts and two rails along
+  // a line in plan (p.pts, or across your view at p.z from p.x0 to p.x1),
+  // a gap where a ramp goes down. y: its foot; wall: the wall's face below.
+  function rail3d(w, p, prims) {
+    var pts = p.pts || [[p.x0, p.z], [p.x1, p.z]], Y = p.y, H2 = p.h || 1.05;
+    for (var i = 0; i < pts.length - 1; i++) {
+      var a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]), runs = [[0, L]];
+      if (p.gap && i === 0 && !p.pts) runs = [[0, p.gap[0] - a[0]], [p.gap[1] - a[0], L]];
+      runs.forEach(function (rn) {
+        if (rn[1] <= rn[0]) return;
+        var st = Math.min(6, rn[1] - rn[0]);
+        for (var d0 = rn[0]; d0 < rn[1] - 0.01; d0 += st) {
+          var d1 = Math.min(rn[1], d0 + st), A = [a[0] + (b[0] - a[0]) * d0 / L, a[1] + (b[1] - a[1]) * d0 / L], B = [a[0] + (b[0] - a[0]) * d1 / L, a[1] + (b[1] - a[1]) * d1 / L], sv = "";
+          [[H2, 0.14], [H2 * 0.55, 0.12]].forEach(function (bb) { sv += poly3(w, [[A[0], Y + bb[0], A[1]], [B[0], Y + bb[0], B[1]], [B[0], Y + bb[0] - bb[1], B[1]], [A[0], Y + bb[0] - bb[1], A[1]]]); });
+          for (var d = d0; d <= d1 + 0.01; d += p.post || 2.2) { var q = [a[0] + (b[0] - a[0]) * d / L, a[1] + (b[1] - a[1]) * d / L]; sv += poly3(w, [[q[0] - 0.07, Y - 0.3, q[1]], [q[0] + 0.07, Y - 0.3, q[1]], [q[0] + 0.07, Y + H2 + 0.05, q[1]], [q[0] - 0.07, Y + H2 + 0.05, q[1]]]); }
+          var l0 = w.P(A[0], Y + H2, A[1]), l1 = w.P(B[0], Y + H2, B[1]), md = dist((A[0] + B[0]) / 2, (A[1] + B[1]) / 2);
+          prims.push([md, '<path class="w-s' + tone(md) + '" d="' + sv + '"/>' + (w.sz(A[0], A[1]) > 0.9 && w.sz(B[0], B[1]) > 0.9 ? '<path class="w-liteb" d="M' + n(l0[0]) + " " + n(l0[1]) + "L" + n(l1[0]) + " " + n(l1[1]) + '"/>' : "")]);
+          if (p.wall) prims.push([md + 0.05, '<path class="w-wall" d="' + poly3(w, [[A[0], Y, A[1]], [B[0], Y, B[1]], [B[0], Y - p.wall, B[1]], [A[0], Y - p.wall, A[1]]]) + '"/>']);
+        }
+      });
+    }
+  }
+
+  // A building: a box with a roof, its two faces toward you, windows lit
+  // after dark. p: at [X, Z] (its near corner nearest you is worked out),
+  // w (across), d (deep), h, roof "hip", "gable" or "flat", rh, y (its
+  // floor), piles (it stands out over the water on pilings), wall, roofc
+  // (classes), win: rows of windows.
+  function house3d(id, w, p, r, prims, glass, t) {
+    var X0 = p.at[0] - p.w / 2, X1 = p.at[0] + p.w / 2, Z0 = p.at[1] - p.d / 2, Z1 = p.at[1] + p.d / 2, Y0 = p.y == null ? 0 : p.y, Y1 = Y0 + p.h, RH = p.rh == null ? p.h * 0.4 : p.rh;
+    var md = dist(p.at[0], Z0), tn = tone(md), sv = "", wallc = p.wall || "w-house", roofc = p.roofc || "w-roof";
+    // the pilings under one that stands out over the water
+    if (p.piles) {
+      for (var px = X0 + 0.6; px <= X1; px += p.piles) {
+        [Z0 + 0.4].forEach(function (pz) {
+          var ft = w.foot(px, pz), top = w.P(px, Y0, pz), bot = w.P(px, ft, pz), pwx = Math.max(0.5, w.px(0.45, px, pz));
+          if (w.wet(px, pz) && glass) glass.push(pileGlass(r, bot[0], bot[1], pwx, Math.min(30, w.px(4, px, pz))));
+          sv += pile(r, top[0], top[1], bot[1], pwx, "w-s" + tn, Math.max(0, Math.min((w.hw - ft) * w.fl / w.sz(px, pz), bot[1] - top[1] - 0.5)));
+        });
+      }
+      sv += '<path class="w-u' + tn + '" d="' + poly3(w, [[X0, Y0, Z0], [X1, Y0, Z0], [X1, Y0 - 0.6, Z0], [X0, Y0 - 0.6, Z0]]) + '"/>';
+    }
+    var sideX = Math.abs(X0) < Math.abs(X1) ? X0 : X1, seeSide = (sideX > 0 && X0 > 0) || (sideX < 0 && X1 < 0);
+    var front = [[X0, Y0, Z0], [X1, Y0, Z0], [X1, Y1, Z0], [X0, Y1, Z0]], side = [[sideX, Y0, Z0], [sideX, Y0, Z1], [sideX, Y1, Z1], [sideX, Y1, Z0]];
+    sv += '<path class="' + wallc + '" d="' + poly3(w, front) + '"/>';
+    if (seeSide) {
+      sv += '<path class="' + wallc + ' w-wallside" d="' + poly3(w, side) + '"/>';
+      // its siding, and windows down the side you see
+      var sd2 = "", sw = "", swl = "";
+      for (var yy = Y0 + 0.5; yy < Y1; yy += 0.5) sd2 += poly3(w, [[sideX, yy, Math.max(Z0, 1)], [sideX, yy, Z1], [sideX, yy + 0.05, Z1], [sideX, yy + 0.05, Math.max(Z0, 1)]]);
+      for (var ri2 = 0; ri2 < (p.win || 1); ri2++) {
+        var wy2 = Y0 + (p.h * (ri2 + 0.45)) / ((p.win || 1) + 0.15);
+        for (var wz = Math.max(Z0 + 1.5, 2); wz < Z1 - 1; wz += p.wgap || 2.6) { var pw2 = poly3(w, [[sideX, wy2 - 0.6, wz], [sideX, wy2 - 0.6, wz + 1.3], [sideX, wy2 + 0.6, wz + 1.3], [sideX, wy2 + 0.6, wz]]); sw += pw2; if (r() < 0.75) swl += pw2; }
+      }
+      sv += '<path class="w-siding" d="' + sd2 + '"/><path class="w-win" d="' + sw + '"/><g class="w-lampson w-window"><path class="w-poolg" d="' + swl + '"/></g>';
+    }
+    // the roof
+    var ov = p.eave == null ? 0.5 : p.eave, rx0 = X0 - ov, rx1 = X1 + ov, rz0 = Z0 - ov, rz1 = Z1 + ov, rf = "", rs = "";
+    if (p.roof === "hip") {
+      var inset = Math.min(p.w, p.d) / 2, ra = [rx0 + inset, Y1 + RH, rz0 + inset], rb = [rx1 - inset, Y1 + RH, rz0 + inset];
+      if (p.w < p.d) { ra = [(rx0 + rx1) / 2, Y1 + RH, rz0 + inset]; rb = [(rx0 + rx1) / 2, Y1 + RH, rz1 - inset]; }
+      var rc = p.w < p.d ? rb : [rx1 - inset, Y1 + RH, rz1 - inset], rd = p.w < p.d ? ra : [rx0 + inset, Y1 + RH, rz1 - inset];
+      rf = poly3(w, [[rx0, Y1, rz0], [rx1, Y1, rz0], rb, ra]);
+      rs = sideX < 0 ? poly3(w, [[rx0, Y1, rz0], [rx0, Y1, rz1], rd, ra]) : poly3(w, [[rx1, Y1, rz0], [rx1, Y1, rz1], rc, rb]);
+    } else if (p.roof === "gable") {
+      var ry = Y1 + RH, rm = (rx0 + rx1) / 2;
+      if (p.ridge === "across") { rf = poly3(w, [[rx0, Y1, rz0], [rx1, Y1, rz0], [rx1, ry, (rz0 + rz1) / 2], [rx0, ry, (rz0 + rz1) / 2]]); }
+      else { rf = poly3(w, [[rx0, Y1, rz0], [rx1, Y1, rz0], [rm, ry, rz0]]); rs = poly3(w, sideX < 0 ? [[rx0, Y1, rz0], [rx0, Y1, rz1], [rm, ry, rz1], [rm, ry, rz0]] : [[rx1, Y1, rz0], [rx1, Y1, rz1], [rm, ry, rz1], [rm, ry, rz0]]); }
+    } else rf = poly3(w, [[rx0, Y1, rz0], [rx1, Y1, rz0], [rx1, Y1 + 0.4, rz0], [rx0, Y1 + 0.4, rz0]]);
+    sv += '<path class="' + roofc + ' w-roofside" d="' + rs + '"/><path class="' + roofc + '" d="' + rf + '"/>';
+    var e0 = w.P(rx0, Y1, rz0), e1 = w.P(rx1, Y1, rz0);
+    sv += '<path class="w-liteb" d="M' + n(e0[0]) + " " + n(e0[1]) + "L" + n(e1[0]) + " " + n(e1[1]) + '"/>';
+    // windows: dark by day, lit after dark, a thread of each on the water
+    var wins = "", lit = "", rows = p.win || 1, sc = w.px(1, p.at[0], Z0);
+    for (var ri = 0; ri < rows; ri++) {
+      var wy = Y0 + (p.h * (ri + 0.55)) / (rows + 0.2);
+      for (var wx = X0 + 1.2; wx < X1 - 0.8; wx += p.wgap || 2.6) {
+        var q = w.P(wx, wy, Z0), ww = Math.max(0.5, sc * 0.9), wh = Math.max(0.5, sc * 1.0);
+        wins += poly([[q[0] - ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] + wh / 2], [q[0] - ww / 2, q[1] + wh / 2]]);
+        if (r() < 0.8) lit += poly([[q[0] - ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] + wh / 2], [q[0] - ww / 2, q[1] + wh / 2]]);
+      }
+    }
+    var glow = "", c0 = w.P(p.at[0], Y0 + p.h * 0.5, Z0);
+    if (lit) glow = '<circle cx="' + n(c0[0]) + '" cy="' + n(c0[1]) + '" r="' + n(Math.min(80, sc * p.w * 0.45 + 6)) + '" fill="url(#' + id + '-lamp)"/>';
+    sv += '<path class="w-win" d="' + wins + '"/><g class="w-lampson w-window">' + glow + '<path class="w-poolg" d="' + lit + '"/></g>';
+    (p.flags || []).forEach(function (fx) {
+      var fz = Z0 - 2, fb = w.P(fx, Y0, fz), ft2 = w.P(fx, Y0 + 9, fz), fwd = Math.max(0.4, w.px(0.1, fx, fz)), fs = w.px(1, fx, fz);
+      sv += '<path class="w-s' + tn + '" d="' + poly([[fb[0] - fwd / 2, fb[1]], [fb[0] + fwd / 2, fb[1]], [ft2[0] + fwd * 0.3, ft2[1]], [ft2[0] - fwd * 0.3, ft2[1]]]) + '"/>' +
+        '<path class="w-flag" d="' + poly([[ft2[0], ft2[1] + fs * 0.2], [ft2[0] + fs * 1.5, ft2[1] + fs * 0.35 + (r() - 0.5) * fs * 0.3], [ft2[0] + fs * 1.45, ft2[1] + fs * 1.15], [ft2[0], ft2[1] + fs * 1.05]]) + '"/>';
+    });
+    prims.push([md, sv]);
+  }
+
+  // A big shade tree close to you, drawn limb by limb: a trunk that forks
+  // low, limbs that fork again and again, each thinner and shorter, and at
+  // the ends a haze of twigs (winter) or lumps of leaves (summer). Screen
+  // units: x, base (its foot), h (its height). Never a ball on a stick.
+  function bigTree(r, x, base, h, isBare, spread) {
+    var wood = "", twig = "", leaf = "", top = base;
+    spread = spread || 1;
+    function limb(x0, y0, ang, len, w, depth) {
+      var bend = (r() - 0.5) * 0.35, mx = x0 + Math.cos(ang + bend) * len * 0.5, my = y0 - Math.sin(ang + bend) * len * 0.5;
+      var ex = x0 + Math.cos(ang) * len, ey = y0 - Math.sin(ang) * len, w1 = w * 0.62, nx = Math.sin(ang), ny = Math.cos(ang);
+      wood += poly([[x0 - nx * w / 2, y0 - ny * w / 2], [mx - nx * w * 0.42, my - ny * w * 0.42], [ex - nx * w1 / 2, ey - ny * w1 / 2], [ex + nx * w1 / 2, ey + ny * w1 / 2], [mx + nx * w * 0.42, my + ny * w * 0.42], [x0 + nx * w / 2, y0 + ny * w / 2]]);
+      if (ey < top) top = ey;
+      if (depth >= 4 || len < 3) {
+        if (isBare) for (var t = 0; t < 6; t++) { var ta = ang + (r() - 0.5) * 1.6, tl = len * (0.5 + r() * 0.7); twig += poly([[ex - 0.25, ey], [ex + Math.cos(ta) * tl, ey - Math.sin(ta) * tl], [ex + 0.25, ey]]); }
+        else { var lr = len * (0.9 + r() * 0.6), pts = [], m = 11; for (var i = 0; i < m; i++) { var a = (i / m) * Math.PI * 2, k = 0.7 + r() * 0.45; pts.push([ex + Math.cos(a) * lr * k, ey + Math.sin(a) * lr * k * 0.72]); } leaf += poly(pts); }
+        return;
+      }
+      var kids = depth === 0 ? 4 : 2 + (r() < 0.45 ? 1 : 0);
+      for (var c = 0; c < kids; c++) {
+        var f = kids === 1 ? 0 : c / (kids - 1) - 0.5, ca = ang + f * (depth === 0 ? 1.9 * spread : 1.1) + (r() - 0.5) * 0.3;
+        ca = Math.max(0.18, Math.min(Math.PI - 0.18, ca));
+        limb(ex, ey, ca, len * (0.66 + r() * 0.16), w1 * (0.8 + r() * 0.2), depth + 1);
+      }
+    }
+    var fork = base - h * (0.3 + r() * 0.08), tw = Math.max(1.2, h * 0.05);
+    wood += poly([[x - tw * 0.9, base], [x - tw * 0.55, base - h * 0.06], [x - tw * 0.42, fork], [x + tw * 0.42, fork], [x + tw * 0.55, base - h * 0.06], [x + tw * 0.9, base]]);
+    limb(x, fork + tw * 0.2, Math.PI / 2 + (r() - 0.5) * 0.2, (base - fork) * 0.55 + h * 0.08, tw * 0.85, 0);
+    return { wood: wood, twig: twig, leaf: leaf, top: top };
+  }
+  // Trees standing on the ground near you, placed in metres: "broad" (a
+  // leafy tree, bare in winter), "fir", "cedar" (a drooping fir).
+  function tree3d(w, p, bareNow, prims) {
+    var r = rnd(Math.round(p.at[0] * 31 + p.at[1] * 17 + (p.h || 10))), Z = p.at[1], X = p.at[0], b = w.P(X, p.y == null ? w.E - 1.6 : p.y, Z), h = w.px(p.h || 12, X, Z), d = dist(X, Z), cls = "w-l" + (d < 30 ? 5 : d < 80 ? 4 : 3), sv;
+    if (p.kind === "fir" || p.kind === "cedar") sv = '<path class="' + cls + '" d="' + conifer(r, b[0], b[1], h, { full: p.kind === "cedar" ? 0.3 : 0.22, rag: p.kind === "cedar" ? 0.85 : 0.6, step: Math.max(2.4, h / 16) }) + '"/>';
+    else if (h > 60) {
+      var bt = bigTree(r, b[0], b[1], h, bareNow, p.spread);
+      sv = '<path class="w-rim" d="' + bt.wood + '"/><g class="' + cls + '">' + (bt.leaf ? '<path d="' + bt.leaf + '"/>' : "") + '<path class="w-twig" d="' + bt.twig + '"/><path d="' + bt.wood + '"/></g>';
+    } else {
+      var bl = broadleaf(r, b[0], b[1], h, { bare: bareNow, wide: p.wide || 0.36, vase: true, clear: 0.34 });
+      sv = '<path class="w-rim" d="' + bl.trunk + '"/><g class="' + cls + '"><path class="' + (bareNow ? "w-twig" : "") + '" d="' + bl.crown + '"/><path d="' + bl.trunk + '"/></g>';
+    }
+    prims.push([d + 0.2, sv]);
+  }
+  // A shrub, a driftwood log, a boulder: small things on the beach.
+  function shrub3d(w, p, prims) {
+    var r = rnd(Math.round(p.at[0] * 13 + p.at[1] * 7)), Z = p.at[1], c = w.P(p.at[0], p.y, Z), rx = w.px(p.r, p.at[0], Z), ry = w.px(p.r * 0.75, p.at[0], Z), pts = [], i;
+    for (i = 0; i < 26; i++) { var a = Math.PI + (i / 25) * Math.PI, k = 0.78 + r() * 0.3; pts.push([c[0] + Math.cos(a) * rx * k, c[1] + Math.sin(a) * ry * 1.5 * k]); }
+    var tw = "";
+    for (i = 0; i < 18; i++) { var tx = c[0] + (r() - 0.5) * rx * 1.6, ty = c[1] - r() * ry * 1.3; tw += poly([[tx - 0.4, ty + 1], [tx + (r() - 0.5) * 3, ty - 2 - r() * 3], [tx + 0.4, ty + 1]]); }
+    prims.push([dist(p.at[0], Z), '<path class="w-l5" d="' + poly(pts) + tw + '"/><path class="w-rim" d="' + tw + '"/>']);
+  }
+  function log3d(w, p, prims) {
+    // a bleached drift log: it swells and narrows, bends a little, its grain
+    // runs along it, a split or two, and one end ragged where it broke
+    var a = p.a, b = p.b, d = p.d || 0.7, r = rnd(Math.round(a[0] * 19 + a[1] * 11)), m = 9, top = [], bot = [], g1 = [], g2 = [], i;
+    for (i = 0; i <= m; i++) {
+      var u = i / m, X = a[0] + (b[0] - a[0]) * u, Z = a[1] + (b[1] - a[1]) * u + Math.sin(u * Math.PI) * 0.25, rr = d * (0.42 + 0.14 * Math.sin(u * 5 + 1) + r() * 0.06) * (u > 0.85 ? 0.8 : 1);
+      var c = w.P(X, p.y + rr, Z), lo = w.P(X, p.y, Z), hi = w.P(X, p.y + rr * 2, Z);
+      top.push(hi); bot.unshift(lo); g1.push([c[0], c[1] - (c[1] - hi[1]) * 0.45]); g2.push([c[0], c[1] + (lo[1] - c[1]) * 0.25]);
+    }
+    var A = bot[bot.length - 1], T0 = top[0], end = [[T0[0] - 1.2, T0[1] + 0.5], [T0[0] - 2.4, (T0[1] + A[1]) / 2 - 1], [T0[0] - 1, (T0[1] + A[1]) / 2 + 0.6], [A[0] - 2, A[1] - 0.4]];
+    var body = poly(top.concat(bot, end.slice().reverse()));
+    var sh = poly([bot[0], bot[bot.length - 1], [bot[bot.length - 1][0] + 3, bot[bot.length - 1][1] + 2.5], [bot[0][0] + 5, bot[0][1] + 2]]);
+    var sv = '<path class="w-cob-sh" d="' + sh + '"/><path class="w-drift" d="' + body + '"/><path class="w-driftg" d="' + line(g1.slice(1, 7)) + line(g2.slice(3, 9)) + '"/>' +
+      '<path class="w-driftl" d="' + line(top.slice(1, m)) + '"/>';
+    prims.push([(dist(a[0], a[1]) + dist(b[0], b[1])) / 2, sv]);
+  }
+  // A sit-on-top kayak pulled up on the sand at today's water's edge, its
+  // paddle across it (the stand Coach launches from).
+  function kayak3d(w, p, prims) {
+    var z = p.z || Math.max(6, (w.edgeZ || 8) - 2.2), y = w.foot(p.x, z) + (w.wet(p.x, z) ? 0.08 : 0.02), L = 3.9, a = p.angle || 0.35, ca = Math.cos(a), sa = Math.sin(a), x0 = p.x;
+    function q(u, v, hgt) { return [x0 + u * sa + v * ca, y + hgt, z + u * ca - v * sa]; }
+    var hull = [q(-L / 2, 0, 0.12), q(-L * 0.36, -0.36, 0.3), q(L * 0.3, -0.38, 0.3), q(L / 2, 0, 0.18), q(L * 0.3, 0.38, 0.3), q(-L * 0.36, 0.36, 0.3)];
+    var deck = [q(-L * 0.46, 0, 0.32), q(-L * 0.3, -0.3, 0.34), q(L * 0.28, -0.32, 0.34), q(L * 0.46, 0, 0.3), q(L * 0.28, 0.32, 0.34), q(-L * 0.3, 0.3, 0.34)];
+    var seat = [q(-0.35, -0.2, 0.36), q(0.25, -0.2, 0.36), q(0.25, 0.2, 0.36), q(-0.35, 0.2, 0.36)];
+    var pd = [q(-0.2, -1.2, 0.4), q(0.05, -1.2, 0.4), q(0.05, 1.2, 0.4), q(-0.2, 1.2, 0.4)];
+    var sh = [q(-L / 2, 0.3, 0), q(L / 2, 0.3, 0), q(L / 2, 1.0, 0), q(-L / 2, 1.0, 0)];
+    prims.push([dist(x0, z), '<path class="w-cob-sh" d="' + poly3(w, sh) + '"/><path class="w-kayak" d="' + poly3(w, hull) + '"/><path class="w-kayakd" d="' + poly3(w, deck) + '"/>' +
+      '<path class="w-s5" d="' + poly3(w, seat) + poly3(w, pd) + '"/>']);
+  }
+  // Rocks placed in metres: a breakwater, riprap at the water's edge,
+  // boulders on a beach. pts: [X, Z, size] along the heap; y: its foot (the
+  // water today when not given).
+  function rocks3d(w, p, sd, prims) {
+    var pts = p.pts.map(function (q) { var y = p.y != null ? p.y : w.foot(q[0], q[1]), c = w.P(q[0], y, q[1]); return [c[0], c[1], w.px(q[2], q[0], q[1])]; });
+    var d = p.pts.reduce(function (s, q) { return s + dist(q[0], q[1]); }, 0) / p.pts.length;
+    prims.push([p.depth != null ? p.depth : d, rocks(sd, pts, { tall: p.tall || 1, wet: p.dry ? 0 : (1 - w.wl / w.rng) * (p.wet || 4), cls: p.cls || (d > 60 ? "w-farrock" : d > 25 ? "w-midrock" : "") })]);
+  }
+  // Ground you could walk on, in plan: a lawn, a path, a beach, gravel.
+  //   tufts: grass along its far edge; shade: [[X, Z, r]] tree shadows on it;
+  //   edges: a lit line along its near and far sides (a path's kerbs)
+  function ground3d(w, p, sd) {
+    var y = p.y == null ? w.E - 1.6 : p.y, pts3 = p.pts.map(function (q) { return [q[0], q[2] == null ? y : q[2], q[1]]; }), out = '<path class="' + (p.cls || "w-lawn") + '" d="' + poly3(w, pts3) + '"/>';
+    (p.shade || []).forEach(function (sh) {
+      var c = [], i; for (i = 0; i < 16; i++) { var an = (i / 16) * Math.PI * 2; c.push([sh[0] + Math.cos(an) * sh[2] * 1.3, y + 0.01, sh[1] + Math.sin(an) * sh[2] * 0.8]); }
+      out += '<path class="w-lawnsh" d="' + poly3(w, c) + '"/>';
+    });
+    if (p.edges) [pts3[0], pts3[3]].forEach(function (a, i) { var b = pts3[i ? 2 : 1], A = w.P(a[0], a[1], a[2]), B = w.P(b[0], b[1], b[2]); out += '<path class="w-liteb" d="M' + n(A[0]) + " " + n(A[1]) + "L" + n(B[0]) + " " + n(B[1]) + '"/>'; });
+    if (p.tufts) {
+      var r = rnd(sd || 7), d = "", far = pts3[2], far2 = pts3[3];
+      for (var k = 0; k < (TILE ? 60 : 260); k++) {
+        var u = r(), zz = far[2] - r() * r() * (p.tufts), xx = far2[0] + (far[0] - far2[0]) * u, Q = w.P(xx, y, zz);
+        if (Q[0] < -5 || Q[0] > W + 5 || w.sz(xx, zz) < 1) continue;
+        var hh = w.px(0.12 + r() * 0.22, xx, zz), lean = (r() - 0.4) * hh * 0.6;
+        d += poly([[Q[0] - 0.45, Q[1]], [Q[0] + lean, Q[1] - hh], [Q[0] + 0.45, Q[1]]]);
+      }
+      out += '<path class="w-tuft" d="' + d + '"/>';
+    }
+    return out;
+  }
+  // A row of trees along a line in plan, the land under them, each tree its
+  // own height: "fir", "mixed" (no card names the kinds) or "broad".
+  function woods3d(w, p, isBare, prims, sd) {
+    var r = rnd(sd), a = p.a, b = p.b, L = Math.hypot(b[0] - a[0], b[1] - a[1]), y = p.y == null ? w.foot(a[0], a[1]) + 0.5 : p.y, gap = p.gap || 3.2;
+    var ux = (b[0] - a[0]) / L, uz = (b[1] - a[1]) / L, back = p.back || 30;
+    var land = poly3(w, [[a[0], y, a[1]], [b[0], y, b[1]], [b[0] + uz * back, y, b[1] - ux * back], [a[0] + uz * back, y, a[1] - ux * back]]);
+    if (p.land !== false) prims.push([(dist(a[0], a[1]) + dist(b[0], b[1])) / 2 + 0.5, '<path class="w-l5" d="' + land + '"/>']);
+    for (var d = 0; d < L; d += gap * (0.6 + r() * 0.8)) {
+      var X = a[0] + ux * d + (r() - 0.5) * gap, Z = a[1] + uz * d + (r() - 0.5) * gap * 2;
+      if (w.sz(X, Z) < 2) continue;
+      var h = (p.h || 24) * (0.65 + r() * 0.55), base = w.P(X, y, Z), hp = w.px(h, X, Z), dd = dist(X, Z), cls = "w-l" + (dd < 40 ? 5 : dd < 120 ? 4 : 3), fir = p.kind === "fir" || (p.kind !== "broad" && r() < (p.mix == null ? 0.4 : p.mix));
+      var sv = fir ? '<path class="' + cls + '" d="' + conifer(r, base[0], base[1], hp, { full: 0.17 + r() * 0.08, rag: 0.65 }) + '"/>' :
+        (function () { var bl = broadleaf(r, base[0], base[1], hp, { bare: isBare, vase: p.kind === "cottonwood" }); return '<g class="' + cls + '"><path class="' + (isBare ? "w-twig" : "") + '" d="' + bl.crown + '"/><path d="' + bl.trunk + '"/></g>'; })();
+      prims.push([dd, sv]);
+    }
+  }
+  // Paint the world parts of a spot: the ground first, then every standing
+  // thing from far to near, with the piles' copies in the water under all.
+  function worldParts(id, w, o, t, r, sd) {
+    var prims = [], glass = [], grounds = "", lamps = 0, isBare = bare(t.date);
+    (o.parts || []).forEach(function (q, k) {
+      if (q.t === "pier") lamps += pier3d(id, w, q, t, r, prims, glass);
+      else if (q.t === "float") float3d(id, w, q, t, r, prims, glass);
+      else if (q.t === "ramp") grounds += ramp3d(w, q, r);
+      else if (q.t === "rail") rail3d(w, q, prims);
+      else if (q.t === "house") house3d(id, w, q, r, prims, glass, t);
+      else if (q.t === "tree") tree3d(w, q, isBare, prims);
+      else if (q.t === "shrub") shrub3d(w, q, prims);
+      else if (q.t === "log") log3d(w, q, prims);
+      else if (q.t === "rocks") rocks3d(w, q, sd + 400 + k, prims);
+      else if (q.t === "ground") grounds += ground3d(w, q, sd + 600 + k);
+      else if (q.t === "woods") woods3d(w, q, isBare, prims, sd + 500 + k);
+      else if (q.t === "lamp") lampPost(id, w, q, prims);
+      else if (q.t === "kayak") kayak3d(w, q, prims);
+    });
+    prims.sort(function (a, b) { return b[0] - a[0]; });
+    return { glass: glass.join(""), ground: grounds, things: prims.map(function (q) { return q[1]; }).join("") };
+  }
+
   // ---- parts: the bank ---------------------------------------------------------------
   // A Sound beach from the shore: the tide's edge (yW, high in the picture
   // at low water, close at high water), the wet flat below it shining with
   // the sky, ripple marks and a pool or two the tide left, then dry sand.
-  function flats(id, seed, yW, low) {
+  // yD (optional): where the dry beach starts, for a beach placed in metres.
+  function flats(id, seed, yW, low, yD0) {
     var r = rnd(seed), nz = noise(seed + 3), x, k, edge = [], dry = [];
     for (x = -6; x <= W + 6; x += 8) edge.push([x, yW + (nz(x * 0.014) - 0.5) * 7 + (nz(x * 0.08 + 4) - 0.5) * 2]);
-    var yD = yW + 20 + low * 22;
+    var yD = yD0 != null ? clamp(yD0, yW + 5, H + 12) : yW + 20 + low * 22;
     for (x = W + 6; x >= -6; x -= 12) dry.push([x, yD + (nz(x * 0.01 + 20) - 0.5) * 10]);
     var wet = poly(edge.map(function (q) { return [q[0], q[1] - 0.6]; }).concat(dry));
     var sheen = "", rip = "", pools = "";
@@ -1461,7 +1996,7 @@
       var wy = yW + 3 + r() * (yD - yW), wx = r() * W, wl = 5 + r() * 22;
       sheen += '<path d="M' + n(wx) + " " + n(wy) + "h" + n(wl) + '" stroke-width="' + n(0.4 + r() * 0.7) + '" opacity="' + n(0.2 + r() * 0.55) + '"/>';
     }
-    for (k = 0; k < 70 * low; k++) {
+    for (k = 0; k < (TILE ? 50 : 150) * low; k++) {
       var ry = yW + 6 + Math.pow(r(), 0.8) * (yD - yW - 4), rx = r() * W, rl = 1.5 + (ry - yW) * 0.12 * (0.6 + r());
       rip += poly([[rx, ry], [rx + rl * 0.5, ry - 0.35 - (ry - yW) * 0.008], [rx + rl, ry], [rx + rl * 0.5, ry + 0.25]]);
     }
@@ -1469,11 +2004,15 @@
       var py = yW + 10 + r() * (yD - yW - 12), px = r() * W, pw = 14 + r() * 40 * (0.6 + (py - yW) / 50);
       pools += '<ellipse cx="' + n(px) + '" cy="' + n(py) + '" rx="' + n(pw) + '" ry="' + n(1.2 + (py - yW) * 0.05) + '"/>';
     }
+    // the last high tide's line of weed and shell along the top of the flat
+    var wrack = "";
+    for (k = 0; k < (TILE ? 30 : 110); k++) { var wx2 = r() * W, wy3 = yD - 2 + (nz(wx2 * 0.01 + 20) - 0.5) * 10 + (r() - 0.5) * 3, wz = 0.4 + r() * r() * 1.6 * (0.5 + (wy3 - yW) / 50); wrack += '<ellipse cx="' + n(wx2) + '" cy="' + n(wy3) + '" rx="' + n(wz * 1.6) + '" ry="' + n(wz * 0.45) + '"/>'; }
     var lace = line(edge.map(function (q) { return [q[0] + 2, q[1] + 1.8]; }));
     return '<path class="w-flat" d="' + wet + '"/>' + '<g class="w-lightx"><ellipse class="w-sandroad" cx="0" cy="' + n(yW + 14) + '" rx="54" ry="22" fill="url(#' + id + '-glow)"/></g>' +
       '<g class="w-pools">' + pools + '</g><g class="w-sheen">' + sheen + '</g><path class="w-ripm" d="' + rip + '"/>' +
       '<path class="w-lace" d="' + lace + '"/><path class="w-foam" d="' + line(edge) + '"/>' +
-      '<path class="w-shore" d="' + line(dry.slice().reverse()) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>';
+      '<path class="w-shore" d="' + line(dry.slice().reverse()) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>' +
+      (yD < H ? '<g class="w-wrack">' + wrack + "</g>" : "");
   }
   // Cobbles, many small and a few big enough to carry a shade, from y0 down.
   function cobbles(seed, x0, x1, y0, y1, cnt) {
@@ -1502,9 +2041,15 @@
     var r = rnd(seed), cx = (x0 + x1) / 2, top = [[x0 - 26, H + 4], [x1 + 26, H + 4], [cx + (x1 - x0) * 0.32, yW], [cx - (x1 - x0) * 0.32, yW]];
     var sub = quad([cx - (x1 - x0) * 0.32, yW], [cx + (x1 - x0) * 0.32, yW], [cx + (x1 - x0) * 0.22, yW - 8], [cx - (x1 - x0) * 0.22, yW - 8]);
     var marks = "", k;
-    if (kind === "gravel") return '<path class="w-rampw" d="' + sub + '"/><path class="w-gravel" d="' + poly(top) + '"/>' + cobbles(seed + 1, x0 - 10, x1 + 10, yW + 2, H, 160);
+    if (kind === "gravel") {
+      var gz = noise(seed + 3), L2 = [], R2 = [], gy;
+      for (gy = yW; gy <= H + 4; gy += 5) { var u2 = (gy - yW) / (H - yW), hw2 = (x1 - x0) * (0.34 + u2 * 0.75) + u2 * 30; L2.push([cx - hw2 + (gz(gy * 0.2) - 0.5) * 9, gy]); R2.unshift([cx + hw2 + (gz(gy * 0.2 + 7) - 0.5) * 9, gy]); }
+      var fan = poly(L2.concat(R2)), wetb = poly([L2[0], R2[R2.length - 1], [R2[R2.length - 3][0], R2[R2.length - 3][1]], [L2[2][0], L2[2][1]]]);
+      return '<path class="w-rampw" d="' + sub + '"/><path class="w-gravel" d="' + fan + '"/><path class="w-gravelw" d="' + wetb + '"/>' + cobbles(seed + 1, x0 - 18, x1 + 18, yW + 1, H, TILE ? 90 : 260) +
+        '<path class="w-foam" d="M' + n(L2[0][0] - 4) + " " + n(yW + 0.5) + "L" + n(R2[R2.length - 1][0] + 4) + " " + n(yW - 0.5) + '"/>';
+    }
     for (k = 0; k < 14; k++) { var y = yW + 2 + k * k * 0.42, u = (y - yW) / (H - yW), hw = (x1 - x0) * (0.32 + u * 0.5) + u * 26; marks += "M" + n(cx - hw * 0.96) + " " + n(y) + "H" + n(cx + hw * 0.96); }
-    return '<path class="w-rampw" d="' + sub + '"/><path class="w-ramp" d="' + poly(top) + '"/><path class="w-groove" d="' + marks + '"/>' +
+    return '<path class="w-rampw" d="' + sub + '"/><path class="w-ramp3" d="' + poly(top) + '"/><path class="w-groove3" d="' + marks + '"/>' +
       '<path class="w-liteb" d="M' + n(cx - (x1 - x0) * 0.32) + " " + n(yW) + "H" + n(cx + (x1 - x0) * 0.32) + '"/>';
   }
 
@@ -1555,11 +2100,22 @@
       if (b.layer === "over") over += s; else under += s;
     });
     front += under;
+    // the world in metres: the beach as far as today's tide leaves it, then
+    // the pier, the float, the rocks and the buildings, far to near
+    if (o.parts || o.ground) {
+      var wd2 = world(V, o, t), wp = worldParts(id + "f", wd2, o, t, r, sd), beach = "";
+      if (o.ground && wd2.edgeZ != null) {
+        var yW = wd2.P(0, wd2.wl, wd2.edgeZ)[1], yD = wd2.P(0, o.ground.top, o.ground.shore)[1];
+        if (yW < H + 4) beach = flats(id + "f", sd + 300, yW, 1 - t.tide, o.ground.dry === false ? H + 12 : yD);
+        if (o.ground.cobble) beach += cobbles(sd + 311, -4, W + 4, Math.max(yW + 3, HZ + 4), H, 300);
+      }
+      front += '<g filter="url(#' + id + 'f-wv)">' + wp.glass + "</g>" + beach + wp.ground + wp.things;
+    }
     if (o.view === "deck") front += onPier(id + "f", o.pier || {}, t, r, V);
     else if (o.view === "side") { var sp = sidePier(id + "f", o.pier || {}, t, r); fdef += sp.def; front += sp.svg; }
     else if (o.view === "dock" || o.view === "float") front += onDock(id + "f", o.dock || {}, t, r, V);
     front += over;
-    if (!under && o.view !== "deck" && o.view !== "dock" && o.view !== "float") front += shoreEdge([[-2, 305], [60, 302], [130, 304], [200, 308], [270, 309], [330, 307], [392, 310]]);
+    if (!under && !o.parts && !o.ground && o.view !== "deck" && o.view !== "dock" && o.view !== "float") front += shoreEdge([[-2, 305], [60, 302], [130, 304], [200, 308], [270, 309], [330, 307], [392, 310]]);
     var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
     return { back: back, gl: [sd + 200, HZ + 2.5, H, wd.dens], mid: defs(id + "m", mdef) + fog + mid, front: defs(id + "f", fdef) + (fog ? '<rect class="w-fog w-fog2" width="' + W + '" height="' + H + '"/>' : "") + front };
   }
@@ -1631,9 +2187,16 @@
     // the bank beside you
     if (lk.wetland) {
       var wl2 = lk.wetland === "left", wx0 = wl2 ? -10 : 286, wx1 = wl2 ? 104 : 400, wy2 = yTop + 22;
-      var edgeP = [[wl2 ? wx1 : wx0, wy2 + 3], [wl2 ? wx0 : wx1, wy2 - 4], [wl2 ? wx0 : wx1, wy2 + 40], [wl2 ? wx1 + 20 : wx0 - 20, wy2 + 40]];
-      near += '<path class="w-lawn" d="' + poly(edgeP) + '"/>' + grass(sd + 77, [[wx0 + 12, wy2 + 2, 9], [wx0 + 40, wy2 + 1, 9], [wx0 + 70, wy2, 9], [wx0 + 96, wy2 - 1, 7]], 12, "w-sedge");
-      var bx = wl2 ? 30 : 352, by = wy2 + 9;
+      var mz2 = noise(sd + 79), mk = [], xm, rs3 = rnd(sd + 81), bl3 = "", bl4 = "";
+      for (xm = wx0 - 10; xm <= wx1 + 10; xm += 6) { var um = wl2 ? 1 - (xm - wx0) / (wx1 - wx0) : (xm - wx0) / (wx1 - wx0); mk.push([xm, wy2 + 14 - um * 18 + (mz2(xm * 0.06) - 0.5) * 7]); }
+      near += '<path class="w-sedgeg" d="' + line(mk) + "L" + (wl2 ? wx0 - 10 : wx1 + 10) + " " + (wy2 + 60) + "L" + (wl2 ? wx1 + 10 : wx0 - 10) + " " + (wy2 + 60) + 'Z"/>';
+      for (var mq = 0; mq < (TILE ? 40 : 150); mq++) {
+        var mx2 = wx0 + rs3() * (wx1 - wx0), um2 = wl2 ? 1 - (mx2 - wx0) / (wx1 - wx0) : (mx2 - wx0) / (wx1 - wx0), my2 = wy2 + 14 - um2 * 18 + (mz2(mx2 * 0.06) - 0.5) * 7 + rs3() * 16, mh = (5 + rs3() * 12) * (0.6 + um2 * 0.8), ml = (rs3() - 0.4) * mh * 0.5;
+        var bd3 = "M" + n(mx2 - 0.7) + " " + n(my2) + "Q" + n(mx2 + ml * 0.3) + " " + n(my2 - mh * 0.6) + " " + n(mx2 + ml) + " " + n(my2 - mh) + "Q" + n(mx2 + ml * 0.3 + 0.7) + " " + n(my2 - mh * 0.5) + " " + n(mx2 + 0.7) + " " + n(my2) + "Z";
+        if (mq % 3) bl3 += bd3; else bl4 += bd3;
+      }
+      near += '<path class="w-reed2" d="' + bl4 + '"/><path class="w-reed" d="' + bl3 + '"/>';
+      var bx = wl2 ? 30 : 362, by = wy2 + 3;
       near += '<path class="w-pile" d="' + poly([[bx - 6, by - 2.4], [bx + 6, by - 2.4], [bx + 6, by - 1.6], [bx - 6, by - 1.6]]) + poly([[bx - 5, by - 1.6], [bx - 4.2, by - 1.6], [bx - 4.2, by + 1], [bx - 5, by + 1]]) + poly([[bx + 4.2, by - 1.6], [bx + 5, by - 1.6], [bx + 5, by + 1], [bx + 4.2, by + 1]]) + poly([[bx - 6, by - 4.6], [bx + 6, by - 4.6], [bx + 6, by - 3.9], [bx - 6, by - 3.9]]) + '"/>';
     }
     if (low) {
@@ -1648,7 +2211,14 @@
     }
     var stand = lk.stand, front = "", yW = yTop + 60;
     if (stand === "dock" || stand === "pier") front += onDock(id + "f", o.dock || {}, t, r, V);
-    else if (stand === "ramp" || stand === "gravel") front += ramp(sd + 9, stand === "gravel" ? "gravel" : "concrete", Math.min(242, yW), 160, 236);
+    else if (stand === "ramp" || stand === "gravel") {
+      // your own bank either side of the launch: its edge, grass and sedge
+      var yB = Math.min(220, yTop + 34), bz = noise(sd + 61), bk = [], xb;
+      for (xb = -6; xb <= W + 6; xb += 8) bk.push([xb, yB + 6 + (bz(xb * 0.03) - 0.5) * 8 + Math.abs(xb - 198) * 0.05]);
+      front += '<path class="w-shorewet" d="' + line(bk.map(function (q) { return [q[0], q[1] - 3]; })) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/><path class="w-lawn" d="' + line(bk) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>' +
+        grass(sd + 63, bk.filter(function (q) { return Math.abs(q[0] - 198) > 52; }).map(function (q) { return [q[0], q[1] + 1, 7]; }), 11, "w-sedge");
+      front += ramp(sd + 9, stand === "gravel" ? "gravel" : "concrete", yB, 168, 228);
+    }
     else front += shoreEdge([[-2, 306], [60, 303], [130, 305], [200, 309], [270, 310], [330, 308], [392, 311]]);
     var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
     return { back: back, gl: [sd + 800, yTop + 5, H, 0.45 * wd.dens], mid: defs(id + "m", mdef) + fog + mid + near, front: defs(id + "f") + front };
@@ -1671,7 +2241,7 @@
     var isBare = bare(t.date), dir = rv.flow === "left" ? -1 : 1, far = rv.far || { kind: "mixed" };
     // the water's colour: clear and green-dark when the river is low, milky
     // with the sky's own pale when it runs high
-    var clear = Math.round((1 - lvl) * 26), milk = Math.round(lvl * lvl * 44);
+    var clear = Math.round((1 - lvl) * (rv.glacial ? 8 : 26)), milk = Math.round(rv.glacial ? 30 + lvl * 26 : lvl * lvl * 44);
     function wc(v) { return "color-mix(in oklab,color-mix(in oklab," + v + ",var(--shore) " + clear + "%),var(--hz) " + milk + "%)"; }
     var wdef = '<linearGradient id="' + id + '-rw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + wc("var(--water1)") + '"/><stop offset="1" style="stop-color:' + wc("var(--water2)") + '"/></linearGradient>';
     var back = defs(id, wdef) + skyLayer(id, { seed: sd + 500 });
@@ -1680,11 +2250,22 @@
       var v2 = headland({ seed: sd + 8, from: 460, to: 150, base: RY - 3, h: 88, tree: 3.2, gap: 2.2, shape: 1.7, freq: 0.011, tipFade: 3 });
       back += '<path class="w-l0" d="' + v1.land + '"/>' + mist(id, sd + 81, RY - 30, 1.6) + '<path class="w-l1" d="' + v2.land + '"/>' + mist(id, sd + 82, RY - 12, 1.3);
     }
+    // a low wooded ridge on the far skyline, rv.ridge degrees high
+    if (rv.ridge) {
+      var rg = headland({ seed: sd + 9, from: -40, to: 440, base: RY - 3, h: rv.ridge * V.ud + (RY - HZ) - 6, tree: 2.2, gap: 2.1, shape: 30, freq: 0.006, tipFade: 60 });
+      back += '<path class="w-l1" d="' + rg.land + '"/>' + mist(id, sd + 84, RY - 10, 1.2);
+    }
+    // fields on both banks (128th St E): flat open ground, a hedge here and there
+    if (rv.fields) {
+      var fr = rnd(sd + 87), fld = "";
+      back += '<path class="w-l1" d="' + poly([[-6, RY - 6], [396, RY - 7], [396, RY], [-6, RY]]) + '"/>';
+    }
     back += '<rect y="' + (RY - 2) + '" width="' + W + '" height="' + (H - RY + 2) + '" fill="url(#' + id + '-rw)"/>' +
       '<rect y="' + (RY - 2) + '" width="' + W + '" height="40" fill="url(#' + id + '-hzr)"/>' +
       '<g class="w-lightx"><ellipse cx="0" cy="' + (RY - 2) + '" rx="58" ry="' + (H - RY) + '" fill="url(#' + id + '-glow)" class="w-road"/></g>';
     // the far bank
     var fb, mdef = "", mid = "";
+    if (rv.fields) far = { kind: "plain", h: 2.2, tree: 1.4 };
     if (far.kind === "plain") {
       fb = headland({ seed: sd + 31, from: -30, to: 430, base: RY, h: far.h || 5, tree: far.tree || 6, gap: 3.2, shape: 12, freq: 0.012, tipFade: 60 });
       fb.trees = "";
@@ -1717,6 +2298,73 @@
       rf2 += '<path d="M' + n(rx) + " " + n(ry) + "q" + n((dir * rl) / 2) + " " + n(-0.6 - r() * 0.6) + " " + n(dir * rl) + " " + n(0.3 + lvl * 0.4) + '" opacity="' + n(0.3 + r() * 0.6) + '"/>';
     }
     mid += '<g class="w-riffle">' + rf2 + "</g>";
+    // a riffle running over gravel just in front of you: short standing
+    // waves, whiter as the river rises
+    if (rv.riffle) {
+      var rw = "", rs2 = rnd(sd + 93);
+      for (k = 0; k < (TILE ? 20 : 60); k++) {
+        var wy0 = RY + 16 + rs2() * 26, wx0 = rs2() * W, wl0 = 2 + rs2() * 6 * (0.6 + (wy0 - RY) / 30);
+        rw += poly([[wx0, wy0], [wx0 + wl0 * 0.4, wy0 - 0.8 - rs2() * 0.8], [wx0 + wl0, wy0 - 0.2], [wx0 + wl0 * 0.6, wy0 + 0.5]]);
+      }
+      mid += '<path class="w-capf" opacity="' + n(0.35 + lvl * 0.5) + '" d="' + rw + '"/>';
+    }
+    // farm fields across (128th St E): low flat ground, scattered houses and
+    // a few trees standing alone or in a line
+    if (rv.fields) {
+      var fr = rnd(sd + 88), ft = "", hx = [];
+      for (k = 0; k < 7; k++) {
+        var tx = -10 + fr() * 410, th2 = 8 + fr() * 14, bl = broadleaf(fr, tx, RY - 5.6, th2, { bare: isBare, vase: true });
+        ft += (isBare ? '<path class="w-twig" d="' + bl.crown + '"/>' : '<path d="' + bl.crown + '"/>') + '<path d="' + bl.trunk + '"/>';
+        if (k < 4) hx.push(20 + k * 96 + fr() * 40);
+      }
+      mid += '<g class="w-l2">' + ft + "</g>" + houses(id + "m", fr, hx, function () { return RY - 5.4; }, 2.6, RY - 1);
+    }
+    // gravel bars out in a braided river, cobbles and a stranded log on
+    // them; a high river covers them
+    if (rv.braid && lvl < 0.9) {
+      var gz = 1 - lvl * 0.85, bars = [[34, 214, RY + 13, 7 * gz], [238, 396, RY + 24, 9 * gz], [-20, 70, RY + 40, 8 * gz]], bd = "", bst = "", bs = rnd(sd + 95);
+      bars.forEach(function (bb, bi) {
+        var x0 = bb[0], x1 = bb[1], cy = bb[2], hh = bb[3], top = [], bot = [];
+        for (var bx = x0; bx <= x1; bx += 6) { var u = (bx - x0) / (x1 - x0), e = Math.sin(u * Math.PI); top.push([bx, cy - hh * 0.5 * e - (bs() - 0.5)]); bot.unshift([bx, cy + hh * 0.5 * e + 0.6]); }
+        bd += poly(top.concat(bot));
+        for (var bq = 0; bq < (TILE ? 14 : 46) * gz; bq++) { var u2 = bs(), sx = x0 + u2 * (x1 - x0), e2 = Math.sin(u2 * Math.PI), sy = cy + (bs() - 0.5) * hh * e2 * 0.8, sz = 0.4 + bs() * 1.1 * (0.6 + (cy - RY) / 40); bst += '<ellipse class="' + (bs() < 0.35 ? "w-st-l" : "w-st-d") + '" cx="' + n(sx) + '" cy="' + n(sy) + '" rx="' + n(sz) + '" ry="' + n(sz * 0.5) + '"/>'; }
+        if (bi === 1) bst += '<path class="w-drift" d="' + poly([[x0 + 30, cy - 1.6], [x0 + 84, cy - 3.2], [x0 + 86, cy - 1.4], [x0 + 32, cy + 0.6]]) + '"/>';
+      });
+      mid += '<path class="w-shorewet" d="' + bd + '"/><path class="w-bar" d="' + bd + '"/><path class="w-liteb" d="' + bd.replace(/Z/g, "") + '"/>' + bst;
+    }
+    // where a second river comes in at your right (the White at Sumner):
+    // its own water in a tongue, and the seam where the two meet
+    if (rv.join) {
+      var jr = rv.join === "right", jx = function (x) { return jr ? x : W - x; };
+      var tongue = poly([[jx(404), RY + 2], [jx(330), RY + 6], [jx(276), RY + 14], [jx(300), RY + 22], [jx(360), RY + 34], [jx(404), RY + 44]]);
+      var seam = "M" + n(jx(404)) + " " + (RY + 1) + "Q" + n(jx(300)) + " " + (RY + 4) + " " + n(jx(276)) + " " + (RY + 14) + "Q" + n(jx(296)) + " " + (RY + 24) + " " + n(jx(404)) + " " + (RY + 46);
+      mid += '<path class="w-join" d="' + tongue + '"/><path class="w-seam" d="' + seam + '"/>';
+    }
+    // bridges far upstream: low decks on their piers, a truss on one
+    (rv.bridges || []).forEach(function (bg) {
+      var by0 = RY - 9, d2 = poly([[bg.x0, by0], [bg.x1, by0 - 0.6], [bg.x1, by0 + 1.6], [bg.x0, by0 + 2.2]]), pr2 = "";
+      for (var bx2 = bg.x0 + 10; bx2 < bg.x1; bx2 += 18) pr2 += poly([[bx2 - 0.7, by0 + 1.8], [bx2 + 0.7, by0 + 1.8], [bx2 + 0.8, RY + 0.6], [bx2 - 0.8, RY + 0.6]]);
+      var tr = "";
+      if (bg.truss) { for (var tx2 = bg.truss[0]; tx2 < bg.truss[1]; tx2 += 4) tr += "M" + n(tx2) + " " + n(by0) + "L" + n(tx2 + 2) + " " + n(by0 - 5) + "L" + n(tx2 + 4) + " " + n(by0); tr += "M" + bg.truss[0] + " " + n(by0 - 5) + "H" + bg.truss[1]; }
+      mid += '<path class="w-l2" d="' + d2 + pr2 + '"/>' + (tr ? '<path class="w-truss" d="' + tr + '"/>' : "");
+    });
+    // a road bridge downstream at your right, running across to the far bank
+    if (rv.bridge) {
+      var rr2 = rv.bridge === "right", bxf = function (x) { return rr2 ? x : W - x; }, near0 = 404, far0 = 290, yN0 = RY - 24, yF0 = RY - 11;
+      var dk = poly([[bxf(near0), yN0], [bxf(far0), yF0], [bxf(far0), yF0 + 2.4], [bxf(near0), yN0 + 6]]), rl = "M" + n(bxf(near0)) + " " + n(yN0 - 4.4) + "L" + n(bxf(far0)) + " " + n(yF0 - 1.8), pp = "";
+      [[376, 4.4], [334, 3.2], [304, 2.4]].forEach(function (pq) { var u = (near0 - pq[0]) / (near0 - far0), yt = yN0 + 6 + (yF0 + 2.4 - yN0 - 6) * u; pp += poly([[bxf(pq[0]) - pq[1] / 2, yt], [bxf(pq[0]) + pq[1] / 2, yt], [bxf(pq[0]) + pq[1] / 2, RY + 6 - u * 4], [bxf(pq[0]) - pq[1] / 2, RY + 6 - u * 4]]); });
+      for (var rp = 0; rp <= 1; rp += 0.08) { var xx = near0 + (far0 - near0) * rp, yy = yN0 + (yF0 - yN0) * rp; rl += "M" + n(bxf(xx)) + " " + n(yy) + "V" + n(yy - 4.4 + rp * 2.6); }
+      mid += '<path class="w-l3" d="' + pp + dk + '"/><path class="w-rail w-railf" d="' + rl + '"/><path class="w-liteb" d="M' + n(bxf(near0)) + " " + n(yN0) + "L" + n(bxf(far0)) + " " + n(yF0) + '"/>';
+    }
+    // a road bridge right across the river in front of you (128th St E):
+    // its deck, its rail, its piers standing in the water
+    if (rv.span) {
+      var sy0 = 150, sy1 = 159, piers = "", sglass = "", srail = "M-10 " + (sy0 - 5) + "H400M-10 " + (sy0 - 2.4) + "H400", srr = rnd(sd + 97);
+      for (var px = -6; px < 400; px += 7.4) srail += "M" + n(px) + " " + sy0 + "V" + (sy0 - 5);
+      [44, 164, 284, 396].forEach(function (pxx) { piers += poly([[pxx - 4.4, sy1], [pxx + 4.4, sy1], [pxx + 5.2, RY + 18], [pxx - 5.2, RY + 18]]); sglass += pileGlass(srr, pxx, RY + 18, 9.6, 24 * (0.4 + (1 - t.wind) * 0.6)); });
+      mid += '<g filter="url(#' + id + 'm-wv)">' + sglass + "</g>" + '<path class="w-l4" d="' + piers + '"/><path class="w-l4" d="' + poly([[-10, sy0], [400, sy0], [400, sy1], [-10, sy1]]) + '"/>' +
+        '<path class="w-u3" d="' + poly([[-10, sy1], [400, sy1], [400, sy1 + 2.4], [-10, sy1 + 2.4]]) + '"/><path class="w-rail" d="' + srail + '"/><path class="w-liteb" d="M-10 ' + sy0 + 'H400"/>';
+    }
     // a low cobble edge out in the river
     if (rv.cobble && lvl < 0.85) { var cz = 1 - lvl * 0.9; mid += rocks(sd + 41, [[rv.cobble[0], RY + 22, 3 * cz], [(rv.cobble[0] + rv.cobble[1]) / 2, RY + 26, 4.6 * cz], [rv.cobble[1], RY + 31, 6 * cz]], { tall: 0.62, wet: (1 - lvl) * 2.4 }); }
     // a creek pouring in from your bank, and the eddy turning where it meets the river
@@ -1789,6 +2437,35 @@
         '<path class="w-shore" d="' + line(bar) + 'L-2 332Z"/><path class="w-sand" d="' + poly([[-2, bar[0][1] + 3], [70, bar[2][1] + 2], [128, bar[3][1] + 4], [60, bar[3][1] + 12], [-2, bar[2][1] + 14]]) + '"/>' +
         '<path class="w-foam" d="' + line(bar) + '"/>' + stones;
     }
+    // a meadow bank (the Narrows): plain ground at your feet, tall grass along
+    // its edge; the water stands higher on it as the river rises
+    if (rv.meadow || rv.levee || rv.join) {
+      var ey = (rv.levee ? 222 : 240) - lvl * 9, mz = noise(sd + 99), edge2 = [], xg;
+      for (xg = -6; xg <= W + 6; xg += 8) edge2.push([xg, ey + (mz(xg * 0.02) - 0.5) * 6 + (rv.join ? Math.max(0, xg - 250) * 0.35 * (rv.join === "right" ? 1 : 0) : 0)]);
+      if (rv.join === "right") edge2 = edge2.filter(function (q) { return q[0] < 352; }).concat([[340, ey + 30], [360, H + 4]]);
+      front += '<path class="w-shorewet" d="' + line(edge2.map(function (q) { return [q[0], q[1] - 4]; })) + "L" + n(edge2[edge2.length - 1][0]) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>' +
+        '<path class="' + (rv.levee ? "w-shore" : "w-lawn") + '" d="' + line(edge2) + "L" + n(edge2[edge2.length - 1][0]) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/><path class="w-foam" d="' + line(edge2) + '"/>';
+      if (rv.levee) {
+        // the levee's cobble face, then the gravel trail along its top
+        front += cobbles(sd + 101, -4, W + 4, ey + 1, ey + 12, 150) + '<path class="w-path" d="' + poly([[-6, ey + 11], [W + 6, ey + 10], [W + 6, ey + 22], [-6, ey + 23]]) + '"/>' +
+          '<path class="w-lawn" d="' + poly([[-6, ey + 23], [W + 6, ey + 22], [W + 6, H + 4], [-6, H + 4]]) + '"/>' + grass(sd + 103, [[20, ey + 23, 9], [110, ey + 22.5, 9], [200, ey + 22.5, 9], [300, ey + 22, 9], [380, ey + 22, 9]], 5);
+      } else {
+        // tall meadow grass and sedge along the edge, two tones, leaning every way
+        var gs = rnd(sd + 105), blades = "", blades2 = "";
+        for (var gk = 0; gk < (TILE ? 60 : 220); gk++) {
+          var gx2 = -6 + gs() * (W + 12), ge = mz(gx2 * 0.02), gy = ey + (ge - 0.5) * 6 + 1 + gs() * 10, gh = (rv.meadow ? 6 + gs() * 14 : 3 + gs() * 6) * (0.6 + (gy - ey) / 14), gl = (gs() - 0.45) * gh * 0.7, gw = 0.6 + gs() * 0.8;
+          var bd2 = "M" + n(gx2 - gw) + " " + n(gy) + "Q" + n(gx2 + gl * 0.3) + " " + n(gy - gh * 0.6) + " " + n(gx2 + gl) + " " + n(gy - gh) + "Q" + n(gx2 + gl * 0.3 + gw) + " " + n(gy - gh * 0.5) + " " + n(gx2 + gw) + " " + n(gy) + "Z";
+          if (gk % 3) blades += bd2; else blades2 += bd2;
+        }
+        front += '<path class="w-reed2" d="' + blades2 + '"/><path class="w-sedgeg" d="' + blades + '"/>';
+      }
+      // anglers along your bank, rods out over the water (a crowded opener)
+      (rv.anglers || []).forEach(function (ax, ai) {
+        var ar = rnd(sd + 130 + ai), ay = ey + (mz(ax * 0.02) - 0.5) * 6 + 3, as = 1.1 + ar() * 0.3, dir2 = ax < W / 2 ? 1 : -1;
+        front += '<path class="w-figh" d="' + poly([[ax - 2.4 * as, ay], [ax - 2.1 * as, ay - 9 * as], [ax + 2.1 * as, ay - 9 * as], [ax + 2.4 * as, ay]]) + "M" + n(ax + 1.8 * as) + " " + n(ay - 11 * as) + "a" + n(1.8 * as) + " " + n(1.9 * as) + " 0 1 0 " + n(-3.6 * as) + " 0a" + n(1.8 * as) + " " + n(1.9 * as) + " 0 1 0 " + n(3.6 * as) + ' 0Z"/>' +
+          '<path class="w-rod" d="M' + n(ax + dir2 * 1.5 * as) + " " + n(ay - 6 * as) + "L" + n(ax + dir2 * 16 * as) + " " + n(ay - 24 * as) + '" stroke-width=".8"/><path class="w-line" d="M' + n(ax + dir2 * 16 * as) + " " + n(ay - 24 * as) + "Q" + n(ax + dir2 * 30 * as) + " " + n(ay - 16 * as) + " " + n(ax + dir2 * 40 * as) + " " + n(ay - 14) + '"/>';
+      });
+    }
     // a big tree on your own bank, its trunk framing the right edge
     if (rv.trunk) {
       var tx = 368, tr2 = rnd(sd + 63), tk = poly([[tx - 14, 334], [tx - 9, 250], [tx - 8, 170], [tx - 10, 90], [tx - 7, -4], [tx + 7, -4], [tx + 8, 96], [tx + 10, 176], [tx + 14, 252], [tx + 22, 334]]), limbs = "", twig = "";
@@ -1806,7 +2483,7 @@
       front += (twig ? '<path class="w-l5' + (isBare ? ' w-twig' : "") + '" d="' + twig + '"/>' : "") + '<path class="w-l5" d="' + tk + limbs + '"/>' +
         '<path class="w-liteb" d="M' + (tx - 9) + " 250L" + (tx - 8) + " 170L" + (tx - 10) + " 90L" + (tx - 7) + ' -4"/>';
     }
-    if (!rv.bar && !rv.rods) front += shoreEdge([[-2, 304], [60, 301], [130, 303], [200, 307], [270, 308], [330, 306], [392, 309]]);
+    if (!rv.bar && !rv.rods && !rv.meadow && !rv.levee && !rv.join) front += shoreEdge([[-2, 304], [60, 301], [130, 303], [200, 307], [270, 308], [330, 306], [392, 309]]);
     var fog = t.fog > 0 ? '<rect class="w-fog" width="' + W + '" height="' + H + '"/>' : "";
     return { back: back, gl: [sd + 600, RY + 14, H, 0.7 + lvl * 0.6], mid: defs(id + "m", mdef) + fog + mid, front: defs(id + "f") + front };
   }
@@ -1840,11 +2517,13 @@
   // ---- hanging a spot's painting --------------------------------------------------------
   // A spot card's stand for this picture. A card with more than one stand
   // (Westport: the crab float and the surf perch beach) picks by what the
-  // people are doing (o.activity), then how they fish (o.how), then the kind
-  // of picture the page asks for, then the card's own default stand.
+  // people are doing (o.activity), then the trip's fish (o.fish: a salmon
+  // trip on the Green is the Auburn Narrows), then how they fish (o.how),
+  // then the kind of picture the page asks for, then the card's own default.
   function standOf(kind, o) {
     if (!o || !o.stands) return o;
-    var by = o.standBy || {}, name = (by.activity && by.activity[o.activity]) || (by.how && by.how[o.how]) || (by.kind && by.kind[kind]) || o.stand;
+    var by = o.standBy || {}, fish = o.fish && by.fish ? (typeof by.fish === "function" ? by.fish(o.fish) : by.fish[o.fish]) : null;
+    var name = (by.activity && by.activity[o.activity]) || fish || (by.how && by.how[o.how]) || (by.kind && by.kind[kind]) || o.stand;
     var s = o.stands[name] || o.stands[o.stand] || {}, out = {}, k;
     for (k in o) if (k !== "stands" && k !== "standBy") out[k] = o[k];
     for (k in s) out[k] = s[k];
@@ -1947,6 +2626,33 @@
       } else if (o.view === "dock" || o.view === "float") {
         stand += '<path d="M10 48L' + n(o.view === "float" ? 21 : 17) + " 36H" + n(o.view === "float" ? 27 : 31) + 'L38 48Z" fill="' + mixHex(f3, hz, 0.3) + '"/><path d="M' + n(o.view === "float" ? 21 : 17) + " 36H" + n(o.view === "float" ? 27 : 31) + '" stroke="' + lum + '" stroke-width=".5" opacity=".6"/>';
       }
+      // the parts placed in metres, as the big scene places them, small
+      if (o.parts || o.ground) {
+        var wm = world(V, o, t), M = function (q) { return [(q[0] - 39) * 0.154, HZm + (q[1] - HZ) * 0.154]; }, mp = "", ml = "", mlit = "", tone2 = mixHex(f3, hz, 0.12);
+        if (o.ground && wm.edgeZ != null) { var ye = M(wm.P(0, wm.wl, wm.edgeZ))[1]; if (ye < 48) { s += '<path d="M0 ' + n(ye) + "Q16 " + n(ye - 0.8) + " 30 " + n(ye + 0.5) + "T48 " + n(ye) + 'V48H0Z" fill="' + mixHex(p.ground, p.water[0], dark ? 0.3 : 0.38) + '"/>'; glints += gl(6, ye + 3, 9, 0.4); } }
+        (o.parts || []).forEach(function (q) {
+          if (q.t === "pier") q.segs.forEach(function (sg) {
+            var A = M(wm.P(sg.a[0], q.deck, sg.a[1])), B = M(wm.P(sg.b[0], q.deck, sg.b[1])), wd = clamp(sg.w * wm.fl * 0.154 / Math.max(8, wm.sz((sg.a[0] + sg.b[0]) / 2, (sg.a[1] + sg.b[1]) / 2)), 0.6, 2.6);
+            mp += '<path d="M' + n(A[0]) + " " + n(A[1]) + "L" + n(B[0]) + " " + n(B[1]) + '" stroke="' + tone2 + '" stroke-width="' + n(wd) + '" stroke-linecap="square"/>';
+            for (var u = 0; u <= 1.001; u += 0.2) { var X = sg.a[0] + (sg.b[0] - sg.a[0]) * u, Z = sg.a[1] + (sg.b[1] - sg.a[1]) * u, top = M(wm.P(X, q.deck, Z)), bot = M(wm.P(X, wm.foot(X, Z), Z)); if (wm.sz(X, Z) > 2) mp += '<path d="M' + n(top[0]) + " " + n(top[1]) + "V" + n(bot[1]) + '" stroke="' + f3 + '" stroke-width=".55"/>'; }
+          });
+          if (q.t === "pier" && q.lamps) (Array.isArray(q.lamps) ? q.lamps : [q.lamps]).forEach(function (lp) {
+            var sg2 = q.segs[(lp.segs || [0])[0]], L = Math.hypot(sg2.b[0] - sg2.a[0], sg2.b[1] - sg2.a[1]);
+            for (var d = lp.from == null ? 6 : lp.from; d <= Math.min(L, lp.to == null ? L : lp.to); d += (lp.every || 20) * 1.5) {
+              var X2 = sg2.a[0] + (sg2.b[0] - sg2.a[0]) * d / L, Z2 = sg2.a[1] + (sg2.b[1] - sg2.a[1]) * d / L, b2 = M(wm.P(X2, q.deck, Z2)), t2 = M(wm.P(X2, q.deck + (lp.h || 5), Z2));
+              if (t2[0] < -1 || t2[0] > 49) continue;
+              ml += '<path d="M' + n(b2[0]) + " " + n(b2[1]) + "V" + n(t2[1]) + '" stroke="' + f3 + '" stroke-width=".5"/>';
+              if (lampOn) mlit += '<circle cx="' + n(t2[0]) + '" cy="' + n(t2[1]) + '" r="3.4" fill="url(#' + gid + 'g)"/><circle cx="' + n(t2[0]) + '" cy="' + n(t2[1]) + '" r=".7" fill="' + p.accent2 + '"/>';
+            }
+          });
+          if (q.t === "float") { var FA = M(wm.P(q.a[0], wm.wl + 0.4, Math.max(3, q.a[1]))), FB = M(wm.P(q.b[0], wm.wl + 0.4, q.b[1])); mp += '<path d="M' + n(FA[0]) + " " + n(FA[1]) + "L" + n(FB[0]) + " " + n(FB[1]) + '" stroke="' + tone2 + '" stroke-width=".9"/>'; }
+          if (q.t === "house") { var H0 = M(wm.P(q.at[0] - q.w / 2, q.y || 0, Math.max(2, q.at[1] - q.d / 2))), H1 = M(wm.P(q.at[0] + q.w / 2, (q.y || 0) + q.h, Math.max(2, q.at[1] - q.d / 2))); mp += '<path d="M' + n(H0[0]) + " " + n(H0[1]) + "H" + n(H1[0]) + "V" + n(H1[1]) + "H" + n(H0[0]) + 'Z" fill="' + (q.wall === "w-wallw" ? mixHex(hz, p.paper, dark ? 0.1 : 0.7) : mixHex(f2, p.paper, 0.3)) + '"/><path d="M' + n(H0[0] - 0.6) + " " + n(H1[1]) + "L" + n((H0[0] + H1[0]) / 2) + " " + n(H1[1] - 1.6) + "L" + n(H1[0] + 0.6) + " " + n(H1[1]) + 'Z" fill="' + (q.roofc === "w-roofg" ? mixHex(mixHex(hz, "#3f7a5a", 0.3), p.paper, dark ? 0 : 0.35) : f3) + '"/>'; if (lampOn) mlit += '<circle cx="' + n((H0[0] + H1[0]) / 2) + '" cy="' + n((H0[1] + H1[1]) / 2) + '" r="2.4" fill="url(#' + gid + 'g)"/>'; }
+          if (q.t === "rocks" && q.wet !== undefined) { var R0 = M(wm.P(q.pts[0][0], wm.wl, q.pts[0][1])), R1 = M(wm.P(q.pts[q.pts.length - 1][0], wm.wl, q.pts[q.pts.length - 1][1])); mp += '<path d="M' + n(R0[0]) + " " + n(R0[1]) + "L" + n(R1[0]) + " " + n(R1[1]) + '" stroke="' + f2 + '" stroke-width="2.2" stroke-linecap="round"/>'; }
+          if (q.t === "kayak") s += '<path d="M14 45L24 42.6" stroke="' + mixHex(p.gold, f3, dark ? 0.6 : 0.15) + '" stroke-width="1.6" stroke-linecap="round"/>';
+          if (q.t === "rail") mp += '<path d="M-1 46H49" stroke="' + f3 + '" stroke-width=".8"/>';
+        });
+        stand += mp + ml + mlit;
+      }
       (o.bank || []).forEach(function (q) {
         if (q.t === "flats") { var yw = 33 + t.tide * 7; s += '<path d="M0 ' + n(yw) + "Q16 " + n(yw - 1.4) + " 30 " + n(yw + 0.6) + "T48 " + n(yw) + 'V48H0Z" fill="' + mixHex(p.ground, p.water[0], dark ? 0.3 : 0.4) + '"/><path d="M0 44Q20 42 48 44V48H0Z" fill="' + sand + '"/>'; glints += gl(6, yw + 3, 9, 0.45) + gl(26, yw + 5, 11, 0.35); }
         if (q.t === "cobbles") { s += '<path d="M0 43Q20 41 48 43V48H0Z" fill="' + sand + '"/>'; for (var k2 = 0; k2 < 8; k2++) s += '<circle cx="' + n(r() * 48) + '" cy="' + n(44 + r() * 3) + '" r=".5" fill="' + p.ink + '" opacity=".3"/>'; }
@@ -1969,7 +2675,7 @@
       if (lk.stand === "dock" || lk.stand === "pier") s += '<path d="M14 48L19 37H29L34 48Z" fill="' + mixHex(f3, hz, 0.3) + '"/><path d="M19 37H29" stroke="' + lum + '" stroke-width=".5" opacity=".6"/>';
       if (lk.stand === "ramp" || lk.stand === "gravel") s += '<path d="M12 48L20 38H28L36 48Z" fill="' + (lk.stand === "ramp" ? mixHex(p.ground, p.paper, 0.4) : sand) + '" opacity=".9"/>';
     } else if (b === "river") {
-      var rv = o.river || {}, fk = (rv.far || {}).kind, winter = bare(t.date);
+      var rv = o.river || {}, fk = rv.fields ? "plain" : (rv.far || {}).kind, winter = bare(t.date);
       s += '<rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="url(#' + gid + 'w)"/>';
       if (rv.valley) s += '<path d="M-1 ' + HZm + 'L-1 8Q10 10 24 22Q34 6 49 4V' + HZm + 'Z" fill="' + f0 + '"/>';
       s += trees(-1, 49, HZm, fk === "plain" ? 2 : fk === "cottonwood" ? 12 : 15, fk === "cottonwood" && winter ? mixHex(hz, p.shore, 0.38) : fk === "plain" ? f1 : f2, fk !== "plain");
@@ -1980,6 +2686,13 @@
       if (rv.rods) s += '<path d="M0 32L12 36L18 48H0Z" fill="' + sand + '"/><path d="M3 33l4-5M8 35l5-6M13 39l6-7" stroke="' + f3 + '" stroke-width=".5"/>';
       if (rv.weir) s += '<path d="M0 35H16V37H0Z" fill="' + mixHex(p.ground, p.paper, 0.35) + '"/><path d="M0 37H17L15 39H0Z" fill="' + lum + '" opacity=".7"/>';
       if (rv.trunk) s += '<path d="M43 48L44 0H47L49 48Z" fill="' + f3 + '"/><path d="M44 12L34 2M44 20L36 14" stroke="' + f3 + '" stroke-width=".9"/>';
+      if (rv.glacial) s += '<rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="' + mixHex(hz, p.paper, 0.2) + '" opacity=".35"/>';
+      if (rv.braid) s += '<path d="M6 ' + (HZm + 3) + 'Q16 ' + (HZm + 1.6) + " 26 " + (HZm + 3) + 'Z" fill="' + sand + '"/><path d="M30 ' + (HZm + 7) + 'Q40 ' + (HZm + 5.4) + " 50 " + (HZm + 7) + 'Z" fill="' + sand + '"/>';
+      if (rv.join) s += '<path d="M48 ' + (HZm + 1) + "Q36 " + (HZm + 2) + " 34 " + (HZm + 4) + "Q38 " + (HZm + 7) + " 48 " + (HZm + 9) + '" fill="none" stroke="' + lum + '" stroke-width=".6" opacity=".7"/>';
+      if (rv.bridge) s += '<path d="M48 ' + (HZm - 4) + "L36 " + (HZm - 1.5) + '" stroke="' + f2 + '" stroke-width="1.2"/>';
+      if (rv.span) s += '<path d="M-1 ' + (HZm - 6) + "H49" + '" stroke="' + f3 + '" stroke-width="1.6"/><path d="M8 ' + (HZm - 6) + "V" + (HZm + 3) + "M24 " + (HZm - 6) + "V" + (HZm + 3) + "M40 " + (HZm - 6) + "V" + (HZm + 3) + '" stroke="' + f3 + '" stroke-width="1.3"/>';
+      if (rv.meadow || rv.levee || rv.join) s += '<path d="M0 40Q24 38 48 41V48H0Z" fill="' + (rv.levee ? sand : mixHex(f3, hz, 0.2)) + '"/>';
+      if (rv.ridge) s = s.replace('<rect y="' + HZm + '"', '<path d="M-1 ' + HZm + 'Q12 ' + (HZm - 7) + " 26 " + (HZm - 6) + "T49 " + (HZm - 5) + "V" + HZm + 'Z" fill="' + f0 + '"/><rect y="' + HZm + '"');
     } else {
       // the ocean: the stock beach painting, with this beach's jetty or stack
       var base = mini("surf", p, { activity: o.activity }).replace(/^<svg[^>]*>/, "").replace(/<\/svg>$/, "");

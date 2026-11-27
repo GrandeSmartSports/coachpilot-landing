@@ -13,7 +13,9 @@
 /* A checking page for the spot paintings (rigs/spots-scene.js), not for
    Coach: pick a spot, a sky and today's water; see the big scene and the
    row's thumbnail. ?spot=&sky=&tide=&river=&wind=&fog=&rain=&moon=&date=&how=
-   &activity= set it from the address; &bare=1 hides the controls. */
+   &fish= set it from the address; &bare=1 hides the controls. The Green
+   paints the Auburn Narrows for a salmon trip (fish=coho, chum, pink) and
+   Flaming Geyser otherwise. */
 @font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format('woff2')}
 @font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
 .ctl{position:relative;z-index:3;margin:14px 0 0;padding:12px 14px;border-radius:18px;background:var(--pan-a);box-shadow:var(--e1);display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;font-size:14px}
@@ -46,6 +48,7 @@ body.bare .ctl,body.bare .thumbs,body.bare .facts{display:none}
       <label for="spot">Spot</label><select id="spot"></select>
       <label for="sky">Sky</label><select id="sky"></select>
       <label for="how">Stand</label><select id="how"><option value="">the card's own</option><option>kayak</option><option>shore</option><option value="perch">surf perch</option><option value="clams">razor clams</option><option value="crab">crab</option></select>
+      <label for="fish">Trip</label><select id="fish"><option value="">the spot's own page</option><option value="coho">coho</option><option value="chum">chum</option><option value="steelhead">steelhead</option><option value="squid">squid</option></select>
       <label for="date">Day</label><input id="date" type="date" value="2026-11-24">
       <label for="tide">Tide</label><input id="tide" type="range" min="0" max="1" step=".05" value=".5"><output for="tide"></output>
       <label for="river">River</label><input id="river" type="range" min="0" max="1" step=".05" value=".35"><output for="river"></output>
@@ -62,11 +65,12 @@ body.bare .ctl,body.bare .thumbs,body.bare .facts{display:none}
   var q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
   var NAMES = { redondo: "Redondo Pier", "des-moines-pier": "Des Moines Pier", "les-davis": "Les Davis Pier", "point-defiance": "Point Defiance", "fox-island": "Fox Island",
     "dash-point": "Dash Point", westport: "Westport", "ocean-shores": "Ocean Shores", "green-river": "the Green", tokul: "Tokul Creek", cowlitz: "the Cowlitz",
-    "lake-fenwick": "Lake Fenwick", "lake-tapps": "Lake Tapps", "american-lake": "American Lake", "w-l466": "Bonney Lake" };
+    "lake-fenwick": "Lake Fenwick", "lake-tapps": "Lake Tapps", "american-lake": "American Lake", "w-l466": "Bonney Lake",
+    "puyallup-sumner": "Puyallup at Sumner", "puyallup-orting": "Puyallup at Orting", "puyallup-128th": "Puyallup, 128th St E" };
   var ids = Object.keys(RIG.spotScenes);
   ids.forEach(function (id) { var o = document.createElement("option"); o.value = id; o.textContent = NAMES[id] || id; $("spot").appendChild(o); });
   Object.keys(RIG.sky.palettes).forEach(function (id) { var o = document.createElement("option"); o.value = id; o.textContent = RIG.sky.palettes[id].name; $("sky").appendChild(o); });
-  ["spot", "sky", "how", "date", "tide", "river", "wind", "fog", "rain", "moon"].forEach(function (k) { if (q.has(k)) $(k).value = q.get(k); });
+  ["spot", "sky", "how", "fish", "date", "tide", "river", "wind", "fog", "rain", "moon"].forEach(function (k) { if (q.has(k)) $(k).value = q.get(k); });
   if (!q.has("sky")) $("sky").value = "golden";
   if (q.get("bare")) document.body.classList.add("bare");
   var ACT = { perch: "perch", clams: "clams" }, HOW = { kayak: "kayak", shore: "shore" }, KIND = { crab: "pier" };
@@ -79,13 +83,15 @@ body.bare .ctl,body.bare .thumbs,body.bare .facts{display:none}
     paint.now = { date: $("date").value, tide: +$("tide").value, river: +$("river").value, wind: +$("wind").value, fog: +$("fog").value, rain: +$("rain").value, moon: +$("moon").value };
     if (ACT[how]) paint.activity = ACT[how];
     if (HOW[how]) paint.how = HOW[how];
+    if ($("fish").value) paint.fish = $("fish").value;
     var el = $("scene"), kind = KIND[how] || c.scene;
     el.setAttribute("data-scene", kind);
     delete el.dataset.painted;
     RIG.water.scene(el, paint);
     $("mini").innerHTML = RIG.water.mini(el.getAttribute("data-scene"), p, paint);
     $("view").innerHTML = RIG.water.view(el.getAttribute("data-scene"), paint);
-    $("title").textContent = NAMES[id] || (RIG.trips.spots.filter(function (s) { return s.id === id; })[0] || {}).name || id;
+    var sub = id === "green-river" ? (RIG.spotGreenStand(paint.fish) === "narrows" ? "Auburn Narrows" : "Flaming Geyser") : "";
+    $("title").textContent = sub || NAMES[id] || (RIG.trips.spots.filter(function (s) { return s.id === id; })[0] || {}).name || id;
     $("chip").textContent = p.name + (paint.facing != null ? "" : "");
     $("facts").textContent = (el.dataset.set ? "sunset " + el.dataset.set + ", sunrise " + el.dataset.rise : "no facing");
     document.querySelectorAll("output").forEach(function (o) { o.value = $(o.htmlFor).value; });

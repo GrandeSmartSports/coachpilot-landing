@@ -241,6 +241,41 @@
 :root[data-dark="1"] .w-roofu{fill:color-mix(in oklab,var(--r4) 80%,var(--lampc))}
 :root[data-dark="1"] .w-sand{opacity:.2}
 
+/* the world in metres (scene.js world parts): every built thing takes its
+   tone from how far off it stands, 5 near and dark to 2 far and pale */
+.w-s5{fill:var(--r5)}.w-s4{fill:var(--r4)}.w-s3{fill:var(--r3)}.w-s2{fill:color-mix(in oklab,var(--r2) 80%,var(--hz))}
+.w-pole.w-s5,.w-pole.w-s4,.w-pole.w-s3,.w-pole.w-s2{fill:none}
+.w-pole.w-s5{stroke:var(--r5)}.w-pole.w-s4{stroke:var(--r4)}.w-pole.w-s3{stroke:var(--r3)}.w-pole.w-s2{stroke:var(--r2)}
+/* a deck's top catches the sky; far off it goes to the air */
+.w-t5{fill:color-mix(in oklab,var(--r3) 74%,var(--lum))}.w-t4{fill:color-mix(in oklab,var(--r3) 66%,var(--lum))}
+.w-t3{fill:color-mix(in oklab,var(--r2) 70%,var(--lum))}.w-t2{fill:color-mix(in oklab,var(--r1) 70%,var(--hz))}
+/* its underside, seen from the beach below it */
+.w-u5{fill:color-mix(in oklab,var(--r5) 90%,var(--shore))}.w-u4{fill:var(--r5)}.w-u3{fill:var(--r4)}.w-u2{fill:var(--r3)}
+.w-brace5,.w-brace4,.w-brace3,.w-brace2{fill:none;stroke-linecap:round}
+.w-brace5{stroke:var(--r4)}.w-brace4{stroke:var(--r4);opacity:.8}.w-brace3{stroke:var(--r3)}.w-brace2{stroke:var(--r2)}
+.w-truss{fill:none;stroke:var(--r2);stroke-width:.6;stroke-linejoin:round}
+/* small roofed shelters: the roof's two slopes, the near one lit */
+.w-roofn5,.w-roofn4{fill:color-mix(in oklab,var(--r4) 80%,var(--glowc))}.w-roofn3,.w-roofn2{fill:color-mix(in oklab,var(--r3) 80%,var(--glowc))}
+.w-roofs5,.w-roofs4{fill:var(--r5)}.w-roofs3,.w-roofs2{fill:var(--r4)}
+.w-deckpoolg{fill:var(--lampc);opacity:.32}
+/* walls: a seawall's face; a building's wall and roof (white siding and a
+   pale green roof at the boathouse, their own classes below) */
+.w-wall{fill:color-mix(in oklab,var(--r3) 70%,var(--bg))}
+.w-wallside{filter:brightness(.86)}
+.w-roofside{filter:brightness(.82)}
+.w-win{fill:var(--r4);opacity:.7}
+.w-wallw{fill:color-mix(in oklab,var(--hz) 26%,var(--lum))}
+.w-roofg{fill:color-mix(in oklab,color-mix(in oklab,var(--hz) 62%,var(--go)) 70%,var(--lum))}
+.w-flag{fill:color-mix(in oklab,var(--r2) 60%,var(--lum))}
+:root[data-dark="1"] .w-wallw{fill:color-mix(in oklab,var(--r2) 72%,var(--ink))}
+:root[data-dark="1"] .w-roofg{fill:color-mix(in oklab,var(--r3) 82%,var(--go))}
+:root[data-dark="1"] .w-win{fill:var(--r5);opacity:.9}
+/* driftwood: bleached, the palest thing on the beach */
+.w-drift{fill:color-mix(in oklab,var(--r2) 45%,var(--bg))}
+.w-driftl{fill:none;stroke:var(--lum);stroke-width:.8;opacity:.6;stroke-linecap:round}
+.w-driftend{fill:color-mix(in srgb,var(--bg) 60%,var(--shade))}
+:root[data-dark="1"] .w-drift{fill:color-mix(in srgb,var(--bg) 80%,var(--ink))}
+
 /* views: the tile-sized paintings (RIG.water.view) */
 .view{display:block;width:100%;height:100%}
 .view .v-gl{stroke-width:.6}
@@ -282,3 +317,27 @@
 @media (prefers-reduced-motion:reduce){.sc-gl-b{opacity:.45}}
 /* That shimmer is the only thing that moves. The mock also slid the far
    shore as the page scrolled; two motions is one too many, so it is gone. */
+/* rivers: a second river's water coming in, the seam where they meet, a gravel bar */
+.w-join{fill:color-mix(in oklab,var(--water1) 60%,var(--lum));opacity:.32}
+.w-seam{fill:none;stroke:var(--lum);stroke-width:.9;stroke-dasharray:22 4 9 6 30 5;opacity:.5;stroke-linecap:round}
+.w-bar{fill:color-mix(in srgb,var(--bg) 86%,var(--shade))}
+.w-path{fill:color-mix(in srgb,var(--bg) 78%,var(--lum))}
+:root[data-dark="1"] .w-bar{fill:color-mix(in srgb,var(--bg) 82%,var(--ink))}
+:root[data-dark="1"] .w-path{fill:color-mix(in srgb,var(--bg) 88%,var(--ink))}
+:root[data-dark="1"] .w-join{opacity:.18}
+.w-ramp3{fill:color-mix(in oklab,var(--r2) 42%,var(--bg))}
+.w-groove3{fill:none;stroke:var(--r4);stroke-width:.6;opacity:.3}
+:root[data-dark="1"] .w-ramp3{fill:color-mix(in oklab,var(--r3) 70%,var(--bg))}
+.w-wrack{fill:color-mix(in srgb,var(--bg) 60%,var(--shade));opacity:.5}
+.w-lawnsh{fill:var(--shade);opacity:.12}
+.w-tuft{fill:var(--r4);opacity:.75}
+/* a kayak on the sand: a hull in the family's gold, the one bright thing on the beach */
+.w-kayak{fill:color-mix(in oklab,var(--gold) 78%,var(--r4))}
+.w-kayakd{fill:color-mix(in oklab,var(--gold) 86%,var(--lum))}
+:root[data-dark="1"] .w-kayak{fill:color-mix(in oklab,var(--gold) 30%,var(--r4))}
+:root[data-dark="1"] .w-kayakd{fill:color-mix(in oklab,var(--gold) 34%,var(--r3))}
+.w-driftg{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.22;stroke-linecap:round}
+.w-siding{fill:var(--shade);opacity:.07}
+.w-ripm{opacity:.32}
+.w-sedgeg{fill:var(--r4)}
+.w-gravelw{fill:color-mix(in srgb,var(--bg) 62%,var(--water2));opacity:.7}
