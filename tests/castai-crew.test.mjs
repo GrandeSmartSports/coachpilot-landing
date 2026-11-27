@@ -6,6 +6,7 @@
 // words of a text and a phone alert, the daily cap and the two minute rule.
 // The last block asks the deployed function a few questions with no sign-in.
 // Run: node tests/castai-crew.test.mjs
+import { readFileSync } from "node:fs";
 import * as core from "../supabase/functions/castai-crew/crew-core.mjs";
 
 const {
@@ -19,7 +20,7 @@ const {
   KINDS, prefsView, prefsPatch, hears, cleanTell, audience, inQuiet, quietUntil, dayLabel, tripLink,
   statusNews, alertWords, textWords, pushWords, capReached, noteTooSoon, pushSubInput, wantsText, rowOutcome,
   DAILY_CAP, NOTE_GAP_MS, TRIPS_LINK, CREW_LINK,
-  crewRenameRefusal, cleanOpen, NAME_TAKEN,
+  crewRenameRefusal, cleanOpen, NAME_TAKEN, cleanName,
 } = core;
 
 let pass = 0, fail = 0;
@@ -41,7 +42,7 @@ for (const name of ["canInvite", "inviteOutcome", "normalizePhone", "cleanText",
   "inviteMade", "signInWith", "inviteAnswer", "linkRefusal", "seedLabels", "seedId", "photoUrl", "catchView",
   "prefsView", "prefsPatch", "hears", "cleanTell", "audience", "inQuiet", "quietUntil", "dayLabel", "tripLink",
   "statusNews", "alertWords", "textWords", "pushWords", "capReached", "noteTooSoon", "pushSubInput", "wantsText", "rowOutcome",
-  "crewRenameRefusal", "cleanOpen"]) {
+  "crewRenameRefusal", "cleanOpen", "cleanName"]) {
   ok(fn(core[name]), `crew-core has ${name}`);
 }
 ok(!("catchInput" in core), "the first shape of a catch is gone: a crew catch is a CastAI catch now");
@@ -108,6 +109,17 @@ const ZERO = String.fromCharCode(0), HALF = String.fromCharCode(0xd800);
 ok(cleanText("ring" + ZERO + " nets", 120) === "ring nets", "a zero byte is dropped, since the database cannot hold one");
 ok(threw(() => cleanText(ZERO + ZERO, 120)), "only zero bytes is empty");
 ok(cleanText("net" + HALF, 120).isWellFormed() && cleanText("net" + HALF, 120).length === 4, "half a character is mended, not passed on to crash a write");
+// A name is one line: a person's, or the crew's. Only a direct call to the
+// function could send "A\n\nB"; the page tidies spaces itself.
+ok(cleanName("  Two   Fish\tPros ", 60) === "Two Fish Pros", "a name's inside spaces and tabs become one space");
+ok(cleanName("Two\n\nFish\r\nPros", 60) === "Two Fish Pros", "line breaks in a name become one space, so a name is one line");
+ok(cleanName("Two " + ZERO + " Fish", 60) === "Two Fish", "a zero byte between spaces leaves one space, not two");
+ok(threw(() => cleanName(" \n\t ", 60)) && threw(() => cleanName(null, 60)) && threw(() => cleanName(42, 60)), "a name of only spaces, or not words, is refused");
+ok(cleanName("x".repeat(60), 60).length === 60 && threw(() => cleanName("x".repeat(61), 60)), "and it has the same limit");
+ok(said(() => cleanName("", 60, "crew name")) === said(() => cleanText("", 60, "crew name")), "in the same plain words as any other box");
+const PEOPLE = readFileSync(new globalThis.URL("../supabase/functions/castai-crew/people.ts", import.meta.url), "utf8");
+ok((PEOPLE.match(/cleanName\(body\.name, 60, "(name|crew name)"\)/g) || []).length === 3 && !/cleanText\(body\.name/.test(PEOPLE),
+  "adding someone, renaming yourself and naming the crew all clean the name as a name");
 ok(optionalText(undefined, 80) === null && optionalText(null, 80) === null && optionalText("   ", 80) === null, "an optional blank is nothing");
 ok(optionalText(" pink hoochie ", 80) === "pink hoochie", "an optional value is trimmed");
 ok(threw(() => optionalText("x".repeat(81), 80)), "an optional value still has a limit");

@@ -8,6 +8,7 @@ Coach, 11/27: the crew's title "Daniel's crew" read oddly. Offered names to pick
 - `state.crew` is `{ id, name, role, nameOpen }`. `join` (peek and mint) adds `nameOpen`.
 - `crew_rename { name }` (1 to 60 characters): the owner any time; a member only while `nameOpen` is true. Either one closes naming (`name_open = false`). A member's rename writes only where `name_open` is still true, in the same statement, so of two at once only the first lands. Refused: 403 `{ error: "The crew has its name. Only the owner can change it." }`. Answer `{ ok, name }`.
 - `crew_name_open { open: true|false }`: owner only (403 otherwise), 400 for anything but a boolean. Answer `{ ok, nameOpen }`.
+- Every name (invite, `me_rename`, `crew_rename`) is cleaned as one line by `cleanName`: NUL dropped, any run of spaces, tabs or line breaks made one space, trimmed, 1 to 60 characters. Before, only a direct call to the function could save "A\n\nB"; the page already tidied spaces.
 
 ## Page
 

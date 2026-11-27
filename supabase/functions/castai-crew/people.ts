@@ -9,7 +9,7 @@
 //
 // A member's phone number or email never leaves this file. Names only.
 import {
-  addDays, canInvite, cleanOpen, cleanText, crewRenameRefusal, DEAD_LINK, ghostAccount, hashToken, hears, inviteAnswer, inviteOutcome,
+  addDays, canInvite, cleanName, cleanOpen, crewRenameRefusal, DEAD_LINK, ghostAccount, hashToken, hears, inviteAnswer, inviteOutcome,
   joinLink, joinToken, LINK_DAYS, linkRefusal, NAME_TAKEN, newToken, normalizePhone, placeholderEmail, signInWith,
 } from "./crew-core.mjs";
 import { forgetAlerts, prefsFor } from "./alerts.ts";
@@ -146,7 +146,7 @@ async function freshLink(crewId: string, userId: string, by: string, replace: bo
 // already had an account is added with link null and signIn "code".
 export async function invite(ctx: Ctx, body: Body) {
   if (!canInvite(ctx.member)) refuse(403, "Only the owner can add someone.");
-  const name = clean(() => cleanText(body.name, 60, "name"));
+  const name = clean(() => cleanName(body.name, 60, "name"));
   const blank = body.phone === undefined || body.phone === null || (typeof body.phone === "string" && !body.phone.trim());
   const phone = blank ? null : clean(() => normalizePhone(body.phone) as string);
 
@@ -212,7 +212,7 @@ export async function link(ctx: Ctx, body: Body) {
 // A person is called what the crew calls them, and that is theirs to set.
 // (Coach is "Coach" to his team, not to his fishing buddy or his dad.)
 export async function meRename(ctx: Ctx, body: Body) {
-  const name = clean(() => cleanText(body.name, 60, "name"));
+  const name = clean(() => cleanName(body.name, 60, "name"));
   must(await db.from(MEMBERS).update({ display_name: name }).eq("crew_id", ctx.crew.id).eq("user_id", ctx.me), "rename member");
   return { ok: true, name };
 }
@@ -225,7 +225,7 @@ export async function meRename(ctx: Ctx, body: Body) {
 export async function crewRename(ctx: Ctx, body: Body) {
   const no = crewRenameRefusal({ owner: ctx.owner, nameOpen: ctx.crew.name_open === true }) as { status: number; words: string } | null;
   if (no) refuse(no.status, no.words);
-  const name = clean(() => cleanText(body.name, 60, "crew name"));
+  const name = clean(() => cleanName(body.name, 60, "crew name"));
   if (ctx.owner) {
     must(await db.from("castai_crew").update({ name, name_open: false }).eq("id", ctx.crew.id), "rename crew");
   } else {

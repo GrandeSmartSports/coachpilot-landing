@@ -941,9 +941,9 @@ try {
 
 // ---- names: yours to set, and the crew's is the owner's -------------------------
 {
-  const mine = await call(M, { action: "me_rename", name: "  ZZTEST Russ  " });
+  const mine = await call(M, { action: "me_rename", name: "  ZZTEST \n\t Russ  " });
   is(mine, 200, "a member renames themselves");
-  ok(mine.body.name === "ZZTEST Russ", "the name comes back trimmed", mine.text);
+  ok(mine.body.name === "ZZTEST Russ", "the name comes back trimmed, on one line", mine.text);
   const seenBy = await call(O, { action: "state" });
   ok(seenBy.body.members.some((m) => m.name === "ZZTEST Russ"), "the owner sees the new name");
   refused(await call(M, { action: "me_rename", name: "   " }), 400, "an empty name is refused");
@@ -1005,8 +1005,9 @@ try {
   refused(await call(M, { action: "crew_rename", name: "x".repeat(61) }), 400, "a name over 60 characters is refused");
   ok((await call(M, { action: "state" })).body.crew.nameOpen === true, "and a refused name leaves naming open");
 
-  const named = await call(M, { action: "crew_rename", name: "  " + NAME_PICK + " " });
-  ok(named.status === 200 && keys(named.body, ["ok", "name"]) && named.body.name === NAME_PICK, "the member names the crew, trimmed", named.text);
+  // Sent with a line break and a run of spaces inside it: a name is one line.
+  const named = await call(M, { action: "crew_rename", name: "  " + NAME_PICK.replace(" Fish ", "\n\nFish   ") + " " });
+  ok(named.status === 200 && keys(named.body, ["ok", "name"]) && named.body.name === NAME_PICK, "the member names the crew, trimmed, its spaces and line breaks made one space", named.text);
   const afterPick = await call(O, { action: "state" });
   ok(afterPick.body.crew.name === NAME_PICK && afterPick.body.crew.nameOpen === false, "everyone sees the name, and naming is closed", JSON.stringify(afterPick.body.crew));
   const again = await call(M, { action: "crew_rename", name: NAME_RACE });

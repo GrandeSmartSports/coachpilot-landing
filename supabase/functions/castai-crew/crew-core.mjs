@@ -101,6 +101,12 @@ export function cleanText(value, max, what) {
   return text;
 }
 
+// A name (a person's, the crew's): as cleanText, and any run of spaces, tabs or
+// line breaks inside it becomes one space, so a name is always one line.
+export function cleanName(value, max, what) {
+  return cleanText(typeof value === "string" ? storable(value).replace(/\s+/g, " ") : value, max, what);
+}
+
 // The same, for a box that may be left empty: blank comes back as null.
 export function optionalText(value, max, what) {
   if (value === undefined || value === null) return null;
