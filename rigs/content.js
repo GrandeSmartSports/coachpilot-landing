@@ -1291,7 +1291,7 @@
         box("law", "not confirmed", "The walking route from the trailhead to the point.") },
     { id: "puyallup-128th-spot", tab: "128th St E", group: "before", title: "The 128th St E bridge",
       body: when("About 3/4 mile below the Carbon River.") +
-        box("law", "closed water upstream", "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon itself opens Sept 1, Wednesday to Saturday only in September.") +
+        box("law", "closed water upstream", "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon, mouth to Voight Creek: Sept 1 to Oct 31, Wednesday to Saturday only in September. Voight Creek up to the Hwy 162 bridge is closed water.") +
         box("", "one report", "In 2018 one angler saw two people fishing the river bed at the bridge.") +
         box("", "parking", "WDFW Weiss access, at the end of 116th St E, on the west bank about 3/4 mile below the bridge. Open to cars only in the fishing season. One unimproved ramp, no restrooms.") +
         box("law", "pass", "A Discover Pass, or the Vehicle Access Pass that comes free with an annual fishing license.") +

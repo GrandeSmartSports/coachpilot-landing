@@ -596,7 +596,7 @@
       expect: ["Odd years only. The next run is 2027.", "Keep the bright ones. They turn dark and soft fast in the river."]
     }
   };
-  var CARBON = "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon itself opens Sept 1, Wednesday to Saturday only in September.";
+  var CARBON = "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon, mouth to Voight Creek: Sept 1 to Oct 31, Wednesday to Saturday only in September. Voight Creek up to the Hwy 162 bridge is closed water.";
   var PUY_SPOT = {
     "puyallup-sumner": {
       at: "Two-Rivers Point, Sumner",

@@ -1039,7 +1039,7 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(sum.spot.head === "Cast into the Puyallup only, never into the White behind you." && /^The White is closed to salmon\. 6 salmon a day, no more than 2 adults\.$/.test(sum.ruleHead),
     "Sumner's spot row says cast into the Puyallup only, never the White, and its rules row that the White is closed to salmon", [sum.spot.head, sum.ruleHead].join(" | "));
   // The 128th: the Carbon closure about 3/4 mile upstream, in its rules, its spot, its steps and on its face.
-  const CARB = /The Carbon River comes in about 3\/4 mile upstream\. Above it the Puyallup is closed to salmon all year\. The Carbon itself opens Sept 1, Wednesday to Saturday only in September\./;
+  const CARB = /The Carbon River comes in about 3\/4 mile upstream\. Above it the Puyallup is closed to salmon all year\. The Carbon, mouth to Voight Creek: Sept 1 to Oct 31, Wednesday to Saturday only in September\. Voight Creek up to the Hwy 162 bridge is closed water\./;
   ok(["king-puyallup-128th", "coho-puyallup-128th", "pink-puyallup-128th"].every((k) => T.runs[k].rules.some((l) => CARB.test(l)) && T.runs[k].spot.lines.some((l) => CARB.test(l)) &&
     T.runs[k].during.some((l) => /Stay below the Carbon River mouth\. Above it is closed to salmon\./.test(l)) && T.runs[k].spot.head === "Stay below the Carbon River mouth, 3/4 mile upstream." && /^Salmon closed above the Carbon\. 6 salmon a day, no more than 2 adults\.$/.test(T.runs[k].ruleHead)),
     "the 128th: closed to salmon above the Carbon, 3/4 mile up, on every card and on its face", b128.rules.join(" | "));
