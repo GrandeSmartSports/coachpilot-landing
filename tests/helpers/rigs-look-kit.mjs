@@ -15,6 +15,10 @@ const json = (r, status, body) => r.fulfill({ status, contentType: "application/
 // beaches, March to October). Same weather, same tides, another season.
 export const SPRING_NOW = new Date("2027-05-03T12:00:00-07:00"); // a Monday, noon
 export const SPRING_DAYS = ["2027-05-03", "2027-05-04", "2027-05-05", "2027-05-06", "2027-05-07", "2027-05-08", "2027-05-09"];
+// A September week, for what only fishes then: coho and kings from the
+// kayak at Dash Point, coho on the Green, crab off the Westport float.
+export const SEPT_NOW = new Date("2027-09-13T12:00:00-07:00"); // a Monday, noon
+export const SEPT_DAYS = ["2027-09-13", "2027-09-14", "2027-09-15", "2027-09-16", "2027-09-17", "2027-09-18", "2027-09-19"];
 // rain: { "2026-11-28": [8, 9] }, the hours it rains (a tenth of an inch).
 function wxPoint(days, rain = {}) {
   const time = [], t = [], p = [], w = [], g = [], c = [];

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rig Card: each spot's own picture</title>
+<link rel="icon" href="/rigs/icon-v4-192.png">
+<link rel="preload" href="/rigs/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/rigs/fonts/inter.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/rigs/kit.css">
+<link rel="stylesheet" href="/rigs/scene.css">
+<style>
+/* A checking page for the spot paintings (rigs/spots-scene.js), not for
+   Coach and not part of the app (it lives with the tests, outside rigs/look/,
+   which stays the untouched reference): pick a spot, a sky and today's
+   water; see the big scene under the run card's real title row (the back
+   chip, the date chip, the HOT tag) and the row's thumbnail.
+   ?spot=&sky=&tide=&river=&wind=&fog=&rain=&moon=&date=&hour=&how=&fish= set
+   it from the address; &bare=1 hides the controls. The Green paints the
+   Auburn Narrows for a salmon trip (fish=coho, chum, pink) and Flaming
+   Geyser otherwise. */
+@font-face{font-family:Inter;font-style:normal;font-weight:400 700;font-display:swap;src:url(/rigs/fonts/inter.woff2) format('woff2')}
+@font-face{font-family:"Barlow Condensed";font-style:normal;font-weight:700;font-display:swap;src:url(/rigs/fonts/barlow-condensed-700.woff2) format('woff2')}
+.ctl{position:relative;z-index:3;margin:14px 0 0;padding:12px 14px;border-radius:18px;background:var(--pan-a);box-shadow:var(--e1);display:grid;grid-template-columns:auto 1fr auto;gap:8px 10px;align-items:center;font-size:14px}
+.ctl label{color:var(--t2)}
+.ctl select,.ctl input[type=date]{grid-column:2 / span 2;font:inherit;padding:4px 6px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.ctl output{min-width:3ch;text-align:right;font-variant-numeric:tabular-nums;color:var(--t2)}
+.thumbs{display:flex;gap:14px;align-items:center;margin:14px 0 0}
+.thumbs .tile{width:56px;height:56px;border-radius:14px;overflow:hidden;box-shadow:var(--e1);flex:0 0 auto}
+.thumbs .tile svg{display:block;width:100%;height:100%}
+.thumbs .vtile{width:150px;height:90px;border-radius:14px;overflow:hidden;box-shadow:var(--e1);flex:0 0 auto}
+.facts{margin:10px 0 0;font-size:13px;color:var(--t2)}
+body.bare .ctl,body.bare .thumbs,body.bare .facts{display:none}
+</style>
+<script src="/rigs/sky.js"></script>
+<script src="/rigs/scene.js"></script>
+<script src="/rigs/content.js"></script>
+<script src="/rigs/trips.js"></script>
+<script src="/rigs/waters.js"></script>
+<script src="/rigs/spots-scene.js"></script>
+</head>
+<body>
+<div class="phone">
+  <div class="scene" id="scene" data-scene="sound" aria-hidden="true"></div>
+  <main class="screen">
+    <header class="top dock"><nav class="tabs seg" role="tablist"><button class="tab" type="button" aria-selected="true">Trips</button><button class="tab" type="button" aria-selected="false">Water</button><button class="tab" type="button" aria-selected="false">Fish</button><button class="tab" type="button" aria-selected="false">Learn</button></nav><button class="skymode skybtn" type="button"><i class="skytok"></i><span>Sky</span></button></header>
+    <header class="hero shead"><h1 id="title">A spot</h1><p class="chips"><a class="chip back" href="#"><svg viewBox="0 0 8 14" aria-hidden="true"><path d="M6.5 1.5 1.5 7l5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Hot trips</span></a><span class="chip" id="chip"><b>Tue Nov 24</b> <span class="slot">After work</span></span><span class="tag hot">Hot</span></p></header>
+    <section class="float" style="padding:18px 20px"><p class="eyebrow" style="margin:0">The plan</p><p style="margin:6px 0 0;font:700 30px/1 'Barlow Condensed',sans-serif">Leave by 4:10 PM</p></section>
+    <div class="thumbs"><span class="tile" id="mini"></span><span class="vtile" id="view"></span><span class="facts" id="facts"></span></div>
+    <form class="ctl" id="ctl">
+      <label for="spot">Spot</label><select id="spot"></select>
+      <label for="sky">Sky</label><select id="sky"></select>
+      <label for="how">Stand</label><select id="how"><option value="">the card's own</option><option>kayak</option><option>shore</option><option value="perch">surf perch</option><option value="clams">razor clams</option><option value="crab">crab</option></select>
+      <label for="fish">Trip</label><select id="fish"><option value="">the spot's own page</option><option value="coho">coho</option><option value="chum">chum</option><option value="steelhead">steelhead</option><option value="squid">squid</option></select>
+      <label for="date">Day</label><input id="date" type="date" value="2026-11-24">
+      <label for="hour">Hour</label><input id="hour" type="range" min="0" max="23.5" step=".5" value="19"><output for="hour"></output>
+      <label for="tide">Tide</label><input id="tide" type="range" min="0" max="1" step=".05" value=".5"><output for="tide"></output>
+      <label for="river">River</label><input id="river" type="range" min="0" max="1" step=".05" value=".35"><output for="river"></output>
+      <label for="wind">Wind</label><input id="wind" type="range" min="0" max="1" step=".05" value=".3"><output for="wind"></output>
+      <label for="fog">Fog</label><input id="fog" type="range" min="0" max="1" step=".05" value="0"><output for="fog"></output>
+      <label for="rain">Rain</label><input id="rain" type="range" min="0" max="1" step=".05" value="0"><output for="rain"></output>
+      <label for="moon">Moon</label><input id="moon" type="range" min="0" max="1" step=".05" value=".5"><output for="moon"></output>
+    </form>
+  </div>
+</div>
+<script>
+(function () {
+  "use strict";
+  var q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
+  var NAMES = { redondo: "Redondo Pier", "des-moines-pier": "Des Moines Pier", "les-davis": "Les Davis Pier", "point-defiance": "Point Defiance", "fox-island": "Fox Island",
+    "dash-point": "Dash Point", westport: "Westport", "ocean-shores": "Ocean Shores", "green-river": "the Green", tokul: "Tokul Creek", cowlitz: "the Cowlitz",
+    "lake-fenwick": "Lake Fenwick", "lake-tapps": "Lake Tapps", "american-lake": "American Lake", "w-l466": "Bonney Lake",
+    "puyallup-sumner": "Puyallup at Sumner", "puyallup-orting": "Puyallup at Orting", "puyallup-128th": "Puyallup, 128th St E" };
+  var ids = Object.keys(RIG.spotScenes);
+  ids.forEach(function (id) { var o = document.createElement("option"); o.value = id; o.textContent = NAMES[id] || id; $("spot").appendChild(o); });
+  Object.keys(RIG.sky.palettes).forEach(function (id) { var o = document.createElement("option"); o.value = id; o.textContent = RIG.sky.palettes[id].name; $("sky").appendChild(o); });
+  ["spot", "sky", "how", "fish", "date", "hour", "tide", "river", "wind", "fog", "rain", "moon"].forEach(function (k) { if (q.has(k)) $(k).value = q.get(k); });
+  if (!q.has("sky")) $("sky").value = "golden";
+  if (q.get("bare")) document.body.classList.add("bare");
+  var ACT = { perch: "perch", clams: "clams" }, HOW = { kayak: "kayak", shore: "shore" }, KIND = { crab: "pier" };
+  function draw() {
+    var id = $("spot").value, sky = $("sky").value, p = RIG.sky.palettes[sky], root = document.documentElement, how = $("how").value;
+    RIG.sky.apply(root, { id: sky, forced: false, p: p, skyName: p.name });
+    RIG.water.dress(root, p);
+    var c = RIG.spotScene(id), paint = {}, k;
+    for (k in c) paint[k] = c[k];
+    var hr = +$("hour").value, hh = Math.floor(hr), mm = Math.round((hr - hh) * 60);
+    paint.now = { date: $("date").value + "T" + (hh < 10 ? "0" : "") + hh + ":" + (mm < 10 ? "0" : "") + mm, tide: +$("tide").value, river: +$("river").value, wind: +$("wind").value, fog: +$("fog").value, rain: +$("rain").value, moon: +$("moon").value };
+    if (ACT[how]) paint.activity = ACT[how];
+    if (HOW[how]) paint.how = HOW[how];
+    if ($("fish").value) paint.fish = $("fish").value;
+    var el = $("scene"), kind = KIND[how] || c.scene;
+    el.setAttribute("data-scene", kind);
+    delete el.dataset.painted;
+    RIG.water.scene(el, paint);
+    $("mini").innerHTML = RIG.water.mini(el.getAttribute("data-scene"), p, paint);
+    $("view").innerHTML = RIG.water.view(el.getAttribute("data-scene"), paint);
+    var sub = id === "green-river" ? (RIG.spotGreenStand(paint.fish) === "narrows" ? "Auburn Narrows" : "Flaming Geyser") : "";
+    var ttl = sub || NAMES[id] || (RIG.trips.spots.filter(function (s) { return s.id === id; })[0] || {}).name || id;
+    $("title").textContent = ttl;
+    $("title").className = ttl.length > 34 ? "xl" : ttl.length > 17 ? "long" : "";
+    $("facts").textContent = (el.dataset.set ? "sunset " + el.dataset.set + ", sunrise " + el.dataset.rise : "no facing");
+    document.querySelectorAll("output").forEach(function (o) { o.value = $(o.htmlFor).value; });
+    document.body.dataset.ready = "1";
+  }
+  $("ctl").addEventListener("input", draw);
+  draw();
+})();
+</script>
+</body>
+</html>

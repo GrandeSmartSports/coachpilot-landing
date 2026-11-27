@@ -219,17 +219,20 @@ try {
   const rows = await page.evaluate(() => [...document.querySelectorAll("[data-hot]")].map((r) => ({ id: r.dataset.hot, kind: r.querySelector(".tile").dataset.mini, kids: r.querySelectorAll(".tile svg *").length })));
   ok(rows.some((r) => /^trout-/.test(r.id)) && rows.filter((r) => /^trout-/.test(r.id)).every((r) => r.kind === "lake" && r.kids > 5) &&
     rows.some((r) => /^clams-/.test(r.id)) && rows.filter((r) => /^clams-/.test(r.id)).every((r) => r.kind === "surf" && r.kids > 5), "on Hot Trips a lake trip's row is a lake and a clam dig's row is the surf", rows.filter((r) => /^trout-|^clams-/.test(r.id)));
-  // Night is lit, on both: a lamp on the dock and a window across the lake,
-  // lanterns down the beach. By day they are out. The beach shows the trip's
-  // own people: a razor clam dig is diggers with clam guns, surf perch is
-  // long rods, whatever the sky.
+  // Night is lit, on both: Bonney Lake is painted as its own place now (a
+  // gravel launch, no dock, houses round it), lit by your own light on the
+  // water off the launch, and the clam dig by lanterns down the beach. By
+  // day they are out. The beach shows the trip's own people: a razor clam
+  // dig is diggers with clam guns, surf perch is long rods, whatever the sky.
   const lit = () => page.evaluate(() => { const s = document.getElementById("scene"), on = [...s.querySelectorAll(".w-lampson")], seen = (q) => [...s.querySelectorAll(q)].filter((g) => getComputedStyle(g).opacity !== "0").length;
     return { scene: s.getAttribute("data-scene"), lamps: on.length, shapes: on.reduce((a, g) => a + g.querySelectorAll("*").length, 0), on: on.length ? getComputedStyle(on[0]).opacity : "",
       diggers: seen(".w-diggers"), anglers: seen(".w-anglers, .w-dayonly"), road: parseFloat(getComputedStyle(s).getPropertyValue("--road")) }; });
   await sky("night", LAKE);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
   const lakeLit = await lit();
-  ok(lakeLit.scene === "lake" && lakeLit.lamps >= 3 && lakeLit.shapes > 12 && lakeLit.on === "1" && lakeLit.road >= 0.3, "at night the lake is lit: the dock's lamp, a window across the water, and light lying on it", lakeLit);
+  const lakeOwn = await page.evaluate(() => { const o = document.querySelector("#scene .w-ownlamp"); return { gold: o ? o.querySelectorAll(".w-poolg rect").length : 0, pool: o ? o.querySelectorAll(".w-pool").length : 0, spot: document.getElementById("scene").dataset.spot || "" }; });
+  ok(lakeLit.scene === "lake" && lakeOwn.spot === "w-l466" && lakeLit.lamps >= 2 && lakeLit.shapes > 12 && lakeLit.on === "1" && lakeOwn.pool === 1 && lakeOwn.gold >= 20,
+    "at night the lake is lit: your own light's pool on the water off the launch, gold in its ripples, and the houses' windows across", [lakeLit, lakeOwn]);
   await sky("night", CLAMS);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
   const digLit = await lit();
@@ -245,7 +248,12 @@ try {
   await sky("night", "#/spot/westport");
   await page.waitForSelector('[data-view="spot"] [data-row-species]');
   const westNight = await lit();
-  ok(westNight.scene === "surf" && westNight.anglers === 1 && westNight.diggers === 0, "Westport, where the app has surf perch and no clams, shows surf rods at night, not a clam dig", westNight);
+  // Westport's own beach is day use only (its card): after dark it is empty, and never a clam dig
+  ok(westNight.scene === "surf" && westNight.anglers === 0 && westNight.diggers === 0, "Westport, where the app has surf perch and no clams, is an empty beach at night (day use only), never a clam dig", westNight);
+  await sky("overcast", "#/spot/westport");
+  await page.waitForSelector('[data-view="spot"] [data-row-species]');
+  const westDay = await lit();
+  ok(westDay.scene === "surf" && westDay.anglers === 1 && westDay.diggers === 0, "and by day its people hold surf rods", westDay);
 
   // A lake has no tide: its second tile is Weather, the wind through the trip
   // and the temperature, and its weather page has no tide box.
@@ -270,32 +278,32 @@ try {
   await page.waitForSelector('[data-view="hot"] [data-sec-row="wx"]');
   ok(/^Tide and weather/.test(await page.locator('[data-sec-row="wx"] > b').innerText()) && await page.locator('[data-sec-row="wx"] svg .t-line').count() === 1, "the coast keeps its tide and weather tile with its tide curve");
 
-  // The lake's dock is one of its options: a spot with no dock (a later
-  // stage paints Bonney Lake, which has none) leaves it out and stays lit.
-  await page.evaluate(() => { RIG.spotScenes = { "w-l466": { dock: false } }; });
+  // The lake's dock is one of its options, and each lake's own card says:
+  // Bonney Lake (stage E) has a gravel launch and no dock or pier, whatever
+  // the WDFW name says, and is still lit at night; a lake that has one
+  // (Lake Fenwick's short pier) shows it.
   await sky("night", LAKE);
   await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
-  const noDock = await page.evaluate(() => { const s = document.getElementById("scene"); return { kind: s.dataset.scene, paint: s.dataset.paint || "", deck: s.querySelectorAll(".w-decktop").length, lit: s.querySelectorAll(".w-lampson *").length, reeds: s.querySelectorAll(".w-reed").length }; });
-  await page.evaluate(() => { delete RIG.spotScenes; });
-  await sky("night", LAKE);
-  await page.waitForSelector('[data-view="hot"] [data-sec-row="plan"]');
-  const dock = await page.evaluate(() => { const s = document.getElementById("scene"); return { paint: s.dataset.paint || "", deck: s.querySelectorAll(".w-decktop").length }; });
-  ok(noDock.kind === "lake" && noDock.paint === '{"dock":false}' && noDock.deck === 0 && noDock.lit > 2 && noDock.reeds > 0 && dock.paint === "" && dock.deck === 1,
-    "a lake's dock can be switched off by its spot, the scene still lit at night, and comes back for a lake that has one", [noDock, dock]);
+  const noDock = await page.evaluate(() => { const s = document.getElementById("scene"); let p = {}; try { p = JSON.parse(s.dataset.paint || "{}"); } catch (e) { /* none */ }
+    return { kind: s.dataset.scene, spot: p.spot, stand: p.lake && p.lake.stand, deck: s.querySelectorAll(".w-decktop, .w-dock").length, gravel: s.querySelectorAll(".w-gravel").length, lit: s.querySelectorAll(".w-lampson *").length, reeds: s.querySelectorAll(".w-reed, .w-sedge").length }; });
+  await sky("night", "#/bass/lake-fenwick/bass-watch-wacky");
+  await page.waitForSelector('[data-view="card"] .card');
+  const dock = await page.evaluate(() => { const s = document.getElementById("scene"); return { spot: s.dataset.spot || "", deck: s.querySelectorAll(".w-dock").length }; });
+  ok(noDock.kind === "lake" && noDock.spot === "w-l466" && noDock.stand === "gravel" && noDock.deck === 0 && noDock.gravel >= 1 && noDock.lit > 2 && noDock.reeds > 0 && dock.spot === "lake-fenwick" && dock.deck >= 1,
+    "Bonney Lake has a gravel launch and no dock, still lit at night, and the dock comes back for a lake that has one (Lake Fenwick's pier)", [noDock, dock]);
   const viewNoDock = await page.evaluate(() => [RIG.water.view("lake"), RIG.water.view("lake", { dock: false })].map((v) => (v.match(/w-decktop/g) || []).length));
   ok(viewNoDock[0] === 1 && viewNoDock[1] === 0, "and the tile painting of a lake takes the same switch", viewNoDock);
-  // The switch follows the spot everywhere it is painted: one tap into a
-  // card at that lake, and the Hot Trips row of a trip there.
-  await page.evaluate(() => { RIG.spotScenes = { "lake-fenwick": { dock: false }, "w-l466": { dock: false } }; });
-  await sky("overcast", "#/bass/lake-fenwick/bass-watch-wacky");
+  // The card follows the spot everywhere it is painted: a card at that lake
+  // and the Hot Trips row of a trip there. Bonney Lake's row is its own
+  // picture, with no dock in it.
+  await sky("overcast", LAKE + "/gear");
   await page.waitForSelector('[data-view="card"] .card');
-  const cardDock = await page.evaluate(() => { const s = document.getElementById("scene"); return { paint: s.dataset.paint || "", deck: s.querySelectorAll(".w-decktop").length }; });
+  const cardDock = await page.evaluate(() => { const s = document.getElementById("scene"); return { spot: s.dataset.spot || "", deck: s.querySelectorAll(".w-decktop, .w-dock").length, hash: location.hash }; });
   await sky("overcast", "#/trips");
   await page.waitForSelector('[data-hot="trout-w-l466"] .tile svg');
   const rowDock = await page.evaluate(() => { const own = document.querySelector('[data-hot="trout-w-l466"] .tile svg').innerHTML, pal = RIG.sky.palettes.overcast;
     return { row: /M24 37\.6L48 34\.4/.test(own), plain: /M24 37\.6L48 34\.4/.test(RIG.water.mini("lake", pal)), off: /M24 37\.6L48 34\.4/.test(RIG.water.mini("lake", pal, { dock: false })) }; });
-  await page.evaluate(() => { delete RIG.spotScenes; });
-  ok(/"dock":false/.test(cardDock.paint) && cardDock.deck === 0 && !rowDock.row && rowDock.plain && !rowDock.off,
+  ok(cardDock.spot === "w-l466" && cardDock.deck === 0 && !rowDock.row && rowDock.plain && !rowDock.off,
     "a lake with no dock has none on its cards or on its Hot Trips row either", [cardDock, rowDock]);
 
   // ---- what is on now, painted ------------------------------------------------

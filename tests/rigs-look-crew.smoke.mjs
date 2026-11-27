@@ -96,7 +96,7 @@ const GROUPS = [
       act: async (p) => { await p.selectOption("[data-cw-what]", "squid-redondo"); await p.waitForSelector("[data-cw-cond-slot] .seal"); } }] },
   { who: "member", screens: [
     { name: "the crew, a member", hash: "#/crew", view: "crew", scene: "pier", first: "[data-crew-card]", wait: "[data-al-sw]" },
-    { name: "a crew trip's own page", hash: "#/crew/trip/t-sat", view: "crewtrip", scene: "river", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-cond]" },
+    { name: "a crew trip's own page", hash: "#/crew/trip/t-sat", view: "crewtrip", scene: "river", spot: "green-river", stand: "narrows", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-cond]" },
     { name: "a crew trip with its catches", hash: "#/crew/trip/t-mon", view: "crewtrip", scene: "pier", first: "[data-cw-plan]", wait: "[data-cw-catch]" },
     { name: "a crew trip that is still an idea", hash: "#/crew/trip/t-idea", view: "crewtrip", scene: "pier", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-tag]" }] },
   { who: "member", stopped: true, screens: [
@@ -142,6 +142,11 @@ try {
           return { kind: sc && sc.getAttribute("data-scene"), svgs: sc ? sc.querySelectorAll("svg").length : 0, kids: svg ? svg.querySelectorAll("*").length : 0, h: Math.round(sc ? sc.getBoundingClientRect().height : 0) };
         });
         ok(p.kind === s.scene && p.svgs >= 4 && p.kids > 30 && p.h > 200, id + ": " + s.name + " opens on its own painted picture, the " + s.scene, p);
+        // a crew trip's page stands at the trip's own spot (the Green's chum trip: the Auburn Narrows) at the trip's own hour
+        if (s.spot) {
+          const at = await page.evaluate(() => { const sc = document.getElementById("scene"); let q = {}; try { q = JSON.parse(sc.dataset.paint || "{}"); } catch (e) { /* none */ } return { spot: sc.dataset.spot || "", stand: sc.getAttribute("data-stand") || "", date: q.now && q.now.date }; });
+          ok(at.spot === s.spot && at.stand === s.stand && at.date === "2026-11-28T07:30", id + ": " + s.name + " is painted at the trip's own spot (" + s.stand + ") and hour", at);
+        }
         const c = await page.evaluate((q) => {
           const sc = document.getElementById("scene").getBoundingClientRect(), el = document.querySelector(q), b = el && el.getBoundingClientRect();
           const hero = document.querySelector("[data-view] > .hero");

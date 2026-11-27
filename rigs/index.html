@@ -879,6 +879,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
 <script src="/rigs/crew.js"></script>
 <script src="/rigs/rules.js"></script>
 <script src="/rigs/waters.js"></script>
+<script src="/rigs/spots-scene.js"></script>
 <script>
 (function () {
   "use strict";
@@ -923,10 +924,12 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // kind: sound, pier, river, lake or surf. o.lift: the screen has a filter
   // row under its tabs, so the whole picture stands that much lower and the
   // title keeps its place in the sky (fitBand() lowers it again for a title
-  // that wraps). o.paint: the
-  // scene builder's own options (see lake and surf in rigs/scene.js: the
-  // skyline, the dock or none, how high the water stands), for a spot that
-  // has its own card (spotPaint).
+  // that wraps). o.paint: the scene builder's own options: for a spot with
+  // its own picture, its card with today painted in (placePaint).
+  // The picture is painted again only when what is asked for changes: the
+  // kind, the spot, its stand, the hour or today's water. The painter may
+  // turn the element's data-scene to the spot's own builder (Westport's
+  // crab float is a pier), so what was asked is kept apart in data-ask.
   function setScene(kind, o) {
     if (!sceneEl || !LOOK) return;
     o = o || {};
@@ -934,32 +937,65 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     root.toggleAttribute("data-lift", !!o.lift);
     kind = RIG.water.scenes.indexOf(kind) >= 0 ? kind : "sound";
     var paint = o.paint ? JSON.stringify(o.paint) : "";
-    if (sceneEl.getAttribute("data-scene") === kind && sceneEl.dataset.painted && (sceneEl.dataset.paint || "") === paint) return;
+    if (sceneEl.dataset.painted && sceneEl.dataset.ask === kind && (sceneEl.dataset.paint || "") === paint) return;
     sceneEl.setAttribute("data-scene", kind);
+    sceneEl.dataset.ask = kind;
     if (paint) sceneEl.dataset.paint = paint; else delete sceneEl.dataset.paint;
+    if (o.paint && o.paint.spot) sceneEl.dataset.spot = o.paint.spot; else delete sceneEl.dataset.spot;
     delete sceneEl.dataset.painted;
     RIG.water.scene(sceneEl, o.paint);
   }
-  // A spot's own painting options, when it has a card of them
-  // (RIG.spotScenes[spotId], e.g. { dock: false } for a lake with no dock).
-  // A spot with no card is painted as its kind of water.
+  // A spot's own picture (rigs/spots-scene.js): its card, or the plain small
+  // lake for a lake from the WDFW feed, or null for a spot with none (it is
+  // then painted as its kind of water).
   function spotPaint(spotId) {
-    var c = RIG.spotScenes && spotId && RIG.spotScenes[spotId];
+    var c = spotId && RIG.spotScene ? RIG.spotScene(spotId) : null;
     return c && typeof c === "object" ? c : null;
   }
-  // The paint for a place: its spot card, and on an ocean beach what the
-  // people there are doing (a razor clam dig, or surf perch fishing), by the
-  // trip's or the page's fish, else the first fish the spot is for.
+  // The paint for a place: its spot card, and what the picture needs to
+  // stand in the right place at the right hour:
+  //   fish      the trip's or the page's fish (a salmon trip on the Green is
+  //             the Auburn Narrows, any other is Flaming Geyser)
+  //   how       how the trip fishes it (Dash Point: the kayak launch or the
+  //             state park beach)
+  //   activity  on an ocean beach, a razor clam dig or surf perch fishing,
+  //             by the fish, else the first fish the spot is for
+  //   now       today painted in (RIG.spotNow): the tide on the pilings, the
+  //             river's level, the wind, the rain and the moon at that hour
+  // at (optional), the moment painted: { iso, from, how, moon, planId, data }.
+  // iso and from are the trip's day and its start hour (17.5 is 5:30 PM),
+  // moon is the trip's own (0 to 100), data the forecast already read for
+  // this draw (skyReader().saved), so a list never parses it once a row.
+  // Without at, the spot as it is this hour (its own page, a fish page).
   var BEACH_DOING = { clams: "clams", surfperch: "perch" };
-  function placePaint(spotId, speciesId) {
-    var c = spotPaint(spotId), doing = BEACH_DOING[speciesId] || "";
+  function placePaint(spotId, speciesId, at) {
+    var c = spotPaint(spotId), doing = BEACH_DOING[speciesId] || "", o = {}, k;
     if (!speciesId) speciesAt(spotId).some(function (sp) { return (doing = BEACH_DOING[sp.id] || ""); });
-    if (!doing) return c;
-    var o = {}, k;
-    for (k in c || {}) o[k] = c[k];
-    o.activity = doing;
+    if (!c) return doing ? { activity: doing } : null;
+    for (k in c) o[k] = c[k];
+    if (doing) o.activity = doing;
+    if (speciesId) o.fish = speciesId;
+    at = at || {};
+    var plan = at.planId ? planOf(at.planId) : null, how = at.how || (plan && plan.how);
+    if (how) o.how = how;
+    if (RIG.spotNow) {
+      try { o.now = RIG.spotNow(spotId, whenAt(at, plan), at.data, at.moon != null && !isNaN(+at.moon) ? { moon: +at.moon / 100 } : null); } catch (e) { /* the picture paints an ordinary day */ }
+    }
     return o;
   }
+  // The local moment a paint stands at: the trip's start on its day, or a
+  // day with no hour at its plan's own time (after dark for a night trip,
+  // else noon); with no day, this hour (on the hour, so the picture does not
+  // repaint every minute).
+  function whenAt(at, plan) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(at.iso || ""));
+    if (!m) { var d = new Date(); d.setMinutes(0, 0, 0); return d; }
+    var h = at.from != null && !isNaN(+at.from) ? +at.from : plan && plan.dark ? 19 : 12, mins = Math.round(h * 60);
+    return new Date(+m[1], +m[2] - 1, +m[3], Math.floor(mins / 60), mins % 60);
+  }
+  // The moment of a trip from the week (Hot Trips), and of a crew's trip.
+  function tripAt(iso, t, data) { return { iso: iso, from: t.from, how: t.how, moon: t.moon, planId: t.planId, data: data }; }
+  function crewAt(t, data) { return { iso: t.date, from: t.from, planId: t.planId, data: data }; }
   // The title in the sky. o.title, o.back {href, text}, o.chips (html, on
   // glass: nothing small is ever written straight on the picture), o.attr
   // (extra attributes for the h1), o.more (html under the chips).
@@ -1345,10 +1381,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   var cameFrom = "";
   function renderWater(t) {
     cameFrom = t.id;
-    var list = spotsOfType(t.id);
+    var list = spotsOfType(t.id), wx = plannerReady() && RIG.trips.cached ? RIG.trips.cached() : null;
     var rows = list.map(function (s) {
       var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
-      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id)) +
+      return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id, "", { data: wx })) +
         '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + '</span><span class="rm">' + esc(names) + "</span></span>" + IC.chev + '</a>';
     }).join("");
     // Kayak water also gets the boat itself, and Fly gets the casting course.
@@ -1634,7 +1670,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function sceneFor(t) { var k = waterKind(t); return k === "beach" ? "sound" : k; }
   // Which picture a trip or a spot gets, for anything outside this file that
   // needs to know (a spot's own card later, and the tests).
-  RIG.picture = { water: waterKind, scene: sceneFor, spot: spotKind };
+  // paint(spot, fish, at): the spot's own picture at a trip's moment (placePaint).
+  RIG.picture = { water: waterKind, scene: sceneFor, spot: spotKind, paint: placePaint };
   // The small painting: kind of water, under the sky of one hour.
   // Without the painter (its file did not load) a plain swatch of sky over
   // water holds the picture's place, so the row keeps its shape.
@@ -1689,7 +1726,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var crew = st ? sameTrip(st, t.planId, day.iso) : null;
     if (crew && crew.status === "done") crew = null;
     return '<a class="trip" href="#/trips/' + encodeURIComponent(hotKey(day, t)) + '" data-hot="' + esc(t.planId) + '">' +
-      miniHtml(waterKind(t), sky(day.iso, t.from, t.spot), "", placePaint(t.spot, t.species)) +
+      miniHtml(waterKind(t), sky(day.iso, t.from, t.spot), "", placePaint(t.spot, t.species, tripAt(day.iso, t, sky.saved))) +
       '<span class="tx"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span>" +
         '<span class="note alert" data-rule-badge hidden' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></span>" +
         (crew ? '<span class="withcrew" data-cw-with>' + facesHtml(goingOf(crew, "going")) + (crew.status === "planned" ? "Crew is on" : "Crew idea") + "</span>" : "") +
@@ -1752,7 +1789,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         "<b data-call-headline>" + esc(c.headline) + "</b><span data-call-why>" + esc(c.why) + "</span></span></div></section>";
     }
     return '<section class="float call" data-call><div class="call-top">' +
-      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg", placePaint(c.trip.spot, c.trip.species)) +
+      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "lg", placePaint(c.trip.spot, c.trip.species, tripAt(c.day.iso, c.trip, sky.saved))) +
       '<span class="tx"><span class="caprow"><em class="eyebrow">The call</em>' + heatTag(c.trip) + "</span>" +
       "<b data-call-headline>" + esc(c.headline) + "</b>" +
       (c.why ? "<span data-call-why>" + esc(c.why) + "</span>" : "") + "</span></div>" +
@@ -1854,7 +1891,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   }
   function crewScene(st) {
     var t = nextCrewTrip(st);
-    return t ? { kind: sceneFor({ planId: t.planId, spot: t.spotId, species: t.species, name: t.title }), paint: placePaint(t.spotId, t.species) } : { kind: "sound", paint: null };
+    return t ? { kind: sceneFor({ planId: t.planId, spot: t.spotId, species: t.species, name: t.title }), paint: placePaint(t.spotId, t.species, crewAt(t)) } : { kind: "sound", paint: null };
   }
   // A face: the first letter of a name on a round of its own colour. The
   // same person keeps the same colour on every crew screen (their place in
@@ -2374,7 +2411,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (!c) return '<a class="row" href="#/crew/new" data-crew-next="plan-row"><span class="tx"><b>Nothing planned yet</b><span>Pick a trip and a day. The crew sees it.</span></span>' + IC.chev + "</a>";
     var sky = skyReader(), d = isoDay(c.day.iso), when = c.day.iso === todayIso() ? "Today" : DAYFULL[d.getDay()];
     return '<a class="trip cw-pickrow" href="#/crew/new" data-crew-next="pick" data-pick-plan="' + esc(c.trip.planId) + '" data-pick-day="' + esc(c.day.iso) + '">' +
-      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "", placePaint(c.trip.spot, c.trip.species)) +
+      miniHtml(waterKind(c.trip), sky(c.day.iso, c.trip.from, c.trip.spot), "", placePaint(c.trip.spot, c.trip.species, tripAt(c.day.iso, c.trip, sky.saved))) +
       '<span class="tx"><b>' + esc(c.trip.name) + "</b><span>" + esc(when + " · " + c.trip.when) + "</span></span>" + heatTag(c.trip) + IC.chev + "</a>";
   }
   // Names: my own (any member) and the crew's (the owner). A new name is on
@@ -3519,7 +3556,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   var hotCold = { key: "", busy: false };
   function renderHotWait(key) {
     var plan = planOf(key.split("~")[1]), here = location.hash;
-    app.innerHTML = topHtml("trips", "", plan ? sceneFor({ planId: plan.id, spot: plan.spot }) : "sound", plan ? placePaint(plan.spot, plan.species) : null) +
+    app.innerHTML = topHtml("trips", "", plan ? sceneFor({ planId: plan.id, spot: plan.spot }) : "sound", plan ? placePaint(plan.spot, plan.species, { iso: key.split("~")[0], planId: plan.id }) : null) +
       '<div data-view="hotwait">' + heroHtml({ title: plan ? plan.name : "Hot Trips", back: { href: "#/trips", text: "Hot Trips" } }) +
       '<div class="float fallback" data-hot-wait>' + whenP("Loading the forecast…") + "</div></div>" + tripBarHtml();
     // Drawn again while the forecast is on its way: it is asked for once.
@@ -3538,7 +3575,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var hero = heroHtml({ title: t.name, back: { href: "#/trips", text: "Hot Trips" },
       chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + '</b> <span class="slot">' + esc(t.slot) + "</span></span>" + heatTag(t) });
     if (!run) {
-      app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species)) + '<div data-view="hot">' + hero +
+      app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species, tripAt(day.iso, t))) + '<div data-view="hot">' + hero +
         '<div class="float fallback">' + whenP(t.when + " · " + driveWords(t.drive) + " drive") + boxHtml("tip", "why", stepsHtml(t.why)) + "</div>" +
         (sp ? '<div class="panel list" style="margin-top:14px"><a class="row" href="#/' + esc(sp.id) + "/" + esc(t.spot) + '" data-open-cards><span class="tx"><b>Open the ' +
           esc(sp.name) + " cards</b></span>" + IC.chev + "</a></div>" : "") + "</div>" + tripBarHtml();
@@ -3547,7 +3584,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var secs = runSections(t, run);
     var card = sec && secs.filter(function (c) { return c.id === sec; })[0];
     if (card) {
-      renderCard({ tab: "trips", card: card, list: secs, addable: false, scene: scene, paint: placePaint(t.spot, t.species),
+      renderCard({ tab: "trips", card: card, list: secs, addable: false, scene: scene, paint: placePaint(t.spot, t.species, tripAt(day.iso, t)),
         hrefFor: function (c) { return base + "/" + c.id; }, upHref: base, upText: t.name });
       app.querySelector('[data-view="card"]').setAttribute("data-run", t.planId);
       return;
@@ -3565,7 +3602,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
         "</b>" + secLineHtml(c, t, run, t.planId) + "</span>" + IC.chev + "</a>";
     }).join("");
-    app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species)) +
+    app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species, tripAt(day.iso, t, sky.saved))) +
       '<div data-view="hot" data-run="' + esc(t.planId) + '">' + hero +
         '<div data-rules-slot' + slotAttrs(t.spot, t.species, runSince(t.planId)) + "></div>" +
         planFloatHtml(t, day, base + "/plan", sky) +
@@ -3854,7 +3891,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // The picture over the form follows the pick: the water of the trip being planned.
   function newScene() {
     var p = planOf(crewUi.vals.newPlan);
-    return p ? { kind: sceneFor({ planId: p.id, spot: p.spot, species: p.species, name: p.name }), paint: placePaint(p.spot, p.species) } : { kind: "sound", paint: null };
+    return p ? { kind: sceneFor({ planId: p.id, spot: p.spot, species: p.species, name: p.name }), paint: placePaint(p.spot, p.species, { iso: crewUi.vals.newDate, from: boxHour(crewUi.vals.newFrom), planId: p.id }) } : { kind: "sound", paint: null };
   }
   // The days to pick from: this week, as date stamps, today first.
   function newDaysHtml(picked) {
@@ -3884,7 +3921,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (!picks.length) return "";
     return '<div class="panel list cw-picks">' + picks.map(function (t) {
       return '<button class="trip cw-pickrow" type="button" data-cw-pickplan="' + esc(t.planId) + '" aria-pressed="' + (t.planId === picked ? "true" : "false") + '">' +
-        miniHtml(waterKind(t), sky(iso, t.from, t.spot), "", placePaint(t.spot, t.species)) +
+        miniHtml(waterKind(t), sky(iso, t.from, t.spot), "", placePaint(t.spot, t.species, tripAt(iso, t, sky.saved))) +
         '<span class="tx"><b>' + esc(t.name) + "</b><span>" + esc(t.slot + " · " + t.when) + "</span></span>" + heatTag(t) +
         '<i class="cw-picked" aria-hidden="true">' + TICK + "</i></button>";
     }).join("") + "</div>";
@@ -4228,7 +4265,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function catchPic(trip, c, sky) {
     var kind = waterKind({ planId: trip.planId, spot: trip.spotId, species: trip.species, name: trip.title }), d = new Date(c && c.at), under = "";
     if (!isNaN(d)) under = sky(isoOf(d), d.getHours() + d.getMinutes() / 60, trip.spotId);
-    return miniHtml(kind === "beach" ? "sound" : kind, under || skyId(), "", placePaint(trip.spotId, trip.species));
+    return miniHtml(kind === "beach" ? "sound" : kind, under || skyId(), "", placePaint(trip.spotId, trip.species,
+      !isNaN(d) ? { iso: isoOf(d), from: d.getHours() + d.getMinutes() / 60, planId: trip.planId, data: sky.saved } : crewAt(trip, sky.saved)));
   }
   function cwCatchesHtml(d) {
     if (d.thin) return "";
@@ -4511,7 +4549,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     }
     if (sub !== "edit") tripUi.edit = false;
     var st = crewSt(), d = tripData(id);
-    var open = topHtml("trips", "crew", d && d.trip ? sceneFor({ planId: d.trip.planId, spot: d.trip.spotId, species: d.trip.species, name: d.trip.title }) : "", d && d.trip ? placePaint(d.trip.spotId, d.trip.species) : null) +
+    var open = topHtml("trips", "crew", d && d.trip ? sceneFor({ planId: d.trip.planId, spot: d.trip.spotId, species: d.trip.species, name: d.trip.title }) : "", d && d.trip ? placePaint(d.trip.spotId, d.trip.species, crewAt(d.trip)) : null) +
       '<div data-view="crewtrip" data-trip="' + esc(id) + '"';
     var up = { href: "#/trips", text: "Hot Trips" };
     if (cwT.nav) {
