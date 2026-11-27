@@ -321,7 +321,7 @@
 .w-join{fill:color-mix(in oklab,var(--water1) 60%,var(--lum));opacity:.32}
 .w-seam{fill:none;stroke:var(--lum);stroke-width:.9;stroke-dasharray:22 4 9 6 30 5;opacity:.5;stroke-linecap:round}
 .w-bar{fill:color-mix(in srgb,var(--bg) 86%,var(--shade))}
-.w-path{fill:color-mix(in srgb,var(--bg) 78%,var(--lum))}
+.w-path{fill:color-mix(in oklab,var(--r2) 38%,var(--bg))}
 :root[data-dark="1"] .w-bar{fill:color-mix(in srgb,var(--bg) 82%,var(--ink))}
 :root[data-dark="1"] .w-path{fill:color-mix(in srgb,var(--bg) 88%,var(--ink))}
 :root[data-dark="1"] .w-join{opacity:.18}
