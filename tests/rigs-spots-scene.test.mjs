@@ -333,7 +333,7 @@ const surfY = (tide) => firstY(paint(S["ocean-shores"], { activity: "perch", now
 ok(surfY(0) < surfY(0.5) && surfY(0.5) < surfY(1) && surfY(1) - surfY(0) >= 20, "the surf: the wash line comes toward you as the tide rises, and far enough to see", [surfY(0), surfY(1)]);
 // a river's own bank: the water climbs it toward you as the river rises
 const bankY = (id, cls, lvl, x) => firstY(paint(S[id], Object.assign({ now: { river: lvl, date: D } }, x || {})).innerHTML, cls);
-ok(bankY("green-river", "w-lawn", 0, { fish: "coho" }) < bankY("green-river", "w-lawn", 1, { fish: "coho" }), "the Narrows: high water climbs the meadow bank toward you");
+ok(bankY("green-river", "w-mead", 0, { fish: "coho" }) < bankY("green-river", "w-mead", 1, { fish: "coho" }), "the Narrows: high water climbs the meadow bank toward you");
 ok(bankY("puyallup-orting", "w-levee", 0) < bankY("puyallup-orting", "w-levee", 1) && bankY("puyallup-sumner", "w-lawn", 0) < bankY("puyallup-sumner", "w-lawn", 1), "Orting and Sumner: high water climbs the levee and the point toward you");
 ok(/class="w-mudb"/.test(paint(S["puyallup-sumner"], { now: { river: 0, date: D } }).innerHTML), "low water leaves a strip of mud and gravel along the bank");
 // Flaming Geyser's gravel: less of it as the river rises
@@ -403,13 +403,15 @@ ok(/w-cobwet/.test(gey) && /w-cobwet/.test(geyLo) && /w-cobd/.test(gey), "Flamin
 // and they run right across the picture above the card, whatever the river is doing
 const cobX = (h) => { const m = /class="w-cobwet" d="M([^"]*)"/.exec(h); return m ? Math.max(...m[1].split(/[MLZ]/).filter(Boolean).map((q) => +q.split(" ")[0])) : 0; };
 ok(cobX(gey) >= 380 && cobX(geyLo) >= 380, "Flaming Geyser: the wet cobbles reach across the picture at high water and low", [cobX(gey), cobX(geyLo)]);
-// (verify-2, V2-3) the far bank runs away downstream into the picture, so its
-// foot slopes across it; its copy in the water and its beach strip lie along
+// (verify-2, V2-3) the far bank runs away into the picture, so its foot
+// slopes across it; its copy in the water and its beach strip lie along
 // that foot. A copy mirrored on a level line crossed the trunks as a straight
 // dark band that read as a bridge (the card: no bridge in view).
+// (E3, V2-2) Flaming Geyser is now seen a little upstream (rv.reach): the far
+// bank's foot climbs gently toward the reach's far end at the right
 {
-  const gs = Object.assign({}, S["green-river"], S["green-river"].stands.geyser), rv = gs.river, RY = rv.y || 198, cv = rv.converge;
-  const foot = (x) => RY - cv * (1 - x / 390);
+  const gs = Object.assign({}, S["green-river"], S["green-river"].stands.geyser), rv = gs.river, RY = rv.y || 198, rise = rv.reach.rise == null ? 7 : rv.reach.rise, right = rv.reach.side !== "left";
+  const foot = (x) => RY - rise * (right ? x / 390 : 1 - x / 390);
   for (const lv of [0, 0.35, 0.7]) {
     const h = paint(S["green-river"], { now: { date: D, river: lv } }).innerHTML;
     const m = /<g transform="matrix\(([-\d. ]+)\)" fill="url\(#\w+-rfb\)"/.exec(h);
@@ -449,12 +451,18 @@ for (const [id, extra] of [["green-river", { fish: "coho" }], ["tokul", {}], ["c
   ok(!flat.length && pieces >= 3 && /mask="url\(#\w+m-ff\)"/.test(h), id + ": the far bank's foot is ragged, its beach strip in pieces and its reflection broken, with no ruled level line", { flat: flat.slice(0, 2), pieces });
 }
 // (fix-1, look-1) the Narrows has mass and depth: the cottonwood grove on your bank, the meadow's edge on a slant, and someone wading in
+// (E3, V2-2) built as the approved river is: your own bank's bare cottonwoods run away up the reach at the
+// right, their waterline climbing from near the card's edge to the far bank's foot, so the banks close in on
+// the water's far end; the meadow's edge comes in from the left on the approved bar's slant, down toward the
+// card; the sky over the gap lies on the water as a road; an angler at the meadow's edge, a step in
 {
-  const h = paint(S["green-river"], { fish: "coho", now: { date: D, river: 0.4 } }).innerHTML, lw = /class="w-lawn" d="M([^"]*)"/.exec(h);
-  const ys = lw ? lw[1].split(/[MLZ]/).filter(Boolean).map((q) => q.split(" ").map(Number)).filter((q) => q[1] < 300) : [];
-  const left = ys.filter((q) => q[0] < 60).map((q) => q[1]), right = ys.filter((q) => q[0] > 300).map((q) => q[1]);
-  ok(left.length && right.length && Math.min(...left) - Math.max(...right) > 12 && (h.match(/class="w-l5"/g) || []).length >= 3 && /class="w-wade"/.test(h) && !/w-barkl/.test(h),
-    "the Narrows: the meadow's edge runs on a slant (up at the right), a dark grove of cottonwoods stands on it, and an angler wades in", [left.length && Math.min(...left), right.length && Math.max(...right)]);
+  const h = paint(S["green-river"], { fish: "coho", now: { date: D, river: 0.4 } }).innerHTML, pts = (cls) => { const m = new RegExp('class="' + cls + '" d="M([^"]*)"').exec(h); return m ? m[1].split(/[MLZ]/).filter(Boolean).map((q) => q.trim().split(/\s+/).map(Number)) : []; };
+  const md = pts("w-mead").filter((q) => q[1] < 300), lip = pts("w-beach w-reachlip");
+  const mL = md.filter((q) => q[0] < 40).map((q) => q[1]), mR = md.filter((q) => q[0] > 150 && q[0] < 220).map((q) => q[1]);
+  ok(mL.length && mR.length && Math.min(...mR) - Math.max(...mL) > 25 && Math.max(...mL) < 232, "the Narrows: the meadow's edge comes in from the left high in the band and runs down toward the card on a slant", [mL, mR].map((a) => a.length && Math.round(Math.min(...a))));
+  ok(lip.length > 10 && lip[0][0] < 260 && lip[0][1] < 206 && lip[lip.length - 1][0] > 380 && lip[lip.length - 1][1] > 250, "and your own bank closes on the far bank's foot: its waterline climbs from the card's edge at the right to the reach's far end", [lip[0], lip[lip.length - 1]]);
+  ok(/<g class="w-reach" data-reach="grove">/.test(h) && /class="w-grovelace"/.test(h) && (h.match(/class="w-l5"/g) || []).length >= 3 && /class="w-gaprd"/.test(h) && /class="w-wade"/.test(h) && !/w-barkl/.test(h) && !/class="w-barg"/.test(h),
+    "a dark grove of bare cottonwoods stands on it, the sky's road lies on the water, an angler wades in, and no gravel bar is drawn (the card drops it)");
 }
 // Orting: the braid's bars have body, the levee its slope
 const ort = (river) => paint(S["puyallup-orting"], { now: { date: D, river } }).innerHTML;
@@ -522,8 +530,12 @@ for (const [id, extra] of [["green-river", { fish: "coho" }], ["green-river", {}
 {
   const h = dsh("shore"), ops = [...h.matchAll(/<g opacity="([\d.]+)"><path class="w-riprow"/g)].map((m) => +m[1]);
   ok(ops.length >= 20 && ops[0] < 0.3 && ops[ops.length - 1] > 0.9 && ops.every((v, i) => !i || v >= ops[i - 1]), "Dash Point's flats: ripple rows faint by the water, bolder toward you", ops.slice(0, 3));
-  ok(/class="w-runnel"/.test(h) && !/class="w-runs"/.test(h) && (h.match(/class="w-sandwet"/g) || []).length === 3 && /class="w-poolnear"/.test(h) && /class="w-berm"/.test(h) && /class="w-drift"/.test(h),
-    "and the near sand wet and darker in steps, its sheen in pools, dark runnels, drift logs on the berm at the top of the beach");
+  // (E3, V2-1) the runnels read as blurred smudges on the painting: the wet flat carries the sky in
+  // patches of pale level glints instead, and nothing is drawn through a blur on it
+  const film = /<g class="w-sheen w-film">([\s\S]*?)<\/g>/.exec(h), filmN = film ? (film[1].match(/<path d="M[-\d. ]+h[\d.]+"/g) || []).length : 0;
+  ok(!/class="w-runnel"/.test(h) && !/class="w-runs"/.test(h) && !/w-flat[^"]*" filter=/.test(h) && filmN >= 60 && (h.match(/class="w-sandwet"/g) || []).length === 3 && /class="w-poolnear"/.test(h) && /class="w-berm"/.test(h) && /class="w-drift"/.test(h),
+    "and the near sand wet and darker in steps, its sheen in pools and in patches of level glints (no runnel strokes, no blur), drift logs on the berm at the top of the beach", filmN);
+  ok(!/class="w-runnel"/.test(dsh("kayak")) && /class="w-sheen w-film"/.test(dsh("kayak")), "the kayak launch's flats too: glints, no runnel strokes");
   const fig = /<path class="w-figh" d="([^"]*)"/.exec(h), fy = fig ? nums2(fig[1]).map((q) => q[1]) : [];
   ok(fy.length && Math.max(...fy) - Math.min(...fy) >= 18 && /class="w-figrefl"/.test(h), "the angler near enough to read (20 px or so), his copy in the wet sand", fy.length && Math.round(Math.max(...fy) - Math.min(...fy)));
 }

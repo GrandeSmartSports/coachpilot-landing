@@ -2026,9 +2026,11 @@
         // its long face in value steps: darker where it is nearer you, paler as it runs off
         var sv = '<path class="' + (p.cls || "w-wallw") + (md < 26 ? " w-conc2" : md < 36 ? " w-conc1" : "") + '" d="' + poly3(w, [[A[0], Y0, A[1]], [B[0], Y0, B[1]], [B[0], Y0 + H2, B[1]], [A[0], Y0 + H2, A[1]]]) + '"/>', sd = "", wn = "";
         for (var yy = Y0 + 0.5; yy < Y0 + H2 - 0.2; yy += 0.5) sd += poly3(w, [[A[0], yy, A[1]], [B[0], yy, B[1]], [B[0], yy + 0.06, B[1]], [A[0], yy + 0.06, A[1]]]);
-        if (p.win) for (var wd = d0 + 1.2 + r() * 0.8; wd < d1 - 0.6; wd += p.win * (0.8 + r() * 0.6)) { if (r() < 0.3) continue; var wl9 = 0.8 + r() * 0.6, q0 = [a[0] + ux * wd, a[1] + uz * wd], q1 = [a[0] + ux * (wd + wl9), a[1] + uz * (wd + wl9)], wy = Y0 + H2 * 0.5; wn += poly3(w, [[q0[0], wy - 0.6, q0[1]], [q1[0], wy - 0.6, q1[1]], [q1[0], wy + 0.6, q1[1]], [q0[0], wy + 0.6, q0[1]]]); }
+        // (its windows: fewer, each its own width, some holding the sky)
+        var wsk = "";
+        if (p.win) for (var wd = d0 + 1.2 + r() * 0.8; wd < d1 - 0.6; wd += p.win * (0.9 + r() * 0.8)) { if (r() < 0.42) continue; var wl9 = 0.7 + r() * r() * 2.2, q0 = [a[0] + ux * wd, a[1] + uz * wd], q1 = [a[0] + ux * (wd + wl9), a[1] + uz * (wd + wl9)], wy = Y0 + H2 * 0.5, pq = poly3(w, [[q0[0], wy - 0.6, q0[1]], [q1[0], wy - 0.6, q1[1]], [q1[0], wy + 0.6, q1[1]], [q0[0], wy + 0.6, q0[1]]]); if (r() < 0.34) wsk += pq; else wn += pq; }
         var Ab = [A[0] + nx * dep, A[1] + nz * dep], Bb = [B[0] + nx * dep, B[1] + nz * dep];
-        sv += '<path class="w-siding" d="' + sd + '"/><path class="w-eavesh" d="' + poly3(w, [[A[0], Y0 + H2 - 0.6, A[1]], [B[0], Y0 + H2 - 0.6, B[1]], [B[0], Y0 + H2, B[1]], [A[0], Y0 + H2, A[1]]]) + '"/><path class="w-wallao" d="' + poly3(w, [[A[0], Y0, A[1]], [B[0], Y0, B[1]], [B[0], Y0 + H2 * 0.35, B[1]], [A[0], Y0 + H2 * 0.35, A[1]]]) + '"/>' + (wn ? '<path class="w-win w-pane" d="' + wn + '"/>' : "") +
+        sv += '<path class="w-siding" d="' + sd + '"/><path class="w-eavesh" d="' + poly3(w, [[A[0], Y0 + H2 - 0.9, A[1]], [B[0], Y0 + H2 - 0.9, B[1]], [B[0], Y0 + H2, B[1]], [A[0], Y0 + H2, A[1]]]) + '"/><path class="w-wallao" d="' + poly3(w, [[A[0], Y0, A[1]], [B[0], Y0, B[1]], [B[0], Y0 + H2 * 0.35, B[1]], [A[0], Y0 + H2 * 0.35, A[1]]]) + '"/>' + (wn ? '<path class="w-win w-pane" d="' + wn + '"/>' : "") + (wsk ? '<path class="w-win w-panesky" d="' + wsk + '"/>' : "") +
           '<path class="' + (p.roofc || "w-roofg") + '" d="' + poly3(w, [[A[0] - nx * 0.4, Y0 + H2, A[1] - nz * 0.4], [B[0] - nx * 0.4, Y0 + H2, B[1] - nz * 0.4], [Bb[0], Y0 + H2 + RH, Bb[1]], [Ab[0], Y0 + H2 + RH, Ab[1]]]) + '"/>';
         var e0 = w.P(A[0] - nx * 0.4, Y0 + H2, A[1] - nz * 0.4), e1 = w.P(B[0] - nx * 0.4, Y0 + H2, B[1] - nz * 0.4);
         if (w.sz(A[0], A[1]) > 0.9 && w.sz(B[0], B[1]) > 0.9) sv += '<path class="w-liteb" d="M' + n(e0[0]) + " " + n(e0[1]) + "L" + n(e1[0]) + " " + n(e1[1]) + '"/>';
@@ -2077,17 +2079,18 @@
     var fsd = "";
     if (p.siding !== false) for (var yf = Y0 + 0.45; yf < Y1 - 0.2; yf += p.siding === "shingle" ? 0.32 : 0.5) fsd += poly3(w, [[X0, yf, Z0], [X1, yf, Z0], [X1, yf + 0.05, Z0], [X0, yf + 0.05, Z0]]);
     sv += '<path class="w-siding" d="' + fsd + '"/><path class="w-wallao" d="' + poly3(w, [[X0, Y0, Z0], [X1, Y0, Z0], [X1, Y0 + p.h * 0.32, Z0], [X0, Y0 + p.h * 0.32, Z0]]) + '"/>' +
-      '<path class="w-eavesh" d="' + poly3(w, [[X0, Y1 - 0.7, Z0], [X1, Y1 - 0.7, Z0], [X1, Y1, Z0], [X0, Y1, Z0]]) + '"/>';
+      '<path class="w-eavesh" d="' + poly3(w, [[X0, Y1 - 1, Z0], [X1, Y1 - 1, Z0], [X1, Y1, Z0], [X0, Y1, Z0]]) + '"/>';
     // p.shop: a shopfront along its ground floor (the Point Defiance
     // boathouse): tall panes and a door between, an awning over them
     if (p.shop) {
-      var shp = "", aw = "", sc2 = w.px(1, p.at[0], Z0);
+      var shp = "", shsky = "", aw = "", sc2 = w.px(1, p.at[0], Z0);
       for (var sx2 = X0 + 1.4; sx2 < X1 - 1.4; sx2 += 2.1) {
         if (Math.abs(sx2 - p.at[0] - (p.door || 0)) < 1.1) { shp += poly3(w, [[sx2 - 0.55, Y0, Z0], [sx2 + 0.55, Y0, Z0], [sx2 + 0.55, Y0 + 2.2, Z0], [sx2 - 0.55, Y0 + 2.2, Z0]]); continue; }
-        shp += poly3(w, [[sx2 - 0.8, Y0 + 0.7, Z0], [sx2 + 0.8, Y0 + 0.7, Z0], [sx2 + 0.8, Y0 + 2.4, Z0], [sx2 - 0.8, Y0 + 2.4, Z0]]);
+        var sp9 = poly3(w, [[sx2 - 0.8, Y0 + 0.7, Z0], [sx2 + 0.8, Y0 + 0.7, Z0], [sx2 + 0.8, Y0 + 2.4, Z0], [sx2 - 0.8, Y0 + 2.4, Z0]]);
+        if (r() < 0.3) shsky += sp9; else shp += sp9;
       }
       aw = poly3(w, [[X0 + 0.6, Y0 + 2.7, Z0 - 1.1], [X1 - 0.6, Y0 + 2.7, Z0 - 1.1], [X1 - 0.6, Y0 + 3.3, Z0], [X0 + 0.6, Y0 + 3.3, Z0]]);
-      sv += '<path class="w-shopw" d="' + shp + '"/><path class="w-awning" d="' + aw + '"/>';
+      sv += '<path class="w-shopw" d="' + shp + '"/><path class="w-panesky" d="' + shsky + '"/><path class="w-awning" d="' + aw + '"/>';
     }
     if (seeSide) {
       sv += '<path class="' + wallc + ' w-wallside" d="' + poly3(w, side) + '"/>';
@@ -2119,7 +2122,7 @@
     // windows: dark by day, lit after dark, a thread of each on the water
     // (never an even grid: some bays blind, each pane its own width, set a
     // little off the beat, its head in the shadow of the frame)
-    var wins = "", wheads = "", lit = "", rows = p.win == null ? 1 : p.win, sc = w.px(1, p.at[0], Z0);
+    var wins = "", wsky = "", wheads = "", lit = "", rows = p.win == null ? 1 : p.win, sc = w.px(1, p.at[0], Z0);
     for (var ri = 0; ri < rows; ri++) {
       var wy = p.shop ? Y1 - 1.5 : Y0 + (p.h * (ri + 0.55)) / (rows + 0.2);
       if (p.shop && ri) break;
@@ -2127,14 +2130,15 @@
         if (r() < 0.3) continue;
         var q = w.P(wx + (r() - 0.5) * 0.4, wy, Z0), ww = Math.max(0.5, sc * (0.75 + r() * 0.35)), wh = Math.max(0.5, sc * 1.25);
         var pane = poly([[q[0] - ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] + wh / 2], [q[0] - ww / 2, q[1] + wh / 2]]);
-        wins += pane; wheads += poly([[q[0] - ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh * 0.18], [q[0] - ww / 2, q[1] - wh * 0.18]]);
+        if (r() < 0.3) wsky += pane; else wins += pane;
+        wheads += poly([[q[0] - ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh / 2], [q[0] + ww / 2, q[1] - wh * 0.18], [q[0] - ww / 2, q[1] - wh * 0.18]]);
         if (r() < 0.8) lit += pane;
       }
     }
     var glow = "", c0 = w.P(p.at[0], Y0 + p.h * 0.5, Z0);
     if (p.lit === false) lit = "";
     if (lit) glow = '<circle cx="' + n(c0[0]) + '" cy="' + n(c0[1]) + '" r="' + n(Math.min(80, sc * p.w * 0.45 + 6)) + '" fill="url(#' + id + '-lamp)"/>';
-    sv += '<path class="w-win w-pane" d="' + wins + '"/><path class="w-winhead" d="' + wheads + '"/><g class="w-lampson w-window">' + glow + '<path class="w-poolg" d="' + lit + '"/></g>';
+    sv += '<path class="w-win w-pane" d="' + wins + '"/><path class="w-win w-panesky" d="' + wsky + '"/><path class="w-winhead" d="' + wheads + '"/><g class="w-lampson w-window">' + glow + '<path class="w-poolg" d="' + lit + '"/></g>';
     (p.flags || []).forEach(function (fx) {
       var fz = Z0 - 2, fb = w.P(fx, Y0, fz), ft2 = w.P(fx, Y0 + 9, fz), fwd = Math.max(0.4, w.px(0.1, fx, fz)), fs = w.px(1, fx, fz);
       sv += '<path class="w-s' + tn + '" d="' + poly([[fb[0] - fwd / 2, fb[1]], [fb[0] + fwd / 2, fb[1]], [ft2[0] + fwd * 0.3, ft2[1]], [ft2[0] - fwd * 0.3, ft2[1]]]) + '"/>' +
@@ -2479,6 +2483,21 @@
       var wy = yW + 3 + (yV != null ? Math.pow(r(), 1.8) * 0.3 : r()) * (yD - yW), wx = r() * W, wl = 5 + r() * 22;
       sheen += '<path d="M' + n(wx) + " " + n(wy) + "h" + n(wl) + '" stroke-width="' + n(0.4 + r() * 0.7) + '" opacity="' + n(0.2 + r() * 0.55) + '"/>';
     }
+    // yV, a long flat at low water: the film of water left on it holds the
+    // sky in broad patches, each a cluster of pale level glints, thin and
+    // crowded far off, longer and fewer toward you (the way the approved
+    // pictures show water: glints and value, never a drawn stroke)
+    var film = "";
+    if (yV != null) {
+      var fr9 = rnd(seed + 17);
+      for (k = 0; k < (TILE ? 4 : 9); k++) {
+        var fu = Math.pow(fr9(), 0.9), fcy = yW + 4 + fu * (Math.min(yD, H) - yW - 4), fcx = fr9() * W, fsp = 14 + fu * 46, fn = TILE ? 5 : 9 + Math.round(fr9() * 8);
+        for (var fj = 0; fj < fn; fj++) {
+          var fy = fcy + gauss(fr9) * (1.5 + fu * 5), fl = (3 + fu * 22) * (0.4 + fr9() * 0.8), fx = fcx + gauss(fr9) * fsp - fl / 2;
+          film += '<path d="M' + n(fx) + " " + n(fy) + "h" + n(fl) + '" stroke-width="' + n(0.4 + fu * 1.1) + '" opacity="' + n(0.25 + fr9() * 0.6) + '"/>';
+        }
+      }
+    }
     var ripl = "";
     for (k = 0; k < (TILE ? 50 : 150) * (0.4 + low) * (yV != null ? 0.25 : 1); k++) {
       var ry = yW + 6 + Math.pow(r(), 0.8) * (yD - yW - 4), rx = r() * W, rl = 2.4 + (ry - yW) * 0.2 * (0.6 + r());
@@ -2545,7 +2564,7 @@
       }
     }
     return '<path class="w-flat" d="' + wet + '"/><path class="w-flatdk" d="' + flatDk + '"/>' + dk9 + rows9 + rowsl + '<g class="w-lightx"><ellipse class="w-sandroad" cx="0" cy="' + n(yW + 14) + '" rx="54" ry="22" fill="url(#' + id + '-glow)"/></g>' +
-      (yV != null ? '<g class="w-pools">' + pools + '</g><path class="w-runnel" filter="url(#' + id + '-b2)" d="' + runs + '"/>' + pn9 : '<g class="w-pools">' + pools + '<path class="w-runs" d="' + runs + '"/></g>') + '<g class="w-sheen">' + sheen + '</g><path class="w-ripl" d="' + ripl + '"/><path class="w-ripm" d="' + rip + '"/>' +
+      (yV != null ? '<g class="w-pools">' + pools + "</g>" + pn9 + '<g class="w-sheen w-film">' + film + "</g>" : '<g class="w-pools">' + pools + '<path class="w-runs" d="' + runs + '"/></g>') + '<g class="w-sheen">' + sheen + '</g><path class="w-ripl" d="' + ripl + '"/><path class="w-ripm" d="' + rip + '"/>' +
       '<path class="w-lace" d="' + lace + '"/><path class="w-foam" d="' + line(edge) + '"/>' +
       '<path class="w-shore" d="' + line(dry.slice().reverse()) + "L" + (W + 6) + " " + (H + 4) + "L-6 " + (H + 4) + 'Z"/>' +
       (top9 < H - 8 ? nearS : "") + (yD < H ? '<g class="w-wrack">' + wrack + "</g>" : "");
@@ -2800,8 +2819,10 @@
     // season, a haze of twigs bare), darkest of everything, its copy in the water
     if (lk.nearTree) {
       // (bare, its crown is a soft haze round the limbs' ends, never a twig fan)
-      var nt = lk.nearTree, ntr = rnd(sd + 127), btn = bigTree(ntr, TILE && nt.tileX != null ? nt.tileX : nt.x, nt.base, nt.h, false, nt.spread || 0.6);
-      near += '<path class="w-rim" d="' + btn.wood + '"/><g class="w-l5">' + '<path' + (isBare ? ' class="w-haze"' : "") + ' d="' + btn.leaf + '"/><path d="' + btn.wood + '"/></g>';
+      var nt = lk.nearTree, ntr = rnd(sd + 127), btn = bigTree(ntr, TILE && nt.tileX != null ? nt.tileX : nt.x, TILE && nt.tileBase ? nt.tileBase : nt.base, TILE && nt.tileH ? nt.tileH : nt.h, false, nt.spread || 0.6);
+      // (on a tile it is the tile's dark mass: its bare crown painted as the
+      // twigs' massed lace, not the big picture's faint haze)
+      near += '<path class="w-rim" d="' + btn.wood + '"/><g class="w-l5">' + '<path' + (isBare ? ' class="' + (TILE ? "w-twigm" : "w-haze") + '"' : "") + ' d="' + btn.leaf + '"/><path d="' + btn.wood + '"/></g>';
     }
     // the bank beside you
     if (lk.wetland) {
@@ -3023,6 +3044,131 @@
     }
     return { brush: brush, strip: strip, def: m + gaps + "</g></mask>" };
   }
+  // ---- a reach of river, seen a little upstream (rv.reach) ---------------------------------
+  // The approved river's build, laid on a spot's own facts. Your own bank
+  // runs away upstream at one side (rch.side): its waterline climbs from the
+  // card's edge to meet the far bank's foot where the reach ends (rch.meet),
+  // its trees growing smaller as they go and a dark brush mass at their
+  // feet, so the two banks close in on the water's far end. The sky over that
+  // gap lies on the water as a pale road broken by the ripples (whatever
+  // side the sun is on: the river reflects the open sky between the banks),
+  // and after dark the towns' glow lies there instead. rch.near: "grove"
+  // (bare cottonwoods, the Narrows) or "mixed" (a generic mix of firs and
+  // bare broadleaf, rch.mix firs). No crown climbs behind the title or its
+  // chips (CAPY below x 362); right of them the nearest trees stand tall.
+  // Returns the parts for mid (the road on the water) and front (the bank),
+  // and nb(x) on the picture: where your bank meets the water.
+  function reachNear(id, sd, rch, footF, isBare, lvl) {
+    var R = rch.side !== "left", X = function (xr) { return R ? xr : W - xr; }, xs = rch.meet || 226, wob = noise(sd + 53), r = rnd(sd + 57), k;
+    var nu = function (xr) { return Math.max(0, xr - xs) / (W - xs); };
+    var nbR = function (xr) { var u = nu(xr); return footF(X(xr)) + 2.2 + 64 * Math.pow(u, 1.25) + (wob(xr * 0.075) - 0.5) * 7 * Math.min(1, u * 3) + (lvl - 0.35) * 4 * u; };
+    // cap(x): the highest a crown may reach at x; capW(x, hw): over a crown
+    // hw wide either side of x (a crown that reaches back over the chips is
+    // held under them); fitCap: how far to shrink drawn limbs so every point
+    // of them stays under the cap where it lies
+    var CAPY = 154, cap = function (x) { return x > 364 || x < 6 ? 112 : CAPY; }, capW = function (x, hw) { return Math.max(cap(x - hw), cap(x + hw), cap(x)); };
+    var fitCap = function (d, foot) { var nums = d.match(/-?\d+(?:\.\d+)?/g) || [], f = 1, i; for (i = 0; i + 1 < nums.length; i += 2) { var py = +nums[i + 1], c = cap(+nums[i]); if (py < c && foot - py > 0.5) f = Math.min(f, (foot - c) / (foot - py)); } return f; };
+    var trees = "", twigs = "", twigsN = "", firs = "", xr = xs + 1;
+    while (xr < W + 36) {
+      var u = nu(xr), x = X(xr), foot = nbR(xr) - 0.6, hm = (5 + 98 * Math.pow(u, 1.2)) * (0.62 + r() * 0.5), lim = (foot - capW(x, hm * 0.45)) / 1.2;
+      if (hm > lim) { hm = lim * (0.84 + r() * 0.16); lim = (foot - capW(x, hm * 0.45)) / 1.2; if (hm > lim) hm = lim * 0.95; }
+      if (hm > 3) {
+        if (rch.near === "mixed" && r() < (rch.mix == null ? 0.55 : rch.mix)) firs += conifer(r, x, foot, hm * 1.16, { full: 0.19 + r() * 0.07 });
+        else if (rch.near === "grove" && isBare && u > 0.5) {
+          // the nearest of the grove: limb by limb, its twigs fine at the ends,
+          // fitted under the cap by its own measured top
+          var bt0, k0, h0 = hm * 1.05;
+          for (k0 = 0; k0 < 4; k0++) { bt0 = bigTree(rnd(sd + 71 + Math.round(xr)), x, foot, h0, true, 0.62); var f0 = fitCap(bt0.wood + bt0.twig, foot); if (f0 >= 0.995) break; h0 *= f0 * 0.97; }
+          trees += bt0.wood; twigsN += bt0.twig;
+          xr += Math.max(2, h0 * (0.12 + r() * 0.08));
+          continue;
+        }
+        else { var b = broadleaf(r, x, foot, hm, { bare: isBare, vase: rch.near === "grove", wide: rch.near === "grove" ? 0.3 + r() * 0.08 : null }); if (isBare) { if (u > 0.42) twigsN += b.crown; else twigs += b.crown; } else trees += b.crown; trees += b.trunk; }
+      }
+      xr += Math.max(1.5, hm * (rch.near === "grove" ? 0.07 + r() * 0.08 : 0.12 + r() * 0.13));
+    }
+    // the nearest of a bare grove, at the frame's edge right of the chips:
+    // two tall trunks, narrow-crowned, standing up past the chips' line (the
+    // approved river's tall near trees there), still fitted point by point
+    // (each leans a little out past the frame, so its crown stays clear of the
+    // chips' side; the lean is drawn into its points, then fitted)
+    var lean = function (d, cx, cy, a) { var c = Math.cos(a), sn = Math.sin(a); return d.replace(/(-?\d+(?:\.\d+)?) (-?\d+(?:\.\d+)?)/g, function (m0, px, py) { var dx = px - cx, dy = py - cy; return n(cx + dx * c - dy * sn) + " " + n(cy + dx * sn + dy * c); }); };
+    // what of them would reach back over the chips' side fades out above
+    // the chips' line (a mask), so only their trunks and right-hand limbs
+    // stand tall there
+    var tallW = "", tallT = "", tallM = "";
+    if (rch.near === "grove" && isBare && !TILE) {
+      [[R ? 378 : 12, 1.0, 6], [R ? 396 : -6, 1.16, 10]].forEach(function (tq, ti) {
+        var xr2 = R ? tq[0] : W - tq[0], foot2 = nbR(xr2) - 0.6, h2 = (foot2 - 104) * tq[1], a2 = (R ? 1 : -1) * tq[2] * Math.PI / 180, bt2 = bigTree(rnd(sd + 75 + ti * 7), tq[0], foot2, h2, true, 0.36);
+        tallW += lean(bt2.wood, tq[0], foot2, a2); tallT += lean(bt2.twig, tq[0], foot2, a2);
+      });
+      var mx0 = R ? -40 : W - 366, mw = 406;
+      tallM = '<linearGradient id="' + id + 'f-tallg" gradientUnits="userSpaceOnUse" x1="0" y1="' + (CAPY - 8) + '" x2="0" y2="' + (CAPY + 2) + '"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient>' +
+        '<mask id="' + id + 'f-tall" maskUnits="userSpaceOnUse" x="-60" y="0" width="' + (W + 120) + '" height="' + H + '"><rect x="-60" width="' + (W + 120) + '" height="' + H + '" fill="#fff"/><rect x="' + mx0 + '" width="' + mw + '" height="' + (CAPY + 2) + '" fill="url(#' + id + 'f-tallg)"/></mask>';
+    }
+    // a bare grove's crowns, massed: one lace of twigs over the stand, its
+    // top the trees' own heights (smoothed), broken into fine twig tips, a
+    // little darker toward you; the trunks and limbs stand dark in front of it
+    var lace = "";
+    if (rch.near === "grove" && isBare) {
+      var env = [], tp = rnd(sd + 61), lx;
+      for (lx = xs + 2; lx <= W + 14; lx += 1.3) {
+        var lu = nu(lx), lf = nbR(lx), lh = (5 + 98 * Math.pow(lu, 1.2)) * 0.92, lc = cap(X(lx));
+        if (lf - lh * 1.05 < lc) lh = (lf - lc) / 1.05;
+        env.push([lx, lf - lh * (0.8 + 0.18 * wob(lx * 0.045 + 7) + 0.1 * wob(lx * 0.17 + 3))]);
+      }
+      var top = [], bot = [];
+      env.forEach(function (q, i) {
+        var y = q[1] + tp() * 1.6, spike = tp() < 0.34 ? (1.5 + tp() * 4.5) * (0.4 + nu(q[0])) : 0;
+        top.push([X(q[0]), y - spike]);
+        if (spike) top.push([X(q[0] + 0.45), y + 0.4]);
+        if (i % 3 === 0) bot.unshift([X(q[0]), nbR(q[0]) + 0.8]);
+      });
+      lace = poly(top.concat(bot));
+    }
+    // the brush at their feet: a dark ragged mass, taller toward you (in a
+    // bare grove the thicket under the trees carries the mass in winter)
+    var bt = [], bb = [], bh = rch.near === "grove" ? 30 : 17;
+    for (xr = xs - 2; xr <= W + 14; xr += 3) { var u2 = nu(xr); bt.push([X(xr), nbR(xr) - (1.5 + u2 * bh) * (0.55 + r() * 0.6)]); bb.unshift([X(xr), nbR(xr) + 0.8]); }
+    var brush = poly(bt.concat(bb));
+    // the bank's own strip of ground under them, on the waterline (what is
+    // nearer you than that line is the water between you and that bank)
+    var lt = [], lb = [];
+    for (xr = xs - 4; xr <= W + 14; xr += 5) { lt.push([X(xr), nbR(xr) - 1.4]); lb.unshift([X(xr), nbR(xr) + 0.8]); }
+    var landP = poly(lt.concat(lb));
+    // the bank's own dark in the water, broken sideways by the ripples
+    var st = [], sb = [];
+    for (xr = xs; xr <= W + 8; xr += 8) { var u3 = nu(xr); st.push([X(xr), nbR(xr) - 1]); sb.unshift([X(xr - 4 - u3 * 12), nbR(xr) + 5 + u3 * 28]); }
+    var edge = [];
+    for (xr = xs + 2; xr <= W + 6; xr += 6) edge.push([X(xr), nbR(xr) + 0.7]);
+    // stones along its foot (a cobble bank) or a thin lip of mud and grass
+    var stones = "";
+    if (rch.cobble) for (xr = xs + 10; xr < W + 2; xr += 8 + r() * 13) {
+      var u4 = nu(xr), rw = (2 + r() * 4) * (0.5 + u4), rh = rw * (0.45 + r() * 0.25), by = nbR(xr) + 1.2, x4 = X(xr);
+      stones += '<path class="w-rock" d="' + poly([[x4 - rw, by], [x4 - rw * 0.7, by - rh * 0.8], [x4 - rw * 0.1, by - rh], [x4 + rw * 0.6, by - rh * 0.7], [x4 + rw, by]]) + '"/>' +
+        '<path class="w-rock-l" d="M' + n(x4 - rw * 0.7) + " " + n(by - rh * 0.8) + "L" + n(x4 - rw * 0.1) + " " + n(by - rh) + '"/>';
+    }
+    var front = '<g filter="url(#' + id + 'f-wv)"><path class="w-under" d="' + poly(st.concat(sb)) + '" filter="url(#' + id + 'f-b2)"/></g>' +
+      '<g class="w-reach" data-reach="' + (rch.near || "mixed") + '"><path class="w-l5" d="' + landP + '"/>' +
+      '<path class="w-moonrim" d="' + trees + firs + '"/><path class="w-rim" d="' + trees + firs + '"/>' +
+      (lace ? '<path class="w-moonrim" d="' + lace + '"/><path class="w-rim w-lacerim" d="' + lace + '"/><path class="w-grovelace" d="' + lace + '"/>' :
+        '<g class="w-l4" data-fit="1">' + (twigs ? '<path class="w-haze" d="' + twigs + '"/>' : "") + "</g>" + (twigsN ? '<g class="w-l5" data-fit="1"><path class="w-haze" d="' + twigsN + '"/></g>' : "")) +
+      '<g class="w-l5" data-fit="1"><path d="' + trees + '"/><path d="' + firs + '"/>' + (lace && twigsN ? '<path class="w-twig" d="' + twigsN + '"/>' : "") + "</g>" +
+      (tallW ? '<g class="w-reachtall" mask="url(#' + id + 'f-tall)"><path class="w-rim" d="' + tallW + '"/><g class="w-l5"><path d="' + tallW + '"/><path class="w-twig" d="' + tallT + '"/></g></g>' : "") +
+      '<path class="w-l5" d="' + brush + '"/>' +
+      '<path class="w-beach w-reachlip" d="' + line(edge) + '"/>' + stones + "</g>";
+    // the sky over the gap where the banks meet, on the water: a pale road
+    // under it, widening toward you and broken into strokes by the ripples
+    var gx = X(xs - 20), y0 = footF(gx) + 1.2, rg = rnd(sd + 59), gs = "";
+    for (k = 0; k < (TILE ? 22 : 90); k++) {
+      var v = Math.pow(rg(), 1.15), y = y0 + 1 + v * 62, sp = 4 + v * 30, l = (2.6 + v * 20) * (0.4 + rg() * 0.8), x5 = gx + gauss(rg) * sp - l / 2;
+      gs += '<path d="M' + n(x5) + " " + n(y) + "h" + n(l) + '" stroke-width="' + n(0.6 + v * 1.3) + '" opacity="' + n(0.3 + rg() * 0.7) + '"/>';
+    }
+    var mid = '<ellipse class="w-gapsh" cx="' + n(gx) + '" cy="' + n(y0 + 22) + '" rx="' + (TILE ? 40 : 46) + '" ry="30" fill="url(#' + id + 'm-glow)"/>' +
+      '<g class="w-townwater"><ellipse cx="' + n(gx) + '" cy="' + n(y0 + 16) + '" rx="70" ry="34" fill="url(#' + id + 'm-lamp)" opacity=".7"/></g>' +
+      '<g class="w-gaprd">' + gs + "</g>";
+    return { mid: mid, front: front, defs: tallM, nb: function (x) { return nbR(R ? x : W - x); }, gap: gx };
+  }
   function riverSpot(id, o) {
     var t = today(o), V = lens(o), sd = idSeed(o.spot), r = rnd(sd + 91), rv = o.river || {}, lvl = t.river, RY = rv.y || 198, k, x;
     var isBare = bare(t.date), dir = rv.flow === "left" ? -1 : rv.flow === "along" ? 0 : 1, far = rv.far || { kind: "mixed" };
@@ -3052,7 +3198,13 @@
       var fr = rnd(sd + 87), fld = "";
       back += '<path class="w-l1" d="' + poly([[-6, RY - 6], [396, RY - 7], [396, RY], [-6, RY]]) + '"/>';
     }
-    var cv = rv.converge || 0, wtop = cv ? poly([[-6, H + 4]].concat([0, 0.25, 0.5, 0.75, 1].map(function (u) { var xx = u * W; return [xx, RY - 2 - cv * (dir < 0 ? 1 - u : u)]; }), [[W + 6, RY - 2 - cv * (dir < 0 ? 0 : 1)], [W + 6, H + 4]])) : "";
+    // rv.reach: the approved river's build (see reachNear): you look a little
+    // upstream, so the far bank's foot climbs gently toward the reach's far end
+    var rch = rv.reach, rR = rch && rch.side !== "left", rise = rch ? (rch.rise == null ? 7 : rch.rise) : 0;
+    var reachFoot = rch ? function (x) { var u = clamp(x / W, 0, 1); return RY - rise * (rR ? u : 1 - u); } : null;
+    var cv = rv.converge || 0, wtop = rch ? poly([[-6, H + 4]].concat([-6, 0, 0.25, 0.5, 0.75, 1].map(function (u) { var xx = u < 0 ? -6 : u * W; return [xx, reachFoot(xx) - 2]; }), [[W + 6, reachFoot(W) - 2], [W + 6, H + 4]])) :
+      cv ? poly([[-6, H + 4]].concat([0, 0.25, 0.5, 0.75, 1].map(function (u) { var xx = u * W; return [xx, RY - 2 - cv * (dir < 0 ? 1 - u : u)]; }), [[W + 6, RY - 2 - cv * (dir < 0 ? 0 : 1)], [W + 6, H + 4]])) : "";
+    cv = cv || (rch ? rise : 0);
     back += (cv ? '<path d="' + wtop + '" fill="url(#' + id + '-rw)"/>' : '<rect y="' + (RY - 2) + '" width="' + W + '" height="' + (H - RY + 2) + '" fill="url(#' + id + '-rw)"/>') +
       '<rect y="' + (RY - 2) + '" width="' + W + '" height="40" fill="url(#' + id + '-hzr)"/>' +
       '<g class="w-lightx"><ellipse cx="0" cy="' + (RY - 2) + '" rx="58" ry="' + (H - RY) + '" fill="url(#' + id + '-glow)" class="w-road"/></g>';
@@ -3061,10 +3213,18 @@
     if (rv.fields) far = { kind: "plain", h: 2.2, tree: 1.4 };
     // a far bank no source describes: a low soft bank, its top rolling and
     // untextured (no tree tips, no kind of tree claimed), under the card's h
-    var farBase = rv.converge ? function (x) { return RY - rv.converge * (1 - x / W) * (dir < 0 ? 1 : 0) - rv.converge * (x / W) * (dir > 0 ? 1 : 0); } : RY;
+    var farBase = rch ? reachFoot : rv.converge ? function (x) { return RY - rv.converge * (1 - x / W) * (dir < 0 ? 1 : 0) - rv.converge * (x / W) * (dir > 0 ? 1 : 0); } : RY;
+    // (a reach: the far bank's trees smaller toward its far end)
+    var farGrow = rch ? function (x) { var u = clamp(x / W, 0, 1); return rR ? 1.1 - 0.44 * u : 0.66 + 0.44 * u; } : rv.converge ? function (x) { var u = x / W; return dir < 0 ? 0.62 + 0.5 * u : 1.12 - 0.5 * u; } : null;
     if (far.kind === "plain") fb = softBank(sd + 31, RY, (far.h || 5) * 0.7 + (far.tree || 6) * 0.45);
     else fb = wall({ seed: sd + 31, x0: -24, x1: 414, base: farBase, h: far.h || 44, mix: far.kind === "cottonwood" ? 0.05 : far.mix || 0.4, bare: isBare, vase: far.kind === "cottonwood", land: 2.4, freq: 0.022,
-      grow: rv.converge ? function (x) { var u = x / W; return dir < 0 ? 0.62 + 0.5 * u : 1.12 - 0.5 * u; } : null });
+      grow: farGrow });
+    // a reach: the far bank's woods go back in depth, a paler stand behind
+    // the first, with the haze between (still the card's low wooded bank)
+    if (rch && far.kind !== "plain") {
+      var fbB = wall({ seed: sd + 39, x0: -24, x1: 414, base: function (x) { return farBase(x) - 2.4; }, h: (far.h || 44) * 1.24, mix: far.mix || 0.3, bare: isBare, land: 1.2, freq: 0.016, grow: farGrow });
+      back += paintWall(fbB, "w-l1") + mist(id, sd + 85, RY - 6, 1.1);
+    }
     if (far.kind === "cottonwood") {
       var fb2 = wall({ seed: sd + 37, x0: -24, x1: 414, base: RY - 3, h: (far.h || 44) * 1.18, mix: 0.04, bare: isBare, vase: true, land: 1.5, freq: 0.016 });
       back += paintWall(fb2, "w-l1");
@@ -3072,7 +3232,7 @@
     // a far bank that runs away into the picture (rv.converge) has its foot
     // sloping across it: its copy in the water and its strip of beach lie
     // along that foot, never along a level line through its trunks
-    var rf = reflect(id, "b", fb.glass || fb, rv.converge ? 0.62 : 0.5, "w-l3", !!rv.converge), fbx = typeof farBase === "function" ? farBase : function () { return RY; };
+    var rf = reflect(id, "b", fb.glass || fb, rv.converge || rch ? 0.62 : 0.5, "w-l3", !!(rv.converge || rch)), fbx = typeof farBase === "function" ? farBase : function () { return RY; };
     var ff = farFoot(id + "m-ff", sd + 33, fbx, -10, W + 10);
     mdef += rf.def + ff.def;
     // a far bank that runs away (rv.converge) is nearest you upstream: there
@@ -3087,6 +3247,8 @@
     mid += '<g opacity="' + n(Math.max(0, 1 - lvl)) + '" mask="url(#' + id + 'm-ff)">' + rf.svg + "</g>" + nightWater(id + "m", sd, o, t, RY, RY + 36) +
       (far.kind === "plain" ? '<path class="w-l2" d="' + fb.back + '"/><path class="w-l3" d="' + fb.land + '"/>' : '<path class="w-moonrim" d="' + fb.trees + '"/>' + paintWall(fb, "w-l3") + (fb.firs ? '<path class="w-l4" d="' + fb.firs + '"/>' : "") + nearEnd) +
       '<path class="w-l3" d="' + ff.brush + '"/><g class="w-beachb"><path class="w-beach" d="' + ff.strip + '"/></g>' + mist(id + "m", sd + 83, RY + 3, 0.45);
+    var RN = rch ? reachNear(id, sd, rch, fbx, isBare, lvl) : null;
+    if (RN) mid += RN.mid;
     // cottonwoods at the water's edge: pale trunks leaning out, in winter bare
     if (far.kind === "cottonwood") {
       var al = "", ar = rnd(sd + 71);
@@ -3391,6 +3553,7 @@
       }
       front += '<path class="w-figh" d="' + cr + '"/>';
     }
+    if (RN) { front += RN.front; rfdef += RN.defs; }
     // the gravel and sand you stand on: the lower the river, the more of it
     // shows; the big wet cobbles nearest you are the darkest thing in it
     if (rv.bar) {
@@ -3405,7 +3568,9 @@
       // them): a dark band just above the card's edge, right across the
       // picture; only the dry bar beyond them shrinks as the river comes
       // up, and high water laps them
-      var foot = [[-2, 227], [40, 228], [92, 232], [140, 239], [184, 247], [226, 252], [272, 254], [320, 256], [362, 255], [394, 257]];
+      // (a reach: the cobbles start lower, nearer you, so the pale bar beyond
+      // them shows over the card's edge, as the approved bar does)
+      var foot = [[-2, 227], [40, 228], [92, 232], [140, 239], [184, 247], [226, 252], [272, 254], [320, 256], [362, 255], [394, 257]].map(function (q) { return rch ? [q[0], q[1] + 24 - q[0] * 0.03] : q; });
       var footY = function (xx) { for (var fi = 0; fi < foot.length - 1; fi++) if (xx <= foot[fi + 1][0]) return foot[fi][1] + (foot[fi + 1][1] - foot[fi][1]) * (xx - foot[fi][0]) / (foot[fi + 1][0] - foot[fi][0]); return foot[foot.length - 1][1]; };
       for (k = 0; k < (TILE ? 20 : 70); k++) {
         var cxs = -6 + s5() * 402, cys = footY(cxs) + 1.5 + s5() * s5() * 70, czs = (1.6 + s5() * 3.6) * (0.7 + (cys - 226) / 40);
@@ -3418,6 +3583,58 @@
         '<path class="w-cobwet" d="' + line(foot) + 'L394 332L-2 332Z"/>' + (lapped ? '<path class="w-foam" d="' + line(foot.map(function (q) { return [q[0], q[1] - 1]; })) + '"/>' : "") +
         '<path class="w-bard" d="' + poly([[-2, 262], [150, 290], [246, 330], [-2, 334]]) + '"/>' +
         '<path class="w-cobd" d="' + cobs2 + '"/><path class="w-cobt" d="' + cobt2 + '"/>';
+      // a reach: three cobbles on the bar big enough to carry a shade and a light
+      if (rch) [[24, 9, 6.8, -8], [68, 15, 5.2, 6], [104, 22, 4.4, -4]].forEach(function (c) {
+        var cy9 = bar[0][1] + c[1] + c[0] * 0.04 + (c[0] > 60 ? g * 0.3 : 0), cx9 = c[0] + gx * 0.4;
+        front += '<g transform="rotate(' + c[3] + " " + n(cx9) + " " + n(cy9) + ')"><ellipse class="w-cob-sh" cx="' + n(cx9 + 1.5) + '" cy="' + n(cy9 + c[2] * 0.42) + '" rx="' + n(c[2] * 1.05) + '" ry="' + n(c[2] * 0.26) + '"/>' +
+          '<ellipse class="w-cob" cx="' + n(cx9) + '" cy="' + n(cy9) + '" rx="' + c[2] + '" ry="' + n(c[2] * 0.5) + '"/>' +
+          '<path class="w-cob-s" d="M' + n(cx9 - c[2]) + " " + n(cy9) + "a" + c[2] + " " + n(c[2] * 0.5) + " 0 0 0 " + n(c[2] * 2) + " 0q" + n(-c[2]) + " " + n(c[2] * 0.3) + " " + n(-c[2] * 2) + ' 0z"/>' +
+          '<path class="w-cob-l" d="M' + n(cx9 - c[2] * 0.62) + " " + n(cy9 - c[2] * 0.24) + "q" + n(c[2] * 0.5) + " " + n(-c[2] * 0.3) + " " + n(c[2] * 1.05) + " " + n(-c[2] * 0.06) + '"/></g>';
+      });
+    }
+    // a reach's ground at your feet (rch.ground "meadow", the Narrows): the
+    // meadow's edge comes in from the other side on the approved bar's slant,
+    // pale winter grass with a fringe of sedge at the water and two steps of
+    // shade toward you, and the river climbs it as it rises. The card does
+    // not describe the bank's form there, so it stays plain: no stones, no log.
+    if (rch && rch.ground === "meadow") {
+      var gM = (lvl - 0.35) * 26, gxM = (0.35 - lvl) * 40, mz2 = noise(sd + 111), ms = rnd(sd + 113), MX = function (x) { return rR ? x : W - x; }, me = [], qi, qf;
+      var key = [[-6, 221 + gM], [34 + gxM * 0.4, 223 + gM], [80 + gxM * 0.7, 230 + gM * 0.8], [126 + gxM, 243 + gM * 0.6], [170 + gxM, 261 + gM * 0.4], [208 + gxM * 0.6, 283], [238, 308], [256, 336]];
+      for (qi = 0; qi < key.length - 1; qi++) for (qf = 0; qf < 1; qf += 0.25) {
+        var mx0 = key[qi][0] + (key[qi + 1][0] - key[qi][0]) * qf, my0 = key[qi][1] + (key[qi + 1][1] - key[qi][1]) * qf;
+        me.push([MX(mx0), my0 + (mz2(mx0 * 0.07) - 0.5) * 3.2]);
+      }
+      me.push([MX(256), 336]);
+      var edgeM = function (x) { var xx = rR ? x : W - x; for (var i9 = 0; i9 < key.length - 1; i9++) if (xx <= key[i9 + 1][0]) return key[i9][1] + (key[i9 + 1][1] - key[i9][1]) * (xx - key[i9][0]) / (key[i9 + 1][0] - key[i9][0]); return key[key.length - 1][1]; };
+      var closeM = "L" + MX(-6) + " " + (H + 4) + "Z", shift = function (dy, dx) { return line(me.map(function (q) { return [q[0] + (dx || 0), q[1] + dy]; })); };
+      var bl1 = "", bl2 = "", tufts = "";
+      for (k = 0; k < (TILE ? 60 : 190); k++) {
+        var tq = ms(), ti = Math.min(me.length - 2, Math.floor(tq * (me.length - 1))), tf = tq * (me.length - 1) - ti, ex = me[ti][0] + (me[ti + 1][0] - me[ti][0]) * tf, ey2 = me[ti][1] + (me[ti + 1][1] - me[ti][1]) * tf;
+        if (ey2 > 262) continue;
+        var near9 = (ey2 - 218) / 40, gy9 = ey2 + 0.8 + ms() * 4, gh9 = (2.4 + ms() * ms() * 9) * (0.75 + near9), gl9 = (ms() - 0.42) * gh9 * 0.9, gw9 = 0.3 + ms() * 0.45;
+        var bd9 = "M" + n(ex - gw9) + " " + n(gy9) + "Q" + n(ex + gl9 * 0.3) + " " + n(gy9 - gh9 * 0.6) + " " + n(ex + gl9) + " " + n(gy9 - gh9) + "Q" + n(ex + gl9 * 0.3 + gw9) + " " + n(gy9 - gh9 * 0.5) + " " + n(ex + gw9) + " " + n(gy9) + "Z";
+        if (k % 4) bl1 += bd9; else bl2 += bd9;
+      }
+      // tufts across the meadow toward you, bigger and darker as they come near
+      for (k = 0; k < (TILE ? 22 : 70); k++) {
+        var cl9 = Math.floor(ms() * 9), tx9 = MX(-4 + (cl9 * 26 + gauss(ms) * 12 + 600) % 236), ty9 = edgeM(tx9) + 6 + ms() * ms() * 80;
+        if (ty9 > H) continue;
+        var ts9 = (2 + ms() * 4) * (0.5 + (ty9 - 222) / 50);
+        for (var tb = 0; tb < 3; tb++) { var tl9 = (ms() - 0.5) * ts9 * 0.9; tufts += "M" + n(tx9 - 0.6 + tb) + " " + n(ty9) + "Q" + n(tx9 + tb + tl9 * 0.4) + " " + n(ty9 - ts9 * 0.6) + " " + n(tx9 + tb + tl9) + " " + n(ty9 - ts9) + "Q" + n(tx9 + tb + tl9 * 0.3 + 0.5) + " " + n(ty9 - ts9 * 0.5) + " " + n(tx9 + tb + 0.6) + " " + n(ty9) + "Z"; }
+      }
+      front += '<path class="w-shorewet" d="' + line(me.map(function (q) { return [q[0] + (rR ? 6 : -6), q[1] - 5]; })) + closeM + '"/>' +
+        '<path class="w-mead" d="' + line(me) + closeM + '"/>' +
+        '<path class="w-meadn" d="' + shift(13, rR ? -4 : 4) + closeM + '"/><path class="w-meadn" d="' + shift(34, rR ? -10 : 10) + closeM + '"/>' +
+        '<path class="w-foam" d="' + line(me) + '"/>' + '<path class="w-meadt" d="' + tufts + '"/>' +
+        '<path class="w-meadt" d="' + bl1 + '"/><path class="w-reed2" d="' + bl2 + '"/>' +
+        (lvl > 0.62 ? '<path class="w-siltl" d="' + shift(1.4) + '"/>' : "");
+      // someone fishing from the meadow's edge, a step in: the line out across the water
+      if (rv.wader) {
+        var wx8 = MX(rv.wader.x), wy8 = edgeM(wx8) + 0.5, ws8 = rv.wader.s || 1.7, wd8 = rR ? 1 : -1, wf8 = bankFigure(wx8, wy8, ws8, wd8, { ang: 0.98, len: 30, wy: RY + 9, out: 44 });
+        front += '<g class="w-dayonly"><path class="w-figh" d="' + wf8.fig + wf8.rod + '"/><path class="w-line" d="' + wf8.line + '"/>' +
+          '<path class="w-wade" d="' + poly([[wx8 - 3 * ws8, wy8 - 1.6 * ws8], [wx8 + 3 * ws8, wy8 - 1.6 * ws8], [wx8 + 3.4 * ws8, wy8 + 0.6], [wx8 - 3.4 * ws8, wy8 + 0.6]]) + '"/>' +
+          '<path class="w-foam" d="M' + n(wx8 - 3.6 * ws8) + " " + n(wy8 - 1.5 * ws8) + "q" + n(3.6 * ws8) + " " + n(1 * ws8) + " " + n(7.2 * ws8) + ' 0"/></g>';
+      }
     }
     // your own bank (the Narrows' meadow, the Orting levee, the point at
     // Sumner): the bank's top stays where it is and the river climbs it as
@@ -3561,7 +3778,7 @@
       front += '<path class="w-rim" d="' + bt.wood + '"/><g class="w-l5">' + (bt.leaf ? '<path d="' + bt.leaf + '"/>' : "") + '<path class="w-twig" d="' + bt.twig + '"/><path d="' + bt.wood + '"/></g>' +
         '<path class="w-barkl" d="' + bark + '"/><path class="w-barkd" d="' + furr + '"/>';
     }
-    if (dir && !rv.bar && !rv.rods && !rv.meadow && !rv.levee && !rv.join) front += shoreEdge([[-2, 304], [60, 301], [130, 303], [200, 307], [270, 308], [330, 306], [392, 309]]);
+    if (dir && !rch && !rv.bar && !rv.rods && !rv.meadow && !rv.levee && !rv.join) front += shoreEdge([[-2, 304], [60, 301], [130, 303], [200, 307], [270, 308], [330, 306], [392, 309]]);
     // After dark: every river on a card is closed to fishing at night
     // (night closures, parks shut at dusk) and has no lamps, so nobody is
     // painted there by a light of their own. Its night is the sky's: the
@@ -3717,9 +3934,16 @@
       if (Ls.side !== "behind") s += '<ellipse cx="' + n(clamp(24 + (Ls.rel * 24) / fov, -8, 56)) + '" cy="' + (HZm - 2) + '" rx="22" ry="10" fill="url(#' + gid + 'l)"/>';
     }
     function gl(x, y, l, op) { return '<path d="M' + n(x) + " " + n(y) + "h" + n(l) + '" stroke="' + lum + '" stroke-width=".7" stroke-linecap="round" opacity="' + op + '"/>'; }
-    function trees(x0, x1, base, hh, fill, round) {
-      var d = "M" + n(x0) + " " + n(base), x = x0;
-      while (x < x1) { var h = hh * (0.5 + r() * 0.7); if (round) d += "L" + n(x) + " " + n(base - h * 0.7) + "Q" + n(x + 1.2) + " " + n(base - h * 1.1) + " " + n(x + 2.4) + " " + n(base - h * 0.75); else d += "L" + n(x) + " " + n(base - h) + "L" + n(x + 0.9 + r()) + " " + n(base - h * (0.45 + r() * 0.3)); x += round ? 2.6 + r() * 1.6 : 1.5 + r() * 1.8; }
+    // vary: a far stand of firs with its own rise and fall and gaps in it,
+    // never an even row of same-size teeth
+    function trees(x0, x1, base, hh, fill, round, vary) {
+      var d = "M" + n(x0) + " " + n(base), x = x0, ph = r() * 6;
+      while (x < x1) {
+        var env = vary ? 0.55 + 0.45 * Math.sin(x * 0.19 + ph) * Math.sin(x * 0.07 + ph * 2) : 1, h = hh * (0.5 + r() * 0.7) * (vary ? 0.45 + Math.abs(env) : 1);
+        if (round) d += "L" + n(x) + " " + n(base - h * 0.7) + "Q" + n(x + 1.2) + " " + n(base - h * 1.1) + " " + n(x + 2.4) + " " + n(base - h * 0.75); else d += "L" + n(x) + " " + n(base - h) + "L" + n(x + 0.9 + r()) + " " + n(base - h * (0.45 + r() * 0.3));
+        x += round ? 2.6 + r() * 1.6 : 1.5 + r() * 1.8;
+        if (vary && r() < 0.18) { d += "L" + n(x) + " " + n(base - 0.6) + "L" + n(x + 1.4 + r() * 2.4) + " " + n(base - 0.6); x += 1.4 + r() * 2.4; }
+      }
       return '<path d="' + d + "L" + n(x1) + " " + n(base) + 'Z" fill="' + fill + '"/>';
     }
     // mountains a card shows, then the land across
@@ -3940,22 +4164,23 @@
       var silt = mixHex(sand, p.water[0], 0.25), wTop = mixHex(mixHex(p.water[0], hz, 0.35), silt, lv * 0.55), wBot = mixHex(mixHex(p.water[1], f3, (1 - lv) * 0.25), silt, lv * 0.5);
       s += '<defs><linearGradient id="' + gid + 'r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + wTop + '"/><stop offset="1" stop-color="' + wBot + '"/></linearGradient></defs><rect y="' + HZm + '" width="48" height="' + (48 - HZm) + '" fill="url(#' + gid + 'r)"/>';
       if (rv.valley) s += '<path d="M-1 ' + HZm + 'L-1 8Q10 10 24 22Q34 6 49 4V' + HZm + 'Z" fill="' + f0 + '"/>';
-      if (rv.creek) s += trees(-1, 49, HZm, 17, f1, false) + trees(-1, 49, HZm + 0.4, 10, mixHex(f2, f3, 0.35), false);
-      else s += trees(-1, 49, HZm, fk === "plain" ? 2 : fk === "cottonwood" ? 12 : rv.grove ? 9 : 15, fk === "cottonwood" && winter ? mixHex(hz, p.shore, 0.38) : fk === "plain" || rv.grove ? f1 : f2, fk !== "plain");
+      if (rv.creek) s += trees(-1, 49, HZm, 11, f1, false, true) + trees(-1, 49, HZm + 0.4, 7, mixHex(f2, f3, 0.35), false, true);
+      else s += trees(-1, 49, HZm, fk === "plain" ? 2 : fk === "cottonwood" ? 12 : rv.reach ? 6 : rv.grove ? 9 : 15, fk === "cottonwood" && winter ? mixHex(hz, p.shore, 0.38) : fk === "plain" || rv.grove || rv.reach ? f1 : f2, fk !== "plain");
       for (var ri = 0; ri < 5; ri++) s += gl(4 + r() * 36, HZm + 3 + ri * 3.6, 4 + ri * 1.5, 0.5 - ri * 0.05);
       if (rv.creek) {
         // the creek pouring in from your bank: its tongue of paler water
         // between the dark bank of firs at your left and the low bank right
         // of it, the foam where it meets the river, the eddy turning there
         var ck = (rv.creek.x - 39) * 0.154;
-        s += '<path d="M' + n(ck - 6) + ' 48L' + n(ck - 3) + " " + (HZm + 6) + "L" + n(ck + 3) + " " + (HZm + 5) + "L" + n(ck + 4) + ' 48Z" fill="' + mixHex(p.water[0], lum, 0.38) + '"/>' +
+        // (darker water than the river, coming out from under its bank's firs, the foam where it meets the river)
+        s += '<path d="M' + n(ck - 6) + ' 48L' + n(ck - 3) + " " + (HZm + 6) + "L" + n(ck + 3) + " " + (HZm + 5) + "L" + n(ck + 4) + ' 48Z" fill="' + mixHex(p.water[1], f3, 0.3) + '"/>' +
           '<path d="M' + n(ck - 4) + " " + (HZm + 6.5) + "q3 -1.2 7 -.6M" + n(ck - 2) + " " + (HZm + 8.5) + "q4 -1 9 .4M" + n(ck + 4) + " " + (HZm + 6) + "q4 1.6 10 .8" + '" stroke="' + lum + '" stroke-width=".55" fill="none" opacity=".75"/>' +
           '<path d="M' + n(ck + 6) + " " + (HZm + 10) + "q5 -2.4 11 -1M" + n(ck + 8) + " " + (HZm + 12.5) + "q4 1.4 9 .2" + '" stroke="' + lum + '" stroke-width=".4" fill="none" opacity=".45"/>' +
           trees(-1, ck - 4, HZm + 8, 22, f3, false) + '<path d="M-1 48V' + (HZm + 7) + "L" + n(ck - 4) + " " + (HZm + 6) + "L" + n(ck - 7) + ' 48Z" fill="' + f3 + '"/>' +
           '<path d="M' + n(ck + 4) + ' 48L' + n(ck + 4) + " " + (HZm + 13) + "Q" + n(ck + 14) + " " + (HZm + 14) + " " + n(ck + 22) + ' 48Z" fill="' + mixHex(f3, hz, 0.22) + '"/>';
         F(0, HZm - 18, 30, 46);
       }
-      if (rv.bar) { F(0, 20, 30, 48); var bo = (lv - 0.35) * 8; s += '<path d="M0 ' + n(36 + bo) + "Q" + n(14 - bo) + " " + n(37 + bo) + " " + n(24 - bo) + " " + n(42 + bo * 0.6) + "T" + n(34 - bo * 0.8) + ' 48H0Z" fill="' + sand + '"/>'; }
+      if (rv.bar && !rv.reach) { F(0, 20, 30, 48); var bo = (lv - 0.35) * 8; s += '<path d="M0 ' + n(36 + bo) + "Q" + n(14 - bo) + " " + n(37 + bo) + " " + n(24 - bo) + " " + n(42 + bo * 0.6) + "T" + n(34 - bo * 0.8) + ' 48H0Z" fill="' + sand + '"/>'; }
       if (rv.steps) { s += '<path d="M28 37.6L48 37V39.6L25 40.4Z" fill="' + mixHex(f2, p.paper, 0.45) + '"/><path d="M25 40.4L48 39.6V42.6L21 43.6Z" fill="' + mixHex(f2, p.paper, 0.3) + '"/><path d="M21 43.6L48 42.6V48H16Z" fill="' + mixHex(f2, p.paper, 0.12) + '"/><path d="M28 37.6L48 37M25 40.4L48 39.6M21 43.6L48 42.6" stroke="' + f3 + '" stroke-width=".7"/>'; F(16, 30, 48, 48); }
       if (rv.rods) { s += '<path d="M0 32L12 36L18 48H0Z" fill="' + sand + '"/><path d="M3 33l4-5M8 35l5-6M13 39l6-7" stroke="' + f3 + '" stroke-width=".5"/>'; F(0, 26, 20, 46); }
       if (rv.weir) s += '<path d="M0 35H16V37H0Z" fill="' + mixHex(p.ground, p.paper, 0.35) + '"/><path d="M0 37H17L15 39H0Z" fill="' + lum + '" opacity=".7"/>';
@@ -3972,6 +4197,27 @@
       // Orting: the road bridge downstream at the right, its deck and a pier
       if (rv.bridge) s += '<path d="M49 ' + (HZm - 5) + "L31 " + (HZm - 1.8) + "L31 " + (HZm - 1) + "L49 " + (HZm - 3.4) + 'Z" fill="' + f2 + '"/><path d="M41 ' + (HZm - 3.2) + "V" + (HZm + 1) + '" stroke="' + f2 + '" stroke-width="1.1"/>';
       if (rv.span) s += '<path d="M-1 ' + (HZm - 6) + "H49" + '" stroke="' + f3 + '" stroke-width="1.6"/><path d="M8 ' + (HZm - 6) + "V" + (HZm + 3) + "M24 " + (HZm - 6) + "V" + (HZm + 3) + "M40 " + (HZm - 6) + "V" + (HZm + 3) + '" stroke="' + f3 + '" stroke-width="1.3"/>';
+      if (rv.reach) {
+        // a reach seen a little upstream (the approved river's build): the
+        // sky's road under the gap, your own bank's dark trees climbing from
+        // the frame's foot at one side to meet the far bank, the meadow or
+        // the bar at your feet at the other, someone at its edge
+        var rr9 = rv.reach.side !== "left", MX9 = function (x) { return rr9 ? x : 48 - x; }, rg9 = rnd(sd + 59), road9 = "";
+        for (var q9 = 0; q9 < 9; q9++) { var v9 = q9 / 9; road9 += "M" + n(MX9(19 - v9 * 3 + (rg9() - 0.5) * 3)) + " " + n(HZm + 1.5 + v9 * 12) + "h" + n(2 + v9 * 6); }
+        s += '<path d="' + road9 + '" stroke="' + mixHex(hz, lum, 0.5) + '" stroke-width=".7" fill="none" opacity=".8"/>';
+        var nb9 = function (x) { var u = Math.max(0, x - 26) / 22; return HZm + 0.6 + 14 * Math.pow(u, 1.2); }, bank9 = "M" + n(MX9(25)) + " " + n(HZm + 0.6), tr9 = "", xq;
+        for (xq = 26; xq <= 49; xq += 1.5) bank9 += "L" + n(MX9(xq)) + " " + n(nb9(xq) - 0.4);
+        for (xq = 26.5; xq < 50; xq += 1.4 + rg9() * 1.2) { var u9 = (xq - 26) / 22, th9 = (2 + u9 * 26) * (0.7 + rg9() * 0.5), fb9 = nb9(xq);
+          tr9 += rv.reach.near === "mixed" && rg9() < 0.55 ? "M" + n(MX9(xq - th9 * 0.16)) + " " + n(fb9) + "L" + n(MX9(xq)) + " " + n(fb9 - th9) + "L" + n(MX9(xq + th9 * 0.16)) + " " + n(fb9) + "Z" :
+            "M" + n(MX9(xq - th9 * 0.24)) + " " + n(fb9) + "Q" + n(MX9(xq - th9 * 0.3)) + " " + n(fb9 - th9 * 0.9) + " " + n(MX9(xq)) + " " + n(fb9 - th9) + "Q" + n(MX9(xq + th9 * 0.3)) + " " + n(fb9 - th9 * 0.9) + " " + n(MX9(xq + th9 * 0.24)) + " " + n(fb9) + "Z"; }
+        s += '<path d="' + bank9 + "L" + n(MX9(49)) + " 48L" + n(MX9(49)) + " " + n(nb9(49)) + 'Z" fill="' + mixHex(p.water[1], f3, 0.5) + '" opacity=".6"/>' +
+          '<path d="' + tr9 + '" fill="' + f3 + '"' + (rv.reach.near === "grove" && winter ? ' opacity=".82"' : "") + "/>";
+        var gb9 = (lv - 0.35) * 4;
+        s += '<path d="M' + n(MX9(-1)) + " " + n(36 + gb9) + "Q" + n(MX9(12)) + " " + n(36.6 + gb9) + " " + n(MX9(22)) + " " + n(41 + gb9 * 0.6) + "T" + n(MX9(31)) + " 48H" + n(MX9(-1)) + 'Z" fill="' + (rv.reach.ground === "meadow" ? mixHex(sand, f2, 0.18) : sand) + '"/>';
+        if (rv.bar) for (var st9 = 0; st9 < 7; st9++) s += '<ellipse cx="' + n(MX9(2 + rg9() * 18)) + '" cy="' + n(39.5 + rg9() * 7) + '" rx="' + n(0.5 + rg9() * 0.7) + '" ry=".35" fill="' + f3 + '" opacity=".45"/>';
+        if (rv.wader && !lampOn) s += '<path d="M' + n(MX9(9.2)) + ' 37.6l.3-3.8 1.6 0 .3 3.8zM' + n(MX9(9.3)) + ' 34l.2-3.2 1.6-.2.2 3.4z" fill="' + f3 + '"/><circle cx="' + n(MX9(10.3)) + '" cy="29.8" r=".9" fill="' + f3 + '"/><path d="M' + n(MX9(11)) + " 32.6Q" + n(MX9(14)) + " 25.2 " + n(MX9(20)) + ' 23.8" stroke="' + f3 + '" stroke-width=".45" fill="none"/>';
+        F(0, HZm - 14, 48, 46);
+      }
       if (rv.meadow === "diag") {
         // the Narrows: the meadow's edge on a slant, up at the right under the
         // cottonwood grove (dark trunks and the haze of their crowns, the

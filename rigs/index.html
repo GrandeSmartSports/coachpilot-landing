@@ -1237,12 +1237,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // The week the Trips tab drew (or the one the phone saved), so the library
   // can paint what is running and what is hot without a word.
   var weekMemo = { src: null, p: null };
-  function weekTrips() {
+  function weekPlan() {
     var p = lastPlan, c;
     if (!p && plannerReady() && (c = RIG.trips.cached())) {
       if (weekMemo.src !== c) weekMemo = { src: c, p: planFrom(c) };
       p = weekMemo.p;
     }
+    return p;
+  }
+  function weekTrips() {
+    var p = weekPlan();
     var out = [];
     ((p && p.days) || []).forEach(function (d) { d.trips.forEach(function (t) { out.push(t); }); });
     return out;
@@ -1439,10 +1443,14 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? '<span class="whole">' + esc(sp.hint) + "</span>" : "") + '<span class="rm">' + n + (n === 1 ? " card" : " cards") + "</span></span>" + IC.chev + '</a>';
     }).join("");
     var t = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
+    // the week's trips to this spot, under its fish, each its own row (none: nothing shown)
+    var wk = weekPlan(), sk = skyReader(), stc = crewIn(), here = "";
+    ((wk && wk.days) || []).forEach(function (day) { day.trips.forEach(function (tr) { if (tr.spot === s.id) here += tripRowHtml(day, tr, sk, stc); }); });
     app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id, "", t ? { type: t.id } : null)) +
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
         chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
-        '<div class="float list">' + rows + "</div></div>" + tripBarHtml();
+        '<div class="float list">' + rows + "</div>" +
+        (here ? '<section class="grp" data-spot-trips><h2 class="sect">Trips here this week</h2><div class="panel list">' + here + "</div></section>" : "") + "</div>" + tripBarHtml();
   }
 
   function renderFish() {

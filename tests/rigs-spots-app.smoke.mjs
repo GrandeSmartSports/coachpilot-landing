@@ -137,16 +137,27 @@ try {
     const coho = await card(page, T("2026-11-26", "coho-green-river"));
     ok(coho.kind === "river" && coho.spot === "green-river" && coho.stand === "narrows" && coho.kids > 100, "a coho trip on the Green: its run card stands at the Auburn Narrows", coho);
     ok(coho.now && coho.now.date === "2026-11-26T07:31" && coho.fish === "coho", "painted at the trip's own hour (7:31 AM on its day), for its fish", coho.now);
-    // (fix-2, V1-6) the grove stands under the chips: no fitted crown climbs
-    // over their bottom, and the near trunks (leaning out past the edge) fade out above it
+    // (fix-2, V1-6) the grove stands under the chips: no fitted crown climbs over their bottom
+    // (E3, V2-2) the grove is now your own bank running away up the reach (.w-reach): every point of its
+    // trees and of its massed crowns that lies across the chips' width stays below the chips; only right
+    // of every chip do the nearest trees stand taller
     const grove = await page.evaluate(() => {
       const hero = document.querySelector('[data-view="hot"] > .hero'); let bottom = 0;
       [].forEach.call(hero.children, (c) => { if (c.offsetHeight) bottom = Math.max(bottom, c.getBoundingClientRect().bottom); });
-      const g = document.querySelector("#scene .w-grove"); if (!g) return null;
-      const svg = g.ownerSVGElement, m = svg.getScreenCTM(), gr = svg.querySelector('linearGradient[id$="f-gcapg"]');
-      return { chips: Math.round(bottom), top: Math.round(Math.min(...[...g.querySelectorAll("[data-fit] path")].map((q) => q.getBoundingClientRect().top))), fade: gr ? Math.round(+gr.getAttribute("y1") * m.d + m.f) : null, masked: !!g.querySelector("g[mask] g[transform]") };
+      const chipsR = Math.max(...[...hero.querySelectorAll(".chips > *")].map((c) => c.getBoundingClientRect().right));
+      const g = document.querySelector("#scene .w-reach"); if (!g) return null;
+      const m = g.ownerSVGElement.getScreenCTM();
+      let top = 9999, over = 0, tall = 9999;
+      const scan = (sel, fn) => g.querySelectorAll(sel).forEach((q) => { const nums = (q.getAttribute("d") || "").match(/-?\d+(?:\.\d+)?/g) || []; for (let i = 0; i + 1 < nums.length; i += 2) fn(m.a * nums[i] + m.e, m.d * nums[i + 1] + m.f); });
+      scan("[data-fit] path, .w-grovelace", (x, y) => { if (x > 0 && x < chipsR + 8) { top = Math.min(top, y); if (y < bottom) over++; } else if (x >= chipsR + 8 && x < 390) tall = Math.min(tall, y); });
+      // the two tallest trunks at the frame's edge stand up past the chips' line; what of them reaches back
+      // over the chips' side fades out above that line (a mask), so it never shows behind a chip
+      const tg = g.querySelector(".w-reachtall[mask]"), gr = g.ownerSVGElement.querySelector('linearGradient[id$="f-tallg"]');
+      if (tg) scan(".w-reachtall path", (x, y) => { if (x >= chipsR + 8 && x < 390) tall = Math.min(tall, y); });
+      return { chips: Math.round(bottom), chipsR: Math.round(chipsR), top: Math.round(top), over, tall: Math.round(tall), reach: g.dataset.reach, fade: gr ? Math.round(+gr.getAttribute("y1") * m.d + m.f) : null };
     });
-    ok(grove && grove.top >= grove.chips && grove.masked && grove.fade >= grove.chips, "the Narrows' grove stands under the title's chips: its crowns below them, its near trunks leaning out and fading out above them", grove);
+    ok(grove && grove.reach === "grove" && grove.over === 0 && grove.top >= grove.chips && grove.tall < grove.chips && grove.fade != null && grove.fade >= grove.chips - 8,
+      "the Narrows' grove stands under the title's chips across their width, and stands tall only right of them (its tallest trunks fade out over the chips' side)", grove);
     const chum = await card(page, T("2026-11-28", "chum-green-river"));
     ok(chum.stand === "narrows" && chum.spot === "green-river", "a chum trip on the Green: the Auburn Narrows", chum);
     const pink = await paintOf(page, "green-river", "pink", "2027-09-10", "pink-green-river", "river"), steel = await paintOf(page, "green-river", "steelhead", "2026-12-12", "steelhead-green-river", "river");
@@ -182,7 +193,11 @@ try {
     ok(Object.values(tiles).filter((t) => t.n === 1).every((t) => t.spot) && tiles.river && tiles.river.spot === "green-river", "a kind of water with one spot paints that spot on its home tile (River: the Green)", tiles);
     // (fix-2, V1-5) and frames it on what that spot is known by: Flaming Geyser's bar and riffle, Lake Fenwick's pier and its big shore tree
     const frames = await page.evaluate(() => Object.fromEntries([...document.querySelectorAll("[data-type-tile] svg[data-paint-spot]")].map((v) => [v.getAttribute("data-paint-spot"), v.getAttribute("viewBox")])));
-    ok(frames["green-river"] === "0 132 390 150" && frames["lake-fenwick"] === "64 92 326 184", "the River tile frames Flaming Geyser's bar and riffle, the Lake tile Lake Fenwick's pier and shore tree", frames);
+    // (E3, V2-3) the River tile frames the reach (the bar at the left, your own bank's dark trees closing in at
+    // the right), the Lake tile the big shore tree as the dark mass at the right with the pier running out under it
+    ok(frames["green-river"] === "0 150 390 132" && frames["lake-fenwick"] === "130 108 260 146", "the River tile frames Flaming Geyser's reach, the Lake tile Lake Fenwick's shore tree over its pier", frames);
+    const rtile = await page.evaluate(() => { const v = document.querySelector('[data-type-tile="river"] svg[data-paint-spot]'); return { reach: !!(v && v.querySelector('.w-reach[data-reach="mixed"]')), road: !!(v && v.querySelector(".w-gaprd")), bar: !!(v && v.querySelector(".w-barg")) }; });
+    ok(rtile.reach && rtile.road && rtile.bar, "the River tile has a dark mass at one side (your own bank's trees), the sky's road on the water and the bar at your feet", rtile);
     const cut = await card(page, T("2026-11-26", "cutthroat-dash-point"));
     ok(cut.spot === "dash-point" && cut.stand === "state" && cut.kayak === 0, "a cutthroat trip at Dash Point: the state park beach, no kayak", cut);
     const bon = await card(page, T("2026-11-26", "trout-w-l466"));
@@ -222,7 +237,46 @@ try {
       "and its own stand: the Green's salmon rows at the Narrows, the Dash Point cutthroat row on the state beach", rows.filter((r) => /green|dash/.test(r.id)));
     // (the crew trip page's own picture is checked in tests/rigs-look-crew.smoke.mjs, with the stub crew)
     await nightAll(page, "November");
+    // (E3, V2-4) the River tile at night: lit below its pill, never a dark slab (brightest 1% at least 105)
+    await sky(page, "night", "#/water");
+    await page.waitForSelector('[data-view="home"] [data-type-tile="river"] svg');
+    await page.waitForTimeout(150);
+    const rt = await page.evaluate(() => { const t = document.querySelector('[data-type-tile="river"]'), v = t.querySelector("svg").getBoundingClientRect(), pill = t.querySelector(".hotpill, .tag, .pill"), pb = pill ? pill.getBoundingClientRect().bottom : v.top + 34; return { x: v.left, y: Math.ceil(pb) + 2, w: v.width, h: Math.floor(v.bottom - pb - 4) }; });
+    {
+      const img = decodePng(await page.screenshot({ clip: { x: rt.x, y: rt.y, width: rt.w, height: rt.h } })), nn = img.w * img.h, Y = new Float32Array(nn);
+      for (let i = 0; i < nn; i++) { const o = i * img.bpp; Y[i] = 0.2126 * img.px[o] + 0.7152 * img.px[o + 1] + 0.0722 * img.px[o + 2]; }
+      Y.sort();
+      ok(rt.h > 50 && Y[Math.floor(nn * 0.99)] >= 105, "the Water tab's River tile is lit at night below its pill (brightest 1% at least 105)", [rt, Math.round(Y[Math.floor(nn * 0.99)])]);
+    }
     ok(!errors.length, "no page errors in the November week", errors);
+    await ctx.close();
+  }
+
+  // ---- (E3, V2-4) every lamp at a spot stands clear of the title's chips ----------------------------
+  // A lamp whose pole rises behind a chip with its head hidden reads as a pole holding the chip up: each
+  // lamp head stands 8 px clear of every chip, or shows just under one (its head in sight). Les Davis,
+  // Des Moines and Point Defiance are reached the way their weeks reach them: the nearer piers blown out.
+  for (const [hash, blow] of [[T("2026-11-24", "squid-les-davis"), ["redondo", "des-moines-pier"]], [T("2026-11-24", "squid-des-moines"), ["redondo"]], [T("2026-11-26", "salmon-point-defiance"), ["redondo", "les-davis", "des-moines-pier"]]]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles", serviceWorkers: "block" });
+    await fake(ctx, {});
+    const LAT = { redondo: 47.349, "les-davis": 47.287, "des-moines-pier": 47.402 }, lats = blow.map((id) => LAT[id]), pad = (q) => String(q).padStart(2, "0"), DAYS7 = ["2026-11-23", "2026-11-24", "2026-11-25", "2026-11-26", "2026-11-27", "2026-11-28", "2026-11-29"];
+    await ctx.route(/open-meteo\.com/, (route) => {
+      const u = route.request().url(), la = (new URL(u).searchParams.get("latitude") || "").split(",").map(Number), hit = (l) => lats.some((x) => Math.abs(x - l) < 0.002);
+      if (/marine-api/.test(u)) return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(la.map((l) => { const time = [], wave = []; for (const d of DAYS7) for (let h = 0; h < 24; h++) { time.push(d + "T" + pad(h) + ":00"); wave.push(hit(l) ? 14 : 4); } return { hourly: { time, wave_height: wave } }; })) });
+      const body = la.map((l) => { const time = [], t = [], pr = [], w = [], g = [], c = []; for (const d of DAYS7) for (let h = 0; h < 24; h++) { time.push(d + "T" + pad(h) + ":00"); t.push(45); pr.push(0); c.push(90); const b = hit(l) || d === DAYS7[2]; w.push(b ? 40 : 4); g.push(b ? 55 : 8); } return { hourly: { time, temperature_2m: t, precipitation: pr, wind_speed_10m: w, wind_gusts_10m: g, cloud_cover: c }, daily: { time: DAYS7, sunrise: DAYS7.map((d) => d + "T07:31"), sunset: DAYS7.map((d) => d + "T16:24") } }; });
+      return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(body) });
+    });
+    const page = await ctx.newPage();
+    await page.clock.setFixedTime(NOW);
+    await page.goto(base + "#/trips", { waitUntil: "load" });
+    await page.waitForSelector("[data-day] [data-hot] .tile svg");
+    const c = await card(page, hash);
+    const heads = await page.evaluate(() => {
+      const chips = [...document.querySelectorAll('[data-view="hot"] > .hero .chips > *')].map((q) => q.getBoundingClientRect());
+      return [...document.querySelectorAll("#scene .w-bulb")].map((b) => { const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+        return { x: Math.round(x), y: Math.round(y), bad: chips.some((q) => x > q.left - 8 && x < q.right + 8 && y > q.top - 8 && y < q.bottom + 8 && !(y > q.bottom + 1 && x > q.left + 4 && x < q.right - 4)) }; });
+    });
+    ok(c.spot && heads.length >= 2 && heads.every((h) => !h.bad), c.spot + ": no lamp head is hidden behind the title's chips or crowds one", heads);
     await ctx.close();
   }
 

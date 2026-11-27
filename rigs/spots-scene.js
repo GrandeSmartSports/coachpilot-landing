@@ -185,8 +185,10 @@
             { t: "piles", pts: [[-2.4, 9.5], [1.5, 13.6], [5.4, 17.6], [9.6, 21.6], [3, 21], [-1, 17], [13.4, 25.4], [7.2, 25.6], [-4.6, 20.4]], top: 4.6, w: 0.62 }, // Coach: pilings in the water under the rail at the left
             { t: "rail", pts: [[-2.3, 6.8], [18.6, 27.1]], y: 4.8, h: 1.1 },                           // Coach: wooden rails along the walk, left
             { t: "rail", pts: [[4.4, 0.9], [25.3, 21.2]], y: 4.8, h: 1.1 },                            // and right
-            { t: "lamp", x: 8.2, z: 17, y: 4.8, h: 4.6, kind: "lantern", water: [0.6, 28] },           // Coach: tall lamp posts with lantern tops along the left rail (likely: lit at night); their light lies on the water you see past the rail (the water right under them is hidden by the walk's edge)
-            { t: "lamp", x: 15.5, z: 24.1, y: 4.8, h: 4.6, kind: "lantern", water: [7, 33] }
+            // Coach: lamp posts with lantern tops along the left rail (likely: lit at night); their light lies on the water you see past the rail (the water right under them is hidden by the walk's edge).
+            // Only the two out along the rail are drawn, a little under 4 m tall: from here a nearer one stood up behind the date chip with its head hidden (V2-4), and these two heads stand clear under the tag
+            { t: "lamp", x: 14.6, z: 23.4, y: 4.8, h: 3.8, kind: "lantern", water: [6, 32] },
+            { t: "lamp", x: 18.4, z: 27, y: 4.8, h: 3.8, kind: "lantern", water: [10, 36] }
           ]
         },
         dock: {
@@ -326,10 +328,8 @@
           river: {
             flow: "left",                                        // likely: the river flows from your right to your left
             far: { kind: "mixed", h: 30, mix: 0.25 },            // likely: the far bank (college and DNR land) low and wooded
-            meadow: "diag",                                      // likely: meadow edge on the Narrows side, where you stand (its edge on a slant, the water opening downstream to the left)
-            grove: "right",                                      // likely: cottonwood floodplain forest on the Narrows side, a stand of it at the right
-            converge: 14,                                        // the reach runs off downstream (left): the far bank's foot recedes that way, so the river opens into the picture (a straight reach seen at an angle)
-            wader: { x: 168, s: 1.7 }                            // proven: the riverbanks are popular with anglers in the fall (one wading in, casting across)
+            reach: { side: "right", near: "grove", ground: "meadow" }, // you look a little upstream (right): your own bank's cottonwood floodplain forest (likely) runs away up the reach at the right and closes on the far bank; the meadow's edge (likely) at your feet at the left. The card does not describe the bank's form: no stones, no log
+            wader: { x: 70, s: 1.75 }                            // proven: the riverbanks are popular with anglers in the fall (one at the meadow's edge, a step in, casting across)
           }                                                      // NO gravel bar, NO bridge, NO highway (unproven), NO boats, NO Rainier (behind you)
         },
         geyser: {                                                // card green-flaming-geyser: the park's south bank, where he wades
@@ -339,11 +339,11 @@
             flow: "left",                                        // likely: the river flows right to left (west)
             far: { kind: "mixed", h: 27, mix: 0.3 },             // likely: a low flat far bank with trees, deciduous and some conifers; NO cliff
             ridge: 4,                                            // proven terrain: a low wooded ridge on the far skyline about 4 degrees high
-            converge: 18,                                        // the far bank runs away downstream (left), so the river bends off into the picture
+            reach: { side: "right", near: "mixed", mix: 0.5, cobble: true }, // you look a little upstream (right), toward the bend and Cristy Creek: your own bank's trees (the card: a generic mix; proven western redcedar in the picnic area) run away up the reach and close on the far bank, gravel and cobble at their feet (likely)
             bar: true, riffle: true                              // likely: a gravel or cobble edge at your feet, a riffle over gravel in front
           },
           // NO Rainier (behind you and blocked), NO bridge, NO lights
-          tile: [0, 132, 390, 150]                               // its tile frames the near bar and the riffle over the far bank's foot
+          tile: [0, 150, 390, 132]                               // its tile frames the reach: the bar at the left, your own bank's dark trees closing in at the right, the sky's road on the water between
         }
       }
     },
@@ -420,13 +420,13 @@
     "lake-fenwick": {
       spot: "lake-fenwick", scene: "lake",
       facing: 105,                                               // facingDeg 105 (likely)
-      tile: [64, 92, 326, 184],                                  // its tile keeps the pier and the big shore tree at the right in frame
+      tile: [130, 108, 260, 146],                                 // its tile frames the big shore tree as the dark mass at the right, the pier running out under it
       lake: {
         across: 100,                                             // likely: about 100 m of still water to the wooded east shore
         mix: 0.25,                                               // trees as the whole skyline, no peaks (kinds not named)
         stand: "pier",                                           // proven: a short pier under your feet, plain build
         near: [[-24, 34, 248, 22]],                              // likely: forest park around the lake, the lake running away left and right (kept low under the title at the left)
-        nearTree: { x: 396, base: 240, h: 150, spread: 0.5, tileX: 374 },    // and one big shore tree of that forest at your right, trunk and limbs and its crown (clear of the title's tags)
+        nearTree: { x: 396, base: 240, h: 150, spread: 0.5, tileX: 344, tileH: 112, tileBase: 234 },    // and one big shore tree of that forest at your right, trunk and limbs and its crown (clear of the title's tags)
         taper: "left"                                            // the far trees kept low on the left, under the title, and full on the right
       },                                                         // NO mountains, NO houses, NO lily pads
       dock: { ahead: 10, l: 1.1, r: 1.1, above: 0.9 }

@@ -110,7 +110,7 @@
 .w-runs{opacity:.5}
 .w-deckglow{opacity:.62}
 .w-wallao{fill:var(--shade);opacity:.12}
-.w-eavesh{fill:var(--shade);opacity:.3}
+.w-eavesh{fill:var(--shade);opacity:.42}
 .w-shopw{fill:var(--r4);opacity:.78}
 .w-awning{fill:color-mix(in oklab,var(--r3) 70%,var(--go));opacity:.9}
 .w-joint{fill:none;stroke:var(--shade);stroke-width:.6;opacity:.2}
@@ -353,15 +353,15 @@
 /* walls: a seawall's face; a building's wall and roof (white siding and a
    pale green roof at the boathouse, their own classes below) */
 .w-wall{fill:color-mix(in oklab,var(--r3) 70%,var(--bg))}
-.w-wallside{filter:brightness(.72)}
+.w-wallside{filter:brightness(.58)}
 :root[data-dark="1"] .w-wallside{filter:brightness(.78)}
-.w-roofside{filter:brightness(.82)}
+.w-roofside{filter:brightness(.74)}
 .w-win{fill:var(--r4);opacity:.7}
 /* by day a pane holds a little of the sky, under the dark head of its frame */
 .w-pane{fill:color-mix(in oklab,var(--r4) 62%,var(--hz));opacity:.85}
 .w-winhead{fill:var(--r5);opacity:.45}
 .w-wallw{fill:color-mix(in oklab,var(--hz) 26%,var(--lum))}
-.w-roofg{fill:color-mix(in oklab,color-mix(in oklab,var(--hz) 62%,var(--go)) 70%,var(--lum))}
+.w-roofg{fill:color-mix(in oklab,color-mix(in oklab,var(--hz) 56%,var(--go)) 74%,var(--lum))}
 .w-flag{fill:color-mix(in oklab,var(--r2) 60%,var(--lum))}
 :root[data-dark="1"] .w-wallw{fill:color-mix(in oklab,var(--r2) 72%,var(--ink))}
 :root[data-dark="1"] .w-roofg{fill:color-mix(in oklab,var(--r3) 82%,var(--go))}
@@ -438,7 +438,7 @@
 .w-drag{fill:none;stroke:var(--shade);stroke-width:.9;opacity:.22;stroke-linecap:round}
 :root[data-dark="1"] .w-kayak{fill:var(--r3)}
 .w-driftg{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.22;stroke-linecap:round}
-.w-siding{fill:var(--shade);opacity:.07}
+.w-siding{fill:var(--shade);opacity:.1}
 .w-ripm{opacity:.42}
 .w-sedgeg{fill:var(--r4)}
 .w-gravelw{fill:color-mix(in srgb,var(--bg) 62%,var(--water2));opacity:.7}
@@ -546,3 +546,22 @@
 .w-barlit{fill:none;stroke:color-mix(in oklab,var(--bg) 60%,var(--glowc));stroke-width:.8;opacity:.7;stroke-linecap:round}
 :root[data-dark="1"] .w-barg{fill:color-mix(in oklab,var(--r3) 70%,var(--bg))}
 .w-sandpool{opacity:.55}
+
+/* A reach of river seen a little upstream (scene.js reachNear): the meadow at
+   your feet in pale winter grass, two steps of shade toward you and tufts;
+   the near grove's bare crowns massed into a dark lace; the sky over the gap
+   where the banks meet, lying on the water as a pale road (after dark the
+   towns' glow lies there instead). */
+.w-mead{fill:color-mix(in oklab,var(--bg) 60%,color-mix(in oklab,var(--r2) 52%,var(--gold)))}
+.w-grovelace{fill:color-mix(in oklab,var(--r5) 55%,var(--r4));opacity:.9}
+.w-lacerim{opacity:.7}
+.w-meadn{fill:var(--r3);opacity:.17}
+.w-meadt{fill:var(--r3);opacity:.42}
+:root[data-dark="1"] .w-mead{fill:color-mix(in oklab,var(--bg) 66%,var(--r2))}
+.w-twigm{opacity:.6}.w-twign{opacity:.78}
+.w-gapsh{opacity:calc(.22 + var(--glow)*.46)}
+.w-gaprd{fill:none;stroke:var(--roadc);stroke-linecap:round;opacity:calc(.28 + var(--gl)*.72)}
+:root[data-sky="night"] .w-gaprd{stroke:color-mix(in oklab,var(--lampc) 58%,var(--glintc));opacity:.62}
+/* a pane that holds the sky (a building's windows are never one even dark row) */
+.w-panesky{fill:color-mix(in oklab,var(--hz) 58%,var(--r3));opacity:.9}
+:root[data-dark="1"] .w-panesky{fill:color-mix(in oklab,var(--r3) 70%,var(--hz));opacity:.8}
