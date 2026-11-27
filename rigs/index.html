@@ -2503,12 +2503,13 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       '<i class="av xl a2" data-i="' + initial(b) + '"></i></div>';
   }
   // What joining gets you, as three small pictures: the trips (the water),
-  // who is going (faces under Going), the gear (a list with ticks).
-  function getsHtml() {
+  // who is going (the real faces: who sent the link and who it is for, then
+  // an open seat), the gear (a list with ticks).
+  function getsHtml(by, name) {
     var sky = skyId();
     return '<ul class="cw-gets" data-join-gets>' +
       '<li><span class="cw-get-p">' + miniHtml("pier", sky, "cw-get-scene", null) + "</span><b>See the trips</b></li>" +
-      '<li><span class="cw-get-p cw-get-going"><i class="cw-get-h">Going</i><span class="avs"><i class="av sm a1" data-i="S"></i><i class="av sm a2" data-i="R"></i><i class="av sm a3" data-i="D"></i></span></span><b>Say if you are going</b></li>' +
+      '<li><span class="cw-get-p cw-get-going"><i class="cw-get-h">Going</i><span class="avs">' + (by ? '<i class="av sm a1" data-i="' + initial(by) + '"></i>' : "") + '<i class="av sm a2" data-i="' + initial(name) + '"></i><i class="av sm seat"></i></span></span><b>Say if you are going</b></li>' +
       '<li><span class="cw-get-p cw-get-list"><i class="on"></i><i class="on"></i><i></i></span><b>Split the gear</b></li></ul>';
   }
   function renderJoin(token) {
@@ -2541,7 +2542,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         }
       } else {
         // Signed out, or signed in on no crew (nothing to keep): the invite.
-        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" + getsHtml() +
+        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" + getsHtml(pk.by || "", pk.name) +
           '<button class="gold cw-go" type="button" data-join-go>Join</button>' +
           cwSaid(joinUi.msg, me && me.none ? "This phone is signed in, but not on a crew." : "One tap and you are in. No password.", "data-join-msg");
       }

@@ -359,6 +359,8 @@ try {
       await p.locator("[data-join-gets] svg").count() >= 1 && await p.locator("[data-join-gets] .av").count() === 3,
       "the join screen says what joining gets you in three small pictures: the trips, who is going, the gear", await text(p, '[data-view="join"]'));
     ok(await p.locator('[data-view="join"] .cw-meet .av').count() === 2, "with the face of who added you, and yours");
+    const going = await p.locator("[data-join-gets] .cw-get-going .av").evaluateAll((els) => els.map((e) => (e.classList.contains("seat") ? "+" : e.getAttribute("data-i"))));
+    ok(JSON.stringify(going) === JSON.stringify(["C", "R", "+"]), "the Going picture shows the real people, who added you and you, and an open seat, never made-up faces", going);
     ok(await p.locator('[data-view="join"] .float').count() === 1 && await p.evaluate(() => {
       const c = document.querySelector('[data-view="join"] .float').getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect();
       return c.top < s.bottom - 24 && c.bottom > s.bottom;
