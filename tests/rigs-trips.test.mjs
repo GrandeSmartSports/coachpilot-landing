@@ -247,7 +247,8 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   const chumOn = (r, iso) => tripsOn(r, iso).find((t) => t.planId === "chum-green-river");
   const river = T.spots.find((s) => s.id === "green-river");
   ok(river.river && river.river.gauge === "AUBW1" && river.river.usgs === "12113000", "the Green reads the Auburn gauge (NOAA AUBW1, USGS 12113000)");
-  ok(T.spots.filter((s) => s.river).every((s) => s.river.good > 0 && s.river.high > s.river.good && s.river.flood > s.river.high), "every river spot has good, high (no-go) and flood flows in order");
+  ok(T.spots.filter((s) => s.river).every((s) => s.river.good > 0 && s.river.high > s.river.good && (s.river.flood == null ? s.river.floodStage > 0 : s.river.flood > s.river.high)),
+    "every river spot has good, high (no-go) and flood flows in order, or a flood stage where NWS gives flood only as a stage (PUYW1)");
   ok(T.plans.filter((p) => T.spots.find((s) => s.id === p.spot).river).length >= 4, "every Green River plan is a river trip");
 
   const steady = T.plan({ today, wx: week(today), tides: tidesFor(today), flow: fl([400, 400, 400, 400, 400, 400, 400]) });
@@ -883,6 +884,219 @@ const ids = (r, iso) => tripsOn(r, iso).map((t) => t.planId);
   ok(T.plansOn("2026-08-15").map((p) => p.id).includes("coho-dash-point") && !T.plansOn("2026-08-15").map((p) => p.id).includes("squid-redondo"), "plans for a day: August has coho and no squid");
   ok(T.plansOn("").length === 0 && T.plansOn("soon").length === 0 && T.plansOn().length === 0, "plans for a day: no date, no plans");
   ok(nov.every((p) => T.detail({ planId: p.id, iso: "2026-11-28", wx: {}, tides: {} }).status === "nodata"), "plans for a day: every one is a plan detail() knows and calls open");
+}
+
+// --- the gauge reader: NWPS lists stage and flow in either order -------------
+{
+  // Real NOAA answers, trimmed (tests/fixtures/nwps-stageflow.json): PUYW1
+  // gives stage first (ft) and flow second (kcfs); AUBW1 gives flow first.
+  const nw = JSON.parse(readFileSync(resolve(ROOT, "tests/fixtures/nwps-stageflow.json"), "utf8"));
+  ok(nw.PUYW1.observed.primaryName === "Stage" && nw.PUYW1.observed.secondaryName === "Flow" && nw.AUBW1.observed.primaryName === "River Discharge",
+    "the fixtures are the two shapes: PUYW1 stage first, AUBW1 flow first");
+  const puy = T.shapeFlow(nw.PUYW1), aub = T.shapeFlow(nw.AUBW1);
+  ok(puy.now && puy.now.cfs === 2330, "PUYW1, stage first: now is the flow (2,330 cfs), not the 11.73 ft stage read as 11,730", JSON.stringify(puy.now));
+  ok(puy.days["2026-11-27"] && puy.days["2026-11-27"].max === 3390 && puy.days["2026-11-26"].min === 1850, "PUYW1: the forecast days carry the flow in cfs", JSON.stringify(puy.days));
+  ok(Object.values(puy.days).every((d) => d.max < 5000 && d.min > 500), "PUYW1: no stage value is read as a flow", JSON.stringify(puy.days));
+  ok(aub.now && aub.now.cfs === 514 && aub.days["2026-10-28"].max === 450, "AUBW1, flow first: read as River Discharge in cfs", JSON.stringify(aub));
+  // The Green, Tokul and the Cowlitz read exactly as before: their answers
+  // with the names taken off (the shape the old reader assumed) give the same days.
+  const bare = (j) => ({ observed: { data: j.observed.data.map((x) => ({ validTime: x.validTime, primary: x.primary })) },
+    forecast: { data: j.forecast.data.map((x) => ({ validTime: x.validTime, primary: x.primary })) } });
+  ok(JSON.stringify(T.shapeFlow(bare(nw.AUBW1))) === JSON.stringify(aub), "AUBW1 reads the same with or without its series names");
+  for (const g of ["SQUW1", "MAYW1"]) {
+    const j = JSON.parse(JSON.stringify(nw.AUBW1));
+    ok(JSON.stringify(T.shapeFlow(j)) === JSON.stringify(T.shapeFlow(bare(j))), g + " (River Discharge first, like AUBW1) reads as it always did");
+  }
+  ok(T.spots.filter((s) => s.river && s.river.gauge !== "PUYW1").map((s) => s.river.gauge).join() === "AUBW1,SQUW1,MAYW1", "the other river gauges are the Green, Tokul and the Cowlitz");
+  // What a reading is: units first, then the name; a stage-only gauge has none.
+  ok(T.flowField(nw.PUYW1.observed).k === "secondary" && T.flowField(nw.PUYW1.observed).x === 1000 && T.flowField(nw.AUBW1.forecast).k === "primary",
+    "the flow series is picked by name and units", JSON.stringify(T.flowField(nw.PUYW1.observed)));
+  ok(T.flowField({ primaryName: "Stage", primaryUnits: "ft", secondaryName: "Flow", secondaryUnits: "cfs" }).x === 1, "a flow given in cfs is not multiplied");
+  const stageOnly = { observed: { primaryName: "Stage", primaryUnits: "ft", secondaryName: "Flow", secondaryUnits: "kcfs",
+    data: [{ validTime: "2026-11-27T07:00:00Z", primary: 4.2, secondary: -999 }] } };
+  ok(Object.keys(T.shapeFlow(stageOnly).days).length === 0 && T.shapeFlow(stageOnly).now === null, "a gauge with no flow (WSTW1 sends -999) gives no reading, not its stage");
+  ok(T.flowField({ primaryName: "Stage", primaryUnits: "ft", secondaryName: "Stage", secondaryUnits: "ft" }) === null, "a gauge that only reports stage has no flow field");
+}
+
+// --- the Puyallup: spots, plans, closed days, the go call -------------------
+{
+  const P = (id) => T.plans.find((p) => p.id === id);
+  const spot = (id) => T.spots.find((s) => s.id === id);
+  const PUY = /^(king|coho|pink)-puyallup-/;
+  ok(["puyallup-sumner", "puyallup-128th", "puyallup-orting"].every((id) => spot(id) && ctx.RIG.content.spots.some((s) => s.id === id)), "three Puyallup spots, the same ids as their paintings and the library");
+  ok(spot("puyallup-sumner").lat === 47.1996 && spot("puyallup-sumner").lon === -122.2565 && spot("puyallup-128th").lat === 47.1402 && spot("puyallup-orting").lon === -122.211,
+    "the stands are the cards' coordinates");
+  ok(spot("puyallup-sumner").river.gauge === "PUYW1" && spot("puyallup-128th").river.gauge === "PUYW1" && spot("puyallup-sumner").river.usgs === "12101500" && !spot("puyallup-orting").river,
+    "Sumner and the 128th read PUYW1; Orting has no gauge and no trip");
+  ok(spot("puyallup-sumner").river.good === 1800 && spot("puyallup-sumner").river.high === 3500 && T.puyallupFlow.good === 1800 && T.puyallupFlow.high === 3500,
+    "the Puyallup goes up to 1,800 cfs and is a no-go above 3,500, from one place in the code");
+  ok(T.plans.filter((p) => /puyallup/.test(p.spot)).every((p) => p.spot !== "puyallup-orting"), "no plan at Orting: salmon is closed above the Carbon");
+  ok(T.plans.filter((p) => PUY.test(p.id)).length === 6 && T.plans.filter((p) => PUY.test(p.id)).every((p) => p.how === "shore" && !p.dark && T.runs[p.id]),
+    "kings, coho and pinks at Sumner and at the 128th, daylight bank trips, each with a run card");
+  const u = T.urls("2026-09-02", "2026-09-09");
+  ok(u.flow.filter((f) => /PUYW1/.test(f.url)).length === 1 && u.flow.find((f) => /PUYW1/.test(f.url)).spots.join() === "puyallup-sumner,puyallup-128th",
+    "one PUYW1 call serves both Puyallup spots");
+
+  // A week for September, sun as it is then.
+  const sept = (today, sun) => { const w = week(today); for (const k of Object.keys(w)) for (const d of Object.keys(w[k].sun)) w[k].sun[d] = sun; return w; };
+  const flowWeek = (today, cfs) => { const days = {}; for (let i = -1; i < 7; i++) { const iso = isoAdd(today, i); const v = typeof cfs === "function" ? cfs(iso) : cfs; days[iso] = { min: v, max: v }; }
+    const f = { days, now: { cfs: typeof cfs === "function" ? cfs(today) : cfs, at: today + "T19:00:00Z" } };
+    return { "puyallup-sumner": f, "puyallup-128th": f }; };
+  // A Puyallup trip on a day: listed, or the backup the listed one names.
+  const puyOn = (r, iso) => tripsOn(r, iso).filter((t) => PUY.test(t.planId) || (t.alts || []).some((a) => PUY.test(a)));
+  const SEP_SUN = { rise: 6.6, set: 19.6 }, OCT_SUN = { rise: 7.3, set: 18.6 };
+
+  // Kings: Mon Aug 31 to Sun Sep 6, 2026.
+  const k0 = "2026-08-31";
+  const kw = T.plan({ today: k0, wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: flowWeek(k0, 1300) });
+  const kDays = kw.days.map((d) => [d.iso, puyOn(kw, d.iso).length]);
+  ok(kDays.map((x) => x[1] > 0).join() === "false,false,true,true,true,true,false", "kings week: Puyallup trips Wed to Sat only, none Sun, Mon or Tue before Oct 1", JSON.stringify(kDays));
+  const kt = tripsOn(kw, "2026-09-05").find((t) => PUY.test(t.planId));
+  ok(kt && kt.species === "king" && kt.heat === "Hot" && kt.why.some((w) => /Good flow, 1,300 cfs/.test(w)), "a Saturday king trip in the peak is Hot, with the go call", kt && kt.why.join(" | "));
+  ok(kt && (kt.alts || []).some((a) => PUY.test(a)) && kt.why.some((w) => /^Also good: (Sumner|128th St E)$/.test(w)), "the other Puyallup spot is named as the backup", kt && kt.why.join(" | "));
+  ok(kw.days.every((d) => puyOn(kw, d.iso).every((t) => t.from >= SEP_SUN.rise && t.to <= SEP_SUN.set)), "night closure: every Puyallup trip is between sunrise and sunset");
+  ok(!kw.days.some((d) => d.trips.some((t) => t.spot === "puyallup-orting")), "nothing at Orting");
+  ok(!kw.notListed.some((n) => /Puyallup/.test(n.name)), "2026 is the year the rules were read: nothing held back", JSON.stringify(kw.notListed));
+
+  // The go call: up to 1,800 is good, over 3,500 is a no-go.
+  const flowOn = (v) => flowWeek(k0, (iso) => (iso === "2026-09-03" ? v : 1300));
+  const at = (v) => T.detail({ planId: "king-puyallup-sumner", iso: "2026-09-03", wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: flowOn(v) });
+  ok(at(1800).status === "ok" && at(1800).trip.flow.call === "go" && at(1800).trip.why.some((w) => /Good flow, 1,800 cfs/.test(w)), "1,800 cfs is still good", JSON.stringify(at(1800).trip && at(1800).trip.flow));
+  ok(at(2600).status === "ok" && at(2600).trip.flow.call === "high" && at(2600).trip.why.some((w) => /High water, 2,600 cfs/.test(w)), "2,600 cfs is high and tough", JSON.stringify(at(2600).trip && at(2600).trip.why));
+  ok(at(3500).status === "ok" && at(3500).trip.flow.call === "high", "3,500 cfs is high, not yet a no-go");
+  ok(at(3600).status === "nogo" && at(3600).why === "river blown out, 3,600 cfs", "3,600 cfs is a no-go", JSON.stringify(at(3600)));
+  const blown = T.plan({ today: k0, wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: flowOn(3600) });
+  ok(puyOn(blown, "2026-09-03").length === 0 && puyOn(blown, "2026-09-02").length > 0 && puyOn(blown, "2026-09-04").length > 0,
+    "a no-go day above 3,500 cfs lists no Puyallup trip, and the days either side still do", JSON.stringify(blown.days.map((d) => [d.iso, d.trips.map((t) => t.planId)])));
+  ok(at(1300).trip.flow.lead === true && at(1300).trip.flow.gauge === "Puyallup River at Puyallup", "the river card knows these are the app's own starting numbers");
+
+  // The real gauge answer goes in stage first: read right, it is a good day; read as the
+  // old reader did (stage 9.9 ft as 9,900 cfs) it would be a no-go.
+  const stageFirst = { observed: { primaryName: "Stage", primaryUnits: "ft", secondaryName: "Flow", secondaryUnits: "kcfs", data: [{ validTime: "2026-08-31T19:00:00Z", primary: 9.9, secondary: 1.2 }] },
+    forecast: { primaryName: "Stage", primaryUnits: "ft", secondaryName: "Flow", secondaryUnits: "kcfs",
+      data: kw.days.map((d) => ({ validTime: d.iso + "T20:00:00Z", primary: 9.9, secondary: 1.2 })) } };
+  const read = T.shapeFlow(stageFirst);
+  const sf = T.plan({ today: k0, wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: { "puyallup-sumner": read, "puyallup-128th": read } });
+  const st = tripsOn(sf, "2026-09-05").find((t) => PUY.test(t.planId));
+  ok(st && st.flow.cfs === 1200 && st.flow.call === "go", "a stage-first PUYW1 answer is read as 1,200 cfs and the day is a go", st && JSON.stringify(st.flow));
+
+  // Coho: Mon Sep 14 to Sun Sep 20. Kings are done by mid September.
+  const c0 = "2026-09-14";
+  const cw = T.plan({ today: c0, wx: sept(c0, SEP_SUN), tides: tidesFor(c0), flow: flowWeek(c0, 900) });
+  const cDays = cw.days.map((d) => [d.iso, puyOn(cw, d.iso).map((t) => t.planId).join("+")]);
+  ok(cw.days.map((d) => puyOn(cw, d.iso).length > 0).join() === "false,false,true,true,true,true,false", "coho week: Wed to Sat only, before Oct 1", JSON.stringify(cDays));
+  ok(cw.days.every((d) => puyOn(cw, d.iso).every((t) => t.species === "coho")), "from Sep 16 the Puyallup trip is coho, not kings", JSON.stringify(cDays));
+  const after = tripsOn(cw, "2026-09-16").find((t) => PUY.test(t.planId));
+  ok(after && after.slot === "After work" && after.drive <= 45, "a Wednesday in September is an after work trip", after && after.slot);
+
+  // October: every day, Sundays to Tuesdays included.
+  const o0 = "2026-10-05";
+  const ow = T.plan({ today: o0, wx: sept(o0, OCT_SUN), tides: tidesFor(o0), flow: flowWeek(o0, 900) });
+  ok(ow.days.length === 7 && ow.days.every((d) => puyOn(ow, d.iso).length > 0), "October: a Puyallup trip every day of the week", JSON.stringify(ow.days.map((d) => [d.iso, puyOn(ow, d.iso).length])));
+  ok(ow.days.every((d) => puyOn(ow, d.iso).every((t) => t.species === "coho" && t.heat === "Hot")), "October coho are the peak", JSON.stringify(ow.days.map((d) => puyOn(ow, d.iso).map((t) => t.heat))));
+
+  // The season ends Oct 31.
+  const e0 = "2026-10-26";
+  const ew = T.plan({ today: e0, wx: sept(e0, OCT_SUN), tides: tidesFor(e0), flow: flowWeek(e0, 900) });
+  ok(puyOn(ew, "2026-10-31").length > 0 && puyOn(ew, "2026-11-01").length === 0, "the last day is Oct 31; none on Nov 1", JSON.stringify(ew.days.map((d) => [d.iso, puyOn(ew, d.iso).length])));
+  const n0 = "2026-11-02";
+  const nw2 = T.plan({ today: n0, wx: sept(n0, OCT_SUN), tides: tidesFor(n0), flow: flowWeek(n0, 900) });
+  ok(nw2.days.every((d) => puyOn(nw2, d.iso).length === 0) && !nw2.notListed.some((n) => /Puyallup/.test(n.name)), "none after Oct 31, and nothing held back either: the river is closed");
+  ok(T.detail({ planId: "coho-puyallup-sumner", iso: "2026-11-07", wx: sept(n0, OCT_SUN), tides: tidesFor(n0), flow: flowWeek(n0, 900) }).status === "closed", "a crew trip asked for in November: closed");
+  ok(T.detail({ planId: "coho-puyallup-sumner", iso: "2026-09-20", wx: sept(c0, SEP_SUN), tides: tidesFor(c0), flow: flowWeek(c0, 900) }).status === "closed", "a crew trip asked for on a Sunday in September: closed");
+  ok(!T.plansOn("2026-09-20").some((p) => PUY.test(p.id)) && T.plansOn("2026-09-19").some((p) => p.id === "coho-puyallup-sumner") && T.plansOn("2026-10-04").some((p) => p.id === "coho-puyallup-128th"),
+    "the crew's picker offers the Puyallup on open days only (Sat Sep 19 and Sun Oct 4, not Sun Sep 20)");
+  ok(!T.plansOn("2026-09-02").some((p) => p.spot === "puyallup-orting") && !T.plansOn("2026-10-10").some((p) => p.spot === "puyallup-orting"), "and never at Orting");
+
+  // Pinks: odd years only, and 2027's dates are not read yet.
+  ok(T.season(P("pink-puyallup-sumner"), { y: 2026, m: 9, d: 2, iso: "2026-09-02" }) === null, "no pinks in 2026, an even year");
+  const y27 = { y: 2027, m: 9, d: 1, iso: "2027-09-01" }; // a Wednesday
+  ok(T.season(P("pink-puyallup-sumner"), y27) === "ok" && /^2027 dates not read yet\. WDFW sets them in the 2027-28 pamphlet$/.test(T.ruleOn(P("pink-puyallup-sumner"), y27)),
+    "2027 pinks wait for the 2027-28 pamphlet", T.ruleOn(P("pink-puyallup-sumner"), y27));
+  const w27 = "2027-08-30";
+  const r27 = T.plan({ today: w27, wx: sept(w27, SEP_SUN), tides: tidesFor(w27), flow: flowWeek(w27, 900) });
+  const held = r27.notListed.filter((n) => /Puyallup/.test(n.name));
+  ok(r27.days.every((d) => puyOn(r27, d.iso).length === 0) && held.length === 1 && held[0].name === "Salmon on the Puyallup" && /2027 dates not read yet/.test(held[0].why),
+    "2027: no Puyallup trip on a guess, and one line says why", JSON.stringify(held));
+  ok(T.detail({ planId: "king-puyallup-128th", iso: "2027-09-01", wx: sept(w27, SEP_SUN), tides: tidesFor(w27), flow: flowWeek(w27, 900) }).status === "closed" && !T.plansOn("2027-09-01").some((p) => PUY.test(p.id)),
+    "a 2027 crew trip on the Puyallup is not offered until its dates are read");
+
+  // Run cards: the White warning, parking, the rules as written.
+  const sum = T.runs["coho-puyallup-sumner"], b128 = T.runs["king-puyallup-128th"];
+  ok(sum.spot.lines.some((l) => /Stand on the point and cast into the Puyallup\. Never cast into the White behind you: it is closed to salmon\./.test(l)), "Sumner: stand on the point, cast into the Puyallup, never the White");
+  ok(sum.spot.lines.some((l) => /State Street Trailhead, 13114 63rd St E/.test(l)) && b128.spot.lines.some((l) => /WDFW Weiss access at the end of 116th St E/.test(l)) &&
+    b128.spot.lines.some((l) => /Discover Pass, or the Vehicle Access Pass that comes free with an annual fishing license/.test(l)), "parking: the State Street Trailhead for Sumner, WDFW Weiss with its pass for the 128th");
+  const rl = b128.rules.join(" ");
+  ok(/Aug 19 to Oct 31/.test(rl) && /Closed Sundays, Mondays and Tuesdays until Sept 30/.test(rl) && /6 salmon a day, no more than 2 adults/.test(rl) && /Release chum and wild Chinook/.test(rl) &&
+    /Barbless/.test(rl) && /buoyant lure with no weight added to the line or lure/.test(rl) && /Night closure/.test(rl), "the rules: season, closed days, limit, releases, barbless, anti-snag with its buoyant-lure exception, night closure", rl);
+  ok(sum.rules[0] === "The White River behind you is closed to salmon. Cast into the Puyallup only." && !b128.rules.some((l) => /White River behind/.test(l)), "the White warning leads Sumner's rules, and only Sumner's");
+  ok(T.runs["king-puyallup-sumner"].expect.some((l) => /crowd/.test(l) && /Aug 22/.test(l) && /nobody hooked up/.test(l)) && T.runs["king-puyallup-sumner"].bait.note === "Corkies took the big king here on Aug 28." &&
+    T.runs["coho-puyallup-128th"].expect.some((l) => /Oct 17 was low and slow here, 862 cfs/.test(l)), "Coach's own days: Aug 22 crowded, the Aug 28 king on corkies, Oct 17 low and slow");
+  ok(Object.keys(T.runs).filter((k) => PUY.test(k)).every((k) => T.runs[k].checked === "2026-11-27"), "the cards were checked against WDFW on 11/27");
+
+  // Reviewers' round (11/27). The closed water is on the face of the card:
+  // the spot row and the rules row each name their own line.
+  ok(sum.spot.head === "Cast into the Puyallup only, never into the White behind you." && /^The White is closed to salmon\. 6 salmon a day, no more than 2 adults\.$/.test(sum.ruleHead),
+    "Sumner's spot row says cast into the Puyallup only, never the White, and its rules row that the White is closed to salmon", [sum.spot.head, sum.ruleHead].join(" | "));
+  // The 128th: the Carbon closure about 3/4 mile upstream, in its rules, its spot, its steps and on its face.
+  const CARB = /The Carbon River comes in about 3\/4 mile upstream\. Above it the Puyallup is closed to salmon all year\. The Carbon, mouth to Voight Creek: Sept 1 to Oct 31, Wednesday to Saturday only in September\. Voight Creek up to the Hwy 162 bridge is closed water\./;
+  ok(["king-puyallup-128th", "coho-puyallup-128th", "pink-puyallup-128th"].every((k) => T.runs[k].rules.some((l) => CARB.test(l)) && T.runs[k].spot.lines.some((l) => CARB.test(l)) &&
+    T.runs[k].during.some((l) => /Stay below the Carbon River mouth\. Above it is closed to salmon\./.test(l)) && T.runs[k].spot.head === "Stay below the Carbon River mouth, 3/4 mile upstream." && /^Salmon closed above the Carbon\. 6 salmon a day, no more than 2 adults\.$/.test(T.runs[k].ruleHead)),
+    "the 128th: closed to salmon above the Carbon, 3/4 mile up, on every card and on its face", b128.rules.join(" | "));
+  ok(!Object.keys(T.runs).filter((k) => /-puyallup-sumner$/.test(k)).some((k) => T.runs[k].rules.some((l) => CARB.test(l))), "and the Carbon line is the 128th's, not Sumner's");
+  // The 2018 river bed report is said as one report, never as a fact.
+  ok(!b128.spot.lines.some((l) => /Anglers fish the river bed/.test(l)) && b128.spot.lines.includes("One 2018 report saw two people fishing the river bed at the bridge."), "the river bed line is one 2018 report", b128.spot.lines.join(" | "));
+  // Anti-snagging: the 12 inches is measured from the lure or bait, never the hook, and no unclear "it".
+  ok(Object.keys(T.runs).filter((k) => PUY.test(k)).every((k) => T.runs[k].how.includes("Keep the weight 12 inches or more above the corky, jig or bait, never below it. That is the anti-snagging rule.") &&
+    !T.runs[k].how.some((l) => /above the hook/.test(l))), "the how: weight 12 inches above the corky, jig or bait, never below it", b128.how.join(" | "));
+  ok(/No weight below the lure or bait, and none less than 12 inches above it\./.test(rl) && !/below it, or less than/.test(rl), "the rules say what the weight is measured from", rl);
+  // Sumner's walk: only what is proven (the point is west of the trailhead), and the route is not confirmed.
+  ok(!sum.spot.lines.some((l) => /wastewater/.test(l)) && sum.spot.lines.some((l) => /The point is a few hundred feet west of the trailhead\./.test(l)) && sum.spot.unknown.includes("The walking route from the trailhead to the point"),
+    "Sumner: a few hundred feet west of the trailhead, the route not confirmed", sum.spot.lines.join(" | "));
+
+  // The library's Puyallup cards (rigs/content.js).
+  const C = ctx.RIG.content, card = (id) => C.shared.find((c) => c.id === id) || C.spots.flatMap((x) => x.cards || []).find((c) => c.id === id);
+  const prc = card("puyallup-rules").body;
+  ok(/From 400 ft above Clark's Creek up to the Carbon River: Aug 19 to Oct 31, 2026\./.test(prc) && !/Below the Carbon River: Aug 19/.test(prc), "the rules card names its stretch, not all of the river below the Carbon", prc.slice(0, 300));
+  ok(/The Puyallup from 400 ft below to 400 ft above Clark's Creek: closed to all fishing\./.test(prc) && /the Puyallup from the Carbon River mouth upstream, Orting included/.test(prc) && !/at Orting\./.test(prc),
+    "its closed water: the White, the Puyallup from the Carbon mouth up, and Clark's Creek", prc);
+  ok(/From the 11th St Bridge to 400 ft below Clark's Creek: the same dates and rules\. Below the 11th St Bridge is not in this listing\./.test(prc), "and the stretch below Clark's Creek, as the pamphlet lists it");
+  ok(/Aug 19 to Oct 31\. Statewide size and daily limit\. Release cutthroat and wild rainbow trout\./.test(prc), "and the trout rule", prc);
+  ok(/No weight below the lure or bait, and none less than 12 inches above it\./.test(prc), "and the weight rule, measured from the lure or bait");
+  const c128 = card("puyallup-128th-spot").body;
+  ok(CARB.test(c128) && /In 2018 one angler saw two people fishing the river bed at the bridge\./.test(c128) && !/Anglers fish the river bed/.test(c128), "the 128th's library card: the Carbon closure, and the river bed as one report", c128);
+  ok(!/wastewater/.test(card("puyallup-sumner-spot").body) && /walking route from the trailhead to the point/.test(card("puyallup-sumner-spot").body), "the Sumner card: no unproven walking route");
+  ok(/No bait\. Scented yarn or lures count as bait\./.test(card("orting-rules").body), "Orting's selective gear: scented yarn or lures count as bait");
+  ok(C.spots.find((x) => x.id === "puyallup-128th").where === "128th St E bridge, Pierce County", "the 128th's place name is a checked one, not Alderton (the gauge 5 km down)");
+
+  // The call: Sumner and the 128th tie, and Sumner's bank is proven. The
+  // listed king trip is Sumner's, the 128th its backup, and the call is Sumner.
+  ok(T.spots.find((x) => x.id === "puyallup-128th").bankUnproven === true && !T.spots.find((x) => x.id === "puyallup-sumner").bankUnproven, "the 128th's bank is marked unproven, Sumner's is not");
+  const tie = kw.days.flatMap((d) => tripsOn(kw, d.iso).filter((t) => PUY.test(t.planId)));
+  ok(tie.length > 0 && tie.every((t) => t.planId === "king-puyallup-sumner" && (t.alts || []).includes("king-puyallup-128th") && t.why.includes("Also good: 128th St E")),
+    "on a tie the listed Puyallup trip is Sumner's, the 128th its backup, though the 128th is a minute closer", JSON.stringify(tie.map((t) => [t.planId, t.alts])));
+  const only = T.plan({ today: k0, wx: sept(k0, SEP_SUN), tides: tidesFor(k0), flow: flowWeek(k0, 1300) });
+  for (const d of only.days) d.trips = d.trips.filter((t) => PUY.test(t.planId));
+  const call = T.theCall(only);
+  ok(call.trip && call.trip.planId === "king-puyallup-sumner", "the call goes to Sumner, the proven bank", call.headline);
+  // The 128th still leads when it is the better trip.
+  const bwx = week(k0, (s) => (s === "puyallup-sumner" ? { wind: 12, gust: 16 } : {}));
+  for (const k of Object.keys(bwx)) for (const d of Object.keys(bwx[k].sun)) bwx[k].sun[d] = SEP_SUN;
+  const breezy = T.plan({ today: k0, wx: bwx, tides: tidesFor(k0), flow: flowWeek(k0, 1300) });
+  const bk = breezy.days.flatMap((d) => tripsOn(breezy, d.iso).filter((t) => PUY.test(t.planId)));
+  ok(bk.length > 0 && bk.every((t) => t.planId === "king-puyallup-128th"), "and a breeze at Sumner hands the day to the 128th", JSON.stringify(bk.map((t) => [t.planId, t.score])));
+  // The tie-break for any other water is unchanged: the shorter drive.
+  ok(!T.spots.filter((x) => !/^puyallup-/.test(x.id)).some((x) => x.bankUnproven), "no other spot is marked, so a tie elsewhere still goes to the shorter drive");
+
+  // The closed-weekday rule, for any water: no dates means all season.
+  const test = { id: "test-days", species: "perch", spot: "lake-fenwick", ok: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], closedDays: [{ dow: [5] }], rules: "confirmed" };
+  ok(T.season(test, { y: 2026, m: 12, d: 4, iso: "2026-12-04" }) === null && T.season(test, { y: 2026, m: 12, d: 5, iso: "2026-12-05" }) === "ok", "a closed weekday with no dates is shut every week (Fridays here)");
+  const wsat = { ...test, closedDays: [{ dow: [0, 1, 2], from: "09-01", to: "09-30" }] }; // the Carbon: Wednesdays to Saturdays only in September
+  ok(T.season(wsat, { y: 2026, m: 9, d: 27, iso: "2026-09-27" }) === null && T.season(wsat, { y: 2026, m: 9, d: 26, iso: "2026-09-26" }) === "ok" && T.season(wsat, { y: 2026, m: 10, d: 4, iso: "2026-10-04" }) === "ok",
+    "and with dates only between them (a Sunday in September shut, a Saturday and an October Sunday open)");
+  const wrap = { ...test, closedDays: [{ dow: [3], from: "12-15", to: "01-15" }] };
+  ok(T.season(wrap, { y: 2026, m: 12, d: 30, iso: "2026-12-30" }) === null && T.season(wrap, { y: 2027, m: 1, d: 6, iso: "2027-01-06" }) === null && T.season(wrap, { y: 2027, m: 1, d: 20, iso: "2027-01-20" }) === "ok",
+    "a closed-weekday window can run over the new year");
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

@@ -567,6 +567,129 @@
       more: [["steelhead", "green-river", "steel-watch"], ["steelhead", "green-river", "river-watch-float"], ["steelhead", "green-river", "salmon-float-jig-build"]]
     };
   };
+  // ---- The Puyallup (2026-11-27) -------------------------------------
+  // One template for every Puyallup salmon plan: the fish's parts and the
+  // spot's parts, put together. Rules are the 2026-27 WDFW pamphlet's,
+  // checked word for word on 2026-11-27 (rigs/trips.js has the quotes).
+  // Coach's own days: Aug 22 at Sumner, the first Saturday, crowded and
+  // nobody hooked up; Aug 28 at Sumner, a friend's big king on corkies;
+  // Oct 17 at the 128th St E bridge, low and slow at 862 cfs.
+  var PUY_FISH = {
+    king: {
+      what: function (at) { return "Kings from the bank on the Puyallup at " + at + ". Corky and yarn or a float. A hatchery king is yours to keep, a wild one goes back."; },
+      bait: { first: "Corky and yarn on one barbless single hook.", backup: ["Float and jig, 1/4 oz, through the slower seams.", "Float and cured eggs in the deep slow slots."] },
+      during: ["Corky and yarn in the faster water, ticking the bottom.", "Float and jig through the slower seams.",
+        "A king on: check the fin before you keep it. Adipose fin still on means wild, and it goes back in the water."],
+      expect: ["Kings late August to early September.", "The August river is glacier melt: high, steady and milky."]
+    },
+    coho: {
+      what: function (at) { return "Coho from the bank on the Puyallup at " + at + ". They come in from mid September and run through October, and rain brings them."; },
+      bait: { first: "Float and jig, 1/4 oz.", backup: ["Corky and yarn for faster water.", "Float and cured eggs for the slow deep slots."] },
+      during: ["Float and jig first. Cast up and across, let it drift dead.", "No takes in a few passes: add a small twitch every five or six feet of drift.",
+        "Faster water: corky and yarn, ticking the bottom."],
+      expect: ["Coho from mid September through October.", "The first real fall rain pulls a fresh push in. Rising water muddies fast: the day it drops is the one."]
+    },
+    pink: {
+      what: function (at) { return "Pinks on the Puyallup at " + at + ", odd years only. Small and pink, fished slow."; },
+      bait: { first: "Small pink jig under a float.", backup: ["Pink corky and yarn."], note: "Pinks have a soft mouth. Easy on the hookset." },
+      during: ["Small pink jig under the float, through the softer slots off the main push.", "Steady lift on the bite, no hard jerk."],
+      expect: ["Odd years only. The next run is 2027.", "Keep the bright ones. They turn dark and soft fast in the river."]
+    }
+  };
+  var CARBON = "The Carbon River comes in about 3/4 mile upstream. Above it the Puyallup is closed to salmon all year. The Carbon, mouth to Voight Creek: Sept 1 to Oct 31, Wednesday to Saturday only in September. Voight Creek up to the Hwy 162 bridge is closed water.";
+  var PUY_SPOT = {
+    "puyallup-sumner": {
+      at: "Two-Rivers Point, Sumner",
+      setup: ["Park at the State Street Trailhead and walk out to the point.",
+        "Face the Puyallup, across the river. The White is at your back, and it is closed to salmon."],
+      during: ["Cast into the Puyallup only."],
+      // head: the spot row's line on the face of the card. ruleHead: the
+      // rules row's. The closed water goes on the face, not only inside.
+      head: "Cast into the Puyallup only, never into the White behind you.",
+      ruleHead: "The White is closed to salmon. 6 salmon a day, no more than 2 adults.",
+      spot: ["Two-Rivers Point in Sumner, the strip of land between the Puyallup and the White, just above where they join.",
+        "Stand on the point and cast into the Puyallup. Never cast into the White behind you: it is closed to salmon.",
+        "Park at the City of Sumner State Street Trailhead, 13114 63rd St E. Public parking and restrooms, the restrooms in daylight hours. The point is a few hundred feet west of the trailhead.",
+        "River level: USGS gauge 12101500, Puyallup River at Puyallup."],
+      unknown: ["How many cars the trailhead holds, and its hours", "The walking route from the trailhead to the point"],
+      expect: { king: ["The first weekend is a crowd. Aug 22, the first Saturday, nobody hooked up.", "Aug 28 was the day: a friend took a big king here."] },
+      note: { king: "Corkies took the big king here on Aug 28." },
+      rules: ["The White River behind you is closed to salmon. Cast into the Puyallup only."],
+      gear: []
+    },
+    "puyallup-128th": {
+      at: "the 128th St E bridge",
+      setup: ["Park at the WDFW Weiss lot, end of 116th St E, with the pass on the dash.",
+        "Fish from public ground. Stay off the private roads and farm fields."],
+      during: ["Stay below the Carbon River mouth. Above it is closed to salmon."],
+      // The Carbon comes in about 3/4 mile up (1.15 km, OSM). From its mouth
+      // up, the Puyallup has no salmon line in the pamphlet: closed all year.
+      // The Carbon, mouth to Voight Creek (CRC 802): all species "Sept.
+      // 1-Oct. 31", and "Sept. 1-Sept. 30 Open Wednesdays through Saturdays
+      // only." The river bed line is one 2018 angler report
+      // (northwestfishingreports.com/Reports/Details/57439), said as that.
+      head: "Stay below the Carbon River mouth, 3/4 mile upstream.",
+      ruleHead: "Salmon closed above the Carbon. 6 salmon a day, no more than 2 adults.",
+      spot: ["The 128th St E bridge over the Puyallup, about 3/4 mile below the Carbon River.",
+        CARBON,
+        "One 2018 report saw two people fishing the river bed at the bridge.",
+        "Park at the WDFW Weiss access at the end of 116th St E, on the west bank about 3/4 mile below the bridge. Open to cars only in the fishing season. One unimproved ramp, no restrooms.",
+        "Weiss needs a Discover Pass, or the Vehicle Access Pass that comes free with an annual fishing license.",
+        "Stay off the private roads and farm fields.",
+        "River level: USGS gauge 12101500, Puyallup River at Puyallup."],
+      unknown: ["Parking at the bridge itself", "Which bank at the bridge is public"],
+      expect: { coho: ["Oct 17 was low and slow here, 862 cfs at the gauge."] },
+      note: {},
+      rules: [CARBON],
+      gear: [{ i: "Discover Pass, or your license's Vehicle Access Pass", s: "check", n: "For the WDFW Weiss lot." }]
+    }
+  };
+  var PUY_RULES = ["Open Aug 19 to Oct 31: the Puyallup from 400 ft above Clark's Creek to the Carbon River (catch record code 804).",
+    "Closed Sundays, Mondays and Tuesdays until Sept 30. Open every day in October.",
+    "6 salmon a day, no more than 2 adults. 12 inch minimum. Release chum and wild Chinook.",
+    "Adults: kings 24 inches and up, coho 20, pinks and chum 12. Once you keep 2 adults, your salmon day is done.",
+    "Barbless hooks. Anti-snagging rule: one single point hook, 3/4 inch or less point to shank, at or below the lure or bait. No weight below the lure or bait, and none less than 12 inches above it.",
+    "The one exception: a buoyant lure with no weight added to the line or lure. Then up to three hooks on one line, still barbless.",
+    "Night closure: one hour after sunset to one hour before sunrise.",
+    "Catch record card required. These are the 2026 dates, from the 2026-27 WDFW pamphlet."];
+  var PUY_HOW = {
+    corky: ["Corky: cast across and slightly up, follow with the rod tip. You want tick, tick, tick on the bottom.", "When the ticking stops, set the hook."],
+    float: ["Float: cast up and across and let it drift at the speed of the surface foam, the jig about a foot off the bottom."],
+    // The pamphlet: "Weights may not be attached below or less than 12"
+    // above the lure or bait." A corky rides above the hook, so it is the
+    // corky (the lure) the 12 inches is measured from.
+    rule: ["Keep the weight 12 inches or more above the corky, jig or bait, never below it. That is the anti-snagging rule."]
+  };
+  KINDS.puyallup = function (p) {
+    var f = PUY_FISH[p.species], s = PUY_SPOT[p.spot];
+    if (!f || !s) return null;
+    return {
+      what: f.what(s.at),
+      setup: s.setup.concat(["Read the water before you tie on: fast and broken means corky, slow seams mean float."]),
+      during: f.during.concat(s.during, ["Off the water one hour after sunset. Night closure."]),
+      wrap: ["Fill in the catch record card before you leave.", "Wild kings and every chum go back."],
+      gear: [
+        { i: "River rod, 7.5 ft, 30 lb braid", s: "have" },
+        { i: "Corky gear", s: "have", n: "You said you have everything for corky fishing." },
+        { i: "Floats 1/4 or 3/8, bobber stops, beads", s: "check" },
+        { i: "Jigs, 1/4 oz", s: "check" },
+        { i: "Barbless single point hooks, 3/4 inch or less point to shank", s: "check", n: "Pinch the barbs. Barbless on every rig here." },
+        { i: "Net, pliers, cooler", s: "check" },
+        { i: "License and salmon catch record card", s: "check" }
+      ].concat(s.gear),
+      bait: { first: f.bait.first, backup: f.bait.backup, note: (s.note && s.note[p.species]) || f.bait.note || "" },
+      // how: the rig the fish's bait leads with comes first (kings the corky, coho and pinks the float)
+      how: (p.species === "king" ? PUY_HOW.corky.concat(PUY_HOW.float) : PUY_HOW.float.concat(PUY_HOW.corky)).concat(PUY_HOW.rule),
+      spot: { head: s.head, lines: s.spot, unknown: s.unknown },
+      ruleHead: s.ruleHead,
+      expect: ((s.expect && s.expect[p.species]) || []).concat(f.expect),
+      rules: s.rules.concat(PUY_RULES),
+      checked: "2026-11-27",
+      more: (p.species === "king" ? ["salmon-corky-build", "salmon-corky-fish", "salmon-float-jig-build", "salmon-float-jig-fish"]
+        : ["salmon-float-jig-build", "salmon-float-jig-fish", "salmon-corky-build", "salmon-corky-fish"]).concat([p.spot + "-spot", "puyallup-rules"])
+        .map(function (card) { return [p.species, p.spot, card]; })
+    };
+  };
   RIG.trips.kinds = KINDS;
   // Generated plans (CastAI waters) are rebuilt each time the feed lands.
   RIG.trips.buildRuns = function () {

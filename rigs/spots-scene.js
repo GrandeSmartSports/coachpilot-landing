@@ -378,7 +378,7 @@
         glacial: true, braid: true,                              // likely: a wide braided gravel river with glacial colour
         span: true,                                              // proven: the county road bridge, its deck and rail across the river
         fields: true,                                            // proven: farm fields and scattered houses on both banks
-        bed: true                                                // proven: anglers fish the river bed at the bridge (you stand on its gravel)
+        bed: true                                                // one 2018 report: two people fishing the river bed at the bridge (you stand on its gravel)
       }                                                          // NO park, NO lot, NO Rainier
     },
 

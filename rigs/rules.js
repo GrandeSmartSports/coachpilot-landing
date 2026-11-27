@@ -31,7 +31,12 @@
     "des-moines-pier": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])11(?![-.\d])|Des Moines/i },
     "fox-island": { re: /Marine Areas?\b[^.\n]{0,80}?(?<![-.\d])13(?![-.\d])|Fox Island/i },
     "tokul": { re: /Tokul|Snoqualmie/i, named: true },
-    "cowlitz": { re: /Cowlitz/i, named: true }
+    "cowlitz": { re: /Cowlitz/i, named: true },
+    // Any rule that names the Puyallup counts, for every fish (WDFW closed it
+    // and the Carbon to salmon in-season in 2010 when the hatchery was short).
+    "puyallup-sumner": { re: /Puyallup/i, named: true },
+    "puyallup-128th": { re: /Puyallup/i, named: true },
+    "puyallup-orting": { re: /Puyallup/i, named: true }
   };
   var SALMON = /salmon|coho|chinook|\bkings?\b|chum|pinks?\b|steelhead|all species/i;
   var FISH = {

@@ -1124,6 +1124,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       out = out.concat(own(sp.cards));
       (sp.locations || []).forEach(function (l) { out = out.concat(own(l.cards)); });
     });
+    // and a spot's own cards (Orting's rules), so they go in a trip too
+    spots().forEach(function (s) { out = out.concat(own(spotCards(s))); });
     return out;
   }
 
@@ -1249,8 +1251,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     });
   }
   // A spot with no cards behind it is an empty widget, so it never shows.
+  // Its cards are its fish's, or its own (Orting: rules, and no fish).
+  function spotCards(s) { return (s && s.cards) || []; }
   function spotsOfType(t) {
-    return spots().filter(function (s) { return s.types.indexOf(t) !== -1 && speciesAt(s.id).length; });
+    return spots().filter(function (s) { return s.types.indexOf(t) !== -1 && (speciesAt(s.id).length || spotCards(s).length); });
   }
 
   // ---- pictures for the library --------------------------------------------
@@ -1312,15 +1316,19 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return { y: dt.getFullYear(), m: dt.getMonth() + 1, d: dt.getDate(), dow: dt.getDay(),
       iso: dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2) };
   }
-  // A fish now: "hot" (a hot trip for it this week), "on" (in season), or
-  // { back: "Back in March" } with when it comes back. null: no plan says.
+  // A fish now: "hot" (a hot trip for it this week), "on" (in season, and
+  // its rules read for today), or { back: "Back in March" } with when it
+  // comes back. null: no plan says, or it is in season but no plan's rules
+  // hold today (2027 pinks before the pamphlet is read): never "In now" then.
   function fishNow(sp) {
     var plans = ((RIG.trips && RIG.trips.plans) || []).filter(function (p) { return p.species === sp.id; });
     if (!plans.length || !RIG.trips.season) return null;
     var trips = weekTrips().filter(function (t) { return t.species === sp.id; });
     if (trips.some(function (t) { return t.heat === "Hot"; })) return "hot";
     var now = new Date(), today = dayOf(now);
-    if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today); })) return "on";
+    var ruled = function (p) { return !RIG.trips.ruleOn || RIG.trips.ruleOn(p, today) === "confirmed"; };
+    if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today) && ruled(p); })) return "on";
+    if (plans.some(function (p) { return RIG.trips.season(p, today); })) return null;
     for (var i = 0; i < 26; i++) {
       var dt = new Date(now.getFullYear(), now.getMonth() + (i >> 1), i % 2 ? 15 : 1), day = dayOf(dt);
       if (dt <= now) continue;
@@ -1470,7 +1478,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     cameFrom = t.id;
     var list = spotsOfType(t.id), wx = plannerReady() && RIG.trips.cached ? RIG.trips.cached() : null;
     var rows = list.map(function (s) {
-      var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ");
+      var names = speciesAt(s.id).map(function (sp) { return sp.name; }).join(", ") || s.fish || "";
       return '<a class="row pic" href="#/spot/' + esc(s.id) + '" data-spot="' + esc(s.id) + '">' + viewHtml(spotKind(s.id), "tile", placePaint(s.id, "", { data: wx, type: t.id })) +
         '<span class="tx"><b>' + esc(s.name) + "</b><span>" + esc(s.where) + '</span><span class="rm">' + esc(names) + "</span></span>" + IC.chev + '</a>';
     }).join("");
@@ -1539,6 +1547,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<a class="row pic" href="#/' + esc(sp.id) + "/" + esc(s.id) + '" data-row-species="' + esc(sp.id) + '">' + fishHtml(sp.id, "fishtile") +
         '<span class="tx"><b>' + esc(sp.name) + "</b>" + (sp.hint ? '<span class="whole">' + esc(sp.hint) + "</span>" : "") + '<span class="rm">' + n + (n === 1 ? " card" : " cards") + "</span></span>" + IC.chev + '</a>';
     }).join("");
+    // A spot's own cards (Orting: its rules and its park) follow its fish,
+    // and a closed fish is said plainly under them, on the red edge.
+    rows += spotCards(s).map(function (c) { return rowHtml(c, "#/spot/" + s.id + "/" + c.id); }).join("");
+    var closed = s.closed ? '<div class="rule" data-spot-closed><span class="tx"><b>' + esc(s.closed.head) + "</b><span>" + esc(s.closed.line) + "</span></span></div>" : "";
     var t = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
     // the week's trips to this spot, under its fish: each day under its own
     // heading, as Hot Trips has it (its day, its light, its count), so two
@@ -1553,7 +1565,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("water", t && t.id, spotKind(s.id), placePaint(s.id, "", t ? { type: t.id } : null)) +
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
         chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
-        '<div class="float list">' + rows + "</div>" +
+        (spotCards(s).some(function (c) { return c.dated; }) ? '<div data-rules-slot' + slotAttrs(s.id, "", oldestDated(spotCards(s))) + "></div>" : "") +
+        '<div class="float list">' + rows + "</div>" + closed +
         (here ? '<section class="grp" data-spot-trips><h2 class="sect">Trips here this week</h2>' + here + "</section>" : "") +
         (seasons ? '<section class="grp" data-spot-seasons><h2 class="sect">When it fishes</h2><div class="panel list">' + seasons + "</div></section>" : "") + "</div>" + tripBarHtml();
   }
@@ -1830,7 +1843,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         if (miniKeys.length > 160) delete miniMemo[miniKeys.shift()];
       }
     }
-    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '">' + art + "</span>";
+    return '<span class="tile' + (cls ? " " + cls : "") + (LOOK ? "" : " plain") + '" data-mini="' + kind + '" data-under="' + under + '"' +
+      (paint && paint.spot ? ' data-mini-spot="' + esc(paint.spot) + '"' : "") + ">" + art + "</span>";
   }
   function heatTag(t) { return '<span class="tag ' + (t.heat === "Hot" ? "hot" : "good") + '">' + esc(t.heat) + "</span>"; }
 
@@ -3534,7 +3548,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       if (t.flow) out.push({ id: "river", tab: "River", title: "River flow", body: riverHtml(t.flow) });
     }
     out.push(
-      { id: "spot", tab: "The spot", title: "The spot", body: stepsHtml(run.spot.lines) +
+      // head: a run may name the line its spot row says (closed water first).
+      { id: "spot", tab: "The spot", title: "The spot", body: (run.spot.head ? whenP(run.spot.head) : "") + stepsHtml(run.spot.lines) +
         (run.spot.unknown.length ? boxHtml("law", "not confirmed yet", stepsHtml(run.spot.unknown)) : "") },
       { id: "expect", tab: "What to expect", title: "What to expect", body: stepsHtml(run.expect) },
       { id: "rules", tab: "Rules", title: "Rules", body:
@@ -3562,7 +3577,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (f.ends) lines.push("The NOAA river forecast runs to " + f.ends + ".");
     return whenP(head) + stepsHtml(lines) +
       boxHtml("tip", "the numbers", stepsHtml(["Up to " + cfsTxt(f.good) + " cfs: fishable.", cfsTxt(f.good) + " to " + cfsTxt(f.high) + " cfs: high, tough.",
-        "Over " + cfsTxt(f.high) + " cfs: blown out, no trip.", "Guide numbers for " + f.gauge + ". They get tuned after real trips."])) +
+        "Over " + cfsTxt(f.high) + " cfs: blown out, no trip.", (f.lead ? "Starting numbers for " : "Guide numbers for ") + f.gauge + ". They get tuned after real trips."])) +
       boxHtml("", "check it live", '<a href="https://waterdata.usgs.gov/monitoring-location/' + esc(f.usgs) + '/" target="_blank" rel="noopener">USGS gauge, ' + esc(f.gauge) + '</a>');
   }
   function moreRows(run) {
@@ -3688,13 +3703,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var w = document.documentElement.clientWidth;
     if (w !== fitWidth) { fitWidth = w; refit(); }
   });
-  // The rules row: the limit, whole. A rule is never trimmed into a different
-  // rule, so a clause is only left off when it holds no number and no
-  // restriction. If that leaves it long, the row takes a second line.
+  // The rules row: the limit, whole, or the line the run names for it
+  // (ruleHead: closed water next to the spot goes on the face of the card).
+  // A rule is never trimmed into a different rule, so a clause is only left
+  // off when it holds no number and no restriction. If that leaves it long,
+  // the row takes a second line.
   function ruleLine(run) {
     var all = [];
     (run.rules || []).forEach(function (r) { all = all.concat(sentences(r)); });
-    var line = all.filter(function (x) { return /\ba day\b/.test(x); })[0] || all[0] || "", room = lineRoom(), cuts = [], re = /[,;](?=\s)/g, m, i;
+    var line = (run.ruleHead && sentences(run.ruleHead).join(". ")) || all.filter(function (x) { return /\ba day\b/.test(x); })[0] || all[0] || "", room = lineRoom(), cuts = [], re = /[,;](?=\s)/g, m, i;
     if (lineWidth(line) <= room) return line;
     while ((m = re.exec(line))) cuts.push(m.index);
     for (i = cuts.length - 1; i >= 0; i--) {
@@ -3731,6 +3748,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function secLineHtml(c, t, run, planId, less) {
     if (c.id === "plan" || c.id === "river" || c.id === "wx") return "<span>" + esc(secLine(c, t, run)) + "</span>";
     if (c.id === "rules") return '<span class="whole" data-fit-rule="' + esc(planId) + '">' + esc(ruleLine(run)) + "</span>";
+    // A spot row the run names (closed water beside the stand) says it whole.
+    if (c.id === "spot" && run.spot && run.spot.head) return '<span class="whole">' + esc(sentences(run.spot.head).join(". ")) + "</span>";
     return lineHtml(secText(c, run), less);
   }
   // ---- the run card's own pictures ----------------------------------------
@@ -5572,9 +5591,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (parts[0] === "spot") {
       var s = findSpot(parts[1]);
       if (!s) { renderHome(); return; }
-      var at = speciesAt(s.id);
+      var at = speciesAt(s.id), own = spotCards(s), sc = parts[2] && own.filter(function (c) { return c.id === parts[2]; })[0];
+      if (sc) {
+        var ty = findType(s.types.indexOf(cameFrom) >= 0 ? cameFrom : s.types[0]);
+        renderCard({ tab: "water", active: ty && ty.id, card: sc, list: ordered(own), scene: spotKind(s.id), paint: placePaint(s.id, "", ty ? { type: ty.id } : null),
+          rules: sc.dated ? { spot: s.id, species: "", since: sc.dated } : null,
+          hrefFor: function (c) { return "#/spot/" + s.id + "/" + c.id; }, upHref: "#/spot/" + s.id, upText: s.name });
+        return;
+      }
       // One fish at this spot: a menu of one is a wasted tap.
-      if (at.length === 1) { location.replace("#/" + at[0].id + "/" + s.id); return; }
+      if (at.length === 1 && !own.length) { location.replace("#/" + at[0].id + "/" + s.id); return; }
       renderSpot(s);
       return;
     }

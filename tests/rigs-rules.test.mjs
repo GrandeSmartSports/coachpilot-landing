@@ -49,6 +49,10 @@ ok(m("Upper Green (Duwamish) River closure rescinded", "Salmon open.", "green-ri
 ok(!m("Copalis River closing to all fishing", "Rivers: closed.", "ocean-shores", "clams"), "a river closure does not flag the clam beach");
 ok(m("Razor clam digs approved for Mocrocks and Copalis", "Clams.", "ocean-shores", "clams"), "a dig announcement flags the clam trip");
 ok(m("Lake Fenwick closed", "Algae.", "lake-fenwick", "bass"), "a named lake flags any fish there");
+ok(m("Puyallup and Carbon rivers close to salmon fishing", "Coho: closed.", "puyallup-sumner", "coho") && m("Puyallup River closure", "All species.", "puyallup-128th", "king"),
+  "a Puyallup River rule flags the Puyallup trips");
+ok(m("Puyallup River from the Carbon upstream", "Trout.", "puyallup-orting", ""), "and Orting's page, which has no fish of its own");
+ok(!m("Upper Green (Duwamish) River closure rescinded", "Salmon open.", "puyallup-sumner", "coho") && !m("Puyallup River closure", "Salmon.", "green-river", "coho"), "the Green and the Puyallup do not flag each other");
 
 const data = { at: Date.now(), rules: [rule("Marine Area 11 salmon closes", "Salmon: closed.", "2026-11-25T18:00:00Z", "https://x/a"),
   rule("Marine Area 11 salmon opened", "Salmon: open.", "2026-11-01T18:00:00Z", "https://x/b")] };

@@ -1,0 +1,135 @@
+{
+ "_note": "NOAA NWPS stageflow answers, trimmed to a few points each (fetched 2026-11-27 from api.water.noaa.gov/nwps/v1/gauges/<id>/stageflow). PUYW1 lists STAGE first and flow second; AUBW1 lists flow (River Discharge) first. Used by tests/rigs-trips.test.mjs.",
+ "PUYW1": {
+  "observed": {
+   "pedts": "HGIRG",
+   "issuedTime": "2026-11-27T07:45:00Z",
+   "wfo": "SEW",
+   "timeZone": "PST8PDT",
+   "primaryName": "Stage",
+   "primaryUnits": "ft",
+   "secondaryName": "Flow",
+   "secondaryUnits": "kcfs",
+   "data": [
+    {
+     "validTime": "2026-10-28T08:15:00Z",
+     "primary": 9.94,
+     "secondary": 0.873
+    },
+    {
+     "validTime": "2026-10-28T08:30:00Z",
+     "primary": 9.95,
+     "secondary": 0.879
+    },
+    {
+     "validTime": "2026-11-27T07:30:00Z",
+     "primary": 11.7,
+     "secondary": 2.3
+    },
+    {
+     "validTime": "2026-11-27T07:45:00Z",
+     "primary": 11.73,
+     "secondary": 2.33
+    }
+   ]
+  },
+  "forecast": {
+   "pedts": "HGIFZ",
+   "issuedTime": "2026-11-26T22:56:00Z",
+   "wfo": "SEW",
+   "timeZone": "PST8PDT",
+   "primaryName": "Stage",
+   "primaryUnits": "ft",
+   "secondaryName": "Flow",
+   "secondaryUnits": "kcfs",
+   "data": [
+    {
+     "validTime": "2026-11-27T00:00:00Z",
+     "primary": 11.24,
+     "secondary": 1.85
+    },
+    {
+     "validTime": "2026-11-27T06:00:00Z",
+     "primary": 11.88,
+     "secondary": 2.49
+    },
+    {
+     "validTime": "2026-11-27T12:00:00Z",
+     "primary": 12.48,
+     "secondary": 3.18
+    },
+    {
+     "validTime": "2026-11-27T18:00:00Z",
+     "primary": 12.64,
+     "secondary": 3.39
+    }
+   ]
+  }
+ },
+ "AUBW1": {
+  "observed": {
+   "pedts": "QRIRZ",
+   "issuedTime": "2026-11-27T06:45:00Z",
+   "wfo": "SEW",
+   "timeZone": "PST8PDT",
+   "primaryName": "River Discharge",
+   "primaryUnits": "kcfs",
+   "secondaryName": "Stage",
+   "secondaryUnits": "ft",
+   "data": [
+    {
+     "validTime": "2026-10-28T08:15:00Z",
+     "primary": 0.45,
+     "secondary": 57.3
+    },
+    {
+     "validTime": "2026-10-28T08:30:00Z",
+     "primary": 0.45,
+     "secondary": 57.3
+    },
+    {
+     "validTime": "2026-11-27T06:30:00Z",
+     "primary": 0.498,
+     "secondary": 57.4
+    },
+    {
+     "validTime": "2026-11-27T06:45:00Z",
+     "primary": 0.514,
+     "secondary": 57.4
+    }
+   ]
+  },
+  "forecast": {
+   "pedts": "QRIFZ",
+   "issuedTime": "2026-11-26T22:42:00Z",
+   "wfo": "SEW",
+   "timeZone": "PST8PDT",
+   "primaryName": "River Discharge",
+   "primaryUnits": "kcfs",
+   "secondaryName": "Stage",
+   "secondaryUnits": "ft",
+   "data": [
+    {
+     "validTime": "2026-11-27T00:00:00Z",
+     "primary": 0.43541,
+     "secondary": 57.2
+    },
+    {
+     "validTime": "2026-11-27T06:00:00Z",
+     "primary": 0.53147,
+     "secondary": 57.4
+    },
+    {
+     "validTime": "2026-11-27T12:00:00Z",
+     "primary": 0.53678,
+     "secondary": 57.4
+    },
+    {
+     "validTime": "2026-11-27T18:00:00Z",
+     "primary": 0.52279,
+     "secondary": 57.4
+    }
+   ]
+  }
+ }
+}
