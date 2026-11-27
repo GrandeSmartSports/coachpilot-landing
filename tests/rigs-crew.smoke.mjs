@@ -361,6 +361,18 @@ try {
     ok(await p.locator('[data-view="join"] .cw-meet .av').count() === 2, "with the face of who added you, and yours");
     const going = await p.locator("[data-join-gets] .cw-get-going .av").evaluateAll((els) => els.map((e) => (e.classList.contains("seat") ? "+" : e.getAttribute("data-i"))));
     ok(JSON.stringify(going) === JSON.stringify(["C", "R", "+"]), "the Going picture shows the real people, who added you and you, and an open seat, never made-up faces", going);
+    // What Safari really shows above its bottom bar: an iPhone 14 (390 by 664)
+    // and an iPhone SE (375 by 548). Join and its line must be in view
+    // without a scroll, or a first-time person may not see it.
+    for (const [w, h, phoneName] of [[390, 664, "an iPhone 14"], [375, 548, "an iPhone SE"]]) {
+      await p.setViewportSize({ width: w, height: h });
+      await p.evaluate(() => window.scrollTo(0, 0));
+      await later(150);
+      const box = await p.locator("[data-join-go]").boundingBox(), line = await p.locator("[data-join-msg]").boundingBox();
+      ok(box && box.y >= 0 && box.y + box.height <= h && line && line.y + line.height <= h,
+        "on " + phoneName + " in Safari, Join and the line under it are in view without a scroll", { h, join: box, line });
+    }
+    await p.setViewportSize({ width: phone.viewport.width, height: phone.viewport.height });
     ok(await p.locator('[data-view="join"] .float').count() === 1 && await p.evaluate(() => {
       const c = document.querySelector('[data-view="join"] .float').getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect();
       return c.top < s.bottom - 24 && c.bottom > s.bottom;

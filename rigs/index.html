@@ -617,9 +617,6 @@ button.cw-prow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px
 .cw-catch-m>span+span::before{content:"\00b7";margin:0 7px;color:var(--t3)}
 .cw-cwho{gap:6px;white-space:nowrap}
 .cw-catch-m.cw-lure{margin-top:2px;color:var(--t1);font-weight:600}
-/* a join link: the pier stands taller, so the invitation sits low on the
-   first screen with the lit water above it, and no bare ground under it */
-html:has([data-view="join"]){--sceneh:400;--cardy:338}
 .cw-catch-n{margin:6px 0 0;font-size:14.5px;line-height:1.45;color:var(--t1);white-space:pre-wrap;overflow-wrap:anywhere}
 .cw-form{padding:14px;border-radius:18px;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
 .cw-photo{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
@@ -2542,9 +2539,12 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         }
       } else {
         // Signed out, or signed in on no crew (nothing to keep): the invite.
-        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" + getsHtml(pk.by || "", pk.name) +
+        // Join sits right under who added you, so it is in view above Safari's
+        // bottom bar even on a small iPhone; what joining gets you comes after.
+        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" +
           '<button class="gold cw-go" type="button" data-join-go>Join</button>' +
-          cwSaid(joinUi.msg, me && me.none ? "This phone is signed in, but not on a crew." : "One tap and you are in. No password.", "data-join-msg");
+          cwSaid(joinUi.msg, me && me.none ? "This phone is signed in, but not on a crew." : "One tap and you are in. No password.", "data-join-msg") +
+          getsHtml(pk.by || "", pk.name);
       }
     } else if (pk.dead) {
       body = '<p class="cw-lead" data-join-dead>' + esc(pk.status === 410 ? "That link is not good any more." : pk.error) + "</p>" +
