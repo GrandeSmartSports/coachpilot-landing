@@ -28,6 +28,10 @@ const BASE = "https://geigvuysptjvvqanumld.supabase.co";
 const FN = BASE + "/functions/v1/castai-crew";
 const KEY = "sb_publishable_m6EWBWxKPeOaVpPQOVDjyg_sTRWlnbe"; // publishable, the same one the page carries
 const CREW = "ZZTEST crew";
+// Names the walk gives the test crew, and takes back. A run that died halfway
+// is known by them, and the crew's name is put back before anything else.
+const NAME_PICK = "ZZTEST Two Fish Pros", NAME_OWNER = "ZZTEST Plateau Pro Staff", NAME_RACE = "ZZTEST Twelve Trips Two Fish";
+const TEMP_NAMES = ["ZZTEST crew two", NAME_PICK, NAME_OWNER, NAME_RACE, NAME_RACE + " too"];
 const PHONE = "(202) 555-0142"; // 555-01xx is set aside for fiction: nobody has this number
 const PHONE_AGAIN = "+1 202 555 0142";
 const PHOTOS = BASE + "/storage/v1/object/public/catch-photos/";
@@ -111,6 +115,16 @@ try {
 } catch (e) { skip("no network for sign-in (" + e.message + ")"); }
 if (!ok(owner.status === 200 && owner.token && member.status === 200 && member.token, "both ZZTEST accounts sign in", `${owner.status} ${member.status}`)) finish();
 const O = owner.token, M = member.token;
+
+// A run that died while the crew was being named: the owner puts the name
+// back, which closes naming too. Only a name this walk gives is ever undone.
+{
+  const was = await call(O, { action: "state" });
+  if (was.status === 200 && was.body.crew && was.body.crew.role === "owner" && TEMP_NAMES.includes(was.body.crew.name)) {
+    await call(O, { action: "crew_rename", name: CREW });
+    console.log("note  put the crew's name back from an earlier run");
+  }
+}
 
 // Never touch a crew that is not the test crew. This runs before any write.
 const first = await call(O, { action: "state" });
@@ -209,6 +223,8 @@ async function sweep() {
   const s = await call(O, { action: "state" });
   if (s.status !== 200 || !s.body.crew || s.body.crew.name !== CREW) return none;
   await setPrefs(O, RESET); await setPrefs(M, RESET);
+  // Naming left open by a run that died is closed again.
+  if (s.body.crew.nameOpen !== false) await call(O, { action: "crew_name_open", open: false });
   let trips = 0, people = 0;
   for (const t of s.body.trips || []) { if ((await call(O, { action: "trip_delete", tripId: t.id, tell: [] })).status === 200) trips++; }
   for (const m of s.body.members || []) {
@@ -240,7 +256,8 @@ async function walk() {
   ok(keys(so.body, ["me", "crew", "members", "trips", "sms"]) && keys(sm.body, ["me", "crew", "members", "trips", "sms"]), "state has exactly me, crew, members, trips and sms");
   ok(so.body.me.id === owner.id && so.body.me.name === "ZZTEST Owner" && keys(so.body.me, ["id", "name"]), "the owner is told who they are, by name", JSON.stringify(so.body.me));
   ok(sm.body.me.id === member.id && sm.body.me.name === "ZZTEST Member", "so is the member", JSON.stringify(sm.body.me));
-  ok(keys(so.body.crew, ["id", "name", "role"]) && so.body.crew.role === "owner" && sm.body.crew.role === "member", "each sees their own role on the crew");
+  ok(keys(so.body.crew, ["id", "name", "role", "nameOpen"]) && so.body.crew.role === "owner" && sm.body.crew.role === "member", "each sees their own role on the crew");
+  ok(so.body.crew.nameOpen === false && sm.body.crew.nameOpen === false, "and that the crew's name is not open: it has one", JSON.stringify(so.body.crew));
   ok(so.body.members.length === 2 && so.body.members.every((m) => keys(m, MEMBER_KEYS)), "two members, each an id, a name, a role, whether they take alerts and how they sign in", JSON.stringify(so.body.members));
   ok(so.body.members[0].id === owner.id && so.body.members[0].role === "owner" && so.body.members[1].id === member.id && so.body.members[1].name === "ZZTEST Member",
     "the owner is listed first, then the member, by name");
@@ -293,7 +310,8 @@ async function walk() {
   is(peek, 200, "peeking at a link needs no sign-in");
   ok(peek.body.ok === true && peek.body.name === "ZZTEST Temp" && peek.body.crew === CREW, "it says who the link is for and which crew", peek.text);
   ok(peek.body.by === "ZZTEST Owner", "and who made it, by name", peek.text);
-  ok(!("token_hash" in peek.body) && keys(peek.body, ["ok", "name", "crew", "by"]), "a peek mints nothing", peek.text);
+  ok(!("token_hash" in peek.body) && keys(peek.body, ["ok", "name", "crew", "by", "nameOpen"]), "a peek mints nothing", peek.text);
+  ok(peek.body.nameOpen === false, "and it says the crew already has its name", peek.text);
   const peekBare = await call(null, { action: "join", token: tokenOf(temp.body.link), peek: true });
   ok(peekBare.status === 200 && peekBare.body.name === "ZZTEST Temp", "the bare token works as well as the whole link", peekBare.text);
   const peekPasted = await call(null, { action: "join", token: "Here is your link " + temp.body.link + " see you Saturday", peek: true });
@@ -353,7 +371,7 @@ async function walk() {
   ok(old.status === 410 && old.body.error === "That link is not good any more. Ask for a new one.", "which revokes the one before it: 410", old.text);
   refused(await call(null, { action: "join", token: temp.body.link }), 410, "the revoked link mints nothing");
   const sess = await sessionFrom(a.body.link);
-  ok(sess.minted.status === 200 && keys(sess.minted.body, ["ok", "name", "crew", "by", "token_hash"]) && sess.minted.body.by === "ZZTEST Owner", "joining mints a token_hash", sess.minted.text.slice(0, 80));
+  ok(sess.minted.status === 200 && keys(sess.minted.body, ["ok", "name", "crew", "by", "nameOpen", "token_hash"]) && sess.minted.body.by === "ZZTEST Owner", "joining mints a token_hash", sess.minted.text.slice(0, 80));
   ok(sess.status === 200 && sess.token && sess.refresh && sess.id === temp.body.userId, "which the sign-in service turns into a real session for that person", sess.status);
   const T = sess.token;
   try {
@@ -940,6 +958,75 @@ try {
   ok(after.body.crew.name === "ZZTEST crew" && after.body.members.some((m) => m.name === "ZZTEST Member"), "both names are back as they were");
 }
 
+// ---- the crew's name: whoever joins picks it, once ----------------------------
+// Coach (11/27): "let Russ choose on his invite". The owner opens naming, the
+// member names it, the member cannot name it again, and the owner still can.
+// Whatever happens, the name goes back to ZZTEST crew and naming is closed.
+try {
+  const st = await call(O, { action: "state" });
+  ok(st.body.crew && st.body.crew.name === CREW && st.body.crew.nameOpen === false, "naming starts closed on the test crew", st.text.slice(0, 160));
+  refused(await call(M, { action: "crew_name_open", open: true }), 403, "a member cannot open the crew's name");
+  refused(await call(M, { action: "crew_rename", name: NAME_PICK }), 403, "nor name the crew while it is closed");
+  for (const bad of [undefined, "yes", 1, null]) refused(await call(O, { action: "crew_name_open", open: bad }), 400, "open as " + JSON.stringify(bad) + " is bad input");
+  ok((await call(M, { action: "state" })).body.crew.nameOpen === false, "none of that opened it");
+
+  const opened = await call(O, { action: "crew_name_open", open: true });
+  ok(opened.status === 200 && keys(opened.body, ["ok", "nameOpen"]) && opened.body.nameOpen === true, "the owner opens naming", opened.text);
+  const seenOpen = await call(M, { action: "state" });
+  ok(seenOpen.body.crew.nameOpen === true && seenOpen.body.crew.name === CREW && keys(seenOpen.body.crew, ["id", "name", "role", "nameOpen"]),
+    "the member sees it open, and the name is not changed by opening it", JSON.stringify(seenOpen.body.crew));
+
+  // A link opened while naming is open says so, so the join screen shows no stand-in name.
+  const namer = await call(O, { action: "invite", name: "ZZTEST Namer" });
+  ok(namer.status === 200 && LINK.test(namer.body.link), "someone new is added while naming is open", namer.text);
+  linkTokens.push(tokenOf(namer.body.link));
+  const namerPeek = await call(null, { action: "join", token: namer.body.link, peek: true });
+  ok(namerPeek.status === 200 && namerPeek.body.nameOpen === true && namerPeek.body.crew === CREW && keys(namerPeek.body, ["ok", "name", "crew", "by", "nameOpen"]),
+    "their link says the crew's name is open", namerPeek.text);
+  ok((await call(O, { action: "member_remove", userId: namer.body.userId })).status === 200, "and they are taken off again");
+
+  refused(await call(M, { action: "crew_rename", name: "   " }), 400, "an empty name is refused");
+  refused(await call(M, { action: "crew_rename", name: "x".repeat(61) }), 400, "a name over 60 characters is refused");
+  ok((await call(M, { action: "state" })).body.crew.nameOpen === true, "and a refused name leaves naming open");
+
+  const named = await call(M, { action: "crew_rename", name: "  " + NAME_PICK + " " });
+  ok(named.status === 200 && keys(named.body, ["ok", "name"]) && named.body.name === NAME_PICK, "the member names the crew, trimmed", named.text);
+  const afterPick = await call(O, { action: "state" });
+  ok(afterPick.body.crew.name === NAME_PICK && afterPick.body.crew.nameOpen === false, "everyone sees the name, and naming is closed", JSON.stringify(afterPick.body.crew));
+  const again = await call(M, { action: "crew_rename", name: NAME_RACE });
+  ok(again.status === 403 && again.body.error === "The crew has its name. Only the owner can change it.", "the member cannot rename it again, and is told why", again.text);
+  ok((await call(M, { action: "state" })).body.crew.name === NAME_PICK, "the first pick stands");
+
+  const byOwner = await call(O, { action: "crew_rename", name: NAME_OWNER });
+  ok(byOwner.status === 200 && byOwner.body.name === NAME_OWNER, "the owner still renames it", byOwner.text);
+  ok((await call(M, { action: "state" })).body.crew.name === NAME_OWNER, "and the member sees that");
+
+  // Two picks at the same instant: one name lands, the other is turned away.
+  ok((await call(O, { action: "crew_name_open", open: true })).status === 200, "naming is opened again");
+  const [r1, r2] = await Promise.all([call(M, { action: "crew_rename", name: NAME_RACE }), call(M, { action: "crew_rename", name: NAME_RACE + " too" })]);
+  const wins = [r1, r2].filter((r) => r.status === 200), lost = [r1, r2].filter((r) => r.status === 403);
+  ok(wins.length === 1 && lost.length === 1, "two names sent at once: exactly one lands", r1.status + " " + r2.status);
+  const raced = await call(O, { action: "state" });
+  ok(wins.length === 1 && raced.body.crew.name === wins[0].body.name && raced.body.crew.nameOpen === false, "and it is the one the crew sees, with naming closed", JSON.stringify(raced.body.crew));
+
+  // The owner renaming closes naming as well.
+  ok((await call(O, { action: "crew_name_open", open: true })).status === 200, "naming is opened once more");
+  ok((await call(O, { action: "crew_rename", name: NAME_OWNER })).status === 200 && (await call(M, { action: "state" })).body.crew.nameOpen === false,
+    "the owner's own rename closes naming");
+  ok((await call(O, { action: "crew_name_open", open: true })).status === 200 && (await call(O, { action: "crew_name_open", open: false })).body.nameOpen === false,
+    "and the owner can close it without renaming");
+} catch (e) {
+  ok(false, "the naming walk stopped early: " + (e && e.message));
+} finally {
+  const back = await call(O, { action: "crew_rename", name: CREW });
+  const shut = await call(O, { action: "crew_name_open", open: false });
+  const end = await call(M, { action: "state" });
+  ok(back.status === 200 && shut.status === 200 && end.body.crew && end.body.crew.name === CREW && end.body.crew.nameOpen === false,
+    "the test crew is ZZTEST crew again, with naming closed", end.text.slice(0, 160));
+  const left = (await call(O, { action: "state" })).body.members || [];
+  ok(left.length === 2, "and exactly its two members", left.length);
+}
+
 // ---- nothing real was sent --------------------------------------------------
 ok(everyAlert.length > 40, `every outbox row either account was shown was kept for checking (${everyAlert.length} readings)`);
 ok(everyAlert.every((r) => r.status !== "sent" && r.channel === null), "not one alert was ever sent: no text, no phone alert",
@@ -967,6 +1054,6 @@ for (const r of seen) {
 }
 ok(seen.length > 380, `every answer was kept for checking (${seen.length} of them)`);
 ok(leaks.length === 0, "no answer carried a phone number, an email, a link hash, a phone's alert address, a stack trace or a 500", leaks.slice(0, 6).join(" | "));
-ok(linkTokens.filter(Boolean).length === 7 && hashes.length === 7, "seven join links were handed out and the stored form of each was looked for in every answer", linkTokens.length);
+ok(linkTokens.filter(Boolean).length === 8 && hashes.length === 8, "eight join links were handed out and the stored form of each was looked for in every answer", linkTokens.length);
 
 finish();

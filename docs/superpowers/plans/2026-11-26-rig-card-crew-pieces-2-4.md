@@ -70,7 +70,7 @@ Body is JSON with `action`. Errors are `{ "error": "<plain words>" }` with a rea
 
 | action | body | answer |
 |---|---|---|
-| `state` | | `{ me: {id, name}, crew: {id, name, role} \| null, members: [{id, name, role}], trips: [Trip], sms: boolean }` |
+| `state` | | `{ me: {id, name}, crew: {id, name, role, nameOpen} \| null, members: [{id, name, role}], trips: [Trip], sms: boolean }`. nameOpen and naming the crew: see `2026-11-27-rig-card-crew-name.md`. |
 | `invite` | `{ name, phone? }` owner only | `{ ok, created: boolean, name, userId, link }`. With a phone: an existing account with that phone is attached, never doubled; already on the crew returns `created: false` and a fresh link. Without a phone: a new account. Every invited account gets a placeholder email if it has none (needed to mint the sign-in), never shown anywhere. |
 | `link` | `{ userId }` owner, or yourself | `{ ok, name, link }`. Older links for that person are revoked. |
 | `member_remove` | `{ userId }` owner only, never the owner himself | `{ ok }`. Their links are revoked. |

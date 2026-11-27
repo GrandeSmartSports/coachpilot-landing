@@ -7,7 +7,7 @@
 //
 //   no token:  hello, join
 //   cron key:  deliver (header x-cron-key, from the castai-crew-deliver job)
-//   token:     state, invite, link, member_remove, me_rename, crew_rename,
+//   token:     state, invite, link, member_remove, me_rename, crew_rename, crew_name_open,
 //              trip_create, trip_update, trip_delete, trip, going,
 //              comment_add, comment_delete, list_add, list_update, list_delete,
 //              catch_link, catch_delete,
@@ -20,7 +20,7 @@
 // number, an email or the reason for a fault.
 //
 //   lib.ts         the database client, answers and refusals, who the caller is
-//   people.ts      hello, join, state, invite, link, member_remove, me_rename, crew_rename
+//   people.ts      hello, join, state, invite, link, member_remove, me_rename, crew_rename, crew_name_open
 //   trips.ts       trips, going, notes, the list, catches
 //   alerts.ts      prefs, phones, the outbox, sending texts and phone alerts
 //   webpush.ts     the Web Push sender, a copy of _shared/webpush.ts
@@ -29,7 +29,7 @@ import {
   deliverCron, deliverMine, outbox, outboxClear, prefsGet, prefsSet, pushSubscribe, pushUnsubscribe, testAlert,
 } from "./alerts.ts";
 import { Body, caller, context, CORS, Ctx, json, Later, Refuse } from "./lib.ts";
-import { crewRename, hello, invite, join, link, memberRemove, meRename, state } from "./people.ts";
+import { crewNameOpen, crewRename, hello, invite, join, link, memberRemove, meRename, state } from "./people.ts";
 import {
   catchDelete, catchLink, commentAdd, commentDelete, going, listAdd, listDelete, listUpdate, tripCreate, tripDelete,
   tripFull, tripUpdate,
@@ -49,6 +49,7 @@ const CREW = new Map<string, (ctx: Ctx, body: Body) => Promise<unknown>>([
   ["member_remove", memberRemove],
   ["me_rename", meRename],
   ["crew_rename", crewRename],
+  ["crew_name_open", crewNameOpen],
   ["trip_create", tripCreate],
   ["trip_update", tripUpdate],
   ["trip_delete", tripDelete],

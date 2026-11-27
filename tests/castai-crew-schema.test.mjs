@@ -226,5 +226,17 @@ ok(/grant execute on function public\.castai_crew_accounts\(uuid\[\]\) to servic
 const fns3 = [...three.matchAll(/create (?:or replace )?function public\.(\w+)/gi)].map((m) => m[1]);
 ok(fns3.length === 1 && fns3.every((f) => /^castai_crew_/.test(f)), "every function carries the prefix too", fns3.join(","));
 
+// ---- naming the crew: whoever joins names it, once -------------------------
+const nameRaw = read("supabase/migrations/20261127_0900_castai_crew_name_open.sql");
+const nameSql = code(nameRaw);
+ok(/alter table public\.castai_crew add column if not exists name_open boolean not null default false;/i.test(nameSql),
+  "name_open is added once, and every crew already there gets false: Coach's own crew is not opened by the migration");
+ok(/alter table public\.castai_crew alter column name_open set default true;/i.test(nameSql), "a crew made from now on starts with its name open");
+ok(nameSql.indexOf("default false") >= 0 && nameSql.indexOf("default false") < nameSql.indexOf("set default true"), "the old rows are filled before the default turns to true");
+const nameAltered = [...nameSql.matchAll(/alter table (?:if exists )?(?:only )?([\w.]+)/gi)].map((m) => m[1]);
+ok(nameAltered.length === 2 && nameAltered.every((t) => t === "public.castai_crew"), "it alters castai_crew and nothing else", nameAltered.join(","));
+ok(!/\bdrop\b|\btruncate\b|\bdelete\b|\bupdate\b|\binsert\b|create policy|\bgrant\b/i.test(nameSql), "additive: no row is changed by hand, nothing is dropped, nothing is granted");
+ok(nameRaw.length > 0 && !longDash.test(nameRaw), "no long dashes in the file, comments included");
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

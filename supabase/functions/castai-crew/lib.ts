@@ -79,7 +79,7 @@ export type Ctx = {
   me: string;
   member: Member;
   owner: boolean;
-  crew: { id: string; name: string };
+  crew: { id: string; name: string; name_open: boolean };
   members: Member[];
   names: Map<string, string>;
   today: string;
@@ -109,10 +109,10 @@ export async function context(userId: string): Promise<Ctx | null> {
   const member = mine && mine[0];
   if (!member) return null;
   const [crewRes, membersRes] = await Promise.all([
-    db.from("castai_crew").select("id, name").eq("id", member.crew_id).maybeSingle(),
+    db.from("castai_crew").select("id, name, name_open").eq("id", member.crew_id).maybeSingle(),
     db.from("castai_crew_members").select(MEMBER_COLS).eq("crew_id", member.crew_id),
   ]);
-  const crew = must(crewRes, "crew") as { id: string; name: string } | null;
+  const crew = must(crewRes, "crew") as { id: string; name: string; name_open: boolean } | null;
   if (!crew) return null;
   const members = inOrder((must(membersRes, "members") || []) as Member[]);
   return {

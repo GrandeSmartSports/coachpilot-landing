@@ -19,6 +19,7 @@ const {
   KINDS, prefsView, prefsPatch, hears, cleanTell, audience, inQuiet, quietUntil, dayLabel, tripLink,
   statusNews, alertWords, textWords, pushWords, capReached, noteTooSoon, pushSubInput, wantsText, rowOutcome,
   DAILY_CAP, NOTE_GAP_MS, TRIPS_LINK, CREW_LINK,
+  crewRenameRefusal, cleanOpen, NAME_TAKEN,
 } = core;
 
 let pass = 0, fail = 0;
@@ -39,7 +40,8 @@ for (const name of ["canInvite", "inviteOutcome", "normalizePhone", "cleanText",
   "cleanAnswer", "joinToken", "newToken", "hashToken", "joinLink", "placeholderEmail", "ghostAccount",
   "inviteMade", "signInWith", "inviteAnswer", "linkRefusal", "seedLabels", "seedId", "photoUrl", "catchView",
   "prefsView", "prefsPatch", "hears", "cleanTell", "audience", "inQuiet", "quietUntil", "dayLabel", "tripLink",
-  "statusNews", "alertWords", "textWords", "pushWords", "capReached", "noteTooSoon", "pushSubInput", "wantsText", "rowOutcome"]) {
+  "statusNews", "alertWords", "textWords", "pushWords", "capReached", "noteTooSoon", "pushSubInput", "wantsText", "rowOutcome",
+  "crewRenameRefusal", "cleanOpen"]) {
   ok(fn(core[name]), `crew-core has ${name}`);
 }
 ok(!("catchInput" in core), "the first shape of a catch is gone: a crew catch is a CastAI catch now");
@@ -69,6 +71,21 @@ ok(!canInvite(null), "nobody invites when there is no membership");
 ok(inviteOutcome({ user: { id: "u1" }, member: { user_id: "u1" } }) === "already", "already on the crew");
 ok(inviteOutcome({ user: { id: "u1" }, member: null }) === "attach", "an existing account is attached");
 ok(inviteOutcome({ user: null, member: null }) === "create", "a new number gets an account");
+
+// ---- the crew's name: the owner's, and whoever joins picks it first -------
+// Coach (11/27): "How about we provide examples and let Russ choose on his
+// invite." While the name is open anyone on the crew names it, once.
+ok(crewRenameRefusal({ owner: true, nameOpen: false }) === null, "the owner renames the crew whenever he likes");
+ok(crewRenameRefusal({ owner: true, nameOpen: true }) === null, "including while it is open");
+ok(crewRenameRefusal({ owner: false, nameOpen: true }) === null, "a member names it while its name is open");
+const shut = crewRenameRefusal({ owner: false, nameOpen: false });
+ok(shut && shut.status === 403 && shut.words === NAME_TAKEN && plain(shut.words), "once it is named a member is turned away, in plain words", JSON.stringify(shut));
+ok(/only the owner/i.test(NAME_TAKEN) && /has its name/i.test(NAME_TAKEN), "and told why: it has its name, and only the owner changes it", NAME_TAKEN);
+ok(crewRenameRefusal({ owner: false })?.status === 403 && crewRenameRefusal({})?.status === 403, "not knowing whether it is open is a no");
+ok(crewRenameRefusal({ owner: "yes", nameOpen: "yes" })?.status === 403, "only a real true counts, never something that looks like one");
+ok(cleanOpen(true) === true && cleanOpen(false) === false, "open is true or false");
+for (const bad of [undefined, null, "true", 1, 0, "", {}, []]) ok(threw(() => cleanOpen(bad)), "open as " + JSON.stringify(bad) + " is refused");
+ok(plain(said(() => cleanOpen("yes"))), "in plain words", said(() => cleanOpen("yes")));
 
 // ---- small cleaners --------------------------------------------------------
 ok(JSON.stringify(SECTIONS) === JSON.stringify(["plan", "what", "gear", "bait", "how", "wx", "river", "spot", "expect", "rules"]),
@@ -574,7 +591,7 @@ else {
   ok(deadLink.status === 410 && /not good any more/.test(deadLink.body.error || ""), "a made-up join link is a dead link", JSON.stringify(deadLink));
   const noLink = await post({ action: "join" });
   ok(noLink.status === 400, "join with no link at all is bad input", JSON.stringify(noLink));
-  for (const a of ["invite", "trip_create", "member_remove", "catch_link", "prefs_get", "prefs_set", "push_subscribe", "test_alert", "outbox", "nonsense"]) {
+  for (const a of ["invite", "trip_create", "member_remove", "catch_link", "prefs_get", "prefs_set", "push_subscribe", "test_alert", "outbox", "crew_rename", "crew_name_open", "nonsense"]) {
     const r = await post({ action: a });
     ok(r.status === 401, `${a} with no sign-in is turned away`, JSON.stringify(r));
   }

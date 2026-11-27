@@ -59,6 +59,24 @@ export function ghostAccount({ user, otherCrews, ownsCrew } = {}) {
   return inviteMade(user) && !user.last_sign_in_at && otherCrews === 0 && ownsCrew === false;
 }
 
+// ---- the crew's name --------------------------------------------------------
+
+export const NAME_TAKEN = "The crew has its name. Only the owner can change it.";
+
+// The owner names the crew whenever he likes. While its name is open (a new
+// crew, or one the owner opened) anyone on it may name it, once: the first
+// name saved closes it again. null means yes; otherwise the status and words.
+export function crewRenameRefusal({ owner, nameOpen } = {}) {
+  if (owner === true || nameOpen === true) return null;
+  return { status: 403, words: NAME_TAKEN };
+}
+
+// Open or closed, as the owner sends it: exactly true or false.
+export function cleanOpen(value) {
+  if (value !== true && value !== false) say("Send open as true or false.");
+  return value;
+}
+
 // ---- small cleaners --------------------------------------------------------
 
 export function isUuid(v) {

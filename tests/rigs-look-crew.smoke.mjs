@@ -68,8 +68,8 @@ async function crew(ctx, o) {
   await ctx.route(/functions\/v1\/castai-crew/, (r) => {
     const b = JSON.parse(r.request().postData() || "{}"), a = b.action;
     if (a === "hello") return json(r, 200, { ok: true, sms: true, vapidKey: "BKey" });
-    if (a === "join") return json(r, 200, Object.assign({ ok: true, name: o.joinLong ? LONG.name : "Russell", crew: "ZZTEST crew", by: "Sam Owner" }, b.peek ? {} : { token_hash: "h" }));
-    if (a === "state") return json(r, 200, { me, crew: { id: "c1", name: "ZZTEST crew", role: o.who === "member" ? "member" : "owner" }, members, trips, sms: true });
+    if (a === "join") return json(r, 200, Object.assign({ ok: true, name: o.joinLong ? LONG.name : "Russell", crew: "ZZTEST crew", by: "Sam Owner", nameOpen: !!o.open }, b.peek ? {} : { token_hash: "h" }));
+    if (a === "state") return json(r, 200, { me, crew: { id: "c1", name: "ZZTEST crew", role: o.who === "member" ? "member" : "owner", nameOpen: !!o.open }, members, trips, sms: true });
     if (a === "prefs_get") return json(r, 200, { prefs: { texts: !!o.stopped, push: false, evTrips: true, evStatus: true, evNotes: true, evGearCatches: true, quietFrom: 21, quietTo: 6, textsStopped: !!o.stopped }, hasPhone: true, pushSubs: 0 });
     if (a === "trip") { const t = trips.find((x) => x.id === b.tripId); return t ? json(r, 200, Object.assign({ trip: t }, full[t.id])) : json(r, 404, { error: "gone" }); }
     if (a === "invite") return json(r, 200, { ok: true, created: true, name: b.name, userId: "u-new", link: "https://coachpilot.org/rigs/#/join/" + TOKEN, signIn: "link" });
@@ -99,6 +99,14 @@ const GROUPS = [
     { name: "a crew trip's own page", hash: "#/crew/trip/t-sat", view: "crewtrip", scene: "river", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-cond]" },
     { name: "a crew trip with its catches", hash: "#/crew/trip/t-mon", view: "crewtrip", scene: "pier", first: "[data-cw-plan]", wait: "[data-cw-catch]" },
     { name: "a crew trip that is still an idea", hash: "#/crew/trip/t-idea", view: "crewtrip", scene: "pier", first: "[data-cw-plan]", wait: "[data-cw-plan] [data-cw-tag]" }] },
+  // While nobody has named the crew: naming it, as the member who just
+  // joined and on the crew screen, and the owner's line about who names it.
+  { who: "member", open: true, screens: [
+    { name: "naming the crew, just after joining", hash: "#/crew/name", view: "crewname", scene: "pier", first: "[data-namepick-card]", wait: "[data-namepick-card] [data-namepick-own]",
+      act: async (p) => { if (await p.locator('[data-namepick="Two Fish Pros"][aria-pressed="true"]').count()) return; await p.click('[data-namepick="Two Fish Pros"]'); } },
+    { name: "the crew, a member, while it has no name", hash: "#/crew", view: "crew", scene: "pier", first: "[data-namepick-card]", wait: "[data-namepick-card] [data-namepick-own]" }] },
+  { who: "owner", open: true, screens: [
+    { name: "the crew, the owner, while it has no name", hash: "#/crew", view: "crew", scene: "pier", first: "[data-crew-card]", wait: "[data-crew-name-open]" }] },
   { who: "member", stopped: true, screens: [
     { name: "the alerts, with texts stopped", hash: "#/crew", view: "crew", scene: "pier", first: "[data-crew-card]", wait: "[data-al-stopped]" }] }];
 

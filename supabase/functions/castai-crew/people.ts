@@ -1,6 +1,7 @@
 // Who is on the crew and how they get in: the open questions (hello, join),
-// what a signed-in person sees (state), and the owner's three moves (add
-// someone, a new link, remove someone).
+// what a signed-in person sees (state), the owner's three moves (add
+// someone, a new link, remove someone), and names (your own, the crew's, and
+// whether the crew's is still open for whoever joins to pick).
 //
 // A join link signs a person in with no code, so one is only ever made, and
 // only ever honoured, for an account the invite itself created. An account
@@ -8,8 +9,8 @@
 //
 // A member's phone number or email never leaves this file. Names only.
 import {
-  addDays, canInvite, cleanText, DEAD_LINK, ghostAccount, hashToken, hears, inviteAnswer, inviteOutcome, joinLink, joinToken,
-  LINK_DAYS, linkRefusal, newToken, normalizePhone, placeholderEmail, signInWith,
+  addDays, canInvite, cleanOpen, cleanText, crewRenameRefusal, DEAD_LINK, ghostAccount, hashToken, hears, inviteAnswer, inviteOutcome,
+  joinLink, joinToken, LINK_DAYS, linkRefusal, NAME_TAKEN, newToken, normalizePhone, placeholderEmail, signInWith,
 } from "./crew-core.mjs";
 import { forgetAlerts, prefsFor } from "./alerts.ts";
 import { accounts, Body, clean, context, Ctx, db, must, refuse, smsOn, uuid } from "./lib.ts";
@@ -30,7 +31,8 @@ async function inviteMadeIt(userId: string): Promise<boolean> {
 }
 
 // A join link is the way in for someone the owner added by name. With peek it
-// only says who it is for and which crew, and nothing is minted: message
+// only says who it is for, which crew, and whether its name is still open (so
+// the page shows no stand-in name), and nothing is minted: message
 // previews load pages, and a preview must not burn or open anything. Without
 // peek it mints a one-time sign-in for that one account, which the page trades
 // for a session. A link that points at any other kind of account is dead,
@@ -43,19 +45,19 @@ export async function join(body: Body) {
   const inv = must(await db.from(INVITES).select("*").eq("token_hash", hash).maybeSingle(), "link") as Record<string, any> | null;
   if (!inv || inv.revoked || Date.parse(inv.expires_at) <= Date.now()) refuse(410, DEAD_LINK);
   const [crewRes, memberRes, byRes] = await Promise.all([
-    db.from("castai_crew").select("name").eq("id", inv!.crew_id).maybeSingle(),
+    db.from("castai_crew").select("name, name_open").eq("id", inv!.crew_id).maybeSingle(),
     db.from(MEMBERS).select("display_name").eq("crew_id", inv!.crew_id).eq("user_id", inv!.user_id).maybeSingle(),
     inv!.created_by && inv!.created_by !== inv!.user_id
       ? db.from(MEMBERS).select("display_name").eq("crew_id", inv!.crew_id).eq("user_id", inv!.created_by).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
   ]);
-  const crew = must(crewRes, "link crew") as { name: string } | null;
+  const crew = must(crewRes, "link crew") as { name: string; name_open: boolean } | null;
   const member = must(memberRes, "link member") as { display_name: string } | null;
   const by = must(byRes, "link maker") as { display_name: string } | null;
   // A link for someone who is no longer on the crew opens nothing.
   if (!crew || !member) refuse(410, DEAD_LINK);
   if (!(await inviteMadeIt(inv!.user_id))) refuse(410, DEAD_LINK);
-  const answer = { ok: true, name: member!.display_name, crew: crew!.name, by: by ? by.display_name : null };
+  const answer = { ok: true, name: member!.display_name, crew: crew!.name, by: by ? by.display_name : null, nameOpen: crew!.name_open === true };
   if (body.peek) return answer;
 
   const email = await emailFor(inv!.user_id);
@@ -75,7 +77,8 @@ export async function state(userId: string) {
   const [facts, prefs, trips] = await Promise.all([accounts(ids), prefsFor(ids), tripsSince(ctx, addDays(ctx.today, -30))]);
   return {
     me: { id: userId, name: ctx.member.display_name },
-    crew: { id: ctx.crew.id, name: ctx.crew.name, role: ctx.member.role },
+    // nameOpen: nobody has named the crew yet, and anyone on it may.
+    crew: { id: ctx.crew.id, name: ctx.crew.name, role: ctx.member.role, nameOpen: ctx.crew.name_open === true },
     // alerts: this person has a channel on, so they can be told. signIn: how they get in.
     members: ctx.members.map((m) => ({
       id: m.user_id, name: m.display_name, role: m.role,
@@ -214,12 +217,34 @@ export async function meRename(ctx: Ctx, body: Body) {
   return { ok: true, name };
 }
 
-// The crew's name is the owner's to set.
+// The crew's name. The owner sets it whenever he likes. While its name is
+// open, anyone on the crew may name it, once: the first name saved closes it,
+// and from then on only the owner renames it. A member's name only lands
+// while it is still open, checked in the same statement that writes it, so of
+// two people naming it at the same instant only the first one counts.
 export async function crewRename(ctx: Ctx, body: Body) {
-  if (!canInvite(ctx.member)) refuse(403, "Only the owner can rename the crew.");
+  const no = crewRenameRefusal({ owner: ctx.owner, nameOpen: ctx.crew.name_open === true }) as { status: number; words: string } | null;
+  if (no) refuse(no.status, no.words);
   const name = clean(() => cleanText(body.name, 60, "crew name"));
-  must(await db.from("castai_crew").update({ name }).eq("id", ctx.crew.id), "rename crew");
+  if (ctx.owner) {
+    must(await db.from("castai_crew").update({ name, name_open: false }).eq("id", ctx.crew.id), "rename crew");
+  } else {
+    const named = must(
+      await db.from("castai_crew").update({ name, name_open: false }).eq("id", ctx.crew.id).eq("name_open", true).select("id"),
+      "name crew",
+    ) as unknown[] | null;
+    if (!named || !named.length) refuse(403, NAME_TAKEN);
+  }
   return { ok: true, name };
+}
+
+// Owner only: open the crew's name, so the next person on it names it, or
+// close it again.
+export async function crewNameOpen(ctx: Ctx, body: Body) {
+  if (!canInvite(ctx.member)) refuse(403, "Only the owner decides who names the crew.");
+  const open = clean(() => cleanOpen(body.open) as boolean);
+  must(await db.from("castai_crew").update({ name_open: open }).eq("id", ctx.crew.id), "name open");
+  return { ok: true, nameOpen: open };
 }
 
 export async function memberRemove(ctx: Ctx, body: Body) {
