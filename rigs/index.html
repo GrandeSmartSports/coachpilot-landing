@@ -1628,7 +1628,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     var done = function () { cwBusy[key] = false; };
     try { Promise.resolve(work()).then(done, done); } catch (e) { done(); }
   }
-  function firstName(n) { return String(n || "").trim().split(/\s+/)[0] || "Coach"; }
+  function firstName(n) { return String(n || "").trim().split(/\s+/)[0] || "Someone"; }
   function crewHead(view) {
     return topHtml("trips", "crew") + '<div data-view="' + view + '">' +
       headHtml("The crew", "Fish together", "Everyone sees the same week.", { href: "#/trips", text: "Hot Trips" });
@@ -1648,7 +1648,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   function signinHtml() {
     var sms = crewUi.sms !== false, form;
     if (!sms) {
-      form = '<p class="cw-lead" data-nosms>Texted codes are off right now. Ask Coach for your link, then paste it here.</p>';
+      form = '<p class="cw-lead" data-nosms>Texted codes are off right now. Ask whoever runs your crew for your link, then paste it here.</p>';
     } else if (crewUi.step === "code") {
       form = cwField("The code we texted you", '<input data-code data-keep="code" data-enter="data-verify" type="text" inputmode="numeric" ' +
           'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("code") + '">') +
@@ -1662,7 +1662,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         cwSaid(crewUi.msg, "A code comes by text. It is free.", "data-crew-msg");
     }
     var paste = '<div class="' + (sms ? "cw-sec" : "") + '" data-join-box>' +
-      cwField(sms ? "Have a link from Coach? Paste it here" : "Paste your link here",
+      cwField(sms ? "Have a crew link? Paste it here" : "Paste your link here",
         '<input data-join-paste data-keep="paste" data-enter="data-join-send" type="text" autocapitalize="off" autocorrect="off" ' +
         'spellcheck="false" placeholder="The link, or the whole text" value="' + kv("paste") + '">') +
       '<button class="' + (sms ? "cw-plain" : "gold cw-go") + '" type="button" data-join-send>Join</button>' +
@@ -1995,7 +1995,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       : r.stale && r.error ? "Could not refresh. This is the last crew list this phone saw." : "";
     var noteHtml = note ? cwMsg(note, "", "data-crew-note") : "";
     if (!r.crew) {
-      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>' + out;
+      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p>' + out;
     }
     var owner = r.crew.role === "owner";
     var rows = (r.members || []).map(function (m) {
@@ -2069,7 +2069,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         '<button class="gold cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
     } else if (pk.dead) {
       body = '<p class="cw-lead" data-join-dead>' + esc(pk.status === 410 ? "That link is not good any more." : pk.error) + "</p>" +
-        cwMsg("Ask Coach to text you a new link. If Coach added your phone number, you can sign in with that instead.", "", "") +
+        cwMsg("Ask whoever runs your crew to text you a new link. If they added your phone number, you can sign in with that instead.", "", "") +
         '<a class="cw-plain" href="#/crew" data-join-signin>Sign in with my number</a>';
     } else {
       body = cwMsg(pk.offline ? "No signal. The link needs a signal the first time it is used." : pk.error || "That link could not be checked.", "no", "data-join-msg") +
@@ -2128,7 +2128,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       return true;
     }
     if (t.closest("[data-join-send]")) {
-      if (!RIG.crew.joinToken(v.paste || "")) { crewUi.joinMsg = { t: "That does not look like a crew link. Paste the whole text Coach sent you.", no: true }; crewRedraw(); return true; }
+      if (!RIG.crew.joinToken(v.paste || "")) { crewUi.joinMsg = { t: "That does not look like a crew link. Paste the whole text you were sent.", no: true }; crewRedraw(); return true; }
       cwOnce("join", function () {
         crewUi.joinMsg = { t: "Joining..." }; crewRedraw();
         return RIG.crew.join(v.paste).then(function (r) {
@@ -3304,7 +3304,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     if (cwT.nav) window.scrollTo(0, 0);
     if (!crewQuiet) wxLoad(newSync);
     if (!st || !st.crew) {
-      app.innerHTML = head + '<div class="cw float">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p>'
+      app.innerHTML = head + '<div class="cw float">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p>'
         : cwMsg(cwT.stErr || "Loading the crew...", cwT.stErr ? "no" : "", "data-cw-new-msg") +
           (cwT.stErr ? '<button class="cw-plain" type="button" data-cw-retry>Try again</button>' : "")) +
         (st ? '<a class="cw-plain" href="#/crew">The crew</a>' : "") + "</div></div>" + tripBarHtml();
@@ -3841,7 +3841,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     if (!d || !st) {
       var r = tripUi.res, body;
       if (tripUi.gone) body = '<p class="cw-lead" data-cw-gone>That trip is not here any more.</p><a class="cw-plain" href="#/trips">Back to the week</a>';
-      else if (st && !st.crew) body = '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask Coach to add you.</p><a class="cw-plain" href="#/crew">The crew</a>';
+      else if (st && !st.crew) body = '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p><a class="cw-plain" href="#/crew">The crew</a>';
       else if (r && !r.trip || !st && cwT.stErr) {
         body = cwMsg(r && r.offline ? "No signal, and this trip is not saved on this phone yet." : (r && r.error) || cwT.stErr || "The trip could not be loaded. Try again in a minute.", "no", "data-cw-trip-msg") +
           '<button class="cw-plain" type="button" data-cw-retry>Try again</button>';

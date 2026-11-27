@@ -200,7 +200,7 @@ try {
       return !!b && !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     ok(order, "phone number first, the pasted link under it");
-    ok(/Have a link from Coach\? Paste it here/.test(await screenText(p)), "the paste box says what it is for", await screenText(p));
+    ok(/Have a crew link\? Paste it here/.test(await screenText(p)), "the paste box says what it is for", await screenText(p));
     ok(await p.locator("[data-join-send]").count() === 1 && /^Join$/.test((await text(p, "[data-join-send]")).trim()), "with a Join button");
     ok(await p.locator('[data-view="crew"] .cw-go').count() === 1, "one gold button on the screen", await p.locator('[data-view="crew"] .cw-go').count());
     ok(await wide(p) <= 390, "nothing runs off the side at phone width", await wide(p));
@@ -272,7 +272,7 @@ try {
     await p.locator("[data-phone]").fill("2535550199");
     await p.locator("[data-sendcode]").click();
     await p.waitForFunction(() => (document.querySelector("[data-crew-msg]")?.innerText || "").trim().length > 0 && !/sending/i.test(document.querySelector("[data-crew-msg]").innerText));
-    ok((await text(p, "[data-crew-msg]")).trim() === "That number is not on the crew yet. Ask Coach to add you.", "a number not on the crew is told so, in those words", await text(p, "[data-crew-msg]"));
+    ok((await text(p, "[data-crew-msg]")).trim() === "That number is not on a crew yet. Ask whoever runs your crew to add you.", "a number not on the crew is told so, in those words", await text(p, "[data-crew-msg]"));
     ok(await p.locator("[data-phone]").count() === 1 && await p.locator("[data-code]").count() === 0, "and stays on the phone step");
     await ctx.close();
 
@@ -292,7 +292,7 @@ try {
     await p3.goto(base + "#/crew", { waitUntil: "load" });
     await p3.waitForSelector("[data-nosms]");
     ok(await p3.locator("[data-phone]").count() === 0 && await p3.locator("[data-sendcode]").count() === 0, "with texting off there is no phone form at all");
-    ok(/ask Coach for (a|your) link/i.test(await text(p3, "[data-nosms]")), "and it says to ask Coach for a link", await text(p3, "[data-nosms]"));
+    ok(/ask whoever runs your crew for (a|your) link/i.test(await text(p3, "[data-nosms]")), "and it says to ask whoever runs the crew for a link", await text(p3, "[data-nosms]"));
     ok(await p3.locator("[data-join-paste]").count() === 1 && await p3.locator('[data-view="crew"] .cw-go').count() === 1, "the pasted link is then the one main thing");
     ok(calls3.fn.length === 1 && calls3.fn[0].action === "hello", "that took one question, and no sign-in", calls3.fn);
     await ctx3.close();
@@ -338,7 +338,7 @@ try {
     await p.waitForSelector("[data-join-dead]");
     const t = await text(p, '[data-view="join"]');
     ok(/not good any more/i.test(t), "a dead link says so", t);
-    ok(/ask Coach/i.test(t) && /new (one|link)/i.test(t), "and how to get a new one", t);
+    ok(/ask whoever runs your crew/i.test(t) && /new (one|link)/i.test(t) && !/\bCoach\b/.test(t), "and how to get a new one, without calling anyone Coach", t);
     ok(await p.locator("[data-join-go]").count() === 0 && calls.verify.length === 0, "with no Join button");
     // Leaving the join screen always leaves it.
     await p.locator('.top [data-tab="water"]').click();
@@ -509,7 +509,7 @@ try {
     await signIn(p, { userId: "u-russ" });
     await p.goto(base + "#/crew", { waitUntil: "load" });
     await p.waitForSelector("[data-nocrew]");
-    ok(/not on a crew yet\. Ask Coach to add you\./.test(await text(p, "[data-nocrew]")), "someone on no crew is told so, and to ask Coach", await text(p, "[data-nocrew]"));
+    ok(/not on a crew yet\. Ask whoever runs your crew to add you\./.test(await text(p, "[data-nocrew]")), "someone on no crew is told so, and to ask Coach", await text(p, "[data-nocrew]"));
     ok(await p.locator("[data-crewname]").count() === 0 && await p.locator("[data-member]").count() === 0 && await p.locator("[data-signout]").count() === 1, "with no empty crew drawn, and a way to sign out");
     await ctx.close();
   }

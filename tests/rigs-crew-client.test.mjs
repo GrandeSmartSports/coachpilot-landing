@@ -187,7 +187,7 @@ function server(log = []) {
   ok(s.calls[0].body.phone === "+12535550147" && s.calls[0].body.create_user === false, "the number goes up in one shape, and never makes an account", s.calls[0].body);
 
   const unk = tab({ net: () => ({ status: 422, body: { error_code: "otp_disabled", msg: "Signups not allowed for otp" } }) });
-  ok(/not on the crew yet\. Ask Coach to add you\./.test((await unk.crew.sendCode("2535550199")).error || ""), "a number not on the crew is told to ask Coach");
+  ok(/not on a crew yet\. Ask whoever runs your crew to add you\./.test((await unk.crew.sendCode("2535550199")).error || ""), "a number not on the crew is told to ask Coach");
   const lim = tab({ net: () => ({ status: 429, body: { error_code: "over_sms_send_rate_limit", msg: "rate limit" } }) });
   const l = await lim.crew.sendCode("2535550147");
   ok(l.retryAfter > 0, "the sign-in server's own wait is passed on as a wait, not as a bad number", l);

@@ -256,7 +256,7 @@
       if (r.ok) { stamp(phone); return { ok: true }; }
       var code = authCode(r);
       if (code === "otp_disabled" || code === "user_not_found" || code === "signup_disabled" || /signups? not allowed/i.test(authMsg(r))) {
-        return { error: "That number is not on the crew yet. Ask Coach to add you.", unknown: true };
+        return { error: "That number is not on a crew yet. Ask whoever runs your crew to add you.", unknown: true };
       }
       if (r.status === 429 || /rate_limit/.test(code)) {
         stamp(phone);
@@ -297,7 +297,7 @@
   }
   function join(input, opts) {
     var token = joinToken(input), peek = !!(opts && opts.peek);
-    if (!token) return Promise.resolve({ error: "That does not look like a crew link. Paste the whole text Coach sent you.", status: 400 });
+    if (!token) return Promise.resolve({ error: "That does not look like a crew link. Paste the whole text you were sent.", status: 400 });
     return http("POST", FN, peek ? { action: "join", token: token, peek: true } : { action: "join", token: token }).then(function (r) {
       if (!r.ok || !isObject(r.body) || !r.body.ok) {
         var out = { error: words(r, r.status === 410 ? "That link is not good any more. Ask for a new one." : "That link could not be checked. Try again in a minute."), status: r.status };
