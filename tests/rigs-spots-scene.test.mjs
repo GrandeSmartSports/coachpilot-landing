@@ -14,7 +14,16 @@
 // conditions (tide, river, wind, rain, fog, moon, date) without throwing, for
 // the big scene, the row's thumbnail and the tile; today shows (tide on the
 // flats, the river's colour, wind, fog, moon); and RIG.spotNow reads today
-// out of the forecast the page keeps.
+// out of the forecast the page keeps. Fix round 1 adds the directions: the
+// water climbs the beach, the bank and the steps the right way as the tide
+// and the river rise; land never sits under the highest tide; the lawn in
+// front hides the pier's feet behind it; the moon is only where it can be;
+// spotNow never throws and reads the phone's own day; thumbnails keep a
+// beach empty after dark where its card says so.
+//
+// The clock is pinned to the Sound's own time zone, so the day a trip falls
+// on is the same on any machine that runs this.
+process.env.TZ = "America/Los_Angeles";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -84,9 +93,13 @@ for (const id of Object.keys(S).filter((k) => !/^w-l\d+$/.test(k) || k === "w-l4
 // ---- 2. Bonney Lake: no dock, no pier ------------------------------------------------
 const bon = S["w-l466"];
 ok(bon && bon.scene === "lake" && !bon.dock && !bon.pier && !bon.parts && bon.view !== "deck" && bon.view !== "side" && ["dock", "pier"].indexOf(bon.lake.stand) < 0 && bon.lake.stand === "gravel", "Bonney Lake's entry is a gravel launch with no dock and no pier", bon);
-for (const sky of ["overcast", "night"]) {
+{
   const h = paint(bon, { now: { date: D } }).innerHTML;
-  ok(!/class="w-(dock|decktop|planks|pp|pile2|t[2-5]|u[2-5])"/.test(h) && !/w-rail/.test(h) && /class="w-gravel"/.test(h), "Bonney Lake paints the gravel launch, with no dock, deck, piles or rail (" + sky + ")");
+  ok(!/class="w-(dock|decktop|planks|pp|pile2|t[2-5]|u[2-5])"/.test(h) && !/w-rail/.test(h) && /class="w-gravel"/.test(h), "Bonney Lake paints the gravel launch, with no dock, deck, piles or rail");
+  // the launch goes under along a ragged edge: no slab running on past the waterline
+  ok(!/class="w-rampw"/.test(h) && /class="w-gr3"/.test(h), "Bonney Lake's gravel thins out into the water: no slab past the waterline, stones in tones");
+  const am = paint(S["american-lake"], { now: { date: D } }).innerHTML;
+  ok(/class="w-ramp3"/.test(am) && /class="w-rampwet"/.test(am) && !/class="w-dock"/.test(am), "American Lake's concrete ramp darkens where the water reaches it, and no dock");
 }
 
 // ---- 3. no mountain the card does not put in view ----------------------------------------
@@ -114,15 +127,17 @@ ok([].concat(rp.lamps).some((l) => l.kind === "arm") && [].concat(rp.lamps).redu
 ok(parts(red, "float").length === 1 && parts(red, "float")[0].a[0] < 0 && parts(red, "ramp").length === 1 && parts(red, "rail").length === 1, "Redondo: the ramp, its float and pilings to the left, the seawall rail at your feet");
 const les = S["les-davis"], lp = parts(les, "pier")[0];
 ok(lp && lp.segs.length === 2 && (lp.shelters || []).length >= 2 && lp.lamps, "Les Davis: the long T with small roofed shelters and lamp posts");
-ok(parts(les, "house").some((h) => h.piles && h.at[0] > 0) && parts(les, "tree").length >= 1 && parts(les, "rocks").length >= 1 && parts(les, "ground").some((g) => g.cls === "w-lawn"), "Les Davis: Duke's on pilings to the right, a lawn, a shade tree, the riprap");
+ok(!parts(les, "house").length && parts(les, "tree").length >= 1 && parts(les, "rocks").some((r) => r.cls === "w-riprap") && parts(les, "ground").some((g) => /lawn/.test(g.cls)), "Les Davis: a lawn, a shade tree, dark riprap; Duke's (about 165 m east, 73 degrees right of this facing) is outside the picture");
+ok(les.eye > lp.deck + 1.1 && les.ground && les.ground.top >= les.tideRange + 0.3, "Les Davis: the eye stands above the pier's rail (the far shore shows over it), and a beach lies under the riprap");
 const dm = S["des-moines-pier"], dp = parts(dm, "pier")[0], dmL = Math.hypot(dp.segs[0].b[0] - dp.segs[0].a[0], dp.segs[0].b[1] - dp.segs[0].a[1]) + Math.hypot(dp.segs[1].b[0] - dp.segs[1].a[0], dp.segs[1].b[1] - dp.segs[1].a[1]);
 const dmLamps = Math.floor((dmL - dp.lamps.from) / dp.lamps.every) + 1;
 ok(dmLamps >= 6 && dmLamps <= 9 && dp.deck >= 7 && dp.segs.length === 2, "Des Moines: the long high pier, a slight bend at its end, a row of lamp posts (" + dmLamps + ")");
 ok(parts(dm, "rocks").some((r) => r.pts[0][0] < 0) && parts(dm, "log").length >= 1 && parts(dm, "shrub").length === 1, "Des Moines: the breakwater at the left, driftwood and a low shrub on the beach");
 const dash = S["dash-point"].stands.city, dsp = parts(dash, "pier")[0];
 ok(dsp && dsp.segs[1].b[0] > dsp.segs[1].a[0] && !dsp.crowd && !dsp.lamps && parts(dash, "kayak").length === 1, "Dash Point: from the kayak launch, the L turns right (east), closed: nobody on it and no lamps");
-const pd = S["point-defiance"], bh = parts(pd, "house")[0];
-ok(bh && bh.wall === "w-wallw" && bh.roofc === "w-roofg" && bh.roof === "hip" && bh.at[0] > 0 && parts(pd, "lamp").every((l) => l.kind === "lantern"), "Point Defiance: the white boathouse with its pale green hipped roof at the side, lantern-top lamp posts");
+const pd = S["point-defiance"], pdw = parts(pd, "pier")[0];
+ok(!parts(pd, "house").length && !parts(pd, "woods").length && !parts(pd, "float").length, "Point Defiance: from the dock the boathouse, the marina and the firs are behind you (OpenStreetMap), so none of them is in this picture");
+ok(pdw && pdw.rail === "wood" && [].concat(pdw.lamps).every((l) => l.kind === "lantern") && parts(pd, "ground").length === 1, "Point Defiance: the deck under you, the lit wooden walkway along its edge with its rail and a lantern-top lamp post");
 
 // ---- 5. the Green: two places, chosen by the trip ------------------------------------------
 const g = S["green-river"], pick = (fish) => { const e = paint(g, Object.assign({ now: { date: D } }, fish ? { fish } : {})); return e.innerHTML; };
@@ -181,15 +196,21 @@ for (const k of RIG.water.scenes) {
 
 // ---- 9. today shows ---------------------------------------------------------------
 const lo = (id, x) => paint(S[id], Object.assign({ now: { tide: 0, date: D } }, x || {})).innerHTML, hi = (id, x) => paint(S[id], Object.assign({ now: { tide: 1, date: D } }, x || {})).innerHTML;
-ok(/class="w-flat"/.test(lo("redondo")) && !/class="w-flat"/.test(hi("redondo")), "Redondo: low tide leaves the flats under the seawall, high tide covers them");
+// the first point of a path of that class: its y
+const firstY = (h, cls) => { const m = new RegExp('class="' + cls + '" d="M(-?[\\d.]+) (-?[\\d.]+)').exec(h); return m ? +m[2] : NaN; };
+const flatY = (id, tide) => firstY(paint(S[id], { now: { tide, date: D } }).innerHTML, "w-flat");
+ok(flatY("redondo", 0) < flatY("redondo", 0.5) && flatY("redondo", 0.5) < flatY("redondo", 1), "Redondo: the water's edge on the flats comes toward you as the tide rises", [flatY("redondo", 0), flatY("redondo", 0.5), flatY("redondo", 1)]);
+ok(flatY("dash-point", 0) < flatY("dash-point", 1) && flatY("des-moines-pier", 0) < flatY("des-moines-pier", 1), "Dash Point and Des Moines: the tide's edge comes up the beach as it rises");
 ok((lo("dash-point").match(/<ellipse/g) || []).length > (hi("dash-point").match(/<ellipse/g) || []).length, "Dash Point: low tide shows more of the flats than high tide");
 ok(lo("les-davis") !== hi("les-davis") && /class="w-wet"/.test(lo("les-davis")), "Les Davis: the tide stands at a different height on the pilings");
 const rLo = paint(S["green-river"], { fish: "coho", now: { river: 0, date: D } }).innerHTML, rHi = paint(S["green-river"], { fish: "coho", now: { river: 1, date: D } }).innerHTML;
-ok(/var\(--shore\) 26%/.test(rLo) && /var\(--hz\) 44%/.test(rHi), "the Green runs clear and dark when low, milky when it is up");
+const pc = (h, re) => { const m = re.exec(h); return m ? +m[1] : NaN; };
+ok(pc(rLo, /var\(--shore\) (\d+)%/) > pc(rHi, /var\(--shore\) (\d+)%/) && pc(rHi, /var\(--bg\)\) (\d+)%\)/) > 40 && pc(rLo, /var\(--bg\)\) (\d+)%\)/) === 0, "the Green runs clear and dark when low, up and coloured with silt (not the sky) when high");
+ok(!/class="w-driftw"/.test(rLo) && /class="w-driftw"/.test(rHi) && /class="w-siltl"/.test(rHi), "high water carries drift and leaves a line of silt on the bank");
 const gLo = paint(S["green-river"], { now: { river: 0, date: D } }).innerHTML, gHi = paint(S["green-river"], { now: { river: 1, date: D } }).innerHTML;
 ok((gLo.match(/w-st-/g) || []).length > 0 && gLo !== gHi, "Flaming Geyser: the gravel shows more at low water");
 const glac = paint(S["puyallup-sumner"], { now: { river: 0, date: D } }).innerHTML;
-ok(/var\(--hz\) 30%/.test(glac), "the Puyallup is glacial: milky even when low");
+ok(/var\(--hz\) 68%,var\(--r2\)\) 100%/.test(glac) && pc(glac, /var\(--bg\)\)+ (\d+)%\)/) >= 20 && !/var\(--hz\) 68%/.test(rLo), "the Puyallup is glacial: milky green-grey even when low (the Green is not)");
 const calm = paint(S.redondo, { now: { wind: 0 } }).innerHTML, rough = paint(S.redondo, { now: { wind: 1 } }).innerHTML;
 ok(!/w-caps/.test(calm) && /w-caps/.test(rough), "whitecaps come with the wind and not on glass");
 const fogged = paint(S["fox-island"], { now: { fog: 0.8 } });
@@ -197,7 +218,7 @@ ok(fogged.dataset.fog === "" && fogged.props["--fog"] === "0.8" && /w-fog/.test(
 const full = paint(S.redondo, { now: { moon: 1 } }), dark = paint(S.redondo, { now: { moon: 0 } });
 ok(full.props["--moon"] === "1" && dark.props["--moon"] === "0", "the moon's light is handed to the sky's night");
 const rained = paint(S.redondo, { now: { rain: 0.7 } });
-ok(rained.props["--rain"] === "0.7", "rain is handed to the scene's grain");
+ok(rained.props["--rainx"] === "0.7" && !("--rain" in rained.props), "rain is handed to the scene's grain, never lowering the Rain sky's own");
 // the light: where each spot's sun goes down, from its facing
 const L = (id, d, x) => paint(S[id], Object.assign({ now: { date: d } }, x || {})).dataset.set;
 ok(L("redondo", D) === "left" && L("des-moines-pier", D) === "ahead", "Redondo: the winter sun sets left; Des Moines from the beach park: over the pier, ahead");
@@ -210,7 +231,16 @@ ok(L("tokul", D) === "right" && L("cowlitz", D) === "right", "Tokul and the Cowl
 const wp = (kind, act) => { const e = paint(S.westport, Object.assign({ now: { date: D } }, act ? { activity: act } : {}), kind); return e.dataset.scene; };
 ok(wp("pier") === "pier" && wp("surf", "perch") === "surf" && wp("surf") === "surf", "Westport: the crab float for a crab trip, the beach for surf perch");
 const os = (act) => paint(S["ocean-shores"], { activity: act, now: { date: D } }).innerHTML;
-ok(/w-farrock/.test(os("perch")) && !/w-farrock/.test(os("clams")), "Ocean Shores: the north jetty at the surf perch stand, not on the Copalis dig");
+ok(/w-farrock/.test(os("perch")) && !/w-farrock/.test(os("clams")), "Ocean Shores: the north jetty's tip at the surf perch stand, not on the Copalis dig");
+// everything across the water by bearing: the jetty's tip and Copalis Rock
+const osP = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.perch), osC = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.copalis);
+const rel = (b, f) => ((((b - f) % 360) + 540) % 360) - 180;
+ok(osP.jetty.tip === 203 && osP.jetty.tipX === undefined && Math.abs(rel(203, osP.facing)) <= osP.fov, "the north jetty is placed by its bearing (203), its tip at the edge of the surf perch picture");
+const noStack = Object.assign({}, osC); delete noStack.stack;
+ok(osC.stack && osC.stack.at === 347 && Math.abs(rel(347, osC.facing)) > 45 && paint(osC, { now: { date: D } }).innerHTML === paint(noStack, { now: { date: D } }).innerHTML, "Copalis Rock is placed by its bearing (84 degrees right): outside the clam picture, so not drawn");
+const wpB = Object.assign({}, S.westport, S.westport.stands.beach);
+ok(wpB.jetty.tip === 283 && osP.dune !== wpB.dune && osP.after === "empty" && wpB.after === "empty", "the two surf perch beaches: their own jetty sides and dunes, nobody after dark at either");
+ok(paint(osP, { now: { date: D } }).innerHTML !== paint(Object.assign({}, osP, { spot: "westport" }), { now: { date: D } }).innerHTML, "a beach's people, log and dune are its own (seeded by its id)");
 const dsh = (how) => paint(S["dash-point"], { how, now: { date: D } }).innerHTML;
 ok(/class="w-s[2-5]"/.test(dsh("kayak")) && !/class="w-s[2-5]"/.test(dsh("shore")), "Dash Point: the old L pier from the kayak launch, none from the state park beach");
 ok(RIG.spotOpen && ["tappsLaunch", "tappsRainier", "cowlitz", "westportCrab", "pointDefiance"].every((k) => k in RIG.spotOpen), "each open question is one setting");
@@ -225,11 +255,82 @@ const data = {
   flow: { "green-river": { now: { cfs: 1000, at: "x" } } },
   wx: { redondo: { hours: [{ t: "2026-11-24T09:00", wind: 9, rain: 0.05 }] } }
 };
+data.flow["green-river"].days = { "2026-11-24": { max: 1000 } };
 const nowR = RIG.spotNow("redondo", "2026-11-24T09:00", data);
-ok(Math.abs(nowR.tide - (2 + 9 * 0.5) / 12) < 0.02 && Math.abs(nowR.wind - 0.5) < 0.01 && Math.abs(nowR.rain - 0.5) < 0.01 && nowR.date === "2026-11-24", "spotNow: Redondo's tide halfway up its flood, a 9 mph breeze, some rain", nowR);
+ok(Math.abs(nowR.tide - (2 + 9 * 0.5) / 12) < 0.02 && Math.abs(nowR.tideM - (2 + 9 * 0.5) * 0.3048) < 0.02 && Math.abs(nowR.wind - 0.5) < 0.01 && Math.abs(nowR.rain - 0.5) < 0.01 && nowR.date === "2026-11-24T09:00", "spotNow: Redondo's tide halfway up its flood (and in metres), a 9 mph breeze, some rain", nowR);
 const nowG = RIG.spotNow("green-river", "2026-11-24T09:00", data);
-ok(Math.abs(nowG.river - 0.5) < 0.01 && nowG.tide === undefined, "spotNow: the Green's flow against its no-go line, no tide on a river", nowG);
-ok(JSON.stringify(RIG.spotNow("nowhere", "2026-11-24T09:00", data)) === JSON.stringify({ date: "2026-11-24" }), "spotNow: a spot with no data is just the day");
+ok(Math.abs(nowG.river - 0.5) < 0.01 && nowG.tide === undefined, "spotNow: the Green's flow that day through its own good line (1,000 of a 1,200 Go is 0.5), no tide on a river", nowG);
+ok(JSON.stringify(RIG.spotNow("nowhere", "2026-11-24T09:00", data)) === JSON.stringify({ date: "2026-11-24T09:00" }), "spotNow: a spot with no data is just the moment");
+// the trip's own day, not today's gauge; Go always paints clear, No-go always up
+const sat = RIG.spotNow("green-river", new Date(2026, 10, 28, 8), { flow: { "green-river": { now: { cfs: 3500 }, days: { "2026-11-28": { max: 400 } } } } });
+ok(sat.river < 0.3 && sat.date === "2026-11-28T08:00", "spotNow: a Saturday trip paints Saturday's forecast (400 cfs: clear), not today's 3,500", sat);
+const cow = RIG.spotNow("cowlitz", "2026-11-24T09:00", { flow: { cowlitz: { days: { "2026-11-24": { max: 12000 } } } } }), grn = RIG.spotNow("green-river", "2026-11-24T09:00", { flow: { "green-river": { days: { "2026-11-24": { max: 1200 } } } } });
+ok(Math.abs(cow.river - 0.6) < 0.01 && Math.abs(grn.river - 0.6) < 0.01, "spotNow: 'Go' at the Cowlitz and 'Go' at the Green paint the same water", [cow, grn]);
+const nogo = RIG.spotNow("green-river", "2026-11-24T09:00", { flow: { "green-river": { days: { "2026-11-24": { max: 2600 } } } } });
+ok(nogo.river === 1, "spotNow: past the no-go line the river paints fully up");
+// odd input: never a throw, always the phone's own day
+let threw2 = null, g1, g2, g3;
+try { g1 = RIG.spotNow("redondo", "garbage", data); g2 = RIG.spotNow("redondo", 17.5, data); g3 = RIG.spotNow("redondo", "2026-11-24", data); } catch (e) { threw2 = e.message; }
+ok(!threw2 && JSON.stringify(g1) === "{}" && JSON.stringify(g2) === "{}", "spotNow: a time it cannot read gives nothing and never throws", [threw2, g1, g2]);
+ok(g3 && g3.date === "2026-11-24T12:00" && g3.tide != null, "spotNow: a bare day is that local day at noon (not UTC midnight, the evening before)", g3);
+const eve = RIG.spotNow("redondo", new Date(2026, 10, 24, 19, 0), data);
+ok(eve.date === "2026-11-24T19:00", "spotNow: an evening trip stays on its own day", eve);
+ok(RIG.spotNow("redondo", new Date(2026, 10, 24, 19, 0), data, { moon: 0.42 }).moon === 0.42, "spotNow: the trip's own moon is passed through");
+
+// ---- 12. which way the water goes as it rises (fix round 1) ------------------------------------
+// the surf: the wash comes up the sand toward you with the tide
+const surfY = (tide) => firstY(paint(S["ocean-shores"], { activity: "perch", now: { tide, date: D } }).innerHTML, "w-wash");
+ok(surfY(0) < surfY(0.5) && surfY(0.5) < surfY(1) && surfY(1) - surfY(0) >= 20, "the surf: the wash line comes toward you as the tide rises, and far enough to see", [surfY(0), surfY(1)]);
+// a river's own bank: the water climbs it toward you as the river rises
+const bankY = (id, cls, lvl, x) => firstY(paint(S[id], Object.assign({ now: { river: lvl, date: D } }, x || {})).innerHTML, cls);
+ok(bankY("green-river", "w-lawn", 0, { fish: "coho" }) < bankY("green-river", "w-lawn", 1, { fish: "coho" }), "the Narrows: high water climbs the meadow bank toward you");
+ok(bankY("puyallup-orting", "w-levee", 0) < bankY("puyallup-orting", "w-levee", 1) && bankY("puyallup-sumner", "w-lawn", 0) < bankY("puyallup-sumner", "w-lawn", 1), "Orting and Sumner: high water climbs the levee and the point toward you");
+ok(/class="w-mudb"/.test(paint(S["puyallup-sumner"], { now: { river: 0, date: D } }).innerHTML), "low water leaves a strip of mud and gravel along the bank");
+// Flaming Geyser's gravel: less of it as the river rises
+ok(bankY("green-river", "w-barg", 0) < bankY("green-river", "w-barg", 1), "Flaming Geyser: the gravel at your feet goes under as the river rises");
+// the Cowlitz steps: the farthest (lowest) tier goes under first
+const tiers = (lvl) => { const m = /class="w-conc" d="([^"]*)"/.exec(paint(S.cowlitz, { now: { river: lvl, date: D } }).innerHTML); return m ? (m[1].match(/Z/g) || []).length : 0; };
+ok(tiers(0) === 3 && tiers(0.35) === 3 && tiers(0.6) === 2 && tiers(1) === 1, "the Cowlitz platforms: the river covers the lowest tier first, then the next", [tiers(0), tiers(0.35), tiers(0.6), tiers(1)]);
+// no land under the highest tide: each beach's top is above its range, and so is every thing on it
+for (const id of Object.keys(S)) for (const [name, o] of stands(S[id])) {
+  if (!o.ground) continue;
+  const rng = o.tideRange == null ? 3.7 : o.tideRange, low = (o.parts || []).filter((p) => ["shrub", "log", "ground"].indexOf(p.t) >= 0 || (p.t === "rocks" && p.dry)).filter((p) => (p.y == null ? 99 : p.y) < rng + 0.3 && !(p.pts && p.pts.some((q) => q[2] >= rng + 0.3)));
+  ok(o.ground.top >= rng + 0.3 && !low.length, id + (name ? " (" + name + ")" : "") + ": its beach top and everything on the dry beach stand above the highest tide", { top: o.ground.top, rng, low });
+  const pl = RIG.water.place(Object.assign({}, o, { now: { tide: 1, date: D } }));
+  ok(pl.wl < o.ground.top && pl.edgeZ > o.ground.shore, id + (name ? " (" + name + ")" : "") + ": at the top of the tide a strip of dry beach still shows");
+}
+// minus tides: the page's metres go below the low datum, and the flats show more
+ok(RIG.water.place(Object.assign({}, S["dash-point"], S["dash-point"].stands.city, { now: { tideM: -0.8 } })).edgeZ > RIG.water.place(Object.assign({}, S["dash-point"], S["dash-point"].stands.city, { now: { tide: 0 } })).edgeZ, "a minus tide uncovers more of the Dash Point flats than a zero tide");
+// the lawn in front hides the pier's feet behind it: ground is painted in its place among the things, not under all of them
+const ldh = paint(S["les-davis"], { now: { tide: 0, date: D } }).innerHTML;
+ok(ldh.indexOf('class="w-lawnlit"') > ldh.indexOf('class="w-brace'), "Les Davis: the lawn is painted after (over) the pier's bents beyond it, so no pile runs down across the lawn");
+// the moon only where it can be at that hour
+const mp = (id, when, x) => paint(Object.assign({}, S[id], x || {}), { now: { date: when } }).dataset.moonpos;
+ok(mp("lake-fenwick", "2026-11-24T19:00") === "ahead" && mp("dash-point", "2026-11-24T19:00") !== "ahead" && mp("redondo", "2026-11-24T19:00") === "behind", "the full moon of Nov 24 at 7 PM is ahead at Lake Fenwick (east), never on the water at north-facing Dash Point, behind you at Redondo");
+ok(mp("lake-fenwick", "2026-11-24T10:00") === "down" && mp("w-l2668", "2026-11-24T19:00") === "none", "the moon down by day paints no moon; a lake with no facing gets none on its water");
+for (const id of ["dash-point", "point-defiance", "les-davis", "american-lake"]) for (const h of ["18:00", "20:00", "22:00", "02:00"]) {
+  const when = (h === "02:00" ? "2026-11-25T" : "2026-11-24T") + h, o = Object.assign({}, S[id], S[id].stands ? S[id].stands[S[id].stand] : {}), m = RIG.water.moonSky(new Date(+when.slice(0, 4), +when.slice(5, 7) - 1, +when.slice(8, 10), +when.slice(11, 13)));
+  if (mp(id, when) === "ahead") ok(m.alt > 0 && Math.abs(rel(m.az, o.facing)) <= (o.fov || 45), id + " at " + when + ": a moon on the water only where it really stands in the picture");
+}
+// a beach that is empty after dark stays empty in its row's thumbnail
+for (const [id, act] of [["westport", "perch"], ["ocean-shores", "perch"]]) {
+  const m = RIG.water.mini("surf", pal.night, Object.assign({ now: { date: D } }, S[id], { activity: act }));
+  ok(!/r="5" fill="url\(#mn\d+g\)"/.test(m) && !/M25.2 39.6/.test(m), id + " (surf perch): the night thumbnail has no one on the beach and no headlamp");
+}
+for (const id of ["fox-island", "green-river", "lake-fenwick", "tokul"]) {
+  const m = RIG.water.mini(S[id].scene, pal.night, Object.assign({ now: { date: D } }, S[id]));
+  ok(!/fill="url\(#mn\d+g\)"/.test(m), id + ": a spot that closes at dusk has no lamp in its night thumbnail");
+}
+// Lake Tapps' drawdown is a season on the day painted
+const tp = (d) => /class="w-stump"/.test(paint(S["lake-tapps"], { now: { date: d } }).innerHTML);
+ok(tp("2026-11-24") && !tp("2027-06-15"), "Lake Tapps: stumps and mud in the drawdown, not once it is full again");
+// the Sumner crowd is the opener's
+const crowd = (d) => { const m = /class="w-figh" d="([^"]*)"/.exec(paint(S["puyallup-sumner"], { now: { date: d } }).innerHTML); return m ? m[1].length : 0; };
+ok(crowd("2026-08-22") > crowd("2026-11-24"), "Sumner: the opening-weekend crowd only around the opener");
+// 128th St E has no facing: its river runs along the view, no side to it
+ok(S["puyallup-128th"].river.flow === "along", "128th St E: looking along the river under the bridge, so it runs neither left nor right");
+// the feed lakes: each its own bank and shore, none a dock
+ok(JSON.stringify(RIG.spotScene("w-l2668").lake.bank) !== JSON.stringify(RIG.spotScene("w-l1536").lake.bank) || JSON.stringify(RIG.spotScene("w-l2668").lake.point) !== JSON.stringify(RIG.spotScene("w-l1536").lake.point), "Kapowsin and Green Lake: a bank and a point of their own");
 
 console.log("\n" + pass + " passed, " + fail + " failed");
 process.exit(fail ? 1 : 0);
