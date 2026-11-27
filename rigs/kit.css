@@ -265,6 +265,17 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 :root[data-dark="1"] .av.a1{color:var(--on-gold)}
 :root[data-dark="1"] .av.a2{background:color-mix(in oklab,var(--water1) 24%,var(--ink2));color:var(--paper)}
 :root[data-dark="1"] .av.a3{background:color-mix(in oklab,var(--sky2) 30%,var(--ink));color:var(--paper)}
+/* a face whose letter is drawn from data-i, so the name beside it is the only
+   word a reader (or a screen reader) meets */
+.av[data-i]::before{content:attr(data-i)}
+.av.sm{width:20px;height:20px;font-size:10px}
+.av.md{width:32px;height:32px;font-size:13.5px}
+.av.lg{width:40px;height:40px;font-size:16px;box-shadow:0 0 0 2.5px var(--pan-a),var(--shx) 4px 8px -3px color-mix(in srgb,var(--shade) 45%,transparent)}
+/* who someone is on the crew: the one who runs it in the accent's soft
+   partner, yourself in gold's */
+.pill.own{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--paper))}
+.pill.you{color:var(--t1);background:color-mix(in srgb,var(--gold) 26%,var(--paper))}
+:root[data-dark="1"] .pill.own{color:color-mix(in srgb,var(--accent) 60%,var(--t1));background:color-mix(in srgb,var(--accent) 22%,var(--paper))}
 
 /* ================= the date stamp, and a crew trip's card ================= */
 .crewtrip{display:flex;align-items:center;gap:12px;padding:12px 14px 12px 12px}
@@ -414,6 +425,20 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
   box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 18%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 30%,transparent),0 6px 12px -5px color-mix(in srgb,var(--go) 70%,var(--shade))}
 :root[data-dark="1"] .seal{color:var(--bg);background:radial-gradient(circle at 35% 28%,var(--go),color-mix(in srgb,var(--go) 78%,var(--bg)) 70%);
   box-shadow:0 0 0 4px color-mix(in srgb,var(--go) 16%,transparent),0 0 22px -4px color-mix(in srgb,var(--go) 50%,transparent)}
+/* the call's other words, each in its colour: hot is gold, slow and dark
+   and off are amber, no is red, a day with nothing to call is quiet */
+.seal.hot{color:var(--on-gold);background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--gold) 70%,var(--paper)),var(--gold) 62%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 24%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 22%,transparent),0 6px 14px -5px color-mix(in srgb,var(--gold) 80%,var(--shade))}
+.seal.warn{background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--warn) 74%,var(--lum)),var(--warn) 62%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 18%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 30%,transparent)}
+.seal.no{background:radial-gradient(circle at 35% 28%,color-mix(in srgb,var(--no) 74%,var(--lum)),var(--no) 62%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--no) 18%,transparent),inset 0 -3px 5px color-mix(in srgb,var(--shade) 30%,transparent)}
+.seal.idle{color:var(--t2);background:var(--well);box-shadow:inset 0 1px 3px color-mix(in srgb,var(--shade) 25%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 40%,transparent)}
+:root[data-dark="1"] .seal.hot{color:var(--on-gold);background:radial-gradient(circle at 35% 28%,var(--gold),color-mix(in srgb,var(--gold) 80%,var(--bg)) 70%);
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 18%,transparent),0 0 24px -4px color-mix(in srgb,var(--gold) 60%,transparent)}
+:root[data-dark="1"] .seal.warn{color:var(--bg);background:radial-gradient(circle at 35% 28%,var(--warn),color-mix(in srgb,var(--warn) 78%,var(--bg)) 70%);box-shadow:0 0 0 4px color-mix(in srgb,var(--warn) 16%,transparent)}
+:root[data-dark="1"] .seal.no{color:var(--bg);background:radial-gradient(circle at 35% 28%,var(--no),color-mix(in srgb,var(--no) 78%,var(--bg)) 70%);box-shadow:0 0 0 4px color-mix(in srgb,var(--no) 16%,transparent)}
+:root[data-dark="1"] .seal.idle{color:var(--t2);background:var(--well);box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1.5px color-mix(in srgb,var(--line) 80%,transparent)}
 .flow{flex:0 0 auto;width:74px;height:40px;--fc:var(--go)}
 .flow.warn{--fc:var(--warn)}
 .flow.no{--fc:var(--no)}
@@ -432,10 +457,10 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 .rs{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-height:112px;padding:11px 12px 12px;border:0;border-radius:16px;text-align:left;cursor:pointer;
   background:var(--well);box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 5%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
 :root[data-dark="1"] .rs,:root[data-dark="1"] .rule{box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 70%,transparent)}
-.rs[aria-pressed="true"],:root[data-dark="1"] .rs[aria-pressed="true"]{background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+.rs[aria-pressed="true"],:root[data-dark="1"] .rs[aria-pressed="true"],.rs[data-on],:root[data-dark="1"] .rs[data-on]{background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
   box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 60%,transparent)}
 .rs-h{display:flex;align-items:center;justify-content:space-between;width:100%;font:700 15px/1 "Barlow Condensed",sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--t2)}
-.rs[aria-pressed="true"] .rs-h{color:var(--go)}
+.rs[aria-pressed="true"] .rs-h,.rs[data-on] .rs-h{color:var(--go)}
 .rs-h b{font-size:22px;letter-spacing:0;color:var(--t1)}
 .rs-p{display:flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--t1)}
 .rs-p.none{color:var(--t3);font-weight:500}
@@ -493,6 +518,19 @@ button.chip:active,a.chip:active{transform:translateY(1px)}
 /* the same light, smaller: the one button inside a card */
 .gold.sm{width:auto;min-height:44px;padding:6px 16px 6px 18px;border-radius:14px;font-size:17px;gap:8px}
 .gold.sm svg{width:8px;height:14px}
+
+/* ================= a word that comes and goes ================= */
+/* A short note over the screen after something has happened (you are in).
+   A lifted card, lit along its top in gold; it fades in once and leaves by itself
+   or at a tap. The one motion on the screen it lands on. */
+.toast{position:fixed;z-index:70;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(calc(100vw - 32px),398px);
+  display:block;padding:14px 18px 15px;border:0;border-radius:18px;cursor:pointer;text-align:left;font:600 15px/1.4 Inter,system-ui,sans-serif;color:var(--t1);
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));
+  box-shadow:var(--e2),inset 0 2px 0 color-mix(in srgb,var(--gold) 75%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--lum) 26%,transparent);
+  animation:toastin .32s ease-out both}
+.toast b{font-weight:650}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
 
 /* ================= picture tiles: a painting over a name ================= */
 .ptiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}

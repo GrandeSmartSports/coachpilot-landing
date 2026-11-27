@@ -453,6 +453,32 @@ try {
     await ctx.close();
   }
 
+  // The same iPhone, on an account with no number (it joined by a link). The
+  // Home Screen copy starts signed out, and there is no code to sign in with:
+  // the steps say how to get in there, with the link from the text.
+  {
+    const ctx = await browser.newContext({ ...phone, userAgent: IPHONE });
+    await stub(ctx, { hasPhone: false });
+    const { p } = await open(ctx, { phone: { perm: "granted" } });
+    await sw(p, "push").click();
+    await p.waitForSelector("[data-al-install]");
+    const steps = await p.locator("[data-al-install] ol li").allInnerTexts();
+    ok(steps.length === 4 && /open/i.test(steps[2]) && /signed out/i.test(steps[2]) && /link from the text/i.test(steps[3]) && /paste/i.test(steps[3]) && /switch this on/i.test(steps[3]),
+      "no number: it says the Home Screen copy starts signed out, and to paste the link from the text there", steps);
+    ok(!steps.some((x) => /sign in with your number/i.test(x)), "and never says to sign in with a number it does not have", steps);
+    await ctx.close();
+  }
+  {
+    const ctx = await browser.newContext({ ...phone, userAgent: IPHONE });
+    await stub(ctx);
+    const { p } = await open(ctx, { phone: { perm: "granted" } });
+    await sw(p, "push").click();
+    await p.waitForSelector("[data-al-install]");
+    const steps = await p.locator("[data-al-install] ol li").allInnerTexts();
+    ok(/sign in with your number/i.test(steps[2] || ""), "with a number on the account: open it there and sign in with your number", steps);
+    await ctx.close();
+  }
+
   // An iPad calls itself a Mac. It is told the same thing.
   {
     const ctx = await browser.newContext({ ...phone, hasTouch: true, userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15" });

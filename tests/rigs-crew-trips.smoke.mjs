@@ -539,7 +539,10 @@ try {
     const secRows = await p.locator('[data-view="crewtrip"] [data-sec-row]').evaluateAll((els) => els.map((e) => e.getAttribute("data-sec-row") + "=" + e.getAttribute("href")));
     ok(secRows.join().startsWith("plan=#/crew/trip/t-hot/plan,what=#/crew/trip/t-hot/what,gear=#/crew/trip/t-hot/gear") && secRows.some((r) => r.startsWith("wx=")) && secRows.some((r) => r.startsWith("rules=")),
       "the run card's headline rows, each opening its section under this trip", secRows.join());
-    ok(/Leave by 4:10 PM, fish 5:00 PM to 10:00 PM/.test(await text(p, '[data-sec-row="plan"]')), "the plan row carries this trip's own times", await text(p, '[data-sec-row="plan"]'));
+    // The plan is the card on the waterline, as on a Hot Trip: leave, fish, done.
+    const planTxt = (await text(p, '[data-sec-row="plan"]')).replace(/\s+/g, " ");
+    ok(/Leave by 4:10 PM/.test(planTxt) && /5:00 PM Fish/.test(planTxt) && /10:00 PM Done/.test(planTxt) && await p.locator('[data-sec-row="plan"].float [data-cw-cond]').count() === 1,
+      "the plan card carries this trip's own times, under its go call", planTxt);
     // Notes and the list are on the page (tests/rigs-crew-notes.smoke.mjs walks them); catches wait for the day.
     const mounts = await p.evaluate(() => ({ note: !!document.querySelector('[data-view="crewtrip"] [data-cw-notes=""] [data-cw-note-text]'),
       list: !!document.querySelector('[data-view="crewtrip"] [data-cw-list] [data-cw-item-new]'),
@@ -549,10 +552,12 @@ try {
     const href = await p.locator("[data-cw-text]").getAttribute("href");
     ok(href === "sms:&body=" + encodeURIComponent("Squid at Redondo, Tue Nov 24. Leave by 4:10 PM. " + SITE + "#/crew/trip/t-hot"),
       "Text the crew opens Messages with the title, the day, when to leave and the link to this trip", decodeURIComponent(href || ""));
-    ok(/^Text the crew$/.test((await text(p, "[data-cw-text]")).trim()), "on a button that says Text the crew");
+    ok(/^Text the crew$/i.test((await text(p, "[data-cw-text]")).trim()), "on a button that says Text the crew");
+    ok(/opens messages/i.test(await text(p, "[data-cw-text-note]")) && /you pick who/i.test(await text(p, "[data-cw-text-note]")), "and says it opens Messages, and that you pick who gets it", await text(p, "[data-cw-text-note]"));
     ok((await short(p, '[data-view="crewtrip"] button, [data-view="crewtrip"] a:not(.back)')).length === 0, "every button and row on the trip page is a full tap target",
       await short(p, '[data-view="crewtrip"] button, [data-view="crewtrip"] a:not(.back)'));
-    ok(await p.locator('[data-view="crewtrip"] .cw-go').count() === 0, "no second gold thing fights the answer buttons", await p.locator('[data-view="crewtrip"] .cw-go').count());
+    ok(await p.locator('[data-view="crewtrip"] .cw-go').count() === 0 && await p.locator('[data-view="crewtrip"] .gold').count() === 1 && await p.locator('[data-view="crewtrip"] .gold[data-cw-text]').count() === 1,
+      "one gold thing on the trip page, and it is Text the crew: the answers are tiles, not gold", await p.locator('[data-view="crewtrip"] .gold').count());
     await fits(p, "a trip page");
 
     // A section: the crew's gear has no have, get or check tags.
@@ -577,7 +582,7 @@ try {
     const river = await at("t-river", "ok");
     ok(/^Hot: good flow, /.test(river) && await p.locator('[data-view="crewtrip"] [data-sec-row="river"]').count() === 1, "a river trip leads with its flow and has its river row", river);
     // Even a one line call is a card that crosses the waterline.
-    const condBox = await p.evaluate(() => { const c = document.querySelector("[data-cw-cond]").getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect(); return { top: Math.round(c.top), bottom: Math.round(c.bottom), scene: Math.round(s.bottom) }; });
+    const condBox = await p.evaluate(() => { const c = document.querySelector("[data-cw-cond]").closest(".float").getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect(); return { top: Math.round(c.top), bottom: Math.round(c.bottom), scene: Math.round(s.bottom) }; });
     ok(condBox.top < condBox.scene - 24 && condBox.bottom > condBox.scene, "the go or no-go card starts on the picture and ends below it", condBox);
 
     const nogo = await at("t-nogo", "nogo");
@@ -585,8 +590,11 @@ try {
     ok(await colour("[data-cw-cond]", "--no"), "in the no colour");
     const bare = await p.locator('[data-view="crewtrip"] [data-sec-row]').evaluateAll((els) => els.map((e) => e.getAttribute("data-sec-row")));
     ok(bare.includes("gear") && bare.includes("how") && bare.includes("rules") && !bare.includes("wx") && !bare.includes("river"), "a no-go still shows the run card, without the weather rows", bare.join());
-    ok(!/Leave by/.test(await text(p, '[data-view="crewtrip"] [data-cw-run]')), "and without times it cannot stand behind", (await text(p, '[data-view="crewtrip"] [data-cw-run]')).slice(0, 120));
-    await p.locator('[data-view="crewtrip"] [data-sec-row="what"]').click();
+    ok(!/Leave by/.test(await text(p, '[data-view="crewtrip"] [data-cw-run]')) && !/Leave by/.test(await text(p, "[data-cw-plan]")), "and without times it cannot stand behind, in the rows or the plan card", (await text(p, "[data-cw-plan]")).slice(0, 120));
+    ok((await text(p, "[data-cw-plan] .seal")).trim().toLowerCase() === "no" && await p.locator("[data-cw-plan] .seal.no").count() === 1, "its seal says No, in red");
+    // The page's clock is pinned, so two taps any seconds apart at the same
+    // spot read as a double tap; this one lands off the row's middle.
+    await p.locator('[data-view="crewtrip"] [data-sec-row="what"]').click({ position: { x: 40, y: 20 } });
     await p.waitForSelector('[data-view="crewtrip"][data-sec="what"]');
     ok(!/why this day/i.test(await text(p, '[data-card="what"]')), "its What it is section has no why this day", (await text(p, '[data-card="what"]')).slice(0, 80));
     const noLeave = await (async () => { await at("t-nogo", "nogo"); return decodeURIComponent(await p.locator("[data-cw-text]").getAttribute("href")); })();
@@ -628,7 +636,11 @@ try {
     const p = await open(ctx, base + "#/crew/trip/t-sat", "member");
     await p.waitForSelector('[data-view="crewtrip"] [data-cw-answer="going"][aria-pressed="true"]');
     const labels = (await p.locator("[data-cw-answer]").allInnerTexts()).map((t) => t.trim());
-    ok(labels.join() === "Going,Maybe,Out", "three buttons: Going, Maybe, Out", labels.join());
+    // Set in capitals on the tiles, so compared without case.
+    ok(labels.join().toLowerCase() === "going,maybe,out", "three buttons: Going, Maybe, Out", labels.join());
+    ok(await p.evaluate(() => [...document.querySelectorAll("[data-cw-answer]")].every((b) => { const t = b.closest(".rs").getBoundingClientRect(), r = b.getBoundingClientRect(); return r.height >= 44 && t.height >= 100; })),
+      "each answer is a tile you can tap anywhere, its button a full tap target");
+    ok(await p.locator('.rs[data-on] [data-cw-answer="going"]').count() === 1, "and your answer's tile is the lifted one");
     const under = async () => Object.fromEntries(await Promise.all(["going", "maybe", "out"].map(async (a) => [a, (await p.locator(`[data-cw-names="${a}"] li`).allInnerTexts()).map((t) => t.trim()).join(",")])));
     const pressed = async () => (await p.locator('[data-cw-answer][aria-pressed="true"]').evaluateAll((els) => els.map((e) => e.getAttribute("data-cw-answer")))).join();
     let u = await under();

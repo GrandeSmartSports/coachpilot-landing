@@ -29,8 +29,8 @@ const members = () => [
   { id: "u-coach", name: "Coach", role: "owner", alerts: true, signIn: "code" },
   { id: "u-russ", name: "Russell", role: "member", alerts: false, signIn: "link" },
   { id: "u-dad", name: "Dad", role: "member", alerts: false, signIn: "code" }];
-const stateFor = (who, list) => ({ me: who === "member" ? { id: "u-russ", name: "Russell" } : { id: "u-coach", name: "Coach" },
-  crew: { id: "c1", name: "ZZTEST crew", role: who === "member" ? "member" : "owner" }, members: list, trips: [], sms: true });
+const stateFor = (who, list, crewName) => ({ me: who === "member" ? { id: "u-russ", name: (list.find((m) => m.id === "u-russ") || {}).name || "Russell" } : { id: "u-coach", name: (list.find((m) => m.id === "u-coach") || {}).name || "Coach" },
+  crew: { id: "c1", name: crewName || "ZZTEST crew", role: who === "member" ? "member" : "owner" }, members: list, trips: [], sms: true });
 const SESSION = { token: "tok-123", refresh: "ref-123", at: Date.now() + 36e5, userId: "u-coach" };
 const CORS = { "access-control-allow-origin": "*" };
 const json = (r, status, body) => r.fulfill({ status, contentType: "application/json", headers: CORS, body: JSON.stringify(body) });
@@ -84,7 +84,7 @@ async function stub(ctx, opts = {}) {
       if (body.token !== TOKEN) return json(r, 410, { error: "That link is not good any more. Ask for a new one." });
       return json(r, 200, Object.assign({ ok: true, name: "Russell", crew: "ZZTEST crew", by: "Coach" }, body.peek ? {} : { token_hash: "hash-1" }));
     }
-    if (body.action === "state") return json(r, 200, stateFor(opts.who, list));
+    if (body.action === "state") return json(r, 200, stateFor(opts.who, opts.alone ? list.filter((m) => m.role === "owner" || m.id === "u-new") : list, opts.crewName));
     if (body.action === "prefs_get") return json(r, 200, { prefs: { texts: false, push: false, evTrips: true, evStatus: true, evNotes: true, evGearCatches: true, quietFrom: 21, quietTo: 6, textsStopped: false }, hasPhone: opts.hasPhone !== false, pushSubs: 0 });
     if (body.action === "invite") {
       calls.invite++;
@@ -94,6 +94,17 @@ async function stub(ctx, opts = {}) {
     }
     if (body.action === "link") return json(r, 200, { ok: true, name: "Russell", link: LINK });
     if (body.action === "member_remove") { const i = list.findIndex((m) => m.id === body.userId); if (i >= 0) list.splice(i, 1); return json(r, 200, { ok: true }); }
+    if (body.action === "me_rename") {
+      const name = String(body.name || "").trim(), me = list.find((m) => m.id === (opts.who === "member" ? "u-russ" : "u-coach"));
+      if (!name || name.length > 60) return json(r, 400, { error: "A name is 1 to 60 characters." });
+      if (me) me.name = name;
+      return json(r, 200, { ok: true, name });
+    }
+    if (body.action === "crew_rename") {
+      if (opts.who === "member") return json(r, 403, { error: "Only the owner can rename the crew." });
+      opts.crewName = String(body.name || "").trim();
+      return json(r, 200, { ok: true, name: opts.crewName });
+    }
     return json(r, 200, { ok: true });
   });
   return calls;
@@ -244,9 +255,16 @@ try {
     ok(await p.locator("[data-code]").count() === 1, "a wrong code says so and keeps the code box");
     ok((await sky(p)).trim().length > 0, "the Sky button keeps its label after a wrong code", await sky(p));
 
-    // The right one lets them in.
+    // The right one lets them in, and lands on the week, not the crew screen.
     await p.locator("[data-code]").fill("123456");
     await p.locator("[data-verify]").dblclick();
+    await p.waitForSelector('[data-view="trips"]');
+    ok(/#\/trips$/.test(p.url()) && await p.locator('.top [data-tab="trips"]').getAttribute("aria-selected") === "true" && await p.locator('[data-view="crew"]').count() === 0,
+      "after the code: Hot Trips, not the crew screen", p.url());
+    ok(/^You are signed in\.$/.test((await text(p, "[data-welcome]")).trim()), "with a short word that says so", await text(p, "[data-welcome]").catch(() => "none"));
+    await p.locator("[data-welcome]").click();
+    ok(await p.locator("[data-welcome]").count() === 0, "a tap puts the word away");
+    await p.goto(base + "#/crew", { waitUntil: "load" });
     await p.waitForSelector("[data-crewname]");
     ok(calls.verify.filter((v) => v.token === "123456").length === 1, "a double tap on Let me in checks the code once", calls.verify);
     ok(calls.verify[calls.verify.length - 1].phone === "+12535550147", "the code is checked against the number that asked", calls.verify);
@@ -326,6 +344,79 @@ try {
     ok(/The crew/.test(await text(p, "[data-crew-open]")), "the row at the foot of the week now says The crew", await text(p, "[data-crew-open]"));
     ok(calls.other.length === 0, "nothing unexpected was asked of Supabase", calls.other);
     ok(errs.length === 0, "no page errors", errs.join(" | "));
+    await ctx.close();
+  }
+
+  // After the tap on Join: the week, and one short word that says who and
+  // whose crew. It goes at a tap, or by itself, and only comes once.
+  {
+    const ctx = await browser.newContext(phone);
+    await stub(ctx, { who: "member" });
+    const p = await ctx.newPage();
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-go]");
+    ok(/see the crew's trips, say if you are going/i.test(await text(p, '[data-view="join"]')), "the join screen says in one line what joining gets you", await text(p, '[data-view="join"]'));
+    ok(await p.locator('[data-view="join"] .float').count() === 1 && await p.evaluate(() => {
+      const c = document.querySelector('[data-view="join"] .float').getBoundingClientRect(), s = document.getElementById("scene").getBoundingClientRect();
+      return c.top < s.bottom - 24 && c.bottom > s.bottom;
+    }), "the join card crosses the waterline of its own picture");
+    await p.locator("[data-join-go]").click();
+    await p.waitForSelector('[data-view="trips"]');
+    await p.waitForSelector("[data-welcome]");
+    ok((await text(p, "[data-welcome]")).trim() === "You are in, Russell. This is ZZTEST crew's week.", "landing on the week: You are in, the name, and whose week it is", await text(p, "[data-welcome]"));
+    const box = await p.locator("[data-welcome]").boundingBox(), title = await p.locator(".hero h1").boundingBox();
+    ok(box.y > title.y + title.height, "the word does not cover the title", { box, title });
+    await later(7600);
+    ok(await p.locator("[data-welcome]").count() === 0, "it goes away by itself");
+    await p.reload({ waitUntil: "load" });
+    await p.waitForSelector('[data-view="trips"]');
+    await later(400);
+    ok(await p.locator("[data-welcome]").count() === 0, "and does not come back");
+    await ctx.close();
+  }
+
+  // A phone already signed in as someone else. Opening the link says so;
+  // staying is the gold, safe one, and switching is a clear second choice.
+  {
+    const ctx = await browser.newContext(phone);
+    const calls = await stub(ctx, { who: "owner" });
+    const p = await ctx.newPage();
+    await signIn(p);
+    await save(p, "rig.crew.v1", stateFor("owner", members()));
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-signedin]");
+    ok(/You are signed in as Coach\./.test(await text(p, "[data-join-signedin]")) && /link is for Russell/.test(await text(p, "[data-join-signedin]")), "it says who this phone is signed in as, and who the link is for", await text(p, "[data-join-signedin]"));
+    ok(await p.locator('[data-view="join"] .cw-go').count() === 1 && /^Stay as Coach$/i.test((await text(p, '[data-view="join"] .cw-go')).trim()) && await p.locator('[data-view="join"] .cw-go[data-join-stay]').count() === 1,
+      "the one gold button keeps the account the phone has", await text(p, '[data-view="join"] .cw-go'));
+    ok(await p.locator("[data-join-switch]").count() === 1 && /^Switch to Russell$/i.test((await text(p, "[data-join-switch]")).trim()) && await p.locator("[data-join-switch].gold").count() === 0,
+      "switching is there, plainly, and not gold", await text(p, "[data-join-switch]"));
+    ok(/Switching signs Coach out on this phone/.test(await text(p, '[data-view="join"]')), "and it says what switching does");
+    await p.locator("[data-join-stay]").click();
+    await p.waitForSelector('[data-view="trips"]');
+    ok(calls.verify.length === 0 && calls.fn.filter((b) => b.action === "join" && !b.peek).length === 0 && await p.evaluate(() => JSON.parse(localStorage.getItem("rig.session.v1")).userId) === "u-coach",
+      "staying changes nothing: no join, the same account", calls.fn.map((b) => b.action));
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-switch]");
+    await p.locator("[data-join-switch]").click();
+    await p.waitForSelector('[data-view="trips"]');
+    ok(calls.fn.filter((b) => b.action === "join" && !b.peek).length === 1 && calls.verify.length === 1, "Switch joins with the link, once", calls.fn.map((b) => b.action));
+    await ctx.close();
+  }
+
+  // The same person opening their own link again is told they are in.
+  {
+    const ctx = await browser.newContext(phone);
+    const calls = await stub(ctx, { who: "member" });
+    const p = await ctx.newPage();
+    await signIn(p, { userId: "u-russ" });
+    await save(p, "rig.crew.v1", stateFor("member", members()));
+    await p.goto(base + "#/join/" + TOKEN, { waitUntil: "load" });
+    await p.waitForSelector("[data-join-same]");
+    ok(/already on ZZTEST crew, Russell/.test(await text(p, "[data-join-same]")) && await p.locator("[data-join-switch]").count() === 0 && await p.locator("[data-join-go]").count() === 0,
+      "already in: it says so, with nothing to switch", await text(p, "[data-join-same]"));
+    await p.locator("[data-join-stay]").click();
+    await p.waitForSelector('[data-view="trips"]');
+    ok(calls.verify.length === 0, "and opening the week asks nothing");
     await ctx.close();
   }
 
@@ -454,6 +545,126 @@ try {
     ok(await wide(p) <= 390, "the owner's screen fits the phone", await wide(p));
     ok(calls.other.length === 0, "nothing unexpected was asked of Supabase", calls.other);
     ok(errs.length === 0, "no page errors", errs.join(" | "));
+    await ctx.close();
+  }
+
+  // The owner alone on the crew: the screen says what the crew is, and the
+  // one thing to do is add someone, with what that person gets.
+  {
+    const ctx = await browser.newContext(phone);
+    const calls = await stub(ctx, { alone: true });
+    const p = await ctx.newPage();
+    await signIn(p);
+    await p.goto(base + "#/crew", { waitUntil: "load" });
+    await p.waitForSelector("[data-crew-card] [data-invite-name]");
+    const card = await text(p, "[data-crew-card]");
+    ok(/just you so far/i.test(card) && /see the trips you plan, say if they are going, and split the gear/i.test(card), "alone, the first card says so and what someone added gets", card);
+    ok(/^Next: add someone$/i.test((await text(p, "[data-crew-card] .eyebrow")).trim()), "and names the next step", await text(p, "[data-crew-card] .eyebrow"));
+    ok(await p.locator('[data-view="crew"] .cw-go').count() === 1 && await p.locator("[data-crew-card] .cw-go[data-invite-send]").count() === 1, "the one gold button is Add them, in the first card");
+    ok(await p.locator("[data-crew-add]").count() === 0, "and adding someone is not asked twice");
+    await p.locator("[data-invite-name]").fill("Russell");
+    await p.locator("[data-invite-send]").click();
+    await p.waitForSelector("[data-crew-card] [data-share]");
+    ok(/Next: text the link/i.test(await text(p, "[data-crew-card]")) && /opens messages/i.test(await text(p, "[data-share]")), "added: the first card is now the link to text, and says Messages opens", await text(p, "[data-share]"));
+    ok(calls.invite === 1, "one invite");
+    await ctx.close();
+  }
+
+  // Your own name, on the crew screen, for anyone; the crew's, for the owner.
+  {
+    const ctx = await browser.newContext(phone);
+    const calls = await stub(ctx, { who: "member" });
+    const p = await ctx.newPage();
+    const errs = []; p.on("pageerror", (e) => errs.push(e.message));
+    await signIn(p, { userId: "u-russ" });
+    await p.goto(base + "#/crew", { waitUntil: "load" });
+    await p.waitForSelector('[data-member="u-russ"] [data-me-edit]');
+    ok(await p.locator("[data-me-edit]").count() === 1 && await p.locator('[data-member="u-coach"] [data-me-edit]').count() === 0, "my own row, and only mine, has Change my name");
+    ok(await p.locator("[data-crew-edit]").count() === 0, "a member cannot rename the crew: no button for it");
+    ok(/^you$/i.test((await text(p, '[data-member="u-russ"] .pill.you')).trim()) && /Runs the crew/i.test(await text(p, '[data-member="u-coach"] .pill.own')), "the owner and 'you' are marked");
+    ok(await p.locator('[data-member] .av[data-i]').count() === 3, "every person has a face");
+    await p.locator("[data-me-edit]").click();
+    await p.waitForSelector("[data-me-name]");
+    ok(await p.locator("[data-me-name]").inputValue() === "Russell", "the box opens with my name in it");
+    await p.locator("[data-me-name]").fill("Russ B");
+    await p.locator("[data-me-save]").dblclick();
+    await p.waitForFunction(() => /Russ B/.test(document.querySelector('[data-member="u-russ"] .cw-who b')?.innerText || ""));
+    await p.waitForFunction(() => /saved/i.test(document.querySelector("[data-me-msg]")?.innerText || ""));
+    ok(calls.fn.filter((b) => b.action === "me_rename").length === 1 && calls.fn.find((b) => b.action === "me_rename").name === "Russ B", "Save sends the name once", calls.fn.filter((b) => b.action === "me_rename"));
+    ok(/The crew sees Russ B now/.test(await text(p, "[data-me-msg]")), "and says the crew sees it now", await text(p, "[data-me-msg]"));
+    ok(await p.evaluate(() => JSON.parse(localStorage.getItem("rig.crew.v1")).me.name) === "Russ B", "the phone keeps the new name");
+    // Refused: said plainly, and the name stays what it was.
+    await p.locator("[data-me-edit]").click();
+    ok(await p.locator("[data-me-name]").getAttribute("maxlength") === "60", "the box takes no more than 60 characters");
+    await p.locator("[data-me-name]").fill("   ");
+    await p.locator("[data-me-save]").click();
+    await p.waitForFunction(() => /not changed/i.test(document.querySelector("[data-me-msg]")?.innerText || ""));
+    ok(/write your name/i.test(await text(p, "[data-me-msg]")) && /Russ B/.test(await text(p, '[data-member="u-russ"] .cw-who b')) && calls.fn.filter((b) => b.action === "me_rename").length === 1,
+      "an empty name is refused, plainly, sends nothing, and the name stays", await text(p, "[data-me-msg]"));
+    ok(await p.locator("[data-me-name]").count() === 1, "and the box stays open to fix it");
+    ok(errs.length === 0, "no page errors", errs.join(" | "));
+    await ctx.close();
+
+    // No signal: the new name shows at once, waiting to send.
+    const ctx2 = await browser.newContext(phone);
+    await stub(ctx2, { who: "member", fn: (b) => b.action === "me_rename" ? "down" : undefined });
+    const p2 = await ctx2.newPage();
+    await signIn(p2, { userId: "u-russ" });
+    await p2.goto(base + "#/crew", { waitUntil: "load" });
+    await p2.waitForSelector("[data-me-edit]");
+    await p2.locator("[data-me-edit]").click();
+    await p2.locator("[data-me-name]").fill("Russell B");
+    await p2.locator("[data-me-save]").click();
+    await p2.waitForFunction(() => /no signal/i.test(document.querySelector("[data-me-msg]")?.innerText || ""));
+    ok(/Russell B/.test(await text(p2, '[data-member="u-russ"] .cw-who b')) && /waiting to send/i.test(await text(p2, '[data-member="u-russ"] [data-name-wait]')), "with no signal the new name shows at once, waiting to send", await text(p2, '[data-member="u-russ"]'));
+    ok(await p2.evaluate(async () => (await window.RIG.crew.pending()).items.filter((x) => x.kind === "me_rename").length) === 1, "and it is in the queue");
+    await ctx2.close();
+
+    // A server that refuses: the old name comes back, and says why.
+    const ctx3 = await browser.newContext(phone);
+    await stub(ctx3, { who: "member", fn: (b) => b.action === "me_rename" ? { status: 400, body: { error: "That name is not allowed." } } : undefined });
+    const p3 = await ctx3.newPage();
+    await signIn(p3, { userId: "u-russ" });
+    await p3.goto(base + "#/crew", { waitUntil: "load" });
+    await p3.waitForSelector("[data-me-edit]");
+    await p3.locator("[data-me-edit]").click();
+    await p3.locator("[data-me-name]").fill("Nope");
+    await p3.locator("[data-me-save]").click();
+    await p3.waitForFunction(() => /not changed/i.test(document.querySelector("[data-me-msg]")?.innerText || ""));
+    ok(/That name is not allowed\. Your name was not changed\./.test(await text(p3, "[data-me-msg]")) && (await text(p3, '[data-member="u-russ"] .cw-who b')).trim() === "Russell",
+      "a name the server refuses: its words, and the old name back", await text(p3, "[data-me-msg]"));
+    await ctx3.close();
+
+    // The owner renames the crew: the title in the sky follows at once.
+    const ctx4 = await browser.newContext(phone);
+    const c4 = await stub(ctx4, { who: "owner" });
+    const p4 = await ctx4.newPage();
+    await signIn(p4);
+    await p4.goto(base + "#/crew", { waitUntil: "load" });
+    await p4.waitForSelector("[data-crew-edit]");
+    await p4.locator("[data-crew-edit]").click();
+    await p4.waitForSelector("[data-crew-name]");
+    ok(await p4.locator("[data-crew-name]").inputValue() === "ZZTEST crew", "the owner's Rename opens with the crew's name");
+    await p4.locator("[data-crew-name]").fill("ZZTEST crew two");
+    await p4.locator("[data-crew-save]").click();
+    await p4.waitForFunction(() => /ZZTEST crew two/.test(document.querySelector("[data-crewname]")?.innerText || ""));
+    ok(true, "the title in the sky takes the new name at once");
+    await p4.waitForFunction(() => /saved/i.test(document.querySelector("[data-crew-name-msg]")?.innerText || ""));
+    ok(c4.fn.filter((b) => b.action === "crew_rename").length === 1 && c4.fn.find((b) => b.action === "crew_rename").name === "ZZTEST crew two", "crew_rename, once, and then it says it is saved", c4.fn.filter((b) => b.action === "crew_rename"));
+    await ctx4.close();
+  }
+
+  // A session the sign-in server cannot read at all (validation_failed) signs
+  // out, and lands on the sign-in screen: not "No signal".
+  {
+    const ctx = await browser.newContext(phone);
+    await stub(ctx, { token: () => ({ status: 400, body: { code: 400, error_code: "validation_failed", msg: "Invalid Refresh Token" } }) });
+    const p = await ctx.newPage();
+    await signIn(p, { at: Date.now() - 5000 });
+    await save(p, "rig.crew.v1", stateFor("owner", members()));
+    await p.goto(base + "#/crew", { waitUntil: "load" });
+    await p.waitForSelector("[data-phone]");
+    ok(await p.evaluate(() => localStorage.getItem("rig.session.v1")) === null && !/no signal/i.test(await screenText(p)), "validation_failed signs out to the sign-in screen, with no talk of signal");
     await ctx.close();
   }
 

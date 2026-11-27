@@ -857,6 +857,112 @@ function server(log = []) {
   ok(gone.signedOut === true && t3.crew.session() === null, "the sign-in server saying the session is gone while adding a number signs out", gone);
 }
 
+// ------------------------------------------- a sign-in the server cannot read at all
+{
+  // The sign-in server answers a refresh token it cannot even read with
+  // validation_failed. No swap mends that: the person is signed out, and the
+  // screen says sign in, not "No signal".
+  const store = phoneStore(); signedIn(store, { at: Date.now() - 1000 });
+  store.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const t = tab({ store, net: (req) => req.url.startsWith(AUTH + "/token") ? { status: 400, body: { code: 400, error_code: "validation_failed", msg: "Invalid Refresh Token" } } : { status: 200, body: clone(STATE) } });
+  const r = await t.crew.state({ fresh: true });
+  ok(r.signedOut === true && !r.offline && t.crew.session() === null, "validation_failed from the sign-in server signs the person out, it is not No signal", r);
+  ok(t.fn().length === 0, "and the dead token was never shown to the crew function");
+
+  // The same word after the crew function said 401.
+  const st2 = phoneStore(); signedIn(st2); st2.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const t2 = tab({ store: st2, net: (req) => req.url.startsWith(AUTH + "/token") ? { status: 400, body: { error: "validation_failed", error_description: "refresh token is malformed" } } : { status: 401, body: { error: "Sign in first." } } });
+  const w = await t2.crew.going("t1", "going");
+  ok(w.signedOut === true && t2.crew.session() === null, "a 401, then validation_failed: a write says signed out, not waiting for a signal", w);
+
+  // A validation_failed from the crew function itself is not the sign-in server talking: nobody is signed out.
+  const st3 = phoneStore(); signedIn(st3); st3.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const t3 = tab({ store: st3, net: (req) => req.url === FN ? { status: 400, body: { error: "That trip id is not valid.", error_code: "validation_failed" } } : { status: 200, body: {} } });
+  const g = await t3.crew.state({ fresh: true });
+  ok(!g.signedOut && t3.crew.session() !== null, "a 400 from the crew function, whatever its words, signs nobody out", g);
+}
+
+// ------------------------------------------------------------------ names
+{
+  // My own name, with a signal: sent once, trimmed, and what the phone saved follows.
+  const st = phoneStore(); signedIn(st);
+  st.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const log = [];
+  const t = tab({ store: st, net: (req) => {
+    if (req.url === FN && req.body.action === "me_rename") { log.push(req.body); return { status: 200, body: { ok: true, name: req.body.name } }; }
+    if (req.url === FN && req.body.action === "crew_rename") { log.push(req.body); return { status: 403, body: { error: "Only the owner can rename the crew." } }; }
+    return server()(req);
+  } });
+  let heard = 0; t.crew.onChange((w) => { if (w.kind === "queue") heard++; });
+  const r = await t.crew.rename("  Russ   B  ");
+  ok(r.ok && r.name === "Russ B" && !r.queued, "renaming myself with a signal answers with the name the server took", r);
+  ok(log.length === 1 && log[0].action === "me_rename" && log[0].name === "Russ B" && Object.keys(log[0]).sort().join() === "action,name", "it goes up once, as me_rename with the name alone, spaces tidied", log);
+  const c = t.crew.cached();
+  ok(c.me.name === "Russ B" && c.members.find((m) => m.id === "u-russ").name === "Russ B" && !c.me.waiting, "the saved crew says the new name, in my own row too", c.me);
+  ok(t.read("rig.crew.v1").me.name === "Russ B", "and it is kept on the phone");
+  ok(heard >= 1, "listeners hear it go");
+
+  // Refused before it is sent: nothing empty, nothing over 60, and a member never renames the crew.
+  log.length = 0;
+  ok(/name/i.test((await t.crew.rename("   ")).error || ""), "an empty name is refused on the phone");
+  ok(/60/.test((await t.crew.rename("x".repeat(61))).error || ""), "a name over 60 characters is refused on the phone");
+  ok((await t.crew.rename("y".repeat(60))).ok === true, "60 characters is fine");
+  const cr = await t.crew.crewRename("Mine now");
+  ok(/only the owner/i.test(cr.error || "") && log.filter((b) => b.action === "crew_rename").length === 0, "a member renaming the crew is told only the owner can, and nothing is sent", cr);
+
+  // The owner renames the crew.
+  const so = phoneStore(); signedIn(so, { userId: "u-coach" });
+  so.setItem("rig.crew.v1", JSON.stringify(Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } })));
+  const olog = [];
+  const o = tab({ store: so, net: (req) => {
+    if (req.url === FN && req.body.action === "crew_rename") { olog.push(req.body); return { status: 200, body: { ok: true, name: req.body.name } }; }
+    return server()(req);
+  } });
+  const on = await o.crew.crewRename("ZZTEST crew two");
+  ok(on.ok && on.name === "ZZTEST crew two" && olog.length === 1 && olog[0].name === "ZZTEST crew two", "the owner renames the crew: crew_rename, once", { on, olog });
+  ok(o.crew.cached().crew.name === "ZZTEST crew two" && o.read("rig.crew.v1").crew.name === "ZZTEST crew two", "and the saved crew carries the new name");
+
+  // No signal: the name shows at once as waiting, a second one takes its place, and only the last goes.
+  let down = true; const sent = [];
+  const sq = phoneStore(); signedIn(sq); sq.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const q = tab({ store: sq, net: (req) => {
+    if (down) return DOWN;
+    if (req.url === FN && req.body.action === "me_rename") { sent.push(req.body.name); return { status: 200, body: { ok: true, name: req.body.name } }; }
+    return server()(req);
+  } });
+  const w1 = await q.crew.rename("Russ");
+  ok(w1.ok && w1.queued && w1.name === "Russ", "with no signal a new name waits", w1);
+  ok(q.crew.cached().me.name === "Russ" && q.crew.cached().me.waiting === true && q.crew.cached().members.find((m) => m.id === "u-russ").name === "Russ", "and shows at once, marked waiting", q.crew.cached().me);
+  await q.crew.rename("Russell B");
+  const pend = await q.crew.pending();
+  ok(pend.count === 1 && q.crew.cached().me.name === "Russell B", "a second rename takes the place of the first: one waits", pend);
+  ok(q.read("rig.crew.v1").me.name === "Russell", "what the server last said is kept apart until it lands");
+  down = false;
+  const f = await q.crew.flush();
+  ok(f.sent === 1 && sent.join() === "Russell B", "when the signal comes back only the last name goes, once", { f, sent });
+  ok(q.crew.cached().me.name === "Russell B" && !q.crew.cached().me.waiting && q.read("rig.crew.v1").me.name === "Russell B", "and it is saved as the name");
+
+  // A name the server refuses: said plainly, and the old one comes back.
+  const sr = phoneStore(); signedIn(sr); sr.setItem("rig.crew.v1", JSON.stringify(STATE));
+  const rf = tab({ store: sr, net: (req) => req.url === FN && req.body.action === "me_rename" ? { status: 400, body: { error: "That name is not allowed." } } : server()(req) });
+  const bad = await rf.crew.rename("Russ");
+  ok(bad.error === "That name is not allowed." && !bad.ok && bad.status === 400, "a name the server refuses answers with its words", bad);
+  ok(rf.crew.cached().me.name === "Russell" && (await rf.crew.pending()).count === 0, "the old name stands, and nothing is left waiting");
+
+  // Refused later, after waiting for a signal: it lands in failed() for the screen to say.
+  let dn = true;
+  const sl = phoneStore(); signedIn(sl, { userId: "u-coach" });
+  sl.setItem("rig.crew.v1", JSON.stringify(Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } })));
+  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: "Only the owner can rename the crew." } } : server()(req) });
+  const lw = await lt.crew.crewRename("Somebody else's");
+  ok(lw.queued && lt.crew.cached().crew.name === "Somebody else's", "the crew's new name waits for a signal too", lw);
+  let dropped = null; lt.crew.onChange((w) => { if (w.kind === "queue" && w.dropped) dropped = w.dropped; });
+  dn = false;
+  await lt.crew.flush();
+  ok(lt.crew.failed().some((x) => x.kind === "crew_rename" && /only the owner/i.test(x.error)) && dropped && dropped.some((x) => x.kind === "crew_rename"), "refused later, it is reported, not tried forever", lt.crew.failed());
+  ok(lt.crew.cached().crew.name === "ZZTEST crew", "and the crew keeps its name");
+}
+
 // ------------------------------------------------------------------ signing out
 {
   const st = phoneStore(); signedIn(st);

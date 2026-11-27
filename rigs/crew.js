@@ -89,6 +89,10 @@
 //   catch(tripId, { species, lengthIn?, weightLb?, lure?, notes?, technique?, spotName?, lat?, lon?,
 //                   at?, photo?: File|Blob }, { tell? })   (async) -> { ok, catch }   (addCatch is the same)
 //   deleteCatch(catchId)                      (async) -> { ok }
+//   rename(name)                              (async) -> { ok, name }   my own name on the crew, 1 to 60 characters
+//   crewRename(name)                          (async) -> { ok, name }   the crew's name, the owner's only
+//                                     A name waiting to send already shows on cached(). Only the
+//                                     last of each waits: a second rename takes the place of the first.
 //
 // The queue
 // A write the server would refuse anyway (an empty note, a line with no
@@ -332,7 +336,9 @@
   // gone signs a person out. A timeout, a 5xx, a 429 or a page that is not
   // ours (marina wifi) never does: at the pier that would mean no crew until
   // there is signal and a new code.
-  var GONE = /^(refresh_token_not_found|refresh_token_already_used|session_not_found|session_expired|user_not_found|user_banned|bad_jwt|no_authorization|invalid_grant)$/;
+  // validation_failed is what it says to a refresh token it cannot read at all
+  // (one cut short, or from a project that was reset): no swap can mend that.
+  var GONE = /^(refresh_token_not_found|refresh_token_already_used|session_not_found|session_expired|user_not_found|user_banned|bad_jwt|no_authorization|invalid_grant|validation_failed)$/;
   function saysSignedOut(r) {
     if (r.status !== 400 && r.status !== 401 && r.status !== 403) return false;
     if (!isObject(r.body)) return false;
@@ -465,7 +471,7 @@
   }
   function me() {
     var c = crewRaw(), s = session();
-    if (c) return { id: c.me.id, name: c.me.name };
+    if (c) return { id: c.me.id, name: renamed(queueMine(), "me_rename") || c.me.name };
     return s ? { id: s.userId, name: "You" } : null;
   }
   function memberRef(id) {
@@ -599,11 +605,20 @@
     t.counts = c;
     return t;
   }
+  // The newest name of a kind (me_rename, crew_rename) still waiting to send, or "".
+  function renamed(q, kind) {
+    var name = "";
+    q.forEach(function (e) { if (e.kind === kind && e.body && e.body.name) name = e.body.name; });
+    return name;
+  }
   function cached() {
     var c = crewRaw();
     if (!c) return null;
-    var q = queueMine();
-    return { me: c.me, crew: c.crew || null, members: c.members || [], sms: c.sms !== false,
+    var q = queueMine(), mine = renamed(q, "me_rename"), crewName = renamed(q, "crew_rename");
+    var meNow = mine ? Object.assign({}, c.me, { name: mine, waiting: true }) : c.me;
+    var crew = c.crew ? (crewName ? Object.assign({}, c.crew, { name: crewName, waiting: true }) : c.crew) : null;
+    var members = (c.members || []).map(function (m) { return mine && m.id === c.me.id ? Object.assign({}, m, { name: mine, waiting: true }) : m; });
+    return { me: meNow, crew: crew, members: members, sms: c.sms !== false,
       trips: (c.trips || []).map(function (t) { return laidRow(t, q); }) };
   }
 
@@ -782,7 +797,20 @@
     } else if (e.kind === "list_update" && a.item) tripEdit(id, put("list", a.item));
     else if (e.kind === "list_delete") tripEdit(id, without("list", b.itemId), count("list", -1));
     else if (e.kind === "catch_delete") tripEdit(id, without("catches", b.catchId), count("catches", -1));
+    else if (e.kind === "me_rename" || e.kind === "crew_rename") nameSaved(e.kind, a.name || b.name);
     if (id) ownTouch(id);
+  }
+  // A name the server took, into what the phone has saved of the crew.
+  function nameSaved(kind, name) {
+    var c = read(CREW, null);
+    if (!c || !c.me || !name) return;
+    if (kind === "crew_rename") { if (c.crew) c.crew.name = name; }
+    else {
+      c.me.name = name;
+      (c.members || []).forEach(function (m) { if (m.id === c.me.id) m.name = name; });
+    }
+    write(CREW, c);
+    emit({ kind: "state" });
   }
 
   function sendCatch(rec) {
@@ -1020,6 +1048,23 @@
     if (String(commentId).indexOf("q:") === 0) return unqueue(commentId);
     return enqueue({ clientId: uuid(), kind: "comment_delete", tripId: findTripOf("comments", commentId), body: { commentId: commentId } }, null);
   }
+
+  // A name: my own on the crew (any member), or the crew's (the owner's
+  // alone). The server takes 1 to 60 characters, so that is checked here
+  // first. Only the last of each kind waits: a second rename replaces the first.
+  function nameWrite(kind, raw, what) {
+    var s = session(), name = String(raw == null ? "" : raw).replace(/\s+/g, " ").trim();
+    if (!s) return Promise.resolve({ signedOut: true });
+    if (!name) return Promise.resolve({ error: what === "crew" ? "The crew needs a name." : "Write your name first." });
+    if (name.length > 60) return Promise.resolve({ error: "Keep the name to 60 characters." });
+    var c = crewRaw();
+    if (kind === "crew_rename" && c && c.crew && c.crew.role !== "owner") return Promise.resolve({ error: "Only the owner can rename the crew.", status: 403 });
+    return enqueue({ clientId: uuid(), kind: kind, tripId: null, body: { name: name } }, function () { return { name: name }; }, function (q) {
+      return q.filter(function (e) { return !(e.kind === kind && e.userId === s.userId); });
+    });
+  }
+  function rename(name) { return nameWrite("me_rename", name, "me"); }
+  function crewRename(name) { return nameWrite("crew_rename", name, "crew"); }
 
   function num(v) { var n = typeof v === "number" ? v : v == null || v === "" ? NaN : Number(v); return isFinite(n) ? n : null; }
   function text(v, max) { var t = String(v == null ? "" : v).trim(); return t.length > max ? t.slice(0, max) : t; }
@@ -1345,7 +1390,7 @@
     createTrip: createTrip, updateTrip: updateTrip, deleteTrip: deleteTrip, invite: invite, link: link, removeMember: removeMember,
     prefsGet: prefsGet, prefsSet: prefsSet, pushSubscribe: pushSubscribe, pushUnsubscribe: pushUnsubscribe, testAlert: testAlert, alerts: alerts,
     going: going, addComment: addComment, deleteComment: deleteComment, addItem: addItem, updateItem: updateItem, deleteItem: deleteItem,
-    "catch": addCatch, addCatch: addCatch, deleteCatch: deleteCatch,
+    "catch": addCatch, addCatch: addCatch, deleteCatch: deleteCatch, rename: rename, crewRename: crewRename,
     pending: pending, flush: flush, failed: failed, clearFailed: clearFailed, onChange: onChange,
     isNew: isNew, markSeen: markSeen, textLink: textLink, say: say, canTell: canTell, shrinkPhoto: shrinkPhoto
   };

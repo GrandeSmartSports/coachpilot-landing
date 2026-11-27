@@ -352,185 +352,282 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 .card .rulestamp{font-size:12.5px;color:var(--t3);margin:0 0 12px}
 /* ---- the crew ---- */
 /* Every class here starts cw- so no other part of the app can collide with
-   it. An earlier bare .go rule turned the bait card's buy arrows into gold bars. */
+   it. An earlier bare .go rule turned the bait card's buy arrows into gold bars.
+   Surfaces come from the kit: the first card is a .float on the waterline,
+   groups are .panel, quiet notes and the boxes you type into are pressed in. */
 .cw{max-width:430px}
+.float.cwcard{padding:16px 16px 18px}
+.cwcard>.eyebrow,.cw-share>.eyebrow,.cwplan>.eyebrow{margin:0 0 9px}
 .cw-fld{display:block;margin:0 0 14px}
-.cw-fld > span{display:block;font-size:13px;color:var(--t3);margin:0 0 6px}
-.cw-fld input,.cw-fld select,.cw-fld textarea{width:100%;min-height:48px;font:inherit;font-size:16px;color:var(--ink);
-  background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:0 14px}
+.cw-fld > span{display:block;font-size:13px;font-weight:600;color:var(--t2);margin:0 0 6px}
+/* a box you type into is a well: pressed into the card it sits on */
+.cw-fld input,.cw-fld select,.cw-fld textarea,.cw-addline input{width:100%;min-height:50px;font:inherit;font-size:16px;color:var(--t1);
+  background:var(--well);border:0;border-radius:14px;padding:0 14px;
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 20%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 7%,transparent),0 1px 0 color-mix(in srgb,var(--lum) 50%,transparent)}
+:root[data-dark="1"] .cw-fld input,:root[data-dark="1"] .cw-fld select,:root[data-dark="1"] .cw-fld textarea,:root[data-dark="1"] .cw-addline input{
+  box-shadow:inset 0 1px 3px var(--shore),inset 0 0 0 1px color-mix(in srgb,var(--line) 75%,transparent)}
+.cw-fld input::placeholder,.cw-fld textarea::placeholder,.cw-addline input::placeholder{color:var(--t3);opacity:1}
 .cw-fld textarea{min-height:96px;padding:12px 14px;resize:vertical}
-.cw-fld input:focus,.cw-fld select:focus,.cw-fld textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+.cw-fld input:focus,.cw-fld select:focus,.cw-fld textarea:focus,.cw-addline input:focus{outline:2px solid var(--accent);outline-offset:1px}
+/* a second choice: a raised paper button, in sentence case */
 .cw-plain{display:flex;align-items:center;justify-content:center;width:100%;font:inherit;text-align:center;
-  text-decoration:none;cursor:pointer;border-radius:14px;padding:0 14px;
-  min-height:46px;margin-top:10px;font-size:15px;color:var(--ink2);background:transparent;border:1px solid var(--line2)}
+  text-decoration:none;cursor:pointer;border:0;border-radius:15px;padding:0 14px;
+  min-height:48px;margin-top:10px;font-size:15px;font-weight:600;color:var(--t1);
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
 .cw-plain[disabled]{opacity:.55;cursor:default}
-.cw-plain:active{background:color-mix(in srgb,var(--accent) 9%,transparent)}
-.cw-out{margin-top:22px}
-.cw-mini{min-height:34px;font:inherit;font-size:13px;font-weight:600;color:var(--ink2);background:transparent;
-  border:1px solid var(--line);border-radius:999px;padding:6px 13px;cursor:pointer}
-.cw-mini.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
+.cw-plain:active{transform:translateY(1px)}
+.cw-plain.cw-main{color:var(--accent);font-weight:650;box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 45%,transparent)}
+:root[data-dark="1"] .cw-plain.cw-main{color:color-mix(in srgb,var(--accent) 55%,var(--t1))}
+/* signing out is the quietest thing on the screen: an outline, no lift */
+.cw-out{margin-top:26px;color:var(--t2);background:none;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 35%,transparent)}
+.cw-mini,.cw-act{position:relative;display:inline-flex;align-items:center;justify-content:center;font:inherit;font-weight:600;color:var(--t1);text-decoration:none;cursor:pointer;
+  border:0;border-radius:999px;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:0 1px 2px color-mix(in srgb,var(--shade) 16%,transparent),inset 0 0 0 1px var(--edge)}
+.cw-mini{min-height:36px;font-size:13px;padding:6px 13px}
+.cw-mini::after{content:"";position:absolute;inset:-5px -2px}
+.cw-act{min-height:44px;padding:0 16px;font-size:14px}
+.cw-mini.no,.cw-act.no{color:var(--no)}
+:root[data-dark="1"] .cw-mini.no,:root[data-dark="1"] .cw-act.no{color:color-mix(in srgb,var(--no) 72%,var(--t1))}
+.cw-act[disabled]{opacity:.55;cursor:default}
+.cw-act:active,.cw-mini:active{transform:translateY(1px)}
 .cw-msg{font-size:14px;line-height:1.45;color:var(--t3);margin:12px 0 0;min-height:1px}
 .cw-msg:empty{display:none}
 .cw-msg.no{color:var(--no)}
 .cw-msg.ok{color:var(--go)}
-.cw-lead{font-size:17px;line-height:1.45;color:var(--ink);margin:0 0 16px}
-.cw-sec{margin:26px 0 0;padding:20px 0 0;border-top:1px solid var(--line)}
-.cw-list{list-style:none;margin:0 0 18px;padding:0}
-.cw-list li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:12px 14px;border:1px solid var(--line);
-  border-radius:12px;background:var(--paper);margin:0 0 8px}
-.cw-who{flex:1 1 auto;min-width:0}
-.cw-who b{font-weight:650;font-size:15.5px;overflow-wrap:anywhere}
-.cw-who span{font-size:13px;color:var(--t3);margin-left:8px}
-.cw-ask{flex:1 1 100%;font-size:14px;color:var(--ink2)}
-.cw-acts{display:flex;flex-wrap:wrap;gap:8px}
-.cw-list .cw-msg{flex:1 1 100%;margin:0}
+:root[data-dark="1"] .cw-msg.no{color:color-mix(in srgb,var(--no) 72%,var(--t1))}
+.cw-lead{font-size:16px;line-height:1.45;color:var(--t1);margin:0 0 14px}
+.cw-lead b{font-weight:650}
+.cw-lead.cw-sub{color:var(--t2);font-size:15px}
 .cw-wait{font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--warn)}
-.cw .box p{margin:0 0 12px}
-.cw .box .cw-msg{margin:12px 0 0}
+:root[data-dark="1"] .cw-wait{color:color-mix(in srgb,var(--warn) 70%,var(--t1))}
+/* sign in: the number is the card on the waterline, a pasted link the well under it */
+.well.cw-paste{margin-top:14px;padding:14px 16px 16px}
+.well.cw-paste .cw-fld > span{color:var(--t2)}
+.well.cw-paste .cw-fld input{background:var(--pan-a);box-shadow:0 1px 2px color-mix(in srgb,var(--shade) 14%,transparent),inset 0 0 0 1px var(--edge)}
+/* the join screen: staying is gold, switching is the quiet one under it */
+.cw-switch{width:100%;margin-top:10px;text-transform:none;letter-spacing:0;font:650 16px/1.2 Inter,system-ui,sans-serif}
+/* the share box: text the link, then copy or done side by side */
+.cw-share .cw-msg{margin:8px 4px 0;text-align:center}
+.cw-sharebtns{margin-top:4px}
+.cw-sharebtns .cw-plain{margin-top:6px}
+.cw-pad{padding:16px}
+.cw-pad .cw-lead{font-size:15px;color:var(--t2)}
+/* the crew's next step, a row in its own panel inside the first card */
+.cw-next{margin-top:2px}
+.cw-next .row.crewtrip{padding:12px 14px 12px 12px}
+.cw-next .crewtrip .tx>b{font-size:17px}
+/* the people: a face, the name, what they are on the crew */
+.cw-list{list-style:none;margin:0;padding:0}
+.cw-person{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:66px;padding:12px 14px}
+.cw-person+.cw-person::before{content:"";position:absolute;left:66px;right:0;top:0;height:1px;background:var(--edge)}
+.cw-person.cw-crewname::before{left:0}
+.cw-person[data-waiting] .cw-who b{color:var(--t2)}
+.cw-who{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.cw-who b{font-weight:650;font-size:16px;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere;color:var(--t1)}
+.cw-who .cw-k{font:700 12px/1 "Barlow Condensed",sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--t3)}
+.cw-tags{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px}
+.cw-link{position:relative;min-height:28px;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:none;border:0;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px}
+.cw-link::after{content:"";position:absolute;inset:-8px -6px}
+:root[data-dark="1"] .cw-link{color:color-mix(in srgb,var(--accent) 55%,var(--t1))}
+.cw-tags .pill{font-size:12px;padding:5px 9px 4px}
+.cw-ask{flex:1 1 100%;font-size:14px;color:var(--t1);padding-left:52px}
+.cw-acts{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}
+.cw-list .cw-msg{flex:1 1 100%;margin:0;padding-left:52px}
+.cw-namebox{flex:1 1 100%;padding-left:52px}
+.cw-namebox .cw-fld{margin:2px 0 0}
+.cw-namebox .cw-acts2{margin-top:10px}
+.cw-crewname .cw-fld{flex:1 1 100%;margin:0}
+.cw-crewname .cw-acts2{margin:2px 0 0}
+.cw-crewname .cw-msg{padding-left:0}
+.cw-mark{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:700 12px/1 "Barlow Condensed",sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--go)}
+.cw-mark::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 20%,transparent)}
 .cw-rowbtn .chev{transition:transform .15s}
 .cw-rowbtn[aria-expanded="true"] .chev{transform:rotate(90deg)}
 [data-cw-trips] .crewtrip{margin-top:10px}
 [data-cw-trips] .crewtrip+.list{margin-top:10px}
 .cw-make,.mainact{margin:18px 0 0}
 [data-cw-make-slot]{display:contents}
-.cw-cond{font-size:15.5px;line-height:1.45;color:var(--ink);margin:14px 0 0;padding:12px 14px;border:1px solid var(--line);
-  border-radius:12px;background:var(--paper);overflow-wrap:anywhere}
-.cw-cond.go{border-color:color-mix(in srgb,var(--go) 45%,var(--line))}
-.cw-cond.slow,.cw-cond.warn{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,var(--line))}
-.cw-cond.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
-.cw-going{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.cw-ans{width:100%;min-height:48px;font:inherit;font-size:15px;font-weight:600;color:var(--ink2);background:var(--paper);
-  border:1px solid var(--line2);border-radius:12px;padding:0 6px;cursor:pointer}
-.cw-ans[aria-pressed="true"]{background:var(--gold);color:var(--on-gold);border-color:transparent}
-.cw-ghead{margin:0;font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-  font-size:13px;color:var(--t3);text-align:center}
-.cw-names{list-style:none;margin:8px 0 0;padding:0;font-size:14px;line-height:1.5;color:var(--ink2);text-align:center}
-.cw-names li{overflow-wrap:anywhere}
+/* the go call: its words, in the colour of the call */
+.cw-cond{margin:0;font-size:15.5px;line-height:1.38;font-weight:600;color:var(--t1);overflow-wrap:anywhere}
+.cw-cond.slow,.cw-cond.warn{color:var(--warn)}
+.cw-cond.no{color:var(--no)}
+:root[data-dark="1"] .cw-cond.slow,:root[data-dark="1"] .cw-cond.warn{color:color-mix(in srgb,var(--warn) 70%,var(--t1))}
+:root[data-dark="1"] .cw-cond.no{color:color-mix(in srgb,var(--no) 72%,var(--t1))}
+.cwcall{display:flex;align-items:center;gap:13px}
+.cwcall .seal{flex:0 0 50px;height:50px;font-size:19px;letter-spacing:.04em}
+.cwcall .cw-cond{flex:1 1 0}
+.cw-callpic{flex:0 0 84px;width:84px;height:40px;display:block}
+.cwplan .eyebrow{display:flex;align-items:center;gap:6px}
+.cwplan .eyebrow .chev{width:6px;height:10px;color:var(--accent)}
+.cwplan .planhead{margin-top:14px;padding-top:13px;border-top:1px solid var(--edge)}
+/* who is in: three tiles, the whole tile is the answer */
+.cw-going{margin:0}
+.rs{position:relative;cursor:default}
+.rs .rs-h{min-height:44px;margin:-6px 0 -4px}
+.cw-ans{position:static;flex:1;min-height:44px;padding:0;border:0;background:none;cursor:pointer;text-align:left;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+.cw-ans::after{content:"";position:absolute;inset:0;border-radius:16px}
+.cw-ans:focus-visible{outline:none}
+.cw-ans:focus-visible::after{outline:2.5px solid var(--accent);outline-offset:2px}
+.rs:active{transform:translateY(1px)}
+.rs.done:active{transform:none}
+.cw-ghead{flex:1}
+.cw-names{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cw-names .rs-p span{overflow-wrap:anywhere}
 .cw-names li[data-waiting]{color:var(--t3)}
 .cw-acts2{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 0}
 .cw-acts2:empty{display:none}
-.cw-act{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;font:inherit;font-size:14px;
-  font-weight:600;color:var(--ink2);background:transparent;border:1px solid var(--line);border-radius:999px;cursor:pointer;text-decoration:none}
-.cw-act.no{color:var(--no);border-color:color-mix(in srgb,var(--no) 45%,var(--line))}
-.cw-act[disabled]{opacity:.55;cursor:default}
-.cw-asks{margin:14px 0 0;font-size:15px;color:var(--ink)}
-.cw-foot{margin:26px 0 0}
+.cw-asks{margin:14px 0 0;font-size:15px;color:var(--t1)}
+.cw-foot{margin:28px 0 0}
+.cw-foot .gold svg{width:21px;height:21px}
+.cw-textnote{margin:10px 10px 0;text-align:center;color:var(--t2)}
+.cw-foot .cw-acts2{justify-content:center}
+.cw-foot .cw-asks{text-align:center}
 /* Planning a trip. */
 .cw-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .cw-two .cw-fld input{min-width:0}
-.cw-seg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin:0 0 14px}
-.cw-pick{min-height:48px;font:inherit;font-size:15px;font-weight:600;color:var(--ink2);background:var(--paper);
-  border:1px solid var(--line);border-radius:12px;padding:0 8px;cursor:pointer}
-.cw-pick[aria-pressed="true"]{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
+.cw-k2{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--t2)}
+.cw-seg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;margin:0 0 14px;padding:4px;border-radius:16px;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
+.cw-pick{min-height:46px;font:inherit;font-size:15px;font-weight:600;color:var(--t2);background:none;border:0;border-radius:12px;padding:0 8px;cursor:pointer}
+.cw-pick[aria-pressed="true"]{color:var(--t1);background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 55%,transparent)}
 .cw-condslot:empty{display:none}
 .cw-condslot{margin:0 0 14px}
-.cw-condslot .cw-cond{margin:0}
+.cw-condslot .cwcall{padding:12px 13px;border-radius:16px;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
+.cw-condslot .seal{flex-basis:42px;height:42px;font-size:16px}
 /* Notes, the list and catches on a crew trip, and the Tell row. */
-.cw-x{min-height:44px;padding:0 2px;font:inherit;font-size:13px;font-weight:600;color:var(--t3);background:none;border:0;cursor:pointer;
+.cw-x{min-height:44px;padding:0 2px;font:inherit;font-size:13px;font-weight:600;color:var(--t2);background:none;border:0;cursor:pointer;
   text-decoration:underline;text-underline-offset:3px}
-.cw-plain.cw-main{color:var(--ink);border-color:var(--accent);font-weight:600}
 .cw-tell{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 12px}
-.cw-foot .cw-tell{margin:14px 0 0}
-.cw-tell-h{font-size:13px;color:var(--t3)}
+.cw-foot .cw-tell{margin:14px 0 0;justify-content:center}
+.cw-tell-h{font-size:13px;font-weight:600;color:var(--t2)}
 .cw-pill{display:inline-flex;align-items:center;gap:7px;min-height:44px;max-width:100%;padding:0 14px;font:inherit;font-size:14px;font-weight:600;
-  color:var(--t3);background:var(--paper);border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow-wrap:anywhere}
-.cw-pill[aria-pressed="true"]{color:var(--ink);border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--paper))}
+  color:var(--t2);background:var(--well);border:0;border-radius:999px;cursor:pointer;overflow-wrap:anywhere;
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shade) 16%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
+.cw-pill[aria-pressed="true"]{color:var(--t1);background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 55%,transparent)}
 .cw-tell .cw-pill::before{content:"";flex:0 0 auto;width:9px;height:5px;margin-top:-3px;border:solid currentColor;border-width:0 0 2px 2px;
   transform:rotate(-45deg);opacity:0}
-.cw-tell .cw-pill[aria-pressed="true"]::before{opacity:1}
-.cw-nlist,.cw-clist{list-style:none;margin:0 0 14px;padding:0}
-.cw-note{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
-.cw-note-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;margin:0;font-size:13px;color:var(--t3)}
-.cw-note-h b{font-size:14.5px;font-weight:650;color:var(--ink)}
-.cw-note-b{margin:4px 0 0;font-size:15.5px;line-height:1.45;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
-.cw-note .cw-x,.cw-catch .cw-x{margin:2px 0 -10px}
+.cw-tell .cw-pill[aria-pressed="true"]::before{opacity:1;color:var(--go)}
+/* notes: a conversation, a face and a bubble each, your own on the right */
+.cw-nlist,.cw-clist{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column}
+.cw-nlist{gap:12px}
+.cw-clist{gap:10px}
+.cw-note{display:flex;align-items:flex-end;gap:9px}
+.cw-note.mine{flex-direction:row-reverse}
+.cw-bub{flex:0 1 auto;min-width:0;max-width:calc(100% - 42px);padding:10px 14px 11px;border-radius:19px 19px 19px 6px;
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+/* your own words in gold's soft partner, the colour "you" wears on the crew screen */
+.cw-note.mine .cw-bub{border-radius:19px 19px 6px 19px;background:color-mix(in srgb,var(--gold) 15%,var(--pan-a))}
+:root[data-dark="1"] .cw-note.mine .cw-bub{background:color-mix(in srgb,var(--gold) 13%,var(--paper))}
+.cw-note[data-waiting] .cw-bub{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--warn) 45%,transparent)}
+.cw-note-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 9px;margin:0;font-size:12.5px;color:var(--t2)}
+.cw-note-h b{font-size:14px;font-weight:700;color:var(--t1)}
+.cw-note-b{margin:3px 0 0;font-size:15.5px;line-height:1.42;color:var(--t1);white-space:pre-wrap;overflow-wrap:anywhere}
+.cw-note .cw-x,.cw-catch .cw-x{margin:2px 0 -12px}
 .cw-note .cw-asks,.cw-catch .cw-asks{margin:10px 0 0;font-size:14.5px}
 .cw-note .cw-acts2,.cw-catch .cw-acts2{margin:10px 0 0}
+.panel.cw-notebox{padding:14px 14px 4px}
 .cw-notebox textarea{min-height:76px}
-.cw-sum{font-size:15px;line-height:1.45;color:var(--ink2);margin:0 0 12px}
-.cw-items{list-style:none;margin:0 0 12px;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden}
+.cw-notebox .cw-plain{margin-bottom:10px}
+/* the list: a checklist with real ticks and who has each thing */
+.cw-sum{font-size:14px;line-height:1.45;color:var(--t2);margin:-2px 4px 10px}
+.cw-items{list-style:none;margin:0 0 12px;padding:0}
 .cw-items:empty{display:none}
-.cw-item{display:flex;flex-wrap:wrap;align-items:center;gap:0 6px;padding:4px 10px 4px 4px;border-top:1px solid var(--line)}
-.cw-item:first-child{border-top:0}
-.cw-tick{position:relative;flex:0 0 44px;width:44px;height:44px;padding:0;background:none;border:0;cursor:pointer}
-.cw-tick::before{content:"";position:absolute;left:11px;top:11px;width:22px;height:22px;border:2px solid var(--line2);border-radius:7px}
-.cw-tick[aria-checked="true"]::before{border-color:var(--go)}
-.cw-tick[aria-checked="true"]::after{content:"";position:absolute;left:19px;top:14px;width:6px;height:11px;border:solid var(--go);
-  border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
-.cw-item-l{flex:1 1 0;min-width:0;padding:8px 0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
-.cw-item.done .cw-item-l{color:var(--t3)}
-.cw-item.done .cw-item-l > span:first-child{text-decoration:line-through}
+.cw-item{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;min-height:62px;padding:8px 12px 8px 8px}
+.cw-item+.cw-item::before{content:"";position:absolute;left:58px;right:0;top:0;height:1px;background:var(--edge)}
+.cw-tick{position:relative;flex:0 0 44px;width:44px;height:44px;padding:0;background:none;border:0;cursor:pointer;display:grid;place-items:center}
+.cw-tick i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--well);
+  box-shadow:inset 0 1px 2px color-mix(in srgb,var(--shade) 25%,transparent),inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 55%,transparent)}
+:root[data-dark="1"] .cw-tick i{box-shadow:inset 0 1px 2px var(--shore),inset 0 0 0 1.5px color-mix(in srgb,var(--t2) 55%,transparent)}
+.cw-tick svg{width:15px;height:15px;opacity:0}
+.cw-tick[aria-checked="true"] i{background:var(--go);box-shadow:inset 0 -2px 3px color-mix(in srgb,var(--shade) 25%,transparent),0 3px 7px -3px color-mix(in srgb,var(--go) 80%,var(--shade))}
+:root[data-dark="1"] .cw-tick[aria-checked="true"] i{background:color-mix(in srgb,var(--go) 84%,var(--bg))}
+.cw-tick[aria-checked="true"] svg{opacity:1;color:var(--paper)}
+:root[data-dark="1"] .cw-tick[aria-checked="true"] svg{color:var(--bg)}
+.cw-item-l{flex:1 1 0;min-width:0;padding:8px 0;font-size:16px;font-weight:650;line-height:1.3;letter-spacing:-.01em;color:var(--t1);overflow-wrap:anywhere}
+.cw-item.done .cw-item-l{color:var(--t2)}
 .cw-item-l .cw-wait{display:block;margin-top:2px}
-.cw-whob{flex:0 0 auto;max-width:42%;min-height:44px;padding:0 13px;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink2);
-  background:transparent;border:1px solid var(--line);border-radius:999px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cw-whob.none{color:var(--t3);border-style:dashed}
-.cw-whob[aria-expanded="true"]{color:var(--ink);border-color:var(--accent)}
-.cw-panel{flex:1 1 100%;min-width:0;margin:4px 0 8px 6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
-.cw-panel-h{margin:0 0 8px;font-size:13px;color:var(--t3)}
+.cw-whob{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;max-width:46%;min-height:44px;padding:0 12px 0 6px;font:inherit;font-size:13.5px;font-weight:600;color:var(--t2);
+  background:none;border:0;border-radius:999px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cw-whob .av{flex:0 0 auto}
+.cw-whob.none{padding:0 13px;color:var(--t2);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
+.cw-whob.none::before{content:"+";font-weight:700;font-size:15px;line-height:1;margin-right:-2px}
+.cw-whob[aria-expanded="true"]{color:var(--t1);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.cw-panel{flex:1 1 100%;min-width:0;margin:4px 0 8px 6px;padding:12px;border-radius:14px;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
+.cw-panel-h{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--t2)}
 .cw-pills{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.cw-panel .cw-pill{background:var(--pan-a);box-shadow:0 1px 2px color-mix(in srgb,var(--shade) 14%,transparent),inset 0 0 0 1px var(--edge)}
+.cw-panel .cw-pill[aria-pressed="true"]{box-shadow:var(--e1),inset 0 0 0 1.5px color-mix(in srgb,var(--go) 55%,transparent)}
 .cw-panel .cw-acts2{margin:0}
 .cw-panel .cw-asks{margin:0 0 10px}
 .cw-panel .cw-fld{margin:0 0 10px}
 .cw-addline{display:flex;gap:8px;align-items:center}
-.cw-addline input{flex:1 1 0;min-width:0;min-height:48px;font:inherit;font-size:16px;color:var(--ink);background:var(--paper);
-  border:1px solid var(--line);border-radius:12px;padding:0 14px}
-.cw-addline input:focus{outline:2px solid var(--accent);outline-offset:1px}
-.cw-addline .cw-act{flex:0 0 auto;min-height:48px;border-radius:12px}
-.cw-catch{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper);margin:0 0 8px}
-.cw-thumb{flex:0 0 76px;width:76px;height:76px;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel2);
-  cursor:pointer;font:inherit;font-size:11px;line-height:1.3;color:var(--t3)}
+.cw-addline input{flex:1 1 0;min-width:0}
+.cw-addline .cw-act{flex:0 0 auto;min-height:50px;border-radius:14px}
+/* catches: a card each, the photo (or the water's own picture) at its side */
+.panel.cw-catch{display:flex;gap:14px;align-items:flex-start;padding:12px}
+.cw-thumb{position:relative;flex:0 0 104px;width:104px;height:104px;padding:0;border:0;border-radius:14px;overflow:hidden;background:var(--well);
+  cursor:pointer;font:inherit;font-size:11px;line-height:1.3;color:var(--t3);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--shade) 14%,transparent),var(--shx) 6px 12px -6px color-mix(in srgb,var(--shade) 55%,transparent)}
 .cw-thumb img{display:block;width:100%;height:100%;object-fit:cover}
-.cw-thumb[data-nophoto]{cursor:default}
+.cw-thumb[data-nophoto]{cursor:default;padding:8px}
 .cw-thumb[data-nophoto]::after{content:"Photo needs a signal"}
-.cw-catch-t{flex:1 1 0;min-width:0}
-.cw-catch-h{margin:0;font-size:15.5px;line-height:1.35;color:var(--ink);overflow-wrap:anywhere}
-.cw-catch-h b{font-weight:650}
-.cw-catch-h span{margin-left:8px;font-family:var(--mono);font-size:13px;color:var(--ink2)}
-.cw-catch-m{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--t3);overflow-wrap:anywhere}
-.cw-catch-n{margin:4px 0 0;font-size:14.5px;line-height:1.45;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
-.cw-form{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel2)}
+.cw-thumb.nopic{cursor:default}
+.cw-thumb.nopic .tile{width:100%;height:100%;border-radius:0;box-shadow:none}
+.cw-catch-t{flex:1 1 0;min-width:0;padding-top:2px}
+.cw-catch-h{margin:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 9px;color:var(--t1);overflow-wrap:anywhere}
+.cw-catch-h b{font:700 23px/1.05 "Barlow Condensed",sans-serif;letter-spacing:.01em}
+.cw-catch-h span{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--t2)}
+.cw-catch-m{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:6px 0 0;font-size:13px;line-height:1.4;color:var(--t2);overflow-wrap:anywhere}
+.cw-catch-m .av{margin-right:2px}
+.cw-catch-n{margin:6px 0 0;font-size:14.5px;line-height:1.45;color:var(--t1);white-space:pre-wrap;overflow-wrap:anywhere}
+.cw-form{padding:14px;border-radius:18px;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
 .cw-photo{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
-.cw-photo img{display:block;width:96px;height:96px;object-fit:cover;border:1px solid var(--line);border-radius:10px}
+.cw-photo img{display:block;width:96px;height:96px;object-fit:cover;border-radius:12px;box-shadow:0 0 0 1px var(--edge)}
 .cw-file{position:relative;overflow:hidden}
 .cw-file input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0}
 .cw-file:focus-within{outline:2px solid var(--accent);outline-offset:1px}
 .cw-big{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
   padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:var(--bg)}
 .cw-big img{display:block;max-width:100%;max-height:calc(100dvh - 140px);border-radius:12px;object-fit:contain}
-/* alerts on the crew screen: rows that are switches, and the notes that sit under a row */
-.cw-mark{flex:0 0 auto;font-family:var(--mono);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--go)}
-.cw-al{margin:28px 0 0}
-.cw-al > h2{margin-top:0}
-.cw-al-sum{font-size:15.5px;line-height:1.45;color:var(--ink);margin:0 0 12px}
-.cw-al-k{font-size:13px;color:var(--t3);margin:18px 0 6px}
-.cw-sws{margin:0 0 12px;border:1px solid var(--line);border-radius:14px;background:var(--paper);overflow:hidden}
-.cw-sw{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 14px;font:inherit;text-align:left;color:var(--ink);
-  background:none;border:0;border-top:1px solid var(--line);cursor:pointer}
+/* alerts on the crew screen: rows that are switches, in one panel, and the notes that sit under a row */
+.cw-al{margin:0}
+.cw-al-sum{display:flex;align-items:center;gap:9px;font-size:15.5px;font-weight:600;line-height:1.4;color:var(--t1);margin:0 4px 12px}
+.cw-al-sum::before{content:"";flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:var(--t3);box-shadow:0 0 0 3px color-mix(in srgb,var(--t3) 20%,transparent)}
+.cw-al-sum[data-on]::before{background:var(--go);box-shadow:0 0 0 3px color-mix(in srgb,var(--go) 22%,transparent)}
+.cw-al-k{font-size:13px;font-weight:600;color:var(--t2);margin:18px 4px 8px}
+.cw-sws{margin:0 0 12px;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
+.cw-sw{display:flex;align-items:center;gap:10px;width:100%;min-height:58px;padding:8px 14px 8px 16px;font:inherit;text-align:left;color:var(--t1);
+  background:none;border:0;border-top:1px solid var(--edge);cursor:pointer}
 .cw-sw:first-child{border-top:0}
 .cw-sw:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .cw-sw-t{flex:1 1 0;min-width:0;overflow-wrap:anywhere}
-.cw-sw-t b{display:block;font-size:15.5px;font-weight:600;line-height:1.3}
-.cw-sw-t span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--t3)}
-.cw-sw-k{flex:0 0 auto;position:relative;width:46px;height:28px;border-radius:14px;background:var(--panel3);border:1px solid var(--line2);
-  transition:background .15s}
-.cw-sw-k::after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--dim);transition:transform .15s}
-.cw-sw[aria-checked="true"] .cw-sw-k{background:var(--go);border-color:transparent}
-.cw-sw[aria-checked="true"] .cw-sw-k::after{transform:translateX(18px);background:var(--paper)}
-.cw-sw-note{padding:12px 14px;border-top:1px solid var(--line);background:var(--panel2);font-size:14.5px;line-height:1.45;color:var(--ink2)}
+.cw-sw-t b{display:block;font-size:16px;font-weight:650;line-height:1.3}
+.cw-sw-t span{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--t2)}
+.cw-sw-k{flex:0 0 auto;position:relative;width:48px;height:29px;border-radius:15px;background:var(--well);
+  box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 28%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 10%,transparent);transition:background .15s}
+.cw-sw-k::after{content:"";position:absolute;left:3px;top:3px;width:23px;height:23px;border-radius:50%;background:var(--pan-a);
+  box-shadow:0 1px 3px color-mix(in srgb,var(--shade) 45%,transparent);transition:transform .15s}
+.cw-sw[aria-checked="true"] .cw-sw-k{background:var(--go)}
+.cw-sw[aria-checked="true"] .cw-sw-k::after{transform:translateX(19px);background:var(--paper)}
+:root[data-dark="1"] .cw-sw[aria-checked="true"] .cw-sw-k::after{background:var(--ink)}
+.cw-sw-note{padding:12px 16px 14px;border-top:1px solid var(--edge);background:var(--well);font-size:14.5px;line-height:1.45;color:var(--t1);
+  box-shadow:inset 0 2px 3px -2px color-mix(in srgb,var(--shade) 22%,transparent)}
 .cw-sw-note p{margin:0 0 4px}
 .cw-sw-note ol{margin:8px 0 0;padding:0 0 0 20px}
 .cw-sw-note li{margin:0 0 4px}
 .cw-sw-note .cw-act,.cw-sw-note .cw-plain{margin-top:10px}
 .cw-sw-note .cw-fld{margin:10px 0 0}
+.cw-sw-note .cw-fld input{background:var(--pan-a);box-shadow:0 1px 2px color-mix(in srgb,var(--shade) 14%,transparent),inset 0 0 0 1px var(--edge)}
 .cw-sw-note .cw-msg{margin:10px 0 0}
 .cw-sw-note > .cw-msg:first-child{margin-top:0}
-.cw-sw-note.warn{color:var(--ink)}
-.cw-sw-note.warn p:first-child{color:var(--warn);font-weight:600}
+.cw-sw-note.warn p:first-child{color:var(--warn);font-weight:650}
 .cw-al .cw-two{margin-top:16px}
 .cw-al .cw-two .cw-fld{margin-bottom:0}
 .cw-al .cw-plain{margin-top:18px}
-.cw-al-lines .cw-msg{margin:10px 0 0}
-.cw-al [data-al-note]{margin:0 0 12px}
+.cw-al-lines .cw-msg{margin:10px 4px 0}
+.cw-al [data-al-note]{margin:0 4px 12px}
 .asof{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 4px 0;font-size:12.5px;line-height:1.45;color:var(--t3)}
 .asof .chip{position:relative}
 .asof .chip::after{content:"";position:absolute;inset:-8px}
@@ -710,8 +807,11 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   var IC = {
     chev: '<svg class="chev" viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     back: '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M6.5 1.5 1.5 7l5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    go: '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    go: '<svg viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    msg: '<svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 5.6A2.6 2.6 0 0 1 5.6 3h10.8A2.6 2.6 0 0 1 19 5.6v7a2.6 2.6 0 0 1-2.6 2.6H10l-4.4 3.9v-3.9A2.6 2.6 0 0 1 3 12.6Z" fill="currentColor"/></svg>',
+    note: '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2 3.4A1.9 1.9 0 0 1 3.9 1.5h6.2A1.9 1.9 0 0 1 12 3.4v4.4a1.9 1.9 0 0 1-1.9 1.9H6.4L3.6 12.3V9.7A1.9 1.9 0 0 1 2 7.8Z" fill="currentColor"/></svg>'
   };
+  var TICK = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M2.6 7.6 5.7 10.6 11.4 3.8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var sceneEl = document.getElementById("scene");
   // kind: sound, pier, river, lake or surf. o.lift: the screen has a filter
   // row under its tabs, so the whole picture stands that much lower and the
@@ -1564,7 +1664,9 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   // at the foot of the week. All the talking to servers is in rigs/crew.js.
   //
   // Building blocks every crew screen uses (their classes all start cw-):
-  //   crewHead(view)             the top bar, the way back and the heading
+  //   crewTop(view, o)           the dock, the screen's own picture (the water of the
+  //                              crew's next trip, else the Sound) and the title in the sky
+  //   faceOf(id, name, size)     a round face with a first letter, the same colour on every screen
   //   cwField(label, inputHtml)  a labelled box. Give the input data-keep="name"
   //                              and value="' + kv("name") + '" and what is typed
   //                              survives a redraw. data-enter="data-some-button"
@@ -1578,7 +1680,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   var STEP_KEY = "rig.crewstep.v1", STEP_AGE = 15 * 60e3;
   function crewFresh(sms) {
     return { step: "phone", msg: null, sms: sms === undefined ? null : sms, joinMsg: null, vals: {}, st: null, sig: "",
-      share: null, confirm: null, rowMsg: {}, invMsg: null, num: null, al: alFresh() };
+      share: null, confirm: null, rowMsg: {}, invMsg: null, num: null, al: alFresh(), nameEdit: "", nameMsg: null, crewMsg: null, naming: false };
   }
   var crewUi = crewFresh(), joinUi = { token: null }, crewQuiet = false, crewLoad = 0, cwBusy = {};
 
@@ -1629,9 +1731,33 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     try { Promise.resolve(work()).then(done, done); } catch (e) { done(); }
   }
   function firstName(n) { return String(n || "").trim().split(/\s+/)[0] || "Someone"; }
-  function crewHead(view) {
-    return topHtml("trips", "crew") + '<div data-view="' + view + '">' +
-      headHtml("The crew", "Fish together", "Everyone sees the same week.", { href: "#/trips", text: "Hot Trips" });
+  // A crew screen's top: the dock, its own picture, and the title in the sky.
+  // o: { title, chips, attr, scene, paint }. The picture is the water of the
+  // crew's next trip when there is one (so the crew screen stands where the
+  // crew is going), else the Sound.
+  function crewTop(view, o) {
+    o = o || {};
+    var at = o.scene ? { kind: o.scene, paint: o.paint || null } : crewScene(crewIn());
+    return topHtml("trips", "crew", at.kind, at.paint) + '<div data-view="' + view + '">' +
+      heroHtml({ title: o.title || "The crew", attr: o.attr, back: { href: "#/trips", text: "Hot Trips" }, chips: o.chips || "" });
+  }
+  function crewHead(view) { return crewTop(view, { chips: '<span class="chip wrap"><b>The crew</b> Everyone sees the same week.</span>' }); }
+  // The crew's next trip still ahead, or null.
+  function nextCrewTrip(st) {
+    var today = todayIso(), live = ((st && st.trips) || []).filter(function (t) { return t.status !== "done" && t.date >= today; });
+    live.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : (a.from == null ? 99 : a.from) - (b.from == null ? 99 : b.from); });
+    return live[0] || null;
+  }
+  function crewScene(st) {
+    var t = nextCrewTrip(st);
+    return t ? { kind: sceneFor({ planId: t.planId, spot: t.spotId, species: t.species, name: t.title }), paint: placePaint(t.spotId, t.species) } : { kind: "sound", paint: null };
+  }
+  // A face: the first letter of a name on a round of its own colour. The
+  // same person keeps the same colour on every crew screen (their place in
+  // the crew's list), so a face is a name at a glance.
+  function faceOf(id, name, cls) {
+    var st = crewSt(), i = st && st.members ? st.members.map(function (m) { return m.id; }).indexOf(id) : -1;
+    return '<i class="av a' + ((i < 0 ? 1 : i) % 3 + 1) + (cls ? " " + cls : "") + '" data-i="' + initial(name) + '" aria-hidden="true"></i>';
   }
 
   // The one way in, at the foot of the week. It is a row, not a demand.
@@ -1645,29 +1771,33 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 
   // Signed out: the phone number and its code first, a pasted link under it.
   // With texting switched off on the server there is no phone form at all.
+  // The first card crosses the waterline; the pasted link is a well under it.
   function signinHtml() {
     var sms = crewUi.sms !== false, form;
     if (!sms) {
       form = '<p class="cw-lead" data-nosms>Texted codes are off right now. Ask whoever runs your crew for your link, then paste it here.</p>';
     } else if (crewUi.step === "code") {
-      form = cwField("The code we texted you", '<input data-code data-keep="code" data-enter="data-verify" type="text" inputmode="numeric" ' +
+      form = '<p class="cw-lead">We texted you a code. Type it here.</p>' +
+        cwField("The code we texted you", '<input data-code data-keep="code" data-enter="data-verify" type="text" inputmode="numeric" ' +
           'autocomplete="one-time-code" maxlength="8" placeholder="123456" value="' + kv("code") + '">') +
         '<button class="gold cw-go" type="button" data-verify>Let me in</button>' +
         '<button class="cw-plain" type="button" data-backphone>Use a different number</button>' +
         cwSaid(crewUi.msg, "It can take a minute to arrive.", "data-crew-msg");
     } else {
-      form = cwField("Your phone number", '<input data-phone data-keep="phone" data-enter="data-sendcode" type="tel" inputmode="tel" ' +
+      form = '<p class="cw-lead">Your number gets a code by text. No password.</p>' +
+        cwField("Your phone number", '<input data-phone data-keep="phone" data-enter="data-sendcode" type="tel" inputmode="tel" ' +
           'autocomplete="tel" placeholder="253 555 0147" value="' + kv("phone") + '">') +
         '<button class="gold cw-go" type="button" data-sendcode>Text me a code</button>' +
         cwSaid(crewUi.msg, "A code comes by text. It is free.", "data-crew-msg");
     }
-    var paste = '<div class="' + (sms ? "cw-sec" : "") + '" data-join-box>' +
-      cwField(sms ? "Have a crew link? Paste it here" : "Paste your link here",
+    var paste = cwField(sms ? "Have a crew link? Paste it here" : "Paste your link here",
         '<input data-join-paste data-keep="paste" data-enter="data-join-send" type="text" autocapitalize="off" autocorrect="off" ' +
         'spellcheck="false" placeholder="The link, or the whole text" value="' + kv("paste") + '">') +
       '<button class="' + (sms ? "cw-plain" : "gold cw-go") + '" type="button" data-join-send>Join</button>' +
-      cwSaid(crewUi.joinMsg, "", "data-join-msg") + "</div>";
-    return '<div class="cw float" data-signin>' + form + paste + "</div>";
+      cwSaid(crewUi.joinMsg, "", "data-join-msg");
+    if (!sms) return '<section class="float cw cwcard" data-signin><em class="eyebrow">Sign in</em>' + form + '<div data-join-box>' + paste + "</div></section>";
+    return '<section class="float cw cwcard" data-signin><em class="eyebrow">Sign in</em>' + form + "</section>" +
+      '<div class="well cw cw-paste" data-join-box>' + paste + "</div>";
   }
   function helloCheck() {
     function take(h) {
@@ -1680,31 +1810,37 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   }
 
   // Signed in: who is on the crew, and for the owner, the three moves.
+  // Someone was just added: texting them the link is the next step, so it
+  // takes the first card.
   function shareHtml() {
     var s = crewUi.share, mine = firstName(crewUi.st && crewUi.st.me && crewUi.st.me.name), n = esc(s.name);
-    var head = s.kind === "link" ? "a new link for " + n : s.created === false ? n + " is already on the crew" : n + " is on the crew";
+    var head = s.kind === "link" ? "A new link for " + n : s.created === false ? n + " is already on the crew" : n + " is on the crew";
     if (s.link) {
       var words = mine + " added you to the fishing crew on Rig Card. Tap to join: " + s.link;
-      return '<div class="box" data-share><b>' + head + "</b>" +
-        "<p>" + (s.kind === "link" ? "The old link has stopped working. " : "") + "Text " + n + " the link. One tap and they are in.</p>" +
+      return '<div class="cw-share" data-share><em class="eyebrow">Next: text the link</em><p class="cw-lead"><b>' + head + ".</b> " +
+        (s.kind === "link" ? "The old link has stopped working. " : "") + "Text " + n + " the link. One tap and they are in.</p>" +
         '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(words)) + '">Text ' + n + " the link</a>" +
-        '<button class="cw-plain" type="button" data-share-copy>' + (s.copied ? "Copied" : "Copy the link") + "</button>" +
-        (s.manual ? cwField("This phone would not copy it. Press and hold to copy.", '<input data-share-link type="text" readonly value="' + esc(s.link) + '">') : "") +
-        '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
+        '<p class="cw-msg">Opens Messages. You pick ' + n + " there.</p>" +
+        '<div class="cw-two cw-sharebtns"><button class="cw-plain" type="button" data-share-copy>' + (s.copied ? "Copied" : "Copy the link") + "</button>" +
+        '<button class="cw-plain" type="button" data-share-done>Done</button></div>' +
+        (s.manual ? cwField("This phone would not copy it. Press and hold to copy.", '<input data-share-link type="text" readonly value="' + esc(s.link) + '">') : "") + "</div>";
     }
     var page = mine + " added you to the fishing crew on Rig Card. Sign in with your phone number: " + SITE + "#/crew";
-    return '<div class="box" data-share><b>' + head + "</b>" +
-      "<p>" + n + " already has an account with that number. They sign in with their number and a code.</p>" +
+    return '<div class="cw-share" data-share><em class="eyebrow">Next: tell them</em><p class="cw-lead"><b>' + head + ".</b> " +
+      n + " already has an account with that number. They sign in with their number and a code.</p>" +
       '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(page)) + '">Text ' + n + " the sign-in page</a>" +
+      '<p class="cw-msg">Opens Messages. You pick ' + n + " there.</p>" +
       '<button class="cw-plain" type="button" data-share-done>Done</button></div>';
   }
-  function inviteHtml() {
-    return '<div class="box" data-invite><b>add someone</b>' +
-      cwField("Their name", '<input data-invite-name data-keep="invName" data-enter="data-invite-send" type="text" autocomplete="off" placeholder="Russell" value="' + kv("invName") + '">') +
+  // What someone added gets, in one line, under the form that adds them.
+  var CREW_GETS = "They see the trips you plan, say if they are going, and split the gear.";
+  function inviteHtml(first) {
+    return '<div class="cw-invite" data-invite>' + (first ? "" : '<p class="cw-lead">' + CREW_GETS + "</p>") +
+      cwField("Their name", '<input data-invite-name data-keep="invName" data-enter="data-invite-send" type="text" autocomplete="off" placeholder="A first name is fine" value="' + kv("invName") + '">') +
       cwField("Their phone number (optional)", '<input data-invite-phone data-keep="invPhone" data-enter="data-invite-send" type="tel" inputmode="tel" ' +
         'autocomplete="off" placeholder="253 555 0147" value="' + kv("invPhone") + '">') +
       '<button class="gold cw-go" type="button" data-invite-send>Add them</button>' +
-      cwSaid(crewUi.invMsg, "Nobody else can get in. With a number they can sign in with a code too.", "data-invite-msg") + "</div>";
+      cwSaid(crewUi.invMsg, "You get a link to text them. With a number they can sign in with a code too.", "data-invite-msg") + "</div>";
   }
   // Adding a number to the account. It sits in the Alerts group under Text me,
   // for an account with no number on it. This is only the inside of that note.
@@ -1816,8 +1952,14 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   function alPushNote() {
     var al = crewUi.al, out = "";
     if (al.help === "install") {
+      // The Home Screen copy starts signed out (Apple keeps it apart from
+      // Safari), so this says how to get back in: with a number, a code;
+      // without one, the link from the text, pasted on the crew screen
+      // (a tapped link opens Safari, not the Home Screen copy).
+      var how = al.got && al.got.hasPhone ? "<li>Open Rig Card from there, sign in with your number, and switch this on.</li>"
+        : "<li>Open Rig Card from there. It starts signed out.</li><li>Copy the link from the text you were sent, paste it on the crew screen, and switch this on.</li>";
       out = '<div class="cw-sw-note" data-al-install><p>Add Rig Card to your Home Screen first.</p><p>Apple only allows alerts there.</p>' +
-        "<ol><li>Tap Share.</li><li>Tap Add to Home Screen.</li><li>Open Rig Card from there, sign in, and switch this on.</li></ol></div>";
+        "<ol><li>Tap Share.</li><li>Tap Add to Home Screen.</li>" + how + "</ol></div>";
     } else if (al.help === "denied") {
       out = '<div class="cw-sw-note" data-al-denied>' + (RIG.crew.alerts().ios
         ? "<p>Alerts are turned off for Rig Card on this phone.</p><p>To turn them back on, open Settings, then Notifications, then Rig Card, and allow notifications. Then switch this on again.</p>"
@@ -1826,7 +1968,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     return out + alSaid("push");
   }
   function alertsHtml() {
-    var al = crewUi.al, g = al.got, head = '<section class="cw-al" data-al><h2 class="sect">Alerts</h2>';
+    var al = crewUi.al, g = al.got, head = '<section class="cw-al" data-al><h2 class="sect">Your alerts</h2>';
     if (!g) {
       return head + (al.err ? cwMsg(al.err, "no", "data-al-msg") + '<button class="cw-plain" type="button" data-al-retry>Try again</button>'
         : cwMsg("Loading your alerts...", "", "data-al-msg")) + "</section>";
@@ -1853,7 +1995,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         (al.said.quiet ? cwSaid(al.said.quiet, "", 'data-al-said="quiet"') : "");
     }
     var lines = (al.test || []).map(function (l) { return cwMsg(l.t, l.no ? "no" : l.k === "none" ? "" : "ok", 'data-al-test-line="' + l.k + '"'); }).join("");
-    return head + '<p class="cw-al-sum" data-al-sum>' + sum + "</p>" + (al.note ? cwMsg(al.note, "", "data-al-note") : "") +
+    return head + '<p class="cw-al-sum" data-al-sum' + (reach || phoneOn || elsewhere ? " data-on" : "") + ">" + sum + "</p>" + (al.note ? cwMsg(al.note, "", "data-al-note") : "") +
       '<div class="cw-sws" data-al-ways>' + ways + "</div>" + more +
       '<button class="cw-plain" type="button" data-al-test' + (al.testing ? " disabled" : "") + ">" + (al.testing ? "Sending..." : "Send me a test") + "</button>" +
       '<div class="cw-al-lines" data-al-test-msg>' + lines + "</div></section>";
@@ -1983,25 +2125,46 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     if (want && !al.got.prefs.texts && !("texts" in al.pend)) alSave({ texts: true }, "texts");
   }
 
+  // The signed-in crew screen, top to bottom: the crew's name in the sky;
+  // the first card, which says in one line what the crew is and shows the
+  // next step (adding someone, while the owner is alone); the people, each a
+  // face and a name, the owner and "you" marked; for the owner, adding
+  // someone; this person's own alerts; and signing out.
+  var SIGNOUT = '<button class="cw-plain cw-out" type="button" data-signout>Sign out</button>';
+  function crewWhole(inner, o) { return crewTop("crew", o) + inner; }
   function crewBodyHtml() {
-    var r = crewUi.st, out = '<button class="cw-plain cw-out" type="button" data-signout>Sign out</button>';
-    if (!r) return cwMsg("Loading the crew...", "", "data-crew-msg");
+    var r = crewUi.st;
+    if (!r) return crewWhole('<section class="float cw cwcard">' + cwMsg("Loading the crew...", "", "data-crew-msg") + "</section>");
     // Nothing saved on this phone and no answer: say so. Never an empty crew.
     if (!r.me) {
-      return cwMsg(r.offline ? "No signal, and the crew is not saved on this phone yet." : r.error || "The crew could not be loaded. Try again in a minute.", "no", "data-crew-msg") +
-        '<button class="cw-plain" type="button" data-crew-retry>Try again</button>' + out;
+      return crewWhole('<section class="float cw cwcard">' +
+        cwMsg(r.offline ? "No signal, and the crew is not saved on this phone yet." : r.error || "The crew could not be loaded. Try again in a minute.", "no", "data-crew-msg") +
+        '<button class="cw-plain" type="button" data-crew-retry>Try again</button></section>' + SIGNOUT);
     }
     var note = r.stale && r.offline ? "No signal. This is the last crew list this phone saw."
       : r.stale && r.error ? "Could not refresh. This is the last crew list this phone saw." : "";
     var noteHtml = note ? cwMsg(note, "", "data-crew-note") : "";
     if (!r.crew) {
-      return noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p>' + out;
+      return crewWhole('<section class="float cw cwcard">' + noteHtml + '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p></section>' + SIGNOUT);
     }
-    var owner = r.crew.role === "owner";
-    var rows = (r.members || []).map(function (m) {
-      var mine = m.id === r.me.id, id = esc(m.id);
-      var tags = [m.role === "owner" ? "runs the crew" : "", mine ? "you" : ""].filter(Boolean).join(", ");
-      var acts = "";
+    var owner = r.crew.role === "owner", people = r.members || [], alone = owner && people.length < 2;
+    var n = people.length, crewName = r.crew.name || "Your crew";
+    var chips = '<span class="chip" data-crew-count><b>' + n + "</b>" + (n === 1 ? " person" : " people") + "</span>" +
+      (owner ? '<span class="chip">You run it</span>' : "");
+    // The first card: what the crew is, and the next step.
+    var first;
+    if (crewUi.share) first = shareHtml();
+    else if (alone) {
+      first = '<em class="eyebrow">Next: add someone</em><p class="cw-lead" data-crew-what><b>It is just you so far.</b> Add someone, and ' + CREW_GETS.charAt(0).toLowerCase() + CREW_GETS.slice(1) + "</p>" + inviteHtml(true);
+    } else {
+      var next = nextCrewTrip(r);
+      first = '<em class="eyebrow">The crew</em><p class="cw-lead" data-crew-what>Everyone here sees the same Hot Trips, plans trips together, and splits the gear.</p>' +
+        '<div class="panel list cw-next">' + (next ? crewTripRowNext(next)
+          : '<a class="row" href="#/crew/new" data-crew-next="plan"><span class="tx"><b>Plan a trip</b><span>Nothing is planned yet. Pick one and a day.</span></span>' + IC.chev + "</a>") + "</div>";
+    }
+    var rows = people.map(function (m) {
+      var mine = m.id === r.me.id, id = esc(m.id), acts = "", edit = mine && crewUi.nameEdit === "me";
+      var tags = (m.role === "owner" ? '<span class="pill own">Runs the crew</span>' : "") + (mine ? '<span class="pill you">You</span>' : "");
       if (owner && !mine && m.role !== "owner") {
         acts = crewUi.confirm === m.id
           ? '<span class="cw-ask">Remove ' + esc(m.name) + " from the crew?</span><span class=\"cw-acts\">" +
@@ -2011,13 +2174,94 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
             (m.signIn === "link" ? '<button class="cw-mini" type="button" data-newlink="' + id + '">New link</button>' : "") +
             '<button class="cw-mini" type="button" data-remove="' + id + '">Remove</button></span>';
       }
-      return '<li data-member="' + id + '"><span class="cw-who"><b>' + esc(m.name) + "</b>" + (tags ? "<span>" + tags + "</span>" : "") + "</span>" +
-        (m.alerts ? '<span class="cw-mark" data-member-alerts>alerts on</span>' : "") + acts +
+      var change = mine && !edit ? '<button class="cw-link" type="button" data-me-edit>Change my name</button>' : "";
+      tags += m.alerts ? '<span class="cw-mark" data-member-alerts>alerts on</span>' : "";
+      var form = edit ? '<div class="cw-namebox">' + cwField("Your name, as the crew sees it", '<input data-me-name data-keep="meName" data-enter="data-me-save" type="text" maxlength="60" autocomplete="name" value="' + kv("meName") + '">') +
+        '<div class="cw-acts2"><button class="cw-act" type="button" data-me-save>Save</button><button class="cw-act" type="button" data-me-cancel>Leave it</button></div></div>' : "";
+      return '<li class="cw-person" data-member="' + id + '"' + (m.waiting ? " data-waiting" : "") + ">" + faceOf(m.id, m.name, "lg") +
+        '<span class="cw-who"><b>' + esc(m.name) + "</b>" + (tags || change ? '<span class="cw-tags">' + tags + change + "</span>" : "") +
+        (m.waiting ? '<span class="cw-wait" data-name-wait>' + (crewUi.naming ? "Saving" : "Waiting to send") + "</span>" : "") + "</span>" +
+        acts + form +
+        (mine && crewUi.nameMsg ? cwSaid(crewUi.nameMsg, "", "data-me-msg") : "") +
         (crewUi.rowMsg[m.id] ? cwMsg(crewUi.rowMsg[m.id], "no", 'data-member-msg="' + id + '"') : "") + "</li>";
     }).join("");
-    return '<h2 class="sect" data-crewname>' + esc(r.crew.name || "Your crew") + "</h2>" + noteHtml +
-      '<ul class="cw-list">' + rows + "</ul>" +
-      (crewUi.share ? shareHtml() : owner ? inviteHtml() : "") + alertsHtml() + out;
+    // The crew's own name: the owner's to change, in the same place as the people.
+    var crewRow = "";
+    if (owner) {
+      crewRow = crewUi.nameEdit === "crew"
+        ? '<li class="cw-person cw-crewname">' + cwField("The crew's name", '<input data-crew-name data-keep="crewName" data-enter="data-crew-save" type="text" maxlength="60" autocomplete="off" value="' + kv("crewName") + '">') +
+          '<div class="cw-acts2"><button class="cw-act" type="button" data-crew-save>Save</button><button class="cw-act" type="button" data-crew-cancel>Leave it</button></div>' +
+          (crewUi.crewMsg ? cwSaid(crewUi.crewMsg, "", "data-crew-name-msg") : "") + "</li>"
+        : '<li class="cw-person cw-crewname"><span class="cw-who"><span class="cw-k">The crew\'s name</span><b>' + esc(crewName) + "</b>" +
+          (r.crew.waiting ? '<span class="cw-wait" data-name-wait>' + (crewUi.naming ? "Saving" : "Waiting to send") + "</span>" : "") + "</span>" +
+          '<span class="cw-acts"><button class="cw-mini" type="button" data-crew-edit>Rename</button></span>' +
+          (crewUi.crewMsg ? cwSaid(crewUi.crewMsg, "", "data-crew-name-msg") : "") + "</li>";
+    }
+    var add = owner && !alone && !crewUi.share
+      ? '<section class="grp" data-crew-add><h2 class="sect">Add someone</h2><div class="panel cw cw-pad">' + inviteHtml(false) + "</div></section>" : "";
+    return crewWhole(
+      '<section class="float cw cwcard" data-crew-card>' + noteHtml + first + "</section>" +
+      '<section class="grp" data-crew-people><h2 class="sect">On the crew <span class="n">' + n + "</span></h2>" +
+        '<ul class="panel list cw-list">' + rows + crewRow + "</ul></section>" +
+      add + alertsHtml() + SIGNOUT,
+      { title: crewName, attr: "data-crewname", chips: chips });
+  }
+  // The crew's next trip, as the row the first card points to.
+  function crewTripRowNext(t) {
+    var who = namesFor(t, "going"), d = isoDay(t.date);
+    return '<a class="row crewtrip" href="#/crew/trip/' + esc(t.id) + '" data-crew-next="trip">' +
+      '<span class="datestamp" aria-hidden="true"><i>' + DAY3[d.getDay()] + "</i><b>" + d.getDate() + "</b></span>" +
+      '<span class="tx"><span class="caprow"><em class="eyebrow">Next trip</em>' + tagHtml(t, false) + "</span><b>" + esc(t.title) + "</b>" +
+      '<span class="who">' + avsHtml(who) + "<span>" + esc(who.length ? andList(who) + " going" : "Nobody yet") + "</span></span></span>" + IC.chev + "</a>";
+  }
+  // Names: my own (any member) and the crew's (the owner). A new name is on
+  // the screen the moment Save is tapped, marked Saving, or Waiting to send
+  // with no signal; the server's answer settles it, and a refusal puts the
+  // old name back and says why.
+  function nameNow() {
+    var c = RIG.crew.cached();
+    if (c && crewUi.st && crewUi.st.me) { crewUi.st = Object.assign({}, crewUi.st, { me: c.me, crew: c.crew, members: c.members }); crewUi.sig = ""; }
+  }
+  function nameOpen(which) {
+    var r = crewUi.st;
+    if (!r || !r.me) return;
+    crewUi.nameEdit = which; crewUi.nameMsg = null; crewUi.crewMsg = null;
+    if (which === "me") crewUi.vals.meName = r.me.name || ""; else crewUi.vals.crewName = (r.crew && r.crew.name) || "";
+    crewRedraw();
+    focusKeep(which === "me" ? "meName" : "crewName");
+  }
+  function nameSave(which) {
+    var r = crewUi.st, me = which === "me", typed = String(crewUi.vals[me ? "meName" : "crewName"] || "").replace(/\s+/g, " ").trim();
+    var was = me ? r && r.me && r.me.name : r && r.crew && r.crew.name;
+    var say = function (m) { if (me) crewUi.nameMsg = m; else crewUi.crewMsg = m; };
+    if (typed === was) { crewUi.nameEdit = ""; say(null); crewRedraw(); return; }
+    cwOnce("name:" + which, function () {
+      var go = me ? RIG.crew.rename(typed) : RIG.crew.crewRename(typed);
+      // Refused on the phone itself (empty, too long): the box stays open, with the reason.
+      crewUi.naming = true; crewUi.nameEdit = ""; say(null);
+      nameNow(); crewRedraw();
+      return go.then(function (a) {
+        crewUi.naming = false;
+        if (a && a.signedOut) { crewTake(a); return; }
+        if (!a || a.error) {
+          crewUi.nameEdit = which;
+          say({ t: (a && a.error ? a.error.replace(/\s*$/, "") : "That did not go through.") + (me ? " Your name was not changed." : " The crew's name was not changed."), no: true });
+        } else if (a.queued) say({ t: "No signal. The new name goes when there is one." });
+        else say({ t: me ? "Saved. The crew sees " + (a.name || typed) + " now." : "Saved. Everyone sees the new name." });
+        nameNow(); crewRedraw();
+      });
+    });
+  }
+  // A name that waited for a signal and was then refused.
+  function nameRefused(list) {
+    var hit = false;
+    (list || []).forEach(function (x) {
+      if (!x || (x.kind !== "me_rename" && x.kind !== "crew_rename")) return;
+      hit = true;
+      var m = { t: "That name was not saved. " + (x.error || "The server would not take it."), no: true };
+      if (x.kind === "me_rename") crewUi.nameMsg = m; else crewUi.crewMsg = m;
+    });
+    if (hit) { nameNow(); crewRedraw(); }
   }
   function crewTake(r) {
     if (!r || r.signedOut) { crewUi = crewFresh(crewUi.sms); stepSave(); crewRedraw(true); return; }
@@ -2036,11 +2280,11 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   }
   function renderCrew() {
     if (!RIG.crew) {
-      app.innerHTML = crewHead("crew") + '<div class="cw float">' + cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-crew-msg") + "</div></div>" + tripBarHtml();
+      app.innerHTML = crewHead("crew") + '<section class="float cw cwcard">' + cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-crew-msg") + "</section></div>" + tripBarHtml();
       return;
     }
     if (!RIG.crew.session()) {
-      app.innerHTML = crewHead("crew") + signinHtml() + "</div>" + tripBarHtml();
+      app.innerHTML = crewTop("crew", { chips: '<span class="chip wrap"><b>Sign in</b> to see your crew\'s trips.</span>' }) + signinHtml() + "</div>" + tripBarHtml();
       if (!crewQuiet) helloCheck();
       return;
     }
@@ -2052,21 +2296,51 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     }
     // What this phone last saw of the alert settings is on screen at once, signal or not.
     if (!al.got) al.got = alSaved();
-    app.innerHTML = crewHead("crew") + '<div class="cw float">' + crewBodyHtml() + "</div></div>" + tripBarHtml();
+    if (cwT.nav) { crewUi.nameEdit = ""; crewUi.nameMsg = null; crewUi.crewMsg = null; }
+    app.innerHTML = crewBodyHtml() + "</div>" + tripBarHtml();
     if (!crewQuiet) crewFetch();
   }
 
   // A tapped link. It only looks first: message previews load pages, and a
   // preview must not sign anyone in. Nothing is minted until the tap on Join.
+  // A phone already signed in as someone else says so: staying as that
+  // person is the gold button, and switching to the link's person is a
+  // second, plainer choice. The same person opening their link again is
+  // simply told they are in.
+  function joinWho() {
+    var st = RIG.crew && RIG.crew.session() ? RIG.crew.cached() : null;
+    return st && st.me ? { name: st.me.name || "", crew: st.crew ? st.crew.name : "" } : null;
+  }
   function renderJoin(token) {
-    if (joinUi.token !== token) joinUi = { token: token, peek: null, asked: false, msg: null };
-    var pk = joinUi.peek, body;
+    if (joinUi.token !== token) joinUi = { token: token, peek: null, asked: false, msg: null, whoAsked: false };
+    var pk = joinUi.peek, body, signed = !!(RIG.crew && RIG.crew.session()), title = "Join the crew";
     if (!pk && RIG.crew && !RIG.crew.joinToken(token)) pk = joinUi.peek = { error: "That link is not complete.", dead: true };
     if (!RIG.crew) body = cwMsg("The crew did not load. Open Rig Card once with a signal.", "no", "data-join-msg");
     else if (!pk) body = cwMsg("Checking your link...", "", "data-join-msg");
     else if (pk.ok) {
-      body = '<p class="cw-lead" data-join-who>' + esc((pk.by ? pk.by + " added you to " : "You were added to ") + pk.crew + ", " + pk.name + ".") + "</p>" +
-        '<button class="gold cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
+      title = pk.crew || title;
+      var said = (pk.by ? pk.by + " added you to " : "You were added to ") + pk.crew + ", " + pk.name + ".";
+      var me = signed ? joinWho() : null, linkFirst = esc(firstName(pk.name));
+      if (signed && me && me.name && me.name === pk.name && me.crew === pk.crew) {
+        body = '<em class="eyebrow">You are in</em><p class="cw-lead" data-join-same>You are already on ' + esc(pk.crew) + ", " + esc(firstName(me.name)) + ".</p>" +
+          '<a class="gold cw-go" href="#/trips" data-join-stay>Open Hot Trips</a>';
+      } else if (signed) {
+        var who = me && me.name ? esc(firstName(me.name)) : "";
+        body = '<em class="eyebrow">This phone is signed in</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" +
+          '<p class="cw-lead" data-join-signedin><b>You are signed in as ' + (who || "someone else") + ".</b> The link is for " + linkFirst + ".</p>" +
+          '<a class="gold cw-go" href="#/trips" data-join-stay>Stay as ' + (who || "I am") + "</a>" +
+          '<button class="quiet cw-switch" type="button" data-join-go data-join-switch>Switch to ' + linkFirst + "</button>" +
+          cwSaid(joinUi.msg, "Switching signs " + (who || "this account") + " out on this phone.", "data-join-msg");
+        // Whose phone this is: the crew this phone saved says, else it is asked once.
+        if (!me && !joinUi.whoAsked) {
+          joinUi.whoAsked = true;
+          RIG.crew.state().then(function () { if (joinUi.token === token) crewRedraw(); });
+        }
+      } else {
+        body = '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" +
+          '<p class="cw-lead cw-sub">You see the crew\'s trips, say if you are going, and split the gear.</p>' +
+          '<button class="gold cw-go" type="button" data-join-go>Join</button>' + cwSaid(joinUi.msg, "One tap and you are in. No password.", "data-join-msg");
+      }
     } else if (pk.dead) {
       body = '<p class="cw-lead" data-join-dead>' + esc(pk.status === 410 ? "That link is not good any more." : pk.error) + "</p>" +
         cwMsg("Ask whoever runs your crew to text you a new link. If they added your phone number, you can sign in with that instead.", "", "") +
@@ -2075,7 +2349,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       body = cwMsg(pk.offline ? "No signal. The link needs a signal the first time it is used." : pk.error || "That link could not be checked.", "no", "data-join-msg") +
         '<button class="cw-plain" type="button" data-join-retry>Try again</button>';
     }
-    app.innerHTML = crewHead("join") + '<div class="cw float">' + body + "</div></div>" + tripBarHtml();
+    app.innerHTML = crewTop("join", { title: title, scene: "pier" }) + '<section class="float cw cwcard" data-join>' + body + "</section></div>" + tripBarHtml();
     if (RIG.crew && !joinUi.peek && !joinUi.asked) {
       joinUi.asked = true;
       RIG.crew.join(token, { peek: true }).then(function (r) {
@@ -2085,12 +2359,31 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       });
     }
   }
-  function crewJoined() {
+  // In: the week, and a word that says so, once. r is what the join or the
+  // sign-in answered ({ name, crew } after a link).
+  function crewJoined(r) {
     crewUi = crewFresh(crewUi.sms); stepSave();
     joinUi = { token: null };
     // A link pasted on the way to a trip stays on that trip. Otherwise: the week.
-    if (/^#\/?crew\/(new$|trip\/)/.test(location.hash || "")) crewRedraw(true);
-    else location.hash = "#/trips";
+    if (/^#\/?crew\/(new$|trip\/)/.test(location.hash || "")) { crewRedraw(true); return; }
+    welcome(r && r.name ? "You are in, " + firstName(r.name) + "." + (r.crew ? " This is " + r.crew + "'s week." : "") : "You are signed in.");
+    location.hash = "#/trips";
+  }
+  // A short word on top of the screen, then gone: by itself after a few
+  // seconds, or at a tap. It lives outside the screen, so the redraw that
+  // lands on the week does not take it away.
+  var welcomeEl = null, welcomeT = 0;
+  function welcome(text) {
+    if (welcomeEl) welcomeEl.remove();
+    clearTimeout(welcomeT);
+    var el = document.createElement("button");
+    el.type = "button"; el.className = "toast"; el.setAttribute("data-welcome", ""); el.setAttribute("role", "status");
+    el.innerHTML = "<b>" + esc(text) + "</b>";
+    var gone = function () { clearTimeout(welcomeT); if (el.parentNode) el.remove(); if (welcomeEl === el) welcomeEl = null; };
+    el.addEventListener("click", gone);
+    (document.querySelector(".phone") || document.body).appendChild(el);
+    welcomeEl = el;
+    welcomeT = setTimeout(gone, 7000);
   }
 
   // Every tap on a crew screen. Returns true when the tap was one of ours.
@@ -2121,8 +2414,9 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         crewUi.msg = { t: "Checking..." }; crewRedraw();
         return RIG.crew.verify(v.phone, v.code).then(function (r) {
           if (!r.ok) { crewUi.msg = { t: r.error || "That code did not work. Check it, or ask for a new one.", no: true }; crewRedraw(); return; }
-          crewUi = crewFresh(crewUi.sms); stepSave();
-          crewRedraw(true);
+          // In: the week, not the crew screen. A trip link that asked for the
+          // sign-in stays on that trip.
+          crewJoined(null);
         });
       });
       return true;
@@ -2132,7 +2426,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       cwOnce("join", function () {
         crewUi.joinMsg = { t: "Joining..." }; crewRedraw();
         return RIG.crew.join(v.paste).then(function (r) {
-          if (r.ok) { crewJoined(); return; }
+          if (r.ok) { crewJoined(r); return; }
           crewUi.joinMsg = { t: r.offline ? "No signal. Try again when you have some." : r.error || "That did not go through. Try again.", no: true };
           crewRedraw();
         });
@@ -2143,7 +2437,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       cwOnce("join", function () {
         joinUi.msg = { t: "Joining..." }; crewRedraw();
         return RIG.crew.join(joinUi.token).then(function (r) {
-          if (r.ok) { crewJoined(); return; }
+          if (r.ok) { crewJoined(r); return; }
           if (r.dead) joinUi.peek = r;
           else joinUi.msg = { t: r.offline ? "No signal. Try again when you have some." : r.error || "That did not go through. Try again.", no: true };
           crewRedraw();
@@ -2229,6 +2523,12 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       });
       return true;
     }
+
+    if (t.closest("[data-me-edit]")) { nameOpen("me"); return true; }
+    if (t.closest("[data-crew-edit]")) { nameOpen("crew"); return true; }
+    if (t.closest("[data-me-cancel],[data-crew-cancel]")) { crewUi.nameEdit = ""; crewRedraw(); return true; }
+    if (t.closest("[data-me-save]")) { nameSave("me"); return true; }
+    if (t.closest("[data-crew-save]")) { nameSave("crew"); return true; }
 
     if ((hit = t.closest("[data-al-sw]"))) { alTap(hit.getAttribute("data-al-sw")); return true; }
     if (t.closest("[data-al-unstop]")) { if (crewUi.al.got && !("textsStopped" in crewUi.al.pend)) alSave({ textsStopped: false }, "texts"); return true; }
@@ -2765,21 +3065,23 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   // The plan: when to leave, and the trip as a strip of its own sky. The dot
   // is leaving home, the dashes are the drive, gold is the time on the water.
   function planFloatHtml(t, day, href, sky) {
+    return '<a class="float plan" href="' + esc(href) + '" data-sec-row="plan">' + '<em class="eyebrow">The plan</em>' + planStripHtml(t, day, sky) + "</a>";
+  }
+  // The inside of the plan: Leave by, the drive, and the strip with its labels.
+  function planStripHtml(t, day, sky) {
     var L = leaveHour(t), F = t.from, D = t.to;
     // The strip is a sketch, not a ruler: the drive always has room for its label.
     var xf = Math.max(0.2, Math.min(0.7, (F - L) / Math.max(0.1, D - L)));
     function hourAt(u) { return u <= xf ? L + (F - L) * (u / xf) : F + (D - F) * ((u - xf) / (1 - xf)); }
     var strip = LOOK ? RIG.water.stops(0, 1, 14, function (u) { return RIG.sky.paletteFor(sky(day.iso, hourAt(u), t.spot)); }) : "";
     var arrive = xf * (1 - 0.25 / Math.max(0.3, F - L));
-    return '<a class="float plan" href="' + esc(href) + '" data-sec-row="plan">' +
-      '<em class="eyebrow">The plan</em>' +
-      '<span class="planhead"><b>Leave by ' + esc(clk(L)) + "</b><span>" + driveWords(t.drive) + " drive</span></span>" +
+    return '<span class="planhead"><b>Leave by ' + esc(clk(L)) + "</b><span>" + driveWords(t.drive) + " drive</span></span>" +
       '<span class="tl" aria-hidden="true"><i class="tl-sky"' + (strip ? ' style="background:' + strip + '"' : "") + "></i>" +
         '<i class="tl-drive" style="left:16px;width:calc(' + pct(arrive) + '% - 16px)"></i>' +
         '<i class="tl-win" style="left:' + pct(xf) + '%;right:0"></i><i class="tl-dot"></i></span>' +
       '<span class="tl-lab"><span style="left:0">' + esc(clk(L)) + "<small>Leave</small></span>" +
         '<span style="left:' + pct(xf) + '%">' + esc(clk(F)) + "<small>" + (t.beach ? "Dig" : "Fish") + "</small></span>" +
-        '<span style="right:0;text-align:right">' + esc(clk(D)) + "<small>Done</small></span></span></a>";
+        '<span style="right:0;text-align:right">' + esc(clk(D)) + "<small>Done</small></span></span>";
   }
   // Gear at a glance: the big count (to get, else to check), one pip a thing
   // (to get, to check, yours), and the line of what else there is. Nothing is
@@ -2923,7 +3225,13 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   // The river: the gauge's forecast for the days around the trip, the line
   // it has to stay under, and a dot on the day.
   function riverTileHtml(t, day, href, saved) {
-    var f = t.flow, W = 146, H = 44, fl = ((saved && saved.flow) || {})[t.spot], days = (fl && fl.days) || {}, pts = [], k;
+    var f = t.flow, svg = riverSvg(t, day, saved, 146, 44);
+    var sub = f.call === "unknown" ? "" : (f.trend === "rising" ? "Rising" : f.trend === "dropping" ? "Dropping after a rise" : "Steady") + ", fishable to " + cfsTxt(f.good);
+    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="river"><b>River' + IC.chev + "</b>" + svg +
+      '<span class="lead">' + esc(riverLine(f).split(", ")[0]) + "</span>" + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</a>";
+  }
+  function riverSvg(t, day, saved, W, H) {
+    var f = t.flow, fl = ((saved && saved.flow) || {})[t.spot], days = (fl && fl.days) || {}, pts = [], k;
     for (k = -3; k <= 3; k++) { var iso = isoPlus(day.iso, k); if (days[iso]) pts.push({ k: k, v: days[iso].max }); }
     var svg = "";
     if (f.cfs != null && pts.length > 1) {
@@ -2940,9 +3248,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         '<path class="f-fill" d="' + d + "V" + H + "H" + X(pts[0].k).toFixed(1) + 'Z"/><path class="f-base" d="M0 ' + Y(f.good) + "H" + W + '"/>' +
         '<path class="f-line" d="' + d + '"/>' + (here ? '<circle class="f-dot" cx="' + X(0).toFixed(1) + '" cy="' + Y(here.v) + '" r="3.4"/>' : "") + "</svg>";
     }
-    var sub = f.call === "unknown" ? "" : (f.trend === "rising" ? "Rising" : f.trend === "dropping" ? "Dropping after a rise" : "Steady") + ", fishable to " + cfsTxt(f.good);
-    return '<a class="panel tcard" href="' + esc(href) + '" data-sec-row="river"><b>River' + IC.chev + "</b>" + svg +
-      '<span class="lead">' + esc(riverLine(f).split(", ")[0]) + "</span>" + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</a>";
+    return svg;
   }
   // The one gold button on a run card. On a crew it is the crew's two
   // buttons (hotCrewHtml). Otherwise it walks the card from the plan on.
@@ -3277,7 +3583,13 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     var v = crewUi.vals;
     if (!v.newPlan || !/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) return "";
     var trip = { planId: v.newPlan, date: v.newDate, from: boxHour(v.newFrom), to: boxHour(v.newTo), status: "idea" };
-    return condHtml(trip, tripDetail(trip));
+    var det = tripDetail(trip), seal = callSeal(trip, det), cond = condHtml(trip, det);
+    return cond ? '<div class="cwcall"><span class="seal ' + seal.k + '" aria-hidden="true">' + seal.w + "</span>" + cond + "</div>" : "";
+  }
+  // The picture over the form follows the pick: the water of the trip being planned.
+  function newScene() {
+    var p = planOf(crewUi.vals.newPlan);
+    return p ? { kind: sceneFor({ planId: p.id, spot: p.spot, species: p.species, name: p.name }), paint: placePaint(p.spot, p.species) } : { kind: "sound", paint: null };
   }
   // The parts of the form that follow the day and the pick, changed in place.
   // The whole screen is not redrawn: that would shut a date wheel mid-spin.
@@ -3293,18 +3605,19 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       if (lost || sel.getAttribute("data-sig") !== sig) { sel.innerHTML = planOptions(v.newDate || "", v.newPlan || ""); sel.setAttribute("data-sig", sig); }
     }
     if (slot) slot.innerHTML = newCondHtml();
+    var at = newScene();
+    setScene(at.kind, { paint: at.paint });
     [].forEach.call(view.querySelectorAll("[data-cw-pick]"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-cw-pick") === cwT.newStatus ? "true" : "false"); });
     if (msg) { msg.textContent = cwT.newMsg ? cwT.newMsg.t : ""; msg.className = "cw-msg" + (cwT.newMsg && cwT.newMsg.no ? " no" : ""); }
   }
   function renderCrewNew() {
     if (!crewGate()) return;
-    var st = crewSt(), v = crewUi.vals, today = todayIso();
-    var head = topHtml("trips", "crew") + '<div data-view="crewnew">' +
-      headHtml("The crew", "Plan a trip", "Pick one and a day. The crew sees it.", { href: "#/trips", text: "Hot Trips" });
+    var st = crewSt(), v = crewUi.vals, today = todayIso(), at = newScene();
+    var head = crewTop("crewnew", { title: "Plan a trip", scene: at.kind, paint: at.paint, chips: '<span class="chip wrap"><b>The crew</b> Pick one and a day. The crew sees it.</span>' });
     if (cwT.nav) window.scrollTo(0, 0);
     if (!crewQuiet) wxLoad(newSync);
     if (!st || !st.crew) {
-      app.innerHTML = head + '<div class="cw float">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p>'
+      app.innerHTML = head + '<div class="cw float cwcard">' + (st ? '<p class="cw-lead" data-nocrew>You are signed in, but you are not on a crew yet. Ask whoever runs your crew to add you.</p>'
         : cwMsg(cwT.stErr || "Loading the crew...", cwT.stErr ? "no" : "", "data-cw-new-msg") +
           (cwT.stErr ? '<button class="cw-plain" type="button" data-cw-retry>Try again</button>' : "")) +
         (st ? '<a class="cw-plain" href="#/crew">The crew</a>' : "") + "</div></div>" + tripBarHtml();
@@ -3313,17 +3626,17 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     }
     if (!/^\d{4}-\d\d-\d\d$/.test(v.newDate || "")) v.newDate = today;
     if (!plannerReady() || !RIG.trips.plansOn) {
-      app.innerHTML = head + '<div class="cw float">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
+      app.innerHTML = head + '<div class="cw float cwcard">' + cwMsg("The trip planner did not load. Open Rig Card once with a signal.", "no", "data-cw-new-msg") + "</div></div>" + tripBarHtml();
       return;
     }
-    app.innerHTML = head + '<div class="cw float">' +
+    app.innerHTML = head + '<div class="cw float cwcard" data-cw-new-form><em class="eyebrow">A crew trip</em>' +
       cwField("What", '<select data-cw-what data-keep="newPlan" data-sig="' + esc(planSig(v.newDate)) + '">' + planOptions(v.newDate, v.newPlan || "") + "</select>") +
       cwField("When", '<input data-cw-date data-keep="newDate" type="date" min="' + today + '" max="' + isoPlus(today, 60) + '" value="' + kv("newDate") + '">') +
       '<div class="cw-condslot" data-cw-cond-slot>' + newCondHtml() + "</div>" +
       '<div class="cw-two">' +
         cwField("From (optional)", '<input data-cw-from data-keep="newFrom" type="time" step="900" value="' + kv("newFrom") + '">') +
         cwField("To (optional)", '<input data-cw-to data-keep="newTo" type="time" step="900" value="' + kv("newTo") + '">') + "</div>" +
-      '<div class="cw-seg" role="group" aria-label="How sure">' +
+      '<p class="cw-k2">How sure?</p><div class="cw-seg" role="group" aria-label="How sure">' +
         '<button class="cw-pick" type="button" data-cw-pick="idea" aria-pressed="' + (cwT.newStatus === "idea" ? "true" : "false") + '">Just an idea</button>' +
         '<button class="cw-pick" type="button" data-cw-pick="planned" aria-pressed="' + (cwT.newStatus === "planned" ? "true" : "false") + '">It is on</button></div>' +
       cwField("A note (optional)", '<textarea data-cw-note data-keep="newNote" maxlength="280" placeholder="Meet at the pier at 5">' + kv("newNote") + "</textarea>") +
@@ -3456,19 +3769,20 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     var notes = mine.map(function (c) {
       // The weather part is named for the water: a lake has no tide.
       var id = esc(c.id), part = !sec && c.section ? (c.section === "wx" ? wxName(d.trip && d.trip.spotId) : SEC_NAMES[c.section] || "") : "";
-      return '<li class="cw-note" data-cw-note="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
+      return '<li class="cw-note' + (c.mine ? " mine" : "") + '" data-cw-note="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
+        faceOf(c.by && c.by.id, c.by ? c.by.name : "Someone", "md") + '<div class="cw-bub">' +
         '<p class="cw-note-h"><b data-cw-note-who>' + esc(c.by ? firstName(c.by.name) : "Someone") + "</b>" +
         '<span data-cw-note-at>' + esc(noteTime(c.at)) + "</span>" + (part ? '<span data-cw-note-part>' + esc(part) + "</span>" : "") +
         (c.waiting ? waitTag() : "") + "</p>" +
         '<p class="cw-note-b" data-cw-note-body>' + esc(c.body) + "</p>" +
         (c.mine || owner ? (tripUi.ask === "note:" + c.id ? askHtml("Delete this note?", 'data-cw-note-del-yes="' + id + '"')
-          : '<button class="cw-x" type="button" data-cw-note-del="' + id + '">Delete</button>') : "") + "</li>";
+          : '<button class="cw-x" type="button" data-cw-note-del="' + id + '">Delete</button>') : "") + "</div></li>";
     }).join("");
     // The names to tell sit above the box, the button under it: a second tap
     // that lands where the button was finds the box, never a name.
     return '<section class="grp" data-cw-notebox><h2 class="sect">Notes' + (mine.length ? ' <span class="n">' + mine.length + "</span>" : "") + "</h2>" +
       (notes ? '<ul class="cw-nlist">' + notes + "</ul>" : "") +
-      '<div class="cw cw-notebox">' + tellHtml("note") +
+      '<div class="panel cw cw-notebox">' + tellHtml("note") +
       cwField(sec ? "Add a note on this part" : "Add a note on the whole trip",
         '<textarea data-cw-note-text data-keep="' + key + '" maxlength="1000">' + kv(key) + "</textarea>") +
       '<button class="cw-plain cw-main" type="button" data-cw-note-add="' + esc(sec) + '">Add the note</button>' +
@@ -3514,14 +3828,16 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       }
       return '<li class="cw-item' + (it.done ? " done" : "") + '" data-cw-item="' + id + '"' + (it.waiting ? " data-waiting" : "") + ">" +
         '<button class="cw-tick" type="button" role="checkbox" aria-checked="' + (it.done ? "true" : "false") + '" data-cw-tick="' + id +
-          '" aria-label="Packed: ' + esc(it.label) + '"></button>' +
+          '" aria-label="Packed: ' + esc(it.label) + '"><i aria-hidden="true">' + TICK + "</i></button>" +
         '<span class="cw-item-l" data-cw-item-label><span>' + esc(it.label) + "</span>" + (it.waiting ? waitTag() : "") + "</span>" +
         '<button class="cw-whob' + (it.assignedTo ? "" : " none") + '" type="button" data-cw-who="' + id + '" aria-expanded="' + (open ? "true" : "false") +
-          '" aria-label="' + esc(it.assignedTo ? who + " has it. Change who." : "Nobody has it. Pick who.") + '">' + esc(who) + "</button>" +
+          '" aria-label="' + esc(it.assignedTo ? who + " has it. Change who." : "Nobody has it. Pick who.") + '">' +
+          (it.assignedTo ? faceOf(it.assignedTo.id, it.assignedTo.name) : "") + esc(who) + "</button>" +
         (open ? '<div class="cw-panel" data-cw-panel>' + panel + (tripUi.pMsg ? cwSaid(tripUi.pMsg, "", "data-cw-panel-msg") : "") + "</div>" : "") + "</li>";
     }).join("");
-    return '<section class="grp" data-cw-listbox><h2 class="sect">The list</h2><p class="cw-sum" data-cw-list-sum>' + esc(listSummary(list)) + "</p>" +
-      '<ul class="cw-items">' + rows + "</ul>" +
+    return '<section class="grp" data-cw-listbox><h2 class="sect">The list</h2>' +
+      '<p class="cw-sum" data-cw-list-sum>' + esc(listSummary(list)) + "</p>" +
+      '<ul class="panel cw-items">' + rows + "</ul>" +
       '<div class="cw-addline"><input data-cw-item-new data-keep="t.item" data-enter="data-cw-item-add" type="text" maxlength="120" autocomplete="off" ' +
         'placeholder="Add a line" aria-label="Add a line" value="' + kv("t.item") + '">' +
       '<button class="cw-act" type="button" data-cw-item-add>Add</button></div>' +
@@ -3606,6 +3922,11 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       '<button class="cw-plain cw-main" type="button" data-cw-catch-save' + (tripUi.cBusy ? " disabled" : "") + ">Save the fish</button>" +
       '<button class="cw-plain" type="button" data-cw-catch-cancel>Not now</button></div>';
   }
+  // A catch with no photo still has a picture: the trip's own water, small.
+  function catchPic(trip) {
+    var kind = waterKind({ planId: trip.planId, spot: trip.spotId, species: trip.species, name: trip.title });
+    return miniHtml(kind === "beach" ? "sound" : kind, "", "", placePaint(trip.spotId, trip.species));
+  }
   function cwCatchesHtml(d) {
     if (d.thin) return "";
     var trip = d.trip, list = oldestFirst(d.catches || []);
@@ -3614,12 +3935,12 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       var id = esc(c.id), size = sizeWords(c), who = c.by ? firstName(c.by.name) : "Someone";
       var meta = ['<span data-cw-catch-who>' + esc(who) + "</span>", '<span data-cw-catch-at>' + esc(noteTime(c.at)) + "</span>"];
       if (c.lure) meta.push('<span data-cw-catch-lure>' + esc(c.lure) + "</span>");
-      return '<li class="cw-catch" data-cw-catch="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
+      return '<li class="panel cw-catch" data-cw-catch="' + id + '"' + (c.waiting ? " data-waiting" : "") + ">" +
         (c.photoUrl ? '<button class="cw-thumb" type="button" data-cw-photo="' + id + '" aria-label="See the photo large"><img data-cw-img="' + esc(c.photoUrl) +
-          '" src="' + esc(photoSrc(c.photoUrl)) + '" alt="' + esc(who + ", " + c.species) + '"></button>' : "") +
+          '" src="' + esc(photoSrc(c.photoUrl)) + '" alt="' + esc(who + ", " + c.species) + '"></button>' : '<span class="cw-thumb nopic">' + catchPic(trip) + "</span>") +
         '<div class="cw-catch-t"><p class="cw-catch-h"><b data-cw-catch-what>' + esc(c.species) + "</b>" +
           (size ? '<span data-cw-catch-size>' + esc(size) + "</span>" : "") + "</p>" +
-        '<p class="cw-catch-m">' + meta.join(" · ") + "</p>" +
+        '<p class="cw-catch-m">' + faceOf(c.by && c.by.id, who, "sm") + meta.join(" · ") + "</p>" +
         (c.notes ? '<p class="cw-catch-n" data-cw-catch-notes>' + esc(c.notes) + "</p>" : "") +
         (c.waiting ? '<p class="cw-catch-m">' + waitTag() + "</p>" : "") +
         (c.mine ? (tripUi.ask === "catch:" + c.id ? askHtml("Delete this catch? It leaves your CastAI catch log too.", 'data-cw-catch-del-yes="' + id + '"')
@@ -3628,7 +3949,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     }).join("");
     return '<section class="grp" data-cw-catchbox><h2 class="sect">Catches' + (list.length ? ' <span class="n">' + list.length + "</span>" : "") + "</h2>" +
       (rows ? '<ul class="cw-clist">' + rows + "</ul>" : "") +
-      (tripUi.cOpen ? catchFormHtml() : '<div class="cw"><button class="cw-plain cw-main" type="button" data-cw-catch-open>Log a fish</button></div>') +
+      (tripUi.cOpen ? catchFormHtml() : '<div class="cw"><button class="cw-plain cw-main cw-lift" type="button" data-cw-catch-open>Log a fish</button></div>') +
       cwSaid(tripUi.cMsg, "", "data-cw-catch-msg") + "</section>";
   }
 
@@ -3747,20 +4068,71 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     if (!RIG.crew.cached()) crewStLoad(); else crewStFresh();
     wxLoad(tripRedraw);
   }
+  // Who is in: three tiles side by side. Each is one big tap target (the
+  // answer button reaches over the whole tile) with the people under it,
+  // face and first name. Yours is lifted out of the well, in the go colour.
   function goingHtml(trip, me) {
     var mine = (trip.going || []).filter(function (g) { return g.id === me.id; })[0], done = trip.status === "done";
     var cols = [["going", "Going"], ["maybe", "Maybe"], ["out", "Out"]].map(function (a) {
-      var names = (trip.going || []).filter(function (g) { return g.answer === a[0]; }).map(function (g) {
-        return "<li" + (g.waiting ? " data-waiting" : "") + ">" + esc(firstName(g.name)) + "</li>";
+      var who = (trip.going || []).filter(function (g) { return g.answer === a[0]; }), on = !!(mine && mine.answer === a[0]);
+      var names = who.map(function (g) {
+        return '<li class="rs-p"' + (g.waiting ? " data-waiting" : "") + ">" + faceOf(g.id, g.name) + "<span>" + esc(firstName(g.name)) + "</span></li>";
       }).join("");
-      return '<div class="cw-gcol">' + (done ? '<p class="cw-ghead">' + a[1] + "</p>"
-        : '<button class="cw-ans" type="button" data-cw-answer="' + a[0] + '" aria-pressed="' + (mine && mine.answer === a[0] ? "true" : "false") + '">' + a[1] + "</button>") +
-        '<ul class="cw-names" data-cw-names="' + a[0] + '">' + names + "</ul></div>";
+      return '<div class="rs' + (done ? " done" : "") + '"' + (on ? ' data-on="1"' : "") + '><span class="rs-h">' + (done ? '<span class="cw-ghead">' + a[1] + "</span>"
+        : '<button class="cw-ans" type="button" data-cw-answer="' + a[0] + '" aria-pressed="' + (on ? "true" : "false") + '">' + a[1] + "</button>") +
+        '<b aria-hidden="true">' + who.length + "</b></span>" +
+        '<ul class="cw-names" data-cw-names="' + a[0] + '">' + names + "</ul>" + (names ? "" : '<span class="rs-p none">Nobody</span>') + "</div>";
     }).join("");
     var wait = mine && mine.waiting ? '<p class="cw-msg" data-cw-waiting><span class="cw-wait">' +
       (tripUi.sending ? "Sending" : "Waiting to send") + "</span>" + (tripUi.sending ? "" : " It goes when there is a signal.") + "</p>" : "";
-    return '<section class="grp" data-cw-going><h2 class="sect">Who is in</h2><div class="cw-going">' + cols + "</div>" + wait +
+    return '<section class="grp" data-cw-going><h2 class="sect">Who is in' + (done ? "" : " <i>" + (mine ? "Tap to change" : "Tap yours") + "</i>") + "</h2>" +
+      '<div class="rsvp cw-going">' + cols + "</div>" + wait +
       (tripUi.goMsg ? cwSaid(tripUi.goMsg, "", "data-cw-going-msg") : "") + "</section>";
+  }
+  // The go call, painted: a seal with one word in its colour (Hot gold, Go
+  // green, Slow and Dark and Off amber, No red, the rest quiet), the call's
+  // own words beside it, and a small picture of the water it is made from.
+  function callSeal(trip, det) {
+    if (trip.status === "done") return { w: "Done", k: "idle" };
+    if (!det) return { w: "Wait", k: "idle" };
+    var s = trip.date < todayIso() ? "past" : det.status;
+    if (s === "ok") return det.trip.heat === "Hot" ? { w: "Hot", k: "hot" } : det.trip.heat === "Slow" ? { w: "Slow", k: "warn" } : { w: "Go", k: "" };
+    if (s === "nogo") return { w: "No", k: "no" };
+    if (s === "dark") return { w: "Dark", k: "warn" };
+    if (s === "closed") return { w: "Off", k: "warn" };
+    if (s === "past") return { w: "Past", k: "idle" };
+    if (s === "nodata") return { w: trip.date > isoPlus(todayIso(), 6) ? "Soon" : "Wait", k: "idle" };
+    return { w: "Trip", k: "idle" };
+  }
+  // The tide across the trip, the river's days around it, or the wind
+  // through it on water with neither.
+  function callPicHtml(t, iso, saved) {
+    var W = 92, H = 44;
+    if (t.tides && t.tides.length) {
+      var c = tideCurve(t, W, H, t.from - 1.5, t.to + 1.5), mh = c.turn ? c.turn.h : t.from, mx = c.X(mh), my = c.Y(c.at(mh));
+      return '<svg class="tide cw-callpic" viewBox="0 0 ' + W + " " + H + '" aria-hidden="true"><path class="t-fill" d="' + c.d + "V" + H + 'H0Z"/><path class="t-line" d="' + c.d + '"/>' +
+        '<path class="t-tick" d="M' + mx + " " + (my + 4) + "V" + H + '"/><circle class="t-now" cx="' + mx + '" cy="' + my + '" r="3.4"/></svg>';
+    }
+    if (t.flow) { var r = riverSvg(t, { iso: iso }, saved, W, H); if (r) return r.replace('class="flow', 'class="cw-callpic flow'); }
+    var w = windChart(t, W, 40);
+    return w ? w.replace('class="tide windbars', 'class="cw-callpic tide windbars') : "";
+  }
+  // The plan card: the first card on a crew trip, crossing the waterline,
+  // as on a Hot Trip's run card. The go call on top, then when to leave and
+  // the trip's hours as a strip of their own sky, when there are hours to
+  // stand behind. It opens the plan section when the trip has one.
+  function cwPlanHtml(trip, det, base, hasPlan) {
+    var seal = callSeal(trip, det), t = det && det.status === "ok" && trip.date >= todayIso() ? det.trip : null, sky = skyReader(), day = { iso: trip.date };
+    var cond = condHtml(trip, det) || '<p class="cw-cond">' + (trip.status === "done" ? "This trip is done." : "Checking the day...") + "</p>";
+    var call = '<div class="cwcall"><span class="seal ' + seal.k + '" aria-hidden="true">' + seal.w + "</span>" + cond + (t ? callPicHtml(t, trip.date, sky.saved) : "") + "</div>";
+    var strip = "", leave = tripLeave(trip, det), spot = tripSpot(trip.spotId);
+    if (t) strip = planStripHtml(t, day, sky);
+    else if (leave && trip.status !== "done") {
+      var won = { from: trip.from, to: trip.to, drive: spot ? spot.drive : 0, spot: trip.spotId };
+      strip = trip.to != null && spot ? planStripHtml(won, day, sky) : '<span class="planhead"><b>Leave by ' + esc(leave) + "</b></span>";
+    }
+    var open = hasPlan ? '<a class="float plan cwplan" href="' + esc(base + "/plan") + '" data-sec-row="plan" data-cw-plan>' : '<section class="float plan cwplan" data-cw-plan>';
+    return open + '<em class="eyebrow">The plan' + (hasPlan ? IC.chev : "") + "</em>" + call + strip + (hasPlan ? "</a>" : "</section>");
   }
   function tripLeave(trip, det) {
     if (det && det.status === "ok") return RIG.trips.leaveBy(det.trip);
@@ -3785,7 +4157,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       tripUi.edit = trip.id; tripUi.editMsg = null;
       v.editDate = trip.date; v.editFrom = hourBox(trip.from); v.editTo = hourBox(trip.to); v.editNote = trip.note || "";
     }
-    return headHtml("Crew trip", "Change it", trip.title, { href: "#/crew/trip/" + trip.id, text: trip.title }) + '<div class="cw float" data-cw-edit-form>' +
+    return headHtml("Crew trip", "Change it", trip.title, { href: "#/crew/trip/" + trip.id, text: trip.title }) + '<div class="cw float cwcard" data-cw-edit-form>' +
       cwField("When", '<input data-cw-edit-date data-keep="editDate" type="date" min="' + min + '" max="' + isoPlus(today, 60) + '" value="' + kv("editDate") + '">') +
       '<div class="cw-two">' +
         cwField("From (optional)", '<input data-cw-edit-from data-keep="editFrom" type="time" step="900" value="' + kv("editFrom") + '">') +
@@ -3846,7 +4218,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         body = cwMsg(r && r.offline ? "No signal, and this trip is not saved on this phone yet." : (r && r.error) || cwT.stErr || "The trip could not be loaded. Try again in a minute.", "no", "data-cw-trip-msg") +
           '<button class="cw-plain" type="button" data-cw-retry>Try again</button>';
       } else body = cwMsg("Loading the trip...", "", "data-cw-trip-msg");
-      app.innerHTML = open + ">" + headHtml("The crew", "Crew trip", "", up) + '<div class="cw float">' + body + "</div></div>" + tripBarHtml();
+      app.innerHTML = open + ">" + headHtml("The crew", "Crew trip", "", up) + '<div class="cw float cwcard">' + body + "</div></div>" + tripBarHtml();
       return;
     }
     var trip = d.trip, det = tripDetail(trip), me = st.me;
@@ -3883,12 +4255,13 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
     var win = hoursWords(trip.from, trip.to) || (t ? t.when : "");
     var counts = {};
     (d.comments || []).forEach(function (c) { if (c.section) counts[c.section] = (counts[c.section] || 0) + 1; });
-    var rows = secs.map(function (c) {
+    var hasPlan = secs.some(function (c) { return c.id === "plan"; });
+    var rows = secs.filter(function (c) { return c.id !== "plan"; }).map(function (c) {
       var n = counts[c.id] || 0;
       return '<a class="row" href="' + esc(base + "/" + c.id) + '" data-sec-row="' + c.id + '"><span class="tx"><b>' + esc(c.title) +
-        "</b>" + secLineHtml(c, t, run, trip.planId, n ? 70 : 0) + "</span>" +
+        "</b>" + secLineHtml(c, t, run, trip.planId, n ? 92 : 0) + "</span>" +
         (n && lookNew(id, c.id, d) ? '<span class="dot cw-dot" data-cw-newnote="' + c.id + '" role="img" aria-label="New note"></span>' : "") +
-        (n ? '<span class="rm" data-cw-count="' + c.id + '">' + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
+        (n ? '<span class="badge" data-cw-count="' + c.id + '">' + IC.note + n + (n === 1 ? " note" : " notes") + "</span>" : "") +
         IC.chev + '</a>';
     }).join("");
     var leave = tripLeave(trip, det);
@@ -3900,20 +4273,24 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
       ? '<p class="cw-asks" data-cw-delete-ask>Delete this trip for everyone?</p>' + tellFoot + '<div class="cw-acts2">' +
         '<button class="cw-act no" type="button" data-cw-delete-yes>Delete</button><button class="cw-act" type="button" data-cw-delete-no>Keep</button></div>'
       : tellFoot + '<div class="cw-acts2" data-cw-acts>' + tripActsHtml(trip, canEdit) + "</div>";
+    // The order: the plan crossing the waterline, who is in, the list, the
+    // notes, the catches once the day has come, the run card, then the one
+    // gold button, Text the crew, and what can be done to the trip.
     app.innerHTML = open + ">" +
       heroHtml({ title: trip.title, attr: "data-cw-title", back: up,
         chips: '<span class="chip wrap" data-cw-when><b>' + esc(dayDate(trip.date)) + "</b>" + esc(win ? " · " + win : "") + "</span>" + tagHtml(trip) +
           (trip.by ? '<span class="chip" data-cw-by>Made by ' + esc(firstName(trip.by.name)) + "</span>" : "<span data-cw-by></span>") +
           (trip.note ? '<span class="chip wrap" data-cw-tripnote>' + esc(trip.note) + "</span>" : "") }) +
+      cwPlanHtml(trip, det, base, hasPlan) +
       (tripUi.note ? cwMsg(tripUi.note, "", "data-cw-trip-note") : "") +
-      condHtml(trip, det).replace('class="cw-cond', 'class="float cw-cond') +
       goingHtml(trip, me) +
-      (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2 class="sect">Run card</h2><div class="panel list">' + rows + "</div></section>" : "") +
-      '<div data-cw-notes="">' + cwNotesHtml(d, "", secs.map(function (c) { return c.id; })) + "</div>" +
       '<div data-cw-list>' + cwListHtml(d) + "</div>" +
+      '<div data-cw-notes="">' + cwNotesHtml(d, "", secs.map(function (c) { return c.id; })) + "</div>" +
       '<div data-cw-catches>' + cwCatchesHtml(d) + "</div>" +
-      '<div class="cw cw-foot"><a class="cw-plain" data-cw-text href="' + esc(RIG.crew.textLink(words)) + '">Text the crew</a>' +
-        ask + cwSaid(tripUi.msg, "", "data-cw-trip-msg") + "</div>" +
+      (rows ? '<section class="grp" data-cw-run data-run="' + esc(trip.planId) + '"><h2 class="sect">Run card</h2><div class="panel list">' + rows + "</div></section>" : "") +
+      '<div class="cw-foot"><a class="gold cw-text" data-cw-text href="' + esc(RIG.crew.textLink(words)) + '">' + IC.msg + "Text the crew</a>" +
+        '<p class="cw-msg cw-textnote" data-cw-text-note>Opens Messages with the trip written in. Numbers stay private, so you pick who gets it.</p>' +
+        '<div class="cw">' + ask + cwSaid(tripUi.msg, "", "data-cw-trip-msg") + "</div></div>" +
       (tripUi.big ? '<div class="cw-big" data-cw-photo-big role="dialog" aria-label="The photo"><img data-cw-img="' + esc(tripUi.big) + '" src="' +
         esc(photoSrc(tripUi.big)) + '" alt="The catch"><button class="cw-act" type="button" data-cw-photo-close>Close</button></div>' : "") +
       "</div>" + tripBarHtml();
@@ -4096,7 +4473,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   // screen. If its trip is the one open, say so where it was made.
   function tripRefused(list) {
     (list || []).forEach(function (x) {
-      if (!x || x.tripId !== tripUi.id) return;
+      if (!x || !x.tripId || x.tripId !== tripUi.id) return;
       var m = { t: "That was not sent. " + (x.error || "The server would not take it."), no: true };
       if (/^comment/.test(x.kind)) tripUi.nMsg = m;
       else if (/^list/.test(x.kind)) tripUi.lMsg = m;
@@ -4128,7 +4505,7 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
         return;
       }
       // Only the end of a pass that sent or dropped something carries "dropped".
-      if (w.kind === "queue" && "dropped" in w) { afterSend(); tripRefused(w.dropped); }
+      if (w.kind === "queue" && "dropped" in w) { afterSend(); tripRefused(w.dropped); nameRefused(w.dropped); }
       var h = location.hash || "";
       if (/^#\/?crew\/trip\//.test(h)) { tripRedraw(); return; }
       if (/^(#\/?)?(trips\/?)?$/.test(h)) crewTripsDraw();
