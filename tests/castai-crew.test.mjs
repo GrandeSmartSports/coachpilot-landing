@@ -6,6 +6,7 @@
 // words of a text and a phone alert, the daily cap and the two minute rule.
 // The last block asks the deployed function a few questions with no sign-in.
 // Run: node tests/castai-crew.test.mjs
+import { readFileSync } from "node:fs";
 import * as core from "../supabase/functions/castai-crew/crew-core.mjs";
 
 const {
@@ -19,6 +20,7 @@ const {
   KINDS, prefsView, prefsPatch, hears, cleanTell, audience, inQuiet, quietUntil, dayLabel, tripLink,
   statusNews, alertWords, textWords, pushWords, capReached, noteTooSoon, pushSubInput, wantsText, rowOutcome,
   DAILY_CAP, NOTE_GAP_MS, TRIPS_LINK, CREW_LINK,
+  crewRenameRefusal, cleanOpen, NAME_TAKEN, cleanName,
 } = core;
 
 let pass = 0, fail = 0;
@@ -39,7 +41,8 @@ for (const name of ["canInvite", "inviteOutcome", "normalizePhone", "cleanText",
   "cleanAnswer", "joinToken", "newToken", "hashToken", "joinLink", "placeholderEmail", "ghostAccount",
   "inviteMade", "signInWith", "inviteAnswer", "linkRefusal", "seedLabels", "seedId", "photoUrl", "catchView",
   "prefsView", "prefsPatch", "hears", "cleanTell", "audience", "inQuiet", "quietUntil", "dayLabel", "tripLink",
-  "statusNews", "alertWords", "textWords", "pushWords", "capReached", "noteTooSoon", "pushSubInput", "wantsText", "rowOutcome"]) {
+  "statusNews", "alertWords", "textWords", "pushWords", "capReached", "noteTooSoon", "pushSubInput", "wantsText", "rowOutcome",
+  "crewRenameRefusal", "cleanOpen", "cleanName"]) {
   ok(fn(core[name]), `crew-core has ${name}`);
 }
 ok(!("catchInput" in core), "the first shape of a catch is gone: a crew catch is a CastAI catch now");
@@ -70,6 +73,21 @@ ok(inviteOutcome({ user: { id: "u1" }, member: { user_id: "u1" } }) === "already
 ok(inviteOutcome({ user: { id: "u1" }, member: null }) === "attach", "an existing account is attached");
 ok(inviteOutcome({ user: null, member: null }) === "create", "a new number gets an account");
 
+// ---- the crew's name: the owner's, and whoever joins picks it first -------
+// Coach (11/27): "How about we provide examples and let Russ choose on his
+// invite." While the name is open anyone on the crew names it, once.
+ok(crewRenameRefusal({ owner: true, nameOpen: false }) === null, "the owner renames the crew whenever he likes");
+ok(crewRenameRefusal({ owner: true, nameOpen: true }) === null, "including while it is open");
+ok(crewRenameRefusal({ owner: false, nameOpen: true }) === null, "a member names it while its name is open");
+const shut = crewRenameRefusal({ owner: false, nameOpen: false });
+ok(shut && shut.status === 403 && shut.words === NAME_TAKEN && plain(shut.words), "once it is named a member is turned away, in plain words", JSON.stringify(shut));
+ok(/only the owner/i.test(NAME_TAKEN) && /has its name/i.test(NAME_TAKEN), "and told why: it has its name, and only the owner changes it", NAME_TAKEN);
+ok(crewRenameRefusal({ owner: false })?.status === 403 && crewRenameRefusal({})?.status === 403, "not knowing whether it is open is a no");
+ok(crewRenameRefusal({ owner: "yes", nameOpen: "yes" })?.status === 403, "only a real true counts, never something that looks like one");
+ok(cleanOpen(true) === true && cleanOpen(false) === false, "open is true or false");
+for (const bad of [undefined, null, "true", 1, 0, "", {}, []]) ok(threw(() => cleanOpen(bad)), "open as " + JSON.stringify(bad) + " is refused");
+ok(plain(said(() => cleanOpen("yes"))), "in plain words", said(() => cleanOpen("yes")));
+
 // ---- small cleaners --------------------------------------------------------
 ok(JSON.stringify(SECTIONS) === JSON.stringify(["plan", "what", "gear", "bait", "how", "wx", "river", "spot", "expect", "rules"]),
   "the ten run card sections, in card order", JSON.stringify(SECTIONS));
@@ -91,6 +109,17 @@ const ZERO = String.fromCharCode(0), HALF = String.fromCharCode(0xd800);
 ok(cleanText("ring" + ZERO + " nets", 120) === "ring nets", "a zero byte is dropped, since the database cannot hold one");
 ok(threw(() => cleanText(ZERO + ZERO, 120)), "only zero bytes is empty");
 ok(cleanText("net" + HALF, 120).isWellFormed() && cleanText("net" + HALF, 120).length === 4, "half a character is mended, not passed on to crash a write");
+// A name is one line: a person's, or the crew's. Only a direct call to the
+// function could send "A\n\nB"; the page tidies spaces itself.
+ok(cleanName("  Two   Fish\tPros ", 60) === "Two Fish Pros", "a name's inside spaces and tabs become one space");
+ok(cleanName("Two\n\nFish\r\nPros", 60) === "Two Fish Pros", "line breaks in a name become one space, so a name is one line");
+ok(cleanName("Two " + ZERO + " Fish", 60) === "Two Fish", "a zero byte between spaces leaves one space, not two");
+ok(threw(() => cleanName(" \n\t ", 60)) && threw(() => cleanName(null, 60)) && threw(() => cleanName(42, 60)), "a name of only spaces, or not words, is refused");
+ok(cleanName("x".repeat(60), 60).length === 60 && threw(() => cleanName("x".repeat(61), 60)), "and it has the same limit");
+ok(said(() => cleanName("", 60, "crew name")) === said(() => cleanText("", 60, "crew name")), "in the same plain words as any other box");
+const PEOPLE = readFileSync(new globalThis.URL("../supabase/functions/castai-crew/people.ts", import.meta.url), "utf8");
+ok((PEOPLE.match(/cleanName\(body\.name, 60, "(name|crew name)"\)/g) || []).length === 3 && !/cleanText\(body\.name/.test(PEOPLE),
+  "adding someone, renaming yourself and naming the crew all clean the name as a name");
 ok(optionalText(undefined, 80) === null && optionalText(null, 80) === null && optionalText("   ", 80) === null, "an optional blank is nothing");
 ok(optionalText(" pink hoochie ", 80) === "pink hoochie", "an optional value is trimmed");
 ok(threw(() => optionalText("x".repeat(81), 80)), "an optional value still has a limit");
@@ -574,7 +603,7 @@ else {
   ok(deadLink.status === 410 && /not good any more/.test(deadLink.body.error || ""), "a made-up join link is a dead link", JSON.stringify(deadLink));
   const noLink = await post({ action: "join" });
   ok(noLink.status === 400, "join with no link at all is bad input", JSON.stringify(noLink));
-  for (const a of ["invite", "trip_create", "member_remove", "catch_link", "prefs_get", "prefs_set", "push_subscribe", "test_alert", "outbox", "nonsense"]) {
+  for (const a of ["invite", "trip_create", "member_remove", "catch_link", "prefs_get", "prefs_set", "push_subscribe", "test_alert", "outbox", "crew_rename", "crew_name_open", "nonsense"]) {
     const r = await post({ action: a });
     ok(r.status === 401, `${a} with no sign-in is turned away`, JSON.stringify(r));
   }

@@ -39,6 +39,8 @@ const CREW = "ZZTEST crew";
 // The names this walk gives through the page, and takes back. A run that died
 // halfway is recognised by them and put back before anything else.
 const CREW_TEMP = "ZZTEST crew renamed", MEMBER_TEMP = "ZZTEST Member renamed", MEMBER_BACK = "ZZTEST Member";
+const CREW_PICK = "ZZTEST Two Fish Pros"; // the name the member picks while naming is open
+const CREW_TEMPS = [CREW_TEMP, CREW_PICK];
 const PHOTOS = BASE + "/storage/v1/object/public/catch-photos/";
 const MARK = "ZZTEST page walk"; // every note and catch this test writes starts with it
 const ALL_OFF = { texts: false, push: false, evTrips: true, evStatus: true, evNotes: true, evGearCatches: true, quietFrom: 21, quietTo: 6, textsStopped: false };
@@ -113,7 +115,7 @@ if (!ok(owner.status === 200 && owner.token && member.status === 200 && member.t
 // A run that died after renaming: the names go back first.
 {
   const a = await call(owner.token, { action: "state" }), b = await call(member.token, { action: "state" });
-  if (a.status === 200 && a.body.crew && a.body.crew.name === CREW_TEMP && a.body.crew.role === "owner") { await call(owner.token, { action: "crew_rename", name: CREW }); console.log("note  put the crew's name back from an earlier run"); }
+  if (a.status === 200 && a.body.crew && CREW_TEMPS.includes(a.body.crew.name) && a.body.crew.role === "owner") { await call(owner.token, { action: "crew_rename", name: CREW }); console.log("note  put the crew's name back from an earlier run"); }
   if (b.status === 200 && b.body.me && b.body.me.name === MEMBER_TEMP) { await call(member.token, { action: "me_rename", name: MEMBER_BACK }); console.log("note  put the member's name back from an earlier run"); }
 }
 // The one check that comes before any write: both are on the ZZTEST crew and nothing else.
@@ -132,6 +134,8 @@ const first = (n) => String(n || "").trim().split(/\s+/)[0];
 async function sweep() {
   let trips = 0, rows = 0;
   const st = await call(owner.token, { action: "state" });
+  // Naming left open by a run that died is closed again.
+  if (st.body.crew && st.body.crew.nameOpen === true) await call(owner.token, { action: "crew_name_open", open: false });
   for (const t of (st.body.trips || [])) { await call(owner.token, { action: "trip_delete", tripId: t.id, tell: [] }); trips++; }
   for (const who of [owner, member]) {
     const mine = await logRows(who, "&notes=like." + encodeURIComponent(MARK + "*"));
@@ -453,6 +457,46 @@ try {
   await op.locator("[data-crew-save]").click();
   ok(await until(async () => (await text(op, "[data-crewname]")).trim() === CREW && /saved/i.test(await text(op, "[data-crew-name-msg]"))), "and back to ZZTEST crew");
   await drained(op);
+
+  // ---- naming the crew while its name is open: the member picks, in the page -----
+  // The owner opens naming from his Rename, in the page: "Let the next person
+  // name it". Whoever is on the crew then names it once.
+  await op.locator("[data-crew-edit]").click();
+  ok(await until(() => count(op, "[data-crew-name-reopen]").then((n) => n === 1)), "the owner's Rename offers: Let the next person name it");
+  await op.locator("[data-crew-name-reopen]").click();
+  ok(await until(async () => (await text(op, "[data-crewname]")).trim() === "The crew" && await count(op, "[data-crew-name-open]") === 1 && /done/i.test(await text(op, "[data-crew-name-msg]"))),
+    "one tap and the owner's title is The crew, with the line on who names it", await text(op, "[data-crew-card]"));
+  const opened = await call(owner.token, { action: "state" });
+  ok(opened.status === 200 && opened.body.crew.nameOpen === true && opened.body.crew.name === CREW, "the server has naming open on the test crew, its name not touched", opened.text.slice(0, 160));
+  // A page already on #/crew is not moved by going to #/crew again: it is opened afresh.
+  await mp.goto(base + "#/crew", { waitUntil: "load" });
+  await mp.reload({ waitUntil: "load" });
+  ok(await until(() => count(mp, "[data-namepick-card] [data-namepick-own]").then((n) => n === 1)) && (await text(mp, "[data-view] > .hero h1")).trim() === "The crew",
+    "the member's crew screen opens on Name the crew, titled The crew", await text(mp, "[data-view] > .hero h1"));
+  ok(!(await screenText(mp)).includes(CREW), "with the stand-in name nowhere on it");
+  await mp.locator('[data-namepick="Two Fish Pros"]').click();
+  ok(await mp.locator("[data-namepick-own]").inputValue() === "Two Fish Pros" && (await text(mp, "[data-jersey-name]")).trim().toUpperCase() === "TWO FISH PROS", "a tapped name goes in the box and on the jersey");
+  await settle();
+  await mp.locator("[data-namepick-own]").fill(CREW_PICK);
+  await mp.locator("[data-namepick-save]").click();
+  ok(await until(async () => (await text(mp, "[data-view] > .hero h1")).trim() === CREW_PICK && /saved/i.test(await text(mp, "[data-crew-name-msg]"))),
+    "Save names the crew: the title follows, and it says saved", await text(mp, "[data-crew-card]"));
+  await drained(mp);
+  const picked = await call(owner.token, { action: "state" });
+  ok(picked.body.crew && picked.body.crew.name === CREW_PICK && picked.body.crew.nameOpen === false, "the server has the member's name, with naming closed", picked.text.slice(0, 160));
+  ok(await count(mp, "[data-namepick-save]") === 0 && await count(mp, "[data-crew-edit]") === 0, "and the member has no Save and no Rename any more");
+  ok((await call(member.token, { action: "crew_rename", name: CREW_PICK + " again" })).status === 403, "the member cannot name it a second time");
+  await op.goto(base + "#/crew", { waitUntil: "load" });
+  await op.reload({ waitUntil: "load" });
+  ok(await until(async () => (await text(op, "[data-crewname]")).trim() === CREW_PICK) && await count(op, "[data-crew-name-open]") === 0, "the owner sees the name the member picked");
+  await op.locator("[data-crew-edit]").click();
+  ok(await until(() => count(op, "[data-crew-name]").then((n) => n === 1)) && await op.locator("[data-crew-name]").inputValue() === CREW_PICK, "and his Rename opens with it");
+  await op.locator("[data-crew-name]").fill(CREW);
+  await op.locator("[data-crew-save]").click();
+  ok(await until(async () => (await text(op, "[data-crewname]")).trim() === CREW && /saved/i.test(await text(op, "[data-crew-name-msg]"))), "the owner puts ZZTEST crew back through the page");
+  await drained(op);
+  const shut = await call(member.token, { action: "state" });
+  ok(shut.body.crew && shut.body.crew.name === CREW && shut.body.crew.nameOpen === false, "ZZTEST crew again, with naming closed", shut.text.slice(0, 160));
   for (const [who, p] of [["owner", op], ["member", mp]]) {
     const words = await screenText(p);
     ok(!PHONE.test(words) && !EMAIL.test(words), "no phone number or email on the " + who + "'s crew screen", words.match(PHONE) || words.match(EMAIL));
@@ -533,7 +577,7 @@ try {
   ok(!sent.some((u) => /push_subscribe/.test(u)) && sent.some((u) => /functions\/v1\/castai-crew/.test(u)) && sent.some((u) => /^PUT \/storage\/v1\/object\/catch-photos\//.test(u)) && sent.some((u) => /^POST \/rest\/v1\/catch_logs/.test(u)),
     "the page really talked to the live crew function, catch log and photo store");
   const end = await call(owner.token, { action: "state" });
-  ok(end.status === 200 && end.body.crew.name === CREW && end.body.members.length === 2 && end.body.trips.length === 0 && end.body.members.every((m) => m.alerts === false),
+  ok(end.status === 200 && end.body.crew.name === CREW && end.body.crew.nameOpen === false && end.body.members.length === 2 && end.body.trips.length === 0 && end.body.members.every((m) => m.alerts === false),
     "the ZZTEST crew ends with its two members, no trips, and alerts off", end.text.slice(0, 300));
   const endO = await call(owner.token, { action: "prefs_get" }), endM = await call(member.token, { action: "prefs_get" });
   ok(same(endO.body.prefs, ALL_OFF) && same(endM.body.prefs, ALL_OFF) && endO.body.pushSubs === 0 && endM.body.pushSubs === 0, "both people's switches are as a new person's, with no phone set up", [endO.body, endM.body]);
@@ -548,7 +592,7 @@ try {
   // Whatever happened above, the ZZTEST crew is left clean.
   try {
     const a = await call(owner.token, { action: "state" }), b = await call(member.token, { action: "state" });
-    if (a.body.crew && a.body.crew.name === CREW_TEMP) await call(owner.token, { action: "crew_rename", name: CREW });
+    if (a.body.crew && CREW_TEMPS.includes(a.body.crew.name)) await call(owner.token, { action: "crew_rename", name: CREW });
     if (b.body.me && b.body.me.name === MEMBER_TEMP) await call(member.token, { action: "me_rename", name: MEMBER_NAME || MEMBER_BACK });
     const s = await sweep();
     if (tripId || catchIds.length || photoUrl) console.log("note  the walk stopped early, swept:", JSON.stringify(s));

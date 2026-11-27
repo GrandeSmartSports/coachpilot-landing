@@ -33,8 +33,9 @@
 //   session()                      -> { token, refresh, at, userId } | null                    (sync)
 //   sendCode(phone)       (async)  -> { ok: true } | { error, retryAfter?, unknown?, offline? }
 //   verify(phone, code)   (async)  -> { ok: true } | { error, offline? }
-//   join(text, { peek })  (async)  -> { ok: true, name, crew, by } | { error, status, dead? } | { offline: true }
+//   join(text, { peek })  (async)  -> { ok: true, name, crew, by, nameOpen } | { error, status, dead? } | { offline: true }
 //                                     text is a link, a bare token, or a whole message with the link in it.
+//                                     nameOpen: nobody has named the crew yet, so crew is only a stand-in.
 //                                     With peek nothing is minted and nobody is signed in.
 //   joinToken(text)                -> the token inside text, or ""                             (sync)
 //   signOut()             (async)  -> { ok: true }   (the phone is signed out before it returns)
@@ -53,7 +54,8 @@
 //   network (never longer than the time limit) and falls back the same way.
 //   hello(opts)           (async)  -> { ok, sms, vapidKey, stale? }            (no sign-in needed)
 //   state(opts)           (async)  -> { me, crew, members, trips, sms, stale?, offline?, error? }
-//                                     crew is null for someone who is on no crew.
+//                                     crew is null for someone who is on no crew, else { id, name, role, nameOpen }.
+//                                     nameOpen: anyone on the crew may name it, once (its name is a stand-in till then).
 //                                     members: [{ id, name, role, alerts, signIn: "link"|"code" }]
 //   trip(id, opts)        (async)  -> { trip, comments, list, catches, stale?, offline?, error? }
 //                                     | { error, status: 404, gone: true } when it was deleted
@@ -68,6 +70,7 @@
 //   invite(name, phone?)  (async)  -> { ok, created, name, userId, link, signIn: "link"|"code" }
 //   link(userId)          (async)  -> { ok, name, link }
 //   removeMember(userId)  (async)  -> { ok }
+//   crewNameOpen(open)    (async)  -> { ok, nameOpen }   the owner's: open the crew's name for whoever is on it to pick, or close it
 //   prefsGet()            (async)  -> { prefs: { texts, push, evTrips, evStatus, evNotes, evGearCatches,
 //                                     quietFrom, quietTo, textsStopped }, hasPhone, pushSubs }
 //   prefsSet(fields)      (async)  -> the same shape
@@ -90,9 +93,11 @@
 //                   at?, photo?: File|Blob }, { tell? })   (async) -> { ok, catch }   (addCatch is the same)
 //   deleteCatch(catchId)                      (async) -> { ok }
 //   rename(name)                              (async) -> { ok, name }   my own name on the crew, 1 to 60 characters
-//   crewRename(name)                          (async) -> { ok, name }   the crew's name, the owner's only
-//                                     A name waiting to send already shows on cached(). Only the
-//                                     last of each waits: a second rename takes the place of the first.
+//   crewRename(name)                          (async) -> { ok, name }   the crew's name: the owner's any time, and
+//                                     anyone's while its name is open (the first name saved closes it).
+//                                     A name waiting to send already shows on cached(), with the crew's
+//                                     nameOpen false. Only the last of each waits: a second rename takes
+//                                     the place of the first.
 //
 // The queue
 // A write the server would refuse anyway (an empty note, a line with no
@@ -133,6 +138,7 @@
   var COOLDOWN = 60e3, KEEP_TRIPS = 30, KEEP_FAILED = 20, PHOTO_MAX = 1600, GIVE_UP = 3 * 864e5;
   var BAD_PHONE = "That does not look like a US phone number.";
   var NO_SIGNAL = "No signal. That was not sent.";
+  var NAME_TAKEN = "The crew has its name. Only the owner can change it.";
 
   // ---- the phone's own store ------------------------------------------------
   function read(k, d) { try { var v = root.localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
@@ -320,7 +326,7 @@
         if (r.status === 410) out.dead = true;
         return out;
       }
-      var who = { ok: true, name: r.body.name, crew: r.body.crew, by: r.body.by || null };
+      var who = { ok: true, name: r.body.name, crew: r.body.crew, by: r.body.by || null, nameOpen: r.body.nameOpen === true };
       if (peek) return who;
       if (!r.body.token_hash) return { error: "That link did not let you in. Tap it again, or ask for a new one.", status: r.status };
       return http("POST", BASE + "/auth/v1/verify", { type: "magiclink", token_hash: r.body.token_hash }).then(function (v) {
@@ -635,7 +641,8 @@
     if (!c) return null;
     var q = queueMine(), mine = renamed(q, "me_rename"), crewName = renamed(q, "crew_rename");
     var meNow = mine ? Object.assign({}, c.me, { name: mine, waiting: true }) : c.me;
-    var crew = c.crew ? (crewName ? Object.assign({}, c.crew, { name: crewName, waiting: true }) : c.crew) : null;
+    // A name waiting to send is the crew's name already, so naming reads as closed.
+    var crew = c.crew ? (crewName ? Object.assign({}, c.crew, { name: crewName, nameOpen: false, waiting: true }) : c.crew) : null;
     var members = (c.members || []).map(function (m) { return mine && m.id === c.me.id ? Object.assign({}, m, { name: mine, waiting: true }) : m; });
     return { me: meNow, crew: crew, members: members, sms: c.sms !== false,
       trips: (c.trips || []).map(function (t) { return laidRow(t, q); }) };
@@ -823,7 +830,7 @@
   function nameSaved(kind, name) {
     var c = read(CREW, null);
     if (!c || !c.me || !name) return;
-    if (kind === "crew_rename") { if (c.crew) c.crew.name = name; }
+    if (kind === "crew_rename") { if (c.crew) { c.crew.name = name; c.crew.nameOpen = false; } }
     else {
       c.me.name = name;
       (c.members || []).forEach(function (m) { if (m.id === c.me.id) m.name = name; });
@@ -925,6 +932,10 @@
           report(out, { clientId: e.clientId, kind: e.kind, tripId: e.tripId, error: j.error, status: j.status, at: nowIso(), userId: e.userId });
         }
         if (e.tripId) emit({ kind: "trip", tripId: e.tripId });
+        // A crew name that lost (someone named the crew first): what the phone
+        // saved still says naming is open, under the stand-in name. Ask what
+        // the crew is called now before going on, so neither ever shows.
+        if (!j.done && e.kind === "crew_rename" && j.status === 403) return freshState().then(next, next);
         return next();
       });
     }
@@ -1069,22 +1080,38 @@
     return enqueue({ clientId: uuid(), kind: "comment_delete", tripId: findTripOf("comments", commentId), body: { commentId: commentId } }, null);
   }
 
-  // A name: my own on the crew (any member), or the crew's (the owner's
-  // alone). The server takes 1 to 60 characters, so that is checked here
-  // first. Only the last of each kind waits: a second rename replaces the first.
+  // A name: my own on the crew (any member), or the crew's (the owner's, and
+  // anyone's while its name is open). The server takes 1 to 60 characters,
+  // so that is checked here first. Only the last of each kind waits: a second
+  // rename replaces the first.
   function nameWrite(kind, raw, what) {
     var s = session(), name = String(raw == null ? "" : raw).replace(/\s+/g, " ").trim();
     if (!s) return Promise.resolve({ signedOut: true });
     if (!name) return Promise.resolve({ error: what === "crew" ? "The crew needs a name." : "Write your name first." });
     if (name.length > 60) return Promise.resolve({ error: "Keep the name to 60 characters." });
     var c = crewRaw();
-    if (kind === "crew_rename" && c && c.crew && c.crew.role !== "owner") return Promise.resolve({ error: "Only the owner can rename the crew.", status: 403 });
+    if (kind === "crew_rename" && c && c.crew && c.crew.role !== "owner" && c.crew.nameOpen !== true) return Promise.resolve({ error: NAME_TAKEN, status: 403 });
     return enqueue({ clientId: uuid(), kind: kind, tripId: null, body: { name: name } }, function () { return { name: name }; }, function (q) {
       return q.filter(function (e) { return !(e.kind === kind && e.userId === s.userId); });
     });
   }
   function rename(name) { return nameWrite("me_rename", name, "me"); }
   function crewRename(name) { return nameWrite("crew_rename", name, "crew"); }
+  // The owner opens the crew's name for whoever is on it to pick, or closes it.
+  // It needs a signal: it says who may write the name, so it is never left waiting.
+  function crewNameOpen(open) {
+    var c = crewRaw();
+    if (open !== true && open !== false) return Promise.resolve({ error: "Open or closed: true or false." });
+    if (c && c.crew && c.crew.role !== "owner") return Promise.resolve({ error: "Only the owner decides who names the crew.", status: 403 });
+    return fn("crew_name_open", { open: open }).then(function (r) {
+      var a = plain(r, "That did not go through. Try again.");
+      if (a.ok) {
+        var saved = read(CREW, null);
+        if (saved && saved.crew) { saved.crew.nameOpen = a.nameOpen === true; write(CREW, saved); emit({ kind: "state" }); }
+      }
+      return a;
+    });
+  }
 
   function num(v) { var n = typeof v === "number" ? v : v == null || v === "" ? NaN : Number(v); return isFinite(n) ? n : null; }
   function text(v, max) { var t = String(v == null ? "" : v).trim(); return t.length > max ? t.slice(0, max) : t; }
@@ -1410,7 +1437,7 @@
     createTrip: createTrip, updateTrip: updateTrip, deleteTrip: deleteTrip, invite: invite, link: link, removeMember: removeMember,
     prefsGet: prefsGet, prefsSet: prefsSet, pushSubscribe: pushSubscribe, pushUnsubscribe: pushUnsubscribe, testAlert: testAlert, alerts: alerts,
     going: going, addComment: addComment, deleteComment: deleteComment, addItem: addItem, updateItem: updateItem, deleteItem: deleteItem,
-    "catch": addCatch, addCatch: addCatch, deleteCatch: deleteCatch, rename: rename, crewRename: crewRename,
+    "catch": addCatch, addCatch: addCatch, deleteCatch: deleteCatch, rename: rename, crewRename: crewRename, crewNameOpen: crewNameOpen,
     pending: pending, flush: flush, failed: failed, clearFailed: clearFailed, onChange: onChange,
     isNew: isNew, markSeen: markSeen, textLink: textLink, say: say, canTell: canTell, shrinkPhoto: shrinkPhoto
   };

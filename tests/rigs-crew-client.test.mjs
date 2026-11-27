@@ -990,8 +990,11 @@ function server(log = []) {
   // Refused later, after waiting for a signal: it lands in failed() for the screen to say.
   let dn = true;
   const sl = phoneStore(); signedIn(sl, { userId: "u-coach" });
-  sl.setItem("rig.crew.v1", JSON.stringify(Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } })));
-  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: "Only the owner can rename the crew." } } : server()(req) });
+  const OWNS = Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } });
+  sl.setItem("rig.crew.v1", JSON.stringify(OWNS));
+  // The crew, asked for again after the refusal, answers as the owner sees it.
+  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: "Only the owner can rename the crew." } }
+    : req.url === FN && req.body.action === "state" ? { status: 200, body: clone(OWNS) } : server()(req) });
   const lw = await lt.crew.crewRename("Somebody else's");
   ok(lw.queued && lt.crew.cached().crew.name === "Somebody else's", "the crew's new name waits for a signal too", lw);
   let dropped = null; lt.crew.onChange((w) => { if (w.kind === "queue" && w.dropped) dropped = w.dropped; });
@@ -999,6 +1002,100 @@ function server(log = []) {
   await lt.crew.flush();
   ok(lt.crew.failed().some((x) => x.kind === "crew_rename" && /only the owner/i.test(x.error)) && dropped && dropped.some((x) => x.kind === "crew_rename"), "refused later, it is reported, not tried forever", lt.crew.failed());
   ok(lt.crew.cached().crew.name === "ZZTEST crew", "and the crew keeps its name");
+}
+
+// ------------------------------------------------ naming the crew while it is open
+{
+  // Whoever joins names the crew (Coach, 11/27: "let Russ choose on his invite").
+  const OPEN = Object.assign(clone(STATE), { crew: { id: "c1", name: "ZZTEST crew", role: "member", nameOpen: true } });
+  const TAKEN = "The crew has its name. Only the owner can change it.";
+
+  // The link says whether the name is open, so the join screen never shows a stand-in.
+  const jt = tab({ net: (req) => req.url === FN && req.body.action === "join"
+    ? { status: 200, body: { ok: true, name: "Russell", crew: "ZZTEST crew", by: "Sam", nameOpen: req.body.token === TOKEN } } : { status: 200, body: {} } });
+  const pk = await jt.crew.join(TOKEN, { peek: true });
+  ok(pk.ok && pk.nameOpen === true && pk.crew === "ZZTEST crew", "a peek says the crew's name is still open", pk);
+  const pkShut = await tab({ net: (req) => req.url === FN ? { status: 200, body: { ok: true, name: "Russell", crew: "ZZTEST crew", by: "Sam", nameOpen: false } } : { status: 200, body: {} } }).crew.join(TOKEN, { peek: true });
+  ok(pkShut.ok && pkShut.nameOpen === false, "and when it is not", pkShut);
+  const pkOld = await tab({ net: (req) => req.url === FN ? { status: 200, body: { ok: true, name: "Russell", crew: "ZZTEST crew", by: "Sam" } } : { status: 200, body: {} } }).crew.join(TOKEN, { peek: true });
+  ok(pkOld.ok && pkOld.nameOpen === false, "a server that does not say reads as named, never as open", pkOld);
+
+  // A member names it, with a signal: crew_rename once, and the crew is named and closed on the phone.
+  const st = phoneStore(); signedIn(st); st.setItem("rig.crew.v1", JSON.stringify(OPEN));
+  const log = [];
+  const t = tab({ store: st, net: (req) => {
+    if (req.url === FN && req.body.action === "crew_rename") { log.push(req.body); return { status: 200, body: { ok: true, name: req.body.name } }; }
+    return server()(req);
+  } });
+  ok(t.crew.cached().crew.nameOpen === true, "the saved crew says its name is open");
+  const r = await t.crew.crewRename("  Two   Fish Pros ");
+  ok(r.ok && r.name === "Two Fish Pros" && !r.queued, "a member names the crew while it is open", r);
+  ok(log.length === 1 && log[0].action === "crew_rename" && log[0].name === "Two Fish Pros" && Object.keys(log[0]).sort().join() === "action,name", "it goes up once, as crew_rename with the name alone", log);
+  ok(t.crew.cached().crew.name === "Two Fish Pros" && t.crew.cached().crew.nameOpen === false && t.read("rig.crew.v1").crew.nameOpen === false,
+    "the phone has the crew's name now, and naming is closed", t.crew.cached().crew);
+  const again = await t.crew.crewRename("Sponsored by Nobody");
+  ok(again.error === TAKEN && again.status === 403 && log.length === 1, "naming it a second time is refused on the phone, in plain words, and nothing is sent", again);
+
+  // With no signal: the name waits, shows at once, and the crew reads as named.
+  let down = true; const sent = [];
+  const sq = phoneStore(); signedIn(sq); sq.setItem("rig.crew.v1", JSON.stringify(OPEN));
+  const q = tab({ store: sq, net: (req) => {
+    if (down) return DOWN;
+    if (req.url === FN && req.body.action === "crew_rename") { sent.push(req.body.name); return { status: 200, body: { ok: true, name: req.body.name } }; }
+    return server()(req);
+  } });
+  const w = await q.crew.crewRename("Plateau Pro Staff");
+  ok(w.ok && w.queued && w.name === "Plateau Pro Staff", "with no signal the crew's name waits", w);
+  const wc = q.crew.cached().crew;
+  ok(wc.name === "Plateau Pro Staff" && wc.waiting === true && wc.nameOpen === false, "and shows at once, waiting, with naming no longer open", wc);
+  ok(q.read("rig.crew.v1").crew.nameOpen === true && q.read("rig.crew.v1").crew.name === "ZZTEST crew", "what the server last said is kept apart until it lands");
+  down = false;
+  const f = await q.crew.flush();
+  ok(f.sent === 1 && sent.join() === "Plateau Pro Staff" && q.read("rig.crew.v1").crew.name === "Plateau Pro Staff" && q.read("rig.crew.v1").crew.nameOpen === false,
+    "when the signal comes back it goes once, and the crew is named on the phone", { f, sent });
+
+  // Someone named it first while this one waited: refused, reported, and the
+  // crew is asked for again, so the phone has the name that stands and naming
+  // closed. It never falls back to "open" under the stand-in name.
+  let dn = true;
+  const WON = Object.assign(clone(OPEN), { crew: { id: "c1", name: "Plateau Pro Staff", role: "member", nameOpen: false } });
+  const sl = phoneStore(); signedIn(sl); sl.setItem("rig.crew.v1", JSON.stringify(OPEN));
+  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url !== FN ? { status: 200, body: {} }
+    : req.body.action === "crew_rename" ? { status: 403, body: { error: TAKEN } } : req.body.action === "state" ? { status: 200, body: clone(WON) } : server()(req) });
+  await lt.crew.crewRename("Bonney Lake Skunk Works");
+  dn = false;
+  await lt.crew.flush();
+  ok(lt.crew.failed().some((x) => x.kind === "crew_rename" && x.error === TAKEN) && (await lt.crew.pending()).count === 0, "a name that lost to someone else's is reported, not tried again", lt.crew.failed());
+  ok(lt.fn().filter((a) => a === "state").length === 1, "and the crew is asked for once, straight after", lt.fn());
+  ok(lt.crew.cached().crew.name === "Plateau Pro Staff" && lt.crew.cached().crew.nameOpen === false && !lt.crew.cached().crew.waiting,
+    "so the waiting name is gone, and the phone has the name that stands, with naming closed", lt.crew.cached().crew);
+  // With no answer to that (the signal went again), what was saved stays, and nothing is lost.
+  let dn2 = true;
+  const sl2 = phoneStore(); signedIn(sl2); sl2.setItem("rig.crew.v1", JSON.stringify(OPEN));
+  const lt2 = tab({ store: sl2, net: (req) => dn2 ? DOWN : req.url === FN && req.body.action === "crew_rename" ? (dn2 = true, { status: 403, body: { error: TAKEN } }) : DOWN });
+  await lt2.crew.crewRename("Bonney Lake Skunk Works");
+  dn2 = false;
+  const f2 = await lt2.crew.flush();
+  ok(f2.dropped.length === 1 && (await lt2.crew.pending()).count === 0 && lt2.crew.cached().crew.name === "ZZTEST crew", "a refusal with no signal after it still ends the wait", f2);
+
+  // The owner opens naming, or closes it. It needs a signal and is never queued.
+  const so = phoneStore(); signedIn(so, { userId: "u-coach" });
+  so.setItem("rig.crew.v1", JSON.stringify(Object.assign(clone(STATE), { me: { id: "u-coach", name: "Daniel" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner", nameOpen: false } })));
+  const olog = []; let odown = false;
+  const o = tab({ store: so, net: (req) => {
+    if (odown) return DOWN;
+    if (req.url === FN && req.body.action === "crew_name_open") { olog.push(req.body); return { status: 200, body: { ok: true, nameOpen: req.body.open } }; }
+    return server()(req);
+  } });
+  const op = await o.crew.crewNameOpen(true);
+  ok(op.ok && op.nameOpen === true && olog.length === 1 && olog[0].open === true && Object.keys(olog[0]).sort().join() === "action,open", "the owner opens the crew's name: crew_name_open, once", { op, olog });
+  ok(o.crew.cached().crew.nameOpen === true && o.read("rig.crew.v1").crew.nameOpen === true, "and the saved crew says it is open");
+  ok((await o.crew.crewNameOpen("yes")).error && olog.length === 1, "only true or false is sent");
+  odown = true;
+  const off = await o.crew.crewNameOpen(false);
+  ok(off.offline === true && (await o.crew.pending()).count === 0 && o.crew.cached().crew.nameOpen === true, "with no signal it says so, waits for nothing, and changes nothing", off);
+  const mo = await t.crew.crewNameOpen(true);
+  ok(/only the owner/i.test(mo.error || "") && mo.status === 403 && log.length === 1, "a member cannot open it, and nothing is sent", mo);
 }
 
 // ------------------------------------------------------------------ signing out
