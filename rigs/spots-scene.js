@@ -39,7 +39,7 @@
     tappsRainier: false,         // is Rainier in view from the Allan Yorke docks (likely only; it would stand at the right edge)
     cowlitz: "barrier",          // where he fishes the Cowlitz: "barrier" (Barrier Dam launch) or "blue-creek"
     westportCrab: "float",       // where crab rings go in at Westport: "float" (Float 20)
-    pointDefiance: 20            // the boathouse dock's facing (likely north toward Vashon)
+    pointDefiance: "walk"        // where the Point Defiance picture stands: "walk" (Coach's own Look Around from N Waterfront Dr: the walk in to the dock, the boathouse and its green roof ahead, its white wall at the right) or "dock" (the fishing walkway at the dock's end, facing 20 at Vashon and the Tahlequah ferry dock; the boathouse is then behind you and not in the picture)
   };
   // Lake Tapps is let down this season (card: launches closed for drawdown
   // from late July 2026, stumps and logs exposed; the lake is normally drawn
@@ -61,7 +61,7 @@
     redondo: {
       spot: "redondo", scene: "pier",
       facing: 306, fov: 40,                                      // facingDeg 289.5 (likely); Coach's Look Around from the ramp looks a little right, out to the T-head
-      eye: 6.5, tideRange: 3.7,                                  // on Redondo Beach Dr at the ramp's head (lot about 4.9 m over low water); the Sound's tide at Redondo
+      eye: 7.5, tideRange: 3.7,                                  // the Look Around's eye at the ramp's head (lot about 4.9 m over low water, the camera about 2.6 m up): the seawall rail sits well below the far water, as in his picture; the Sound's tide at Redondo
       site: { bearing: 289.5 },                                  // the plan below is laid out along the pier's line (289.5), measured off Coach's satellite picture (about 0.084 m a pixel)
       ground: { shore: 8.6, top: 4.1, slope: 0.18 },             // proven: small beach of cobble, gravel and sand under the seawall; eelgrass flats at minus tides; its top above the highest tides
       skyline: [
@@ -75,7 +75,7 @@
             { a: [6.7, 56], b: [25.2, 56], w: 5.5, gap: [10.3, 14.9] }],                             // Coach: a wide T-head, wider than the walk on both sides
           lamps: [{ kind: "arm", every: 16, from: 10, to: 44, side: "near", h: 6.2, segs: [0] },      // Coach: tall single-arm lamp posts along the pier, three on the walk
             { kind: "arm", every: 30, from: 12.6, to: 13, side: "far", h: 6.2, segs: [1] }],          // and one on the T-head
-          crowd: 15, head: 1 },                                                                      // proven: the squid crowd under the lamps, on the rail and the T-head
+          crowd: 15, head: 1, own: "water" },                                                        // proven: the squid crowd under the lamps, on the rail and the T-head; proven: squid lights on the water
         { t: "float", a: [-8, 8], b: [-8, 58], w: 2.2, piles: 7.5, top: 6.6 },                       // Coach: the ramp's long narrow float to its left, a row of bare pilings
         { t: "ramp", x0: -6.3, x1: 1.7, z0: 3 },                                                     // Coach: the boat ramp (about 8 m wide in his satellite picture) running down into the water
         { t: "ground", pts: [[1.8, 0.4], [60, 0.4], [60, 8.3], [4.5, 8.3], [2.6, 7.4], [1.8, 6]], y: 4.9, cls: "w-lot", near: 0.7 }, // Coach: the paved lot between the road and the seawall
@@ -146,31 +146,64 @@
       ]
     },
 
-    // ---- Point Defiance: on the dock at the boathouse, looking N at Tahlequah ----
-    // Placed from OpenStreetMap (ways 414285099, 1483950407, 414060508) in
-    // metres from the card's stand: the dock's deck under you, its wooden
-    // walkway running across in front of you along the water's edge (lit,
-    // with its rail), the water, Vashon close across. The boathouse (bearings
-    // 126 to 165, 50 to 130 m), the marina's fingers (102 to 122) and the
-    // firs west of the boathouse (222 to 258) are all behind you or off the
-    // right edge from here, so they are not in this picture; Coach's own
-    // picture of them is from the road, looking back at the boathouse.
+    // ---- Point Defiance: the boathouse and its dock ----
+    // Two stands, placed from OpenStreetMap in metres. The card's own stand
+    // is the covered walkway along the dock's north edge (ways 1483950407
+    // and the roof 1185788221), facing 20 at Vashon: from there the
+    // boathouse (way 414285102, the white building with the pale green hip
+    // roof that you walk under) is right behind you, and the big boathouse
+    // shed (414060508) 50 m behind-right, so neither can be at the side of a
+    // picture that faces Vashon. Coach's own picture of the place is his
+    // Look Around from N Waterfront Dr, on the walk in (the pier way
+    // 414285099's ramp): the boathouse and its green roof ahead, the shed's
+    // white wall at the right, a wooden rail at the left over the water with
+    // pilings, lantern-top lamp posts, flagpoles and dark firs. The card
+    // asks for that building at the side of the frame, so the default
+    // stand is his (OPEN.pointDefiance); the dock's end stays one word away.
     "point-defiance": {
       spot: "point-defiance", scene: "pier",
-      facing: OPEN.pointDefiance, fov: 44,                       // facingDeg 20 (likely)
-      eye: 6.4, tideRange: 3.6,                                  // standing on the dock's deck, about 4.8 m over low water
-      skyline: [
-        { t: "shore", name: "maury", from: 49, to: 100, mi: 3.8, h: 7 },                            // likely: Maury further off to the right, Piner Point 49.4
-        { t: "shore", name: "vashon", from: 300, to: 26, mi: 1.75, h: 22, tree: 12, taper: 3 },      // proven: Vashon's wooded shore close straight ahead, Tahlequah 15.2
-        { t: "ferry", at: 15.2, on: "vashon", s: 1.1 }                                               // proven: the small ferry dock at Tahlequah
-      ],                                                         // NO mountains, NO Seattle, NO Narrows Bridge, NO Olympics
-      near: [{ t: "rips", bands: [[-10, 196, 230, 188, 70], [120, 210, 400, 200, 80], [-10, 226, 200, 236, 60]] }], // app content: fast current off the point
-      parts: [
-        { t: "ground", pts: [[-40, -2], [24, -2], [12.9, 3.2], [-16.5, 7.6], [-40, 7.8]], y: 4.8, cls: "w-lot", near: 0.8 }, // OSM 414285099: the dock's deck (concrete in Coach's picture) under you
-        { t: "pier", deck: 4.8, build: "timber", bent: 4, beam: 0.5, rail: "wood", planks: true,                // OSM 1483950407: the wooden walkway along the deck's outer edge, lit; Coach: wooden rails
-          segs: [{ a: [13.2, 5.25], b: [-16.25, 9.4], w: 4, norail: ["near"] }],
-          lamps: { kind: "lantern", every: 12, from: 8.5, to: 9, side: "far", h: 3.4 } }                    // Coach: tall lamp posts with lantern tops (likely: lit at night); where along it is not known, so one at the right edge, clear of the title
-      ]
+      stand: OPEN.pointDefiance,
+      tideRange: 3.6,
+      stands: {
+        walk: {
+          facing: 355, fov: 42,                                  // a little left of the Look Around's heading (the walk runs at 31), so the boathouse and its green roof stand at the right side of the frame, clear of the title
+          facingFrom: "Coach's Look Around from N Waterfront Dr, on the walk in to the dock",
+          eye: 7, site: { bearing: 345 },                        // the walk's deck about 4.8 m over low water, the camera about 2.2 m up; the plan below is laid square to the two buildings (their faces run 75 and 165)
+          skyline: [
+            { t: "shore", name: "maury", from: 49, to: 100, mi: 3.8, h: 7 },                          // likely: Maury further off to the right (mostly behind the buildings from here)
+            { t: "shore", name: "vashon", from: 300, to: 26, mi: 1.75, h: 22, tree: 12, taper: 3 }      // proven: Vashon's wooded shore across the water (mostly behind the boathouse from here)
+          ],                                                     // NO mountains, NO Seattle, NO Narrows Bridge, NO Olympics
+          parts: [
+            { t: "ground", pts: [[-14, -2], [28.8, -2], [28.8, 21.2], [60, 21], [60, 40.2], [19.1, 40.4], [18.6, 27.1], [-2.3, 6.8], [-14, 6.8]], y: 4.8, cls: "w-lot", near: 0.8 }, // OSM 414285099: the concrete walk and plaza (Coach's picture)
+            { t: "house", at: [38, 49], w: 28, d: 18, h: 6.4, y: 4.8, roof: "hip", rh: 3.6, wall: "w-wallw", roofc: "w-roofg", win: 2, wgap: 2.4, lit: false }, // Coach: the boathouse ahead, white siding, pale green hipped roof (OSM 414285102's south face); its windows are not known to be lit after dark
+            { t: "house", at: [45.5, 10.5], w: 33, d: 21, h: 8.5, y: 4.8, roof: "hip", rh: 1.6, wall: "w-wallw", roofc: "w-roofg", win: 1, wgap: 7, lit: false }, // Coach: the long white shingled wall at the right (OSM 414060508, the boathouse shed)
+            { t: "facade", pts: [[-16, 17], [13, 44]], y: 4.8, h: 2.8, rh: 1.4, dep: 5, base: 0.7, win: 3.4 }, // Coach: low white buildings beyond the water at the left (OSM 414285102's west side, the marina office)
+            { t: "woods", a: [-5, 25], b: [7, 36], h: 7.5, kind: "fir", y: 4.8, gap: 2.8, land: false }, // Coach: dark firs at the left, west of the boathouse, in front of the low buildings
+                                                                                                         // Coach's flagpoles are left out: from here they would stand up through the title
+            { t: "piles", pts: [[-2.4, 9.5], [1.5, 13.6], [5.4, 17.6], [9.6, 21.6], [3, 21], [-1, 17]], top: 4.6 }, // Coach: pilings in the water under the rail at the left
+            { t: "rail", pts: [[-2.3, 6.8], [18.6, 27.1]], y: 4.8, h: 1.1 },                           // Coach: wooden rails along the walk, left
+            { t: "rail", pts: [[4.4, 0.9], [25.3, 21.2]], y: 4.8, h: 1.1 },                            // and right
+            { t: "lamp", x: 8.2, z: 17, y: 4.8, h: 4.6, kind: "lantern", water: [5.6, 19.6] },         // Coach: tall lamp posts with lantern tops along the left rail (likely: lit at night)
+            { t: "lamp", x: 15.5, z: 24.1, y: 4.8, h: 4.6, kind: "lantern", water: [12.9, 26.7] }
+          ]
+        },
+        dock: {
+          facing: 20, fov: 44,                                   // facingDeg 20 (likely)
+          eye: 6.4,                                              // standing on the dock's deck, about 4.8 m over low water
+          skyline: [
+            { t: "shore", name: "maury", from: 49, to: 100, mi: 3.8, h: 7 },                            // likely: Maury further off to the right, Piner Point 49.4
+            { t: "shore", name: "vashon", from: 300, to: 26, mi: 1.75, h: 22, tree: 12, taper: 3 },      // proven: Vashon's wooded shore close straight ahead, Tahlequah 15.2
+            { t: "ferry", at: 15.2, on: "vashon", s: 1.1 }                                               // proven: the small ferry dock at Tahlequah
+          ],                                                     // NO mountains, NO Seattle, NO Narrows Bridge, NO Olympics
+          near: [{ t: "rips", bands: [[-10, 196, 230, 188, 70], [120, 210, 400, 200, 80], [-10, 226, 200, 236, 60]] }], // app content: fast current off the point
+          parts: [
+            { t: "ground", pts: [[-40, -2], [24, -2], [12.9, 3.2], [-16.5, 7.6], [-40, 7.8]], y: 4.8, cls: "w-lot", near: 0.8 }, // OSM 414285099: the dock's deck (concrete in Coach's picture) under you
+            { t: "pier", deck: 4.8, build: "timber", bent: 4, beam: 0.5, rail: "wood", planks: true,                // OSM 1483950407: the wooden walkway along the deck's outer edge, lit; Coach: wooden rails
+              segs: [{ a: [13.2, 5.25], b: [-16.25, 9.4], w: 4, norail: ["near"] }],
+              lamps: { kind: "lantern", every: 12, from: 8.5, to: 9, side: "far", h: 3.4 } }                    // Coach: tall lamp posts with lantern tops (likely: lit at night)
+          ]
+        }
+      }
     },
 
     // ---- Fox Island: from the cobble beach at its foot, looking E ----
@@ -190,7 +223,7 @@
       ]                                                          // likely: daylight only, no lamp posts
     },
 
-    // ---- Dash Point: the kayak launch on the city park beach, the closed L pier on the left ----
+    // ---- Dash Point: the kayak launch on the city park beach, the closed L pier ahead-right ----
     "dash-point": {
       spot: "dash-point", scene: "sound",
       stand: "city",
@@ -201,14 +234,15 @@
       stands: {
         city: {                                                  // Coach (11/26): he launches the kayak from the city park beach beside the pier
           facing: 4,                                             // facingDeg 4 at the pier (likely)
-          // where on the beach: east of the pier, by the park's lot and its
-          // beach access (both east of the pier in Coach's satellite picture,
-          // about 0.28 m a pixel); from there the L's turn to the east stands
-          // out in the open, past the end of the stem
+          // where on the beach: the card's draw line (proven, Coach 11/26 and
+          // his satellite picture) puts the pier ahead-right, so you stand on
+          // the sand about 20 m west of its root (the beach runs on both sides
+          // of it in his picture); the stem runs out nearly due north and the
+          // L turns east (right) at its end, side on from here
           skyline: [{ t: "island", name: "maury", from: 322, to: 27, mi: 3.2, h: 15, tree: 4, taper: 6 }], // proven: Maury low and wooded across, its south tip ahead-left (322)
           parts: [
-            { t: "pier", deck: 6, build: "timber", bent: 6, rail: "wood",                            // proven: the old pier, about 384 ft straight out (NNE)
-              segs: [{ a: [-40.6, 2], b: [-44.6, 114], w: 3.8 }, { a: [-46.5, 116.5], b: [-14, 116.5], w: 5, gap: [0, 4] }] }, // proven: then 100 ft turning east (right); closed since 2021, nobody on it, its lights long dead
+            { t: "pier", deck: 6, build: "timber", bent: 6, rail: "wood",                            // proven: the old pier, about 384 ft straight out (NNE; his satellite picture: nearly due north)
+              segs: [{ a: [20, 2], b: [16, 114], w: 3.8 }, { a: [14.1, 116.5], b: [46.6, 116.5], w: 5, gap: [0, 4] }] }, // proven: then 100 ft turning east (right); closed since 2021, nobody on it, its lights long dead
             { t: "kayak", x: 2.4, z: 9.5, angle: -0.35 }                                                   // Coach: his kayak, pulled down the beach to launch
           ]
         },
@@ -255,7 +289,7 @@
           dune: "right"                                          // proven: dune grass ridge behind
         },
         perch: {
-          facing: 254, fov: 54,                                  // altStands facingDeg 272, turned 18 degrees left toward the jetty so its tip stands at the left edge
+          facing: 248, fov: 54,                                  // altStands facingDeg 272, turned 24 degrees left toward the jetty so its outer end (about 1.1 km off) runs in from the left edge to its tip
           facingFrom: "the surf perch beach, turned toward the north jetty",
           jetty: { side: "left", tip: 203, root: 180, mi: 0.68 }, // proven: the north jetty on your left running into the sea, its tip at 203 (0.68 mi), by bearing
           dune: "right",                                         // proven: dunes with dune grass behind the beach
@@ -314,7 +348,7 @@
         glacial: true, braid: true,                              // likely: a braided gravel-bar river, cobble and logs, cloudy glacial water
         far: { kind: "plain", h: 15, tree: 9 },                  // the far bank is not described: kept plain
         bridge: "right",                                         // proven: the road bridge downstream, to your right
-        levee: true                                              // proven: the park lawn and levee trail at your back, the trail at your feet
+        levee: true, leveeY: 228, y: 188                         // proven: the park lawn and levee trail at your back, the trail at your feet (seen from the levee's top: the river below fills more of the picture)
       }                                                          // NO Rainier drawn (unproven from this bank)
     },
     "puyallup-128th": {

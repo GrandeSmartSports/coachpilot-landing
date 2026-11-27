@@ -197,11 +197,12 @@
 /* where that moon really is at that hour (scene.js moonOf): in the picture
    it lays its road there; just off a side it lights that edge with no road;
    behind you, not yet up, or at a spot with no facing, the water ahead
-   holds no moon at all */
+   holds no moon at all: no road, and its glints (.w-gr) all but gone, only
+   the soft wide glow */
 :root[data-sky="night"] .scene[data-moonpos="ahead"]{--lx:var(--moonx);--ly:var(--moony)}
 :root[data-sky="night"] .scene[data-moonpos="side"]{--lx:var(--moonx);--ly:var(--moony);--glowx:1.6;--glowy:.6;--road:0;--gr:calc(.12 + var(--moon)*.2)}
-:root[data-sky="night"] .scene:is([data-moonpos="behind"],[data-moonpos="none"]){--lx:195px;--ly:120px;--glow:calc(.05 + var(--moon)*.16);--glowx:2.6;--glowy:.5;--road:0;--gr:calc(.12 + var(--moon)*.18)}
-:root[data-sky="night"] .scene[data-moonpos="down"]{--lx:195px;--ly:140px;--glow:.06;--glowx:2.6;--glowy:.5;--road:0;--gr:.14;--stars:.92}
+:root[data-sky="night"] .scene:is([data-moonpos="behind"],[data-moonpos="none"]){--lx:195px;--ly:120px;--glow:calc(.05 + var(--moon)*.16);--glowx:2.6;--glowy:.5;--road:0;--gr:.03}
+:root[data-sky="night"] .scene[data-moonpos="down"]{--lx:195px;--ly:140px;--glow:.06;--glowx:2.6;--glowy:.5;--road:0;--gr:.03;--stars:.92}
 /* fog: the far things go first */
 .w-fog{fill:var(--hz);opacity:calc(var(--fog,0)*.66)}
 .w-fog2{opacity:calc(var(--fog,0)*.28)}
@@ -217,7 +218,9 @@
 .w-farrock .w-rockb,.w-farrock .w-rockd{fill:var(--r3)}.w-farrock .w-rockm{fill:var(--r2)}
 .w-midrock .w-rockb{fill:var(--r4)}.w-midrock .w-rockm{fill:var(--r3)}.w-midrock .w-rockd{fill:var(--r4)}
 .w-mast{fill:var(--r3)}
-.w-twig{opacity:.62}
+.w-twig{opacity:.5}
+/* a bare crown's twigs seen as a mass: a faint soft haze round the limbs */
+.w-haze{opacity:.26}
 .w-house{fill:color-mix(in oklab,var(--r1) 50%,var(--lum))}
 .w-roof{fill:var(--r4)}
 .w-capf{fill:color-mix(in oklab,var(--hz) 25%,var(--lum));opacity:.85}
@@ -237,7 +240,7 @@
 .w-rampw{fill:color-mix(in oklab,var(--water2) 72%,var(--bg));opacity:.7}
 .w-groove{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.16}
 .w-gravel{fill:color-mix(in oklab,var(--r2) 50%,var(--bg))}
-.w-flat{fill:color-mix(in srgb,var(--bg) 64%,var(--water1))}
+.w-flat{fill:color-mix(in srgb,color-mix(in srgb,var(--bg) 52%,var(--water1)) 90%,var(--shade))}
 :root[data-dark="1"] .w-flat{fill:color-mix(in srgb,var(--bg) 70%,var(--water1))}
 .w-mud{fill:color-mix(in oklab,var(--r4) 55%,var(--bg))}
 .w-creek{fill:color-mix(in oklab,var(--water1) 50%,var(--lum));opacity:.5}
@@ -353,7 +356,7 @@
 :root[data-dark="1"] .w-kayak{fill:var(--r3)}
 .w-driftg{fill:none;stroke:var(--shade);stroke-width:.5;opacity:.22;stroke-linecap:round}
 .w-siding{fill:var(--shade);opacity:.07}
-.w-ripm{opacity:.32}
+.w-ripm{opacity:.42}
 .w-sedgeg{fill:var(--r4)}
 .w-gravelw{fill:color-mix(in srgb,var(--bg) 62%,var(--water2));opacity:.7}
 
@@ -365,6 +368,17 @@
 .w-lawndap{fill:var(--glowc);opacity:.16}
 .w-tuft2{fill:var(--r5);opacity:.7}
 .w-sandnear{fill:var(--shade);opacity:.13}
+/* a Sound flat with value: its wetter middle darker, ripple crests lit */
+.w-flatdk{fill:var(--shade);opacity:.15}
+/* a feed lake's bare earth bank: a dark bank, its stones small and dim (never a pale spit or a ramp) */
+.w-bankearth{fill:color-mix(in oklab,var(--r4) 62%,var(--bg))}
+.w-bankst{opacity:.45}
+.w-ripl{fill:var(--lum);opacity:.3}
+:root[data-dark="1"] .w-ripl{opacity:.08}
+/* a shrub's sky-lit top; a lake launch's edge (no surf on a lake: faint, fainter at night) */
+.w-shrubt{fill:color-mix(in oklab,var(--r3) 70%,var(--glowc));opacity:.55}
+.w-lipg{opacity:.3;stroke-width:.8}
+:root[data-dark="1"] .w-lipg{opacity:.06}
 :root[data-dark="1"] .w-sandnear{fill:var(--bg);opacity:.22}
 /* a ramp's wet lower end; gravel in three tones, the wet ones darkest */
 .w-rampwet{fill:color-mix(in oklab,var(--r3) 60%,var(--water2));opacity:.6}
@@ -383,6 +397,8 @@
 .w-siltl{fill:none;stroke:color-mix(in oklab,var(--r2) 50%,var(--gold));stroke-width:1.4;opacity:.5;stroke-linecap:round}
 .w-barwet{fill:color-mix(in oklab,var(--r4) 55%,var(--water2));opacity:.75}
 .w-bard{fill:var(--r4);opacity:.18}
+/* the big wet cobbles at your feet on a river bar: the darkest ground near you */
+.w-cobwet{fill:color-mix(in oklab,var(--r4) 58%,var(--bg));opacity:.92}
 .w-mudb{fill:color-mix(in oklab,var(--r3) 55%,var(--bg))}
 .w-join2{fill:color-mix(in oklab,var(--water1) 50%,var(--lum));opacity:.16}
 .w-seamf{fill:none;stroke:var(--lum);stroke-width:.8;stroke-linecap:round}
@@ -408,6 +424,14 @@
 :root[data-dark="1"] .w-conc{fill:var(--r3)}
 /* the Orting levee: its cobble face, the verge of the trail */
 .w-levee{fill:var(--r4)}
+/* a braided river's bed seen along it (128th St E): warm grey gravel, the
+   channels' water darker and cooler than the stones, their wet edges faint */
+.w-bedg{fill:color-mix(in oklab,color-mix(in oklab,var(--r2) 48%,var(--bg)) 86%,var(--gold))}
+.w-bedwet{opacity:.28}
+.w-bedst{fill:color-mix(in oklab,var(--r3) 60%,var(--bg));opacity:.3}
+.w-chandk{fill:color-mix(in oklab,var(--water2) 70%,var(--r4));opacity:.34}
+.w-leveesh{fill:var(--r5);opacity:.55}
+.w-leveesl{fill:color-mix(in oklab,var(--r3) 70%,var(--glowc));opacity:.22}
 .w-pathv{fill:var(--r4);opacity:.45}
 /* a big tree's bark: one side lit, furrows down it */
 .w-barkl{fill:var(--glowc);opacity:calc(.08 + var(--litl) + var(--litr))}

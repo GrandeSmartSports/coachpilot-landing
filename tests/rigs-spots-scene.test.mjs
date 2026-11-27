@@ -64,6 +64,7 @@ function stands(entry) {
 // the card a stand rests on
 function cardOf(id, o) { return cards[o.card || id]; }
 const parts = (o, t) => (o.parts || []).filter((p) => p.t === t);
+const relB = (b, f) => ((((b - f) % 360) + 540) % 360) - 180;
 
 // ---- 1. every card has an entry --------------------------------------------------
 const cardIds = Object.keys(cards).filter((k) => k !== "_meta");
@@ -135,9 +136,17 @@ ok(dmLamps >= 6 && dmLamps <= 9 && dp.deck >= 7 && dp.segs.length === 2, "Des Mo
 ok(parts(dm, "rocks").some((r) => r.pts[0][0] < 0) && parts(dm, "log").length >= 1 && parts(dm, "shrub").length === 1, "Des Moines: the breakwater at the left, driftwood and a low shrub on the beach");
 const dash = S["dash-point"].stands.city, dsp = parts(dash, "pier")[0];
 ok(dsp && dsp.segs[1].b[0] > dsp.segs[1].a[0] && !dsp.crowd && !dsp.lamps && parts(dash, "kayak").length === 1, "Dash Point: from the kayak launch, the L turns right (east), closed: nobody on it and no lamps");
-const pd = S["point-defiance"], pdw = parts(pd, "pier")[0];
-ok(!parts(pd, "house").length && !parts(pd, "woods").length && !parts(pd, "float").length, "Point Defiance: from the dock the boathouse, the marina and the firs are behind you (OpenStreetMap), so none of them is in this picture");
-ok(pdw && pdw.rail === "wood" && [].concat(pdw.lamps).every((l) => l.kind === "lantern") && parts(pd, "ground").length === 1, "Point Defiance: the deck under you, the lit wooden walkway along its edge with its rail and a lantern-top lamp post");
+ok(dsp.segs[0].a[0] > 0 && dsp.segs[0].b[0] > 0 && dsp.segs[1].a[0] > 0, "Dash Point: you stand on the beach west of the pier, so it runs out ahead-right (the card's draw line)");
+const pd = S["point-defiance"], pdW = Object.assign({}, pd, pd.stands.walk), pdD = Object.assign({}, pd, pd.stands.dock), pdw = parts(pdD, "pier")[0];
+ok(["walk", "dock"].indexOf(RIG.spotOpen.pointDefiance) >= 0 && pd.stand === RIG.spotOpen.pointDefiance && pdW.facingFrom, "Point Defiance: which stand is one open setting (Coach's Look Around on the walk in, or the dock's end)");
+// the boathouse at the side of the frame: a white house with a green roof whose near face lies in the right half of the walk picture
+const pdRel = (X, Z) => { const th = (relB(pdW.site.bearing, pdW.facing) * Math.PI) / 180, x = X * Math.cos(th) + Z * Math.sin(th), z = -X * Math.sin(th) + Z * Math.cos(th); return (Math.atan2(x, z) * 180) / Math.PI; };
+const bh = parts(pdW, "house").filter((h) => h.wall === "w-wallw" && h.roofc === "w-roofg");
+ok(bh.length >= 1 && bh.some((h) => { const a = pdRel(h.at[0] - h.w / 2, h.at[1] - h.d / 2); return a > 0 && a < pdW.fov; }) && bh.every((h) => h.lit === false), "Point Defiance (walk): the boathouse, white walls and a pale green roof, at the right side of the frame; its windows not lit (not on the card)");
+ok(parts(pdW, "lamp").every((l) => l.kind === "lantern") && parts(pdW, "lamp").length >= 2 && parts(pdW, "rail").length === 2 && parts(pdW, "piles").length === 1 && parts(pdW, "woods").some((w) => w.kind === "fir"), "Point Defiance (walk): lantern-top lamp posts, wooden rails, pilings in the water and dark firs, as in Coach's picture (the flagpoles left out: they would cross the title)");
+ok(!parts(pdD, "house").length && pdw && pdw.rail === "wood" && [].concat(pdw.lamps).every((l) => l.kind === "lantern") && (pdD.skyline || []).some((q) => q.t === "ferry"), "Point Defiance (dock): the lit wooden walkway, Vashon and the Tahlequah ferry dock ahead, the boathouse behind you");
+const pdT = (tide) => paint(pd, { now: { date: D, tide } }).innerHTML;
+ok(pdT(0) !== pdT(1) && /w-wet/.test(pdT(0)), "Point Defiance: the tide stands on the pilings in the water at the left");
 
 // ---- 5. the Green: two places, chosen by the trip ------------------------------------------
 const g = S["green-river"], pick = (fish) => { const e = paint(g, Object.assign({ now: { date: D } }, fish ? { fish } : {})); return e.innerHTML; };
@@ -231,7 +240,7 @@ ok(L("tokul", D) === "right" && L("cowlitz", D) === "right", "Tokul and the Cowl
 const wp = (kind, act) => { const e = paint(S.westport, Object.assign({ now: { date: D } }, act ? { activity: act } : {}), kind); return e.dataset.scene; };
 ok(wp("pier") === "pier" && wp("surf", "perch") === "surf" && wp("surf") === "surf", "Westport: the crab float for a crab trip, the beach for surf perch");
 const os = (act) => paint(S["ocean-shores"], { activity: act, now: { date: D } }).innerHTML;
-ok(/w-farrock/.test(os("perch")) && !/w-farrock/.test(os("clams")), "Ocean Shores: the north jetty's tip at the surf perch stand, not on the Copalis dig");
+ok(/w-midrock/.test(os("perch")) && !/w-midrock|w-farrock/.test(os("clams")), "Ocean Shores: the north jetty's outer end, a dark low line of rock, at the surf perch stand; not on the Copalis dig");
 // everything across the water by bearing: the jetty's tip and Copalis Rock
 const osP = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.perch), osC = Object.assign({}, S["ocean-shores"], S["ocean-shores"].stands.copalis);
 const rel = (b, f) => ((((b - f) % 360) + 540) % 360) - 180;
@@ -331,6 +340,42 @@ ok(crowd("2026-08-22") > crowd("2026-11-24"), "Sumner: the opening-weekend crowd
 ok(S["puyallup-128th"].river.flow === "along", "128th St E: looking along the river under the bridge, so it runs neither left nor right");
 // the feed lakes: each its own bank and shore, none a dock
 ok(JSON.stringify(RIG.spotScene("w-l2668").lake.bank) !== JSON.stringify(RIG.spotScene("w-l1536").lake.bank) || JSON.stringify(RIG.spotScene("w-l2668").lake.point) !== JSON.stringify(RIG.spotScene("w-l1536").lake.point), "Kapowsin and Green Lake: a bank and a point of their own");
+
+// ---- 11. the second round of checks (fix round 2) -------------------------------------------
+// Redondo at night: every lamp lit with its ladder, and the squid crowd's own lights let down onto the water
+const redN = paint(S.redondo, { now: { date: D + "T19:00", tide: 0.5, moon: 0.6 } }).innerHTML;
+ok((redN.match(/class="w-pool"/g) || []).length >= 6 && (redN.match(/class="w-bulb"/g) || []).length >= 4 && S.redondo.parts[0].own === "water", "Redondo at night: four lamps lit, their ladders, and squid lights on the water (the card's night line)");
+const rRail = parts(S.redondo, "rail")[0];
+ok(S.redondo.eye >= rRail.y + rRail.h + 1, "Redondo: the eye (the Look Around's) stands well over the seawall rail, so the far water shows above it");
+// bare winter crowns: a soft haze round fine twigs, never a straight-edged fan
+const fen = paint(S["lake-fenwick"], { now: { date: D } }).innerHTML;
+ok(/class="w-haze" d="M[^"]*Q/.test(fen) && !/class="w-twig"/.test(fen), "Lake Fenwick: bare crowns are a soft rounded haze (curves, no straight edges), never a filled twig fan");
+const gey = paint(S["green-river"], { now: { date: D, river: 1 } }).innerHTML, geyLo = paint(S["green-river"], { now: { date: D, river: 0 } }).innerHTML;
+ok(/class="w-l1" d="M[^"]*(Q[^"]*){20}/.test(gey), "Flaming Geyser: the far ridge has a soft rolling top of rounded crowns");
+ok(/w-cobwet/.test(gey) && /w-cobwet/.test(geyLo) && /w-cobd/.test(gey), "Flaming Geyser: the dark wet cobbles at your feet stay at every river level");
+// Orting: the braid's bars have body, the levee its slope
+const ort = (river) => paint(S["puyallup-orting"], { now: { date: D, river } }).innerHTML;
+const bars = (h) => { const m = /class="w-barg" d="([^"]*)"/.exec(h); return m ? (m[1].match(/M/g) || []).length : 0; };
+ok(bars(ort(0.2)) >= 10 && bars(ort(0.95)) === 0 && /w-leveesh/.test(ort(0.35)), "Orting: gravel islands in rows by depth at low water, gone at the no-go line; the levee's face shaded down its slope");
+// 128th St E: water that reads as water, a deck clear of the title row
+const p128 = paint(S["puyallup-128th"], { now: { date: D } }).innerHTML;
+ok(/w-chandk/.test(p128) && /w-bedg/.test(p128) && /class="w-rail" d="M-10 1(5[5-9]|6\d)/.test(p128), "128th St E: the channels darker than the gravel, and the bridge rail below the title row");
+// Sumner: the seam's foam in soft curved streaks, no curb at the joining
+const sum = paint(S["puyallup-sumner"], { now: { date: D } }).innerHTML;
+ok(/class="w-seamf"><path d="M[\d. -]+Q/.test(sum) && !/\[340,/.test(sum), "Sumner: the seam's foam in soft broken streaks");
+// Dash Point state beach: the flats with value; Des Moines' shrub lit on top; a lake launch's edge faint
+ok(/w-flatdk/.test(dsh("shore")) && /w-ripl/.test(dsh("shore")), "Dash Point state beach: the wet flat's darker middle and lit ripple crests");
+ok(/class="w-l4" [^>]*\/><path class="w-shrubt"/.test(paint(S["des-moines-pier"], { now: { date: D } }).innerHTML), "Des Moines: the shrub one value lighter, its top lit");
+ok(/w-lipg/.test(paint(S["w-l466"], { now: { date: D } }).innerHTML), "Bonney Lake: the gravel launch's edge is a faint lake edge, never surf");
+// thumbnails that cannot be swapped
+const mn = (id, extra) => RIG.water.mini(S[id].scene, pal.golden, Object.assign({ now: { date: D } }, S[id], extra || {}));
+ok(/M8.4 39.6h1.6/.test(mn("puyallup-sumner")) && !/M8.4 39.6h1.6/.test(mn("puyallup-orting")) && /M41 /.test(mn("puyallup-orting")), "Sumner's thumbnail has the joining and an angler, Orting's the bridge and the bars");
+ok(/rx="7" ry=".8"/.test(RIG.water.mini("sound", pal.golden, Object.assign({ now: { date: D }, how: "shore" }, S["dash-point"]))), "the Dash Point state beach thumbnail shows its flats and a pool");
+ok(paint(RIG.spotScene("w-l2668"), { now: { date: D } }).innerHTML !== paint(RIG.spotScene("w-l1536"), { now: { date: D } }).innerHTML, "two feed lakes never paint the same");
+// no moon road where no moon stands: the light road's glints all but gone (scene.css)
+const css = readFileSync(join(ROOT, "rigs/scene.css"), "utf8");
+const grOf = (sel) => { const m = new RegExp(sel.replace(/[[\]().*+?^$|]/g, "\\$&") + "\\{[^}]*--gr:([^;}]+)").exec(css); return m ? m[1] : null; };
+ok(+grOf(':root[data-sky="night"] .scene:is([data-moonpos="behind"],[data-moonpos="none"])') <= 0.04 && +grOf(':root[data-sky="night"] .scene[data-moonpos="down"]') <= 0.04, "at night with the moon behind you, down, or no facing (a feed lake), the water ahead keeps no light road");
 
 console.log("\n" + pass + " passed, " + fail + " failed");
 process.exit(fail ? 1 : 0);
