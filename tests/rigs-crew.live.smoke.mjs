@@ -459,10 +459,15 @@ try {
   await drained(op);
 
   // ---- naming the crew while its name is open: the member picks, in the page -----
-  // The owner opens naming from here (the page has no screen for it; the lead
-  // opens it by hand on a real crew). Whoever is on the crew then names it once.
-  const opened = await call(owner.token, { action: "crew_name_open", open: true });
-  ok(opened.status === 200 && opened.body.nameOpen === true, "naming is opened on the test crew", opened.text);
+  // The owner opens naming from his Rename, in the page: "Let the next person
+  // name it". Whoever is on the crew then names it once.
+  await op.locator("[data-crew-edit]").click();
+  ok(await until(() => count(op, "[data-crew-name-reopen]").then((n) => n === 1)), "the owner's Rename offers: Let the next person name it");
+  await op.locator("[data-crew-name-reopen]").click();
+  ok(await until(async () => (await text(op, "[data-crewname]")).trim() === "The crew" && await count(op, "[data-crew-name-open]") === 1 && /done/i.test(await text(op, "[data-crew-name-msg]"))),
+    "one tap and the owner's title is The crew, with the line on who names it", await text(op, "[data-crew-card]"));
+  const opened = await call(owner.token, { action: "state" });
+  ok(opened.status === 200 && opened.body.crew.nameOpen === true && opened.body.crew.name === CREW, "the server has naming open on the test crew, its name not touched", opened.text.slice(0, 160));
   // A page already on #/crew is not moved by going to #/crew again: it is opened afresh.
   await mp.goto(base + "#/crew", { waitUntil: "load" });
   await mp.reload({ waitUntil: "load" });

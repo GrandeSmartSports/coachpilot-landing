@@ -260,7 +260,9 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 .baitplate svg{display:block;width:88%;height:auto}
 /* On a narrow phone the slot word gives way, so the HOT or GOOD tag stays on
    the row with the day instead of floating alone over the picture. */
-@media (max-width:379px){.hero .chip .slot{display:none}}
+@media (max-width:379px){.hero .chip .slot{display:none}
+  /* the owner's title row (back, how many, You run it, Rename) stays one row on a small iPhone */
+  [data-view="crew"]>.hero .chips{gap:5px}[data-view="crew"]>.hero .chip{padding-left:9px;padding-right:9px}}
 .gear{list-style:none;margin:12px 0 0;padding:0}
 .gear li{position:relative;display:flex;gap:12px;align-items:flex-start;padding:11px 0;font-size:15px;line-height:1.4;color:var(--t1)}
 .gear li+li::before{content:"";position:absolute;left:40px;right:0;top:0;height:1px;background:var(--edge)}
@@ -702,8 +704,8 @@ button.cw-prow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px
 .cw-namehead{display:flex;align-items:center;gap:14px;margin:0 0 12px}
 .cw-namehead-t{flex:1 1 auto;min-width:0}
 .cwcard .cw-namehead-t>.eyebrow{display:block;margin:0 0 6px}
-.cw-namehead .cw-lead{margin:0}
-.cw-jersey{position:relative;flex:0 0 auto;display:block;width:88px;height:88px;
+.cw-namehead .cw-lead{margin:0;text-wrap:balance}
+.cw-jersey{position:relative;flex:0 0 auto;display:block;width:120px;height:120px;
   filter:drop-shadow(0 1px 1px color-mix(in srgb,var(--shade) 22%,transparent)) drop-shadow(var(--shx) 6px 7px color-mix(in srgb,var(--shade) 26%,transparent))}
 .cw-jersey svg{display:block;width:100%;height:100%}
 .jy-body{fill:var(--accent)}
@@ -711,15 +713,26 @@ button.cw-prow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px
 .jy-lit{fill:color-mix(in srgb,var(--lum) 20%,transparent)}
 .jy-trim{fill:none;stroke:var(--gold);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
 :root[data-dark="1"] .jy-trim{stroke:var(--paper)}
-.cw-jersey b{position:absolute;left:27%;right:27%;top:26%;bottom:15%;display:flex;align-items:center;justify-content:center;text-align:center;
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;line-height:.94;letter-spacing:.02em;text-transform:uppercase;
-  color:var(--paper);overflow:hidden;overflow-wrap:anywhere}
+/* The name is lettered as big as the chest holds (fitJerseys), in even
+   lines, and a word breaks only when no size would fit it. */
+.cw-jersey b{position:absolute;left:26%;right:26%;top:26%;bottom:15%;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;line-height:.94;letter-spacing:.02em;text-transform:uppercase;text-wrap:balance;
+  color:var(--paper);overflow:hidden;overflow-wrap:normal}
+.cw-jersey b.brk{overflow-wrap:anywhere}
 :root[data-dark="1"] .cw-jersey b{color:var(--on-gold)}
 .cw-jersey.sm{width:46px;height:46px}
 .cw-namepicks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0 0 10px}
-.cw-namepick{position:relative;justify-content:center;text-align:center;min-height:42px;padding:3px 10px;font-size:13.5px;line-height:1.18;border-radius:14px}
+/* The names are raised paper chips that break between words, never inside
+   the joke; the picked one takes gold's soft partner and the gold ring. The
+   box under them stays the pressed well. */
+.cw-namepick{position:relative;justify-content:center;text-align:center;min-height:42px;padding:3px 10px;font-size:13.5px;line-height:1.18;border-radius:14px;text-wrap:balance;
+  color:var(--t1);background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 1px 0 var(--rim),inset 0 0 0 1px var(--edge)}
 .cw-namepick::after{content:"";position:absolute;inset:-3px -3px}
-.cw-namepick[aria-pressed="true"]{color:var(--t1);background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 0 0 2px var(--gold)}
+.cw-namepick[aria-pressed="true"]{color:var(--t1);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 24%,var(--pan-a)),color-mix(in srgb,var(--gold) 16%,var(--pan-b)));
+  box-shadow:var(--e1),inset 0 0 0 2px var(--gold)}
+:root[data-dark="1"] .cw-namepick[aria-pressed="true"]{background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 26%,var(--paper)),color-mix(in srgb,var(--gold) 17%,var(--paper)));
+  box-shadow:var(--e1),0 0 14px -6px color-mix(in srgb,var(--gold) 60%,transparent),inset 0 0 0 2px var(--gold)}
+.cw-namecard [data-namepick-save]{scroll-margin-bottom:14px}
 .cw-nameown{margin:0}
 .cw-nameown input{min-height:48px}
 .cw-namecard>.gold.cw-go{margin-top:10px}
@@ -727,6 +740,7 @@ button.cw-prow:focus-visible{outline:2px solid var(--accent);outline-offset:-2px
   box-shadow:inset 0 1px 2.5px color-mix(in srgb,var(--shade) 18%,transparent),inset 0 0 0 1px color-mix(in srgb,var(--shade) 6%,transparent)}
 :root[data-dark="1"] .cw-namenote{background:color-mix(in srgb,var(--pan-b) 50%,var(--well))}
 .cw-namenote span{font-size:14.5px;line-height:1.4;color:var(--t2)}
+.cw-namenote .cw-link{font-size:14.5px}
 .cwcard.panel.cw-under{margin-top:14px;padding:16px}
 .cw-get-going .av{width:22px;height:22px;font-size:10.5px}
 .cw-get-list{flex-direction:column;align-items:stretch;gap:6px;padding:0 13px}
@@ -1811,7 +1825,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   var STEP_KEY = "rig.crewstep.v1", STEP_AGE = 15 * 60e3;
   function crewFresh(sms) {
     return { step: "phone", msg: null, sms: sms === undefined ? null : sms, joinMsg: null, vals: {}, st: null, sig: "",
-      share: null, confirm: null, rowMsg: {}, invMsg: null, num: null, al: alFresh(), nameEdit: "", nameMsg: null, crewMsg: null, naming: false, pickMsg: null,
+      share: null, confirm: null, rowMsg: {}, invMsg: null, num: null, al: alFresh(), nameEdit: "", nameMsg: null, crewMsg: null, naming: false, pickMsg: null, pickOpen: false,
       openRow: "", addOpen: false, invNum: false, ended: false };
   }
   var crewUi = crewFresh(), joinUi = { token: null }, crewQuiet = false, crewLoad = 0, cwBusy = {};
@@ -1964,9 +1978,11 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // takes the first card.
   function shareHtml() {
     var s = crewUi.share, mine = firstName(crewUi.st && crewUi.st.me && crewUi.st.me.name), n = esc(s.name), f = esc(firstName(s.name));
+    // While nobody has named the crew, the text says the one joining gets to.
+    var names = crewUi.st && crewUi.st.crew && crewUi.st.crew.nameOpen === true ? " You get to name it." : "";
     var head = s.kind === "link" ? "A new link for " + n : s.created === false ? n + " is already on the crew" : n + " is on the crew";
     if (s.link) {
-      var words = mine + " added you to the fishing crew on Rig Card. Tap to join: " + s.link;
+      var words = mine + " added you to the fishing crew on Rig Card." + names + " Tap to join: " + s.link;
       return '<div class="cw-share" data-share><em class="eyebrow">Next: text the link</em><p class="cw-lead"><b>' + head + ".</b> " +
         (s.kind === "link" ? "The old link has stopped working. " : "") + "Text " + f + " the link. One tap and they are in.</p>" +
         '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(words)) + '">Text ' + f + " the link</a>" +
@@ -1975,7 +1991,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         '<button class="cw-plain" type="button" data-share-done>Done</button></div>' +
         (s.manual ? cwField("This phone would not copy it. Press and hold to copy.", '<input data-share-link type="text" readonly value="' + esc(s.link) + '">') : "") + "</div>";
     }
-    var page = mine + " added you to the fishing crew on Rig Card. Sign in with your phone number: " + SITE + "#/crew";
+    var page = mine + " added you to the fishing crew on Rig Card." + names + " Sign in with your phone number: " + SITE + "#/crew";
     return '<div class="cw-share" data-share><em class="eyebrow">Next: tell them</em><p class="cw-lead"><b>' + head + ".</b> " +
       n + " already has an account with that number. They sign in with their number and a code.</p>" +
       '<a class="gold cw-go" data-share-text href="' + esc(RIG.crew.textLink(page)) + '">Text ' + f + " the sign-in page</a>" +
@@ -2003,12 +2019,30 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     '<path class="jy-trim" d="M38 6 Q43 19 50 21 Q57 19 62 6"/>' +
     '<path class="jy-trim" d="M8.5 27.5 L19.5 38.5 M91.5 27.5 L80.5 38.5"/>' +
     '<path class="jy-trim jy-hem" d="M25.5 87.5 Q50 92.5 74.5 87.5"/></svg>';
-  // The size the name is lettered at: as big as fits the chest, and never so
-  // big that one of its words would have to break.
+  // The size the name is lettered at: a first guess drawn with the page
+  // (as big as fits the chest, and never so big that one of its words would
+  // have to break), then measured on the jersey itself by fitJerseys.
+  var JERSEY_MAX = 20, JERSEY_MIN = 9;
   function jerseyFont(n) {
     var t = String(n || "").length, long = String(n || "").split(/\s+/).reduce(function (m, w) { return Math.max(m, w.length); }, 1);
-    return t ? Math.max(7, Math.min(16, 0.8 * Math.sqrt(2700 / t), 40 / (long * 0.5))).toFixed(1) : "16";
+    return t ? Math.max(JERSEY_MIN, Math.min(JERSEY_MAX, 1.1 * Math.sqrt(2700 / t), 58 / (long * 0.5))).toFixed(1) : String(JERSEY_MAX);
   }
+  // Every lettered jersey on the screen: the biggest size, in half pixels,
+  // at which the name fits the chest with no word broken. Only a word too
+  // long for the chest at the smallest size breaks.
+  function fitJersey(b) {
+    if (!b || !b.clientWidth || !b.textContent) return;
+    b.classList.remove("brk");
+    for (var px = JERSEY_MAX; px >= JERSEY_MIN; px -= 0.5) {
+      b.style.fontSize = px + "px";
+      if (b.scrollWidth <= b.clientWidth + 0.5 && b.scrollHeight <= b.clientHeight + 0.5) return;
+    }
+    b.style.fontSize = JERSEY_MIN + "px";
+    b.classList.add("brk");
+  }
+  function fitJerseys() { app.querySelectorAll("[data-jersey-name]").forEach(fitJersey); }
+  // The lettering face may arrive after the first draw: fit again once it has.
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitJerseys);
   function jerseyHtml(name, cls) {
     var n = String(name || "").replace(/\s+/g, " ").trim();
     return '<span class="cw-jersey' + (cls ? " " + cls : "") + '" aria-hidden="true">' + JERSEY +
@@ -2019,7 +2053,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // Tapping a name puts it in the box, so it can be changed a little too.
   function namePickHtml(step) {
     var now = String(crewUi.vals.crewPick || "").replace(/\s+/g, " ").trim();
-    return '<div class="cw-namehead">' + jerseyHtml(now) + '<div class="cw-namehead-t"><em class="eyebrow">' + (step ? "No name yet" : "Name the crew") + "</em>" +
+    return '<div class="cw-namehead">' + jerseyHtml(now) + '<div class="cw-namehead-t">' + (step ? "" : '<em class="eyebrow">Name the crew</em>') +
         '<p class="cw-lead">Pick one, or make your own. It goes on the jerseys.</p></div></div>' +
       '<div class="cw-namepicks" role="group" aria-label="Names to pick from">' + CREW_NAMES.map(function (n) {
         return '<button class="cw-pill cw-namepick" type="button" data-namepick="' + esc(n) + '" aria-pressed="' + (n === now ? "true" : "false") + '">' + esc(n) + "</button>";
@@ -2037,8 +2071,29 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var box = app.querySelector("[data-namepick-own]"), j = app.querySelector("[data-namepick-card] [data-jersey-name]"), m = app.querySelector("[data-namepick-msg]");
     if (box && box.value !== v) box.value = v;
     app.querySelectorAll("[data-namepick]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-namepick") === now ? "true" : "false"); });
-    if (j) { j.textContent = now; j.style.fontSize = jerseyFont(now) + "px"; }
+    if (j) { j.textContent = now; j.style.fontSize = jerseyFont(now) + "px"; fitJersey(j); }
     if (m && crewUi.pickMsg && crewUi.pickMsg.no) { crewUi.pickMsg = null; m.textContent = ""; m.className = "cw-msg"; }
+  }
+  // Someone who said Later is not met by the whole picker on every visit to
+  // the crew screen: they get one line and open it when they like. Kept on
+  // this phone for this person on this crew.
+  var LATER_KEY = "rig.crewname.later.v1";
+  function nameLater() {
+    var s = RIG.crew && RIG.crew.session(), st = crewSt(), c = st && st.crew;
+    if (!s || !s.userId) return;
+    try { localStorage.setItem(LATER_KEY, JSON.stringify({ u: s.userId, c: c ? c.id : null })); } catch (e) { /* a full store: the picker shows in full */ }
+  }
+  function saidLater(crewId) {
+    var s = RIG.crew && RIG.crew.session(), l = null;
+    try { l = JSON.parse(localStorage.getItem(LATER_KEY) || "null"); } catch (e) { /* nothing saved */ }
+    return !!(l && s && l.u === s.userId && (!l.c || l.c === crewId));
+  }
+  // Off the naming step without a name: Later, the Hot Trips chip, the dock.
+  // All the same: remembered as Later, and landing on the week says so.
+  function nameStepLeft(who, toWeek) {
+    nameUi = null; crewUi.pickMsg = null; crewUi.vals.crewPick = "";
+    nameLater();
+    if (who && toWeek) joinedWord(who, "");
   }
   // The word on landing after naming the crew, or after Later.
   function joinedWord(name, crewName) {
@@ -2418,8 +2473,9 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     }
     var owner = r.crew.role === "owner", people = r.members || [], alone = owner && people.length < 2;
     var n = people.length, crewName = crewTitle(r.crew), next = nextCrewTrip(r), share = crewUi.share;
-    // While nobody has named the crew, anyone on it but the owner is asked to, first thing.
-    var naming = r.crew.nameOpen === true && !owner;
+    // While nobody has named the crew, anyone on it but the owner is asked to,
+    // first thing; after Later, in one line, until they open it.
+    var naming = r.crew.nameOpen === true && !owner, later = naming && !crewUi.pickOpen && saidLater(r.crew.id), picking = naming && !later;
     // The title row: how many, who runs it, and for the owner a small Rename.
     var chips = '<span class="chip" data-crew-count><b>' + n + "</b>" + (n === 1 ? " person" : " people") + "</span>" +
       (owner ? '<span class="chip">You run it</span>' + (crewUi.nameEdit === "crew" ? "" : '<button class="chip" type="button" data-crew-edit>Rename</button>') : "") +
@@ -2430,7 +2486,9 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (owner && crewUi.nameEdit === "crew") {
       first = '<em class="eyebrow">The crew\'s name</em>' +
         cwField("What everyone sees at the top", '<input data-crew-name data-keep="crewName" data-enter="data-crew-save" type="text" maxlength="60" autocomplete="off" value="' + kv("crewName") + '">') +
-        '<div class="cw-acts2"><button class="cw-act" type="button" data-crew-save>Save</button><button class="cw-act" type="button" data-crew-cancel>Leave it</button></div>' + crewSaid;
+        '<div class="cw-acts2"><button class="cw-act" type="button" data-crew-save>Save</button><button class="cw-act" type="button" data-crew-cancel>Leave it</button></div>' +
+        // Named already: the owner can hand the name back, so whoever saves one next names it (a test join used it up).
+        (r.crew.nameOpen === true ? "" : '<button class="cw-plain" type="button" data-crew-name-reopen>Let the next person name it</button>') + crewSaid;
     } else if (share && share.at === "first") first = crewSaid + shareHtml();
     else if (alone) {
       first = '<em class="eyebrow">Next: add someone</em>' + crewSaid +
@@ -2445,12 +2503,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         (next ? "" : '<p class="cw-k2 cw-nonek">Nothing planned yet. The best of the week:</p>') +
         '<div class="panel list cw-next">' + (next ? crewTripRowNext(next) : crewPickRow()) + "</div>" +
         // Gold only while nothing else on the screen is: a link to text, the form to add someone, or Save on the crew's name.
-        (next || share || crewUi.addOpen || naming ? "" : '<a class="gold cw-go" href="#/crew/new" data-crew-next="plan">Plan a trip</a>');
+        (next || share || crewUi.addOpen || picking ? "" : '<a class="gold cw-go" href="#/crew/new" data-crew-next="plan">Plan a trip</a>');
     }
     // The owner, while the crew has no name: one line on who names it.
     if (owner && r.crew.nameOpen === true && crewUi.nameEdit !== "crew" && !(share && share.at === "first")) {
       first += '<div class="cw-namenote" data-crew-name-open>' + jerseyHtml("", "sm") + "<span>" +
         (alone ? "The next person to join names the crew." : "No name yet. Anyone on the crew can pick it.") + "</span></div>";
+    }
+    if (later) {
+      first += '<div class="cw-namenote" data-crew-name-later>' + jerseyHtml("", "sm") +
+        '<span>No name yet. <button class="cw-link" type="button" data-namepick-open>Name it</button></span></div>';
     }
     var rows = people.map(function (m) {
       var mine = m.id === r.me.id, id = esc(m.id), edit = mine && crewUi.nameEdit === "me";
@@ -2492,7 +2554,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
           '<span class="cw-line">They get a link to join</span></span>' + IC.chev + "</button>") + "</li>";
     }
     // Naming the crew takes the waterline; the crew's own card comes under it.
-    var cards = naming
+    var cards = picking
       ? '<section class="float cw cwcard cw-namecard" data-namepick-card>' + noteHtml + namePickHtml(false) + "</section>" +
         '<section class="cw cwcard panel cw-under" data-crew-card>' + first + "</section>"
       : '<section class="float cw cwcard" data-crew-card>' + noteHtml + first + "</section>";
@@ -2576,6 +2638,25 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       });
     });
   }
+  // The owner hands the crew's name back: from now on, whoever on the crew
+  // saves a name first names it. It needs a signal (it says who may write
+  // the name, so it never waits); with none, the box stays open and says so.
+  function nameReopen() {
+    cwOnce("nameopen", function () {
+      crewUi.crewMsg = { t: "Saving..." }; crewRedraw();
+      return RIG.crew.crewNameOpen(true).then(function (a) {
+        if (a && a.signedOut) { crewTake(a); return; }
+        if (!a || !a.ok) {
+          crewUi.crewMsg = { t: a && a.offline ? "No signal. That was not sent." : (a && a.error) || "That did not go through. Try again.", no: true };
+        } else {
+          crewUi.nameEdit = ""; crewUi.vals.crewName = "";
+          crewUi.crewMsg = { t: "Done. Whoever picks a name next names the crew." };
+          nameNow();
+        }
+        crewRedraw();
+      });
+    });
+  }
   // A name that waited for a signal went up: the screen takes the saved
   // name, and "No signal" becomes "Saved" once nothing of that kind waits.
   function nameLanded() {
@@ -2635,7 +2716,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     }
     // What this phone last saw of the alert settings is on screen at once, signal or not.
     if (!al.got) al.got = alSaved();
-    if (cwT.nav) { crewUi.nameEdit = ""; crewUi.nameMsg = keepLate(crewUi.nameMsg); crewUi.crewMsg = keepLate(crewUi.crewMsg); crewUi.openRow = ""; crewUi.confirm = null; crewUi.pickMsg = null; }
+    if (cwT.nav) { crewUi.nameEdit = ""; crewUi.nameMsg = keepLate(crewUi.nameMsg); crewUi.crewMsg = keepLate(crewUi.crewMsg); crewUi.openRow = ""; crewUi.confirm = null; crewUi.pickMsg = null; crewUi.pickOpen = false; }
     app.innerHTML = crewBodyHtml() + "</div>" + tripBarHtml();
     if (!crewQuiet) crewFetch();
   }
@@ -2704,7 +2785,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         // Signed out, or signed in on no crew (nothing to keep): the invite.
         // Join sits right under who added you, so it is in view above Safari's
         // bottom bar even on a small iPhone; what joining gets you comes after.
-        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) + "</p>" +
+        body = meetHtml(pk.by || "", pk.name) + '<em class="eyebrow">You are invited</em><p class="cw-lead" data-join-who>' + esc(said) +
+            (open ? " <span data-join-names>You get to name it.</span>" : "") + "</p>" +
           '<button class="gold cw-go" type="button" data-join-go>Join</button>' +
           cwSaid(joinUi.msg, me && me.none ? "This phone is signed in, but not on a crew." : "One tap and you are in. No password.", "data-join-msg") +
           getsHtml(pk.by || "", pk.name);
@@ -2955,16 +3037,21 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       var pickName = hit.getAttribute("data-namepick");
       v.crewPick = String(v.crewPick || "").replace(/\s+/g, " ").trim() === pickName ? "" : pickName;
       namePickSync();
+      // Picked: Save is the next tap, so it comes into view (a small iPhone ends at the names).
+      var saveBtn = v.crewPick && app.querySelector("[data-namepick-save]");
+      if (saveBtn) saveBtn.scrollIntoView({ block: "nearest" });
       return true;
     }
     if (t.closest("[data-namepick-save]")) { namePickSave(); return true; }
     if (t.closest("[data-namepick-later]")) {
       var laterSt = crewSt(), laterWho = (nameUi && nameUi.name) || (laterSt && laterSt.me && laterSt.me.name) || "";
-      nameUi = null; crewUi.pickMsg = null; v.crewPick = "";
-      if (laterWho) joinedWord(laterWho, "");
+      nameStepLeft(laterWho, true);
       location.replace("#/trips");
       return true;
     }
+    // After Later, the crew screen's one line opens the whole picker.
+    if (t.closest("[data-namepick-open]")) { crewUi.pickOpen = true; crewUi.pickMsg = null; crewRedraw(); window.scrollTo(0, 0); return true; }
+    if (t.closest("[data-crew-name-reopen]")) { nameReopen(); return true; }
     if (t.closest("[data-me-edit]")) { nameOpen("me"); return true; }
     if (t.closest("[data-crew-edit]")) { nameOpen("crew"); return true; }
     if (t.closest("[data-me-cancel],[data-crew-cancel]")) { crewUi.nameEdit = ""; crewRedraw(); return true; }
@@ -5301,6 +5388,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (cur) cur.parentNode.scrollLeft = cur.offsetLeft - cur.parentNode.offsetLeft - (cur.parentNode.clientWidth - cur.offsetWidth) / 2;
     if (strip) { stripFade(strip); strip.addEventListener("scroll", function () { stripFade(strip); }, { passive: true }); }
     fitBand();
+    fitJerseys();
     markMoved();
     if (welcomeEl) welcomePlace();
   }
@@ -5481,8 +5569,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (newScreen(drawnHash, location.hash)) window.scrollTo(0, 0);
     if (drawnHash !== location.hash) prevHash = drawnHash;
     drawnHash = location.hash;
-    // Left the naming step by another way (the Hot Trips chip, the dock): it is not owed a welcome later.
-    if (!/^#\/?crew\/name/.test(location.hash || "")) nameUi = null;
+    // Left the naming step another way (the Hot Trips chip, the dock): the same as Later.
+    if (nameUi && !/^#\/?crew\/name/.test(location.hash || "")) nameStepLeft(nameUi.name, /^#\/?trips\/?$/.test(location.hash || ""));
     cwT.nav = true;
     cwT.tell = {};
     try { render(); } finally { cwT.nav = false; }

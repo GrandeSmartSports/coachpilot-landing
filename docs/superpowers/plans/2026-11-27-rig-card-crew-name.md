@@ -14,7 +14,11 @@ Coach, 11/27: the crew's title "Daniel's crew" read oddly. Offered names to pick
 - While `nameOpen`, the stored name is a stand-in and is never shown: titles say "The crew", the join screen "NAME added you to their fishing crew, RUSSELL." (title "Join the crew"), and "You are already on the crew".
 - After Join on a crew with its name open: `#/crew/name`, one step titled "Name the crew": a jersey with the name on it, "Pick one, or make your own. It goes on the jerseys.", six names to tap (Plateau Pro Staff, Bonney Lake Skunk Works, Two Fish Pros, Sponsored by Nobody, Professional (Allegedly), Twelve Trips Two Fish), a box for their own, a gold Save (crew_rename through the write queue) and a plain Later. Save lands on Hot Trips with "You are in, NAME. Welcome to CREWNAME."; Later with "You are in, NAME. Here is the crew's week."
 - Crew screen while open: a member sees the same card first, across the waterline; the owner sees one line ("The next person to join names the crew." alone, else "No name yet. Anyone on the crew can pick it.") and his Rename, whose box starts empty.
-- `RIG.crew.crewNameOpen(open)` exists for the owner (needs a signal). The page has no button for it: the lead opens naming on a real crew by hand.
+- The owner's Rename (on a named crew) has a plain "Let the next person name it": `RIG.crew.crewNameOpen(true)`, needs a signal, never queued. It is how the owner opens naming on a crew made before naming existed, and how he hands the name back after a test join used it up. Done says "Done. Whoever picks a name next names the crew."
+- The step: no eyebrow (the title says it), a 120 px jersey whose lettering is measured to the biggest size that fits the chest (9 to 20 px, whole words, even lines), the names as raised paper chips in even halves, the picked one on gold's soft partner. Tapping a name brings Save into view (an iPhone SE ends at the names).
+- Later, the Hot Trips chip and the dock all leave the step the same way: remembered on the phone (`rig.crewname.later.v1`, this person on this crew), and the chip to Hot Trips gets the Later welcome. After Later the crew screen leads with the crew's own card and one line, "No name yet. Name it", which opens the picker.
+- While naming is open the text the owner sends says "You get to name it.", and the join screen's sentence ends with it.
+- A queued name the server refuses (someone named it first) makes the phone ask for the crew again, so it never shows naming open under the stand-in name.
 
 ## Tests
 

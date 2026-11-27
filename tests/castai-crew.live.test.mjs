@@ -983,7 +983,23 @@ try {
   const namerPeek = await call(null, { action: "join", token: namer.body.link, peek: true });
   ok(namerPeek.status === 200 && namerPeek.body.nameOpen === true && namerPeek.body.crew === CREW && keys(namerPeek.body, ["ok", "name", "crew", "by", "nameOpen"]),
     "their link says the crew's name is open", namerPeek.text);
-  ok((await call(O, { action: "member_remove", userId: namer.body.userId })).status === 200, "and they are taken off again");
+  // Signed in, then taken off the crew while naming is still open: they are on
+  // no crew now, so they cannot name it, and the name is not touched.
+  const ns = await sessionFrom(namer.body.link);
+  ok(ns.status === 200 && ns.token && ns.id === namer.body.userId, "they sign in with their link", ns.status);
+  try {
+    ok((await call(O, { action: "member_remove", userId: namer.body.userId })).status === 200, "and they are taken off again");
+    if (ns.token) {
+      const gone = await call(ns.token, { action: "crew_rename", name: NAME_PICK });
+      ok(gone.status === 403 && gone.body.error === "You are not on a crew yet.", "someone taken off the crew cannot name it, even while naming is open", gone.text);
+      refused(await call(ns.token, { action: "crew_name_open", open: false }), 403, "nor close it");
+      const still = await call(O, { action: "state" });
+      ok(still.body.crew.name === CREW && still.body.crew.nameOpen === true, "the name is unchanged and naming is still open", JSON.stringify(still.body.crew));
+    }
+  } finally {
+    // They signed in, so the account stays after removal: delete it the way its owner would.
+    if (ns.token) ok(await dropAccount(ns.token, ns.id) === 200, "the account this test made deletes itself with its own sign-in");
+  }
 
   refused(await call(M, { action: "crew_rename", name: "   " }), 400, "an empty name is refused");
   refused(await call(M, { action: "crew_rename", name: "x".repeat(61) }), 400, "a name over 60 characters is refused");

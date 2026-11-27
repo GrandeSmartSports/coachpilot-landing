@@ -990,8 +990,11 @@ function server(log = []) {
   // Refused later, after waiting for a signal: it lands in failed() for the screen to say.
   let dn = true;
   const sl = phoneStore(); signedIn(sl, { userId: "u-coach" });
-  sl.setItem("rig.crew.v1", JSON.stringify(Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } })));
-  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: "Only the owner can rename the crew." } } : server()(req) });
+  const OWNS = Object.assign(clone(STATE), { me: { id: "u-coach", name: "Coach" }, crew: { id: "c1", name: "ZZTEST crew", role: "owner" } });
+  sl.setItem("rig.crew.v1", JSON.stringify(OWNS));
+  // The crew, asked for again after the refusal, answers as the owner sees it.
+  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: "Only the owner can rename the crew." } }
+    : req.url === FN && req.body.action === "state" ? { status: 200, body: clone(OWNS) } : server()(req) });
   const lw = await lt.crew.crewRename("Somebody else's");
   ok(lw.queued && lt.crew.cached().crew.name === "Somebody else's", "the crew's new name waits for a signal too", lw);
   let dropped = null; lt.crew.onChange((w) => { if (w.kind === "queue" && w.dropped) dropped = w.dropped; });
@@ -1051,15 +1054,29 @@ function server(log = []) {
   ok(f.sent === 1 && sent.join() === "Plateau Pro Staff" && q.read("rig.crew.v1").crew.name === "Plateau Pro Staff" && q.read("rig.crew.v1").crew.nameOpen === false,
     "when the signal comes back it goes once, and the crew is named on the phone", { f, sent });
 
-  // Someone named it first while this one waited: refused, reported, and the crew is as the server last said.
+  // Someone named it first while this one waited: refused, reported, and the
+  // crew is asked for again, so the phone has the name that stands and naming
+  // closed. It never falls back to "open" under the stand-in name.
   let dn = true;
+  const WON = Object.assign(clone(OPEN), { crew: { id: "c1", name: "Plateau Pro Staff", role: "member", nameOpen: false } });
   const sl = phoneStore(); signedIn(sl); sl.setItem("rig.crew.v1", JSON.stringify(OPEN));
-  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url === FN && req.body.action === "crew_rename" ? { status: 403, body: { error: TAKEN } } : server()(req) });
+  const lt = tab({ store: sl, net: (req) => dn ? DOWN : req.url !== FN ? { status: 200, body: {} }
+    : req.body.action === "crew_rename" ? { status: 403, body: { error: TAKEN } } : req.body.action === "state" ? { status: 200, body: clone(WON) } : server()(req) });
   await lt.crew.crewRename("Bonney Lake Skunk Works");
   dn = false;
   await lt.crew.flush();
   ok(lt.crew.failed().some((x) => x.kind === "crew_rename" && x.error === TAKEN) && (await lt.crew.pending()).count === 0, "a name that lost to someone else's is reported, not tried again", lt.crew.failed());
-  ok(lt.crew.cached().crew.name === "ZZTEST crew" && !lt.crew.cached().crew.waiting, "and the waiting name is gone from the screen");
+  ok(lt.fn().filter((a) => a === "state").length === 1, "and the crew is asked for once, straight after", lt.fn());
+  ok(lt.crew.cached().crew.name === "Plateau Pro Staff" && lt.crew.cached().crew.nameOpen === false && !lt.crew.cached().crew.waiting,
+    "so the waiting name is gone, and the phone has the name that stands, with naming closed", lt.crew.cached().crew);
+  // With no answer to that (the signal went again), what was saved stays, and nothing is lost.
+  let dn2 = true;
+  const sl2 = phoneStore(); signedIn(sl2); sl2.setItem("rig.crew.v1", JSON.stringify(OPEN));
+  const lt2 = tab({ store: sl2, net: (req) => dn2 ? DOWN : req.url === FN && req.body.action === "crew_rename" ? (dn2 = true, { status: 403, body: { error: TAKEN } }) : DOWN });
+  await lt2.crew.crewRename("Bonney Lake Skunk Works");
+  dn2 = false;
+  const f2 = await lt2.crew.flush();
+  ok(f2.dropped.length === 1 && (await lt2.crew.pending()).count === 0 && lt2.crew.cached().crew.name === "ZZTEST crew", "a refusal with no signal after it still ends the wait", f2);
 
   // The owner opens naming, or closes it. It needs a signal and is never queued.
   const so = phoneStore(); signedIn(so, { userId: "u-coach" });

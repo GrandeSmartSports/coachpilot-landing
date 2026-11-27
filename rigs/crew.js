@@ -932,6 +932,10 @@
           report(out, { clientId: e.clientId, kind: e.kind, tripId: e.tripId, error: j.error, status: j.status, at: nowIso(), userId: e.userId });
         }
         if (e.tripId) emit({ kind: "trip", tripId: e.tripId });
+        // A crew name that lost (someone named the crew first): what the phone
+        // saved still says naming is open, under the stand-in name. Ask what
+        // the crew is called now before going on, so neither ever shows.
+        if (!j.done && e.kind === "crew_rename" && j.status === 403) return freshState().then(next, next);
         return next();
       });
     }
