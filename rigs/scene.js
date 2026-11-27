@@ -1617,14 +1617,15 @@
       if (w.edgeZ != null) { var ye = w.P(p.water[0], w.wl, w.edgeZ)[1]; if (ye > y0) lad = Math.min(lad, ye - y0); }
       var steps = Math.round(clamp(lad / 3.2, 6, 26));
       for (var kk = 0; kk < steps; kk++) {
-        var qq = kk / steps, yk = y0 + lad * Math.pow(qq, 1.12), ww = Math.max(0.9, sc * (0.35 + qq * 1.1)) * (0.5 + rr() * 0.9), hk = Math.max(0.5, (lad / steps) * (0.28 + rr() * 0.3));
+        var qq = kk / steps, yk = y0 + lad * Math.pow(qq, 1.12), ww = Math.max(1.2, sc * (0.6 + qq * 1.7) * (0.7 + (w.wind == null ? 0.3 : w.wind))) * (0.5 + rr() * 0.9), hk = Math.max(0.6, (lad / steps) * (0.34 + rr() * 0.32));
         ps += '<rect x="' + n(wp[0] - ww / 2 + (rr() - 0.5) * sc * 0.35 * (1 + qq * 2)) + '" y="' + n(yk) + '" width="' + n(ww) + '" height="' + n(hk) + '" rx=".4" opacity="' + n((1 - qq * 0.7) * (0.62 + rr() * 0.38)) + '"/>';
       }
     }
     // the ladder lies on the water where the light falls: painted in its
     // place among the things, so piles beyond it stand behind it and the
     // near bents in front of it
-    if (ps) prims.push([dist(p.water[0], p.water[1]) - 0.3, '<g class="w-lampson"><g class="w-poolg">' + ps + "</g></g>"]);
+    // and the soft wash of its light on the water round the foot of the ladder
+    if (ps) prims.push([dist(p.water[0], p.water[1]) - 0.3, '<g class="w-lampson"><ellipse class="w-pool" cx="' + n(wp[0]) + '" cy="' + n(wp[1] + Math.min(lad, sc * 3) * 0.35) + '" rx="' + n(Math.min(110, sc * 4.6)) + '" ry="' + n(Math.min(26, Math.max(3, Math.min(lad, sc * 3) * 0.6))) + '" fill="url(#' + id + '-lamp)"/><g class="w-poolg">' + ps + "</g></g>"]);
     // over the beach (a low tide) its light lies on the sand instead
     else if (p.water) {
       var gp = w.P(p.water[0], w.foot(p.water[0], p.water[1]), p.water[1]), gs = w.px(1, p.water[0], p.water[1]);
