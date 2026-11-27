@@ -306,7 +306,9 @@ try {
     "and ticks the second");
   await drained(op);
   const sum = (await text(op, "[data-cw-list-sum]")).trim();
-  ok(sum === "1 of " + pick.gear.length + " packed. " + first(MEMBER_NAME) + " has 1, " + (pick.gear.length - 1) + " nobody.", "the list sums it up", sum);
+  ok(sum === "1 of " + pick.gear.length + " packed", "the list sums it up in its heading", sum);
+  ok(await count(op, "[data-cw-item] [data-cw-give]") === 0 && (await text(op, '[data-cw-who="' + items[0] + '"]')).trim() === first(MEMBER_NAME) && await op.locator('[data-cw-item="' + items[2] + '"]').count() === 1 && /nobody/i.test(await text(op, '[data-cw-item="' + items[2] + '"]')),
+    "and each line shows who has it: the member on the first, nobody on the rest", await text(op, "[data-cw-listbox]"));
   const afterList = await call(member.token, { action: "trip", tripId });
   const l0 = (afterList.body.list || []).find((i) => i.id === items[0]), l1 = (afterList.body.list || []).find((i) => i.id === items[1]);
   ok(l0 && l0.assignedTo && l0.assignedTo.id === member.id && l1 && l1.done === true && afterList.body.comments.length === 1 && afterList.body.comments[0].section === "gear" &&
@@ -323,6 +325,7 @@ try {
   const species = (await mp.locator("[data-cw-catch-species]").inputValue()).trim();
   await mp.locator("[data-cw-catch-len]").fill("9");
   await mp.locator("[data-cw-catch-note-in]").fill(MARK + ": no photo");
+  await settle(); // a person cannot fill the form inside the page's 400 ms double-tap window
   await mp.locator("[data-cw-catch-save]").click();
   ok(await until(async () => await count(mp, "[data-cw-catch]") === 1 && await count(mp, "[data-cw-catch][data-waiting]") === 0 && await count(mp, "[data-cw-catch-form]") === 0),
     "a fish with no photo is saved", await text(mp, "[data-cw-catchbox]"));
@@ -338,6 +341,7 @@ try {
   ok(await until(() => count(mp, "[data-cw-catch-preview]").then((n) => n === 1)), "the picked photo shows small before anything is sent");
   await mp.locator("[data-cw-catch-len]").fill("11.5");
   await mp.locator("[data-cw-catch-note-in]").fill(MARK + ": with a photo");
+  await settle(); // a person cannot fill the form inside the page's 400 ms double-tap window
   await mp.locator("[data-cw-catch-save]").click();
   ok(await until(async () => await count(mp, "[data-cw-catch]") === 2 && await count(mp, "[data-cw-catch][data-waiting]") === 0 && await count(mp, "[data-cw-catch-form]") === 0, 40000),
     "a fish with a photo is saved", await text(mp, "[data-cw-catchbox]"));
@@ -494,9 +498,10 @@ try {
   ok(Array.isArray(goneRows) && goneRows.length === 0, "the rows are gone from the member's CastAI catch log", goneRows);
   // The plain address, the very one that was just read above, so a cache in between has had its chance to keep a copy.
   let photoGone = null;
-  await until(async () => { photoGone = await photoStatus(photoUrl); return photoGone.status === 400 || photoGone.status === 404; }, 30000);
+  // Photos go up with a one minute cache, so a copy held in between lasts at most a minute.
+  await until(async () => { photoGone = await photoStatus(photoUrl); return photoGone.status === 400 || photoGone.status === 404; }, 90000);
   const photoFresh = await photoStatus(photoUrl, true);
-  ok(photoGone && (photoGone.status === 400 || photoGone.status === 404), "and the photo's public address no longer hands it out", { plain: photoGone, pastAnyCache: photoFresh });
+  ok(photoGone && (photoGone.status === 400 || photoGone.status === 404), "and within a minute the photo's public address no longer hands it out", { plain: photoGone, pastAnyCache: photoFresh });
   ok(photoFresh.status === 400 || photoFresh.status === 404, "asked past any cache, the store itself says it is gone", photoFresh);
   const noCatch = await call(owner.token, { action: "trip", tripId });
   ok(noCatch.status === 200 && noCatch.body.catches.length === 0, "the trip has no catches for anyone", noCatch.text.slice(0, 200));

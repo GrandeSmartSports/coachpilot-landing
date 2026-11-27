@@ -856,11 +856,11 @@ function server(log = []) {
   // The photo store says "jwt expired" with a 400. That is a token trouble,
   // not a bad photo: one fresh token, one more try, and the photo is kept.
   const st = phoneStore(); signedIn(st);
-  const log = []; let tokens = 0;
+  const log = [], storeHeads = []; let tokens = 0;
   const blob = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 1, 2, 3])], { type: "image/jpeg" });
   const t = tab({ store: st, net: (req) => {
     if (req.url.startsWith(AUTH + "/token")) { tokens++; return { status: 200, body: { access_token: "tok-2", refresh_token: "ref-2", expires_in: 3600 } }; }
-    if (req.url.startsWith(STORE)) { log.push(req.headers.Authorization); return req.headers.Authorization === "Bearer tok-2" ? { status: 200, body: { Key: "x" } } : { status: 400, body: { statusCode: "403", error: "Unauthorized", message: "jwt expired" } }; }
+    if (req.url.startsWith(STORE)) { log.push(req.headers.Authorization); storeHeads.push(req.headers); return req.headers.Authorization === "Bearer tok-2" ? { status: 200, body: { Key: "x" } } : { status: 400, body: { statusCode: "403", error: "Unauthorized", message: "jwt expired" } }; }
     if (req.url.startsWith(REST)) { log.push(req.body); return { status: 201, raw: "" }; }
     return server()(req);
   } });
@@ -870,6 +870,8 @@ function server(log = []) {
     : { getContext: () => ({ drawImage() {} }), toBlob: (cb) => cb(blob) };
   t.root.URL = { createObjectURL: () => "blob:x", revokeObjectURL() {} };
   const c = await t.crew.catch("t1", { species: "Squid", photo: blob });
+  ok(storeHeads.length >= 1 && storeHeads.every((h) => h["cache-control"] === "max-age=60"),
+    "a catch photo goes up with a one minute cache, so a deleted photo stops showing within a minute", storeHeads.map((h) => h["cache-control"]));
   ok(c.ok && !c.queued && !c.photoFailed && tokens === 1 && log[0] === "Bearer tok-1" && log[1] === "Bearer tok-2", "a photo refused over the token goes again with a fresh one", { c, tokens, log: log.slice(0, 2) });
   ok(log[2] && /catch-photos\/u-russ\//.test(log[2].photo_url || ""), "and the catch keeps its photo", log[2]);
 

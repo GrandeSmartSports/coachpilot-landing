@@ -837,7 +837,8 @@
     function saved(step) { rec.step = step; return box("readwrite", function (s) { return s.put(rec); }).then(function () { return { done: true }; }); }
     if (!rec.step && rec.photo) {
       start = authed(function (token) {
-        return http("PUT", BASE + path, rec.photo, { Authorization: "Bearer " + token, "Content-Type": "image/jpeg", "x-upsert": "true" }, limit() * 5);
+        // A one minute cache: a photo its owner deletes stops showing within a minute.
+        return http("PUT", BASE + path, rec.photo, { Authorization: "Bearer " + token, "Content-Type": "image/jpeg", "x-upsert": "true", "cache-control": "max-age=60" }, limit() * 5);
       }, tokenTrouble).then(function (r) {
         // Still a token trouble after a fresh one: wait, do not lose the photo over it.
         if (!r.signedOut && !r.offline && tokenTrouble(r)) return { stop: "later" };
