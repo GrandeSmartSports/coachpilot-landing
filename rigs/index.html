@@ -1475,7 +1475,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (tab === "water") return types().filter(function (t) { return spotsOfType(t.id).length; })
       .map(function (t) { return chip("data-type", t.id, t.label, active); }).join("");
     if (tab === "fish") return species().map(function (sp) { return chip("data-species", sp.id, sp.name, active); }).join("");
-    if (tab === "learn") return LIB_SECS.map(function (x) { return chip("data-sec", x[0], x[1], active); }).join("") +
+    if (tab === "learn") return libSecs().map(function (x) { return chip("data-sec", x[0], x[1], active); }).join("") +
       learnSections().map(function (n) { return chip("data-sec", n.toLowerCase(), n, active); }).join("");
     return "";
   }
@@ -1729,11 +1729,12 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var names = every.filter(function (n) { return n.toLowerCase() === sec; });
     var one = names.length === 1;
     if (!one) names = every;
-    // Home: the library's four parts as picture tiles across the waterline,
-    // what to tie first, then the app's own courses and a short Start here.
+    // Home: the library's parts that are switched on (LIB_READY) as picture
+    // tiles across the waterline, what to tie first, then the app's own
+    // courses and a short Start here.
     // A course on its own: its cards, in the card that crosses the waterline.
     var L = lib();
-    var tiles = one ? "" : '<div class="ptiles ltiles" data-learn-tiles>' + LIB_SECS.map(function (x) {
+    var tiles = one ? "" : '<div class="ptiles ltiles" data-learn-tiles>' + libSecs().map(function (x) {
       var n = L ? libCount(x[0]) : null;
       return '<a class="ptile" href="#/learn/' + x[0] + '" data-sec-tile="' + x[0] + '">' + libPic(x[0]) +
         '<span class="cap"><span class="nm">' + esc(x[1]) + '</span><span class="meta">' + (n === null ? "&nbsp;" : esc(n)) + "</span></span></a>";
@@ -1759,7 +1760,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("learn", one ? sec : "", LEARN_SCENE[sec] || "lake") +
       '<div data-view="learn">' + (one
         ? heroHtml({ title: names[0], back: { href: "#/learn", text: "Learn" }, chips: '<span class="chip"><b>' + n1 + (n1 === 1 ? " card" : " cards") + "</b></span>" })
-        : headHtml("Learn", "Knots, casts and guides", "Step by step, with video.")) +
+        : headHtml("Learn", LIB_READY.guides ? "Knots, casts and guides" : "Knots and casts", "Step by step, with video.")) +
         tiles + first + courses + body + "</div>" + tripBarHtml();
   }
 
@@ -1770,6 +1771,13 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // it asks for it at once.
   var LIB_SECS = [["knots", "Knots"], ["casting", "Casting"], ["guides", "Guides"], ["gear", "Gear"]];
   var LIB_SEC = { knots: 1, casting: 1, guides: 1, gear: 1 };
+  // THE SWITCH: which parts of the library a person can open. The guides,
+  // the gear and a fish's "About the fish" wait for a Washington rewrite
+  // (CastAI's teach minnows as bait and send you to rivers that are closed).
+  // While false, their tile, their dock chip and their pages are gone, and a
+  // link to one lands on Learn. Their words stay in rigs/library.js.
+  var LIB_READY = RIG.libReady = { knots: true, casting: true, guides: false, gear: false, about: false };
+  function libSecs() { return LIB_SECS.filter(function (x) { return LIB_READY[x[0]]; }); }
   var libWait = false, libFailed = false, libMemo = { src: null, cards: [] };
   function lib() { return RIG.library || null; }
   function isLibId(id) { return /^lib-/.test(id); }
@@ -2024,7 +2032,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   }
   // A fish's page: what CastAI knows about it, where it is true here.
   function aboutHtml(speciesId) {
-    var L = lib(), f = L && L.fish && L.fish[speciesId];
+    var L = LIB_READY.about && lib(), f = L && L.fish && L.fish[speciesId];
     if (!f) return "";
     return '<section class="grp" data-about="' + esc(f.from) + '"><h2 class="sect">About the fish</h2><div class="panel about">' +
       (f.text ? "<p>" + esc(f.text) + "</p>" : "") +
@@ -5909,6 +5917,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var parts = (location.hash || "").replace(/^#\/?/, "").split("/").filter(Boolean);
 
     if (parts[0] === "learn") {
+      if (parts[1] && LIB_SEC[parts[1]] && !LIB_READY[parts[1]]) { location.replace("#/learn"); return; }
       if (parts[1] && LIB_SEC[parts[1]]) { renderLib(parts[1], parts[2] ? decodeURIComponent(parts[2]) : "", parts[3] ? decodeURIComponent(parts[3]) : ""); return; }
       var fc = parts[1] && fundamentals().filter(function (c) { return c.id === parts[1]; })[0];
       if (fc) {

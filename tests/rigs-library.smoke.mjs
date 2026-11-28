@@ -1,8 +1,12 @@
 // CastAI's library on the Learn tab, in a browser.
 // Run: node tests/rigs-library.smoke.mjs
 //
-// What this guards: Learn opens on its four parts (Knots, Casting, Guides,
-// Gear) as picture tiles across the waterline, with what to tie first; the
+// What this guards: Learn opens on the parts the switch has on (LIB_READY
+// in rigs/index.html: Knots and Casting) as picture tiles across the
+// waterline that fill their row, with what to learn first; the guides, the
+// gear and a fish's About are held for a Washington rewrite, so they have no
+// tile, no chip and no page, and a link to one (opened in the app or from
+// cold) lands on Learn; switched on, they still render as below; the
 // knot list leads with the four for this week and groups the rest by what
 // they join; every knot card and every cast card renders its steps (or the
 // app's own drawing), the mistake that makes it fail and its checked video;
@@ -61,13 +65,24 @@ try {
   }, sel);
   const sceneKind = () => page.evaluate(() => document.getElementById("scene").getAttribute("data-scene"));
 
-  // ---- Learn: the four parts ---------------------------------------------
+  // ---- Learn: the parts the switch has on ----------------------------------
   await sky("overcast", "#/learn");
   await page.waitForFunction(() => /33 knots/.test(document.querySelector('[data-sec-tile="knots"] .meta')?.textContent || ""));
+  const READY = await page.evaluate(() => ({ ...RIG.libReady })), ALL = { knots: true, casting: true, guides: true, gear: true, about: true };
+  const setReady = (r) => page.evaluate((x) => { Object.assign(RIG.libReady, x); }, r);
+  const ON = ["knots", "casting", "guides", "gear"].filter((x) => READY[x]), OFF = ["guides", "gear"].filter((x) => !READY[x]);
+  ok(READY.knots && READY.casting && !READY.guides && !READY.gear && !READY.about, "the switch: knots and casts on; the guides, the gear and a fish's About held for a Washington rewrite", READY);
   const tiles = await page.evaluate(() => [...document.querySelectorAll("[data-learn-tiles] [data-sec-tile]")].map((t) => ({ id: t.dataset.secTile, nm: t.querySelector(".nm").textContent, meta: t.querySelector(".meta").textContent, shapes: t.querySelectorAll(".pic svg *").length })));
-  ok(tiles.map((t) => t.id).join() === "knots,casting,guides,gear" && tiles.every((t) => t.shapes >= 8 && /\d/.test(t.meta)),
-    "the Learn tab shows the four groups, Knots, Casting, Guides and Gear, each a picture tile with its count", tiles);
+  ok(tiles.map((t) => t.id).join() === ON.join() && tiles.every((t) => t.shapes >= 8 && /\d/.test(t.meta)),
+    "the Learn tab shows " + ON.join(" and ") + ", each a picture tile with its count, and no tile for " + OFF.join(" or "), tiles);
+  const fill = await page.evaluate(() => {
+    const box = document.querySelector("[data-learn-tiles]").getBoundingClientRect(), t = [...document.querySelectorAll("[data-learn-tiles] .ptile")].map((e) => e.getBoundingClientRect());
+    const last = t.filter((r) => Math.round(r.top) === Math.round(t[t.length - 1].top));
+    return { rows: new Set(t.map((r) => Math.round(r.top))).size, left: Math.round(Math.min(...last.map((r) => r.left)) - box.left), right: Math.round(box.right - Math.max(...last.map((r) => r.right))), tall: t.every((r) => r.height > 60) };
+  });
+  ok(fill.rows === Math.ceil(ON.length / 2) && Math.abs(fill.left) <= 1 && Math.abs(fill.right) <= 1 && fill.tall, "and they fill their row: no empty space where Guides and Gear were", fill);
   ok(await crosses("[data-learn-tiles] .ptile"), "and they cross the waterline");
+  ok(await page.textContent(".hero h1") === "Knots and casts", "the Learn title names what is there, not guides", await page.textContent(".hero h1"));
   const first = await page.evaluate(() => [...document.querySelectorAll("[data-learn-first] .row")].map((r) => r.dataset.knot || r.dataset.cast));
   ok(first.join() === "arbor-knot,double-uni,palomar,dropper-loop,pendulum-cast", "Learn these first: arbor, double uni, Palomar, dropper loop, and the pier swing", first);
   ok(/^Learn these first/.test(await page.textContent("[data-learn-first] .sect")), "and the heading says learn, since the pier swing is not tied");
@@ -75,7 +90,35 @@ try {
   ok(lv.every((r) => /^(Easy|Medium|Tricky|Hard)$/.test(r.lv) && !/video/i.test(r.any)), "each row carries its level as a tinted badge, and no \"1 video\" pill", lv);
   ok(await page.locator("[data-course-tile]").count() === 3, "the app's own courses (Rods, Kayak, Fly) are still there");
   const jump = await page.evaluate(() => [...document.querySelectorAll(".dock .jump [data-sec]")].map((c) => c.dataset.sec));
-  ok(jump.slice(0, 4).join() === "knots,casting,guides,gear" && jump.includes("rods") && !jump.includes("knots", 1), "the filter row under the dock leads with the four parts", jump);
+  ok(jump.slice(0, ON.length).join() === ON.join() && !OFF.some((x) => jump.includes(x)) && jump.includes("rods") && !jump.includes("knots", 1), "the filter row under the dock leads with " + ON.join(" and ") + ", no chip for " + OFF.join(" or "), jump);
+
+  // ---- held back: no page, and a link lands on Learn -------------------------
+  const HELD = ["#/learn/guides", "#/learn/guides/salmon", "#/learn/guides/salmon/salmon-species", "#/learn/guides/salmon/regulations", "#/learn/gear", "#/learn/gear/budget/budget-50"];
+  const GONE = '[data-lib="guides"],[data-lib="guide"],[data-lib="gear"],[data-guide-tile],.gitem,[data-rules-pointer],[data-sec-tile="guides"],[data-sec-tile="gear"],.jump [data-sec="guides"],.jump [data-sec="gear"],[data-about]';
+  const leaked = [];
+  for (const h of HELD) {
+    await page.evaluate((x) => { location.hash = "#/crew"; location.hash = x; }, h);
+    await page.waitForFunction(() => location.hash === "#/learn" && document.querySelector("[data-learn-tiles] [data-sec-tile]"));
+    await page.waitForTimeout(60);
+    const n = await page.evaluate((q) => document.querySelectorAll(q).length, GONE);
+    if (n || await page.evaluate(() => location.hash) !== "#/learn") leaked.push(h + " " + n);
+  }
+  ok(leaked.length === 0, "a link to a held-back guide or gear part lands on the Learn tab, with no guide or gear on it", leaked);
+  const cold = await ctx.newPage();
+  await cold.clock.setFixedTime(NOW);
+  await cold.goto(`http://127.0.0.1:${PORT}/rigs/#/learn/guides/salmon/salmon-species`, { waitUntil: "load" });
+  await cold.waitForFunction(() => location.hash === "#/learn" && document.querySelector("[data-learn-tiles] [data-sec-tile]"));
+  ok(await cold.evaluate((q) => document.querySelectorAll(q).length, GONE) === 0 && await cold.locator('[data-tab="learn"][aria-selected="true"]').count() === 1,
+    "opened from cold, a held-back guide's link lands on the Learn tab too");
+  await cold.close();
+  const abouts = [];
+  for (const id of await page.evaluate(() => Object.keys(RIG.library.fish))) {
+    await go("#/" + id, '[data-view="species"]');
+    await page.waitForTimeout(60);
+    const a = await page.evaluate(() => ({ n: document.querySelectorAll("[data-about]").length, said: /About the fish/.test(document.querySelector('[data-view="species"]').textContent) }));
+    if (a.n || a.said) abouts.push(id);
+  }
+  ok(abouts.length === 0, "no fish's page shows About the fish while it is held back", abouts);
 
   // ---- the knots -------------------------------------------------------------
   await go("#/learn/knots", '[data-lib="knots"] [data-knot-first] .row');
@@ -128,7 +171,9 @@ try {
   }
   ok(cbad.length === 0, "each of the 13 cast cards renders its steps, where it fails and its checked video", cbad.slice(0, 3));
 
-  // ---- guides and gear -------------------------------------------------------
+  // ---- guides and gear, switched on --------------------------------------------
+  // Held back, not gone: switched on, they still render.
+  await setReady(ALL);
   await go("#/learn/guides", "[data-guide-tiles] [data-guide-tile]");
   await page.waitForSelector('[data-guide-tile="unhooking"] .pic[data-plate]');
   const gt = await page.evaluate(() => [...document.querySelectorAll("[data-guide-tile]")].map((t) => {
@@ -163,11 +208,12 @@ try {
   await go("#/learn/gear/budget/budget-50", '[data-view="card"] .gitem');
   ok(/starter kit/i.test(await page.textContent(".hero h1")), "a gear section opens");
 
-  // ---- a fish's page, a rig's knot, a trip -------------------------------------
+  // ---- a fish's page (switched on), a rig's knot, a trip ---------------------------
   await go("#/coho/green-river", '[data-about="coho-salmon"]');
   const ab = await page.evaluate(() => { const a = document.querySelector("[data-about]"); return { text: a.textContent, lures: a.querySelectorAll(".lures .tag").length }; });
   ok(/jump when hooked/i.test(ab.text) && ab.lures >= 3 && /Did you know\?/.test(ab.text) && !/Silvers/.test(ab.text) && /by smell/.test(ab.text),
     "a fish's page gains what the fish is, in the Rig Card's words, where it lives, lures and a checked fact", ab);
+  await setReady(READY);
   await go("#/coho/green-river/salmon-float-eggs-build", '[data-view="card"] .card a.k[data-knot-link]');
   const kk = await page.evaluate(() => [...document.querySelectorAll("a.k[data-knot-link]")].map((a) => a.dataset.knotLink));
   ok(kk.includes("improved-clinch") && kk.includes("egg-loop-knot"), "a knot named in a rig's steps opens its card", kk);
@@ -182,12 +228,14 @@ try {
 
   // ---- every word can be read --------------------------------------------------
   const openPart = async () => { await page.click(".gitem:nth-child(2) > summary"); await page.click(".gitem[open] .gmore > summary"); await page.waitForSelector(".gitem[open] .gmore[open] p"); };
+  // (the guide screens with the switch on, the rest as it is set)
   const SCREENS = [["a knot card", "#/learn/knots/double-uni", '[data-card="lib-knot-double-uni"]'], ["a cast card", "#/learn/casting/pendulum-cast", '[data-card="lib-cast-pendulum-cast"]'],
-    ["a guide section", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem'],
-    ["a guide part opened, its More open", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem', openPart],
-    ["the rules page", "#/learn/guides/salmon/regulations", "[data-rules-pointer] .chip"], ["the Learn tab", "#/learn", "[data-learn-first] .row"]];
-  for (const [name, hash, sel, then] of SCREENS) {
+    ["a guide section", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem', null, true],
+    ["a guide part opened, its More open", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem', openPart, true],
+    ["the rules page", "#/learn/guides/salmon/regulations", "[data-rules-pointer] .chip", null, true], ["the Learn tab", "#/learn", "[data-learn-first] .row"]];
+  for (const [name, hash, sel, then, on] of SCREENS) {
     const worst = [];
+    await setReady(on ? ALL : READY);
     for (const id of SKIES) {
       await sky(id, hash);
       await page.waitForSelector(sel);

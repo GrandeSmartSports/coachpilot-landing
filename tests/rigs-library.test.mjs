@@ -12,7 +12,13 @@
 //     repeat); the four knots for this week first; the pendulum cast first,
 //     said as the pier swing; the knots the review found wrong tie right
 //   - the words: no hype, no sentence that starts small, no numbered list
-//     with a gap, no method that is illegal in Washington freshwater
+//     with a gap, no method that is illegal in Washington freshwater in what
+//     a person can open with the switch as set (LIB_READY in rigs/index.html):
+//     no minnow or other live fish as bait (a lure or fly named Minnow is
+//     fine), no one angler fishing two rods; and a self test that proves the
+//     guard sees each of those
+//   - the switch: the knots and casts are on; the guides, the gear and a
+//     fish's About wait for a Washington rewrite, their words still here
 //   - a guide's part opens on at most two sentences; the rest waits behind More
 //   - rules are never imported as fact: no limit, season, size, license or
 //     closure line in it, and the salmon guide's rules section is a link
@@ -94,12 +100,52 @@ const gaps = words.filter((w) => {
 ok(gaps.length === 0, "no numbered list with a gap", gaps.slice(0, 2));
 const ranges = words.filter((w) => /\d\s?-\s?\d/.test(w) && !/\d{3}-\d{4}/.test(w));
 ok(ranges.length === 0, "a range reads \"2 to 4\", not \"2-4\"", ranges.slice(0, 3));
-// Washington freshwater: no live fish as bait (with listed exceptions), hook
-// and line only, one line per angler. None of these may be taught.
-const NOT_WA = /\b(live (minnows?|shiners?|shad|bluegill|baitfish|suckers?|chubs?)|jug lines?|limb lines?|spider rig\w*|cast[- ]nets?|tip-?ups?|2-4 rods|run (2|two|several|multiple) rods)\b/i;
-// (the 121 fish CastAI knows are kept as data; the Fish tab shows nine, in L.fish)
-const illegal = strings({ knots: L.knots, casts: L.casts, guides: L.guides, gear: L.gear, fish: L.fish }).filter((w) => NOT_WA.test(w));
-ok(illegal.length === 0, "no method that is illegal in Washington freshwater (live fish bait, jug and limb lines, spider rigs, cast nets, tip-ups, several rods)", illegal.slice(0, 3));
+// THE SWITCH (rigs/index.html): which parts of the library a person can open.
+const html = readFileSync(join(RIGS, "index.html"), "utf8");
+const sw = html.match(/var LIB_READY = RIG\.libReady = (\{[^}]*\});/);
+const READY = sw ? vm.runInNewContext("(" + sw[1] + ")") : {};
+ok(sw && Object.keys(READY).sort().join() === "about,casting,gear,guides,knots" && READY.knots === true && READY.casting === true,
+  "the switch is in rigs/index.html, one line, and the knots and casts are on", READY);
+ok(!READY.guides && !READY.gear && !READY.about && L.guides.length && L.gear.length && Object.keys(L.fish).length,
+  "the guides, the gear and a fish's About wait for a Washington rewrite, and their words are still in rigs/library.js", READY);
+// What a person can open with the switch as set.
+const visible = strings({ knots: L.knots, casts: L.casts, groups: [L.knotGroups, L.castGroups], line: L.firstKnotsLine,
+  guides: READY.guides ? L.guides : [], gear: READY.gear ? L.gear : [], fish: READY.about ? L.fish : {} });
+// Washington freshwater: no live fish as bait, hook and line only, one line
+// per angler. None of these may be taught.
+//   - a minnow, any way it is said, is bait, unless it is a lure or a fly
+//     named for one (Laser Minnow, Clouser Minnow), a minnow plug or pattern,
+//     or what a lure looks like ("darts like a dying minnow")
+//   - any fish said to be live, used as bait
+//   - one angler with two rods out: "set up two rods", "run one rod with...
+//     and one rod with...", "put out a second rod"
+const LURE_MINNOW = /\b(laser|clouser|muddler|countdown|floating|jointed|husky|shad|rapala|deep diving|original) minnows?\b|\bminnow[- ](plugs?|patterns?|imitat\w*|shaped|style|profile)\b|\b(like|imitat\w*|resembl\w*|mimic\w*|as) an? (\w+ )?minnow\b/gi;
+const MINNOW = /\bminnows?\b/i;
+const LIVE_FISH = /\blive (minnows?|shiners?|shad|bluegills?|sunfish|perch|baitfish|bait ?fish|suckers?|chubs?|sculpins?|dace|herring|smelt|goldfish|alewives?|bullheads?|carp)\b|\blive fish (as|for) bait\b/i;
+const TWO_RODS = /\b(set(ting)? up|set(ting)? out|run(ning)?|fish(ing)?|us(e|ing)|put(ting)? out|rig(ging)?) (2|two|three|several|multiple|both|extra|a couple( of)?|a pair of) (rods|poles|lines)\b|\b(2|two|several|multiple) (rods|poles|lines) (out|in the water)\b|\b(put|set|run|have) out (a )?(second|another|an extra) (rod|pole|line)\b|\bone rod\b[^.]*\b(and|while|plus) (one|another|the other|a second) rod\b|\b\d\s?(-|to)\s?\d rods\b/i;
+const OTHER = /\b(jug lines?|limb lines?|spider rig\w*|cast[- ]nets?|tip-?ups?)\b/i;
+function notWA(w) {
+  if (MINNOW.test(w.replace(LURE_MINNOW, ""))) return "minnow as bait";
+  if (LIVE_FISH.test(w)) return "live fish as bait";
+  if (TWO_RODS.test(w)) return "two rods";
+  if (OTHER.test(w)) return "not legal gear";
+  return "";
+}
+const illegal = visible.filter(notWA);
+ok(visible.length > 300 && illegal.length === 0, "nothing a person can open teaches a method that is illegal in Washington freshwater: no minnow or other live fish as bait, no one angler with two rods, no jug or limb lines, spider rigs, cast nets or tip-ups (" + visible.length + " lines checked)",
+  illegal.slice(0, 4).map((w) => notWA(w) + ": " + w.slice(0, 160)));
+// The self test: the lines the check of the guides found, and the lure and
+// fly names, so the guard is known to see each kind.
+const CAUGHT = ["Try switching to a plain minnow on a small hook under a slip float. Let the minnow do the work.", "Small minnows on a tight-line rig", "Jigs tipped with minnows, blade baits, and crankbaits",
+  "Jig and minnow combos, blade baits, and live bait rigs", "jig and minnow under a float is classic", "minnows outfish jigs when the bite is tough", "Small jig with minnow", "Fish a live shiner under a bobber",
+  "Use live baitfish", "Set up two rods. One with cut shad on the bottom", "Run one rod with a glow flasher and hoochie, and one rod with a chrome flasher", "Put out a second rod near the bank", "Run 2 to 4 rods off the back"];
+const PASSED = ["P-Line Laser Minnow", "Clouser Minnow (size 4 to 8). Weighted fly that dives", "Use Clouser Minnows, small baitfish patterns, and shrimp flies", "crankbaits and minnow plugs",
+  "Twitch it and it darts like a dying minnow", "A bigger fly that imitates a minnow", "A live fish with a hook inside beats a dead fish with a hook removed", "Joining two lines of similar diameter", "Overlap the two lines by about 6 inches",
+  "One rod is perfect for your first year", "Perfect for live bait, kids learning to fish"];
+const missed = CAUGHT.filter((w) => !notWA(w)), wrongly = PASSED.filter(notWA);
+ok(missed.length === 0 && wrongly.length === 0, "self test: the guard catches minnows and live fish as bait and two rods, and lets lure and fly names pass", { missed, wrongly });
+const held = strings({ guides: L.guides, gear: L.gear, fish: L.fish }).filter(notWA);
+console.log("note  held back by the switch, the guard would stop " + held.length + " lines of the guides, the gear and the fish pages");
 
 // ---- videos ----------------------------------------------------------------------
 const FIX = JSON.parse(readFileSync(join(ROOT, "tests/fixtures/castai-videos.json"), "utf8"));
@@ -138,7 +184,7 @@ const hands = ["knot-improved-clinch", "knot-non-slip-loop"].every((id) => C.fun
 ok(hands, "and their drawn cards are still in the app");
 ok(L.casts[0].id === "pendulum-cast" && /pier swing/i.test(L.casts[0].line), "the pendulum cast comes first, and its line calls it the pier swing", L.casts[0]);
 const uni = L.knots.find((k) => k.id === "uni");
-ok(/8 wraps on braid/.test(uni.tip), "the uni knot's braid wraps are corrected (more on braid, not fewer)", uni.tip);
+ok(/8 on braid/.test(uni.steps.join(" ")) && /8 wraps/.test(uni.fails) && !/fewer/i.test(JSON.stringify(uni)), "the uni knot's braid wraps are corrected (more on braid, not fewer), in its steps and its red box", [uni.steps[3], uni.fails, uni.tip]);
 const egg = L.knots.find((k) => k.id === "egg-loop-knot") || { about: "", steps: [], fails: "" };
 ok(!/fly/i.test(egg.about) && /shank/.test(egg.steps.join(" ")), "the egg loop is a bait snell on the shank, not a fly knot", egg.about);
 ok(/wrap the long end/i.test(egg.steps.join(" ")) && /opposite way/i.test(egg.steps.join(" ")) && /push a little line back through the eye/i.test(egg.steps.join(" ")) && /long end/i.test(egg.fails),
@@ -161,8 +207,14 @@ ok(/braid/i.test(arbor.tip || ""), "the arbor knot warns that braid spins on a b
 ok(/palomar/i.test((L.knots.find((k) => k.id === "improved-clinch") || {}).fails || ""), "the improved clinch card says: on braid, tie a Palomar");
 const riverBraid = ["salmon-float-eggs-build", "salmon-corky-build"].map(cardById).map((c) => ((c && c.body.match(/<li>Tie the main line to[^]*?<\/li>/)) || [""])[0]);
 ok(riverBraid.length === 2 && riverBraid.every((x) => /Palomar/.test(x)), "the river rigs tie the 30 lb braid main line to the swivel with a Palomar", riverBraid);
-const said = L.knots.filter((k) => k.tip && k.tip.split(/[.?]/).some((x) => x.trim().length > 12 && k.fails.includes(x.trim())));
-ok(said.length === 0, "no card says its red box twice", said.map((k) => k.id));
+// "Says it again": a third of the shorter line's words are in the other (the
+// uni's tip said its braid wraps, the Davy's its Palomar, the Alberto's its
+// side by side wraps, each in other words).
+const STOPW = new Set("the and you your for with that this then than from not are its into out off but can will just one two all any get got has have".split(" "));
+const wset = (s) => new Set(norm(s).split(" ").filter((w) => w.length > 2 && !STOPW.has(w)).map((w) => w.replace(/(ing|ed|es|s)$/, "")));
+const share = (a, b) => { const A = wset(a), B = wset(b); let n = 0; A.forEach((w) => { if (B.has(w)) n++; }); return A.size && B.size ? n / Math.min(A.size, B.size) : 0; };
+const said = L.knots.filter((k) => k.tip && (share(k.tip, k.fails) >= 1 / 3 || k.tip.split(/[.?]/).some((x) => x.trim().length > 12 && k.fails.includes(x.trim()))));
+ok(said.length === 0 && ["uni", "davy-knot", "alberto-knot"].every((id) => !L.knots.find((k) => k.id === id).tip), "no card says its red box twice, not even in other words (the uni, the Davy and the Alberto say it once)", said.map((k) => k.id + ": " + k.tip));
 
 // ---- guides and gear ----------------------------------------------------------------
 ok(L.guides.length === 6 && L.gear.length === 2, "six guides and two gear parts", L.guides.map((g) => g.id));

@@ -324,15 +324,18 @@ const SUBJECT = {
 // A card's red "where it fails" box is the Rig Card's own line. When CastAI's
 // tip (or one of a cast's mistakes) says the same thing, it goes: a card
 // says a thing once. "Same": half the shorter line's words are in the other.
+// A knot's tip is held to a third: a tip that puts the red box in other words
+// (the uni's braid wraps, the Davy's Palomar, the Alberto's side by side
+// wraps) is still the red box said again.
 const STOPW = new Set("the and you your for with that this then than from not are its into out off but can will just one two all any get got has have".split(" "));
 const stem = (w) => w.replace(/(ing|ed|es|s)$/, "");
 const words = (s) => new Set(norm(s).split(" ").filter((w) => w.length > 2 && !STOPW.has(w)).map(stem));
-function sameAs(a, b) {
+function sameAs(a, b, share = 0.5) {
   const A = words(a), B = words(b);
   if (!A.size || !B.size) return false;
   let n = 0;
   A.forEach((w) => { if (B.has(w)) n++; });
-  return n / Math.min(A.size, B.size) >= 0.5;
+  return n / Math.min(A.size, B.size) >= share;
 }
 const said = []; // what the import dropped as said twice, for --said
 
@@ -357,7 +360,7 @@ const knots = data.FishingKnots.map((k0) => {
   if (k.youtubeVideoId) wanted.push({ id: k.youtubeVideoId, subject: subj.source, where: "knot " + k.id });
   const r = (f) => unrule("FishingKnots › " + k.id + " › " + f, voice(k[f])).text;
   let tip = r("tips");
-  if (tip && sameAs(tip, v.fails)) { said.push("knot " + k.id + " tip: " + tip); tip = ""; }
+  if (tip && sameAs(tip, v.fails, 1 / 3)) { said.push("knot " + k.id + " tip: " + tip); tip = ""; }
   return {
     id: k.id, name: v.name, castai: k.name, joins: v.joins, level: k.difficulty, line: v.line,
     about: r("description"), best: v.best || r("bestFor"), steps: k.steps.map(strip), fails: v.fails, tip,
