@@ -99,8 +99,26 @@ try {
     await page.locator('[data-sec-row="wx"]').innerText());
   ok(/10 pounds or 5 quarts/.test(await page.locator('[data-sec-row="rules"]').innerText()), "the rules row leads with the limit", await page.locator('[data-sec-row="rules"]').innerText());
   ok(/Leave by 4:10 PM/.test(await page.locator('[data-sec-row="plan"]').innerText()), "the plan headline says when to leave");
-  const words = await page.evaluate(() => document.querySelector('[data-view="hot"]').innerText.split(/\s+/).length);
-  ok(words < 340, "the run card overview is headlines, not an essay", words);
+  // The read is the first card: the answer, why, a picture of the hours and
+  // a few labelled lines, built from this trip's own tide and weather.
+  const read = await page.evaluate(() => {
+    const r = document.querySelector('[data-view="hot"] [data-read]'), hero = document.querySelector('[data-view="hot"] > .hero');
+    let first = hero.nextElementSibling; while (first && !first.offsetHeight) first = first.nextElementSibling;
+    return r ? { first: first === r, plan: r.nextElementSibling === document.querySelector('[data-sec-row="plan"]'), head: r.querySelector("[data-read-headline]").textContent,
+      why: (r.querySelector("[data-read-reason]") || {}).textContent || "", fig: r.querySelectorAll("[data-read-fig] svg path").length,
+      lines: [...r.querySelectorAll("[data-read-line]")].map((l) => l.querySelector("dt").textContent + ": " + l.querySelector("dd").textContent) } : null;
+  });
+  ok(read && read.first && read.plan, "the run card opens with the read, the plan right under it", read);
+  ok(read && read.head === "Go, best 5:00 to 6:30 PM" && read.why === "High slack 5:15 PM, right at dark. Leave by 4:10 PM, 35 min drive.",
+    "the read's first line is the answer, then why, and when to leave", read && read.head + " | " + read.why);
+  ok(read && read.fig >= 2 && read.lines.length === 2 && read.lines[0] === "Rain: Dry." &&
+    /^Or: Des Moines: same tide and weather, 5\smin farther, outlets at the end for your light\.\s*Pick: Redondo, the closest\.$/.test(read.lines[1]),
+    "then the tide curve, the rain and the other squid piers with a pick; the tide and the wind are the tile's, what to expect is its row's", read && read.lines.join(" | "));
+  const leaveSeen = await page.evaluate(() => { const b = document.querySelector('[data-sec-row="plan"] .planhead').getBoundingClientRect(); return { bottom: Math.round(b.bottom), h: innerHeight }; });
+  ok(leaveSeen.bottom <= leaveSeen.h, "THE PLAN's Leave by is still on the first screen, under the read", leaveSeen);
+  const words = await page.evaluate(() => { const v = document.querySelector('[data-view="hot"]'), r = v.querySelector("[data-read]"), n = (e) => e.innerText.split(/\s+/).length;
+    return { rest: n(v) - (r ? n(r) : 0), read: r ? n(r) : 0 }; });
+  ok(words.rest < 340 && words.read < 140, "the run card overview is headlines, not an essay, and so is its read", words);
   // Each headline row says one thing on one line, in whole words.
   const rowLines = await page.locator('[data-view="hot"] > .list [data-sec-row] .tx > span').allInnerTexts();
   ok(rowLines.join(" | ") === "Market squid under the pier lights after dark | Two squid jigs, 2.0 to 2.5, early in the season | Stand where you can drop straight down | Redondo Pier, Des Moines | A crowded rail on good nights",

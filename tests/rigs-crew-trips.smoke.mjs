@@ -175,7 +175,8 @@ try {
     const p = await open(ctx, base);
     await p.waitForSelector("[data-call] [data-call-go]");
     ok((await text(p, "[data-call-headline]")).trim() === "Thursday evening. Razor clams, Copalis and Mocrocks.", "the call says when and what, in plain words", await text(p, "[data-call-headline]"));
-    ok((await text(p, "[data-call-why]")).trim() === "WDFW dig at Copalis, light wind.", "then one line of why, from that trip's own reasons", await text(p, "[data-call-why]"));
+    ok((await text(p, "[data-call-why]")).trim() === "Best 5:35 to 6:35 PM. WDFW dig at Copalis, low 7:35 PM, -1.8 ft.",
+      "then one line of why: the trip's own read, its best hours (1 to 2 hours before the low) and its reason, in the same words, and no second Go under the Hot tag", await text(p, "[data-call-why]"));
     ok((await text(p, "[data-call-leave]")).trim() === "Leave by 2:50 PM.", "then the next step: when to leave", await text(p, "[data-call-leave]"));
     ok(/^See the plan$/i.test((await text(p, "[data-call-go]")).trim()), "and one button: See the plan");
     const same = await p.evaluate(() => {
@@ -433,12 +434,89 @@ try {
     await p.waitForFunction(() => /pick/i.test(document.querySelector("[data-cw-new-msg]")?.innerText || ""));
     ok(calls.fn.filter((b) => b.action === "trip_create").length === 0, "with nothing picked it says so and sends nothing");
 
+    // Tapping a trip in the What list opens its read right under it, one at
+    // a time, with the way to its full run card.
+    await p.locator('[data-cw-day="2026-11-28"]').click();
+    await p.waitForFunction(() => document.querySelectorAll("[data-cw-pickplan]").length >= 2);
+    const rowIds = await p.locator("[data-cw-pickplan]").evaluateAll((els) => els.map((e) => e.dataset.cwPickplan));
+    const sq = rowIds.find((x) => /^squid-/.test(x)) || rowIds[0], other = rowIds.find((x) => x !== sq);
+    ok(await p.locator("[data-cw-read]").count() === 0, "no read until a row is tapped");
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-headline]`);
+    const rd = await p.evaluate((id) => {
+      const row = document.querySelector(`[data-cw-pickplan="${id}"]`), box = document.querySelector(`[data-cw-read="${id}"]`), go = box.querySelector("[data-read-go]");
+      return { under: row.nextElementSibling === box, expanded: row.getAttribute("aria-expanded"), pressed: row.getAttribute("aria-pressed"),
+        head: box.querySelector("[data-read-headline]").textContent, why: (box.querySelector("[data-read-reason]") || {}).textContent || "",
+        lines: [...box.querySelectorAll("[data-read-line] dt")].map((d) => d.textContent).join(","), fig: box.querySelectorAll("[data-read-fig] svg path, [data-read-fig] svg rect").length,
+        go: go && go.getAttribute("href"), cond: document.querySelectorAll("[data-cw-cond]").length };
+    }, sq);
+    ok(rd.under && rd.expanded === "true" && rd.pressed === "true", "a tapped row is picked, and its read opens right under it", rd);
+    const seen = await p.evaluate((id) => {
+      const box = document.querySelector(`[data-cw-read="${id}"]`).getBoundingClientRect(), dock = document.querySelector(".dock").getBoundingClientRect();
+      const dt = box.top < innerHeight ? document.querySelector(`[data-cw-read="${id}"] [data-read-line] dt`).getBoundingClientRect() : null;
+      const dd = dt && document.querySelector(`[data-cw-read="${id}"] [data-read-line] dd`).getBoundingClientRect();
+      return { top: Math.round(box.top), h: innerHeight, dock: Math.round(dock.bottom), above: dt && dd ? dd.top >= dt.bottom - 1 && dd.width > 280 : null };
+    }, sq);
+    ok(seen.top >= seen.dock && seen.top <= seen.h * 0.6, "the read opens where it can be seen, not under the bottom edge", seen);
+    ok(seen.above === true, "each label sits over its line, so the words get the card's width", seen);
+    ok(/^Go, best 5:00 to 6:30 PM$/.test(rd.head) && /^High slack 5:15 PM, right at dark\. Leave by \d+:\d\d PM, \d+ min drive\.$/.test(rd.why),
+      "the read leads with the answer, then why those hours and when to leave", rd.head + " | " + rd.why);
+    ok(rd.lines === "Tide,Rain,Wind,Expect,Or" && rd.fig >= 4, "then a small picture of the hours and its labelled lines: Tide, Rain, Wind, Expect, Or", rd);
+    ok(rd.go === "#/trips/" + encodeURIComponent("2026-11-28~" + sq), "with a link to the full run card", rd.go);
+    ok(rd.cond === 0, "the read says it all: no second call line under the list while it is open");
+    ok((await short(p, "[data-cw-read] a, [data-cw-pickplan]")).length === 0, "its link and the rows are full tap targets");
+    await fits(p, "the plan a trip screen with a read open");
+    await p.locator(`[data-cw-pickplan="${other}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${other}"] [data-read-headline]`);
+    ok(await p.locator("[data-cw-read]").count() === 1 && await p.locator(`[data-cw-read="${sq}"]`).count() === 0, "one read at a time: tapping another row moves it there");
+    await p.locator(`[data-cw-pickplan="${other}"]`).click();
+    await p.waitForFunction(() => !document.querySelector("[data-cw-read]"));
+    ok(await p.locator(`[data-cw-pickplan="${other}"]`).getAttribute("aria-pressed") === "true", "tapping the open row again closes its read, and it stays picked");
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-go]`);
+    await p.locator(`[data-cw-read="${sq}"] [data-read-go]`).click();
+    await p.waitForSelector(`[data-view="hot"][data-run="${sq}"] [data-read] [data-read-headline]`);
+    ok((await text(p, '[data-view="hot"] [data-read-headline]')).trim() === rd.head, "the link opens that trip's run card, which leads with the same read");
+    // A squid pier folded under the row has a run card too, and its read's
+    // pick is a way to the picked pier's own run card.
+    const folded = await p.evaluate(() => RIG.trips.plan({ today: "2026-11-23", ...RIG.trips.cached() }).days.find((d) => d.iso === "2026-11-28").trips.find((t) => /^squid-/.test(t.planId)));
+    const alt = folded && (folded.alts || [])[0];
+    ok(!!alt, "the squid piers fold under one row, with the others as alternatives", folded && folded.alts);
+    if (alt) {
+      await p.evaluate((h) => { location.hash = h; }, "#/trips/" + encodeURIComponent("2026-11-28~" + alt));
+      await p.waitForSelector(`[data-view="hot"][data-run="${alt}"] [data-read] [data-read-headline]`);
+      const pk = await p.evaluate(() => { const a = document.querySelector('[data-view="hot"] [data-read] [data-read-pick]'); return a && { tag: a.tagName, href: a.getAttribute("href"), text: a.textContent }; });
+      ok(pk && (pk.tag === "B" || pk.href === "#/trips/" + encodeURIComponent("2026-11-28~" + folded.planId) || /^#\/trips\/2026-11-28~squid-/.test(decodeURIComponent(pk.href || ""))),
+        "a folded pier's own run card opens with its read, and a pick that is another pier links to that pier's run card", pk);
+      if (pk && pk.tag === "A") {
+        await p.locator('[data-view="hot"] [data-read] a[data-read-pick]').click();
+        const to = decodeURIComponent(pk.href).split("~")[1];
+        const landed = await p.waitForSelector(`[data-view="hot"][data-run="${to}"] [data-read] [data-read-headline]`, { timeout: 5000 }).then(() => true, () => false);
+        ok(landed, "and the pick opens that pier's run card", { to, hash: await p.evaluate(() => location.hash) });
+        await p.goBack();
+      }
+      await p.goBack();
+    }
+    await p.goBack();
+    await p.waitForSelector(`[data-cw-read="${sq}"] [data-read-headline]`);
+    await p.locator(`[data-cw-pickplan="${sq}"]`).click();
+    await p.waitForFunction(() => !document.querySelector("[data-cw-read]"));
+    await p.locator('[data-cw-day="2026-11-23"]').click();
+
     // Plan and day chosen: the conditions line is there at once.
     await p.locator("[data-cw-what]").selectOption("squid-redondo");
     await p.waitForSelector('[data-cw-cond][data-status="ok"]');
-    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "Hot" && /\w/.test(await text(p, "[data-cw-cond]")) && !/^Hot\b/.test((await text(p, "[data-cw-cond]")).trim()),
-      "the call shows as soon as plan and day are chosen: Hot on the seal, the reasons beside it, the word said once", await text(p, "[data-cw-cond]"));
-    ok(await p.locator("[data-cw-cond-slot] .cw-callpic").count() === 1, "with the water's own small picture beside it");
+    // Picked from the list, it is the same read a tapped row opens: the
+    // answer, why, when to leave, the picture and the lines.
+    const listed = await p.evaluate(() => {
+      const r = document.querySelector("[data-cw-cond-slot] [data-read]");
+      return r && { head: r.querySelector("[data-read-headline]").textContent, why: (r.querySelector("[data-read-reason]") || {}).textContent || "", heat: r.dataset.heat,
+        tag: (r.querySelector(".rd-head .tag") || {}).textContent || "", lines: r.querySelectorAll("[data-read-line]").length, fig: r.querySelectorAll("[data-read-fig] svg path, [data-read-fig] svg rect").length,
+        seal: document.querySelectorAll("[data-cw-cond-slot] .seal").length };
+    });
+    ok(listed && /^Go, /.test(listed.head) && listed.heat === "hot" && /^hot$/i.test(listed.tag) && /Leave by \d+:\d\d PM, \d+ min drive\.$/.test(listed.why),
+      "the call shows as soon as plan and day are chosen: the read's own answer, Hot beside it, why and when to leave", listed);
+    ok(listed && listed.fig >= 2 && listed.lines >= 3 && listed.seal === 0, "with the picture of its hours and its lines, and no second call line that could say it another way", listed);
     await p.locator("[data-cw-date]").fill("2026-12-20");
     await p.waitForSelector('[data-cw-cond][data-status="nodata"]');
     ok(/forecast reaches 7 days out/i.test(await text(p, "[data-cw-cond]")), "and follows the day: past the forecast it says so", await text(p, "[data-cw-cond]"));
@@ -448,7 +526,8 @@ try {
     await p.locator("[data-cw-from]").fill("09:00");
     await p.locator("[data-cw-to]").fill("13:00");
     await p.waitForSelector('[data-cw-cond][data-status="nogo"]');
-    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "No" && /^This one fishes after dark/.test((await text(p, "[data-cw-cond]")).trim()), "and the window: squid at nine in the morning is a no-go", await text(p, "[data-cw-cond]"));
+    ok(/^No, this one fishes after dark/.test((await text(p, "[data-cw-cond-slot] [data-read-headline]")).trim()) && await p.locator('[data-cw-cond-slot] [data-read][data-call="no"]').count() === 1,
+      "and the window: squid at nine in the morning is a no-go", await text(p, "[data-cw-cond]"));
     await p.locator("[data-cw-from]").fill("17:00");
     await p.locator("[data-cw-to]").fill("16:00");
     await p.locator("[data-cw-create]").click();
@@ -491,7 +570,8 @@ try {
     await p.locator("[data-cw-what]").selectOption("salmon-redondo");
     await p.locator("[data-cw-date]").fill("2026-11-28");
     await p.waitForSelector('[data-cw-cond][data-status="ok"]');
-    ok((await text(p, "[data-cw-cond-slot] .seal")).trim() === "Go" && !/^Go\b/.test((await text(p, "[data-cw-cond]")).trim()), "a good day that is not hot reads Go", await text(p, "[data-cw-cond]"));
+    ok(/^Go, /.test((await text(p, "[data-cw-cond-slot] [data-read-headline]")).trim()) && /^good$/i.test((await text(p, "[data-cw-cond-slot] .rd-head .tag")).trim()),
+      "a good day that is not hot reads Go, Good beside it", await text(p, "[data-cw-cond]"));
     await p.locator("[data-cw-create]").click();
     await p.waitForSelector('[data-view="crewtrip"][data-trip="t-new-2"]');
     const c = calls.landed.filter((x) => x.action === "trip_create")[1] || {};

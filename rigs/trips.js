@@ -616,10 +616,25 @@
       return x >= Math.floor(from) && x < to;
     });
     if (!hrs.length) return { score: 0 };
+    // Open-Meteo's rain and chance of rain are for the hour before the time
+    // they are given at (the 6:00 reading is the rain from 5 to 6). An hour
+    // of rain counts for the trip when a quarter of it or more falls inside
+    // the trip: the same hours rigs/read.js says out loud.
+    var nextIso = addDays(day, 1).iso;
+    var wetHrs = ((w && w.hours) || []).filter(function (h) {
+      var d = h.t.slice(0, 10);
+      if (d !== day.iso && d !== nextIso) return false;
+      var x = hourOnDay(h.t, day);
+      return Math.min(x, to) - Math.max(x - 1, from) >= 0.25;
+    });
+    if (!wetHrs.length) wetHrs = hrs;
     var L = LIMITS[p.how];
-    var wind = max(hrs, "wind"), gust = max(hrs, "gust"), rain = max(hrs, "rain"), wave = max(hrs, "wave");
+    var wind = max(hrs, "wind"), gust = max(hrs, "gust"), rain = max(wetHrs, "rain"), wave = max(hrs, "wave");
+    var pops = wetHrs.filter(function (h) { return h.pop != null; }), pop = pops.length ? max(pops, "pop") : null;
     var temp = Math.min.apply(null, hrs.map(function (h) { return h.temp; }));
-    if (wind > L.wind || gust > L.gust) return { blocked: { why: "gusts to " + Math.round(gust) + " mph", v: gust } };
+    // The no-go names whichever broke its limit: the gusts, else the wind.
+    if (gust > L.gust) return { blocked: { why: "gusts to " + Math.round(gust) + " mph", v: gust } };
+    if (wind > L.wind) return { blocked: { why: "wind to " + Math.round(wind) + " mph", v: gust } };
     if (rain > L.rain) return { blocked: { why: "heavy rain", v: 30 + rain } };
     var waveMax = p.wave || L.wave;
     if (waveMax && wave > waveMax) return { blocked: { why: Math.round(wave) + " ft surf", v: 40 + wave } };
@@ -662,7 +677,8 @@
     }
     if (wind <= L.wind / 2) { score += 1; why.push("Light wind, " + Math.round(wind) + " mph"); }
     else why.push("Wind to " + Math.round(wind) + " mph");
-    if (rain < 0.02) { score += 1; why.push("Dry"); }
+    // Dry: under 0.02 in an hour, and no hour with a 30% chance or more.
+    if (rain < 0.02 && !(pop >= 30)) { score += 1; why.push("Dry"); }
     if (temp < 30) { score -= 1; why.push("Cold, " + Math.round(temp) + "°F"); }
 
     return {
@@ -672,6 +688,8 @@
       drive: spot.drive, unproven: !!spot.bankUnproven, score: score, heat: score >= 8 ? "Hot" : score >= 6 ? "Good" : "Slow", why: why, gear: p.gear || "",
       wx: { wind: Math.round(wind), gust: Math.round(gust), temp: Math.round(temp) },
       hours: hrs.map(function (h) { return { h: hourOf(h.t), wind: Math.round(h.wind), gust: Math.round(h.gust), temp: Math.round(h.temp), rain: h.rain, wave: h.wave }; }),
+      // The rain over the trip by the hour: h is when that hour ends (25 is 1 AM the next morning).
+      rainHours: wetHrs.map(function (h) { return { h: hourOnDay(h.t, day), rain: h.rain, pop: h.pop == null ? null : h.pop }; }),
       tides: dayT.map(function (x) { return { h: hourOf(x.t), v: x.v, type: x.type }; }),
       sun: sun, dark: sun.set + 0.6, beach: dig ? dig.beach : "", flow: rf ? rf.card : undefined,
       moon: Math.round(moonLit(Date.UTC(day.y, day.m - 1, day.d, 8 + Math.round(sun.set + 0.6))) * 100)
@@ -700,6 +718,8 @@
   function worst(list) { return list.slice().sort(function (a, b) { return b.v - a.v; })[0]; }
   function max(hrs, k) { return Math.max.apply(null, hrs.map(function (h) { return h[k] || 0; })); }
   function hourOf(t) { var m = /[T ](\d\d):(\d\d)/.exec(t); return m ? +m[1] + m[2] / 60 : 0; }
+  // An hour counted on the trip's day: 1:00 AM the next morning is 25.
+  function hourOnDay(t, day) { return (Date.UTC(+t.slice(0, 4), +t.slice(5, 7) - 1, +t.slice(8, 10)) - Date.UTC(day.y, day.m - 1, day.d)) / 36e5 + hourOf(t); }
   function spotById(id) { for (var i = 0; i < spots.length; i++) if (spots[i].id === id) return spots[i]; return null; }
   function parseDay(iso) { var a = iso.split("-").map(Number); return mk(a[0], a[1], a[2]); }
   function mk(y, m, d) {
@@ -816,7 +836,7 @@
   function wxUrl(list) {
     return "https://api.open-meteo.com/v1/forecast?latitude=" + list.map(function (s) { return s.lat; }).join(",") +
       "&longitude=" + list.map(function (s) { return s.lon; }).join(",") +
-      "&hourly=temperature_2m,precipitation,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
+      "&hourly=temperature_2m,precipitation,precipitation_probability,wind_speed_10m,wind_gusts_10m,cloud_cover&daily=sunrise,sunset" +
       "&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=America%2FLos_Angeles&forecast_days=7";
   }
   function urls(today, end) {
@@ -862,8 +882,10 @@
       var H = r.hourly, sun = {};
       (r.daily.time || []).forEach(function (d, j) { sun[d] = { rise: toHour(r.daily.sunrise[j]), set: toHour(r.daily.sunset[j]) }; });
       wx[id] = { sun: sun, hours: H.time.map(function (t, j) {
+        // pop: the chance of rain in that hour, 0 to 100 (the read says it by
+        // the hour). A saved forecast from before it was asked for has none.
         return { t: t, temp: H.temperature_2m[j], rain: H.precipitation[j], wind: H.wind_speed_10m[j], gust: H.wind_gusts_10m[j],
-          clouds: H.cloud_cover ? H.cloud_cover[j] : null };
+          clouds: H.cloud_cover ? H.cloud_cover[j] : null, pop: H.precipitation_probability ? H.precipitation_probability[j] : null };
       }) };
     });
     var ml = marineJson ? (Array.isArray(marineJson) ? marineJson : [marineJson]) : [];
@@ -993,5 +1015,5 @@
   }
 
   RIG.trips = { spots: spots, plans: plans, limits: LIMITS, slotsFor: slotsFor, season: season,
-    moonLit: moonLit, ruleOn: ruleOn, flowField: flowField, puyallupFlow: PUYALLUP_FLOW, plan: plan, detail: detail, theCall: theCall, whyLine: whyLine, leaveBy: leaveBy, plansOn: plansOn, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
+    moonLit: moonLit, ruleOn: ruleOn, flowField: flowField, puyallupFlow: PUYALLUP_FLOW, plan: plan, detail: detail, theCall: theCall, whyLine: whyLine, leaveBy: leaveBy, plansOn: plansOn, daysOff: DAYS_OFF, addWaters: addWaters, lastPlant: lastPlant, shape: shape, shapeFlow: shapeFlow, riverCall: riverCall, urls: urls, load: load, cached: cached, clock: clock };
 })(typeof window !== "undefined" ? window : globalThis);

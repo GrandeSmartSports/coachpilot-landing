@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v42";
+const CACHE = "rigs-v43";
 
 // This one file runs under two registrations. "/rigs/" is the app, and
 // everything below is for it. "/rigs" with no slash is the address a person
@@ -42,6 +42,7 @@ const SHELL = [
   "/rigs/content.js",
   "/rigs/trips.js",
   "/rigs/runs.js",
+  "/rigs/read.js",
   "/rigs/sky.js",
   "/rigs/crew.js",
   "/rigs/rules.js",
