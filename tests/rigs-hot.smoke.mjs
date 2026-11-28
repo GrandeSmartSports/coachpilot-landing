@@ -136,6 +136,36 @@ try {
   });
   ok(walk.n === 1 && /\/plan$/.test(walk.href) && walk.order && !walk.pinned, "one gold button, after the rules and before Go deeper, in the page and not pinned", JSON.stringify(walk));
 
+  // "I can go": two time boxes on the read, the trip's own hours until
+  // someone picks theirs. Picked, the read judges those hours, the plan under
+  // it follows them, and they are saved on this phone for the next time.
+  const winOf = () => page.evaluate(() => {
+    const r = document.querySelector('[data-view="hot"] [data-read]'), w = r && r.querySelector("[data-read-win]");
+    return w && { kind: w.dataset.readWin, from: w.querySelector("[data-win-from]").value, to: w.querySelector("[data-win-to]").value, best: !!w.querySelector("[data-win-reset]"),
+      head: r.querySelector("[data-read-headline]").textContent, why: (r.querySelector("[data-read-reason]") || {}).textContent || "", grade: r.dataset.grade || "",
+      leave: document.querySelector('[data-sec-row="plan"] .planhead b').textContent, saved: localStorage.getItem("rig.win.v1") };
+  });
+  const w0 = await winOf();
+  ok(w0 && w0.kind === "dark" && w0.from === "17:00" && w0.to === "20:30" && !w0.best && w0.head === read.head && !w0.saved,
+    "the read has two I can go boxes, set to the trip's own hours, and no Best hours until a window is picked", w0);
+  await page.locator('[data-view="hot"] [data-read] [data-win-from]').fill("20:00");
+  await page.waitForFunction(() => /^8 to /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  await page.locator('[data-view="hot"] [data-read] [data-win-to]').fill("00:00");
+  await page.waitForFunction(() => /^8 to 12: /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  const w1 = await winOf();
+  ok(w1 && /^8 to 12: (good|fair, not great|tough)$/.test(w1.head) && /^(good|fair|tough)$/.test(w1.grade) && w1.from === "20:00" && w1.to === "00:00",
+    "the boxes change the headline: it judges 8 PM to 12 AM", w1);
+  ok(w1 && /Leave by 7:10 PM, 35\smin drive\.$/.test(w1.why) && w1.leave === "Leave by 7:10 PM", "and when to leave follows the window, in the read and in the plan", w1);
+  ok(w1 && w1.best && JSON.parse(w1.saved || "{}").dark?.from === "20:00", "the window is saved on this phone, with a Best hours way back", w1 && w1.saved);
+  await page.reload({ waitUntil: "load" });
+  await page.waitForSelector('[data-view="hot"][data-run="squid-redondo"] [data-read-win]');
+  const w2 = await winOf();
+  ok(w2 && w2.from === "20:00" && w2.to === "00:00" && w2.head === w1.head, "opened again, the saved window comes back, and the read with it", w2);
+  await page.locator('[data-view="hot"] [data-win-reset]').click();
+  await page.waitForFunction(() => /^Go, /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  const w3 = await winOf();
+  ok(w3 && w3.head === read.head && w3.from === "17:00" && !w3.best && !w3.saved && w3.leave === "Leave by 4:10 PM", "Best hours goes back to the trip's own hours and forgets the window", w3);
+
   await page.locator('[data-sec-row="plan"]').click();
   await page.waitForSelector('[data-view="card"][data-run="squid-redondo"]');
   const plan = await page.locator(".card").innerText();
