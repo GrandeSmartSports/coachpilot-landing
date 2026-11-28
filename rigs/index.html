@@ -281,6 +281,8 @@ ol.kstrip li span{padding-top:4px}
 .about .lures .tag{font:600 13.5px/1 Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;padding:7px 11px;color:var(--t1);
   background:color-mix(in srgb,var(--accent) 9%,var(--pan-a));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent)}
 .about .well{margin-top:14px}
+.about .lures a.tag.lk{display:inline-flex;align-items:center;gap:6px;min-height:32px;text-decoration:none;color:var(--accent)}
+.about .lures a.tag.lk .chev{width:6px;height:10px}
 /* the Rig Card's own guides (rigs/guides.js): links into the app look like links */
 .about a.glink,.gyear a.glink{color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .about .box .klist,.card .box.red .klist{margin-top:0}
@@ -290,10 +292,24 @@ ol.kstrip li span{padding-top:4px}
 .card .gmore p:last-child{margin-bottom:0}
 .gochips{margin-top:16px}
 /* a guide section's thumbnail when it is a drawing: the thing on a wash, like the tiles */
-.tile.bench{display:grid;place-items:center;padding:3px;background:radial-gradient(ellipse 62% 58% at 50% 52%,color-mix(in oklab,var(--wash-c,var(--water1)) 60%,transparent),color-mix(in oklab,var(--pan-b) 70%,var(--water1)))}
+.tile.bench{display:grid;place-items:center;padding:3px;background:radial-gradient(ellipse 62% 58% at 50% 52%,color-mix(in oklab,var(--pan-a) 72%,var(--water1)),color-mix(in oklab,var(--water2) 62%,var(--ink)))}
+.tile.bench[data-plate="hook"] svg,.tile.bench[data-plate="squid"] svg,.tile.bench[data-plate="jig"] svg,.tile.bench[data-plate="knot"] svg{transform:scale(1.35)}
 :root[data-dark="1"] .tile.bench{background:radial-gradient(ellipse 62% 58% at 50% 52%,color-mix(in oklab,var(--gold) 16%,transparent),color-mix(in oklab,var(--pan-b) 80%,var(--ink)))}
 .tile.bench svg{height:auto}
 .gsrc .klist{font-size:13.5px;line-height:1.45}
+/* a section of picture rows: five trips, five salmon, the rigs */
+.card .prows{margin:10px -16px 0;border-top:1px solid var(--edge)}
+.card .prows .row{min-height:72px}
+.card .prows .row .tx>span.whole{color:var(--t2);font-size:14px;line-height:1.4;margin-top:3px}
+.card .prows .row .tx>span.whole a.glink{color:var(--accent);font-weight:600}
+.card .prows .tile{flex-basis:56px;width:56px;height:56px;border-radius:15px}
+.card .prows .row.pic+.row.pic::before{left:80px}
+/* a rig's own diagram as a row's picture, on its dark card */
+.tile.dia{display:block;margin:0;padding:3px 2px;border:0;background:linear-gradient(180deg,var(--panel),var(--panel2));box-shadow:inset 0 0 0 1px var(--line),var(--e1)}
+.tile.dia svg{width:100%;height:100%}
+.tile.dia text{display:none}
+/* the rules page: one line, then the screens that hold them */
+.card [data-rules-pointer]{margin:10px 0 0;font-size:15.5px;line-height:1.5;color:var(--t1)}
 .card .gsrc a,.about .gsrc a{color:var(--t2);font-weight:500}
 /* the year: a month per row, this month open */
 .gyear .gitems{margin:2px 0 0;padding:0 16px 6px}
@@ -307,6 +323,18 @@ ol.kstrip li span{padding-top:4px}
 .gmonth .mlist li{margin:5px 0;color:var(--t2)}
 .gmonth .mlist li b{font-weight:650;color:var(--t1)}
 .gmonth .gochips{margin-top:6px}
+.ygrp{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--edge)}
+.mhead+.ygrp{border-top:0;padding-top:4px}
+.ygrp .tile{margin-top:2px}
+.ygrp .ytx{flex:1;min-width:0}
+.ygrp .ytx>b{display:block;font-weight:650;font-size:15.5px;line-height:1.3;color:var(--t1)}
+.ygrp .ytx>span{display:block;margin-top:2px;font-size:13.5px;line-height:1.35;color:var(--t2)}
+.ygrp .rulechips{margin-top:8px;gap:6px}
+.ygrp .rulechips .chip{min-height:38px;padding:6px 11px}
+.ygrp .rulechips .chip b{font-size:13px}
+.ygrp .rulechips .chip.ok{background:var(--paper);box-shadow:inset 0 0 0 1px var(--edge)}
+.ygrp .rulechips .chip.ok b{color:var(--t1)}
+.gyear>.gochips{margin:4px 16px 16px}
 [data-lib-wait]{padding:18px 18px 19px}
 /* a new rule over a fish's plate: room for the drawing that rides up over the plate's lip */
 [data-view="species"] [data-rules-slot] .box{margin:0 0 calc(12px + var(--sw)*24/390)}
@@ -1042,7 +1070,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
 .pnb:active{transform:translateY(1px)}
 .pnb.next{text-align:right}
 .pnb span{font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:11.5px;color:var(--accent)}
-.pnb b{font-weight:650;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pnb b{font-weight:650;font-size:14px;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow-wrap:anywhere}
 .pnb.none{visibility:hidden}
 .pos{align-self:center;font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);white-space:nowrap}
 [data-view="card"] .card{margin-bottom:0}
@@ -1572,8 +1600,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var ruled = function (p) { return !RIG.trips.ruleOn || RIG.trips.ruleOn(p, today) === "confirmed"; };
     if (trips.length || plans.some(function (p) { return RIG.trips.season(p, today) && ruled(p); })) return "on";
     if (plans.some(function (p) { return RIG.trips.season(p, today); })) return null;
-    for (var i = 0; i < 26; i++) {
-      var dt = new Date(now.getFullYear(), now.getMonth() + (i >> 1), i % 2 ? 15 : 1), day = dayOf(dt);
+    // A week at a time, so a season that opens late in a month (Marine Area
+    // 11 opens again on July 23) is found in that month.
+    for (var i = 0; i < 65; i++) {
+      var dt = new Date(now.getFullYear(), now.getMonth() + Math.floor(i / 5), [1, 8, 15, 22, 29][i % 5]), day = dayOf(dt);
       if (dt <= now) continue;
       if (plans.some(function (p) { return RIG.trips.season(p, day); })) {
         return { back: "Back in " + MONTH_NAMES[day.m - 1] + (dt - now > 183 * 864e5 ? " " + day.y : "") };
@@ -2475,6 +2505,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var k = RIG.fish && RIG.fish.of(id === "rods" ? "rod" : id === "knots" ? "knot" : "");
     return k ? '<span class="pic bench" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: true }) + "</span>" : viewHtml("lake", "pic");
   }
+  // Learn's Start here opens with the Washington guide: license, catch
+  // card, passes and the first five trips. Its words are the guide's own
+  // once rigs/guides.js has loaded.
+  function startGuideRow() {
+    if (!LIB_READY.guides) return "";
+    var g = gd() && gd().guide("start");
+    return '<a class="row pic" href="#/learn/guides/start" data-row="guide-start">' + viewHtml("lake", "tile", { seed: 2 }) +
+      '<span class="tx"><b>' + esc(g ? g.title : "Start here in Washington") + "</b>" + lineHtml(g ? g.line : "License, catch card, passes, and the first five trips.") + "</span>" + IC.chev + "</a>";
+  }
   function renderLearn(sec) {
     var all = fundamentals(), every = learnSections();
     var names = every.filter(function (n) { return n.toLowerCase() === sec; });
@@ -2503,7 +2542,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2 class="sect vh">' + esc(n) +
         ' <span class="n">' + mine.length + '</span></h2><div class="float list">' +
         mine.map(function (c) { return rowHtml(c, "#/learn/" + c.id); }).join("") + "</div></section>";
-    }).join("") : '<section class="grp" data-group="fundamental" data-start><h2 class="sect">Start here</h2><div class="panel list">' +
+    }).join("") : '<section class="grp" data-group="fundamental" data-start><h2 class="sect">Start here</h2><div class="panel list">' + startGuideRow() +
       names.map(function (n) { var c = all.filter(function (x) { return x.section === n; })[0]; return c ? rowHtml(c, "#/learn/" + c.id) : ""; }).join("") + "</div></section>";
     var n1 = one ? all.filter(function (c) { return c.section === names[0]; }).length : 0;
     // Fly stands under the water the app fly fishes (the Sound's beaches, as
@@ -2511,7 +2550,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("learn", one ? sec : "", LEARN_SCENE[sec] || "lake") +
       '<div data-view="learn">' + (one
         ? heroHtml({ title: names[0], back: { href: "#/learn", text: "Learn" }, chips: '<span class="chip"><b>' + n1 + (n1 === 1 ? " card" : " cards") + "</b></span>" })
-        : headHtml("Learn", LIB_READY.guides ? "Knots, casts and guides" : "Knots and casts", "Step by step, with video.")) +
+        : headHtml("Learn", LIB_READY.guides ? "Knots, casts, guides and gear" : "Knots and casts", "Step by step, with video.")) +
         tiles + first + courses + body + "</div>" + tripBarHtml();
   }
 
@@ -2718,13 +2757,36 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // ---- the guides (rigs/guides.js) ----------------------------------------
   // A line of a guide: its {tokens} filled from the app's own data, and
   // [words](#/route) as a link into the app.
-  function gHtml(t) {
-    var s = gd().text(t), out = "", re = /\[([^\]]+)\]\((#\/[^)\s]*)\)/g, last = 0, m;
+  function gHtml(t) { return gLinks(gd().text(t)); }
+  function gLinks(s) {
+    var out = "", re = /\[([^\]]+)\]\((#\/[^)\s]*)\)/g, last = 0, m;
     while ((m = re.exec(s))) {
       out += esc(s.slice(last, m.index)) + '<a class="glink" href="' + esc(m[2]) + '" data-glink>' + esc(m[1]) + "</a>";
       last = re.lastIndex;
     }
     return out + esc(s.slice(last));
+  }
+  function gPlain(s) { return String(s).replace(/\[([^\]]+)\]\((#\/[^)\s]*)\)/g, "$1"); }
+  // A section of picture rows (rows: true): each point a row with its
+  // picture. A point that opens on a link is that row's link and headline;
+  // otherwise the picture's head names it, and its href makes it a link.
+  // "King: ..." under the head "King: black gums" loses its "King: ".
+  function prowsHtml(x) {
+    return '<div class="prows" data-prows>' + x.points.map(function (pt, i) {
+      var pic = (x.pics || [])[i] || {}, s = gd().text(pt), m = /^\[([^\]]+)\]\((#\/[^)\s]*)\)[\s,:.]*/.exec(s);
+      var href = m ? m[2] : pic.href || "", head = pic.head || (m ? m[1] : ""), line = m ? s.slice(m[0].length) : s;
+      var nm = /^([A-Z][a-z]+): /.exec(line);
+      if (nm && head.indexOf(nm[1]) === 0) line = line.slice(nm[0].length);
+      var said = head.replace(/^[^:]*:\s*/, "").toLowerCase(), first = line.split(". ")[0].toLowerCase();
+      if (pic.head && first === said && line.indexOf(". ") > 0) line = line.slice(line.indexOf(". ") + 2);
+      line = line.charAt(0).toUpperCase() + line.slice(1);
+      var dia = pic.dia && RIG.diagrams && RIG.diagrams[pic.dia];
+      // the business end of the rig (crop: "x y w h" of its drawing) fills the tile
+      if (dia && pic.crop) dia = dia.replace(/viewBox="[^"]*"/, 'viewBox="' + pic.crop + '" preserveAspectRatio="xMidYMid slice"');
+      var tile = dia ? '<span class="tile dia" data-dia="' + esc(pic.dia) + '">' + dia + "</span>" : guideTile(pic);
+      var body = tile + '<span class="tx"><b>' + esc(head) + '</b><span class="whole">' + (href ? esc(gPlain(line)) : gLinks(line)) + "</span></span>";
+      return href ? '<a class="row pic" href="' + esc(href) + '" data-prow data-glink>' + body + IC.chev + "</a>" : '<div class="row pic" data-prow>' + body + "</div>";
+    }).join("") + "</div>";
   }
   function gList(a, cls) { return a && a.length ? '<ul class="klist' + (cls ? " " + cls : "") + '">' + a.map(function (x) { return "<li>" + gHtml(x) + "</li>"; }).join("") + "</ul>" : ""; }
   // Where the words came from: the pamphlet's pages open on eRegulations,
@@ -2797,8 +2859,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // the app it points to, and its sources.
   function guideCard(g, x) {
     var body = x.rules
-      ? '<div class="box red" data-rules-pointer><b>rules</b>' + gList(x.points) + "</div>"
-      : gList(x.points, "gpts");
+      ? '<p data-rules-pointer>' + x.points.map(gHtml).join(" ") + "</p>"
+      : x.rows ? prowsHtml(x) : gList(x.points, "gpts");
     return { id: "guide-" + g.id + "-" + x.id, title: x.title, libId: x.id,
       body: '<p class="when">' + esc(x.line) + "</p>" + body +
         (x.more && x.more.length ? '<details class="gmore"><summary>More</summary>' + x.more.map(function (m) { return "<p>" + gHtml(m) + "</p>"; }).join("") + "</details>" : "") +
@@ -2810,24 +2872,28 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     guideGroups(g).forEach(function (gr) { out = out.concat(gr.list); });
     return out.concat(g.sections.filter(function (y) { return y.rules; }));
   }
+  // A section stands under its own water: the ocean beach under the surf,
+  // the pier kit under the pier. A section whose picture is a drawing
+  // stands under its guide's.
   function renderGuideSection(g, x) {
     var list = secOrder(g).map(function (y) { return guideCard(g, y); });
     renderCard({ tab: "learn", active: guideSec(g), card: list.filter(function (c) { return c.libId === x.id; })[0], list: list, addable: false,
-      scene: guideScene(g), hrefFor: function (c) { return guideHome(g) + "/" + c.libId; },
+      scene: GUIDE_SCENE[(x.pic || {}).view] || guideScene(g), hrefFor: function (c) { return guideHome(g) + "/" + c.libId; },
       upHref: guideHome(g), upText: g.title });
   }
   // The year: twelve months from this one, built by RIG.guides.year from the
   // seasons Hot Trips plans with. This month opens; the rest are headlines.
   function yearGroups(head, list) {
-    return list.length ? '<p class="mhead"><em class="eyebrow">' + head + '</em></p><ul class="klist mlist">' + list.map(function (g) {
-      return "<li><b>" + esc(g.name) + "</b>: " + g.places.map(function (p) {
-        return '<a class="glink" href="' + esc(p.href) + '" data-glink data-plan="' + esc(p.plan) + '">' + esc(p.name) + "</a>";
-      }).join(", ") + "</li>";
-    }).join("") + "</ul>" : "";
+    return list.length ? '<p class="mhead"><em class="eyebrow">' + head + "</em></p>" + list.map(function (g) {
+      return '<div class="ygrp" data-ygroup="' + esc(g.key) + '">' + viewHtml(g.view || "lake", "tile") + '<div class="ytx"><b>' + esc(g.name) + "</b>" +
+        (g.note ? "<span>" + esc(g.note) + "</span>" : "") + '<div class="rulechips">' + g.places.map(function (p) {
+          return '<a class="chip' + (g.peak && !p.peak ? " ok" : "") + '" href="' + esc(p.href) + '" data-glink data-plan="' + esc(p.plan) + '"><b>' + esc(p.name) + "</b></a>";
+        }).join("") + "</div></div></div>";
+    }).join("") : "";
   }
   function yearSay(mo) {
     var names = [];
-    mo.peak.forEach(function (g) { var n = g.name.replace(/ (from|in|on) .*$/, ""); if (names.indexOf(n) === -1) names.push(n); });
+    mo.peak.forEach(function (g) { var n = g.name.replace(/,.*$/, "").replace(/ (from|in|on) .*$/, ""); if (names.indexOf(n) === -1) names.push(n); });
     if (names.length) return "Peak: " + names.join(", ");
     return mo.plans.length ? mo.plans.length + (mo.plans.length === 1 ? " trip" : " trips") + " in season" : "Nothing in season";
   }
@@ -2837,15 +2903,14 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       var body = yearGroups("Peak", mo.peak) + yearGroups("Good", mo.good) +
         (mo.held.length ? '<p class="mhead"><em class="eyebrow">Not listed</em></p><ul class="klist mlist held">' + mo.held.map(function (h) {
           return "<li><b>" + esc(h.name) + "</b>: " + esc(h.why) + "</li>";
-        }).join("") + "</ul>" : "") +
-        (mo.now ? goHtml([["Hot Trips this week", "#/trips"]]) : "");
+        }).join("") + "</ul>" : "");
       return '<details class="gitem gmonth" data-month="' + esc(mo.iso) + '"' + (mo.now ? " open" : "") + '><summary><span class="mt"><b>' + esc(mo.name) +
         (mo.now ? ' <i class="tag hot">This month</i>' : "") + "</b><span>" + esc(yearSay(mo)) + "</span></span>" + IC.chev + '</summary><div class="gbody">' + body + "</div></details>";
     }).join("");
     app.innerHTML = topHtml("learn", "guides", guideScene(g)) + '<div data-view="learn" data-lib="guide" data-guide="' + esc(g.id) + '">' +
-      heroHtml({ title: g.title, back: { href: "#/learn/guides", text: "Guides" }, chips: libChip(months[0] ? months[0].label + " on" : "12 months") }) +
-      '<div class="float gyear" data-year><p class="lhead"><span>' + esc(g.line) + '</span></p><div class="gitems">' + items + "</div></div>" +
-      '<section class="grp"><h2 class="sect">How it is built</h2><div class="panel about" data-year-notes>' + gList(g.notes) + srcHtml(g.src) + "</div></section>" +
+      heroHtml({ title: g.title, back: { href: "#/learn/guides", text: "Guides" }, chips: libChip(months[0] ? "From " + months[0].label : "12 months") }) +
+      '<div class="float gyear" data-year><p class="lhead"><span>' + esc(g.line) + '</span></p><div class="gitems">' + items + "</div>" + goHtml(g.go) + "</div>" +
+      '<section class="grp"><div class="panel about" data-year-src>' + srcHtml(g.src) + "</div></section>" +
       "</div>" + tripBarHtml();
   }
   // A fish's page: what the fish is, how to know it, where the app fishes it
@@ -2856,8 +2921,11 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return '<section class="grp" data-about="' + esc(speciesId) + '"><h2 class="sect">About the fish</h2><div class="panel about">' +
       "<p>" + gHtml(f.what) + "</p>" +
       (f.tell && f.tell.length ? '<div class="box" data-tell><b>how to tell</b>' + gList(f.tell) + "</div>" : "") +
-      (f.where && f.where.length ? '<div class="box" data-where><b>where the app fishes it</b>' + gList(f.where) + "</div>" : "") +
-      (f.takes && f.takes.length ? '<div class="box"><b>what takes it</b><span class="lures">' + f.takes.map(function (x) { return '<span class="tag">' + esc(x) + "</span>"; }).join("") + "</span></div>" : "") +
+      (f.where && f.where.length ? '<div class="box" data-where><b>where to fish it</b>' + gList(f.where) + "</div>" : "") +
+      (f.takes && f.takes.length ? '<div class="box"><b>what takes it</b><span class="lures">' + f.takes.map(function (x) {
+        var m = /^\[([^\]]+)\]\((#\/[^)\s]*)\)$/.exec(x);
+        return m ? '<a class="tag lk" href="' + esc(m[2]) + '" data-glink>' + esc(m[1]) + IC.chev + "</a>" : '<span class="tag">' + esc(x) + "</span>";
+      }).join("") + "</span></div>" : "") +
       srcHtml(f.src) + "</div></section>";
   }
 

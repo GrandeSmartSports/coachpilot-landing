@@ -48,8 +48,9 @@ for (const g of G.guides) {
     const w = g.id + "/" + x.id;
     add(w, x.title); add(w, x.line);
     (x.points || []).forEach((p) => add(w, p)); (x.more || []).forEach((p) => add(w + " more", p));
-    (x.go || []).forEach((p) => add(w + " go", p[0]));
+    (x.go || []).forEach((p) => add(w + " go", p[0])); (x.pics || []).forEach((p) => add(w + " row", p.head));
   }
+  (g.go || []).forEach((p) => add(g.id + " go", p[0]));
 }
 for (const [id, a] of Object.entries(G.about)) {
   add("about " + id, a.what); ["tell", "where", "takes"].forEach((k) => (a[k] || []).forEach((p) => add("about " + id, p)));
@@ -209,7 +210,8 @@ function screen(h) {
 }
 const hrefs = [];
 LINES.forEach((l) => { for (const m of l.text.matchAll(LINK)) hrefs.push([l.where, m[2]]); });
-G.guides.forEach((g) => g.sections.forEach((x) => (x.go || []).forEach((p) => hrefs.push([g.id + "/" + x.id + " go", p[1]]))));
+G.guides.forEach((g) => g.sections.forEach((x) => (x.go || []).concat((x.pics || []).filter((p) => p.href).map((p) => [p.head, p.href])).forEach((p) => hrefs.push([g.id + "/" + x.id + " go", p[1]]))));
+G.guides.forEach((g) => (g.go || []).forEach((p) => hrefs.push([g.id + " go", p[1]])));
 const yr = G.year("2026-11-23");
 yr.forEach((m) => [].concat(m.peak, m.good).forEach((g) => g.places.forEach((p) => hrefs.push(["year " + m.iso, p.href]))));
 Object.values(G.sources).forEach((s) => { if (s.href) hrefs.push(["source " + s.name, s.href]); });
@@ -225,12 +227,24 @@ const unsourced = G.guides.flatMap((g) => (g.year ? [g] : g.sections).filter((x)
 ok(unsourced.length === 0, "each section names its sources, and each source is real", unsourced);
 
 // ---- the guides asked for, points first ------------------------------------------------------
-ok(G.guides.map((g) => g.id).join() === "start,water,year,salmon,fly,handling,gear,safety",
-  "the eight guides: Start here, Reading water, The year, Salmon, Fly fishing, Handling and release, Gear, Staying safe", G.guides.map((g) => g.id));
+ok(G.guides.map((g) => g.id).join() === "start,safety,water,year,salmon,fly,handling,gear",
+  "the eight guides: Start here, Staying safe second, then Reading water, The year, Salmon, Fly fishing, Handling and release, Gear", G.guides.map((g) => g.id));
 const secs = G.guides.flatMap((g) => g.sections.map((x) => ({ g: g.id, ...x })));
-const shape = secs.filter((x) => !(x.points && x.points.length >= 2 && x.points.length <= 6 && (x.more || []).length <= 4 && x.title && x.line && x.line.length <= 36 && x.points.every((p) => plain(G.text(p)).length <= 170)));
-ok(secs.length >= 35 && shape.length === 0, "every section is a headline with a short line that fits its row, 2 to 6 short points first and at most 4 lines behind More (" + secs.length + " sections)",
+const shape = secs.filter((x) => !(x.points && x.points.length >= (x.rules ? 1 : 2) && x.points.length <= (x.rules ? 1 : 6) && (x.more || []).length <= 4 && x.title && x.line && x.line.length <= 36 && x.points.every((p) => plain(G.text(p)).length <= 170)));
+ok(secs.length >= 35 && shape.length === 0, "every section is a headline with a short line that fits its row, 2 to 6 short points first (a rules section one line) and at most 4 lines behind More (" + secs.length + " sections)",
   shape.map((x) => x.g + "/" + x.id));
+const echo = secs.filter((x) => x.points.some((p) => plain(G.text(p)).replace(/[.]$/, "") === x.line.replace(/[.]$/, "") || plain(G.text(p)).startsWith(x.line.replace(/[.]$/, ""))));
+ok(echo.length === 0, "no section says its line again as a point", echo.map((x) => x.g + "/" + x.id));
+const rowSecs = secs.filter((x) => x.rows);
+const badRows = rowSecs.filter((x) => !(x.pics && x.pics.length === x.points.length && x.pics.every((p, i) => (p.plate || p.view || p.dia) && (p.head || /^\[[^\]]+\]\(#\//.test(x.points[i])))));
+ok(rowSecs.map((x) => x.g + "/" + x.id).sort().join() === "gear/rigs,salmon/tell,start/five" && badRows.length === 0,
+  "five first trips, the five salmon told apart and the rigs are picture rows: each point has its picture and a headline", badRows.map((x) => x.g + "/" + x.id));
+const D = readFileSync(join(RIGS, "diagrams.js"), "utf8");
+const dias = rowSecs.flatMap((x) => x.pics.filter((p) => p.dia).map((p) => p.dia));
+ok(dias.length >= 4 && dias.every((d) => D.includes('RIG.diagrams["' + d + '"]')), "the rigs show the app's own rig diagrams", dias);
+const plates = rowSecs.flatMap((x) => x.pics.filter((p) => p.plate).map((p) => p.plate));
+const fishSrc = readFileSync(join(RIGS, "fish.js"), "utf8");
+ok(plates.every((k) => new RegExp("\\bS\\." + k + " = ").test(fishSrc)), "and every drawing named is one the app draws", plates);
 const ids = G.guides.map((g) => g.sections.map((x) => x.id));
 ok(ids.every((a) => new Set(a).size === a.length), "no section id twice in a guide");
 const rulesSecs = secs.filter((x) => x.rules);
@@ -246,40 +260,46 @@ const salmon = G.guide("salmon");
 ok(["King", "Coho", "Pink", "Chum", "Sockeye"].every((n) => new RegExp("\\b" + n).test(JSON.stringify(salmon.sections.find((x) => x.id === "tell")))),
   "Salmon in Washington tells all five apart");
 ok(G.guide("gear").sections.filter((x) => /^kit-/.test(x.id)).length >= 4, "Gear has starting kits from small to big");
-const prices = LINES.filter((l) => /\$\s?\d|\b\d+ dollars?\b|\b(cost|costs|price|priced)\b/i.test(plain(l.text)) && !/\babout\b[^.]*\bper the app's\b/i.test(plain(l.text)) && !/^No prices/.test(plain(l.text)));
-ok(prices.length === 0, "no price without \"about\" and its source", prices.map((l) => l.where + ": " + plain(l.text)));
+const prices = LINES.filter((l) => /\$\s?\d|\b\d+ dollars?\b|\b(cost|costs|price|priced)\b/i.test(plain(l.text)));
+ok(prices.length === 0, "no prices in the guides", prices.map((l) => l.where + ": " + plain(l.text)));
 
 // ---- THE YEAR --------------------------------------------------------------------------------------
 // Each month against the planner itself: the trips in it are the ones
 // RIG.trips.plansOn lists on some day of it (Hot Trips' own test), peak when
 // some confirmed day is peak, and what is in season but held back is named.
-function expectMonth(y, m) {
-  const n = new Date(Date.UTC(y, m, 0)).getUTCDate(), on = new Set(), peak = new Set(), held = new Set();
+function expectMonth(y, m, said) {
+  const n = new Date(Date.UTC(y, m, 0)).getUTCDate(), on = new Set(), peak = new Set(), held = new Set(), ramp = new Set();
   for (let d = 1; d <= n; d++) {
     const iso = y + "-" + String(m).padStart(2, "0") + "-" + String(d).padStart(2, "0"), day = { y, m, d, iso };
     const listed = T.plansOn(iso).map((p) => p.id);
     listed.forEach((id) => { const p = T.plans.find((x) => x.id === id); if (p.gen) return; on.add(id); if (T.season(p, day) === "peak") peak.add(id); });
-    T.plans.forEach((p) => { if (!p.gen && !listed.includes(p.id) && T.season(p, day) && T.spots.some((s) => s.id === p.spot)) held.add(p.listAs || p.name); });
+    T.plans.forEach((p) => {
+      if (p.gen || listed.includes(p.id) || !T.season(p, day) || !T.spots.some((s) => s.id === p.spot)) return;
+      if (T.ruleOn(p, day) === "confirmed" && p.access) ramp.add(p); else held.add(p.listAs || p.name);
+    });
   }
+  // a closed ramp is said in the first month it holds a trip back, not again
+  ramp.forEach((p) => { if (!held.has(p.listAs || p.name) && !said.has(p.id)) { said.add(p.id); held.add(p.listAs || p.name); } });
   return { on, peak, held: [...held].filter((h) => !T.plans.some((p) => (p.listAs || p.name) === h && on.has(p.id))) };
 }
 function checkYear(today) {
   const ms = G.year(today), out = [];
-  const y0 = +today.slice(0, 4), m0 = +today.slice(5, 7);
+  const y0 = +today.slice(0, 4), m0 = +today.slice(5, 7), said = new Set();
   if (ms.length !== 12) out.push("not twelve months");
   ms.forEach((mo, i) => {
     const y = y0 + Math.floor((m0 - 1 + i) / 12), m = ((m0 - 1 + i) % 12) + 1;
     if (mo.y !== y || mo.m !== m || mo.now !== (i === 0)) out.push(mo.label + ": wrong month order");
-    const e = expectMonth(y, m), got = new Set(mo.plans);
+    const e = expectMonth(y, m, said), got = new Set(mo.plans);
     const missing = [...e.on].filter((id) => !got.has(id)), extra = [...got].filter((id) => !e.on.has(id));
     if (missing.length || extra.length) out.push(mo.label + ": missing " + missing + " extra " + extra);
     const places = [].concat(mo.peak, mo.good).flatMap((g) => g.places);
     const wrongPeak = places.filter((p) => p.peak !== e.peak.has(p.plan)).map((p) => p.plan);
     if (wrongPeak.length) out.push(mo.label + ": peak wrong for " + wrongPeak);
     if (mo.peak.some((g) => !g.places.some((p) => p.peak)) || mo.good.some((g) => g.places.some((p) => p.peak))) out.push(mo.label + ": a group under the wrong head");
-    const heldGot = mo.held.map((h) => h.name).sort().join("|"), heldWant = e.held.sort().join("|");
+    const heldGot = mo.held.flatMap((h) => h.names).sort().join("|"), heldWant = e.held.sort().join("|");
     if (heldGot !== heldWant) out.push(mo.label + ": not listed " + heldGot + " want " + heldWant);
     if (mo.held.some((h) => !h.why)) out.push(mo.label + ": a held trip with no reason");
+    if (new Set(mo.held.map((h) => h.why)).size !== mo.held.length) out.push(mo.label + ": one reason said twice");
   });
   return { ms, out };
 }
@@ -291,8 +311,68 @@ const nov = yr[0];
 ok(nov.now && nov.plans.includes("squid-redondo") && nov.plans.includes("chum-green-river") && !nov.plans.includes("trout-tapps") && nov.held.some((h) => /Allan Yorke/.test(h.why)),
   "November: squid and chum in, Lake Tapps held back with the closed ramp as the reason", nov);
 const aug27 = yr.find((m) => m.iso === "2027-08");
-ok(aug27 && aug27.held.some((h) => /Puyallup/.test(h.name)) && !aug27.plans.some((id) => /puyallup/.test(id)) && aug27.plans.includes("king-dash-point"),
-  "August 2027: kings at Dash Point in, the Puyallup held until its 2027 dates are read", aug27 && aug27.held);
+ok(aug27 && aug27.held.some((h) => /Puyallup/.test(h.name) && /Dash Point/.test(h.name) && /2027-28 pamphlet/.test(h.why)) && !aug27.plans.some((id) => /puyallup|dash-point/.test(id) && !/cutthroat/.test(id)),
+  "August 2027: salmon off Dash Point and on the Puyallup are held, on one line, until the 2027-28 pamphlet is read", aug27 && aug27.held);
+ok(yr.filter((m) => m.held.some((h) => /Allan Yorke/.test(h.why))).map((m) => m.iso).join() === "2026-11", "the closed Lake Tapps ramp is said once, in the first month, not in every month after");
+ok(nov.peak.concat(nov.good).some((g) => g.key === "clams" && /dig days/.test(g.name) && g.places.every((p) => p.name === "Copalis and Mocrocks") && /own beach/.test(g.note)),
+  "razor clams name the dig beaches, Copalis and Mocrocks (Ocean Shores is on Copalis, shut on a Mocrocks day), only on WDFW's dig days, each day its own beach", nov.peak.concat(nov.good).find((g) => g.key === "clams"));
+ok(yr.every((m) => [].concat(m.peak, m.good).every((g) => g.view)) && yr.some((m) => m.peak.concat(m.good).some((g) => g.name === "Salmon from the piers")) && !JSON.stringify(yr).includes("Winter salmon"),
+  "each group carries its water for its picture; the pier salmon are \"Salmon from the piers\" (Fox Island runs to June)");
+
+// ---- the rules run out: salmon dates are set once a year ----------------------------------------
+// The 2026-27 pamphlet's salmon dates end: Marine Area 11 Apr 30, 2027, the
+// Fox Island pier June 30, 2027, the Green Dec 31, 2026. No salmon plan is
+// listed past its last read day, and its months in a line say the year.
+const SALMON = ["king", "coho", "pink", "chum"];
+const salmonPlans = T.plans.filter((p) => SALMON.includes(p.species) && p.rules === "confirmed" && !p.gen);
+ok(salmonPlans.length >= 10 && salmonPlans.every((p) => p.ruleYear || p.rulesUntil), "every confirmed salmon plan says the last day its rules hold (ruleYear or rulesUntil)",
+  salmonPlans.filter((p) => !(p.ruleYear || p.rulesUntil)).map((p) => p.id));
+const UNTIL = { "king-dash-point": "2027-04-30", "coho-dash-point": "2027-04-30", "salmon-redondo": "2027-04-30", "salmon-les-davis": "2027-04-30",
+  "salmon-des-moines": "2027-04-30", "salmon-point-defiance": "2027-04-30", "salmon-fox-island": "2027-06-30", "coho-green-river": "2026-12-31", "chum-green-river": "2026-12-31" };
+ok(Object.entries(UNTIL).every(([id, u]) => T.plans.find((p) => p.id === id).rulesUntil === u), "Marine Area 11 to Apr 30, 2027; Fox Island to June 30, 2027; the Green to Dec 31, 2026");
+const late = [];
+for (const t of ["2026-11-23", "2027-05-03", "2027-09-13"]) for (const mo of G.year(t)) for (const id of mo.plans) {
+  const p = T.plans.find((x) => x.id === id), first = mo.iso + "-01";
+  if (p.rulesUntil && first > p.rulesUntil) late.push(mo.iso + " " + id);
+  if (p.ruleYear && mo.y !== p.ruleYear) late.push(mo.iso + " " + id);
+}
+ok(late.length === 0, "no salmon plan is listed in a month after its rules end", late);
+const kingsDP = T.plans.find((p) => p.id === "king-dash-point");
+ok(T.season(kingsDP, { y: 2027, m: 7, d: 10, iso: "2027-07-10" }) === null && T.season(kingsDP, { y: 2026, m: 7, d: 23, iso: "2026-07-23" }) === "peak" &&
+  T.plans.filter((p) => p.spot === "dash-point" && SALMON.includes(p.species)).every((p) => (p.closed || []).some((r) => r[0] === "07-01" && r[1] === "07-22")),
+  "Marine Area 11 open water is closed July 1 to 22: kings, coho and pinks off Dash Point");
+ok(T.ruleOn(kingsDP, { y: 2027, m: 7, d: 23, iso: "2027-07-23" }) === "2027 dates not read yet. WDFW sets them in the 2027-28 pamphlet", "past Apr 30, 2027 the kayak kings wait for the 2027-28 pamphlet");
+const W = (id) => G.text("{when:" + id + "}").replace(/\u00a0/g, " ");
+ok(W("king-dash-point") === "late July to September in 2026" && W("coho-dash-point") === "August to October in 2026" && W("salmon-redondo") === "October to April" &&
+  W("coho-green-river") === "mid September to November in 2026" && W("steelhead-tokul") === "December to mid February" && W("coho-puyallup-sumner") === "mid September to October in 2026",
+  "the months say a season that starts or ends inside a month, and the year when only that year's dates are read",
+  ["king-dash-point", "coho-dash-point", "salmon-redondo", "coho-green-river", "steelhead-tokul", "coho-puyallup-sumner"].map((id) => id + ": " + W(id)));
+const part = (w) => w.replace(/ (more|go|row)$/, "");
+const no2027 = LINES.filter((l) => /\bin\s2026\b/.test(l.text) && !/2027-28 pamphlet/.test(LINES.filter((x) => part(x.where) === part(l.where)).map((x) => x.text).join(" ")));
+ok(no2027.length === 0, "where a line names 2026's dates, the same part says 2027's come with the 2027-28 pamphlet", no2027.map((l) => l.where + ": " + l.text));
+
+// ---- the methods: hooks, bait, crab, cold water ------------------------------------------------------
+const all = LINES.map((l) => plain(l.text));
+const TREBLE_LURE = /\b(Buzz Bombs?|Point Wilson Darts?|Blue Fox|Rooster Tail|spinners?)\b/i;
+const salmonLure = LINES.filter((l) => TREBLE_LURE.test(plain(l.text)) && /\b(salmon|coho|kings?|pier)\b/i.test(plain(l.text)) && !/^about /.test(l.where) &&
+  !/\b(single|siwash)\b/i.test(plain(l.text)) && !/go$/.test(l.where));
+ok(salmonLure.length === 0, "a lure that ships with a treble is never offered for salmon without the swap to a single hook in the same line", salmonLure.map((l) => l.where + ": " + plain(l.text)));
+const takesBad = Object.entries(G.about).filter(([, a]) => (a.takes || []).some((t) => /Buzz Bomb|Blue Fox|Point Wilson/.test(t) && !/single/.test(t))).map(([id]) => id);
+ok(takesBad.length === 0, "and a fish's What takes it says single hook on a Buzz Bomb or a Blue Fox", takesBad);
+ok(!all.some((t) => /barbless is required, the rules card for that water says so/i.test(t)) && all.some((t) => /Salmon in the Sound[^.]*single point barbless/i.test(t)),
+  "salmon in the salt: single point barbless hooks, said outright, not left to a card that does not say it");
+ok(all.some((t) => /pots only in the pot season/.test(t)) && !all.some((t) => /ring nets, snares or pots/i.test(t)), "crab pots only in the pot season; ring nets and snares all year");
+ok(all.some((t) => /Eat only the meat/i.test(t)) && all.some((t) => /back shell in the field, all the way home/.test(t)) && all.some((t) => /Department of Health/.test(t)),
+  "crab: clean it and eat only the meat, the back shell all the way home, and the two checks before any beach");
+ok(all.some((t) => /Puget Sound Dungeness crab also needs the crab endorsement/.test(t)) && !all.some((t) => /shellfish license alone covers crab,/i.test(t)), "a shellfish license alone is not enough for Puget Sound Dungeness");
+ok(all.some((t) => /no live fish or other live water animals as bait/.test(t)) && !all.some((t) => /bans most live bait/i.test(t)) && all.some((t) => /selective gear or fly fishing only: no bait/i.test(t)),
+  "bait: the live bait rule as the pamphlet says it, and stocked lakes that ban bait");
+ok(all.some((t) => /as dangerous in 50 to 60 F water as in 35 F water/.test(t)) && all.some((t) => /head out of the water/.test(t)) && G.guide("safety").sections[0].points[0].startsWith("Wear the life jacket"),
+  "cold water opens on the life jacket, says cold shock is as dangerous at 50 to 60 F as at 35 F, and keeps the head out of the water");
+ok(all.some((t) => /quick release float, never from the side/.test(t)) && all.some((t) => /In strong current, drift instead/.test(t)), "anchoring a kayak: the float and the bow or stern, and drift in strong current");
+const keepPts = G.guide("salmon").sections.find((x) => x.id === "keep").points;
+ok(/fin/.test(keepPts[0]) && /catch record card/.test(keepPts[1]) && /ice/.test(keepPts[2]), "keeping a salmon: the fin first, then the card, then bled and on ice", keepPts);
+ok(!all.some((t) => /\b(per the app's|the app plans no|plans no fly trip|for the app yet|No prices)\b/i.test(t)), "no app internals printed on the screen");
 ok(yr.every((m) => !m.plans.some((id) => T.plans.find((p) => p.id === id).gen)), "stocked lakes are left to Lakes near you, not guessed into a month");
 
 // ---- About the fish --------------------------------------------------------------------------------

@@ -1086,7 +1086,8 @@
             "<b>Dungeness, Puget Sound:</b> males, 6 1/4 inches, 5 a day.",
             "<b>Dungeness, Westport:</b> males, 6 inches, 6 a day.",
             "<b>Red rock:</b> either sex, 5 inches, 6 a day.") +
-          box("law", "keep the back shell", "Every kept crab keeps its back shell until you leave the water. Nothing may pierce the shell.") +
+          box("law", "keep the back shell", "Every kept crab keeps its back shell in the field, all the way home. Nothing may pierce the shell.") +
+          box("", "eat only the meat", "Clean crab before cooking. Eat the meat, never the butter: crab hold toxins and pollutants there.") +
           '<p class="stamp">From the ' + WDFW_CRAB + ' area pages, 2026-11-21.</p>' },
       { id: "crab-gear", tab: "Gear rules", group: "before", title: "Pots, ring nets and buoys",
         body: when("Two units of crab gear per person. A pot, a ring net or a snare is one unit.") +

@@ -485,18 +485,19 @@
     "pier-salmon": function (p, site) {
       return {
         what: "Winter salmon from " + site.name + ". Resident blackmouth and coho feed along the piers all winter, and the pier rule keeps these open when the rest of the Sound is closed. A long-odds trip: one fish is a good day.",
-        setup: ["Pick rail space on the side the tide is running toward.", "Rig the jig or the herring before you walk out."],
+        setup: ["Pick rail space on the side the tide is running toward.", "Rig the jig or the herring before you walk out.",
+          "Swap the treble on every Buzz Bomb and Point Wilson Dart for one single barbless siwash, at home. They come illegal for salmon here."],
         during: ["Jig: cast out, let it fall to the bottom, then rip it up and let it flutter back down. Most hits come on the fall.",
           "Cover water: fan your casts and work different depths.", "Moving tide is the window. Slack water is break time."],
-        wrap: ["Fish bled and on ice.", "Mark the catch record card before you leave the pier."],
+        wrap: ["Fill in the catch record card the moment you keep a salmon.", "Fish bled and on ice."],
         gear: [
           { i: "Your 7.5 ft river rod with 30 lb braid", s: "have", n: "Fine for pier jigging." },
-          { i: "Buzz Bomb or Point Wilson Dart jigs, 1 to 2 oz", s: "check" },
+          { i: "Buzz Bomb or Point Wilson Dart jigs, 1 to 2 oz", s: "check", n: "Treble off, one single barbless siwash on." },
           { i: "Long-handled net for the pier", s: "need", n: "A fish has to come up the side of the pier." },
           { i: "Cooler with ice, knife to bleed", s: "check" },
           { i: "Saltwater or combination license, catch record card", s: "check" }
         ],
-        bait: { first: "Buzz Bomb, 1 to 2 oz, white or glow.", backup: ["Point Wilson Dart.", "Plug-cut herring under a slip float."],
+        bait: { first: "Buzz Bomb, 1 to 2 oz, white or glow, on a single barbless siwash.", backup: ["Point Wilson Dart, on a single barbless siwash.", "Plug-cut herring under a slip float."],
           note: "What is working at this pier this winter is not confirmed for the card." },
         how: ["Cast, count it down to the bottom, then lift hard and let it flutter back.",
           "Keep the line tight on the fall. A bump or a stop is a fish: reel and lift.", "Net it. Do not try to swing a salmon up a pier."],
@@ -505,8 +506,8 @@
         rules: (site.area === 13
           ? ["Fox Island pier, Oct 1 to June 30: 2 salmon a day, no more than 1 Chinook. Chinook 22 in minimum. Release chum."]
           : ["Piers (Des Moines, Les Davis, Point Defiance boathouse, Redondo), Oct 1 to Apr 30: 2 salmon a day, no more than 1 Chinook. Chinook 22 in minimum.",
-            "Open water in Marine Area 11 is closed Nov 1 to Apr 30. The pier rule only covers fishing from the pier."]).concat(
-          ["Saltwater or combination license, plus a catch record card."]),
+            "Open water in Marine Area 11 is closed Nov 16 to Mar 30 and open Wed to Sat only Mar 31 to Apr 30. Commencement Bay is closed Nov 1 to Apr 30. The pier rule only covers fishing from the pier."]).concat(
+          ["Salmon in Marine Areas 1 to 13: single point barbless hooks only.", "Saltwater or combination license, plus a catch record card."]),
         more: [["coho", "dash-point", "dash-watch-jig"], ["king", "dash-point", "king-watch"], ["king", "dash-point", "salmon-license"]]
       };
     },
@@ -522,7 +523,7 @@
         what: "Stocked rainbow trout from shore at " + site.name + ". WDFW plants catchable trout here; the first weeks after a plant are the time to go.",
         setup: ["Check the WDFW stocking report the night before.", "Park at the access and walk the shore to open water you can cast into."],
         during: ["PowerBait floating just off the bottom on a sliding sinker rig.", "No bites in 20 minutes? Move. Fresh plants cruise in schools.",
-          "Second rod idea: a small spinner or a worm under a bobber near the surface."],
+          "Slow on the bottom? Switch to a small spinner, or a worm under a bobber near the surface."],
         wrap: ["Trout on ice right away."],
         gear: [
           { i: "Light spinning rod", s: "have" },

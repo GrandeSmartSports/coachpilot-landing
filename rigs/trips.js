@@ -85,6 +85,15 @@
   var PUY_DAYS = [{ dow: [0, 1, 2], from: "08-19", to: "09-30" }];
   var PUY_NEXT = "{y} dates not read yet. WDFW sets them in the {y}-{yy} pamphlet";
   var PUY_AS = "Salmon on the Puyallup";
+  // Salmon dates are set once a year (North of Falcon), so the 2026-27
+  // pamphlet's run out: Marine Area 11 on Apr 30, 2027 (open water and the
+  // piers), Marine Area 13's Fox Island pier on June 30, 2027, the Green on
+  // Dec 31, 2026. Past those days a salmon plan waits for the next pamphlet.
+  var SALMON_NEXT = PUY_NEXT;
+  var MA11_UNTIL = "2027-04-30", MA13_UNTIL = "2027-06-30", GREEN_UNTIL = "2026-12-31";
+  // Marine Area 11, open water (2026-27 pamphlet): closed July 1 to 22 and
+  // Nov 16 to Mar 30.
+  var MA11_CLOSED = [["07-01", "07-22"], ["11-16", "03-30"]];
 
   // One plan = one fish, one spot, one way of fishing it.
   //   peak / ok:   months (1 to 12), or date ranges (["08-19", "09-10"]).
@@ -100,6 +109,10 @@
   //                dates every year). Any other year is held back with
   //                ruleNext ({y} is that year, {yy} the next one's last two
   //                digits), until someone reads its pamphlet.
+  //   rulesUntil:  "YYYY-MM-DD", the last day this plan's rules are read
+  //                for (the 2026-27 pamphlet sets salmon dates only so far).
+  //                After it the plan is held back with ruleNext, like a
+  //                ruleYear plan, until someone reads the next pamphlet.
   //   listAs:      one name for a group of plans in the "not listed" note.
   //   how:         kayak | shore | surf. Sets the wind limits.
   //   tide:        squid | moving | flood | slack | null.
@@ -131,25 +144,29 @@
       // incoming, the hour or two before high. The state park is 8 AM to dusk.
       peak: [10, 11, 12, 1, 2, 3, 4], ok: [5, 6, 9], how: "shore", tide: "flood", opens: 8, rules: "confirmed" },
     { id: "coho-dash-point", species: "coho", spot: "dash-point", name: "Coho from the kayak, Dash Point",
-      peak: [8, 9], ok: [10], closed: [["11-16", "03-30"]], how: "kayak", tide: "moving", rules: "confirmed" },
+      peak: [8, 9], ok: [10], closed: MA11_CLOSED, how: "kayak", tide: "moving", rules: "confirmed",
+      rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon off Dash Point" },
     { id: "king-dash-point", species: "king", spot: "dash-point", name: "Kings mooching, Dash Point",
-      peak: [7, 8], ok: [9], closed: [["11-16", "03-30"]], how: "kayak", tide: "moving", rules: "confirmed" },
+      peak: [7, 8], ok: [9], closed: MA11_CLOSED, how: "kayak", tide: "moving", rules: "confirmed",
+      rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon off Dash Point" },
     { id: "pink-dash-point", species: "pink", spot: "dash-point", name: "Pinks, Dash Point",
-      peak: [8], ok: [7, 9], odd: true, closed: [["11-16", "03-30"]], how: "kayak", tide: "moving",
-      rules: "2027 pink rules set at North of Falcon, usually April" },
+      peak: [8], ok: [7, 9], odd: true, closed: MA11_CLOSED, how: "kayak", tide: "moving",
+      rules: "2027 pink rules set at North of Falcon, usually April", listAs: "Pinks off Dash Point" },
     { id: "coho-green-river", species: "coho", spot: "green-river", name: "Coho on the Green",
       // WAC 220-312-040 (WSR 26-13-052, effective 2026-07-12): S 212th St to
       // the Hwy 18 EB bridge is open Sept 16 to Dec 31. Daylight only (night
       // closure), which the planner already does for non-dark plans.
-      peak: [10], ok: [9, 11], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed" },
+      peak: [10], ok: [9, 11], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed",
+      rulesUntil: GREEN_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon on the Green" },
     { id: "chum-green-river", species: "chum", spot: "green-river", name: "Chum on the Green",
-      peak: [11], ok: [12], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed" },
+      peak: [11], ok: [12], closed: [["01-01", "09-15"]], how: "shore", rules: "confirmed",
+      rulesUntil: GREEN_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon on the Green" },
     { id: "steelhead-green-river", species: "steelhead", spot: "green-river", name: "Winter steelhead on the Green",
       // WAC 220-312-040: the Green is closed to game fish Jan 1 to the Friday
       // before Memorial Day, so only December is possible.
       ok: [12], how: "shore", rules: "December steelhead limit not confirmed. Closed Jan to May" },
     { id: "pink-green-river", species: "pink", spot: "green-river", name: "Pinks on the Green",
-      peak: [9], ok: [8, 10], odd: true, how: "shore", rules: "2027 pink rules set at North of Falcon, usually April" },
+      peak: [9], ok: [8, 10], odd: true, how: "shore", rules: "2027 pink rules set at North of Falcon, usually April", listAs: "Pinks on the Green" },
     { id: "trout-fenwick", species: "perch", spot: "lake-fenwick", name: "Perch and trout, Lake Fenwick",
       peak: [4, 5, 6, 10], ok: [3, 7, 8, 9, 11], how: "shore", rules: "confirmed" },
     { id: "bass-fenwick", species: "bass", spot: "lake-fenwick", name: "Bass, Lake Fenwick",
@@ -168,8 +185,9 @@
       peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed", kind: "squid-pier",
       site: { name: "Les Davis Pier", where: "Ruston Way, Tacoma", lines: ["Les Davis Pier on Ruston Way, Tacoma. A public fishing pier on Commencement Bay.",
         "WDFW names it with Des Moines as a pier where squid show up late November and December.",
-        "Waters within 100 yards are closed to food fish and shellfish except from the pier itself."],
-        unknown: ["Parking and hours", "How the pier lights compare to Redondo"] } },
+        "Waters within 100 yards are closed to food fish and shellfish except from the pier itself.",
+        "Open 24 hours, lit for night fishing, with parking and restrooms."],
+        unknown: ["How the pier lights compare to Redondo"] } },
     { id: "squid-point-defiance", species: "squid", spot: "point-defiance", name: "Squid at the Point Defiance boathouse dock",
       peak: [11, 12, 1], ok: [10, 2], how: "shore", tide: "squid", dark: true, rules: "confirmed", kind: "squid-pier",
       site: { name: "Point Defiance boathouse dock", where: "Point Defiance Park, Tacoma", lines: ["The fishing dock at the Point Defiance boathouse, Tacoma."],
@@ -183,27 +201,27 @@
     // Pier salmon: May to Sept is the open-water season with boats; the
     // winter pier rule is what makes these worth a trip now.
     { id: "salmon-les-davis", species: "king", spot: "les-davis", name: "Winter salmon from Les Davis Pier",
-      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
-      site: { name: "Les Davis Pier", area: 11, lines: ["Les Davis Pier on Ruston Way, Tacoma."], unknown: ["Parking and hours"] } },
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon from the piers", kind: "pier-salmon",
+      site: { name: "Les Davis Pier", area: 11, lines: ["Les Davis Pier on Ruston Way, Tacoma.", "Open 24 hours, lit at night, with parking and restrooms."], unknown: [] } },
     { id: "salmon-point-defiance", species: "king", spot: "point-defiance", name: "Winter salmon from the Point Defiance dock",
-      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon from the piers", kind: "pier-salmon",
       site: { name: "Point Defiance boathouse dock", area: 11, lines: ["The fishing dock at the Point Defiance boathouse, Tacoma. Fast water off the point."], unknown: ["Park hours", "Parking"] } },
     { id: "salmon-des-moines", species: "king", spot: "des-moines-pier", name: "Winter salmon from Des Moines Pier",
-      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon from the piers", kind: "pier-salmon",
       site: { name: "Des Moines Pier", area: 11, lines: ["Des Moines public fishing pier at the marina."], unknown: ["Parking and hours"] } },
     { id: "salmon-redondo", species: "king", spot: "redondo", name: "Winter salmon from Redondo Pier",
-      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      ok: [10, 11, 12, 1, 2, 3, 4], how: "shore", tide: "moving", rules: "confirmed", rulesUntil: MA11_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon from the piers", kind: "pier-salmon",
       site: { name: "Redondo Pier", area: 11, lines: ["Redondo Pier, Des Moines. The squid pier, by day."], unknown: ["Parking layout and fees"] } },
     { id: "salmon-fox-island", species: "king", spot: "fox-island", name: "Winter salmon from the Fox Island pier",
-      ok: [10, 11, 12, 1, 2, 3, 4, 5, 6], how: "shore", tide: "moving", rules: "confirmed", kind: "pier-salmon",
+      ok: [10, 11, 12, 1, 2, 3, 4, 5, 6], how: "shore", tide: "moving", rules: "confirmed", rulesUntil: MA13_UNTIL, ruleNext: SALMON_NEXT, listAs: "Salmon from the piers", kind: "pier-salmon",
       site: { name: "Fox Island public fishing pier", area: 13, chum: true, lines: ["Fox Island public fishing pier, South Sound (Marine Area 13)."],
         unknown: ["Exact parking", "Hours"] } },
 
     // ---- Batch 2: winter steelhead rivers (2026-27 pamphlet, read 11-23).
     { id: "steelhead-tokul", species: "steelhead", spot: "tokul", name: "Hatchery steelhead, Tokul Creek and the Snoqualmie",
       peak: [12, 1], ok: [2], closed: [["02-16", "11-30"]], opens: 7, closes: 17, how: "shore", rules: "confirmed", kind: "river-steelhead",
-      site: { name: "Tokul Creek and the Snoqualmie at Fall City", lines: ["Tokul Creek, where it meets the Snoqualmie below Snoqualmie Falls. The hatchery on Tokul Creek draws the winter run.",
-        "The Snoqualmie from the Plum access boat ramp up to Snoqualmie Falls is open the same dates."],
+      site: { name: "Tokul Creek and the Snoqualmie, Plum ramp to the falls", lines: ["Tokul Creek, where it meets the Snoqualmie below Snoqualmie Falls. The hatchery on Tokul Creek draws the winter run.",
+        "The Snoqualmie from the Plum access boat ramp up to Snoqualmie Falls is open the same dates. Below the Plum ramp it closes sooner."],
         rules: ["Tokul Creek, mouth to the Fish Hatchery Rd bridge: Dec 1 to Feb 15. Closed every day 5 PM to 7 AM. Anti-snagging rule.",
           "Snoqualmie, Plum access ramp to Snoqualmie Falls: Dec 1 to Feb 15. No fishing from a boat or float tube between the Plum ramp and Tokul Creek.",
           "Steelhead: statewide rule. Release all wild steelhead. Hatchery steelhead 20 in minimum, 2 a day.",
@@ -211,11 +229,12 @@
         unknown: ["Parking at Tokul Creek", "How crowded the hatchery hole gets on a weekend"] } },
     { id: "steelhead-cowlitz", species: "steelhead", spot: "cowlitz", name: "Hatchery steelhead on the Cowlitz",
       peak: [12, 1, 2], ok: [3], how: "shore", rules: "confirmed", kind: "river-steelhead", endorsement: true,
-      site: { name: "the Cowlitz below the Barrier Dam (Blue Creek area, Salkum)", lines: ["The lower Cowlitz from Mill Creek up to the Barrier Dam, near Salkum. Blue Creek and the trout hatchery outlet are the famous bank spots.",
+      site: { name: "the Cowlitz below the Barrier Dam (Blue Creek area, Salkum)", lines: ["The lower Cowlitz from Mill Creek up to the Barrier Dam, near Salkum. Blue Creek is the famous bank spot.",
         "Big, dam-fed river. One of the most heavily planted steelhead rivers in the state."],
         rules: ["Hatchery steelhead: open all year, 20 in minimum, 3 a day.",
           "Columbia River Salmon and Steelhead Endorsement required for salmon and steelhead (age 15 and up). New for 2026.",
           "Mill Creek to the Barrier Dam: no fishing from any floating device. Two-pole allowed with the endorsement.",
+          "Within 100 ft of the new trout hatchery outfall, and of the salmon hatchery wheelchair ramp: only anglers with disabilities who have a designated harvester companion card (at the outfall, only those who use a wheelchair).",
           "Trout: 8 in minimum, 5 a day, release wild cutthroat and wild rainbow."],
         unknown: ["Which bank access is best right now", "Crowds at Blue Creek"] } },
 
@@ -333,7 +352,7 @@
   // Do this plan's rules hold on this day? "confirmed", or why not.
   function ruleOn(p, day) {
     if (p.rules !== "confirmed") return p.rules;
-    if (p.ruleYear && day.y !== p.ruleYear) {
+    if ((p.ruleYear && day.y !== p.ruleYear) || (p.rulesUntil && day.iso > p.rulesUntil)) {
       return String(p.ruleNext || "{y} rules not read yet").replace(/\{y\}/g, day.y).replace(/\{yy\}/g, String(day.y + 1).slice(-2));
     }
     return "confirmed";

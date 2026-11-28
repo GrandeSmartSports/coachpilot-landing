@@ -85,7 +85,7 @@ try {
   const paintOf = (page, spot, fish, iso, planId, kind) => page.evaluate(([spot, fish, iso, planId, kind]) => {
     const el = document.createElement("div"); el.className = "scene"; el.setAttribute("data-scene", kind);
     RIG.water.scene(el, RIG.picture.paint(spot, fish, { iso, from: 8, planId }));
-    return { kind: el.getAttribute("data-scene"), stand: el.getAttribute("data-stand") || "", rainier: el.querySelectorAll("g.w-mtn[transform]").length };
+    return { kind: el.getAttribute("data-scene"), stand: el.getAttribute("data-stand") || "", rainier: el.querySelectorAll("g.w-mtn[transform]").length, kayak: el.querySelectorAll(".w-kayak").length };
   }, [spot, fish, iso, planId, kind]);
   // (fix-2, V1-1) a run card's picture at night, in the band between the
   // chips under its title and its first card: the brightest one pixel in a
@@ -331,16 +331,18 @@ try {
   {
     const { ctx, page, errors } = await week(SEPT_DAYS, SEPT_NOW);
     for (const plan of ["coho-dash-point", "king-dash-point"]) {
-      const c = await card(page, T("2027-09-18", plan));
+      const c = await card(page, T("2026-09-19", plan));
       ok(c.spot === "dash-point" && c.stand === "city" && c.how === "kayak" && c.kayak >= 1, plan + ": the run card stands at the kayak launch, the kayak on the sand", c);
     }
     const pinkDP = await paintOf(page, "dash-point", "pink", "2027-09-10", "pink-dash-point", "sound");
     ok(pinkDP.stand === "city", "a pink trip at Dash Point (by kayak) is the kayak launch too", pinkDP);
-    const cutS = await card(page, T("2027-09-18", "cutthroat-dash-point"));
+    // (the cutthroat trip is not one of the day's six in September 2026, so
+    // its picture is painted the way its run card paints it)
+    const cutS = await paintOf(page, "dash-point", "cutthroat", "2026-09-19", "cutthroat-dash-point", "sound");
     ok(cutS.stand === "state" && cutS.kayak === 0, "and the cutthroat trip that same day is the state park beach", cutS);
-    const crab = await card(page, T("2027-09-18", "crab-westport"));
+    const crab = await card(page, T("2026-09-19", "crab-westport"));
     ok(crab.spot === "westport" && crab.stand === "float" && crab.kind === "pier", "Westport crab: the run card stands on Float 20", crab);
-    const coho = await card(page, T("2027-09-18", "coho-green-river"));
+    const coho = await card(page, T("2026-09-20", "coho-green-river"));
     ok(coho.stand === "narrows", "a September coho trip on the Green: the Auburn Narrows", coho);
     const cards = await allCards(page);
     ok(cards.length >= 4 && cards.every((c) => c.spot && c.rainier === 0), "no run card this week has Rainier", cards.filter((c) => c.rainier || !c.spot).map((c) => c.key));

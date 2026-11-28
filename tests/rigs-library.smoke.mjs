@@ -87,7 +87,9 @@ try {
   const gmeta = await page.evaluate(() => ({ guides: document.querySelector('[data-sec-tile="guides"] .meta')?.textContent, gear: document.querySelector('[data-sec-tile="gear"] .meta')?.textContent }));
   ok(/^\d+ guides$/.test(gmeta.guides || "") && /^\d+ parts$/.test(gmeta.gear || ""), "Guides and Gear are back on the Learn tab, each with its count from rigs/guides.js", gmeta);
   ok(await crosses("[data-learn-tiles] .ptile"), "and they cross the waterline");
-  ok(await page.textContent(".hero h1") === "Knots, casts and guides", "the Learn title names what is there, guides included", await page.textContent(".hero h1"));
+  ok(await page.textContent(".hero h1") === "Knots, casts, guides and gear", "the Learn title names what is there, guides and gear included", await page.textContent(".hero h1"));
+  const st = await page.evaluate(() => { const r = document.querySelector("[data-start] .row"); return r ? { href: r.getAttribute("href"), t: r.querySelector("b").textContent, art: r.querySelectorAll(".tile svg *").length } : null; });
+  ok(st && st.href === "#/learn/guides/start" && st.t === "Start here in Washington" && st.art >= 6, "Learn's Start here opens with Start here in Washington, with its picture", st);
   const first = await page.evaluate(() => [...document.querySelectorAll("[data-learn-first] .row")].map((r) => r.dataset.knot || r.dataset.cast));
   ok(first.join() === "arbor-knot,double-uni,palomar,dropper-loop,pendulum-cast", "Learn these first: arbor, double uni, Palomar, dropper loop, and the pier swing", first);
   ok(/^Learn these first/.test(await page.textContent("[data-learn-first] .sect")), "and the heading says learn, since the pier swing is not tied");
@@ -146,7 +148,7 @@ try {
   const cold = await ctx.newPage();
   await cold.clock.setFixedTime(NOW);
   await cold.goto(`http://127.0.0.1:${PORT}/rigs/#/learn/guides/salmon/tell`, { waitUntil: "load" });
-  await cold.waitForSelector('[data-view="card"] .card .gpts li');
+  await cold.waitForSelector('[data-view="card"] .card [data-prow]');
   ok(await cold.locator('[data-tab="learn"][aria-selected="true"]').count() === 1 && /Tell them apart/.test(await cold.textContent(".hero h1")),
     "opened from cold, a guide section loads its words and opens on the Learn tab");
   await cold.close();
@@ -210,8 +212,8 @@ try {
     return { id: t.dataset.guideTile, href: t.getAttribute("href"), shapes: p.querySelectorAll("svg *").length, plate: p.dataset.plate || "", kind: p.dataset.viewKind || "",
       look: svg ? svg.innerHTML.replace(/vw\d+/g, "").length + ":" + [...svg.querySelectorAll("path")].slice(4, 7).map((x) => (x.getAttribute("d") || "").slice(0, 40)).join("|") : "" };
   }));
-  ok(gt.map((t) => t.id).join() === "start,water,year,salmon,fly,handling,gear,safety" && gt.every((t) => t.shapes >= 8),
-    "Guides: eight tiles, Start here first, each with its picture", gt.map((t) => t.id + " " + t.shapes));
+  ok(gt.map((t) => t.id).join() === "start,safety,water,year,salmon,fly,handling,gear" && gt.every((t) => t.shapes >= 8),
+    "Guides: eight tiles, Start here first and Staying safe second, each with its picture", gt.map((t) => t.id + " " + t.shapes));
   ok(new Set(gt.map((t) => t.look)).size === 8 && gt.find((t) => t.id === "handling").plate === "hook" && gt.find((t) => t.id === "gear").href === "#/learn/gear",
     "no two the same picture (handling is a hook, gear a jig), and the Gear tile opens Gear", gt.map((t) => t.id + " " + (t.plate || t.kind) + " " + t.href));
   ok(await crosses("[data-guide-tiles] .ptile"), "the tiles cross the waterline");
@@ -229,12 +231,15 @@ try {
     "the salmon rules open on links to the app's own rules cards, and no limit is restated", rp);
   const pager = await page.evaluate(() => ({ prev: document.querySelector(".pn .prev b")?.textContent || "", next: !!document.querySelector(".pn .next b") }));
   ok(!pager.next && /Keeping a salmon/.test(pager.prev), "the pager puts Rules last, as the list does", pager);
-  await go("#/learn/guides/salmon/tell", '[data-view="card"] .card .gpts li');
+  await go("#/learn/guides/salmon/tell", '[data-view="card"] .card [data-prow]');
+  await page.waitForSelector('[data-view="card"] [data-prow] .tile[data-plate="sockeye"] svg');
   const sec = await page.evaluate(() => { const c = document.querySelector('[data-view="card"] .card');
-    return { first: c.querySelector(".when + *")?.tagName, pts: c.querySelectorAll(".gpts li").length, more: !!c.querySelector(".gmore:not([open])"),
+    return { first: c.querySelector(".when + *")?.dataset.prows !== undefined, rows: [...c.querySelectorAll("[data-prow]")].map((r) => ({ head: r.querySelector("b").textContent, plate: r.querySelector(".tile")?.dataset.plate || "",
+      art: r.querySelectorAll(".tile svg *").length, line: r.querySelector(".whole").textContent, href: r.getAttribute("href") || "" })), more: !!c.querySelector(".gmore:not([open])"),
       src: [...c.querySelectorAll("[data-sources] a")].map((a) => a.getAttribute("href")), text: c.innerText }; });
-  ok(sec.first === "UL" && sec.pts === 5 && sec.more && /King/.test(sec.text) && /Sockeye/.test(sec.text),
-    "a section opens on its points first (the five salmon told apart), with More closed", sec);
+  ok(sec.first && sec.rows.length === 5 && sec.rows.map((r) => r.plate).join() === "king,coho,pink,chum,sockeye" && sec.rows.every((r) => r.art >= 10) && sec.more &&
+    /^King: black gums$/.test(sec.rows[0].head) && /^Black mouth/.test(sec.rows[0].line) && sec.rows[0].href === "#/king/dash-point",
+    "Tell them apart opens on a row per salmon: its drawing, the one sign that tells it as the headline, the rest under it, More closed", sec.rows);
   ok(sec.src.some((h) => /eregulations\.com\/washington\/fishing\/salmon-identification/.test(h)) && sec.src.every((h) => /^#\/|^https:\/\/www\.(eregulations\.com|weather\.gov)\//.test(h)),
     "and it names its sources: the pamphlet's page on eRegulations, and the app's own", sec.src);
   await page.click('[data-view="card"] .gmore > summary');
@@ -276,11 +281,17 @@ try {
   });
   ok(yr.n === 12 && yr.open.join() === "2026-11" && /This month/i.test(yr.tag) && yr.months[0].m === "2026-11" && yr.months[11].m === "2027-10",
     "The year in Washington: twelve months from this one, this month open and marked", yr);
+  const yg = await page.evaluate(() => [...document.querySelectorAll('[data-month="2026-11"] .ygrp')].map((g) => ({ key: g.dataset.ygroup, art: g.querySelectorAll(".tile svg *").length,
+    chips: [...g.querySelectorAll(".chip")].map((c) => Math.round(c.getBoundingClientRect().height)), name: g.querySelector("b").textContent, text: g.innerText })));
+  ok(yg.length >= 6 && yg.every((g) => g.art >= 6 && g.chips.length && g.chips.every((h) => h >= 38)) && yg.some((g) => g.key === "clams" && /dig days/.test(g.name) && /Copalis and Mocrocks/.test(g.text) && !/Ocean Shores/.test(g.text)),
+    "the open month: each fish a row with its water and its places as chips a thumb can hit; razor clams name Copalis and Mocrocks, on WDFW's dig days", yg.map((g) => g.key + " " + g.art + " " + g.chips.join("/")));
+  ok(!await page.locator("[data-year-notes]").count() && /From November 2026/.test(await page.textContent(".hero .chips")), "no How it is built block, and the chip says From November 2026");
   ok(yr.months.every((m) => m.same) && yr.months.reduce((n, m) => n + m.n, 0) > 100, "every month lists exactly the trips the planner lists on its days, Hot Trips' own seasons", yr.months.filter((m) => !m.same));
   ok(await crosses("[data-year]"), "the year's card crosses the waterline");
   await page.click('[data-year] .gmonth[data-month="2027-08"] > summary');
   const aug = await page.evaluate(() => document.querySelector('[data-month="2027-08"]').innerText);
-  ok(/Kings from the kayak/.test(aug) && /Not listed/i.test(aug) && /Puyallup/.test(aug), "a month opens in place: August 2027 has kings from the kayak, and says why the Puyallup is not listed", aug.slice(0, 300));
+  ok(!/Kings from the kayak/.test(aug) && /Not listed/i.test(aug) && /Salmon off Dash Point and on the Puyallup: 2027 dates not read yet/.test(aug) && /2027-28 pamphlet/.test(aug),
+    "a month opens in place: August 2027 lists no salmon, and says on one line why Dash Point and the Puyallup wait (the 2027-28 pamphlet)", aug.slice(0, 400));
 
   // Gear: its own home on the Learn tab.
   await go("#/learn/gear", '[data-guide="gear"] [data-gsec]');
@@ -289,13 +300,38 @@ try {
   ok(gr.rows.length === 8 && gr.rows[0] === "lures" && gr.rows.filter((x) => /^kit-/.test(x)).length === 5 && gr.back === "#/learn" && gr.chip === "gear",
     "Gear: what each lure and rig is for, then five kits from small to big, under the Gear chip", gr);
   await go("#/learn/gear/kit-river", '[data-view="card"] .card .gpts li');
-  ok(/Kit 2: the river/.test(await page.textContent(".hero h1")) && /about six dollars/.test(await page.textContent('[data-view="card"] .card')), "a kit opens, and its one price says about and where it comes from");
+  ok(/Kit 2: the river/.test(await page.textContent(".hero h1")) && await page.locator('[data-view="card"] .card .gpts li').count() === 5 && !/dollar|\$/.test(await page.textContent('[data-view="card"] .card')),
+    "a kit opens on its five points, with no price");
+  await go("#/learn/gear/rigs", '[data-view="card"] .card [data-prow]');
+  const rg = await page.evaluate(() => [...document.querySelectorAll('[data-view="card"] [data-prow]')].map((r) => ({ href: r.getAttribute("href"), dia: r.querySelector(".tile")?.dataset.dia || "",
+    art: r.querySelectorAll(".tile svg *").length, head: r.querySelector("b").textContent })));
+  ok(rg.length === 6 && rg.every((r) => /^#\//.test(r.href) && r.art >= 6) && rg.filter((r) => r.dia).length === 4 && rg[0].head === "Float and eggs",
+    "Rigs: a row per rig, each opening its card, the river and squid rigs with the app's own diagram", rg);
+  ok(await sceneKind() === "lake", "a section whose picture is a drawing stands under its guide's water");
+  await go("#/learn/gear/kit-pier", '[data-view="card"] .card .gpts li');
+  ok(await sceneKind() === "pier", "the pier kit stands under the pier");
+  await go("#/learn/guides/water/surf", '[data-view="card"] .card .gpts li');
+  const surf = await page.evaluate(() => ({ scene: document.getElementById("scene").getAttribute("data-scene"), first: document.querySelector('[data-view="card"] .gpts li').textContent,
+    next: document.querySelector(".pn .next b"), }));
+  ok(surf.scene === "surf" && /Never turn your back on the waves/.test(surf.first), "the ocean beach stands under the surf, and opens on the waves", surf);
+  await go("#/learn/guides/start/five", '[data-view="card"] .card [data-prow]');
+  const fv = await page.evaluate(() => ({ scene: document.getElementById("scene").getAttribute("data-scene"), rows: [...document.querySelectorAll('[data-view="card"] [data-prow]')].map((r) => ({ href: r.getAttribute("href"),
+    art: r.querySelectorAll(".tile svg *").length, line: r.querySelector(".whole").textContent })), chips: [...document.querySelectorAll('[data-view="card"] [data-go] a')].map((a) => a.getAttribute("href")),
+    pn: [...document.querySelectorAll(".pn .pnb b")].map((b) => ({ t: b.textContent, cut: b.scrollHeight > b.clientHeight + 1 || b.scrollWidth > b.clientWidth + 1 })) }));
+  ok(fv.scene === "pier" && fv.rows.length === 5 && fv.rows.every((r) => /^#\//.test(r.href) && r.art >= 6 && /\d\u00a0(min|hr)\b.* drive\.$/.test(r.line)) &&
+    fv.chips.includes("#/learn/gear/kit-kayak") && fv.chips.includes("#/learn/guides/safety") && fv.chips.includes("#/learn/kayak-reentry"),
+    "five first trips: a picture row each, its months and drive under it, and the kayak trip's kit, re entry and safety a tap away", fv);
+  ok(fv.pn.length === 2 && fv.pn.every((b) => !b.cut), "Back and Next show their whole titles, on two lines when they need them", fv.pn);
 
   // ---- a fish's page (switched on), a rig's knot, a trip ---------------------------
   await go("#/coho/green-river", '[data-about="coho"]');
   const ab = await page.evaluate(() => { const a = document.querySelector("[data-about]"); return { text: a.innerText, lures: a.querySelectorAll(".lures .tag").length, where: [...a.querySelectorAll("[data-where] li")].map((l) => l.innerText) }; });
-  ok(/white gum line/i.test(ab.text) && ab.lures >= 3 && !/Did you know|by smell|jump when hooked/i.test(ab.text) && ab.where.some((w) => /The Green, September to November/.test(w)),
-    "a fish's page has the Rig Card's About: how to tell it, where the app fishes it with the months from the plans, what takes it", ab);
+  ok(/white gum line/i.test(ab.text) && ab.lures >= 3 && !/Did you know|by smell|jump when hooked/i.test(ab.text) && ab.where.some((w) => /The Green, mid September to November in\s2026/.test(w)) &&
+    /where to fish it/i.test(ab.text) && !/where the app/i.test(ab.text) && ab.where.some((w) => /2027-28 pamphlet/.test(w)),
+    "a fish's page has the Rig Card's About: how to tell it, where to fish it with the months from the plans (2026's, and when 2027's come), what takes it", ab);
+  const tk = await page.evaluate(() => [...document.querySelectorAll("[data-about] .lures .tag")].map((t) => ({ t: t.textContent, href: t.getAttribute("href") || "" })));
+  ok(tk.filter((t) => t.href).length >= 3 && tk.some((t) => /Blue Fox, single hook/.test(t.t) && t.href) && tk.some((t) => /Buzz Bomb, single barbless siwash/.test(t.t)),
+    "what takes it: the lures with a card open it, and a treble lure says its single hook", tk);
   await go("#/coho/green-river/salmon-float-eggs-build", '[data-view="card"] .card a.k[data-knot-link]');
   const kk = await page.evaluate(() => [...document.querySelectorAll("a.k[data-knot-link]")].map((a) => a.dataset.knotLink));
   ok(kk.includes("improved-clinch") && kk.includes("egg-loop-knot"), "a knot named in a rig's steps opens its card", kk);
@@ -312,9 +348,10 @@ try {
   // (knots, casts, guides, the year, the rules page, a fish's About and the Learn tab)
   const openMore = async () => { await page.click('[data-view="card"] .gmore > summary'); await page.waitForSelector('[data-view="card"] .gmore[open] p'); };
   const SCREENS = [["a knot card", "#/learn/knots/double-uni", '[data-card="lib-knot-double-uni"]'], ["a cast card", "#/learn/casting/pendulum-cast", '[data-card="lib-cast-pendulum-cast"]'],
-    ["a guide section", "#/learn/guides/salmon/tell", '[data-view="card"] .gpts li'],
-    ["a guide section, its More open", "#/learn/guides/start/five", '[data-view="card"] .gpts li', openMore],
-    ["the rules page", "#/learn/guides/salmon/rules", "[data-rules-pointer]"], ["the year", "#/learn/guides/year", "[data-year] .gmonth[open] .mlist li"],
+    ["a guide section", "#/learn/guides/salmon/tell", '[data-view="card"] [data-prow]'],
+    ["a guide section, its More open", "#/learn/guides/start/five", '[data-view="card"] [data-prow]', openMore],
+    ["a guide section of points", "#/learn/guides/safety/cold", '[data-view="card"] .gpts li'], ["the rigs", "#/learn/gear/rigs", '[data-view="card"] [data-prow]'],
+    ["the rules page", "#/learn/guides/salmon/rules", "[data-rules-pointer]"], ["the year", "#/learn/guides/year", "[data-year] .gmonth[open] .ygrp"],
     ["the guides", "#/learn/guides", "[data-guide-tiles] .ptile"], ["a fish's About", "#/coho/green-river", "[data-about] [data-where] li"], ["the Learn tab", "#/learn", "[data-learn-first] .row"]];
   for (const [name, hash, sel, then] of SCREENS) {
     const worst = [];
