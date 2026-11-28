@@ -749,10 +749,14 @@
           [
             "the bar crossing can be sketchy and",
             "the ebb current near the bar is dangerous, and"
+          ],
+          [
+            "The upper Columbia (above Bonneville) has limited opportunities due to tribal co-management and dam issues.",
+            "Above the dams, the Hanford Reach has a big fall Chinook run."
           ]
         ],
-        "reason": "Astoria is in Oregon. And at Buoy 10 you fish inside the bar; the danger is the ebb current near it.",
-        "source": "Oregon is across the river from Ilwaco; USCG and NOAA on the Columbia River bar"
+        "reason": "Astoria is in Oregon. At Buoy 10 you fish inside the bar; the danger is the ebb current near it. And 'the upper Columbia has limited opportunities' leaves out the Hanford Reach, the Columbia's big wild fall Chinook run.",
+        "source": "Oregon is across the river from Ilwaco; USCG and NOAA on the Columbia River bar; WDFW Hanford Reach fall Chinook"
       }
     },
     "reason": "Where plus when, said as fact.",
