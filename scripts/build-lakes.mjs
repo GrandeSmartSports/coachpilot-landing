@@ -499,12 +499,21 @@ export function joinPamphlet(lakes, entries, log) {
   return { of, maybe };
 }
 // The Columbia and Snake are rivers in the pamphlet, not reservoirs (page
-// 23): their dams' pools on the map are not lakes under its rules.
-const RIVER_POOLS = { ENTIAT: "Columbia", PATEROS: "Columbia", UMATILLA: "Columbia", "RUFUS WOODS": "Columbia", WALLULA: "Columbia",
-  CELILO: "Columbia", BONNEVILLE: "Columbia", WANAPUM: "Columbia", "PRIEST RAPIDS": "Columbia", SACAJAWEA: "Snake", "HERBERT G WEST": "Snake",
-  WEST: "Snake", BRYAN: "Snake", "LOWER GRANITE": "Snake" };
-const RIVER_COUNTIES = /^(CHELAN|DOUGLAS|OKANOGAN|KLICKITAT|BENTON|FRANKLIN|WALLA WALLA|GRANT|KITTITAS|YAKIMA|SKAMANIA|CLARK|COWLITZ|WHITMAN|GARFIELD|ASOTIN|COLUMBIA)$/;
-export function riverPool(l) { return RIVER_COUNTIES.test(l.county.toUpperCase()) ? RIVER_POOLS[l.core] || "" : ""; }
+// 23): their dams' pools on the map are not lakes under its rules. A name
+// alone is not a pool: each pool is the river's only in the counties on its
+// own shores, and only at a pool's size (Lake Sacajawea in Longview, Cowlitz
+// County, 45.5 acres, is a city lake; a small West Lake is a West Lake).
+const RIVER_POOLS = { ENTIAT: ["Columbia", "CHELAN DOUGLAS"], PATEROS: ["Columbia", "CHELAN DOUGLAS OKANOGAN"], UMATILLA: ["Columbia", "BENTON KLICKITAT"],
+  "RUFUS WOODS": ["Columbia", "DOUGLAS GRANT OKANOGAN"], WALLULA: ["Columbia", "BENTON FRANKLIN WALLA_WALLA"], CELILO: ["Columbia", "KLICKITAT"],
+  BONNEVILLE: ["Columbia", "KLICKITAT SKAMANIA"], WANAPUM: ["Columbia", "CHELAN DOUGLAS GRANT KITTITAS"], "PRIEST RAPIDS": ["Columbia", "GRANT KITTITAS YAKIMA"],
+  SACAJAWEA: ["Snake", "FRANKLIN WALLA_WALLA"], "HERBERT G WEST": ["Snake", "COLUMBIA FRANKLIN WALLA_WALLA WHITMAN"], WEST: ["Snake", "COLUMBIA FRANKLIN WALLA_WALLA WHITMAN"],
+  BRYAN: ["Snake", "COLUMBIA GARFIELD WHITMAN"], "LOWER GRANITE": ["Snake", "ASOTIN GARFIELD WHITMAN"] };
+const POOL_ACRES = 1000; // the smallest of these pools is thousands of acres
+export function riverPool(l) {
+  const p = RIVER_POOLS[l.core];
+  if (!p || !p[1].split(" ").includes(String(l.county || "").trim().toUpperCase().replace(/ /g, "_"))) return "";
+  return l.acres != null && l.acres < POOL_ACRES ? "" : p[0];
+}
 // The printed page of each entry, from scripts/pamphlet-pages.json.
 export function pageKey(slug, e) { return slug + "|" + e.name + "|" + e.counties.join("/") + "|" + (e.sections[0] ? e.sections[0].note : ""); }
 // Where an entry with no lake on the map lies: a plants code's point of the
@@ -778,8 +787,15 @@ export function shrinkage(next, last) {
   return out;
 }
 
+// The day a build is stamped with: Bonney Lake's (Pacific time), not UTC's,
+// so a build after 4 PM is not dated tomorrow.
+export function pacificDay(now) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(now).map((x) => [x.type, x.value]));
+  return p.year + "-" + p.month + "-" + p.day;
+}
 export async function main({ dry = false, force = false, get = fetch, out = resolve(ROOT, "rigs/lakes.js"), waters = null, pages = null, now = new Date(), print = console.log, min = MIN } = {}) {
-  const built = now.toISOString().slice(0, 10), year = +built.slice(0, 4);
+  const built = pacificDay(now), year = +built.slice(0, 4);
   const input = await fetchAll(get, { year, built, min });
   input.waters = waters || feedWaters(readFileSync(resolve(ROOT, "rigs/waters.js"), "utf8"));
   input.pages = pages || JSON.parse(readFileSync(resolve(ROOT, "scripts/pamphlet-pages.json"), "utf8"));

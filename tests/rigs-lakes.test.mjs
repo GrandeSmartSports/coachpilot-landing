@@ -12,12 +12,15 @@
 // not this lake's; a USGS record joins only the one lake its place names;
 // each pamphlet entry joins the lake it names (the words under its heading,
 // the kind of water) with its seasons, its parts and its printed page, and
-// one it cannot tell apart says so; a Columbia pool is a river; tags are
+// one it cannot tell apart says so; a Columbia pool is a river, and only in
+// its own counties at a pool's size (Lake Sacajawea in Longview is a lake);
+// an entry's printed page is the page with its whole heading; tags are
 // stocked, in the lake and introduced, never wild or native; Lake Tapps has
 // its tiger muskie, planted May 5, 2026, with the 50 inch rule from the
 // pamphlet; a source that answers empty, short or with an error stops the
 // build, and a build that would lose a tenth of a source writes nothing; the
-// dry run writes nothing; and the committed rigs/lakes.js is the build's.
+// dry run writes nothing; a build is stamped with the day in Pacific time;
+// and the committed rigs/lakes.js is the build's.
 import { readFileSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { gzipSync } from "node:zlib";
 import { tmpdir } from "node:os";
@@ -25,6 +28,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 import * as L from "../scripts/build-lakes.mjs";
+import * as P from "../scripts/pamphlet-pages.mjs";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FX = join(ROOT, "tests/fixtures/lakes");
@@ -161,6 +165,15 @@ ok(er && rowsOf(er).some((r) => r[2] === "CLOSED WATERS." && /Cowlitz Falls Dam 
   "Riffe Lake: only the stretch below Cowlitz Falls Dam is closed waters, and it says which stretch (C2)", er && rowsOf(er));
 const entiat = byName("Lake Entiat", "Douglas");
 ok(entiat && entiat.rv === "Columbia" && entiat.pr == null, "Lake Entiat is the Columbia, a river in the pamphlet, with no lake rule (C1)", entiat);
+// A pool's name is the river's only in that pool's own counties, at a pool's size: Lake Sacajawea in
+// Longview (Cowlitz County, 45.5 acres) is a city lake, not the Snake behind Ice Harbor Dam (N1).
+ok(L.riverPool({ core: "SACAJAWEA", county: "Cowlitz", acres: 45.5 }) === "" && L.riverPool({ core: "SACAJAWEA", county: "Franklin", acres: 9200 }) === "Snake" &&
+  L.riverPool({ core: "SACAJAWEA", county: "Walla Walla" }) === "Snake", "Lake Sacajawea in Cowlitz County is not the Snake's pool; in Franklin or Walla Walla it is (N1)");
+ok(["Cowlitz", "Grant", "Clark", "Douglas", "Benton", "Walla Walla"].every((c) => L.riverPool({ core: "WEST", county: c, acres: 12 }) === "") && L.riverPool({ core: "WEST", county: "Franklin", acres: 8000 }) === "Snake",
+  "a West Lake in a river county is not a pool; Lake Herbert G. West is, in its own counties, at a pool's size (N1)");
+ok(L.riverPool({ core: "ENTIAT", county: "Douglas", acres: 8828.6 }) === "Columbia" && L.riverPool({ core: "PATEROS", county: "Douglas", acres: 8098.7 }) === "Columbia" &&
+  L.riverPool({ core: "UMATILLA", county: "Klickitat", acres: 48737.8 }) === "Columbia" && L.riverPool({ core: "ENTIAT", county: "Cowlitz", acres: 8828.6 }) === "",
+  "the Columbia's own pools stay the river's, and only in their own counties");
 const cougar = byName("Cougar Lake", "Okanogan");
 ok(cougar && cougar.pr == null && (cougar.pm || []).length === 2 && cougar.pm.every((i) => R.e[i][0] === "Cougar Lake"), "two Cougar Lake entries in Okanogan County, one on the map: it keeps both and says so", cougar);
 const smid = byName("Starzman Lake Middle", "Okanogan");
@@ -251,6 +264,21 @@ ok(CR && CR.e.length > 300 && ct.pr != null && CR.e[ct.pr][3] === 89 && cmw && c
   "and the pamphlet's lake entries in range (" + (CR && CR.e.length) + "), Lake Tapps on page 89, Martha Warm Beach its own");
 ok(["lake-entiat-douglas", "lake-pateros-douglas", "lake-umatilla-klickitat"].every((id) => { const l = C.lakes.find((x) => x.id === id); return l && l.rv === "Columbia" && l.pr == null; }),
   "Lake Entiat, Lake Pateros and Lake Umatilla are Columbia River pools, with no lake rule (C1)");
+const sac = C.lakes.find((l) => l.id === "lake-sacajawea-cowlitz");
+ok(sac && sac.c === "Cowlitz" && !sac.rv && sac.pr == null && sac.pm == null, "Lake Sacajawea in Longview is no river pool and has no entry of its own: statewide lake rules (N1)", sac);
+ok(JSON.stringify(C.lakes.filter((l) => l.rv).map((l) => l.id).sort()) === JSON.stringify(["lake-entiat-douglas", "lake-pateros-douglas", "lake-umatilla-klickitat"]),
+  "and the only river pools in range are the Columbia's three", C.lakes.filter((l) => l.rv).map((l) => l.id));
+// the six pages the printed-page script got wrong, from the pamphlet's PDF (N2)
+const RIGHT = [["Wilderness Lake", "", "King", 91], ["Wood Lake", "", "Mason", 91], ["Martha Lake", "Warm Beach", "Snohomish", 86], ["Martha Lake", "Alderwood Manor", "Snohomish", 85],
+  ["Shoe Lake", "", "Mason", 88], ["Ell Lake", "", "Okanogan", 94], ["Wannacut Lake", "", "Okanogan", 100], ["I -82 Ponds", "1 through 7", "Yakima", 95], ["Para -Juvenile Lake", "", "Adams,Grant", 97]];
+const pageOf = (n, q, c) => (CR.e.find((e) => e[0] === n && e[1] === q && e[2].join() === c) || [])[3];
+ok(RIGHT.every(([n, q, c, pg]) => pageOf(n, q, c) === pg) && CR.e.every((e) => e[3] > 0),
+  "Wilderness (King) 91, Wood (Mason) 91, Martha Warm Beach 86, Shoe (Mason) 88, Ell (Okanogan) 94, Wannacut 100; I-82 Ponds 95 and Para-Juvenile 97 now placed; every entry has its page (N2)",
+  RIGHT.map(([n, q, c, pg]) => n + (q ? " " + q : "") + ": " + pageOf(n, q, c) + " (" + pg + ")"));
+const PJ = JSON.parse(readFileSync(join(ROOT, "scripts/pamphlet-pages.json"), "utf8"));
+ok(PJ["westside-lakes-special-rules-q-z|WILDERNESS LAKE|KING|"] === 91 && PJ["westside-lakes-special-rules-q-z|WOOD LAKE|MASON|"] === 91 && PJ["westside-lakes-special-rules-f-p|MARTHA LAKE|SNOHOMISH|Warm Beach"] === 86 &&
+  PJ["westside-lakes-special-rules-q-z|SHOE LAKE|MASON|"] === 88 && PJ["eastside-lakes-special-rules-a-f|ELL LAKE|OKANOGAN|"] === 94 && PJ["eastside-lakes-special-rules-q-z|WANNACUT LAKE|OKANOGAN|"] === 100,
+  "and scripts/pamphlet-pages.json says so");
 const js0 = readFileSync(join(ROOT, "rigs/lakes.js"), "utf8");
 ok(js0.length < 240000 && gzipSync(js0).length < 60000, "small enough for the offline app (under 240 KB, under 60 KB as sent)", [js0.length, gzipSync(js0).length]);
 const content = readFileSync(join(ROOT, "rigs/content.js"), "utf8");
@@ -296,6 +324,59 @@ try {
   try { L.feedWaters("// rigs/waters.js in some new shape\nRIG.watersSnap = {};\n"); } catch (e) { bad = e.message; }
   ok(/no RIG\.watersSnapshot/.test(bad) && L.feedWaters(readFileSync(join(ROOT, "rigs/waters.js"), "utf8")).length > 10, "rigs/waters.js in a shape the build cannot read stops it, instead of falling back to names without a word");
 } finally { rmSync(tmp, { recursive: true, force: true }); }
+
+// ---- the printed page: the whole heading where a word starts, the words under it on its own page (N2) ----
+{
+  const tr = (cells) => "<tr>" + cells.map((c) => "<td" + (cells.length === 1 ? ' colspan="3"' : "") + ">" + c + "</td>").join("") + "</tr>";
+  const head = (n, c) => tr([n + " - " + c + " CO."]), SW = "Statewide min. size/daily limit.", SPRING = "4th Sat. in Apr.-Oct. 31";
+  const html = {
+    "westside-lakes-special-rules-a-e": "<table></table>",
+    "westside-lakes-special-rules-f-p": "<table>" + head("HORSESHOE LAKE", "KITSAP") + tr(["All game fish", SPRING, SW]) + head("INDIAN HEAVEN WILDERNESS LAKES", "SKAMANIA") + tr(["Trout", "Year-round", 'Min. size 8". Daily limit 2.']) +
+      head("MARTHA LAKE", "SNOHOMISH") + tr(["Alderwood Manor"]) + tr(["All game fish", SPRING, SW]) +
+      head("MARTHA LAKE", "SNOHOMISH") + tr(["Warm Beach"]) + tr(["All species", "", "Selective gear rules."]) + tr(["Trout", "Year-round", 'Min. size 14". Daily limit 2.']) +
+      head("PACKWOOD LAKE", "LEWIS") + tr(["All game fish", "Year-round", SW]) + "</table>",
+    "westside-lakes-special-rules-q-z": "<table>" + head("SHOE LAKE", "MASON") + tr(["All game fish", SPRING, SW]) + head("WILDERNESS LAKE", "KING") + tr(["All game fish", SPRING, SW]) +
+      head("WOOD LAKE", "MASON") + tr(["All game fish", SPRING, SW]) + "</table>",
+    "eastside-lakes-special-rules-a-f": "<table>" + head("BLUE LAKE", "OKANOGAN") + tr(["(near Wannacut Lake)"]) + tr(["Trout", "Year-round", SW]) + head("CAMPBELL LAKE", "OKANOGAN") + tr(["All species", "", "Selective gear rules."]) +
+      head("ELL LAKE", "OKANOGAN") + tr(["All species", "", "Selective gear rules."]) + "</table>",
+    "eastside-lakes-special-rules-g-p": "<table>" + head("PARA -JUVENILE LAKE", "ADAMS/GRANT") + tr(["All species", "", "Two-Pole not allowed."]) + "</table>",
+    "eastside-lakes-special-rules-q-z": "<table>" + head("WANNACUT LAKE", "OKANOGAN") + tr(["All game fish", SPRING, SW]) + "</table>",
+  };
+  // the PDF as pdftotext writes it: text page i is printed page i - 1; \x08 is a heading's ramp icon
+  const W = "WESTSIDE LAKES - SPECIAL RULES SPECIES DATE ADDITIONAL RULES ", E = "EASTSIDE LAKES - SPECIAL RULES SPECIES DATE ADDITIONAL RULES ";
+  const pdf = Array.from({ length: 102 }, () => "Washington State Sport Fishing Rules");
+  pdf[85] = W + "HORSESHOE LAKE - KITSAP CO.\x08 All game fish " + SPRING + " " + SW + " INDIAN HEAVEN WILDERNESS LAKES - SKAMANIA CO. Trout Year-round Min. size 8\". Daily limit 2.";
+  pdf[86] = W + "MARTHA LAKE - SNOHOMISH CO.\x08 Alderwood Manor All game fish " + SPRING + " " + SW + " (Continued on next page)";
+  pdf[87] = W + "MARTHA LAKE - SNOHOMISH CO.\x08 Warm Beach All species Selective gear rules. Trout Year-round Min. size 14\". Daily limit 2.";
+  pdf[88] = W + "PACKWOOD LAKE - LEWIS CO.\x08 All game fish Year-round " + SW;
+  pdf[89] = W + "SHOE LAKE - MASON CO. All game fish " + SPRING + " " + SW;
+  pdf[92] = W + "WILDERNESS LAKE - KING CO.\x08 All game fish " + SPRING + " " + SW + " WOOD LAKE - MASON CO. All game fish " + SPRING + " " + SW;
+  pdf[94] = E + "CAMPBELL LAKE - OKANOGAN CO.\x08 All species Selective gear rules. BLUE LAKE - OKANOGAN CO. (near Wannacut Lake) Trout Year-round " + SW;
+  pdf[95] = E + "ELL LAKE - OKANOGAN CO. All species Selective gear rules.";
+  pdf[98] = E + "PARA-JUVENILE LAKE - ADAMS/GRANT CO.\x08 All species Two-Pole not allowed.";
+  pdf[101] = E + "WANNACUT LAKE - OKANOGAN CO.\x08 All game fish 4th Sat. in Apr.- Oct. 31 " + SW;
+  const got = P.pagesOf(html, pdf.join("\f"));
+  const want = { "westside-lakes-special-rules-q-z|WILDERNESS LAKE|KING|": 91, "westside-lakes-special-rules-q-z|WOOD LAKE|MASON|": 91, "westside-lakes-special-rules-f-p|MARTHA LAKE|SNOHOMISH|Warm Beach": 86,
+    "westside-lakes-special-rules-f-p|MARTHA LAKE|SNOHOMISH|Alderwood Manor": 85, "westside-lakes-special-rules-q-z|SHOE LAKE|MASON|": 88, "eastside-lakes-special-rules-a-f|ELL LAKE|OKANOGAN|": 94,
+    "eastside-lakes-special-rules-q-z|WANNACUT LAKE|OKANOGAN|": 100, "westside-lakes-special-rules-f-p|HORSESHOE LAKE|KITSAP|": 84, "westside-lakes-special-rules-f-p|PACKWOOD LAKE|LEWIS|": 87,
+    "eastside-lakes-special-rules-a-f|CAMPBELL LAKE|OKANOGAN|": 93, "eastside-lakes-special-rules-a-f|BLUE LAKE|OKANOGAN|(near Wannacut Lake)": 93,
+    "eastside-lakes-special-rules-g-p|PARA -JUVENILE LAKE|ADAMS/GRANT|": 97 };
+  const wrong = Object.entries(want).filter(([k, v]) => got[k] !== v).map(([k, v]) => k + ": " + got[k] + " (" + v + ")");
+  ok(!wrong.length, "a lake's page is where its whole heading starts a word (Shoe is not in Horseshoe, Wood - Mason not Packwood - Lewis, Ell not Campbell), with the words under it on that page (Warm Beach); a hyphen spaced either way and two counties still read (Para-Juvenile) (N2)", wrong);
+}
+
+// ---- the build's day is Pacific time (M4) ----------------------------------------------
+ok(L.pacificDay(new Date("2026-11-28T03:00:00Z")) === "2026-11-27" && L.pacificDay(new Date("2026-11-27T20:00:00Z")) === "2026-11-27" && L.pacificDay(new Date("2026-07-01T06:30:00Z")) === "2026-06-30" &&
+  L.pacificDay(new Date("2027-01-01T07:59:00Z")) === "2026-12-31", "the build is stamped with Bonney Lake's day, not UTC's (a build after 4 PM is still today) (M4)");
+{
+  const tmp2 = mkdtempSync(join(tmpdir(), "lakes-"));
+  try {
+    const out = join(tmp2, "lakes.js");
+    const w2 = await L.main({ get, waters, now: new Date("2027-01-01T05:00:00Z"), out, print: () => {}, min: MIN });
+    ok(w2.wrote && /^\/\/ Built by scripts\/build-lakes\.mjs on 2026-12-31\./.test(readFileSync(out, "utf8")) && w2.data.built === "2026-12-31" && w2.data.year === 2026,
+      "a build on New Year's Eve evening is stamped Dec 31, 2026, in the 2026 year", [w2.data.built, w2.data.year]);
+  } finally { rmSync(tmp2, { recursive: true, force: true }); }
+}
 
 console.log("\n" + pass + " passed, " + fail + " failed");
 process.exit(fail ? 1 : 0);

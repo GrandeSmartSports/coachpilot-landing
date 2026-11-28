@@ -12,12 +12,15 @@
 // tappable, and one row to the lakes with their own rule); a lake from
 // WDFW's map has a page of its own, under its own picture, with its season
 // (Baker Lake shut now, its sockeye July 11-Aug. 31) and its rules; a
-// Columbia pool says river rules, never the lake rule; the own-rule lists
+// Columbia pool says river rules, never the lake rule, its plant line kept
+// (Lake Pateros' trout); Lake Sacajawea in Longview is a city lake on the
+// statewide rules, not the Snake; the own-rule lists
 // are the pamphlet's, county and all (Martha Warm Beach, Rattlesnake,
 // Kachess, Lower Goose; not Easton Ponds; Riffe's closed stretch is not a
 // brown trout rule); a lake fish's drawing fills in when fish.js comes after
 // the lakes; a lake file that does not load says so with Try again; the
-// strip under the dock marks where you are; a tag only ever says stocked,
+// strip under the dock marks where you are; The full rule's outline is
+// whole; a tag only ever says stocked,
 // in this lake, introduced or own rule, never wild or native, and never
 // "legal size"; and every word on these screens can be read under all eight skies.
 // Nothing here reaches a real server: the forecast is the fixtures', the
@@ -202,6 +205,20 @@ try {
   await go("#/fish/walleye", "[data-fish-lakes]");
   const wl = await page.evaluate(() => [...document.querySelectorAll('[data-lake-row="lake-entiat-douglas"],[data-lake-row="lake-pateros-douglas"],[data-lake-row="lake-umatilla-klickitat"]')].map((r) => r.innerText));
   ok(wl.every((t) => /Columbia River rules/.test(t)), "and on the walleye page its row says Columbia River rules", wl);
+  // a pool row with a plant line keeps both lines: Lake Pateros' trout, planted 2017 (M1)
+  await go("#/fish/trout/lakes", '[data-fish-lakes] [data-lake-row="lake-pateros-douglas"]');
+  const pt = await page.locator('[data-fish-lakes] [data-lake-row="lake-pateros-douglas"]').innerText();
+  ok(/400 planted/.test(pt) && /2017/.test(pt) && /Columbia River rules/.test(pt), "Lake Pateros' trout row: its 2017 plant and Columbia River rules, both (M1)", pt);
+  // Lake Sacajawea in Longview is a city lake, not the Snake behind Ice Harbor Dam (N1)
+  await go("#/lake/lake-sacajawea-cowlitz", "[data-lake-rules]");
+  const sj = await page.evaluate(() => ({ kind: document.querySelector("[data-lake-rules]").dataset.lakeRules, text: document.querySelector("[data-view]").innerText }));
+  ok(sj.kind === "statewide" && /Not in the pamphlet's lake rules/.test(sj.text) && /statewide rules/i.test(sj.text) && !/Snake|Columbia|River rules|page 50/.test(sj.text),
+    "Lake Sacajawea in Longview: not in the pamphlet's lake rules, so the statewide rules; never the Snake (N1)", sj.text.slice(0, 600));
+  for (const id of ["bass", "crappie", "perch"]) {
+    await go("#/fish/" + id + "/lakes", '[data-fish-lakes] [data-lake-row="lake-sacajawea-cowlitz"]');
+    const t = await page.locator('[data-fish-lakes] [data-lake-row="lake-sacajawea-cowlitz"]').innerText();
+    ok(!/River rules|Snake/.test(t), "and on the " + id + " page its row says no river's rules (N1)", t);
+  }
   await go("#/lake/lake-shannon-skagit", "[data-view=\"lake\"]");
   ok(!(await page.evaluate(() => { const h = document.querySelector("[data-lake-head]"); return h && h.dataset.lakeHead === "sockeye"; })), "Lake Shannon does not open on its sockeye fry (I6)");
   await go("#/lake/cougar-lake-okanogan", "[data-lake-rules]");
@@ -216,6 +233,16 @@ try {
   await page.locator("[data-rule-open]").click();
   const open = await page.evaluate(() => [document.querySelector("[data-fish-rule]").classList.contains("open"), document.querySelector("[data-fish-rule] .q").getBoundingClientRect().height]);
   ok(clamp[0] <= clamp[1] * 2.2 && open[0] && open[1] > clamp[0], "kokanee's rule shows two lines, and the whole of it a tap away", [clamp, open]);
+  // the full rule button: its words sit inside its rounded outline, the left end whole (M3)
+  for (const id of ["crappie", "pumpkinseed"]) {
+    await go("#/fish/" + id, "[data-fish-rule] [data-rule-open]");
+    const fr = await page.evaluate(() => {
+      const b = document.querySelector("[data-rule-open]"), cs = getComputedStyle(b), r = b.getBoundingClientRect(), box = b.closest("[data-fish-rule]").getBoundingClientRect();
+      const rad = Math.min(parseFloat(cs.borderTopLeftRadius), r.height / 2);
+      return { padL: parseFloat(cs.paddingLeft), padR: parseFloat(cs.paddingRight), rad, left: r.left - box.left, right: box.right - r.right };
+    });
+    ok(fr.padL >= fr.rad * 0.7 && fr.padR >= fr.rad * 0.7 && fr.left >= 8 && fr.right >= 0, id + ": The full rule's outline is whole, its words clear of the rounded ends (M3)", fr);
+  }
 
   // ---- where you are, on the Water strip (look 17) -------------------------------------------------
   for (const h of ["#/lake/mayfield-lake-lewis", "#/lakes"]) {

@@ -8,10 +8,13 @@
 // Needs pdftotext (poppler) to read the PDF.
 //
 // A lake's page is the printed page in its own section (westside or
-// eastside lakes) whose text has the lake's heading, and its first rule on
-// that page or the next. The PDF's page n is printed page n - 2 (the cover
-// pages carry no number). A lake the script cannot place gets no page: the
-// app then shows the rule with its web page only.
+// eastside lakes) whose text has the lake's whole heading, "NAME - COUNTY
+// CO.", where a word starts (SHOE LAKE is not inside HORSESHOE LAKE, WOOD
+// LAKE - MASON CO. is not PACKWOOD LAKE - LEWIS CO.), with the words under
+// the heading after it on that same page (Martha Lake's "Warm Beach"), and
+// its first rule on that page or the next. The PDF's page n is printed page
+// n - 2 (the cover pages carry no number). A lake the script cannot place
+// gets no page: the app then shows the rule with its web page only.
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -24,6 +27,14 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const norm = (s) => String(s).replace(/[”“″]/g, '"').replace(/[’‘]/g, "'").replace(/[–—]/g, "-").replace(/­/g, "").replace(/ /g, " ")
   .replace(/\s+/g, " ").replace(/\s+([.,:;)])/g, "$1").replace(/\(\s+/g, "(").trim();
 
+const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// "NAME - COUNTY/COUNTY CO." where a word starts; a hyphen may or may not
+// have spaces round it ("PARA -JUVENILE LAKE" on the web is PARA-JUVENILE in the PDF).
+function headingRe(name, counties) {
+  const part = (s) => escRe(s).replace(/ ?- ?/g, " ?- ?");
+  return new RegExp("(?<![A-Z0-9'])" + part(name) + " ?- ?" + counties.map((c) => escRe(norm(c).toUpperCase())).join(" ?/ ?") + " CO\\.", "g");
+}
+
 // pdfText: the PDF as pdftotext writes it (pages split by form feeds).
 export function pagesOf(htmlBySlug, pdfText) {
   const pdf = String(pdfText).split("\f").map(norm), up = pdf.map((p) => p.toUpperCase());
@@ -34,13 +45,18 @@ export function pagesOf(htmlBySlug, pdfText) {
   for (const slug of PAMPHLET_PAGES) {
     const range = /^westside/.test(slug) ? west : east;
     for (const e of lakeEntries(htmlBySlug[slug] || "")) {
-      const name = norm(e.name).toUpperCase(), rule = e.sections[0] && e.sections[0].rows[0] ? norm(e.sections[0].rows[0].rule) : "";
-      const note = e.sections[0] ? norm(e.sections[0].note) : "";
-      const cands = range.filter((i) => up[i].includes(name));
-      let at = cands.find((i) => (!note || pdf[i].includes(note) || pdf[i + 1] && pdf[i + 1].includes(note)) && (!rule || pdf[i].includes(rule) || (pdf[i + 1] || "").includes(rule)));
-      if (at == null) at = cands.find((i) => !rule || pdf[i].includes(rule) || (pdf[i + 1] || "").includes(rule));
-      if (at == null) at = cands[0];
-      if (at != null) out[pageKey(slug, e)] = printed(at);
+      const name = norm(e.name).toUpperCase(), rule = e.sections[0] && e.sections[0].rows[0] ? norm(e.sections[0].rows[0].rule).toUpperCase() : "";
+      const note = e.sections[0] ? norm(e.sections[0].note).toUpperCase() : "";
+      const re = headingRe(name, e.counties);
+      // every place the whole heading stands: the page, and where on it the heading ends
+      const heads = range.flatMap((i) => [...up[i].matchAll(re)].map((m) => ({ i, end: m.index + m[0].length })));
+      // the words under the heading come after it on its own page. A long
+      // note the PDF breaks up is not found whole: a heading on one page only
+      // is still that page; on two pages, which one is not guessed.
+      const under = heads.filter((h) => !note || up[h.i].indexOf(note, h.end) >= 0);
+      const ruled = (h) => !rule || up[h.i].indexOf(rule, h.end) >= 0 || (up[h.i + 1] || "").includes(rule);
+      const at = under.find(ruled) || under[0] || (new Set(heads.map((h) => h.i)).size === 1 ? heads[0] : null);
+      if (at) out[pageKey(slug, e)] = printed(at.i);
     }
   }
   return out;
