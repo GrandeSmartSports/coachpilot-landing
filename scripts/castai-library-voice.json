@@ -1,0 +1,740 @@
+{
+  "_about": "The Rig Card's own words for CastAI's library: each knot's and cast's name, one line, and the one mistake that makes it fail, which group it sits in, the guide titles, and which CastAI fish fills which Fish tab page. These are not corrections (CastAI keeps its own voice). Facts stay CastAI's; a wrong fact is fixed in castai-library-overrides.json, never here. Used by scripts/import-castai-library.mjs. Also the Rig Card's one line for each guide section (sectionLines) and its own words for what each Fish tab fish is (fish.text).",
+  "firstKnots": [
+    "arbor-knot",
+    "double-uni",
+    "palomar",
+    "dropper-loop"
+  ],
+  "firstKnotsLine": "Spool up, braid to leader, jig on, dropper.",
+  "knotGroups": [
+    {
+      "id": "reel",
+      "label": "On the reel",
+      "line": "Line to the spool"
+    },
+    {
+      "id": "line",
+      "label": "Line to line",
+      "line": "Braid to leader, line to line"
+    },
+    {
+      "id": "hook",
+      "label": "Hook and lure",
+      "line": "Line to a hook, jig, lure or swivel"
+    },
+    {
+      "id": "loop",
+      "label": "Loops",
+      "line": "A loop at the end or in the middle"
+    },
+    {
+      "id": "rope",
+      "label": "Rope",
+      "line": "Anchor line and dock line"
+    }
+  ],
+  "knots": {
+    "improved-clinch": {
+      "name": "Improved clinch",
+      "joins": "hook",
+      "aka": [
+        "clinch knot",
+        "improved clinch knot",
+        "fisherman's knot"
+      ],
+      "line": "The workhorse. Line to hook, swivel or snap.",
+      "fails": "On braid it slips. Tie a Palomar."
+    },
+    "palomar": {
+      "name": "Palomar",
+      "joins": "hook",
+      "aka": [
+        "palomar knot"
+      ],
+      "line": "Strong and fast. The best knot for braid to a hook or jig.",
+      "fails": "The loop has to pass over the whole hook or lure. If it catches on the eye, start over."
+    },
+    "uni": {
+      "name": "Uni knot",
+      "joins": "hook",
+      "aka": [],
+      "line": "One knot for hooks, swivels and the spool.",
+      "fails": "Braid with too few wraps slips out. Give braid 8 wraps."
+    },
+    "blood-knot": {
+      "name": "Blood knot",
+      "joins": "line",
+      "aka": [
+        "barrel knot"
+      ],
+      "line": "Joins two lines of about the same size.",
+      "fails": "Both tags must come out of the middle gap from opposite sides, or it pulls apart."
+    },
+    "surgeons-knot": {
+      "name": "Surgeon's knot",
+      "joins": "line",
+      "aka": [
+        "surgeons knot",
+        "double surgeon's knot"
+      ],
+      "line": "The easy way to join a leader, even a different size.",
+      "fails": "Pull all four ends at once. Pull two and it cinches lopsided and weak."
+    },
+    "perfection-loop": {
+      "name": "Perfection loop",
+      "joins": "loop",
+      "aka": [],
+      "line": "A small loop that sits straight in line, for loop to loop.",
+      "fails": "The tag has to stay pinched between the two loops while you pull through."
+    },
+    "dropper-loop": {
+      "name": "Dropper loop",
+      "joins": "loop",
+      "aka": [
+        "blood loop",
+        "dropper loop knot"
+      ],
+      "line": "A loop that stands out from the middle of the line, for a second jig or hook.",
+      "fails": "Too few twists and the loop pulls out. Twist 5 to 6 times and hold the gap open with a pen."
+    },
+    "snell-knot": {
+      "name": "Snell knot",
+      "joins": "hook",
+      "aka": [
+        "snell"
+      ],
+      "line": "Line wrapped down the hook shank, for bait. The hook sets straighter.",
+      "fails": "The line must leave the eye on the hook point side, or the hook will not turn in."
+    },
+    "alberto-knot": {
+      "name": "Alberto knot",
+      "joins": "line",
+      "aka": [
+        "crazy alberto"
+      ],
+      "line": "Braid to leader, slim enough to cast through the guides.",
+      "fails": "Crossed, sloppy wraps make a fat knot that catches the guides. Lay them side by side."
+    },
+    "double-uni": {
+      "name": "Double uni",
+      "joins": "line",
+      "aka": [
+        "double uni knot",
+        "uni to uni"
+      ],
+      "line": "Braid to leader. Two uni knots slid together.",
+      "fails": "Same wraps on both sides and the braid slips. Give the braid 8, the leader 5."
+    },
+    "trilene-knot": {
+      "name": "Trilene knot",
+      "joins": "hook",
+      "aka": [],
+      "line": "A clinch with two turns through the eye. Extra grip on mono.",
+      "fails": "Both passes through the eye must go the same way."
+    },
+    "surgeons-loop": {
+      "name": "Surgeon's loop",
+      "joins": "loop",
+      "aka": [
+        "surgeon loop",
+        "surgeons loop"
+      ],
+      "line": "The fastest loop at the end of a line.",
+      "fails": "Pass the loop through twice. Once is a plain overhand loop and it slips."
+    },
+    "non-slip-loop": {
+      "name": "Non slip loop",
+      "joins": "hook",
+      "aka": [
+        "non slip loop knot",
+        "non slip mono loop",
+        "kreh loop"
+      ],
+      "line": "Leaves an open loop so a jig or lure swings free.",
+      "fails": "The tag must go back through the overhand on the same side it came out."
+    },
+    "davy-knot": {
+      "name": "Davy knot",
+      "joins": "hook",
+      "aka": [],
+      "line": "Tiny and fast, for flies and small hooks.",
+      "fails": "Not a big fish knot. For a big fish, tie a Palomar."
+    },
+    "figure-eight-loop": {
+      "name": "Figure eight loop",
+      "joins": "loop",
+      "aka": [
+        "figure of eight loop",
+        "figure 8 loop"
+      ],
+      "line": "A loop you can check by eye: it looks like an 8.",
+      "fails": "If it is a blob and not an 8, untie it and start again."
+    },
+    "san-diego-jam": {
+      "name": "San Diego jam",
+      "joins": "hook",
+      "aka": [
+        "san diego jam knot"
+      ],
+      "line": "A strong lure knot with extra wraps, good on braid.",
+      "fails": "Wraps that cross or bunch weaken it. Snug the coil neat before you pull tight."
+    },
+    "berkley-braid-knot": {
+      "name": "Berkley braid knot",
+      "joins": "hook",
+      "aka": [],
+      "line": "Berkley's hook knot for slippery braid.",
+      "fails": "Eight wraps, then the loop goes through the gap by the eye. Miss the gap and it pulls out."
+    },
+    "rapala-knot": {
+      "name": "Rapala knot",
+      "joins": "hook",
+      "aka": [],
+      "line": "A loop knot that lets a plug or crankbait swim.",
+      "fails": "The last pass goes back through the loop it just made. Skip it and the knot slips."
+    },
+    "egg-loop-knot": {
+      "name": "Egg loop",
+      "joins": "hook",
+      "aka": [
+        "egg loop knot",
+        "egg loop snell"
+      ],
+      "line": "A snell with a loop that clamps roe or yarn on the hook.",
+      "fails": "Wrap with the long end, the one to the swivel. Wrap with the short end and it pulls out."
+    },
+    "circle-hook-snell": {
+      "name": "Circle hook snell",
+      "joins": "hook",
+      "aka": [
+        "circle hook knot"
+      ],
+      "line": "A snell for circle hooks, so the fish hooks itself.",
+      "fails": "The line has to leave the eye on the point side. Tied the other way, the hook will not turn into the jaw."
+    },
+    "fg-knot": {
+      "name": "FG knot",
+      "joins": "line",
+      "aka": [],
+      "line": "The slimmest braid to leader knot. Takes practice.",
+      "fails": "Slack braid lets the wraps slide off. Keep it tight the whole time."
+    },
+    "albright-knot": {
+      "name": "Albright knot",
+      "joins": "line",
+      "aka": [
+        "albright"
+      ],
+      "line": "Light line or braid to a heavy leader. Tough.",
+      "fails": "The wraps must stay snug and side by side as you slide them down the loop."
+    },
+    "bristol-knot": {
+      "name": "Bristol knot",
+      "joins": "line",
+      "aka": [],
+      "line": "A heavy leader to a doubled main line.",
+      "fails": "It needs a doubled line. Tie a Bimini twist first."
+    },
+    "slim-beauty": {
+      "name": "Slim beauty",
+      "joins": "line",
+      "aka": [
+        "slim beauty knot"
+      ],
+      "line": "A heavy leader or bite tippet to lighter line, slim through the guides.",
+      "fails": "Wet it and pull slowly. Snatched tight, the wraps cross and it slips."
+    },
+    "spider-hitch": {
+      "name": "Spider hitch",
+      "joins": "loop",
+      "aka": [],
+      "line": "A quick double line at the end of the main line.",
+      "fails": "Let the wraps come off your thumb one at a time, or they tangle."
+    },
+    "bimini-twist": {
+      "name": "Bimini twist",
+      "joins": "loop",
+      "aka": [],
+      "line": "A long doubled line for big fish and heavy leaders.",
+      "fails": "Count 20 twists. Fewer and it is weak."
+    },
+    "rapala-loop": {
+      "name": "Rapala loop",
+      "joins": "hook",
+      "aka": [
+        "rapala loop knot"
+      ],
+      "line": "The Rapala knot, as fly anglers call it.",
+      "fails": "The last pass goes back through the loop it just made. Skip it and the knot slips."
+    },
+    "bobber-stop-knot": {
+      "name": "Bobber stop knot",
+      "joins": "hook",
+      "aka": [
+        "bobber stop",
+        "bobber stopper",
+        "stop knot"
+      ],
+      "line": "A sliding stop that sets how deep a slip float fishes.",
+      "fails": "Too few wraps and it slides on the cast. Wrap 3 to 4 times and pull it tight."
+    },
+    "nail-knot": {
+      "name": "Nail knot",
+      "joins": "line",
+      "aka": [],
+      "line": "Fly line to backing, or a leader to fly line.",
+      "fails": "Wraps that cross make a lump that catches the guides. Lay them side by side."
+    },
+    "arbor-knot": {
+      "name": "Arbor knot",
+      "joins": "reel",
+      "aka": [
+        "arbour knot"
+      ],
+      "line": "Ties new line to the reel's spool.",
+      "fails": "No stopper knot on the tag and it slips round the spool. Tie both overhands."
+    },
+    "haywire-twist": {
+      "name": "Haywire twist",
+      "joins": "hook",
+      "aka": [],
+      "line": "Wire leader to a hook or swivel, for toothy fish.",
+      "fails": "Cut the tag with pliers and it leaves a sharp burr. Snap it off."
+    },
+    "figure-eight-knot": {
+      "name": "Figure eight stopper",
+      "joins": "rope",
+      "aka": [
+        "figure eight knot",
+        "figure 8 knot",
+        "figure of eight knot",
+        "stopper knot"
+      ],
+      "line": "A stopper at the end of a rope or line. Will not slip through.",
+      "fails": "If it does not look like an 8, it is an overhand. Untie it and tie it again."
+    },
+    "anchor-hitch": {
+      "name": "Anchor hitch",
+      "joins": "rope",
+      "aka": [
+        "anchor bend",
+        "anchor hitch knot"
+      ],
+      "line": "Anchor line to the anchor ring or chain.",
+      "fails": "One turn on the ring saws through. Take two."
+    },
+    "bowline": {
+      "name": "Bowline",
+      "joins": "rope",
+      "aka": [
+        "locked bowline",
+        "bowline knot"
+      ],
+      "line": "A loop in a rope that will not slip. For the anchor float.",
+      "fails": "Slack, it can shake loose. Lock the end."
+    }
+  },
+  "castGroups": [
+    {
+      "id": "spin",
+      "label": "Spinning rod",
+      "line": "Spinning and casting gear"
+    },
+    {
+      "id": "fly",
+      "label": "Fly rod",
+      "line": "Fly line and leader"
+    }
+  ],
+  "castOrder": [
+    "pendulum-cast",
+    "overhead-cast",
+    "sidearm-cast",
+    "lob-cast",
+    "kayak-cast",
+    "pitching",
+    "flipping",
+    "skip-cast",
+    "bow-and-arrow-cast",
+    "roll-cast",
+    "double-haul",
+    "water-haul",
+    "two-handed-spey-cast"
+  ],
+  "casts": {
+    "pendulum-cast": {
+      "name": "Pendulum cast",
+      "group": "spin",
+      "aka": [
+        "pendulum swing",
+        "pier swing",
+        "underhand swing",
+        "underhand cast"
+      ],
+      "line": "The pier swing: an underhand swing out over the rail.",
+      "fails": "Let go late and the rig drops at your feet. Let go as the swing comes up.",
+      "best": "The pier rail and close in. Calm water, sight fishing, and a boat with no room to swing the rod back"
+    },
+    "overhead-cast": {
+      "name": "Overhead cast",
+      "group": "spin",
+      "aka": [],
+      "line": "The everyday cast. Straight back, let go at ten o'clock.",
+      "fails": "Let go early and it sails up. Let go late and it slaps down at your feet."
+    },
+    "sidearm-cast": {
+      "name": "Sidearm cast",
+      "group": "spin",
+      "aka": [
+        "side arm cast"
+      ],
+      "line": "Low and flat, under branches and docks.",
+      "fails": "The rod tip rising sends it up into the trees. Keep it level."
+    },
+    "lob-cast": {
+      "name": "Lob cast",
+      "group": "spin",
+      "aka": [],
+      "line": "A gentle underhand toss for bait, close in.",
+      "fails": "Too light a bait will not carry. It needs some weight."
+    },
+    "kayak-cast": {
+      "name": "Kayak cast",
+      "group": "spin",
+      "aka": [
+        "casting from a kayak"
+      ],
+      "line": "Short, low casts from the seat.",
+      "fails": "Big wind ups rock the boat. Keep it compact and stay centered."
+    },
+    "pitching": {
+      "name": "Pitching",
+      "group": "spin",
+      "aka": [
+        "pitch cast"
+      ],
+      "line": "Underhand, lure in your free hand, a quiet entry 10 to 30 feet out.",
+      "fails": "Hooks in your palm. Hold the lure by the body, points away."
+    },
+    "flipping": {
+      "name": "Flipping",
+      "group": "spin",
+      "aka": [
+        "flip cast"
+      ],
+      "line": "Straight down into heavy cover from a few feet away.",
+      "fails": "The bite comes on the fall. Watch the line as it sinks."
+    },
+    "pitch-flip": {
+      "name": "Pitch and flip",
+      "group": "spin",
+      "aka": [
+        "flipping and pitching",
+        "pitching and flipping"
+      ],
+      "line": "Both close range moves, for pockets and pilings.",
+      "fails": "A splash spooks the fish. Feather the line so the lure slips in."
+    },
+    "skip-cast": {
+      "name": "Skip cast",
+      "group": "spin",
+      "aka": [
+        "skipping"
+      ],
+      "line": "Skip the lure like a stone, back under docks.",
+      "fails": "Too steep and it digs in instead of skipping. Keep it low and flat."
+    },
+    "bow-and-arrow-cast": {
+      "name": "Bow and arrow cast",
+      "group": "spin",
+      "aka": [],
+      "line": "Pull the lure back and let the rod shoot it. For tiny gaps.",
+      "fails": "Never hold it by the hooks. Hold the body.",
+      "videoNote": "Shown on a fly rod. The same pull and let go works on a spinning rod."
+    },
+    "roll-cast": {
+      "name": "Roll cast",
+      "group": "fly",
+      "aka": [],
+      "line": "A fly cast with no back cast. Rolls the line off the water.",
+      "fails": "No pause, no D loop, no cast. Let the line hang behind the rod first."
+    },
+    "double-haul": {
+      "name": "Double haul",
+      "group": "fly",
+      "aka": [],
+      "line": "Pull the fly line on both strokes for more distance.",
+      "fails": "Haul only while the rod moves fast. Early or late kills the cast."
+    },
+    "water-haul": {
+      "name": "Water haul",
+      "group": "fly",
+      "aka": [],
+      "line": "Let the water load the rod when there is no room behind.",
+      "fails": "Do not pause after you rip the line off. Go forward at once."
+    },
+    "two-handed-spey-cast": {
+      "name": "Spey cast",
+      "group": "fly",
+      "aka": [
+        "two handed spey cast",
+        "spey casting"
+      ],
+      "line": "Two handed rod, big rivers, no back cast.",
+      "fails": "Rushing the pause. Let the rod load before you drive forward."
+    }
+  },
+  "guides": [
+    {
+      "id": "salmon",
+      "file": "SalmonFishingGuide",
+      "title": "Salmon in Washington",
+      "line": "Five salmon and steelhead, river and salt",
+      "view": "river"
+    },
+    {
+      "id": "starting",
+      "file": "BeginnersGuide",
+      "title": "Starting out",
+      "line": "First trip, gear and the basics",
+      "view": "lake"
+    },
+    {
+      "id": "water",
+      "file": "ReadingWaterGuide",
+      "title": "Reading water",
+      "line": "Where fish hold in lakes, rivers and salt",
+      "view": "river"
+    },
+    {
+      "id": "seasons",
+      "file": "SeasonalGuide",
+      "title": "Lake seasons",
+      "line": "Bass, panfish and trout by the month",
+      "view": "lake"
+    },
+    {
+      "id": "fly",
+      "file": "FlyFishingGuide",
+      "title": "Fly fishing",
+      "line": "Gear, knots, casts and flies",
+      "view": "fly"
+    },
+    {
+      "id": "unhooking",
+      "file": "DehookingGuide",
+      "title": "Unhooking",
+      "line": "Get the hook out and the fish back",
+      "view": "sound"
+    }
+  ],
+  "gear": [
+    {
+      "id": "tackle",
+      "file": "TackleGuide",
+      "title": "Tackle",
+      "line": "Lures, bait and the small stuff"
+    },
+    {
+      "id": "budget",
+      "file": "GearBudgetGuide",
+      "title": "Gear on a budget",
+      "line": "What to buy at $50, $100, $250 and $500"
+    }
+  ],
+  "fish": {
+    "king": {
+      "from": "chinook-salmon",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "The biggest Pacific salmon. Most run 15 to 30 pounds. Kings that stay in the Sound through the winter are called blackmouth."
+    },
+    "coho": {
+      "from": "coho-salmon",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "Bright, fast fish that jump when hooked. Most run 6 to 12 pounds. They come into the rivers in the fall."
+    },
+    "pink": {
+      "from": "pink-salmon",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "The smallest Pacific salmon, mostly 3 to 5 pounds, and the most plentiful. They hit small pink spoons and jigs. A good first salmon for a kid."
+    },
+    "steelhead": {
+      "from": "steelhead",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "Rainbow trout that go to sea and come back up the river to spawn. Bigger and stronger than a lake rainbow, and harder to find."
+    },
+    "cutthroat": {
+      "from": "cutthroat-trout",
+      "show": [
+        "text",
+        "fact"
+      ],
+      "why": "CastAI's habitat is the inland trout of mountain streams; the Rig Card's cutthroat are sea-run, on the Sound's beaches.",
+      "text": "Named for the red slash under the jaw. Sea-run cutthroat live along the Sound's beaches and run up small streams to spawn."
+    },
+    "surfperch": {
+      "from": "surf-perch",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "Silver fish of the surf line on sandy ocean beaches. A sand shrimp or a small grub just past the breakers. No boat needed."
+    },
+    "bass": {
+      "from": "largemouth-bass",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "Largemouth hold in weeds, under docks and around lily pads in warm lakes. They eat almost anything that moves past."
+    },
+    "perch": {
+      "from": "yellow-perch",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "cut": [
+        ", especially through ice"
+      ],
+      "dropLures": [
+        "Ice jig"
+      ],
+      "why": "The Rig Card's perch lakes do not freeze over.",
+      "text": "Yellow perch school, so where you catch one there are more. Small, and very good to eat."
+    },
+    "crab": {
+      "from": "dungeness-crab",
+      "show": [
+        "text",
+        "habitat",
+        "lures",
+        "fact"
+      ],
+      "text": "Dungeness crab live on sandy bottom in the bays and the Sound. Sweet meat, caught off a dock or a boat with a ring or a pot."
+    }
+  },
+  "sectionLines": {
+    "SalmonFishingGuide/salmon-species": "Five salmon and steelhead, and how to tell them apart",
+    "SalmonFishingGuide/gear": "Rods, reels, line and tackle for river and salt",
+    "SalmonFishingGuide/river-techniques": "Floats, drift rigs, plugs and spinners on the river",
+    "SalmonFishingGuide/ocean-bay-fishing": "Trolling, mooching and jigging in the salt",
+    "SalmonFishingGuide/where-to-fish": "Rivers and salt water, by region",
+    "SalmonFishingGuide/fishing-calendar": "What runs when, month by month",
+    "SalmonFishingGuide/preparing-catch": "Bleed it, clean it, keep it cold, cook it",
+    "SalmonFishingGuide/safety": "Cold rivers, boats, bars and the ocean",
+    "SalmonFishingGuide/first-trip-checklist": "What to bring on your first salmon trip",
+    "BeginnersGuide/first-trip": "What to know before your first trip",
+    "BeginnersGuide/basic-gear": "Simple gear that costs little",
+    "BeginnersGuide/basics": "The skills every angler needs",
+    "BeginnersGuide/catch-release": "Handle a fish so it swims away",
+    "BeginnersGuide/kids": "Short, easy and fun",
+    "BeginnersGuide/mistakes": "What beginners get wrong, and the fix",
+    "BeginnersGuide/weather-conditions": "How weather moves fish",
+    "BeginnersGuide/fishing-etiquette": "Sharing the water",
+    "BeginnersGuide/fishing-reports": "Read a report, find fish faster",
+    "BeginnersGuide/bank-fishing": "Fishing from shore, no boat",
+    "BeginnersGuide/reading-water": "Where fish live and why",
+    "ReadingWaterGuide/lake-structure": "What holds fish under a lake",
+    "ReadingWaterGuide/river-reading": "Where fish hold in moving water",
+    "ReadingWaterGuide/reservoir-tactics": "Fishing lakes behind dams",
+    "ReadingWaterGuide/finding-structure": "Maps, sonar and your own eyes",
+    "ReadingWaterGuide/cover-vs-structure": "Weeds and docks, drop offs and humps",
+    "ReadingWaterGuide/seasonal-water": "Follow the water temperature",
+    "ReadingWaterGuide/saltwater-reading": "Tide, current and structure in the salt",
+    "ReadingWaterGuide/pond-fishing": "Small water, where to look",
+    "ReadingWaterGuide/using-electronics": "What a fish finder shows you",
+    "SeasonalGuide/spring": "Fish move shallow to spawn",
+    "SeasonalGuide/summer": "Early, late and deep in the heat",
+    "SeasonalGuide/fall": "Fish feed up before winter",
+    "SeasonalGuide/winter": "Slow down and go deep",
+    "SeasonalGuide/ice-fishing": "East of the Cascades and high lakes",
+    "SeasonalGuide/monthly": "January through June",
+    "SeasonalGuide/monthly-2": "July through December",
+    "FlyFishingGuide/gear-essentials": "What you need to start",
+    "FlyFishingGuide/essential-knots": "Five knots every fly angler ties",
+    "FlyFishingGuide/casting-basics": "From the first cast to fishing, in an afternoon",
+    "FlyFishingGuide/reading-water": "Where trout hold",
+    "FlyFishingGuide/fly-selection": "Match the hatch, or tie on an Adams",
+    "FlyFishingGuide/techniques": "Dry flies, nymphs and streamers",
+    "FlyFishingGuide/wa-spots": "Places to start near Bonney Lake",
+    "FlyFishingGuide/first-day": "A plan for your first day",
+    "DehookingGuide/basic-dehook": "A hook in the lip or jaw. Most fish you catch",
+    "DehookingGuide/deep-hook-removal": "A hook in the throat or near the gills",
+    "DehookingGuide/treble-hook-removal": "Three points: one in the fish, two for you",
+    "DehookingGuide/gut-hooked-fish": "The hook is down in the stomach",
+    "DehookingGuide/catch-and-release": "The minute that decides if it lives",
+    "DehookingGuide/fish-handling-safety": "Spines, teeth and gill plates",
+    "TackleGuide/soft-plastics": "Soft worms, grubs and minnows",
+    "TackleGuide/crankbaits": "Hard lures that dive and wobble",
+    "TackleGuide/spinnerbaits": "Wire lures with spinning blades",
+    "TackleGuide/jigs": "A weighted hook with a skirt or a trailer",
+    "TackleGuide/topwater": "Lures that float and splash on top",
+    "TackleGuide/live-bait": "Worms, crickets and what the fish eat",
+    "TackleGuide/spoons": "Metal that flashes and wobbles",
+    "TackleGuide/flies": "Feathers and thread, on a fly rod or under a float",
+    "TackleGuide/swimbaits": "Lures that swim like a fish",
+    "TackleGuide/terminal-tackle": "Hooks, weights, swivels and floats",
+    "GearBudgetGuide/budget-50": "The least that gets you fishing",
+    "GearBudgetGuide/budget-100": "A complete rig that will not hold you back",
+    "GearBudgetGuide/budget-250": "Gear that lasts for years",
+    "GearBudgetGuide/budget-500": "Top gear, for the long run",
+    "GearBudgetGuide/accessories": "The small stuff that saves a trip",
+    "GearBudgetGuide/dont-buy": "Money traps and gear you will not use"
+  },
+  "notHere": {
+    "why": "Fish CastAI's own species table marks as not in Washington (blue and flathead catfish, stripers and hybrids, redear, threadfin and gizzard shad, sauger, white and spotted bass). A seasons bullet that names one is a lake down south, so it goes.",
+    "files": [
+      "SeasonalGuide"
+    ],
+    "words": [
+      "blue cat",
+      "blue cats",
+      "blue catfish",
+      "blues",
+      "flathead",
+      "flatheads",
+      "striper",
+      "stripers",
+      "striped bass",
+      "hybrid",
+      "hybrids",
+      "wiper",
+      "wipers",
+      "redear",
+      "threadfin",
+      "gizzard",
+      "sauger",
+      "saugeye",
+      "white bass",
+      "spotted bass"
+    ]
+  }
+}

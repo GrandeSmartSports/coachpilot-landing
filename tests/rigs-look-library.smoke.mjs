@@ -194,7 +194,10 @@ try {
   await sky("overcast", "#/learn");
   await page.waitForSelector("[data-learn-tiles] .ptile .pic svg");
   const learn = await page.evaluate(() => [...document.querySelectorAll("[data-sec-tile]")].map((t) => ({ id: t.dataset.secTile, href: t.getAttribute("href"), shapes: t.querySelectorAll(".pic svg *").length, what: (t.querySelector(".pic") || {}).dataset?.plate || (t.querySelector(".pic") || {}).dataset?.viewKind })));
-  ok(learn.length === 4 && learn.every((t) => t.shapes >= 8 && t.href === "#/learn/" + t.id) && new Set(learn.map((t) => t.what)).size === 4, "Learn opens on four picture tiles, one a part, each its own picture", learn);
+  // (the parts the switch in rigs/index.html has on: Knots and Casting today)
+  const on = await page.evaluate(() => ["knots", "casting", "guides", "gear"].filter((x) => RIG.libReady[x]));
+  ok(learn.map((t) => t.id).join() === on.join() && on.length >= 2 && learn.every((t) => t.shapes >= 8 && t.href === "#/learn/" + t.id) && new Set(learn.map((t) => t.what)).size === on.length,
+    "Learn opens on a picture tile for each part that is on (" + on.join(", ") + "), each its own picture", learn);
 
   // ---- the new scenes: the lake and the ocean beach -----------------------
   const pick = await page.evaluate(() => ({

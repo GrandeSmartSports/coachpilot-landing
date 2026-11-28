@@ -101,6 +101,7 @@ ol.steps li::before{
 }
 ol.steps li:last-child{padding-bottom:0}
 ol.steps b{font-weight:650;color:var(--ink)}
+ol.steps a.k{text-decoration:underline;text-underline-offset:2px}
 ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
   background:color-mix(in srgb,var(--accent) 11%,transparent);padding:2px 8px 2px 7px;border-radius:8px;white-space:normal;overflow-wrap:anywhere}
 
@@ -222,6 +223,65 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 .row .tx.hasbadge>span:not(.badge){grid-column:1/-1}
 .row.pic .tile{align-self:flex-start;margin-top:2px}
 .ltiles{margin-bottom:2px}
+/* ---- the library: CastAI's knots, casts, guides and gear (rigs/library.js) ---- */
+/* a list's own head, inside the card that crosses the waterline */
+.lhead{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0;padding:15px 16px 3px}
+.lhead span{font-size:13.5px;line-height:1.35;color:var(--t2)}
+/* the steps as a strip: a numbered stone per move, joined by a line */
+ol.kstrip{list-style:none;margin:4px 0 0;padding:0}
+ol.kstrip li{position:relative;display:flex;gap:13px;align-items:flex-start;padding:0 0 13px;font-size:15px;line-height:1.45;color:var(--t1)}
+ol.kstrip li:last-child{padding-bottom:0}
+ol.kstrip li i{position:relative;z-index:1;flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  font:700 16px/1 "Barlow Condensed",sans-serif;font-style:normal;color:var(--t1);
+  background:linear-gradient(180deg,var(--pan-a),var(--pan-b));box-shadow:var(--e1),inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent)}
+ol.kstrip li:not(:last-child)::before{content:"";position:absolute;left:14px;top:30px;bottom:0;width:2px;background:color-mix(in srgb,var(--accent) 30%,var(--line))}
+ol.kstrip li span{padding-top:4px}
+.card ol.kstrip + .box{margin-top:16px}
+.card .box + .vids{margin-top:14px}
+.klist{margin:3px 0 0;padding:0 0 0 18px}
+.klist li{margin:3px 0}
+/* a guide's section: its parts as headlines that open in place */
+.gitems{margin:8px 0 0}
+.gitem{border-top:1px solid var(--edge)}
+.gitem:first-child{border-top:0}
+.gitem>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:13px 0;cursor:pointer}
+.gitem summary::-webkit-details-marker{display:none}
+.gitem>summary b{flex:1;font-weight:650;font-size:16px;line-height:1.3;color:var(--t1)}
+.gitem>summary .chev{transform:rotate(90deg);transition:transform .15s}
+.gitem[open]>summary .chev{transform:rotate(-90deg)}
+.gitem .gbody{padding:0 0 15px;font-size:15px;line-height:1.5;color:var(--t2)}
+.gitem .gbody p{margin:0}
+.gitem .gbody p+.klist{margin-top:8px}
+.gitem .gbody .klist{margin-top:0}
+.gitem .gbody .box.tip{margin-top:12px}
+/* CastAI's paragraph, behind More: a part opens on its points */
+.gmore{margin-top:10px}
+.gmore>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 13px;border-radius:999px;cursor:pointer;
+  font:600 13.5px/1.2 Inter,system-ui,sans-serif;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--paper))}
+.gmore>summary::after{content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-2px)}
+.gmore[open]>summary{display:none}
+.gmore p{margin:0}
+/* a library row's level: a tinted badge, one colour each, never the gold */
+.row .tx.hasbadge>.badge.lv{padding:3px 9px;font-size:12px}
+.row .tx.hasbadge>.badge.lv1{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
+.row .tx.hasbadge>.badge.lv2{color:var(--t2);background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
+.row .tx.hasbadge>.badge.lv3{color:color-mix(in srgb,var(--warn) 84%,var(--t1));background:color-mix(in srgb,var(--warn) 13%,var(--paper))}
+.row .tx.hasbadge>.badge.lv4{color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--paper))}
+/* the rules page: where the checked rules are, as two chips */
+.rulechips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.rulechips .chip{min-height:38px;padding:7px 15px;text-decoration:none;background:color-mix(in srgb,var(--accent) 11%,var(--paper));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 26%,transparent)}
+.rulechips .chip b{font-size:14px;color:var(--accent)}
+/* an odd tile out at the end of a row of two takes the row */
+.ltiles .ptile:last-child:nth-child(odd){grid-column:1/-1}
+/* a fish's page: what the fish is */
+.about{padding:15px 16px 16px}
+.about>p{margin:0;font-size:15px;line-height:1.5;color:var(--t1)}
+.about .lures{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+.about .lures .tag{font:600 13.5px/1 Inter,system-ui,sans-serif;letter-spacing:0;text-transform:none;padding:7px 11px;color:var(--t1);
+  background:color-mix(in srgb,var(--accent) 9%,var(--pan-a));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent)}
+.about .well{margin-top:14px}
+[data-lib-wait]{padding:18px 18px 19px}
 /* a new rule over a fish's plate: room for the drawing that rides up over the plate's lip */
 [data-view="species"] [data-rules-slot] .box{margin:0 0 calc(12px + var(--sw)*24/390)}
 .grp{margin:26px 0 0}
@@ -1282,7 +1342,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     });
     // and a spot's own cards (Orting's rules), so they go in a trip too
     spots().forEach(function (s) { out = out.concat(own(spotCards(s))); });
-    return out;
+    // and CastAI's knots and casts (rigs/library.js), once it has loaded
+    return out.concat(libCards());
   }
 
   // ---- trip state -------------------------------------------------------
@@ -1374,7 +1435,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         (RIG.trip.has(c.id) ? "In this trip" : "Add to trip") + "</button>"
       : "";
     return '<article class="card panel" data-card="' + esc(c.id) + '">' +
-      "<h3>" + esc(c.title) + "</h3>" + warn + dia + c.body + stamp + add + "</article>";
+      "<h3>" + esc(c.title) + "</h3>" + warn + dia + linkKnots(c.body) + stamp + add + "</article>";
   }
 
   function noticeHtml() {
@@ -1536,6 +1597,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return scratch.textContent.trim();
   }
   function metaOf(c) {
+    if (c.lib) return "";
     var b = c.body || "";
     var v = (b.match(/class="vid"/g) || []).length;
     if (v) return v + (v === 1 ? " video" : " videos");
@@ -1558,9 +1620,11 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return '<button class="chip jp" type="button" ' + attr + '="' + esc(id) + '" aria-current="' +
       (id === active ? "true" : "false") + '">' + esc(text) + "</button>";
   }
+  // The app's own courses. Knots is not one of them any more: every knot,
+  // the three drawn by hand among them, is in the library's Knots.
   function learnSections() {
     var names = [];
-    fundamentals().forEach(function (c) { if (c.section && names.indexOf(c.section) === -1) names.push(c.section); });
+    fundamentals().forEach(function (c) { if (c.section && c.section !== "Knots" && names.indexOf(c.section) === -1) names.push(c.section); });
     return names;
   }
   function chipsFor(tab, active) {
@@ -1570,7 +1634,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       (lakesIn() ? LK.fish.order.map(function (id) {
         return '<button class="chip jp" type="button" data-lakefish="' + esc(id) + '" aria-current="' + (active === "lf-" + id ? "true" : "false") + '">' + esc(LK.fish.fish[id].name) + "</button>";
       }).join("") : "");
-    if (tab === "learn") return learnSections().map(function (n) { return chip("data-sec", n.toLowerCase(), n, active); }).join("");
+    if (tab === "learn") return libSecs().map(function (x) { return chip("data-sec", x[0], x[1], active); }).join("") +
+      learnSections().map(function (n) { return chip("data-sec", n.toLowerCase(), n, active); }).join("");
     return "";
   }
 
@@ -2371,7 +2436,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         // waterline, and the fish follows it.
         noticeHtml() + (loc ? '<div data-rules-slot' + slotAttrs(loc.id, sp.id, oldestDated(cardsFor(sp, loc))) + "></div>" : "") + plate +
         '<span hidden data-location-current>' + esc(loc ? loc.name : "") + "</span>" +
-        groupRows(cardsFor(sp, loc), function (c) { return base + "/" + c.id; }) +
+        groupRows(cardsFor(sp, loc), function (c) { return base + "/" + c.id; }) + aboutHtml(sp.id) +
       "</div>" + tripBarHtml();
   }
 
@@ -2389,13 +2454,24 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var names = every.filter(function (n) { return n.toLowerCase() === sec; });
     var one = names.length === 1;
     if (!one) names = every;
-    // Home: four tiles, then a short Start here: the first card of each. A
-    // section on its own: its cards, in the card that crosses the waterline.
-    var tiles = one ? "" : '<div class="ptiles ltiles" data-learn-tiles>' + every.map(function (n) {
-      var id = n.toLowerCase(), cnt = all.filter(function (c) { return c.section === n; }).length;
-      return '<a class="ptile" href="#/learn/' + esc(id) + '" data-sec-tile="' + esc(id) + '">' + learnPic(id) +
-        '<span class="cap"><span class="nm">' + esc(n) + '</span><span class="meta">' + cnt + (cnt === 1 ? " card" : " cards") + "</span></span></a>";
+    // Home: the library's parts that are switched on (LIB_READY) as picture
+    // tiles across the waterline, what to tie first, then the app's own
+    // courses and a short Start here.
+    // A course on its own: its cards, in the card that crosses the waterline.
+    var L = lib();
+    var tiles = one ? "" : '<div class="ptiles ltiles" data-learn-tiles>' + libSecs().map(function (x) {
+      var n = L ? libCount(x[0]) : null;
+      return '<a class="ptile" href="#/learn/' + x[0] + '" data-sec-tile="' + x[0] + '">' + libPic(x[0]) +
+        '<span class="cap"><span class="nm">' + esc(x[1]) + '</span><span class="meta">' + (n === null ? "&nbsp;" : esc(n)) + "</span></span></a>";
     }).join("") + "</div>";
+    var first = !one && L ? '<section class="grp" data-learn-first><h2 class="sect">Learn these first</h2><div class="panel list">' +
+      L.firstKnots.map(function (id) { var k = knotById(id); return k ? libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"') : ""; }).join("") +
+      libRow(castCard(castById("pendulum-cast")), "#/learn/casting/pendulum-cast", 'data-cast="pendulum-cast"') + "</div></section>" : "";
+    var courses = one ? "" : '<section class="grp" data-courses><h2 class="sect">Courses</h2><div class="ptiles ltiles">' + every.map(function (n) {
+      var id = n.toLowerCase(), cnt = all.filter(function (c) { return c.section === n; }).length;
+      return '<a class="ptile" href="#/learn/' + esc(id) + '" data-course-tile="' + esc(id) + '">' + learnPic(id) +
+        '<span class="cap"><span class="nm">' + esc(n) + '</span><span class="meta">' + cnt + (cnt === 1 ? " card" : " cards") + "</span></span></a>";
+    }).join("") + "</div></section>";
     var body = one ? names.map(function (n) {
       var mine = all.filter(function (c) { return c.section === n; });
       return '<section class="grp" data-group="fundamental" data-section="' + esc(n) + '"><h2 class="sect vh">' + esc(n) +
@@ -2409,8 +2485,285 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("learn", one ? sec : "", LEARN_SCENE[sec] || "lake") +
       '<div data-view="learn">' + (one
         ? heroHtml({ title: names[0], back: { href: "#/learn", text: "Learn" }, chips: '<span class="chip"><b>' + n1 + (n1 === 1 ? " card" : " cards") + "</b></span>" })
-        : headHtml("Learn", "Rods, knots, kayak, fly", "True for any fish, anywhere.")) +
-        tiles + body + "</div>" + tripBarHtml();
+        : headHtml("Learn", LIB_READY.guides ? "Knots, casts and guides" : "Knots and casts", "Step by step, with video.")) +
+        tiles + first + courses + body + "</div>" + tripBarHtml();
+  }
+
+  // ---- the library: CastAI's knots, casts, guides and gear ---------------
+  // One source, two apps: rigs/library.js is written from CastAI's library
+  // files by scripts/import-castai-library.mjs (never by hand). It loads after
+  // the first screen, the way the fish drawings do, and a screen that needs
+  // it asks for it at once.
+  var LIB_SECS = [["knots", "Knots"], ["casting", "Casting"], ["guides", "Guides"], ["gear", "Gear"]];
+  var LIB_SEC = { knots: 1, casting: 1, guides: 1, gear: 1 };
+  // THE SWITCH: which parts of the library a person can open. The guides,
+  // the gear and a fish's "About the fish" wait for a Washington rewrite
+  // (CastAI's teach minnows as bait and send you to rivers that are closed).
+  // While false, their tile, their dock chip and their pages are gone, and a
+  // link to one lands on Learn. Their words stay in rigs/library.js.
+  var LIB_READY = RIG.libReady = { knots: true, casting: true, guides: false, gear: false, about: false };
+  function libSecs() { return LIB_SECS.filter(function (x) { return LIB_READY[x[0]]; }); }
+  var libWait = false, libFailed = false, libMemo = { src: null, cards: [] };
+  function lib() { return RIG.library || null; }
+  function isLibId(id) { return /^lib-/.test(id); }
+  function loadLib(now) {
+    if (RIG.library || libWait) return;
+    if (!now) { if (!loadLib.idle) { loadLib.idle = true; (window.requestIdleCallback || function (f) { setTimeout(f, 1500); })(function () { loadLib(true); }); } return; }
+    libWait = true; libFailed = false;
+    var s = document.createElement("script");
+    s.src = "/rigs/library.js";
+    s.onload = function () {
+      var here = mode() === "field" ? state.cards.some(isLibId)
+        : !!app.querySelector('[data-view="learn"],[data-view="species"],[data-view="card"],[data-lib-wait]');
+      if (!here) return;
+      fishQuiet = true;
+      try { render(); } finally { fishQuiet = false; }
+    };
+    s.onerror = function () {
+      libWait = false; libFailed = true;
+      [].forEach.call(app.querySelectorAll("[data-lib-wait]"), function (el) { el.innerHTML = "<p><b>The library did not load.</b> Open the app once with signal and it stays on the phone.</p>"; });
+    };
+    document.head.appendChild(s);
+  }
+  function knotById(id) { var L = lib(); return L ? L.knots.filter(function (k) { return k.id === id; })[0] || null : null; }
+  function castById(id) { var L = lib(); return L ? L.casts.filter(function (c) { return c.id === id; })[0] || null : null; }
+  function libCount(sec) {
+    var L = lib();
+    if (sec === "knots") return L.knots.length + " knots";
+    if (sec === "casting") return L.casts.length + " casts";
+    if (sec === "guides") return L.guides.length + " guides";
+    var n = 0; L.gear.forEach(function (g) { n += g.sections.length; });
+    return n + " parts";
+  }
+  // Each tile gets its own picture, never its neighbour's: the app's own
+  // drawings on the bench (a knot, a squid jig, a hook), or a kind of water
+  // with its own shore (seed) seen from its own bank (flip). view is also
+  // what a drawing's tile shows until the drawings have loaded.
+  var LIB_PIC = { knots: { plate: "knot", view: "lake" }, casting: { view: "pier" }, guides: { view: "river", o: { seed: 11, flip: true } },
+    gear: { plate: "jig", view: "lake", o: { seed: 9 } } };
+  var GUIDE_PIC = { salmon: { view: "river" }, starting: { view: "lake" }, water: { view: "river", o: { seed: 7, flip: true } },
+    seasons: { view: "lake", o: { seed: 5, flip: true, dock: false } }, fly: { view: "fly", o: { seed: 3, flip: true } }, unhooking: { plate: "hook", view: "sound" } };
+  function picOf(x) {
+    var k = x.plate && RIG.fish && RIG.fish.of(x.plate);
+    if (k) return '<span class="pic bench" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: true }) + "</span>";
+    return viewHtml(x.view || "lake", "pic", x.o);
+  }
+  function libPic(sec) { return picOf(LIB_PIC[sec]); }
+  var LEVEL = { 1: "Easy", 2: "Medium", 3: "Tricky", 4: "Hard" };
+  // A video: the Rig Card's own label (what it shows, and whose channel),
+  // never YouTube's raw title (that is for the oEmbed check only).
+  function vidHtml(v, label) {
+    return v ? '<div class="vids"><a class="vid" href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener" data-video="' + esc(v.id) + '">' +
+      '<span class="play" aria-hidden="true"></span><span class="vt"><b>' + esc(label) + '</b><span class="by">' + esc(v.by) + "</span>" +
+      (v.note ? '<span class="why">' + esc(v.note) + "</span>" : "") + "</span></a></div>" : "";
+  }
+  // The steps as a numbered strip, one move each, joined by a line.
+  function stripHtml(steps) {
+    return '<ol class="kstrip" data-strip="' + steps.length + '">' + steps.map(function (st, i) {
+      return "<li><i>" + (i + 1) + "</i><span>" + esc(st) + "</span></li>";
+    }).join("") + "</ol>";
+  }
+  function failsHtml(t) { return '<div class="box red" data-fails><b>where it fails</b>' + esc(t) + "</div>"; }
+  // A knot as a card. The three the app draws by hand keep their drawing (and
+  // their own id, so Add to trip adds the drawn card), and gain CastAI's tips.
+  function knotCard(k) {
+    var hand = k.hand && allCardsOwn().filter(function (c) { return c.id === k.hand; })[0];
+    var fig = hand ? (hand.body.match(/<figure class="tyer"[\s\S]*?<\/figure>/) || [""])[0] : "";
+    return { id: fig ? hand.id : "lib-knot-" + k.id, title: k.name, lib: "knot", libId: k.id, level: k.level, group: "fundamental",
+      body: '<p class="when">' + esc(k.line) + "</p>" + (fig || stripHtml(k.steps)) + failsHtml(k.fails) + vidHtml(k.video, k.name) +
+        (k.tip ? '<div class="box tip"><b>tip</b>' + esc(k.tip) + "</div>" : "") +
+        (k.best ? '<div class="box"><b>use it for</b>' + esc(k.best) + "</div>" : "") };
+  }
+  function castCard(c) {
+    return { id: "lib-cast-" + c.id, title: c.name, lib: "cast", libId: c.id, level: c.level, group: "fundamental",
+      body: '<p class="when">' + esc(c.line) + "</p>" + stripHtml(c.steps) + failsHtml(c.fails) + vidHtml(c.video, c.name) +
+        (c.mistakes.length ? '<div class="box"><b>also watch for</b><ul class="klist">' + c.mistakes.map(function (m) { return "<li>" + esc(m) + "</li>"; }).join("") + "</ul></div>" : "") +
+        (c.best ? '<div class="box"><b>use it for</b>' + esc(c.best) + "</div>" : "") };
+  }
+  // Every library knot and cast as a card, for a trip (Field mode). The drawn
+  // knots are already in the library as their own cards.
+  function libCards() {
+    var L = lib();
+    if (!L) return [];
+    if (libMemo.src !== L) {
+      libMemo.src = L;
+      libMemo.cards = L.knots.filter(function (k) { return !k.hand; }).map(knotCard).concat(L.casts.map(castCard));
+    }
+    return libMemo.cards;
+  }
+  function allCardsOwn() {
+    var out = fundamentals().concat(shared());
+    species().forEach(function (sp) {
+      (sp.cards || []).forEach(function (c) { if (typeof c !== "string") out.push(c); });
+      (sp.locations || []).forEach(function (l) { (l.cards || []).forEach(function (c) { if (typeof c !== "string") out.push(c); }); });
+    });
+    return out;
+  }
+  // A knot's or a cast's row: its name, its level as a tinted badge, its line.
+  function libRow(c, href, attr) {
+    var lv = LEVEL[c.level] ? '<span class="badge lv lv' + c.level + '" data-level="' + c.level + '">' + esc(LEVEL[c.level]) + "</span>" : "";
+    return '<a class="row" ' + attr + ' href="' + esc(href) + '" data-row="' + esc(c.id) + '"><span class="tx' + (lv ? " hasbadge" : "") + '"><b>' + esc(c.title) + "</b>" + lv +
+      lineHtml(snippet(c)) + "</span>" + IC.chev + "</a>";
+  }
+  // A knot named in a rig's steps opens its card: "Improved clinch", tapped.
+  function knotFor(name) {
+    var L = lib(), k = String(name).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+    if (!L) return null;
+    return L.knots.filter(function (x) {
+      return x.aka.some(function (a) { var b = a.replace(/[^a-z0-9]+/g, " ").trim(); return b === k || b === k + " knot" || b.replace(/ knot$/, "") === k; });
+    })[0] || null;
+  }
+  function linkKnots(body) {
+    if (!lib() || mode() === "field" || !/class="k"/.test(body || "")) return body;
+    return body.replace(/<span class="k">([^<]+)<\/span>/g, function (m, name) {
+      var k = knotFor(name);
+      return k ? '<a class="k" href="#/learn/knots/' + k.id + '" data-knot-link="' + k.id + '">' + name + "</a>" : m;
+    });
+  }
+  function libChip(text) { return '<span class="chip"><b>' + esc(text) + "</b></span>"; }
+  // While the library loads (a moment, or offline before it was ever kept).
+  function libWaitHtml(sec, scene) {
+    loadLib(true);
+    var name = LIB_SECS.filter(function (x) { return x[0] === sec; })[0][1];
+    app.innerHTML = topHtml("learn", sec, scene) + '<div data-view="learn">' + heroHtml({ title: name, back: { href: "#/learn", text: "Learn" } }) +
+      '<div class="float well" data-lib-wait><p>' + (libFailed ? "<b>The library did not load.</b> Open the app once with signal and it stays on the phone." : "Opening the library.") + "</p></div></div>" + tripBarHtml();
+  }
+  function renderLib(sec, a, b) {
+    var L = lib();
+    var scene = sec === "casting" ? (a && castById(a) && castById(a).group === "fly" ? "river" : "pier") : sec === "guides" ? "river" : "lake";
+    if (!L) { libWaitHtml(sec, scene); return; }
+    if (sec === "knots") { var k = a && knotById(a); if (k) renderKnot(k); else renderKnots(); return; }
+    if (sec === "casting") { var c = a && castById(a); if (c) renderCast(c); else renderCasts(); return; }
+    if (sec === "guides") {
+      var g = a && L.guides.filter(function (x) { return x.id === a; })[0];
+      var gs = g && b && g.sections.filter(function (x) { return x.id === b; })[0];
+      if (gs) renderGuideSection(g, gs, "guides"); else if (g) renderGuide(g); else renderGuides();
+      return;
+    }
+    var p = a && L.gear.filter(function (x) { return x.id === a; })[0];
+    var ps = p && b && p.sections.filter(function (x) { return x.id === b; })[0];
+    if (ps) renderGuideSection(p, ps, "gear"); else renderGear();
+  }
+  function renderKnots() {
+    var L = lib();
+    var first = L.firstKnots.map(knotById).filter(Boolean);
+    var lead = '<div class="float list" data-knot-first><p class="lhead"><em class="eyebrow">Tie these first</em><span>' + esc(L.firstKnotsLine) + "</span></p>" +
+      first.map(function (k) { return libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"'); }).join("") + "</div>";
+    var groups = L.knotGroups.map(function (g) {
+      var mine = L.knots.filter(function (k) { return k.joins === g.id && L.firstKnots.indexOf(k.id) === -1; });
+      return mine.length ? '<section class="grp" data-knot-group="' + esc(g.id) + '"><h2 class="sect">' + esc(g.label) + ' <span class="n">' + mine.length + "</span></h2>" +
+        '<div class="panel list">' + mine.map(function (k) { return libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"'); }).join("") + "</div></section>" : "";
+    }).join("");
+    app.innerHTML = topHtml("learn", "knots", "lake") + '<div data-view="learn" data-lib="knots">' +
+      heroHtml({ title: "Knots", back: { href: "#/learn", text: "Learn" }, chips: libChip(L.knots.length + " knots") }) + lead + groups + "</div>" + tripBarHtml();
+  }
+  function knotOrder() {
+    var L = lib();
+    return L.firstKnots.map(knotById).filter(Boolean).concat(L.knots.filter(function (k) { return L.firstKnots.indexOf(k.id) === -1; }));
+  }
+  function renderKnot(k) {
+    var L = lib(), g = L.knotGroups.filter(function (x) { return x.id === k.joins; })[0];
+    var list = knotOrder().map(knotCard);
+    renderCard({ tab: "learn", active: "knots", card: list.filter(function (c) { return c.libId === k.id; })[0], scene: "lake", list: list,
+      hrefFor: function (c) { return "#/learn/knots/" + c.libId; }, upHref: "#/learn/knots", upText: "Knots",
+      chips: libChip(g ? g.label : "") + '<span class="chip">' + esc(LEVEL[k.level] || "") + "</span>" });
+  }
+  function renderCasts() {
+    var L = lib();
+    var groups = L.castGroups.map(function (g, i) {
+      var mine = L.casts.filter(function (c) { return c.group === g.id; });
+      var rows = mine.map(function (c) { return libRow(castCard(c), "#/learn/casting/" + c.id, 'data-cast="' + esc(c.id) + '"'); }).join("");
+      return i === 0
+        ? '<div class="float list" data-cast-group="' + esc(g.id) + '"><p class="lhead"><em class="eyebrow">' + esc(g.label) + "</em><span>" + mine.length + " casts</span></p>" + rows + "</div>"
+        : '<section class="grp" data-cast-group="' + esc(g.id) + '"><h2 class="sect">' + esc(g.label) + ' <span class="n">' + mine.length + '</span></h2><div class="panel list">' + rows + "</div></section>";
+    }).join("");
+    app.innerHTML = topHtml("learn", "casting", "pier") + '<div data-view="learn" data-lib="casting">' +
+      heroHtml({ title: "Casting", back: { href: "#/learn", text: "Learn" }, chips: libChip(L.casts.length + " casts") }) + groups + "</div>" + tripBarHtml();
+  }
+  function renderCast(c) {
+    var L = lib(), list = L.casts.map(castCard), g = L.castGroups.filter(function (x) { return x.id === c.group; })[0];
+    renderCard({ tab: "learn", active: "casting", card: list.filter(function (x) { return x.libId === c.id; })[0], scene: c.group === "fly" ? "river" : "pier", list: list,
+      hrefFor: function (x) { return "#/learn/casting/" + x.libId; }, upHref: "#/learn/casting", upText: "Casting",
+      chips: libChip(g ? g.label : "") + '<span class="chip">' + esc(LEVEL[c.level] || "") + "</span>" });
+  }
+  function renderGuides() {
+    var L = lib();
+    var tiles = L.guides.map(function (g) {
+      return '<a class="ptile" href="#/learn/guides/' + esc(g.id) + '" data-guide-tile="' + esc(g.id) + '">' + picOf(GUIDE_PIC[g.id] || { view: g.view || "lake" }) +
+        '<span class="cap"><span class="nm">' + esc(g.title) + '</span><span class="meta">' + g.sections.length + " parts</span></span></a>";
+    }).join("");
+    app.innerHTML = topHtml("learn", "guides", "river") + '<div data-view="learn" data-lib="guides">' +
+      heroHtml({ title: "Guides", back: { href: "#/learn", text: "Learn" }, chips: libChip(L.guides.length + " guides") }) +
+      '<div class="ptiles gtiles" data-guide-tiles>' + tiles + "</div></div>" + tripBarHtml();
+  }
+  // A guide's or a gear part's sections as headlines. The rules section is a
+  // rule row: red edge, and it opens on where the checked rules are.
+  function secRows(g, sec) {
+    return g.sections.map(function (x) {
+      var href = "#/learn/" + sec + "/" + g.id + "/" + x.id;
+      if (x.rules) return '<a class="rule" href="' + esc(href) + '" data-gsec="' + esc(x.id) + '"><span class="tx"><b>' + esc(x.title) + "</b><span>" + esc(x.line) + "</span></span>" + IC.chev + "</a>";
+      var n = (x.items || []).length;
+      return '<a class="row" href="' + esc(href) + '" data-gsec="' + esc(x.id) + '"><span class="tx"><b>' + esc(x.title) + "</b>" + lineHtml(x.line || (n + " parts")) + "</span>" + IC.chev + "</a>";
+    }).join("");
+  }
+  function renderGuide(g) {
+    var plain = g.sections.filter(function (x) { return !x.rules; }), rules = g.sections.filter(function (x) { return x.rules; });
+    app.innerHTML = topHtml("learn", "guides", g.view === "fly" ? "sound" : g.view || "river") + '<div data-view="learn" data-lib="guide" data-guide="' + esc(g.id) + '">' +
+      heroHtml({ title: g.title, back: { href: "#/learn/guides", text: "Guides" }, chips: libChip(g.sections.length + " parts") }) +
+      '<div class="float list">' + secRows({ id: g.id, sections: plain }, "guides") + "</div>" +
+      (rules.length ? secRows({ id: g.id, sections: rules }, "guides") : "") + "</div>" + tripBarHtml();
+  }
+  function renderGear() {
+    var L = lib();
+    var parts = L.gear.map(function (g, i) {
+      return i === 0
+        ? '<div class="float list" data-gear="' + esc(g.id) + '"><p class="lhead"><em class="eyebrow">' + esc(g.title) + "</em><span>" + esc(g.line) + "</span></p>" + secRows(g, "gear") + "</div>"
+        : '<section class="grp" data-gear="' + esc(g.id) + '"><h2 class="sect">' + esc(g.title) + ' <span class="n">' + g.sections.length + '</span></h2><div class="panel list">' + secRows(g, "gear") + "</div></section>";
+    }).join("");
+    var n = 0; L.gear.forEach(function (g) { n += g.sections.length; });
+    app.innerHTML = topHtml("learn", "gear", "lake") + '<div data-view="learn" data-lib="gear">' +
+      heroHtml({ title: "Gear", back: { href: "#/learn", text: "Learn" }, chips: libChip(n + " parts") }) + parts + "</div>" + tripBarHtml();
+  }
+  // The rules page: where the checked rules are, as two chips. (Rules are
+  // never in a guide; the code keeps them out, the page does not say so.)
+  var RULES_CHIPS = '<div class="rulechips" data-rules-pointer><a class="chip" href="#/trips"><b>Trips</b></a>' +
+    '<a class="chip" href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener"><b>WDFW emergency rules</b></a></div>';
+  // One section of a guide: its parts as headlines, all closed, each opening
+  // in place on its points, with CastAI's paragraph behind More.
+  function sectionCard(g, x) {
+    if (x.rules) return { id: "lib-guide-" + g.id + "-" + x.id, title: x.title, libId: x.id, body: '<p class="when">' + esc(x.line) + "</p>" + RULES_CHIPS };
+    var items = (x.items || []).map(function (it) {
+      return '<details class="gitem"><summary><b>' + esc(it.name) + "</b>" + IC.chev + '</summary><div class="gbody">' +
+        (it.text ? "<p>" + esc(it.text) + "</p>" : "") +
+        (it.points && it.points.length ? '<ul class="klist">' + it.points.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>" : "") +
+        (it.tip ? '<div class="box tip"><b>tip</b>' + esc(it.tip) + "</div>" : "") + vidHtml(it.video, it.name) +
+        (it.more ? '<details class="gmore"><summary>More</summary><p>' + esc(it.more) + "</p></details>" : "") + "</div></details>";
+    }).join("");
+    return { id: "lib-guide-" + g.id + "-" + x.id, title: x.title, libId: x.id,
+      body: (x.line ? '<p class="when">' + esc(x.line) + "</p>" : "") + (x.steps && x.steps.length ? stripHtml(x.steps) : "") +
+        (items ? '<div class="gitems">' + items + "</div>" : "") +
+        (x.points && x.points.length ? '<div class="box red"><b>watch for</b><ul class="klist">' + x.points.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul></div>" : "") +
+        (x.tools && x.tools.length ? '<div class="box"><b>tools</b>' + esc(x.tools.join(", ")) + "</div>" : "") +
+        (x.tip ? '<div class="box tip"><b>tip</b>' + esc(x.tip) + "</div>" : "") + vidHtml(x.video, x.title) };
+  }
+  // A guide's sections in the order its page lists them: the rules row last.
+  function secOrder(g) { return g.sections.filter(function (y) { return !y.rules; }).concat(g.sections.filter(function (y) { return y.rules; })); }
+  function renderGuideSection(g, x, sec) {
+    var list = secOrder(g).map(function (y) { return sectionCard(g, y); });
+    renderCard({ tab: "learn", active: sec, card: list.filter(function (c) { return c.libId === x.id; })[0], list: list, addable: false,
+      scene: sec === "gear" ? "lake" : g.view === "fly" ? "sound" : g.view || "river",
+      hrefFor: function (c) { return "#/learn/" + sec + "/" + g.id + "/" + c.libId; },
+      upHref: sec === "gear" ? "#/learn/gear" : "#/learn/guides/" + g.id, upText: sec === "gear" ? "Gear" : g.title });
+  }
+  // A fish's page: what CastAI knows about it, where it is true here.
+  function aboutHtml(speciesId) {
+    var L = LIB_READY.about && lib(), f = L && L.fish && L.fish[speciesId];
+    if (!f) return "";
+    return '<section class="grp" data-about="' + esc(f.from) + '"><h2 class="sect">About the fish</h2><div class="panel about">' +
+      (f.text ? "<p>" + esc(f.text) + "</p>" : "") +
+      (f.habitat ? '<div class="box"><b>where they live</b>' + esc(f.habitat) + "</div>" : "") +
+      (f.lures && f.lures.length ? '<div class="box"><b>best lures</b><span class="lures">' + f.lures.map(function (x) { return '<span class="tag">' + esc(x) + "</span>"; }).join("") + "</span></div>" : "") +
+      (f.fact ? '<div class="well"><p><b>Did you know?</b> ' + esc(f.fact) + "</p></div>" : "") + "</div></section>";
   }
 
   // One card, alone. Back goes up to the list, next and previous walk it.
@@ -2423,7 +2776,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     }
     app.innerHTML = topHtml(o.tab, o.active, o.scene, o.paint) +
       '<div data-view="card">' +
-        heroHtml({ title: o.card.title, back: { href: o.upHref, text: o.upText } }) +
+        heroHtml({ title: o.card.title, back: { href: o.upHref, text: o.upText }, chips: o.chips || "" }) +
         noticeHtml() + (o.rules ? '<div data-rules-slot' + slotAttrs(o.rules.spot, o.rules.species, o.rules.since) + "></div>" : "") +
         cardHtml(o.card, { addable: o.addable !== false }) +
         '<nav class="pn">' + step(prev, "prev", "Back") +
@@ -6537,6 +6890,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var r0 = (location.hash || "").replace(/^#\/?/, "").split("/")[0];
     loadFish(r0 === "fish" || r0 === "learn" || r0 === "spot" || r0 === "lake" || r0 === "lakes" || !!findSpecies(r0));
     loadLakes(r0 === "fish" || r0 === "spot" || r0 === "lake" || r0 === "lakes" || r0 === "water");
+    loadLib(r0 === "learn" || !!findSpecies(r0) || (mode() === "field" && state.cards.some(isLibId)));
     renderView();
     applySky();
     fillRules();
@@ -6565,6 +6919,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var parts = (location.hash || "").replace(/^#\/?/, "").split("/").filter(Boolean);
 
     if (parts[0] === "learn") {
+      if (parts[1] && LIB_SEC[parts[1]] && !LIB_READY[parts[1]]) { location.replace("#/learn"); return; }
+      if (parts[1] && LIB_SEC[parts[1]]) { renderLib(parts[1], parts[2] ? decodeURIComponent(parts[2]) : "", parts[3] ? decodeURIComponent(parts[3]) : ""); return; }
       var fc = parts[1] && fundamentals().filter(function (c) { return c.id === parts[1]; })[0];
       if (fc) {
         var sec = fc.section ? fc.section.toLowerCase() : "";

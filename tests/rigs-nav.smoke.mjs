@@ -108,11 +108,11 @@ try {
   ok(true, "Next opens the next card");
 
   // --- the rod course -----------------------------------------------------
-  // Learn opens on its four parts and a short Start here; the rod course is
-  // one tap in, under Rods.
+  // Learn opens on the library's four parts, then the app's own courses and a
+  // short Start here; the rod course is one tap in, under Rods.
   await page.goto(base + "#/learn", { waitUntil: "load" });
   const start = await page.locator('[data-start] [data-row]').evaluateAll((els) => els.map((e) => e.dataset.row));
-  ok(await page.locator('[data-sec-tile="rods"]').count() === 1 && start.includes("rod-length") && start.length <= 4, "Learn opens on its parts, with a short Start here", JSON.stringify(start));
+  ok(await page.locator('[data-course-tile="rods"]').count() === 1 && start.includes("rod-length") && start.length <= 4, "Learn opens on its parts, with a short Start here", JSON.stringify(start));
   await page.goto(base + "#/learn/rods", { waitUntil: "load" });
   const learn = await page.locator('[data-group="fundamental"] [data-row]').evaluateAll((els) => els.map((e) => e.dataset.row));
   ok(learn.includes("rod-power") && learn.includes("rod-action"), "the rod course is listed under Rods", JSON.stringify(learn));
