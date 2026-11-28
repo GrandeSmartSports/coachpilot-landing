@@ -136,6 +136,50 @@ try {
   });
   ok(walk.n === 1 && /\/plan$/.test(walk.href) && walk.order && !walk.pinned, "one gold button, after the rules and before Go deeper, in the page and not pinned", JSON.stringify(walk));
 
+  // "I can go": two time boxes on the read, the trip's own hours until
+  // someone picks theirs. Picked, the read judges those hours, the plan under
+  // it follows them, and they are saved on this phone for the next time.
+  const winOf = () => page.evaluate(() => {
+    const r = document.querySelector('[data-view="hot"] [data-read]'), w = r && r.querySelector("[data-read-win]");
+    return w && { kind: w.dataset.readWin, from: w.querySelector("[data-win-from]").value, to: w.querySelector("[data-win-to]").value, best: !!w.querySelector("[data-win-reset]"),
+      head: r.querySelector("[data-read-headline]").textContent, why: (r.querySelector("[data-read-reason]") || {}).textContent || "", grade: r.dataset.grade || "",
+      leave: document.querySelector('[data-sec-row="plan"] .planhead b').textContent, saved: localStorage.getItem("rig.win.v1") };
+  });
+  const w0 = await winOf();
+  // The card's head and its tide tile, before a window: the trip's own.
+  const headOf = () => page.evaluate(() => ({ head: [...document.querySelector('[data-view="hot"] .shead .chips').children].filter((c) => !c.classList.contains("back")).map((c) => c.innerText).join(" ").replace(/\s+/g, " "),
+    wx: document.querySelector('[data-sec-row="wx"]').innerText.replace(/\s+/g, " "), d: document.querySelector('[data-sec-row="wx"] svg.tide .t-line')?.getAttribute("d") || "" }));
+  const h0 = await headOf();
+  ok(/After work/.test(h0.head) && /hot/i.test(h0.head) && /High slack 5:15 PM/.test(h0.wx), "before a window: the head says the trip's slot and Hot, the tide tile its slack", h0);
+  ok(w0 && w0.kind === "dark" && w0.from === "17:00" && w0.to === "20:30" && !w0.best && w0.head === read.head && !w0.saved,
+    "the read has two I can go boxes, set to the trip's own hours, and no Best hours until a window is picked", w0);
+  await page.locator('[data-view="hot"] [data-read] [data-win-from]').fill("20:00");
+  await page.waitForFunction(() => /^8 to /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  await page.locator('[data-view="hot"] [data-read] [data-win-to]').fill("00:00");
+  await page.waitForFunction(() => /^8 to 12: /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  const w1 = await winOf();
+  ok(w1 && /^8 to 12: (good|fair, not great|tough)$/.test(w1.head) && /^(good|fair|tough)$/.test(w1.grade) && w1.from === "20:00" && w1.to === "00:00",
+    "the boxes change the headline: it judges 8 PM to 12 AM", w1);
+  ok(w1 && /Leave by 7:10 PM, 35\smin drive\.$/.test(w1.why) && w1.leave === "Leave by 7:10 PM", "and when to leave follows the window, in the read and in the plan", w1);
+  ok(w1 && w1.best && JSON.parse(w1.saved || "{}").dark?.from === "20:00", "the window is saved on this phone, with a Best hours way back", w1 && w1.saved);
+  // The head above the read says the window and its grade, never the trip's
+  // slot and a Hot over "8 to 12: fair". The tide tile draws and names the
+  // water in those hours: the 9 PM low, not the 5:15 PM slack before them.
+  const h1 = await headOf();
+  ok(/Tue Nov 24/.test(h1.head) && /8 PM to 12 AM/.test(h1.head) && !/After work/.test(h1.head) && !/hot/i.test(h1.head) && new RegExp("\\b" + w1.grade + "\\b", "i").test(h1.head),
+    "the head follows the window: its hours and its grade", h1.head + " | " + (w1 && w1.grade));
+  ok(!/5:15 PM/.test(h1.wx) && /Low tide 9:00 PM/.test(h1.wx) && h1.d && h1.d !== h0.d, "the tide tile draws and names the window's hours", h1.wx);
+  await page.reload({ waitUntil: "load" });
+  await page.waitForSelector('[data-view="hot"][data-run="squid-redondo"] [data-read-win]');
+  const w2 = await winOf();
+  ok(w2 && w2.from === "20:00" && w2.to === "00:00" && w2.head === w1.head, "opened again, the saved window comes back, and the read with it", w2);
+  await page.locator('[data-view="hot"] [data-win-reset]').click();
+  await page.waitForFunction(() => /^Go, /.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+  const w3 = await winOf();
+  ok(w3 && w3.head === read.head && w3.from === "17:00" && !w3.best && !w3.saved && w3.leave === "Leave by 4:10 PM", "Best hours goes back to the trip's own hours and forgets the window", w3);
+  const h3 = await headOf();
+  ok(h3.head === h0.head && h3.wx === h0.wx, "and the head and the tide tile go back with it", h3);
+
   await page.locator('[data-sec-row="plan"]').click();
   await page.waitForSelector('[data-view="card"][data-run="squid-redondo"]');
   const plan = await page.locator(".card").innerText();
@@ -251,6 +295,42 @@ try {
     const diaDark = await pg.evaluate(() => { const [r, g, b] = getComputedStyle(document.querySelector(".dia")).backgroundColor.match(/\d+/g).map(Number); return 0.2126 * r + 0.7152 * g + 0.0722 * b; });
     ok(diaDark < 70, "the rig drawings keep their dark card", diaDark);
     await c4.close();
+  }
+
+  // From now, the fishing starts when you get there. At 7:45 PM with an 8 to
+  // 12 window, 35 min from Redondo: leave now, fish from 8:35, never "Leave
+  // now" over "Fish 8:00 PM".
+  {
+    const c6 = await browser.newContext({ viewport: { width: 390, height: 844 }, timezoneId: "America/Los_Angeles" });
+    await fake(c6);
+    await c6.addInitScript(() => { try { localStorage.setItem("rig.win.v1", JSON.stringify({ dark: { from: "20:00", to: "00:00" } })); } catch (e) {} });
+    const pg = await c6.newPage();
+    await pg.clock.setFixedTime(new Date("2026-11-24T19:45:00-08:00"));
+    const errs = []; pg.on("pageerror", (e) => errs.push(e.message));
+    await pg.goto(base + "#/trips", { waitUntil: "load" });
+    await pg.waitForSelector('[data-view="trips"] [data-day]');
+    await pg.goto(base + "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo"), { waitUntil: "load" });
+    await pg.waitForSelector('[data-view="hot"][data-run="squid-redondo"] [data-read-headline]', { timeout: 8000 }).catch(() => {});
+    const at = await pg.evaluate(() => ({ head: document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || "",
+      why: document.querySelector('[data-view="hot"] [data-read-reason]')?.textContent || "",
+      plan: [...document.querySelectorAll('[data-sec-row="plan"] .planhead b, [data-sec-row="plan"] .tl-lab > span')].map((e) => e.querySelector("small") ? e.firstChild.textContent + " " + e.querySelector("small").textContent : e.textContent) }));
+    ok(/^8:35 to 12: /.test(at.head) && /^Leave now, 35\smin drive\.$/.test(at.why.replace(/^.*?\. (?=Leave)/, "")), "7:45 PM, 35 min away: the read is 8:35 to 12, leave now", at);
+    ok(at.plan.join(" | ") === "Leave now | Now Leave | 8:35 PM Fish | 12:00 AM Done", "and THE PLAN: leave now, fish from 8:35 PM, not 8:00", at.plan.join(" | "));
+    // 8:15 PM: from 9:05. Without the window, the trip's own hours end at
+    // 8:30, before you could get there: done for today, and THE PLAN says so.
+    const again = async () => { await pg.evaluate(() => { location.hash = "#/trips"; }); await pg.waitForSelector('[data-view="trips"]');
+      await pg.evaluate(() => { location.hash = "#/trips/" + encodeURIComponent("2026-11-24~squid-redondo"); }); await pg.waitForSelector('[data-view="hot"] [data-read-headline]'); };
+    await pg.clock.setFixedTime(new Date("2026-11-24T20:15:00-08:00"));
+    await again();
+    const at2 = await pg.evaluate(() => ({ head: document.querySelector('[data-view="hot"] [data-read-headline]').textContent,
+      fish: document.querySelectorAll('[data-sec-row="plan"] .tl-lab > span')[1]?.firstChild.textContent }));
+    ok(/^9:05 to 12: /.test(at2.head) && at2.fish === "9:05 PM", "8:15 PM: 9:05 to 12, fish from 9:05 PM", at2);
+    await pg.locator('[data-view="hot"] [data-win-reset]').click();
+    await pg.waitForFunction(() => /^Done for today$/.test(document.querySelector('[data-view="hot"] [data-read-headline]')?.textContent || ""));
+    const over = await pg.evaluate(() => document.querySelector('[data-sec-row="plan"]').innerText.replace(/\s+/g, " "));
+    ok(/^The plan Done for today\b/i.test(over) && !/Leave now/.test(over), "the trip's own hours are over by the time you get there: done for today, in the read and THE PLAN", over);
+    ok(errs.length === 0, "no page errors from now", errs.join(" | "));
+    await c6.close();
   }
 
   // A run card opened cold, by its link, before any forecast is on the phone:

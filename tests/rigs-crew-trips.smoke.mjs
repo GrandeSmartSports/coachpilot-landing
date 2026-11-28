@@ -534,6 +534,10 @@ try {
     await p.waitForFunction(() => /after the start/i.test(document.querySelector("[data-cw-new-msg]")?.innerText || ""));
     ok(calls.fn.filter((b) => b.action === "trip_create").length === 0, "an end before the start says so and sends nothing");
     await p.locator("[data-cw-to]").fill("21:30");
+    // Both set, the crew trip's own From and To are the window its read judges.
+    await p.waitForFunction(() => /^5 to 9:30: /.test(document.querySelector("[data-cw-cond-slot] [data-read-headline]")?.textContent || ""));
+    ok(/^5 to 9:30: (good|fair, not great|tough)$/.test((await text(p, "[data-cw-cond-slot] [data-read-headline]")).trim()) && await p.locator("[data-cw-cond-slot] [data-read-win]").count() === 0,
+      "with From and To set, the read judges those hours (the form's own boxes, no second pair)", await text(p, "[data-cw-cond-slot] [data-read-headline]"));
     ok(await p.locator('[data-cw-pick="idea"]').getAttribute("aria-pressed") === "true" && /Just an idea/.test(await text(p, '[data-cw-pick="idea"]')) && /It is on/.test(await text(p, '[data-cw-pick="planned"]')),
       "It is on, or Just an idea, starting as an idea");
     await p.locator('[data-cw-pick="planned"]').click();

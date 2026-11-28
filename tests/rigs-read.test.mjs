@@ -332,6 +332,140 @@ const TIDES = {
   ok(still.call === "go", "while it is on, it is still a go", still.headline);
 }
 
+// ---- my window: the hours someone can go, judged ------------------------------------
+// Coach, 11/27: "I can probably head out around 8 PM to 12 AM ... I'm trying
+// to figure out if it's worth it or not." NOAA's predictions (read 11/27) for
+// Des Moines (Redondo) run on to Nov 29; Tacoma's here stop at Nov 28.
+{
+  const noaa = (rows) => rows.map(([t, v, type]) => ({ t, v, type }));
+  const WEEK = { "9446484": TIDES["9446484"], "9446248": TIDES["9446248"].concat(noaa([["2026-11-29 01:49", "-1.967", "L"], ["2026-11-29 09:27", "12.824", "H"],
+    ["2026-11-29 15:28", "7.141", "L"], ["2026-11-29 19:46", "9.383", "H"], ["2026-11-30 02:44", "-0.553", "L"]])) };
+  const days = [NIGHT, "2026-11-28", "2026-11-29"];
+  const wx = forecast(days, (id, d, h) => d !== NIGHT ? {} : { temp: 46, rain: AMT[h] || 0, pop: POP[h] ?? 0, wind: h >= 17 ? 1 + (h % 3) : 3, gust: 5 });
+  const W = { winFrom: 20, winTo: 0 };
+  // A big ebb: high 5:36 PM, 11.3 ft, to -3.1 ft at 12:50 AM.
+  const r = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: WEEK, others: [], ...W });
+  ok(r.status === "ok" && r.grade === "fair" && r.headline === "8 to 12: fair, not great", "8 to 12 on a big ebb: fair, not great", r.headline);
+  ok(r.reason === "The tide drops 10 ft by 12 AM, current strongest until 10:30 PM. Easiest after 10:30 PM. Dry, light wind.",
+    "why: the drop in those hours, the hard current, the easiest part, and the weather in it (the rain is done before 8)", r.reason);
+  ok(r.best.own && r.best.say[0] === 22.5 && r.best.say[1] === 24 && r.fig.best && r.fig.a === 20 && r.fig.b === 24, "the easiest part is the gold band in the picture of those hours", { best: r.best, fig: r.fig && [r.fig.a, r.fig.b, r.fig.best] });
+  ok(line(r, "tide") === "Falling from the 5:36 PM high, 11.3 ft, to the 12:50 AM low, -3.1 ft, current strongest 8 to 10:30 PM.", "the tide line reads those hours, not the trip's", line(r, "tide"));
+  ok(line(r, "rain") === "Dry." && r.leave === "Leave by 7:00 PM" && r.hours.join() === "20,24", "dry from 8, and when to leave for 8", [line(r, "rain"), r.leave, r.hours]);
+  ok(!r.better, "Tacoma's tides in the app stop at Nov 28, a fair night too: no better day is named", r.better);
+  // The same at Redondo, whose station runs on to Nov 29: a high at 7:46 PM.
+  const rr = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: WEEK, others: [], ...W });
+  ok(rr.headline === "8 to 12: fair, not great" && rr.better && rr.better.iso === "2026-11-29" && rr.better.text === "Better for 8 to 12: Sun Nov 29.",
+    "a day in the forecast that suits the same window better gets one line", rr.better);
+  const sun29 = T.read({ planId: "squid-redondo", iso: "2026-11-29", wx, tides: WEEK, others: [], ...W });
+  ok(sun29.grade === "good" && /^The tide drops 7 ft by 12 AM, current strongest after 10 PM\. Best until 10 PM\./.test(sun29.reason),
+    "and that day reads good: soft water from its 7:46 PM high until 10, the current after", sun29.headline + " | " + sun29.reason);
+  ok(!sun29.better, "a good window names no better day");
+  // With others: each one reads the same window.
+  const both = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: WEEK, others: ["squid-redondo"], ...W });
+  // No high in those hours to time either pier on: the tide is the same when
+  // it stands at the same height at both ends of them (7.7 and 7.7 ft at 8 PM, -2.7 and -2.5 at 12).
+  ok(line(both, "or") === "Redondo: same tide and weather, 10 min closer. Pick: Redondo.", "the other pier is read for the same window, and its tide is the same", line(both, "or"));
+  // Redondo and Des Moines go by the same NOAA station: the same tide, always.
+  const dm = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: WEEK, others: ["squid-des-moines"], ...W });
+  ok(/^Des Moines: same tide and weather, 5\u00a0?\s?min farther/.test(line(dm, "or").replace(/\u00a0/g, " ")), "two piers on one tide station: same tide", line(dm, "or"));
+
+  // Near slack (Nov 17, NOAA Tacoma): a 1.6 ft rise to a 10:37 PM high.
+  const N17 = "2026-11-17";
+  const T17 = { "9446484": noaa([["2026-11-17 03:43", "1.683", "L"], ["2026-11-17 11:20", "11.46", "H"], ["2026-11-17 18:16", "5.819", "L"], ["2026-11-17 22:37", "7.464", "H"],
+    ["2026-11-18 04:41", "2.622", "L"], ["2026-11-18 11:59", "11.559", "H"], ["2026-11-18 18:54", "4.619", "L"]]) };
+  const s17 = T.read({ planId: "squid-les-davis", iso: N17, wx: forecast([N17, "2026-11-18"]), tides: T17, others: [], ...W });
+  ok(s17.grade === "good" && s17.headline === "8 to 12: good", "8 to 12 on a near-slack night: good", s17.headline);
+  ok(s17.reason === "A 1.6 ft rise to the 10:37 PM high, little current. Best around the high. Dry, light wind.", "why: the small rise, the slack, the weather", s17.reason);
+  ok(/little current\.$/.test(line(s17, "tide")) && s17.best.own && s17.best.from > 21 && s17.best.to === 24, "its tide line, and the best part around the high", line(s17, "tide") + " | " + JSON.stringify(s17.best));
+  ok(!s17.better, "a good window names no better day", s17.better);
+
+  // Rain and wind take a window down a step, and say so.
+  const wet = {};
+  for (let h = 20; h <= 24; h++) wet[h] = 80;
+  const rainy = T.read({ planId: "squid-les-davis", iso: N17, wx: forecast([N17, "2026-11-18"], (id, d, h) => d === N17 && wet[h] ? { pop: 80, rain: 0.04 } : {}), tides: T17, others: [], ...W });
+  ok(rainy.grade === "fair" && /Rain most of it, light wind\.$/.test(rainy.reason), "a slack night in the rain: fair, and the rain is why", rainy.headline + " | " + rainy.reason);
+  const windy = T.read({ planId: "squid-les-davis", iso: N17, wx: forecast([N17, "2026-11-18"], () => ({ wind: 14, gust: 22 })), tides: T17, others: [], ...W });
+  ok(windy.grade === "fair" && /Dry, windy, to 14 mph\.$/.test(windy.reason), "and in a 14 mph wind", windy.headline + " | " + windy.reason);
+  const blown = T.read({ planId: "squid-les-davis", iso: N17, wx: forecast([N17, "2026-11-18"], (id, d) => d === N17 ? { wind: 26, gust: 40 } : {}), tides: T17, others: [], ...W });
+  ok(blown.call === "no" && blown.headline === "No, gusts to 40 mph", "a window over the wind limit is a no", blown.headline);
+
+  // A daylight trip in an evening window: no, and why.
+  const SAT = "2026-11-28";
+  const flow = { "green-river": { days: { "2026-11-27": { min: 900, max: 950 }, [SAT]: { min: 900, max: 950 } } } };
+  const river = T.read({ planId: "chum-green-river", iso: SAT, wx: forecast([SAT]), tides: {}, flow, ...W });
+  ok(river.call === "no" && river.headline === "No, dark by then", "a river at 8 PM: dark by then", river.headline);
+  const riv = T.read({ planId: "chum-green-river", iso: SAT, wx: forecast([SAT]), tides: {}, flow, winFrom: 13, winTo: 18 });
+  ok(riv.headline === "1 to 6: good" && /^Sunset at 4:21 PM\. Good flow, 950 cfs, steady\./.test(riv.reason) && riv.hours[1] === 16.35,
+    "1 to 6 on the river: good on its flow, and cut at sunset, said first", riv.headline + " | " + riv.reason);
+}
+
+// ---- the window is saved on this phone, and comes back --------------------------
+{
+  const store = {};
+  const storage = { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); }, removeItem: (k) => { delete store[k]; } };
+  const load = () => {
+    const c = { console, localStorage: storage }; c.globalThis = c; vm.createContext(c); c.window = c;
+    for (const f of ["content.js", "trips.js", "runs.js", "rules.js", "waters.js", "read.js"]) vm.runInContext(readFileSync(resolve(ROOT, "rigs", f), "utf8"), c);
+    return c.RIG.trips.myWin;
+  };
+  const M = load();
+  ok(M.kindOf("squid-les-davis") === "dark" && M.kindOf("chum-green-river") === "day", "a night trip and a daylight trip each keep their own window");
+  ok(M.get("dark") === null, "nothing saved: no window, the trip's own hours");
+  ok(M.set("dark", "20:00", "00:00") === true && JSON.parse(store[M.key]).dark.to === "00:00", "8 PM to 12 AM is saved, under one key", store[M.key]);
+  ok(M.set("dark", "20:00", "20:10") === false && M.get("dark").to === "00:00", "ten minutes is not a window, and the saved one stays");
+  const again = load();
+  const back = again.get("dark"), hrs = again.hours(back);
+  ok(back && back.from === "20:00" && back.to === "00:00" && hrs.winFrom === 20 && hrs.winTo === 0 && again.get("day") === null,
+    "opened again, the window comes back, as hours the read takes", { back, hrs });
+  again.clear("dark");
+  ok(again.get("dark") === null && !(M.key in store), "Best hours forgets it", store);
+}
+
+// ---- a leave time that has gone by is never said ------------------------------------
+{
+  const wx = tonight();
+  const clock = (x) => { const m = /(\d+):(\d\d) (AM|PM)/.exec(x); return m ? (+m[1] % 12) + (m[3] === "PM" ? 12 : 0) + m[2] / 60 : null; };
+  // From now, the fishing starts when you get there: now, the drive (45 min
+  // to Les Davis) and a quarter hour, to the next 5 minutes.
+  // 4:30 PM: the 3:57 PM leave has gone by. Leaving now, on the pier at 5:30.
+  const late = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 16.5 });
+  ok(late.leave === "Leave now" && late.headline === "Go, best until 8:00 PM" && late.hours[0] === 17.5, "a leave time that has gone by: leave now, and the trip from 5:30, when you get there", [late.leave, late.headline, late.hours]);
+  // 6:12 PM: the trip has started. On the pier at 7:15.
+  const on = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 18.2 });
+  ok(on.leave === "Leave now" && on.headline === "Go, until 10:00 PM" && on.fig.a === 19.25 && on.hours[0] === 19.25, "once it has started, from when you get there: until 10 PM, leave now", [on.headline, on.leave, on.fig.a]);
+  ok(line(on, "rain") === "Dry." && !/5 PM|35%|13%/.test(words(on)), "and no rain hour that is over before you get there", line(on, "rain"));
+  // 9:30 PM inside an 8 to 12 window: on the pier at 10:30.
+  const mid = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 21.5, winFrom: 20, winTo: 0 });
+  ok(/^10:30 to 12: /.test(mid.headline) && mid.leave === "Leave now" && mid.hours[0] === 22.5, "a window under way: from 10:30, when you get there, to 12, leave now", [mid.headline, mid.leave, mid.hours]);
+  // 9 PM at Redondo, 35 min away (the check of 11/27): never "Leave now" and fish at 9.
+  const nine = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 21, winFrom: 20, winTo: 0 });
+  ok(/^9:50 to 12: /.test(nine.headline) && nine.leave === "Leave now" && Math.abs(nine.hours[0] - (21 + 50 / 60)) < 1e-6 && nine.fig.a === nine.hours[0],
+    "9 PM, 35 min away: 9:50 to 12, leave now", [nine.headline, nine.leave, nine.hours]);
+  // The others are read over THIS read's hours, never their own later
+  // arrival: a pier with the same tide and weather is not "better" because
+  // you would get there later (the check of 11/27: from 9:21 to 9:31 PM the
+  // Redondo card picked Point Defiance, Les Davis, then Des Moines).
+  for (const m of [21.35, 21.43, 21.52]) {
+    const rr = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: ["squid-les-davis", "squid-des-moines"], nowHour: m, winFrom: 20, winTo: 0 });
+    ok(!rr.pick || rr.pick.self || rr.pick.planId === "squid-redondo", "at " + m + " h the Redondo card does not send you to a farther pier with the same tide and weather", [rr.pick, line(rr, "or")]);
+  }
+  // 7:45 PM, before the window, but 8 PM can not be made: from 8:45.
+  const soon = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 19.75, winFrom: 20, winTo: 0 });
+  ok(/^8:45 to 12: /.test(soon.headline) && soon.leave === "Leave now" && soon.hours[0] === 20.75, "a window you can not be there for at its start: from when you can", [soon.headline, soon.leave, soon.hours]);
+  // 7 PM: the 7:00 PM leave is now, and 8 PM is made.
+  const just = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 19, winFrom: 20, winTo: 0 });
+  ok(/^8 to 12: /.test(just.headline) && just.hours[0] === 20, "leaving on time, the window is its own", [just.headline, just.leave]);
+  // 11:20 PM: on the pier past 12, under half an hour: done for today.
+  const gone = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 23.35, winFrom: 20, winTo: 0 });
+  ok(gone.call === "done" && !gone.leave, "too late to get half an hour in: done for today", [gone.headline, gone.leave]);
+  // From now, the other piers are read from now too: no high that has gone by.
+  const tn = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: ["squid-des-moines"], nowHour: 20 });
+  ok(/^Des Moines: same tide and weather, 5\smin farther/.test(line(tn, "or")) && !/5:33|5:36/.test(line(tn, "or")), "from now, the other pier is read from now: same tide, no passed high", line(tn, "or"));
+  ok([late, on, mid].every((x) => clock(x.leave) == null || clock(x.leave) > 16.5), "no read here says a leave time before now");
+  const done = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 23.9, winFrom: 19, winTo: 23 });
+  ok(done.call === "done" && !done.leave && /for 7 to 11/.test(done.reason), "a window that is over is done for today", done.headline + " | " + done.reason);
+}
+
 // ---- every fact the read compares by is on its spot card ------------------------
 {
   const F = T.readFacts;
@@ -352,6 +486,8 @@ const TIDES = {
   for (const p of T.plans) for (const iso of [NIGHT, "2026-11-28"]) {
     const r = T.read({ planId: p.id, iso, wx, tides: TIDES, flow: {} });
     texts.push(words(r));
+    const m = T.read({ planId: p.id, iso, wx, tides: TIDES, flow: {}, winFrom: 20, winTo: 0 }), d = T.read({ planId: p.id, iso, wx, tides: TIDES, flow: {}, winFrom: 9, winTo: 13 });
+    texts.push(words(m) + (m.better ? " " + m.better.text : ""), words(d) + (d.better ? " " + d.better.text : ""));
   }
   const bad = texts.filter((x) => /—|undefined|NaN|null|\[object/.test(x));
   ok(bad.length === 0, "no em dashes, no undefined, NaN or null in any read", bad.slice(0, 3));
