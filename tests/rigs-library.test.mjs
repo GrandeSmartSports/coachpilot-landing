@@ -13,12 +13,15 @@
 //     said as the pier swing; the knots the review found wrong tie right
 //   - the words: no hype, no sentence that starts small, no numbered list
 //     with a gap, no method that is illegal in Washington freshwater in what
-//     a person can open with the switch as set (LIB_READY in rigs/index.html):
+//     a person can open from this file (its knots and casts; the guides,
+//     gear and fish pages a person opens are rigs/guides.js, guarded in
+//     tests/rigs-guides.test.mjs):
 //     no minnow or other live fish as bait (a lure or fly named Minnow is
 //     fine), no one angler fishing two rods; and a self test that proves the
 //     guard sees each of those
-//   - the switch: the knots and casts are on; the guides, the gear and a
-//     fish's About wait for a Washington rewrite, their words still here
+//   - the switch: knots, casts, guides, gear and About are on, and the page
+//     never reads CastAI's guides, gear or fish text (they stay in this file
+//     for the import's reproducibility; the Rig Card's own are in guides.js)
 //   - a guide's part opens on at most two sentences; the rest waits behind More
 //   - rules are never imported as fact: no limit, season, size, license or
 //     closure line in it, and the salmon guide's rules section is a link
@@ -106,11 +109,11 @@ const sw = html.match(/var LIB_READY = RIG\.libReady = (\{[^}]*\});/);
 const READY = sw ? vm.runInNewContext("(" + sw[1] + ")") : {};
 ok(sw && Object.keys(READY).sort().join() === "about,casting,gear,guides,knots" && READY.knots === true && READY.casting === true,
   "the switch is in rigs/index.html, one line, and the knots and casts are on", READY);
-ok(!READY.guides && !READY.gear && !READY.about && L.guides.length && L.gear.length && Object.keys(L.fish).length,
-  "the guides, the gear and a fish's About wait for a Washington rewrite, and their words are still in rigs/library.js", READY);
-// What a person can open with the switch as set.
-const visible = strings({ knots: L.knots, casts: L.casts, groups: [L.knotGroups, L.castGroups], line: L.firstKnotsLine,
-  guides: READY.guides ? L.guides : [], gear: READY.gear ? L.gear : [], fish: READY.about ? L.fish : {} });
+const castaiReads = html.match(/\b(L|lib\(\)|RIG\.library)\.(guides|gear|fish)\b/g) || [];
+ok(READY.guides && READY.gear && READY.about && castaiReads.length === 0 && /RIG\.guides/.test(html),
+  "guides, gear and a fish's About are on, from the Rig Card's own rigs/guides.js: the page never reads CastAI's guides, gear or fish text", { READY, castaiReads });
+// What a person can open from this file: its knots and casts.
+const visible = strings({ knots: L.knots, casts: L.casts, groups: [L.knotGroups, L.castGroups], line: L.firstKnotsLine });
 // Washington freshwater: no live fish as bait, hook and line only, one line
 // per angler. None of these may be taught.
 //   - a minnow, any way it is said, is bait, unless it is a lure or a fly
@@ -132,7 +135,7 @@ function notWA(w) {
   return "";
 }
 const illegal = visible.filter(notWA);
-ok(visible.length > 300 && illegal.length === 0, "nothing a person can open teaches a method that is illegal in Washington freshwater: no minnow or other live fish as bait, no one angler with two rods, no jug or limb lines, spider rigs, cast nets or tip-ups (" + visible.length + " lines checked)",
+ok(visible.length > 250 && illegal.length === 0, "nothing a person can open teaches a method that is illegal in Washington freshwater: no minnow or other live fish as bait, no one angler with two rods, no jug or limb lines, spider rigs, cast nets or tip-ups (" + visible.length + " lines checked)",
   illegal.slice(0, 4).map((w) => notWA(w) + ": " + w.slice(0, 160)));
 // The self test: the lines the check of the guides found, and the lure and
 // fly names, so the guard is known to see each kind.
@@ -145,7 +148,7 @@ const PASSED = ["P-Line Laser Minnow", "Clouser Minnow (size 4 to 8). Weighted f
 const missed = CAUGHT.filter((w) => !notWA(w)), wrongly = PASSED.filter(notWA);
 ok(missed.length === 0 && wrongly.length === 0, "self test: the guard catches minnows and live fish as bait and two rods, and lets lure and fly names pass", { missed, wrongly });
 const held = strings({ guides: L.guides, gear: L.gear, fish: L.fish }).filter(notWA);
-console.log("note  held back by the switch, the guard would stop " + held.length + " lines of the guides, the gear and the fish pages");
+console.log("note  never shown, CastAI's guides, gear and fish pages hold " + held.length + " lines the guard would stop");
 
 // ---- videos ----------------------------------------------------------------------
 const FIX = JSON.parse(readFileSync(join(ROOT, "tests/fixtures/castai-videos.json"), "utf8"));

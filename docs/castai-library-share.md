@@ -23,7 +23,7 @@ CastAI shows them with `CastAI/Features/Library/*.swift`.
    - ships a video only if YouTube answered for it and its title names the knot or cast (`--check-videos` refreshes `tests/fixtures/castai-videos.json`).
 3. It writes `docs/castai-library-fixes.md`: every correction and every rule it cut. The CastAI lane fixes those in CastAI. Then the override is deleted here and the import rerun.
 
-The app loads `rigs/library.js` after the first screen and keeps it offline. Learn shows Knots, Casting, Guides and Gear; a fish's page shows what CastAI says about that fish.
+The app loads `rigs/library.js` after the first screen and keeps it offline, and shows only its knots and casts. CastAI's guides, gear and fish text failed the Washington check (live minnows as bait, seasons on closed rivers, Southern lakes, hype), so the Rig Card writes its own: `rigs/guides.js` holds the guides, the gear and each fish page's About the fish, written for Washington from the 2026-27 pamphlet and the app's own seasons, run cards and spots, and guarded by `tests/rigs-guides.test.mjs`. CastAI's guide text stays in `rigs/library.js` only so the import stays reproducible. For one library, CastAI would take the Rig Card's guides, not the other way round.
 
 ## The path to one library
 
