@@ -502,8 +502,9 @@
 
 /* ================= the lake fish (rigs/lakes.js) ================= */
 /* the marks that name them */
-.fp .ear{fill:var(--f-pupil);opacity:.9}
-.fp .eartip{fill:var(--vermilion);opacity:.85}
+.fp .ear{fill:var(--f-pupil);opacity:.86}
+.fp .eartip{fill:var(--vermilion);opacity:.9}
+.fp-bluegill .fin.pectoral>path:first-child,.fp-pumpkinseed .fin.pectoral>path:first-child{opacity:.55}
 .fp .breast{fill:color-mix(in oklab,var(--vermilion) 46%,var(--ochre));opacity:.42}
 .fp .cheekline{fill:none;stroke:color-mix(in oklab,var(--water2) 70%,var(--f-shade));stroke-width:1.7;opacity:.6;stroke-linecap:round}
 .fp .pspot{fill:color-mix(in oklab,var(--vermilion) 66%,var(--ochre));opacity:.72}
@@ -514,18 +515,25 @@
 .fp .steel{fill:none;stroke:color-mix(in oklab,var(--water2) 72%,var(--shore));stroke-width:12;opacity:.32}
 .fp .red{fill:none;stroke:var(--madder);stroke-width:22;opacity:.42}
 .fp .red.wide{stroke-width:56;opacity:.28}
-.fp .green-head{fill:color-mix(in oklab,var(--olive) 64%,var(--water2));opacity:.78}
+.fp .green-head{fill:color-mix(in oklab,var(--olive) 52%,var(--go));opacity:.82}
+:root[data-dark="1"] .fp .green-head{fill:color-mix(in oklab,color-mix(in oklab,var(--olive) 50%,var(--go)) 78%,var(--paper));opacity:.7}
 .fp .halo{fill:color-mix(in oklab,var(--paper) 62%,var(--ochre));opacity:.38}
 .fp .spot.big{opacity:.92}
 .fp .redspot{fill:var(--vermilion);opacity:.82}
 .fp .palespot{fill:color-mix(in oklab,var(--paper) 80%,var(--gold));opacity:.85}
 .fp .bluehalo{fill:color-mix(in oklab,var(--water2) 76%,var(--paper));opacity:.6}
 .fp .worm{fill:none;stroke:color-mix(in oklab,var(--paper) 72%,var(--gold));stroke-width:1.9;opacity:.72;stroke-linecap:round}
-.fp .maze{fill:none;stroke:var(--f-shade);stroke-width:2.7;opacity:.62;stroke-linecap:round}
+.fp .maze{fill:none;stroke:color-mix(in oklab,var(--olive) 46%,var(--paper));stroke-width:2;opacity:.8;stroke-linecap:round;stroke-linejoin:round}
 .fp .parr{fill:var(--f-shade);opacity:.36}
 .fp .band.gold{stroke:var(--vermilion)}
-.fp .belly-red{fill:none;stroke:var(--vermilion);stroke-width:16;opacity:.42}
-.fp .scute{fill:color-mix(in oklab,var(--paper) 78%,var(--f-flank));stroke:var(--f-line);stroke-width:.5;opacity:.92}
+.fp .belly-red{fill:none;stroke:var(--vermilion);stroke-width:7;opacity:.5}
+/* a sturgeon's plates: one step lighter than the skin they sit in, a lit upper edge */
+.fp .scute{fill:color-mix(in oklab,var(--f-upper) 58%,var(--f-flank));stroke:color-mix(in oklab,var(--f-line) 55%,transparent);stroke-width:.45}
+.fp .scute-lit{fill:none;stroke:var(--f-lit);stroke-width:.9;opacity:.55;stroke-linecap:round}
+/* a brook trout's lower fins: white, then black */
+.fp .fin-black{fill:none;stroke:var(--f-pupil);stroke-width:2.6;opacity:.75;stroke-linecap:round;stroke-linejoin:round}
+.fp-brooktrout .fin-lead{stroke-width:2.6;opacity:.95}
+.fp .worm.fin{stroke-width:1.3}
 .fp .mottle.fin{opacity:.42}
 .fp .mottle.dark{opacity:.42}
 .fp .lband.thin{stroke-width:3;opacity:.48}
@@ -681,13 +689,13 @@
 }
 /* kokanee: a steel blue back over chrome */
 :root .fp-kokanee{
-  --f-back:color-mix(in oklab,var(--shore) 46%,var(--water2));
-  --f-upper:color-mix(in oklab,var(--water2) 60%,var(--water1));
+  --f-back:color-mix(in oklab,var(--water2) 76%,var(--shore));
+  --f-upper:color-mix(in oklab,var(--water2) 80%,var(--water1));
   --f-flank:color-mix(in oklab,var(--water1) 14%,var(--paper));
   --f-head:color-mix(in oklab,var(--shore) 44%,var(--water2));
 }
 :root[data-dark="1"] .fp-kokanee{
-  --f-back:color-mix(in oklab,var(--water2) 40%,var(--paper));
+  --f-back:color-mix(in oklab,var(--water2) 60%,var(--paper));
   --f-upper:color-mix(in oklab,var(--ink2) 50%,var(--paper));
   --f-flank:color-mix(in oklab,var(--ink) 30%,var(--ink2));
   --f-head:color-mix(in oklab,var(--water2) 30%,var(--paper));
@@ -739,8 +747,8 @@
 }
 /* tiger trout: gold under the maze */
 :root .fp-tigertrout{
-  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 64%,var(--olive)) 90%,var(--ochre));
-  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 46%,var(--ochre)) 70%,var(--paper));
+  --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 78%,var(--olive)) 92%,var(--ochre));
+  --f-upper:color-mix(in oklab,color-mix(in oklab,var(--olive) 56%,var(--shore)) 80%,var(--ochre));
   --f-flank:color-mix(in oklab,var(--ochre) 44%,var(--paper));
   --f-belly:color-mix(in oklab,var(--paper) 84%,var(--ochre));
   --f-head:color-mix(in oklab,var(--shore) 50%,var(--ochre));
@@ -755,16 +763,16 @@
 /* golden trout: gold sides, an olive back */
 :root .fp-goldentrout{
   --f-back:color-mix(in oklab,color-mix(in oklab,var(--shore) 56%,var(--olive)) 86%,var(--ochre));
-  --f-upper:color-mix(in oklab,var(--ochre) 60%,var(--olive));
-  --f-flank:color-mix(in oklab,var(--ochre) 62%,var(--paper));
-  --f-belly:color-mix(in oklab,var(--paper) 66%,var(--vermilion));
+  --f-upper:color-mix(in oklab,var(--gold) 50%,var(--olive));
+  --f-flank:color-mix(in oklab,var(--gold) 74%,var(--paper));
+  --f-belly:color-mix(in oklab,var(--gold) 58%,var(--paper));
   --f-head:color-mix(in oklab,var(--shore) 44%,var(--ochre));
 }
 :root[data-dark="1"] .fp-goldentrout{
-  --f-back:color-mix(in oklab,var(--ochre) 50%,var(--paper));
-  --f-upper:color-mix(in oklab,var(--ochre) 60%,var(--ink2));
-  --f-flank:color-mix(in oklab,var(--ochre) 50%,var(--ink2));
-  --f-belly:color-mix(in oklab,var(--ink2) 64%,var(--vermilion));
+  --f-back:color-mix(in oklab,var(--gold) 50%,var(--paper));
+  --f-upper:color-mix(in oklab,var(--gold) 60%,var(--ink2));
+  --f-flank:color-mix(in oklab,var(--gold) 52%,var(--ink2));
+  --f-belly:color-mix(in oklab,var(--gold) 34%,var(--ink2));
   --f-head:color-mix(in oklab,var(--ochre) 40%,var(--paper));
 }
 /* lake trout: grey green, pale spots */
@@ -797,6 +805,7 @@
 :root[data-dark="1"] .fp .palespot{fill:color-mix(in oklab,var(--ink) 84%,var(--gold))}
 :root[data-dark="1"] .fp .worm{stroke:color-mix(in oklab,var(--ink) 80%,var(--gold))}
 :root[data-dark="1"] .fp .halo{fill:color-mix(in oklab,var(--ink) 58%,var(--ochre))}
-:root[data-dark="1"] .fp .scute{fill:color-mix(in oklab,var(--ink) 70%,var(--f-flank))}
+/* by lantern the plates stay a step off the skin, not lit studs */
+:root[data-dark="1"] .fp .scute{fill:color-mix(in oklab,var(--f-upper) 62%,var(--f-flank))}
 :root[data-dark="1"] .fp .bluehalo{fill:color-mix(in oklab,var(--water1) 50%,var(--ink))}
 :root[data-dark="1"] .fp-walleye{--f-iris1:var(--ink);--f-iris2:color-mix(in oklab,var(--ink) 70%,var(--ink2))}

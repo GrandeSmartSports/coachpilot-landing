@@ -423,7 +423,9 @@ try {
     for (const h of hashes.concat([PIER, LAKE, CLAMS, "#/trips/" + encodeURIComponent("2026-11-29~salmon-redondo"), "#/trips/" + encodeURIComponent("2026-11-29~cutthroat-dash-point")])) {
       await page.evaluate((x) => { location.hash = "#/crew"; location.hash = x; }, h);
       await page.waitForTimeout(60);
-      const bad = await page.evaluate(() => [...document.querySelectorAll("#app .row .tx > span")].filter((e) => /…$|\.\.\.$/.test(e.textContent) || e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().height > 44).map((e) => e.textContent.slice(0, 50)));
+      // (a row's tags are pills that wrap: each pill whole, two lines of them at most)
+      const bad = await page.evaluate(() => [...document.querySelectorAll("#app .row .tx > span")].filter((e) => /…$|\.\.\.$/.test(e.textContent) || e.scrollWidth > e.clientWidth + 1 ||
+        (e.matches(".tags") ? e.getBoundingClientRect().height > 64 || [...e.children].some((p) => p.scrollWidth > p.clientWidth + 1) : e.getBoundingClientRect().height > 44)).map((e) => e.textContent.slice(0, 50)));
       bad.forEach((b) => dotted.push(h + ": " + b));
     }
     ok(dotted.length === 0, "at " + w + " px no row in the library or on a run card ends in three dots, is cut, or runs past two lines", dotted.slice(0, 6).join(" | "));

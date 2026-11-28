@@ -251,11 +251,48 @@ ol.steps .k{font:600 12.5px/1.4 Inter,system-ui,sans-serif;color:var(--accent);
 [data-fish-rule] .tx>span.q{color:var(--t2);font-style:italic}
 .ownrule{min-height:0}
 .ownrule .tx>b{font-size:14.5px;line-height:1.35;font-weight:600}
+.ownrule .tx>b+b{margin-top:6px}
 .ownrule .tx>span{white-space:normal}
+.ownrule .tx>span.when{font-size:13px;color:var(--t2)}
+.ownrule .tx>span.lakes{margin-top:6px;color:var(--t3)}
+/* a pill that says a lake has its own rule: the rules' red, softly */
+.pill.law{color:color-mix(in srgb,var(--no) 86%,var(--t1));background:color-mix(in srgb,var(--no) 11%,var(--paper))}
+.tags .pill{white-space:nowrap}
+.row .tx>span.rm.own{white-space:normal;color:color-mix(in srgb,var(--no) 70%,var(--t2))}
+/* a lake's or a fish's plant line is never cut short: it wraps */
+.lkrow .tx>span.rm,.lfrow .tx>span.rm{white-space:normal;text-overflow:clip}
+/* a lake's season: shut now on the red edge, else a pressed in note */
+.lakeseason{margin-top:14px}
+.lakeseason .tx{display:flex;flex-direction:column;gap:3px}
+.lakeseason .tx>b{font-weight:650;font-size:15.5px;color:var(--t1)}
+.lakeseason .tx>span{font-size:13.5px;line-height:1.4;color:var(--t2)}
+.lakeseason.well .tx>span:last-child,.lakeseason.rule .tx>span:last-child{color:var(--t3)}
+/* a lake's own rules, part by part */
+.row.partrow{min-height:0;padding-top:12px;padding-bottom:4px}
+.row.partrow .tx>b{font:700 13px/1.3 "Barlow Condensed",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);white-space:normal}
+.row.rulerow{min-height:0}
+.row.rulerow .tx>b{font-size:14.5px;line-height:1.35;font-weight:600;white-space:normal}
+.row.rulerow .tx>span{white-space:normal}
+/* the rule's own words: two lines, the rest a tap away */
+[data-fish-rule] .q.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+[data-fish-rule].open .q.clamp{display:block;-webkit-line-clamp:unset}
+[data-fish-rule] .more{align-self:flex-start;margin-top:4px;padding:6px 0;min-height:32px;font-size:13.5px}
+[data-fish-rule] .tx{display:flex;flex-direction:column}
 [data-lakes-all]{width:100%;margin-top:14px}
 [data-high-lakes],[data-lake-sources]{margin-top:14px}
+[data-lake-rules]{margin-top:14px}
+[data-lakes-failed]{margin-top:14px;display:flex;flex-direction:column;gap:12px}
 [data-lake-facts]{margin-top:14px}
-[data-lake-facts] .tcard{min-height:128px}
+[data-lake-facts] .tcard{min-height:0}
+[data-lake-facts] .tcard .lead.dim{font-weight:600;color:var(--t2)}
+[data-lake-facts] a.tcard{text-decoration:none;color:inherit}
+/* the lake fish on the Fish tab: small, three across */
+.ptiles.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.ptile.mini{border-radius:16px}
+.ptile.mini .art{height:calc(var(--sw)*52/390);padding:8px 6px 2px}
+.ptile.mini .body{padding:2px 9px 10px}
+.ptile.mini .nm{font-size:14.5px;line-height:1.05;letter-spacing:.03em}
+.ptile.mini .body .meta{margin-top:5px;font-size:11.5px;white-space:normal}
 /* when a trip here fishes: twelve months from this one, pressed in when it
    does not, pale gold when it does, gold its best, this month ringed */
 .row.season{align-items:center}
@@ -1592,8 +1629,9 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       here += '<section class="day" data-spot-day="' + esc(day.iso) + '">' + dayHeadHtml({ iso: day.iso, label: day.label, trips: mine }, sk) +
         '<div class="panel list">' + mine.map(function (tr) { return tripRowHtml(day, tr, sk, stc); }).join("") + "</div></section>";
     });
-    // A lake (s.lake, rigs/lakes.js): the fish it is known for first, what
-    // is in it, and the lake itself; the cards follow the fish.
+    // A lake (s.lake, rigs/lakes.js): the fish it is known for first, its
+    // season if it has one, then the spot's own cards, what is in it, its
+    // rules, and the lake itself.
     var lk = s.lake && lakesIn() ? LK.byId[s.lake] : null, hf = lk ? headFish(lk) : null;
     var cardsHtml = !rows ? "" : hf ? '<section class="grp" data-spot-cards><h2 class="sect">Cards <span class="n">' + list.length + '</span></h2><div class="panel list">' + rows + "</div></section>"
       : '<div class="float list">' + rows + "</div>";
@@ -1601,10 +1639,10 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       '<div data-view="spot">' + heroHtml({ title: s.name, back: t ? { href: "#/water/" + t.id, text: t.label } : { href: "#/water", text: "Water" },
         chips: '<span class="chip wrap"><b>' + esc(s.where) + "</b></span>" }) +
         (spotCards(s).some(function (c) { return c.dated; }) ? '<div data-rules-slot' + slotAttrs(s.id, "", oldestDated(spotCards(s))) + "></div>" : "") +
-        (hf ? lakeHeadHtml(lk, hf) + inHereHtml(lk, false) : "") + cardsHtml + (lk && !hf ? inHereHtml(lk, false) : "") + closed +
+        (hf ? lakeHeadHtml(lk, hf) : "") + (lk ? lakeSeasonHtml(lk) : "") + cardsHtml + closed + (lk ? inHereHtml(lk, false, hf) : "") +
         (here ? '<section class="grp" data-spot-trips><h2 class="sect">Trips here this week</h2>' + here + "</section>" : "") +
         (seasons ? '<section class="grp" data-spot-seasons><h2 class="sect">When it fishes</h2><div class="panel list">' + seasons + "</div></section>" : "") +
-        (lk ? lakeFactsHtml(lk) + sourcesHtml() : "") + "</div>" + tripBarHtml();
+        (lk ? lakeRulesHtml(lk) + lakeFactsHtml(lk, s) + sourcesHtml() : "") + "</div>" + tripBarHtml();
   }
 
   function renderFish() {
@@ -1625,15 +1663,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     }
     function grid(list) { return '<div class="pick ptiles">' + list.map(function (sp, i) { return pick(sp, list.length % 2 === 1 && i === 0); }).join("") + "</div>"; }
     var fams = (RIG.content && RIG.content.families) || [];
+    // The lake fish, once the lakes are in (rigs/lakes.js), join the Lakes
+    // group under its own fish: small, three across.
+    var lakeTiles = lakeFishTiles(), nLake = lakesIn() ? LK.fish.order.length : 0;
     var body = fams.map(function (f) {
-      var mine = species().filter(function (sp) { return sp.family === f.id; });
-      return mine.length ? '<section class="grp" data-family="' + esc(f.id) + '"><h2 class="sect">' + esc(f.label) + ' <span class="n">' + mine.length + "</span></h2>" +
-        grid(mine) + "</section>" : "";
+      var mine = species().filter(function (sp) { return sp.family === f.id; }), extra = f.id === "lake" ? lakeTiles : "";
+      return mine.length || extra ? '<section class="grp" data-family="' + esc(f.id) + '"><h2 class="sect">' + esc(f.label) + ' <span class="n">' + (mine.length + (extra ? nLake : 0)) + "</span></h2>" +
+        (mine.length ? grid(mine) : "") + extra + "</section>" : "";
     }).join("");
     var loose = species().filter(function (sp) { return !fams.some(function (f) { return f.id === sp.family; }); });
     if (loose.length) body += grid(loose);
-    // and the lake fish, once the lakes are in (rigs/lakes.js)
-    body += lakeFishTiles();
     var nAll = species().length + (lakesIn() ? LK.fish.order.length : 0);
     app.innerHTML = topHtml("fish", "", "river") +
       '<div data-view="fish">' + headHtml("By fish", "What are you after?", nAll + " to pick from") + body + "</div>" + tripBarHtml();
@@ -1642,13 +1681,15 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // ---- every lake in range, and what is in it -------------------------------
   // rigs/lakes.js (built by scripts/build-lakes.mjs): each lake on WDFW's
   // lake map within reach of Bonney Lake, the fish the map lists in it, WDFW's
-  // plants into it and USGS records of fish brought in. rigs/lakefish.js: each
-  // lake fish in a line or two, and its rule from the pamphlet. Both come
-  // after the first screen (loadLakes), and a screen that shows them is drawn
+  // plants into it, USGS records of fish brought in, and the 2026-27
+  // pamphlet's lake rules, word for word. rigs/lakefish.js: each lake fish in
+  // a line or two, and its statewide rule from the pamphlet. Both come after
+  // the first screen (loadLakes), and a screen that shows them is drawn
   // again, in place, when they arrive.
   // The words a tag may use, and nothing else: stocked (a plant on record,
-  // with its date), in this lake (on WDFW's map), introduced (a USGS record).
-  var LK = { data: null, byId: {}, of: {}, fish: null };
+  // with its date), in this lake (on WDFW's map), introduced (a USGS record),
+  // own rule (the pamphlet lists this lake with a rule for this fish).
+  var LK = { data: null, byId: {}, of: {}, fish: null, entries: [] };
   function lakesIn() { return !!(LK.data && LK.fish); }
   function indexLakes() {
     if (!RIG.lakesData || !RIG.lakeFish) return false;
@@ -1658,9 +1699,16 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       LK.byId[l.id] = l;
       l.f.forEach(function (x) { (LK.of[x[0]] = LK.of[x[0]] || []).push(l); });
     });
+    var R = LK.data.rules || { e: [] };
+    LK.entries = R.e.map(function (e, i) {
+      return { i: i, name: e[0], q: e[1], counties: e[2], page: e[3], url: (R.url || "") + (R.pages ? R.pages[e[4]] : ""), ramp: !!e[5], noTwo: !!e[6], lakes: e[7] || [], km: e[8],
+        rows: e[9].map(function (r) { return { sp: R.labels[r[0]][0], fish: R.labels[r[0]][1], season: R.words[r[1]], rule: R.words[r[2]], part: R.words[r[3]] }; }) };
+    });
+    // how many rows its species has in its part: one is that fish's season, more are dates a rule holds
+    LK.entries.forEach(function (e) { e.rows.forEach(function (r) { r.n = e.rows.filter(function (o) { return o.part === r.part && o.sp === r.sp; }).length; }); });
     return true;
   }
-  var lakesWait = 0;
+  var lakesWait = 0, lakesFailed = false;
   RIG.lakes = RIG.lakes || {};
   RIG.lakes.add = RIG.lakes.fishReady = function () {
     if (!indexLakes()) return;
@@ -1669,19 +1717,37 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     fishQuiet = true;
     try { render(); } finally { fishQuiet = false; }
   };
-  function loadLakes(now) {
-    if (indexLakes() || lakesWait === 2) return;
-    if (!now) { if (!loadLakes.idle) { loadLakes.idle = true; (window.requestIdleCallback || function (f) { setTimeout(f, 1500); })(function () { loadLakes(true); }); } return; }
-    lakesWait = 2;
+  // The two files come after the first screen: on a screen that shows lakes
+  // at once, else once the trips have drawn (a few seconds in, then idle),
+  // asked for at low priority. A file that does not load says so, once, with
+  // a way to try again; coming back online tries again by itself.
+  function loadLakes(now, retry) {
+    if (indexLakes() || lakesWait === 2 || (lakesFailed && !retry)) return;
+    if (!now) {
+      if (!loadLakes.idle) { loadLakes.idle = true; setTimeout(function () { (window.requestIdleCallback || function (f) { setTimeout(f, 300); })(function () { loadLakes(true); }); }, 3000); }
+      return;
+    }
+    lakesWait = 2; lakesFailed = false;
     ["/rigs/lakefish.js", "/rigs/lakes.js"].forEach(function (src) {
       var s = document.createElement("script");
       s.src = src;
+      s.setAttribute("fetchpriority", "low");
+      s.onerror = function () {
+        if (s.parentNode) s.parentNode.removeChild(s);
+        if (indexLakes() || lakesFailed) return;
+        lakesWait = 0; lakesFailed = true;
+        if (app.querySelector('[data-view="wait"]')) render();
+      };
       document.head.appendChild(s);
     });
   }
+  window.addEventListener("online", function () { if (lakesFailed && !lakesIn()) { loadLakes(true, true); if (app.querySelector('[data-view="wait"]')) render(); } });
   function lakeFishOf(id) { return (LK.fish && LK.fish.fish[id]) || null; }
   function lakeFishName(id) { var f = lakeFishOf(id), sp = findSpecies(id); return f ? f.name : sp ? sp.name : id; }
-  function fishHref(id) { return lakeFishOf(id) ? "#/fish/" + id : findSpecies(id) ? "#/" + id : ""; }
+  // A fish's page: its lake page, or its cards. Salmon and steelhead let
+  // into a lake have neither here (their pages are the salt and the rivers).
+  var NO_LAKE_PAGE = ["sockeye", "coho", "king", "chum", "pink", "steelhead"];
+  function fishHref(id) { return lakeFishOf(id) ? "#/fish/" + id : findSpecies(id) && NO_LAKE_PAGE.indexOf(id) < 0 ? "#/" + id : ""; }
   // A content spot that is this lake (Lake Tapps, Lake Fenwick, American Lake).
   function lakeSpot(l) { return spots().filter(function (s) { return s.lake === l.id; })[0] || null; }
   function lakeHref(l) { var s = lakeSpot(l); return s ? "#/spot/" + s.id : "#/lake/" + l.id; }
@@ -1695,29 +1761,40 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function lakeRow(l, id) { for (var i = 0; i < l.f.length; i++) if (l.f[i][0] === id) return l.f[i]; return null; }
   function plantYear(p) { return p ? +String(p[0]).slice(0, 4) : 0; }
   function shortDate(iso) { var a = String(iso).split("-"); return MON3[+a[1] - 1] + " " + (+a[2]) + ", " + a[0]; }
-  var LIFE_WORD = { L: "legal size", G: "fingerlings", Y: "yearlings", S: "smolts", F: "fry" };
   function fmtN(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
-  // the tag: stocked (with the date, this year or last), in this lake (on
-  // WDFW's map), stocked long ago, or introduced (a USGS record alone)
+  // A plant's size, in the words a person reads: WDFW's "legals" is a
+  // hatchery size class, not a fish you may keep, so it is said by the pound.
+  var LIFE_WORD = { G: "fingerlings", Y: "yearlings", S: "smolts", F: "fry" };
+  function plantSize(p) {
+    if (LIFE_WORD[p[3]]) return LIFE_WORD[p[3]];
+    var f = p[2];
+    if (!f) return "";
+    return f >= 1 ? "about " + fmtN(f) + " a pound" : "about " + fmtN(1 / f) + " lb each";
+  }
   function recentPlant(p) { return !!p && plantYear(p) >= LK.data.year - 1; }
-  function fishTag(x) {
-    var p = x[2];
-    if (recentPlant(p)) return '<i class="pill go" data-tag="stocked">Stocked ' + shortDate(p[0]) + "</i>";
-    if (x[1]) return '<i class="pill here" data-tag="here">In this lake</i>';
-    if (p) return '<i class="pill done" data-tag="stocked">Stocked ' + plantYear(p) + "</i>";
-    return '<i class="pill idea" data-tag="introduced">Introduced</i>';
+  // The tags: stocked (with the date, this year or last; the year before
+  // that), in this lake (on WDFW's map; on a lake's own page only, where it
+  // is news), introduced (a USGS record), own rule. Each its own pill.
+  function fishTags(x, l, onLake) {
+    var p = x[2], out = "";
+    if (recentPlant(p)) out += '<i class="pill go" data-tag="stocked">Stocked ' + shortDate(p[0]) + "</i>";
+    else if (p) out += '<i class="pill done" data-tag="stocked">Stocked ' + plantYear(p) + "</i>";
+    else if (x[1] && onLake) out += '<i class="pill here" data-tag="here">In this lake</i>';
+    if (x[3]) out += '<i class="pill idea" data-tag="introduced">Introduced</i>';
+    if (l && ownRows(l, x[0]).length) out += '<i class="pill law" data-tag="own">Own rule</i>';
+    return out;
   }
   // what the plants say, in a few words
   function plantWords(p) {
     if (!p) return "";
-    var what = fmtN(p[1]) + " " + (LIFE_WORD[p[3]] || "fish");
-    return what + (p[4] === 1 ? ", once" : ", " + p[4] + " plants since " + p[5]);
+    var sz = plantSize(p);
+    return fmtN(p[1]) + " planted" + (sz ? ", " + sz : "") + (p[4] === 1 ? ", once" : ", " + fmtN(p[4]) + " plants since " + p[5]);
   }
   function fishLine(x) {
-    var p = x[2], bits = [];
-    if (p) bits.push((!recentPlant(p) && x[1] ? "Stocked " + plantYear(p) + ": " : "") + plantWords(p));
-    if (x[3]) bits.push(p || x[1] ? "Introduced" : "USGS record, " + x[3][0]);
-    return bits.join(" \u00b7 ");
+    var p = x[2];
+    if (p) return plantWords(p);
+    if (x[3] && !x[1]) return "USGS record, " + x[3][0];
+    return "";
   }
   // In now: on WDFW's map, or planted in the last five years. The rest are
   // older records: old plants, and USGS records alone.
@@ -1730,7 +1807,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     (LK.of[id] || []).forEach(function (l) { (fishNowIn(lakeRow(l, id)) ? now : old).push(l); });
     return { now: now, old: old };
   }
-  function nth(k) { var t = k % 100, e = k % 10; return k + (t > 10 && t < 14 ? "th" : e === 1 ? "st" : e === 2 ? "nd" : e === 3 ? "rd" : "th"); }
+  function nth(k) { var t = k % 100, e = k % 10; return fmtN(k) + (t > 10 && t < 14 ? "th" : e === 1 ? "st" : e === 2 ? "nd" : e === 3 ? "rd" : "th"); }
   function lakeFishSorted(l) {
     var now = l.f.filter(fishNowIn), old = l.f.filter(function (x) { return !fishNowIn(x); });
     now.sort(function (a, b) { return rarity(a[0]) - rarity(b[0]) || lakeFishName(a[0]).localeCompare(lakeFishName(b[0])); });
@@ -1738,11 +1815,12 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return { now: now, old: old };
   }
   // The fish a lake is known for: the rarest fish in it now, if it is one of
-  // only a few lakes in range that have it.
-  var RARE = 25;
+  // only a few lakes in range that have it (ten or fewer: tiger muskie, lake
+  // and golden trout, sturgeon; not walleye, in two dozen). Never a salmon
+  // hatchery's fry let into a lake, and only a fish with a page and a rule.
+  var RARE = 10;
   function headFish(l) {
-    // (a fish with a page and a rule: not a salmon hatchery's fry released into a lake)
-    var s = lakeFishSorted(l).now.filter(function (x) { return lakeFishOf(x[0]) && rarity(x[0]) <= RARE && (x[1] || recentPlant(x[2])); });
+    var s = lakeFishSorted(l).now.filter(function (x) { return lakeFishOf(x[0]) && NO_LAKE_PAGE.indexOf(x[0]) < 0 && rarity(x[0]) <= RARE && (x[1] || recentPlant(x[2])); });
     return s[0] || null;
   }
   // A single fish, drawn (no pairs: a lake's perch is a perch).
@@ -1751,65 +1829,244 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return k ? '<span class="' + cls + '" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: !full }) + "</span>" : '<span class="' + cls + ' none"></span>';
   }
   function fishRowHtml(l, x) {
-    var id = x[0], href = fishHref(id), tag = href ? "a" : "div";
+    var id = x[0], href = fishHref(id), tag = href ? "a" : "div", line = fishLine(x), own = ownRows(l, id);
     return "<" + tag + ' class="row pic lfrow"' + (href ? ' href="' + href + '"' : "") + ' data-lake-fish="' + esc(id) + '">' + oneFish(id, "fishtile") +
-      '<span class="tx"><b>' + esc(lakeFishName(id)) + "</b>" + '<span class="tags">' + fishTag(x) + "</span>" +
-      (fishLine(x) ? '<span class="rm">' + esc(fishLine(x)) + "</span>" : "") + "</span>" + (href ? IC.chev : "") + "</" + tag + ">";
+      '<span class="tx"><b>' + esc(lakeFishName(id)) + "</b>" + '<span class="tags">' + fishTags(x, l, true) + "</span>" +
+      (line ? '<span class="rm">' + esc(line) + "</span>" : "") +
+      (own.length && own.map(function (r) { return r.rule; }).join(" ").length <= 90 ? '<span class="rm own" data-row-rule>' + esc(own.map(function (r) { return r.rule; }).join(" ")) + "</span>" : "") + "</span>" + (href ? IC.chev : "") + "</" + tag + ">";
   }
-  // The rule line for a fish in a lake: the lake's own, where the pamphlet
-  // lists this lake with one for this fish; else the statewide rule.
-  function ownRules(id, l) {
+
+  // ---- the pamphlet's lake rules ----------------------------------------------
+  // A row's species cell names fish ("Trout", "Kokanee"), every fish ("All
+  // species"), every game fish ("All game fish": not salmon or sturgeon,
+  // the pamphlet's Definitions), or the game fish no other row in its part
+  // names ("Other game fish"). A part is a stretch of the lake ("200' radius
+  // around pump discharge"); "" is the lake itself.
+  var GAME = ["trout", "cutthroat", "browntrout", "tigertrout", "goldentrout", "brooktrout", "laketrout", "kokanee", "bass", "smallmouth", "walleye",
+    "muskie", "catfish", "bullhead", "crappie", "perch", "bluegill", "pumpkinseed", "steelhead"];
+  function rowIs(r, id, sib) {
+    if (r.fish === "*") return true;
+    if (r.fish === "g") return GAME.indexOf(id) >= 0;
+    if (r.fish === "o") return GAME.indexOf(id) >= 0 && !sib.some(function (o) { return o.fish && o.fish.indexOf && o.fish !== "o" && o.fish !== "g" && o.fish !== "*" && o.fish.indexOf(id) >= 0; });
+    return !!r.fish && typeof r.fish === "object" && r.fish.indexOf(id) >= 0;
+  }
+  function partsOf(e) {
+    var out = [], at = {};
+    e.rows.forEach(function (r) { if (!(r.part in at)) { at[r.part] = out.length; out.push({ part: r.part, rows: [] }); } out[at[r.part]].rows.push(r); });
+    return out;
+  }
+  // The rows of an entry for one fish: its first part (the lake, or the
+  // stretch the pamphlet puts first), or every part.
+  function rowsOf(e, id, every) {
+    var out = [];
+    (every ? partsOf(e) : partsOf(e).slice(0, 1)).forEach(function (p) { p.rows.forEach(function (r) { if (rowIs(r, id, p.rows)) out.push(r); }); });
+    return out;
+  }
+  var STATEWIDE = /^Statewide min\. size\/daily limit\.?$/i;
+  var HARMLESS = /^(Two-Pole not allowed|Chumming permitted|(Internal combustion )?motors prohibited|Launching boats with internal combustion motors prohibited|See DOH Fish Consumption Advisories)\.?$/i;
+  // A rule that changes how a fish may be fished or kept (not the statewide
+  // limit, not a word about motors or chum).
+  function matters(r) {
+    if (STATEWIDE.test(r.rule)) return false;
+    return !r.rule.split(/\.\s+/).every(function (t) { return !t.trim() || HARMLESS.test(t.trim()); });
+  }
+  // The fish an "Except:" names ("Release all steelhead and rainbow trout
+  // over 20 inches", "Eastern brook trout count as part of trout daily
+  // limit"): a row for every game fish changes only those.
+  var EXCEPT = [[/eastern brook/i, ["brooktrout"]], [/cutthroat/i, ["cutthroat"]], [/rainbow/i, ["trout"]], [/brown trout/i, ["browntrout"]], [/steelhead/i, ["steelhead"]],
+    [/kokanee/i, ["kokanee"]], [/bass/i, ["bass", "smallmouth"]], [/walleye/i, ["walleye"]], [/crappie/i, ["crappie"]], [/perch/i, ["perch"]],
+    [/bluegill|sunfish/i, ["bluegill", "pumpkinseed"]], [/salmon/i, ["coho", "king", "sockeye"]]];
+  function exceptFish(rule) {
+    var m = /Except:\s*([\s\S]*)$/i.exec(rule);
+    if (!m) return null;
+    var t = m[1], out = [];
+    EXCEPT.forEach(function (x) { if (x[0].test(t)) out = out.concat(x[1]); });
+    // "trout" alone ("Release all trout"): every trout
+    if (/\btrout\b/i.test(t.replace(/(eastern brook|cutthroat|rainbow|brown) trout/gi, "").replace(/trout daily limit/gi, ""))) out = out.concat(["trout", "cutthroat", "browntrout", "tigertrout", "goldentrout"]);
+    return out.length ? out : null;
+  }
+  // Does this row change this fish here: not the statewide limit, not
+  // motors or chum, an "Except:" that names it, and not the statewide rule
+  // for it said again ("Crappie: No min. size. No daily limit.").
+  function flatQ(t) { return String(t).replace(/\s+/g, " ").replace(/ :/g, ":").trim().toLowerCase(); }
+  function changes(r, id) {
+    if (!matters(r)) return false;
+    var ex = typeof r.fish === "string" && /^Statewide min\. size\/daily limit\. Except:/i.test(r.rule) ? exceptFish(r.rule) : null;
+    if (ex && ex.indexOf(id) < 0) return false;
     var f = lakeFishOf(id);
-    return ((f && f.own) || []).filter(function (g) {
-      return g.lakes.some(function (x) { return pamphletIs(x, l); });
-    });
+    if (f && f.rule && f.rule.q.some(function (q) { var tail = flatQ(q).split(":").slice(1).join(":").trim(); return tail && tail === flatQ(r.rule); })) return false;
+    return true;
   }
-  function nameCore(s) {
-    return String(s || "").toUpperCase().replace(/\(.*?\)/g, " ").replace(/['’.]/g, "").replace(/[^A-Z0-9]+/g, " ")
-      .replace(/\b(LK|LKS|LAKE|LAKES|POND|PONDS|PD|RESERVOIR|RES|THE)\b/g, " ").replace(/\s+/g, " ").trim();
+  // "All species" rows that are about catching any fish here (gear, release,
+  // who may fish, the lake shut whole or on given days), not a dam's base, a
+  // road, an inlet stream shut, or a salmon and steelhead endorsement.
+  var FISHING = /selective gear|fly fishing only|catch-and-release|juvenile|senior|disabilit|lead weights|anti-snagging|night closure|^closed waters\.?$|closed wednesdays|closed from/i;
+  function aboutFish(r) { return r.fish !== "*" || (FISHING.test(r.rule) && !/salmon and steelhead|steelhead endorsement|CRSSE/i.test(r.rule)); }
+  function entryOf(l) { return l && l.pr != null ? LK.entries[l.pr] : null; }
+  // This lake's own rule for a fish, in its first part: the rows that change it.
+  function ownRows(l, id) { var e = entryOf(l); return e && !l.rv ? rowsOf(e, id, false).filter(function (r) { return changes(r, id) && aboutFish(r); }) : []; }
+
+  // ---- seasons ----------------------------------------------------------------
+  // The pamphlet's season words as days: "Mar. 1", "4th Sat. in Apr.", "Last
+  // Day of Feb.", "Sat. before Memorial Day", "1st Fri. after Thanksgiving".
+  // Anything else is left as words, and the app claims neither open nor shut.
+  var MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+  var DOWS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+  var NTHS = { "1st": 1, first: 1, "2nd": 2, second: 2, "3rd": 3, third: 3, "4th": 4, fourth: 4, last: -1 };
+  function nthDay(y, m, dow, k) {
+    if (k > 0) { var d = new Date(y, m, 1); return new Date(y, m, 1 + ((dow - d.getDay() + 7) % 7) + 7 * (k - 1)); }
+    var e = new Date(y, m + 1, 0); return new Date(y, m, e.getDate() - ((e.getDay() - dow + 7) % 7));
   }
-  // a lake as the pamphlet heads it ("Tapps, Lake (Reservoir)") as people say it ("Lake Tapps")
-  function pamphletName(x) {
-    var parts = String(x[0]).replace(/\s*\(.*?\)/g, "").split(",").map(function (s) { return s.trim(); });
-    return parts.length > 1 ? parts.slice(1).join(" ") + " " + parts[0] : parts[0];
+  function plus(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function seasonDay(t, y) {
+    var s = String(t || "").trim().toLowerCase(), m;
+    if ((m = /^([a-z]+)\.? (\d{1,2})$/.exec(s)) && MONTHS.indexOf(m[1].slice(0, 3)) >= 0) return new Date(y, MONTHS.indexOf(m[1].slice(0, 3)), +m[2]);
+    if (/^last day of feb\.?$/.test(s)) return new Date(y, 2, 0);
+    if ((m = /^(1st|2nd|3rd|4th|first|second|third|fourth|last) (sun|mon|tue|wed|thu|fri|sat)[a-z]*\.? in ([a-z]+)\.?$/.exec(s)) && MONTHS.indexOf(m[3].slice(0, 3)) >= 0) return nthDay(y, MONTHS.indexOf(m[3].slice(0, 3)), DOWS[m[2]], NTHS[m[1]]);
+    var mem = nthDay(y, 4, 1, -1), thx = nthDay(y, 10, 4, 4);
+    if (/^sat\.? before memorial day$/.test(s)) return plus(mem, -2);
+    if (/^fri\.? before memorial day$/.test(s)) return plus(mem, -3);
+    if (/^(1st|first) fri\.? after thanksgiving$/.test(s)) return plus(thx, 1);
+    return null;
   }
-  // a lake in the pamphlet ("Tapps, Lake (Reservoir)", PIERCE) is this one
-  function pamphletIs(x, l) {
-    var parts = String(x[0]).split(",").map(function (s) { return s.trim(); });
-    var name = parts.length > 1 ? parts.slice(1).join(" ") + " " + parts[0] : parts[0];
-    return nameCore(name) === nameCore(l.n) && x[1].indexOf(String(l.c).toUpperCase()) >= 0;
+  // { all } open all year; { open, until } open now; { opens } shut now; null: words only
+  function seasonNow(text, now) {
+    var t = String(text || "").trim();
+    if (!t) return null;
+    if (/^year-round$/i.test(t)) return { all: true, open: true };
+    var m = /^(.+?)\s*-\s*(.+)$/.exec(t);
+    if (!m) return null;
+    var d = now || new Date(), today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    for (var y = today.getFullYear() - 1; y <= today.getFullYear(); y++) {
+      var a = seasonDay(m[1], y), b = seasonDay(m[2], y);
+      if (!a || !b) return null;
+      if (b < a) b = seasonDay(m[2], y + 1);
+      if (today >= a && today <= b) return { open: true, until: b };
+    }
+    var next = seasonDay(m[1], today.getFullYear());
+    if (next <= today) next = seasonDay(m[1], today.getFullYear() + 1);
+    return { open: false, opens: next };
+  }
+  function dayWords(d, withYear) { return MON3[d.getMonth()] + " " + d.getDate() + (withYear || d.getFullYear() !== new Date().getFullYear() ? ", " + d.getFullYear() : ""); }
+  function seasonWords(st) { return !st ? "" : st.all ? "Open all year" : st.open ? "Open now, to " + dayWords(st.until) : "Closed now. Opens " + dayWords(st.opens, true); }
+  // A row's season, said: open or shut when it is the only row for its
+  // species in its part (then it is that fish's season); when the species
+  // has rows for other dates too, only whether this one is in effect now.
+  function rowSeason(r, sib) {
+    if (!r.season) return "";
+    var st = seasonNow(r.season), one = r.n ? r.n < 2 : !sib || sib.filter(function (o) { return o.sp === r.sp; }).length < 2;
+    var said = !st || st.all ? "" : one ? seasonWords(st) : st.open ? "In effect now" : "";
+    return r.season.replace(/\.+$/, "") + (said ? ". " + said : "");
+  }
+  // The season a lake's game fish keep: its "All game fish" row, else its
+  // "Other game fish" row, in its first part.
+  function lakeSeason(e) {
+    var p = partsOf(e)[0];
+    if (!p) return "";
+    var g = p.rows.filter(function (r) { return r.fish === "g"; })[0] || p.rows.filter(function (r) { return r.fish === "o"; })[0];
+    return g ? g.season : "";
+  }
+  // Who may fish here, or a lake shut whole: "All species" rows in its first part that say so.
+  function whoMay(e) {
+    var p = partsOf(e)[0];
+    return p ? p.rows.filter(function (r) { return r.fish === "*" && /juvenile|senior|disabilit|^closed waters\.?$/i.test(r.rule); }) : [];
+  }
+  function pageWords(e) { return e.page ? "2026-27 pamphlet, page " + e.page : "2026-27 pamphlet, " + (e.url.split("/").pop() || "").replace(/-/g, " "); }
+  // The season line under a lake's head card: shut now (on the red edge),
+  // open part of the year, or who may fish. A lake open all year to everyone says nothing here.
+  function lakeSeasonHtml(l) {
+    var e = entryOf(l);
+    if (!e || l.rv) return "";
+    var season = lakeSeason(e), st = seasonNow(season), who = whoMay(e);
+    if ((!season || (st && st.all)) && !who.length) return "";
+    var shut = (st && !st.open) || who.some(function (r) { return /^closed waters\.?$/i.test(r.rule); });
+    var head = who.length && !(st && !st.open) ? who[0].rule.split(/\.\s+/)[0].replace(/\.$/, "") : st ? seasonWords(st) : "Season: " + season;
+    var lines = (season && !(st && st.all) ? ["Game fish: " + season.replace(/\.+$/, "") + "."] : []).concat(who.length && st && !st.open ? [who[0].rule] : []);
+    return '<div class="' + (shut ? "rule" : "well") + ' lakeseason" data-lake-season="' + (shut ? "closed" : st && st.open ? "open" : "words") + '"><span class="tx"><b>' + esc(head) + "</b>" +
+      lines.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "<span>" + esc(pageWords(e)) + "</span></span></div>";
+  }
+  // The rule a fish keeps in a lake, for its head card: the Columbia's, the
+  // lake's own, or the statewide rule (and the lake's season, if it has one).
+  function headRuleHtml(l, id, f) {
+    var e = entryOf(l), C = LK.fish.columbia;
+    if (l.rv && C) return '<span class="rule" data-head-rule="river"><span class="tx"><b>' + esc(l.rv) + " River rules, not lake rules</b><span>" +
+      esc("The pamphlet counts the " + l.rv + " as a river, not a lake (page " + C.page + "). Its rules: " + C.rules.name + ", page " + C.rules.page + ".") + "</span></span></span>";
+    var own = ownRows(l, id);
+    if (own.length) {
+      var st = seasonNow(own[0].season);
+      return '<span class="rule" data-head-rule="own"><span class="tx"><b>This lake has its own rule</b>' +
+        own.map(function (r) { return "<span>" + esc(r.sp + ": " + r.rule) + "</span>"; }).join("") +
+        "<span>" + esc((own[0].season && !(st && st.all) ? rowSeason(own[0], own) + ". " : "") + pageWords(e)) + "</span></span></span>";
+    }
+    return f ? '<span class="rule" data-head-rule="statewide"><span class="tx"><b>' + esc(f.rule.say) + "</b><span>Statewide rule, 2026-27 pamphlet, page " + f.rule.page + "</span></span></span>" : "";
   }
   function lakeHeadHtml(l, x) {
     var id = x[0], f = lakeFishOf(id), p = x[2], n = lakesOf(id).now.length;
-    var own = ownRules(id, l).filter(function (g) { return !/^Statewide min\. size\/daily limit\.?$/.test(g.q); });
-    var plant = p ? "<p class=\"plant\">" + fmtN(p[1]) + " planted " + shortDate(p[0]) + (p[4] > 1 ? ", the " + nth(p[4]) + " plant since " + p[5] : "") + ".</p>" : "";
-    var rule = own.length ? '<span class="rule" data-head-rule="own"><span class="tx"><b>This lake has its own rule</b><span>' + esc(own[0].sp + ": " + own[0].q) + "</span></span></span>"
-      : f ? '<span class="rule" data-head-rule="statewide"><span class="tx"><b>' + esc(f.rule.say) + "</b><span>2026-27 pamphlet, page " + f.rule.page + "</span></span></span>" : "";
+    var plant = p ? '<p class="plant">' + fmtN(p[1]) + " planted" + (p[4] > 1 ? ", the " + nth(p[4]) + " plant since " + p[5] : "") + ".</p>" : "";
     var k = RIG.fish && RIG.fish.of(id);
     return '<a class="float platecard wash-lake lakehead" href="' + fishHref(id) + '" data-lake-head="' + esc(id) + '">' + oneFish(id, "art", true) +
       '<p class="names"><b>' + esc(lakeFishName(id)) + "</b>" + (k ? "<i>" + esc(RIG.fish.latin(k)) + "</i>" : "") + "</p>" +
-      '<p class="hint">' + fishTag(x) + " One of " + n + " lakes in range with them.</p>" + plant + rule + "</a>";
+      '<p class="hint">' + fishTags(x, null, true) + " <span>One of " + n + (n === 1 ? " lowland lake" : " lowland lakes") + " in range with them.</span></p>" + plant + headRuleHtml(l, id, f) + "</a>";
   }
   var MGMT_WORD = { T: "Trout emphasis", MT: "Mixed, trout first", MW: "Mixed, warmwater first", W: "Warmwater emphasis" };
-  function lakeFactsHtml(l) {
-    var acres = l.a != null ? (l.a >= 100 ? fmtN(l.a) : String(l.a)) : "";
+  // Getting on the water: the pamphlet's public boat ramp mark first, then
+  // WDFW's 2014 map; on a spot with a dated launch card, that card, which is newer than both.
+  function lakeFactsHtml(l, s) {
+    var acres = l.a != null ? (l.a >= 100 ? fmtN(l.a) : String(l.a)) : "", e = entryOf(l);
+    var launch = null;
+    if (s) {
+      var cs = spotCards(s).map(function (c) { return { c: c, href: "#/spot/" + s.id + "/" + c.id }; });
+      speciesAt(s.id).forEach(function (sp) { var lc = findLocation(sp, s.id); ((lc && lc.cards) || []).forEach(function (c) { if (typeof c !== "string") cs.push({ c: c, href: "#/" + sp.id + "/" + s.id + "/" + c.id }); }); });
+      launch = cs.filter(function (x) { return x.c.dated && /launch|ramp/i.test((x.c.tab || "") + " " + (x.c.title || "")); })[0] || null;
+    }
+    var on = launch ? '<a class="panel tcard" href="' + esc(launch.href) + '" data-getting-on="card"><b>Getting on' + IC.chev + '</b><span class="lead">' + esc(launch.c.title) + "</span>" +
+        '<span class="lead dim">Checked ' + esc(shortDate(launch.c.dated)) + "</span>" + '<span class="sub">Newer than the pamphlet and WDFW\'s map</span></a>'
+      : '<div class="panel tcard" data-getting-on="' + (e && e.ramp ? "pamphlet" : "map") + '"><b>Getting on</b><span class="lead">' +
+        (e && e.ramp ? "Public boat ramp" : l.r ? "Boat ramp on WDFW's map" : "No ramp on WDFW's map") + "</span>" +
+        (l.sh ? '<span class="lead dim">Good shore access</span>' : "") +
+        '<span class="sub">' + (e && e.ramp ? "Pamphlet page " + e.page + (l.sh ? ", WDFW's map" : "") : "WDFW's lake map") + "</span></div>";
     return '<div class="duo" data-lake-facts>' +
       '<div class="panel tcard"><b>The lake</b>' + (acres ? '<span class="bignum">' + esc(acres) + "<span>acres</span></span>" : "") +
-        '<span class="sub">' + esc(MGMT_WORD[l.t] || "WDFW lake") + "</span></div>" +
-      '<div class="panel tcard"><b>Getting on</b><span class="lead">' + (l.r ? "Boat ramp" : "No boat ramp") + '</span><span class="sub">' +
-        (l.sh ? "Good shore access" : "No shore access listed") + "</span></div></div>";
+        '<span class="sub">' + esc(MGMT_WORD[l.t] || "WDFW lake") + "</span></div>" + on + "</div>";
   }
-  function sourcesHtml() {
-    return '<div class="well" data-lake-sources><p><b>From WDFW\'s lake map, WDFW plants and USGS records.</b> Built ' + esc(shortDate(LK.data.built)) + ".</p></div>";
+  // This lake's rules: the pamphlet's entry, every row, part by part; or the
+  // Columbia's; or the entries it may be; or the statewide rules, it not being listed.
+  function entryRowsHtml(e, title) {
+    return partsOf(e).map(function (p) {
+      return (p.part || title ? '<div class="row partrow"><span class="tx"><b>' + esc(title || "") + (title && p.part ? ": " : "") + esc(p.part) + "</b></span></div>" : "") +
+        p.rows.map(function (r) {
+          return '<div class="row rulerow" data-rule-row><span class="tx"><b>' + esc(r.sp + ": " + r.rule) + "</b>" +
+            (r.season ? "<span>" + esc(rowSeason(r, p.rows)) + "</span>" : "") + "</span></div>";
+        }).join("");
+    }).join("");
   }
-  // What's in here: the fish in it now, then older records.
-  function inHereHtml(l, first) {
-    var s = lakeFishSorted(l);
-    var now = s.now.length ? (first ? '<section class="grp" data-in-here><h2 class="sect vh">What\'s in here</h2><div class="float list">' : '<section class="grp" data-in-here><h2 class="sect">What\'s in here <span class="n">' + s.now.length + '</span></h2><div class="panel list">') +
-      s.now.map(function (x) { return fishRowHtml(l, x); }).join("") + "</div></section>" : "";
+  function lakeRulesHtml(l) {
+    var e = entryOf(l), C = LK.fish.columbia, U = LK.fish.unlisted;
+    if (l.rv && C) return '<div class="well" data-lake-rules="river"><p><b>The ' + esc(l.rv) + " is a river in the pamphlet.</b> " + esc(C.q) + "</p><p>" +
+      esc("Page " + C.page + ". The rules here: " + C.rules.name + ", page " + C.rules.page + ".") + "</p></div>";
+    if (e) return '<section class="grp" data-lake-rules="own"><h2 class="sect">Rules here</h2><div class="panel list">' + entryRowsHtml(e, "") +
+      '<a class="row" href="' + esc(e.url) + '" target="_blank" rel="noopener" data-rule-source><span class="tx"><b>' + esc(e.name + (e.q && e.q.length < 40 ? " (" + e.q + ")" : "")) + "</b><span>" +
+      esc(pageWords(e)) + "</span></span>" + IC.chev + "</a></div></section>";
+    if (l.pm) {
+      var es = l.pm.map(function (i) { return LK.entries[i]; });
+      return '<section class="grp" data-lake-rules="maybe"><h2 class="sect">Rules here</h2><div class="well"><p><b>The pamphlet lists ' + es.length + (es.length === 1 ? " water" : " waters") +
+        " named " + esc(es[0].name) + " in " + esc(es[0].counties.join(" and ")) + " County.</b> Which one is this lake, WDFW's map does not say. " + esc(pageWords(es[0])) + ".</p></div>" +
+        '<div class="panel list">' + es.map(function (x) { return entryRowsHtml(x, x.name + (x.q ? " (" + x.q + ")" : "")); }).join("") + "</div></section>";
+    }
+    return U ? '<div class="well" data-lake-rules="statewide"><p><b>Not in the pamphlet\'s lake rules:</b> statewide rules. ' + esc(U.q) + "</p><p>Page " + U.page + ".</p></div>" : "";
+  }
+  function sourcesHtml(fish) {
+    var how = fish && (fish.how || []).length && LK.fish.how ? " How: " + LK.fish.how.name + ", data.wa.gov." : "";
+    return '<div class="well" data-lake-sources><p><b>From WDFW\'s lake map, WDFW plants and USGS records.</b> Rules: the 2026-27 pamphlet.' + esc(how) + " Built " + esc(shortDate(LK.data.built)) + ".</p></div>";
+  }
+  // What's in here: the fish in it now (but the one on the head card), then older records.
+  function inHereHtml(l, first, head) {
+    var s = lakeFishSorted(l), now = s.now.filter(function (x) { return !head || x[0] !== head[0]; });
+    var nowH = now.length ? (first ? '<section class="grp" data-in-here><h2 class="sect vh">What\'s in here</h2><div class="float list">' : '<section class="grp" data-in-here><h2 class="sect">' + (head ? "Also in here" : "What's in here") + ' <span class="n">' + now.length + '</span></h2><div class="panel list">') +
+      now.map(function (x) { return fishRowHtml(l, x); }).join("") + "</div></section>" : "";
     var old = s.old.length ? '<section class="grp" data-in-here-old><h2 class="sect">Older records <span class="n">' + s.old.length + '</span></h2><div class="panel list">' +
       s.old.map(function (x) { return fishRowHtml(l, x); }).join("") + "</div></section>" : "";
-    return now + old;
+    return nowH + old;
   }
   function lakeWhere(l) { return l.c + " County · " + l.km + " km"; }
   function renderLake(id) {
@@ -1819,36 +2076,99 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     if (s) { location.replace("#/spot/" + s.id); return; }
     var from = /^#\/fish\/([a-z]+)/.exec(prevHash || ""), h = headFish(l);
     var back = from && lakeFishOf(from[1]) ? { href: "#/fish/" + from[1], text: lakeFishName(from[1]) } : { href: "#/lakes", text: "Lakes" };
-    app.innerHTML = topHtml("water", "", "lake", lakePaint(l)) +
+    app.innerHTML = topHtml("water", "lake", "lake", lakePaint(l)) +
       '<div data-view="lake" data-lake="' + esc(l.id) + '">' + heroHtml({ title: l.n, back: back, chips: '<span class="chip"><b>' + esc(lakeWhere(l)) + "</b></span>" }) +
-        (h ? lakeHeadHtml(l, h) : "") + inHereHtml(l, !h) + lakeFactsHtml(l) + sourcesHtml() + "</div>" + tripBarHtml();
+        (h ? lakeHeadHtml(l, h) : "") + lakeSeasonHtml(l) + inHereHtml(l, !h, h) + lakeRulesHtml(l) + lakeFactsHtml(l, null) + sourcesHtml() + "</div>" + tripBarHtml();
   }
-  // A lake row: its own picture, name, where, and what is in it.
+  // A lake row: its own picture (lists of lakes), name, where, and what is in
+  // it, or, on a fish's page, that fish's tags there (stocked, introduced, own rule).
   function lakeRowHtml(l, id, pic) {
     var x = id ? lakeRow(l, id) : null, names = lakeFishSorted(l).now.map(function (y) { return lakeFishName(y[0]); });
-    var line = x ? (fishLine(x) || lakeWhere(l)) : names.slice(0, 3).join(", ") + (names.length > 3 ? " +" + (names.length - 3) : "");
+    var tags = x ? fishTags(x, l, false) : "";
+    var line = x ? (fishLine(x) || (l.rv ? l.rv + " River rules" : "")) : names.slice(0, 3).join(", ") + (names.length > 3 ? " +" + (names.length - 3) : "");
     return '<a class="row' + (pic ? " pic" : "") + ' lkrow" href="' + lakeHref(l) + '" data-lake-row="' + esc(l.id) + '">' + (pic ? viewHtml("lake", "tile", lakePaint(l)) : "") +
-      '<span class="tx"><b>' + esc(l.n) + "</b><span>" + esc(lakeWhere(l)) + "</span>" + (x ? '<span class="tags">' + fishTag(x) + "</span>" : "") +
-      (line && (!x || fishLine(x)) ? '<span class="rm">' + esc(line) + "</span>" : "") + "</span>" + IC.chev + "</a>";
+      '<span class="tx"><b>' + esc(l.n) + "</b><span>" + esc(lakeWhere(l)) + "</span>" + (tags ? '<span class="tags">' + tags + "</span>" : "") +
+      (line ? '<span class="rm">' + esc(line) + "</span>" : "") + "</span>" + IC.chev + "</a>";
   }
   var lakesAll = false;
   function renderLakes() {
     var all = LK.data.lakes, n = lakesAll ? all.length : Math.min(40, all.length);
     var near = all.slice(0, 12).map(function (l) { return lakeRowHtml(l, "", true); }).join("");
     var rest = all.slice(12, n).map(function (l) { return lakeRowHtml(l, "", false); }).join("");
-    app.innerHTML = topHtml("water", "", "lake") +
+    app.innerHTML = topHtml("water", "lake", "lake") +
       '<div data-view="lakes">' + heroHtml({ title: "Lakes near you", back: { href: "#/water", text: "Water" }, chips: '<span class="chip"><b>' + all.length + " lakes</b> within " + LK.data.km + " km</span>" }) +
         '<div class="float list" data-lakes-near>' + near + "</div>" +
         (rest ? '<section class="grp"><h2 class="sect">Farther</h2><div class="panel list" data-lakes-rest>' + rest + "</div></section>" : "") +
         (n < all.length ? '<button class="quiet" type="button" data-lakes-all>All ' + all.length + " lakes</button>" : "") + sourcesHtml() + "</div>" + tripBarHtml();
   }
-  // A fish's page: what it is, when and how, its rule, and the lakes it is in.
+  // ---- a fish's own rule, lake by lake ------------------------------------------
+  // Every lake in range the pamphlet lists with a rule that changes this
+  // fish: rows that name it, and rows for every fish or every game fish where
+  // this fish is known to be. A part of a lake shut to all species is the
+  // lake page's to say, not the fish's.
+  var NAMES = { cutthroat: /cutthroat/i, browntrout: /brown trout/i, tigertrout: /tiger trout/i, goldentrout: /golden trout/i, sockeye: /sockeye/i, coho: /coho/i, king: /chinook/i, steelhead: /steelhead/i };
+  function namesIt(r, id) {
+    if (!r.fish || typeof r.fish !== "object" || r.fish.indexOf(id) < 0) return false;
+    if (r.fish.length === 1) return true;
+    if (/^(other )?trout$/i.test(r.sp)) return id === "trout" || !!(NAMES[id] && NAMES[id].test(r.rule));
+    if (/salmon/i.test(r.sp)) return !!(NAMES[id] && NAMES[id].test(r.rule + " " + r.sp));
+    return true;
+  }
+  function ownGroups(id) {
+    var groups = {}, list = [];
+    LK.entries.forEach(function (e) {
+      var ls = e.lakes.map(function (k) { return LK.byId[k]; }).filter(Boolean);
+      var known = ls.some(function (l) { return !!lakeRow(l, id); });
+      var rows = rowsOf(e, id, true).filter(function (r) {
+        return changes(r, id) && aboutFish(r) && !(r.part && r.fish === "*" && /^closed waters\.?$/i.test(r.rule)) && (namesIt(r, id) || known);
+      });
+      if (!rows.length) return;
+      var key = rows.map(function (r) { return [r.sp, r.season, r.rule, r.part].join("|"); }).join("||");
+      if (!groups[key]) { groups[key] = { rows: rows, lakes: [] }; list.push(groups[key]); }
+      (ls.length ? ls : [null]).forEach(function (l) { groups[key].lakes.push({ l: l, e: e, km: l ? l.km : e.km }); });
+    });
+    list.forEach(function (g) { g.lakes.sort(function (a, b) { return (a.km == null ? 999 : a.km) - (b.km == null ? 999 : b.km); }); g.km = g.lakes[0].km == null ? 999 : g.lakes[0].km; });
+    list.sort(function (a, b) { return a.km - b.km; });
+    return list;
+  }
+  function ownLakeName(x) {
+    return x.l ? x.l.n + " (" + x.l.c + ")" : x.e.name + (x.e.q && x.e.q.length < 30 ? " (" + x.e.q + ")" : "") + " (" + x.e.counties.join("/") + ")";
+  }
+  function ownGroupHtml(g) {
+    var pages = g.lakes.map(function (x) { return x.e.page; }).filter(Boolean).sort(function (a, b) { return a - b; });
+    var pg = !pages.length ? "" : pages[0] === pages[pages.length - 1] ? "page " + pages[0] : "pages " + pages[0] + " to " + pages[pages.length - 1];
+    var seen = {}, names = [];
+    g.lakes.forEach(function (x) { var nm = ownLakeName(x); if (!seen[nm]) { seen[nm] = 1; names.push(nm); } });
+    return '<div class="row ownrule" data-own-rule><span class="tx">' + g.rows.map(function (r) {
+        var st = seasonNow(r.season);
+        return "<b>" + esc(r.sp + ": " + r.rule) + "</b>" + (r.season && !(st && st.all) ? '<span class="when">' + esc(rowSeason(r, g.rows)) + "</span>" : "") +
+          (r.part ? '<span class="when">' + esc("Part of the lake: " + r.part) + "</span>" : "");
+      }).join("") + '<span class="lakes">' + esc(names.join(", ") + (pg ? ". " + pg.charAt(0).toUpperCase() + pg.slice(1) : "")) + "</span></span></div>";
+  }
+  // How many lakes in range open only part of the year to game fish.
+  function seasonalCount() {
+    return LK.entries.filter(function (e) { var st = seasonNow(lakeSeason(e)); return st && !st.all; }).length;
+  }
+  // A fish's page: what it is, how, its rule, the lakes it is in, and the
+  // lakes whose own rule changes it (one row, opening the list).
   function renderLakeFish(id, sub) {
     var f = lakeFishOf(id);
     if (!f) { renderFish(); return; }
     var lo = lakesOf(id), lakes = lo.now, hi = LK.data.high[id], k = RIG.fish && RIG.fish.of(id);
-    var all = sub === "lakes", shown = all ? lakes : lakes.slice(0, 8), olds = all ? lo.old : lo.old.slice(0, 4);
-    var nearest = lakes[0] || lo.old[0];
+    var all = sub === "lakes", rulesPage = sub === "rules", shown = all ? lakes : lakes.slice(0, 8), olds = all ? lo.old : lo.old.slice(0, 4);
+    var nearest = lakes[0] || lo.old[0], groups = ownGroups(id), active = f.cards && findSpecies(f.cards) ? f.cards : "lf-" + id;
+    var paint = nearest ? lakePaint(nearest) : null;
+    var cardsChip = f.cards && findSpecies(f.cards) ? '<a class="chip" href="#/' + esc(f.cards) + '" data-fish-cards-chip>' + esc(findSpecies(f.cards).name) + ": rigs</a>" : "";
+    if (rulesPage) {
+      var n = 0;
+      groups.forEach(function (g) { n += g.lakes.length; });
+      app.innerHTML = topHtml("fish", active, "lake", paint) +
+        '<div data-view="lakefish" data-fish="' + esc(id) + '" data-sub="rules">' + heroHtml({ title: f.name, back: { href: "#/fish/" + id, text: f.name },
+          chips: '<span class="chip"><b>' + n + (n === 1 ? " lake" : " lakes") + "</b> with their own rule</span>" }) +
+          '<div class="float list" data-own-rules>' + (groups.map(ownGroupHtml).join("") || '<div class="row"><span class="tx"><b>No lake in range has its own rule for it.</b></span></div>') + "</div>" +
+          '<div class="well" data-own-seasons><p><b>' + seasonalCount() + " lakes in range open only part of the year.</b> Each lake's page says when.</p></div>" + sourcesHtml() + "</div>" + tripBarHtml();
+      return;
+    }
     var plate = '<div class="float platecard wash-lake" data-plate-card>' + oneFish(id, "art", true) +
       '<p class="names"><b>' + esc(f.name) + "</b>" + (k ? "<i>" + esc(RIG.fish.latin(k)) + "</i>" : "") + "</p>" +
       (f.what ? '<p class="hint">' + esc(f.what) + "</p>" : "") + "</div>";
@@ -1856,54 +2176,51 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var wh = (f.when || []).length, hw = (f.how || []).length;
     var whenHow = wh && hw ? '<div class="duo whenhow" data-when-how><div class="panel tcard"><b>When</b>' + lines(f.when) + '</div><div class="panel tcard"><b>How</b>' + lines(f.how) + "</div></div>"
       : wh || hw ? '<div class="panel whenhow one" data-when-how><b>' + (wh ? "When" : "How") + "</b>" + lines(wh ? f.when : f.how) + "</div>" : "";
-    var rule = '<div class="rule" data-fish-rule><span class="tx"><b>' + esc(f.rule.say) + "</b>" +
-      f.rule.q.map(function (q) { return '<span class="q">' + esc(q) + "</span>"; }).join("") +
-      (f.rule.note ? "<span>" + esc(f.rule.note) + "</span>" : "") + "<span>2026-27 pamphlet, page " + f.rule.page + "</span></span></div>";
-    // lakes in range whose own entry in the pamphlet has a rule for it
-    var own = (f.own || []).map(function (g) {
-      var here = LK.data.lakes.filter(function (l) { return g.lakes.some(function (x) { return pamphletIs(x, l); }); });
-      var names = here.slice(0, 3).map(function (l) { return l.n; });
-      g.lakes.forEach(function (x) { var nm = pamphletName(x); if (names.length < 3 && names.indexOf(nm) < 0 && !here.some(function (l) { return pamphletIs(x, l); })) names.push(nm); });
-      var more = g.lakes.length - names.length;
-      var pages = g.lakes.map(function (x) { return x[2]; }).sort(function (a, b) { return a - b; });
-      return '<div class="row ownrule" data-own-rule><span class="tx"><b>' + esc(g.sp + ": " + g.q) + "</b><span>" +
-        esc(andList(names.concat(more > 0 ? [more + " more"] : [])) +
-        (pages[0] === pages[pages.length - 1] ? ", page " + pages[0] : ", pages " + pages[0] + " to " + pages[pages.length - 1])) + "</span></span></div>";
-    }).join("");
-    var rows = shown.map(function (l, i) { return lakeRowHtml(l, id, !all || i < 12); }).join("");
+    // the rule: its headline and page, the pamphlet's words under it (two lines, the rest a tap away)
+    var q = f.rule.q.join(" "), long = q.length > 110;
+    var rule = '<div class="rule" data-fish-rule><span class="tx"><b>' + esc(f.rule.say) + "</b><span>Statewide rule, 2026-27 pamphlet, page " + f.rule.page + "</span>" +
+      '<span class="q' + (long ? " clamp" : "") + '">' + esc(q) + "</span>" + (f.rule.note ? "<span>" + esc(f.rule.note) + "</span>" : "") +
+      (long ? '<button class="quiet more" type="button" data-rule-open>The full rule</button>' : "") + "</span></div>";
+    var nOwn = 0, near = [];
+    groups.forEach(function (g) { nOwn += g.lakes.length; });
+    groups.slice().sort(function (a, b) { return a.km - b.km; }).forEach(function (g) { g.lakes.forEach(function (x) { if (near.length < 2 && x.l && near.indexOf(x.l.n) < 0) near.push(x.l.n); }); });
+    var ownRow = nOwn ? '<a class="row" href="#/fish/' + esc(id) + '/rules" data-own-rules-row><span class="tx"><b>' + nOwn + (nOwn === 1 ? " lake has its" : " lakes have their") + " own rule</b><span>" +
+      esc(near.length ? "Nearest: " + andList(near) : "Lake by lake, with its season") + "</span></span>" + IC.chev + "</a>" : "";
+    var rows = shown.map(function (l, i) { return lakeRowHtml(l, id, false); }).join("");
     var more = !all && (lakes.length > shown.length || lo.old.length > olds.length) ? '<a class="row" href="#/fish/' + esc(id) + '/lakes" data-all-lakes><span class="tx"><b>All ' + (lakes.length + lo.old.length) + " lakes</b><span>Nearest first</span></span>" + IC.chev + "</a>" : "";
     var oldRows = olds.map(function (l) { return lakeRowHtml(l, id, false); }).join("");
-    var high = hi && hi.n ? '<div class="well" data-high-lakes><p><b>Also in ' + hi.n + (hi.n === 1 ? " high lake" : " high lakes") + " in range,</b> a hike in. Nearest: " +
+    var high = hi && hi.n ? '<div class="well" data-high-lakes><p><b>Also in ' + hi.n + (hi.n === 1 ? " high lake" : " high lakes") + " in range</b> on WDFW's High Lakes map. Nearest: " +
       esc(hi.near.map(function (x) { return x[1]; }).join(", ")) + ".</p></div>" : "";
     var cards = f.cards && findSpecies(f.cards) ? '<section class="grp"><h2 class="sect">Rigs and how to</h2><div class="panel list"><a class="row" href="#/' + esc(f.cards) + '" data-fish-cards><span class="tx"><b>' +
       esc(findSpecies(f.cards).name) + "</b><span>Rigs, bait and how to fish it</span></span>" + IC.chev + "</a></div></section>" : "";
-    var paint = nearest ? lakePaint(nearest) : null;
-    app.innerHTML = topHtml("fish", "lf-" + id, "lake", paint) +
+    app.innerHTML = topHtml("fish", active, "lake", paint) +
       '<div data-view="lakefish" data-fish="' + esc(id) + '">' + heroHtml({ title: f.name, back: all ? { href: "#/fish/" + id, text: f.name } : { href: "#/fish", text: "Fish" },
         chips: '<span class="chip">' + (lakes.length ? "<b>" + lakes.length + (lakes.length === 1 ? " lake" : " lakes") + "</b> in range now"
-          : hi && hi.n ? "<b>" + hi.n + " high lakes</b> in range" : "<b>" + lo.old.length + (lo.old.length === 1 ? " older record" : " older records") + "</b>") + "</span>" }) +
-        (all ? "" : plate + whenHow + rule + (own ? '<section class="grp" data-own-rules><h2 class="sect">Lakes with their own rule</h2><div class="panel list">' + own + "</div></section>" : "")) +
-        (rows ? '<section class="grp" data-fish-lakes><h2 class="sect">' + (all ? "In now" : "Lakes near you") + ' <span class="n">' + lakes.length + '</span></h2><div class="' + (all ? "float" : "panel") + ' list">' + rows + (oldRows ? "" : more) + "</div></section>" : "") +
+          : hi && hi.n ? "<b>" + hi.n + " high lakes</b> in range" : "<b>" + lo.old.length + (lo.old.length === 1 ? " older record" : " older records") + "</b>") + "</span>" + (all ? "" : cardsChip) }) +
+        (all ? "" : plate + whenHow + rule) +
+        (rows || (!all && ownRow) ? '<section class="grp" data-fish-lakes><h2 class="sect">' + (all ? "In now" : "Lakes near you") + ' <span class="n">' + lakes.length + '</span></h2><div class="' + (all ? "float" : "panel") + ' list">' +
+          rows + (oldRows ? "" : more) + (all ? "" : ownRow) + "</div></section>" : "") +
         (oldRows ? '<section class="grp" data-fish-old><h2 class="sect">Older records <span class="n">' + lo.old.length + '</span></h2><div class="panel list">' + oldRows + more + "</div></section>" : "") +
-        (all ? "" : high + cards) + sourcesHtml() + "</div>" + tripBarHtml();
+        (all ? "" : high + cards) + sourcesHtml(f) + "</div>" + tripBarHtml();
   }
-  // While the lakes load: the title, and nothing that could be wrong.
+  // While the lakes load: the title, and nothing that could be wrong. If they
+  // could not load: one line, and a way to try again.
   function renderLakesWait(title) {
-    app.innerHTML = topHtml(/^#\/?(lake|lakes)/.test(location.hash) ? "water" : "fish", "", "lake") +
-      '<div data-view="wait">' + heroHtml({ title: title || "Lakes", chips: '<span class="chip">Opening the lakes</span>' }) + "</div>";
+    var tab = /^#\/?(lake|lakes)/.test(location.hash) ? "water" : "fish";
+    app.innerHTML = topHtml(tab, tab === "water" ? "lake" : "", "lake") +
+      '<div data-view="wait">' + heroHtml({ title: title || "Lakes", chips: '<span class="chip">' + (lakesFailed ? "No signal" : "Opening the lakes") + "</span>" }) +
+      (lakesFailed ? '<div class="float well" data-lakes-failed><p><b>The lakes did not load.</b> They open with no signal once they have loaded here once.</p>' +
+        '<button class="gold" type="button" data-lakes-retry>Try again</button></div>' : "") + "</div>";
   }
-  // The Fish tab's lake fish: each drawn, its line, how many lakes have it.
+  // The Fish tab's lake fish, small: three across, each drawn, named, and how many lakes have it.
   function lakeFishTiles() {
     if (!lakesIn()) return "";
-    var order = LK.fish.order;
-    var tiles = order.map(function (id) {
-      var f = LK.fish.fish[id], lo = lakesOf(id), n = lo.now.length, near = lo.now[0], hi = LK.data.high[id];
-      var meta = n ? n + (n === 1 ? " lake" : " lakes") + " · " + near.km + " km" : hi && hi.n ? hi.n + " high lakes" : lo.old.length ? lo.old.length + (lo.old.length === 1 ? " old record" : " old records") : "";
-      return '<button class="pickcard ptile wash-lake" type="button" data-lakefish="' + esc(id) + '">' + oneFish(id, "art") +
-        '<span class="body"><span class="nm">' + esc(f.name) + '</span><span class="sub">' + esc(f.hint || "") + "</span>" +
-        (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</span></button>";
-    }).join("");
-    return '<section class="grp" data-family="lakefish"><h2 class="sect">Lake fish <span class="n">' + order.length + '</span></h2><div class="pick ptiles">' + tiles + "</div></section>";
+    return '<div class="pick ptiles three" data-lake-fish-tiles>' + LK.fish.order.map(function (id) {
+      var f = LK.fish.fish[id], lo = lakesOf(id), n = lo.now.length, hi = LK.data.high[id];
+      var meta = n ? n + (n === 1 ? " lake" : " lakes") : hi && hi.n ? hi.n + " high lakes" : lo.old.length ? lo.old.length + (lo.old.length === 1 ? " old record" : " old records") : "";
+      return '<button class="pickcard ptile mini wash-lake" type="button" data-lakefish="' + esc(id) + '">' + oneFish(id, "art") +
+        '<span class="body"><span class="nm">' + esc(f.name) + "</span>" + (meta ? '<span class="meta">' + esc(meta) + "</span>" : "") + "</span></button>";
+    }).join("") + "</div>";
   }
   // On a lake type's page (Lake, Kayak lake): the nearest lakes, and all of them.
   function moreLakesHtml() {
@@ -5839,7 +6156,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var s = document.createElement("script");
     s.src = "/rigs/fish.js";
     s.onload = function () {
-      if (mode() === "field" || !app.querySelector('[data-view="fish"],[data-view="species"],[data-view="spot"],[data-view="learn"],[data-view="card"]')) return;
+      if (mode() === "field" || !app.querySelector('[data-view="fish"],[data-view="species"],[data-view="spot"],[data-view="learn"],[data-view="card"],[data-view="lakefish"],[data-view="lake"],[data-view="lakes"]')) return;
       fishQuiet = true;
       try { render(); } finally { fishQuiet = false; }
     };
@@ -6008,6 +6325,9 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var lf = t.closest("[data-lakefish]");
     if (lf) { location.hash = "#/fish/" + lf.dataset.lakefish; return; }
     if (t.closest("[data-lakes-all]")) { lakesAll = true; render(); return; }
+    if (t.closest("[data-lakes-retry]")) { loadLakes(true, true); render(); return; }
+    var ro = t.closest("[data-rule-open]");
+    if (ro) { var rw = ro.closest("[data-fish-rule]"); if (rw) rw.classList.add("open"); ro.parentNode.removeChild(ro); return; }
     var pick = t.closest("[data-species]");
     if (pick) { RIG.go(pick.dataset.species); return; }
     var loc = t.closest("[data-loc]");

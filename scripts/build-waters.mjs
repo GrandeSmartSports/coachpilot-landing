@@ -58,7 +58,7 @@ const ANY_COUNTY = "*";
 const LISTED_AS = { UNION: "WASHINGTON SHIP CANAL" };
 
 // Every lake on the pages. pages: one page's html, or a list of them.
-//   { name, core, counties: [..], clean, sections: [{ note, rows: [{ species, season, rule }] }] }
+//   { name, core, counties: [..], clean, ramp, noTwo, sections: [{ note, rows: [{ species, season, rule }] }] }
 // More than one section with rows means the rules differ by part of the lake.
 export function lakeEntries(pages) {
   const out = [];
@@ -73,7 +73,9 @@ export function lakeEntries(pages) {
         // instead of dropping out of the list as if it had no rule.
         const name = head ? head[1].trim() : loose.slice(0, loose.lastIndexOf(" - ")).trim() || loose;
         cur = { name, core: core(name), counties: head ? head[2].split("/").map((x) => x.trim()).filter(Boolean) : [ANY_COUNTY],
-          clean: !!head && cells.length === 1, sections: [{ note: "", rows: [] }] };
+          clean: !!head && cells.length === 1, sections: [{ note: "", rows: [] }],
+          // the heading's icons: a public boat ramp, and no two-pole fishing
+          ramp: /alt="Public Boat Ramp Icon"/i.test(tr[1]), noTwo: /alt="No Two Pole/i.test(tr[1]) };
         out.push(cur); species = "";
         continue;
       }
