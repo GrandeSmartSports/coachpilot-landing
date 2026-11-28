@@ -2068,7 +2068,9 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       s.old.map(function (x) { return fishRowHtml(l, x); }).join("") + "</div></section>" : "";
     return nowH + old;
   }
-  function lakeWhere(l) { return l.c + " County · " + l.km + " km"; }
+  // Distances read in miles: 1 km is 0.621 mi, and nothing reads as 0.
+  function miles(km) { return Math.max(1, Math.round(km * 0.621371)) + " mi"; }
+  function lakeWhere(l) { return l.c + " County · " + miles(l.km); }
   function renderLake(id) {
     var l = LK.byId[id];
     if (!l) { renderLakes(); return; }
@@ -2096,7 +2098,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var near = all.slice(0, 12).map(function (l) { return lakeRowHtml(l, "", true); }).join("");
     var rest = all.slice(12, n).map(function (l) { return lakeRowHtml(l, "", false); }).join("");
     app.innerHTML = topHtml("water", "lake", "lake") +
-      '<div data-view="lakes">' + heroHtml({ title: "Lakes near you", back: { href: "#/water", text: "Water" }, chips: '<span class="chip"><b>' + all.length + " lakes</b> within " + LK.data.km + " km</span>" }) +
+      '<div data-view="lakes">' + heroHtml({ title: "Lakes near you", back: { href: "#/water", text: "Water" }, chips: '<span class="chip"><b>' + all.length + " lakes</b> within " + miles(LK.data.km) + "</span>" }) +
         '<div class="float list" data-lakes-near>' + near + "</div>" +
         (rest ? '<section class="grp"><h2 class="sect">Farther</h2><div class="panel list" data-lakes-rest>' + rest + "</div></section>" : "") +
         (n < all.length ? '<button class="quiet" type="button" data-lakes-all>All ' + all.length + " lakes</button>" : "") + sourcesHtml() + "</div>" + tripBarHtml();
@@ -2228,7 +2230,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var list = LK.data.lakes.filter(function (l) { return !lakeSpot(l) && l.f.length; }).slice(0, 5);
     return '<section class="grp" data-more-lakes><h2 class="sect">More lakes</h2><div class="panel list">' +
       list.map(function (l) { return lakeRowHtml(l, "", true); }).join("") +
-      '<a class="row" href="#/lakes" data-all-lakes><span class="tx"><b>All ' + LK.data.lakes.length + " lakes</b><span>Within " + LK.data.km + " km, nearest first</span></span>" + IC.chev + "</a></div></section>";
+      '<a class="row" href="#/lakes" data-all-lakes><span class="tx"><b>All ' + LK.data.lakes.length + " lakes</b><span>Within " + miles(LK.data.km) + ", nearest first</span></span>" + IC.chev + "</a></div></section>";
   }
 
   function groupRows(cards, hrefFor) {

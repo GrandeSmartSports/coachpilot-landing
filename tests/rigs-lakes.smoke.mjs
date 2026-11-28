@@ -144,7 +144,7 @@ try {
     await go("#/fish/" + id, '[data-view="lakefish"] [data-fish-rule]');
     pages.push(await page.evaluate((id) => {
       const v = document.querySelector('[data-view="lakefish"]'), plate = v.querySelector("[data-plate-card] [data-plate] svg");
-      const lakes = [...v.querySelectorAll("[data-fish-lakes] [data-lake-row]")].map((r) => ({ id: r.dataset.lakeRow, href: r.getAttribute("href"), km: +((/(\d+) km/.exec(r.textContent) || [])[1] || -1) }));
+      const lakes = [...v.querySelectorAll("[data-fish-lakes] [data-lake-row]")].map((r) => ({ id: r.dataset.lakeRow, href: r.getAttribute("href"), km: +((/· (\d+) mi/.exec(r.textContent) || [])[1] || -1), kmShown: /\d km/.test(r.textContent) }));
       const order = [...v.children].map((c) => c.matches("[data-fish-rule]") ? "rule" : c.matches("[data-fish-lakes]") ? "lakes" : c.matches("[data-high-lakes]") ? "high" : c.matches("[data-plate-card]") ? "plate" : "").filter(Boolean);
       return { id, title: v.querySelector(".hero h1").textContent, plate: !!plate, rule: v.querySelector("[data-fish-rule]").textContent, what: !!v.querySelector("[data-plate-card] .hint"),
         whenHow: !!v.querySelector("[data-when-how]"), lakes, old: v.querySelectorAll("[data-fish-old] [data-lake-row]").length, high: !!v.querySelector("[data-high-lakes]"), all: !!v.querySelector("[data-all-lakes]"),
@@ -163,6 +163,7 @@ try {
   ok(pages.every((p) => !/legal size|a hike in|nearly all are released/i.test(p.text)), "no 'legal size', no 'a hike in', no 'nearly all are released' (I5, M6, M2)");
   ok(/\d+ lakes have their own rule/.test(pages.find((p) => p.id === "trout").ownRow) && !pages.find((p) => p.id === "muskie").ownRow, "one row opens the lakes with their own rule (look 5); tiger muskie has none", pages.find((p) => p.id === "trout").ownRow);
   ok(pages.every((p) => p.lakes.length || p.high || p.old), "and where it is: the lakes it is in now, its high lakes, or its older records", pages.filter((p) => !p.lakes.length && !p.high && !p.old).map((p) => p.id));
+  ok(pages.some((p) => p.lakes.length) && pages.every((p) => p.lakes.every((l) => l.km >= 0 && !l.kmShown)), "distances are in miles, never km", pages.map((p) => p.id + ":" + p.lakes.slice(0, 2).map((l) => l.km).join(",")));
   ok(pages.every((p) => p.lakes.every((l, i) => !i || p.lakes[i - 1].km <= l.km) && p.lakes.every((l) => /^#\/(lake|spot)\//.test(l.href))), "the lakes come nearest first, each one tappable", pages.map((p) => p.id + ":" + p.lakes.map((l) => l.km).join(",")));
   const mp = pages.find((p) => p.id === "muskie");
   ok(mp.lakes[0].id === "lake-tapps-pierce" && mp.lakes[0].href === "#/spot/lake-tapps" && /50 inches to keep/.test(mp.rule), "the tiger muskie page: Lake Tapps nearest, opening the app's own Lake Tapps page", mp);
