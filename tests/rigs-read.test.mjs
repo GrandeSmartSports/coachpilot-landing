@@ -362,7 +362,12 @@ const TIDES = {
   ok(!sun29.better, "a good window names no better day");
   // With others: each one reads the same window.
   const both = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: WEEK, others: ["squid-redondo"], ...W });
-  ok(line(both, "or") === "Redondo: same weather, 10 min closer. Pick: Redondo.", "the other pier is read for the same window", line(both, "or"));
+  // No high in those hours to time either pier on: the tide is the same when
+  // it stands at the same height at both ends of them (7.7 and 7.7 ft at 8 PM, -2.7 and -2.5 at 12).
+  ok(line(both, "or") === "Redondo: same tide and weather, 10 min closer. Pick: Redondo.", "the other pier is read for the same window, and its tide is the same", line(both, "or"));
+  // Redondo and Des Moines go by the same NOAA station: the same tide, always.
+  const dm = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: WEEK, others: ["squid-des-moines"], ...W });
+  ok(/^Des Moines: same tide and weather, 5\u00a0?\s?min farther/.test(line(dm, "or").replace(/\u00a0/g, " ")), "two piers on one tide station: same tide", line(dm, "or"));
 
   // Near slack (Nov 17, NOAA Tacoma): a 1.6 ft rise to a 10:37 PM high.
   const N17 = "2026-11-17";
@@ -420,16 +425,34 @@ const TIDES = {
 {
   const wx = tonight();
   const clock = (x) => { const m = /(\d+):(\d\d) (AM|PM)/.exec(x); return m ? (+m[1] % 12) + (m[3] === "PM" ? 12 : 0) + m[2] / 60 : null; };
-  // 4:30 PM: the 3:57 PM leave has gone by, the trip starts at 4:57.
+  // From now, the fishing starts when you get there: now, the drive (45 min
+  // to Les Davis) and a quarter hour, to the next 5 minutes.
+  // 4:30 PM: the 3:57 PM leave has gone by. Leaving now, on the pier at 5:30.
   const late = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 16.5 });
-  ok(late.leave === "Leave now" && late.headline === "Go, best 5:00 to 8:00 PM", "a leave time that has gone by: leave now", late.leave);
-  // 6:12 PM: the trip has started, so the read speaks from now.
+  ok(late.leave === "Leave now" && late.headline === "Go, best until 8:00 PM" && late.hours[0] === 17.5, "a leave time that has gone by: leave now, and the trip from 5:30, when you get there", [late.leave, late.headline, late.hours]);
+  // 6:12 PM: the trip has started. On the pier at 7:15.
   const on = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 18.2 });
-  ok(on.leave === "Leave now" && on.headline === "Go, until 10:00 PM" && on.fig.a === 18.2, "once it has started, from now: until 10 PM, leave now", [on.headline, on.leave]);
-  ok(line(on, "rain") === "Mostly dry, 13% at most." && !/5 PM|35%/.test(words(on)), "and no rain hour that is already over", line(on, "rain"));
-  // 9:30 PM inside an 8 to 12 window.
+  ok(on.leave === "Leave now" && on.headline === "Go, until 10:00 PM" && on.fig.a === 19.25 && on.hours[0] === 19.25, "once it has started, from when you get there: until 10 PM, leave now", [on.headline, on.leave, on.fig.a]);
+  ok(line(on, "rain") === "Dry." && !/5 PM|35%|13%/.test(words(on)), "and no rain hour that is over before you get there", line(on, "rain"));
+  // 9:30 PM inside an 8 to 12 window: on the pier at 10:30.
   const mid = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 21.5, winFrom: 20, winTo: 0 });
-  ok(/^Now to 12: /.test(mid.headline) && mid.leave === "Leave now" && mid.hours[0] === 21.5, "a window under way: now to 12, leave now", [mid.headline, mid.leave]);
+  ok(/^10:30 to 12: /.test(mid.headline) && mid.leave === "Leave now" && mid.hours[0] === 22.5, "a window under way: from 10:30, when you get there, to 12, leave now", [mid.headline, mid.leave, mid.hours]);
+  // 9 PM at Redondo, 35 min away (the check of 11/27): never "Leave now" and fish at 9.
+  const nine = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 21, winFrom: 20, winTo: 0 });
+  ok(/^9:50 to 12: /.test(nine.headline) && nine.leave === "Leave now" && Math.abs(nine.hours[0] - (21 + 50 / 60)) < 1e-6 && nine.fig.a === nine.hours[0],
+    "9 PM, 35 min away: 9:50 to 12, leave now", [nine.headline, nine.leave, nine.hours]);
+  // 7:45 PM, before the window, but 8 PM can not be made: from 8:45.
+  const soon = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 19.75, winFrom: 20, winTo: 0 });
+  ok(/^8:45 to 12: /.test(soon.headline) && soon.leave === "Leave now" && soon.hours[0] === 20.75, "a window you can not be there for at its start: from when you can", [soon.headline, soon.leave, soon.hours]);
+  // 7 PM: the 7:00 PM leave is now, and 8 PM is made.
+  const just = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 19, winFrom: 20, winTo: 0 });
+  ok(/^8 to 12: /.test(just.headline) && just.hours[0] === 20, "leaving on time, the window is its own", [just.headline, just.leave]);
+  // 11:20 PM: on the pier past 12, under half an hour: done for today.
+  const gone = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 23.35, winFrom: 20, winTo: 0 });
+  ok(gone.call === "done" && !gone.leave, "too late to get half an hour in: done for today", [gone.headline, gone.leave]);
+  // From now, the other piers are read from now too: no high that has gone by.
+  const tn = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: ["squid-des-moines"], nowHour: 20 });
+  ok(/^Des Moines: same tide and weather, 5\smin farther/.test(line(tn, "or")) && !/5:33|5:36/.test(line(tn, "or")), "from now, the other pier is read from now: same tide, no passed high", line(tn, "or"));
   ok([late, on, mid].every((x) => clock(x.leave) == null || clock(x.leave) > 16.5), "no read here says a leave time before now");
   const done = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 23.9, winFrom: 19, winTo: 23 });
   ok(done.call === "done" && !done.leave && /for 7 to 11/.test(done.reason), "a window that is over is done for today", done.headline + " | " + done.reason);

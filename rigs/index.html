@@ -3868,15 +3868,18 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   // The inside of the plan: Leave by, the drive, and the strip with its labels.
   function planStripHtml(t, day, sky) {
     var L = leaveHour(t), F = t.from, D = t.to;
-    // Today, a leave time that has gone by is never shown: leave now.
-    var n = new Date(), nowH = day.iso === todayIso() ? n.getHours() + n.getMinutes() / 60 : null, gone = nowH != null && L <= nowH;
+    // Today, a leave time that has gone by is never shown: leave now. A run
+    // card's plan says the read's own leave (t.leaveNow), and once its read
+    // is done for today (t.over), that, over the trip's own hours.
+    var n = new Date(), nowH = day.iso === todayIso() ? n.getHours() + n.getMinutes() / 60 : null;
+    var gone = t.over ? false : t.leaveNow != null ? t.leaveNow && nowH != null : nowH != null && L <= nowH;
     if (gone) L = Math.min(nowH, F - 0.1);
     // The strip is a sketch, not a ruler: the drive always has room for its label.
     var xf = Math.max(0.2, Math.min(0.7, (F - L) / Math.max(0.1, D - L)));
     function hourAt(u) { return u <= xf ? L + (F - L) * (u / xf) : F + (D - F) * ((u - xf) / (1 - xf)); }
     var strip = LOOK ? RIG.water.stops(0, 1, 14, function (u) { return RIG.sky.paletteFor(sky(day.iso, hourAt(u), t.spot)); }) : "";
     var arrive = xf * (1 - 0.25 / Math.max(0.3, F - L));
-    return '<span class="planhead"><b>' + (gone ? "Leave now" : "Leave by " + esc(clk(L))) + "</b><span>" + driveWords(t.drive) + " drive</span></span>" +
+    return '<span class="planhead"><b>' + (t.over ? "Done for today" : gone ? "Leave now" : "Leave by " + esc(clk(L))) + "</b><span>" + driveWords(t.drive) + " drive</span></span>" +
       '<span class="tl" aria-hidden="true"><i class="tl-sky"' + (strip ? ' style="background:' + strip + '"' : "") + "></i>" +
         '<i class="tl-drive" style="left:16px;width:calc(' + pct(arrive) + '% - 16px)"></i>' +
         '<i class="tl-win" style="left:' + pct(xf) + '%;right:0"></i><i class="tl-dot"></i></span>' +
@@ -4043,6 +4046,32 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return RIG.trips.read({ planId: planId, iso: iso, from: from, to: to, winFrom: win ? win.winFrom : null, winTo: win ? win.winTo : null,
         wx: c.wx || {}, tides: c.tides || {}, flow: c.flow || {}, nowHour: now });
     } catch (e) { return null; }
+  }
+  // The trip over the hours a read is about (a judged window, or from when
+  // you can get there): the planner's own reading of those hours, with the
+  // turns on into the next morning, so the plan and the tiles under the read
+  // draw and say the hours it does. leaveNow: the read's own leave.
+  function readTrip(t, iso, rd, saved) {
+    if (rd && rd.call === "done") return Object.assign({}, t, { over: true });
+    if (!rd || !rd.hours) return t;
+    var o = { from: rd.hours[0], to: rd.hours[1], leaveNow: rd.leave === "Leave now" };
+    if (Math.abs(o.from - t.from) < 0.01 && Math.abs(o.to - t.to) < 0.01) return Object.assign({}, t, o);
+    var c = saved || RIG.trips.cached() || {}, spot = (RIG.trips.spots || []).filter(function (s) { return s.id === t.spot; })[0], d = null;
+    try { d = RIG.trips.detail({ planId: t.planId, iso: iso, from: o.from, to: o.to, wx: c.wx || {}, tides: c.tides || {}, flow: c.flow || {} }); } catch (e) { d = null; }
+    if (d && d.status === "ok") ["why", "wx", "hours", "rainHours", "flow"].forEach(function (k) { if (d.trip[k] !== undefined) o[k] = d.trip[k]; });
+    var next = isoPlus(iso, 1), list = spot && spot.tide && (c.tides || {})[spot.tide];
+    if (list && list.length) {
+      o.tides = list.filter(function (x) { var i = x.t.slice(0, 10); return (i === iso || i === next) && (x.type === "H" || x.type === "L"); }).map(function (x) {
+        var m = /[T ](\d\d):(\d\d)/.exec(x.t);
+        return { h: (x.t.slice(0, 10) === next ? 24 : 0) + (m ? +m[1] + m[2] / 60 : 0), v: +x.v, type: x.type };
+      });
+    }
+    return Object.assign({}, t, o);
+  }
+  // A judged window's grade, as its read says it: Good, Fair or Tough.
+  function gradeTag(r) {
+    if (!r || !r.grade || !(r.call === "go" || r.call === "slow")) return "";
+    return '<span class="tag ' + esc(r.grade) + '">' + (r.grade === "good" ? "Good" : r.grade === "fair" ? "Fair" : "Tough") + "</span>";
   }
   // ---- my window: the hours someone can go -------------------------------
   // Two time boxes on the read ("I can go"), saved on this phone by
@@ -4257,8 +4286,14 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var t = f.t, day = f.day, run = RIG.trips.runs && RIG.trips.runs[t.planId];
     var base = "#/trips/" + encodeURIComponent(key);
     var sp = findSpecies(t.species), scene = sceneFor(t);
-    var hero = heroHtml({ title: t.name, back: { href: "#/trips", text: "Hot Trips" },
-      chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + '</b> <span class="slot">' + esc(t.slot) + "</span></span>" + heatTag(t) });
+    // o: a judged window ({ winFrom, winTo } and the read of it): the head
+    // says its hours and its grade, never the trip's slot and Hot over it.
+    var heroOf = function (o) {
+      var slot = o ? clk(o.win.winFrom).replace(":00 ", " ") + " to " + clk(o.win.winTo).replace(":00 ", " ") : t.slot;
+      return heroHtml({ title: t.name, back: { href: "#/trips", text: "Hot Trips" },
+        chips: '<span class="chip"><b>' + esc(dayDate(day.iso)) + '</b> <span class="slot">' + esc(slot) + "</span></span>" + (o ? gradeTag(o.rd) : heatTag(t)) });
+    };
+    var hero = heroOf(null);
     if (!run) {
       app.innerHTML = topHtml("trips", "", scene, placePaint(t.spot, t.species, tripAt(day.iso, t))) + '<div data-view="hot">' + hero +
         '<div class="float fallback">' + whenP(t.when + " · " + driveWords(t.drive) + " drive") + boxHtml("tip", "why", stepsHtml(t.why)) + "</div>" +
@@ -4278,7 +4313,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     // The read judges the hours this person can go, when they have said
     // them; the plan under it follows the hours the read is about.
     var mw = myWinFor(t), rd = readOf(t.planId, day.iso, t.from, t.to, sky.saved, mw && mw.win);
-    var tp = rd && rd.hours ? Object.assign({}, t, { from: rd.hours[0], to: rd.hours[1] }) : t;
+    var tp = readTrip(t, day.iso, rd, sky.saved), judged = mw && mw.set && rd && /^(ok|nogo|dark)$/.test(rd.status);
+    if (judged) hero = heroOf({ win: mw.win, rd: rd });
     if (cwT.hotKey !== key) { cwT.hotKey = key; cwT.hotMsg = null; }
     // Four sections get a picture of their own: the plan, the gear, the water
     // (the river for a river trip, the tide and weather for any other) and
@@ -4299,7 +4335,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
         readHtml(rd, { cls: "float", leave: true, brief: true, only: ["rain", "or"], win: mw && rd && /^(ok|nogo|dark)$/.test(rd.status) ? mw : null }) +
         planFloatHtml(tp, day, base + "/plan", sky) +
         '<div class="duo">' + gearTileHtml(run, base + "/gear") +
-          (t.flow ? riverTileHtml(t, day, base + "/river", sky.saved) : tideTileHtml(t, by.wx.title, base + "/wx")) + "</div>" +
+          (t.flow ? riverTileHtml(tp, day, base + "/river", sky.saved) : tideTileHtml(tp, by.wx.title, base + "/wx")) + "</div>" +
         '<div class="panel list">' + rows + "</div>" +
         '<a class="rule" href="' + esc(base + "/rules") + '" data-sec-row="rules"><span class="tx"><b>' + esc(by.rules.title) +
           "</b>" + secLineHtml(by.rules, t, run, t.planId) + "</span>" + IC.chev + "</a>" +

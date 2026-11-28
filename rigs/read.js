@@ -10,9 +10,11 @@
 //              fish, fished the same way, that is open that day and not much
 //              farther away.
 //   nowHour:   the hour now, when iso is today: "Light rain now", and a
-//              trip whose hours are over is "Done for today". Once a trip's
-//              start has passed, the read speaks from now: no leave time
-//              that has gone by ("Leave now"), no rain hour that is over.
+//              trip with under half an hour left once you get there is
+//              "Done for today". Once leaving now gets you there after the
+//              start, the read speaks from when you get there (now, the
+//              drive and a quarter hour): "Leave now", "9:50 to 12", no
+//              rain hour that is over by then.
 //   winFrom, winTo: optional, the hours the person can go ("I can go"),
 //              local decimal hours; winTo at or before winFrom runs past
 //              midnight (20 to 0 is 8 PM to 12 AM). Given, the headline
@@ -29,8 +31,8 @@
 //   grade:  with a window: "good", "fair" or "tough" ("" without one)
 //   status: what RIG.trips.detail said (ok, nogo, dark, closed, nodata, unknown)
 //   call:   "go", "slow", "no", "none" (a river with no reading to call it
-//           on), "done" (today, and its hours are over), or "" when there is
-//           nothing to call
+//           on), "done" (today, and under half an hour of its hours is left
+//           once you get there), or "" when there is nothing to call
 //   lines:  Tide (or River), Rain, Wind, Expect, Or. A line the data cannot
 //           back is left out, never guessed. brief, where a line has one:
 //           the part a short read needs ("" for nothing new).
@@ -326,8 +328,12 @@
     if (b <= a) b += 24;
     return b - a >= 0.5 && b - a <= 16 ? [a, b] : null;
   }
-  // "8 to 12": the window as people say it. now: it has started.
-  function winWords(m, now) { return (now ? "Now" : hr(m[0], true)) + " to " + hr(m[1], true); }
+  // "8 to 12": the window as people say it. from: when you can get there,
+  // once that is after its start ("9:50 to 12").
+  function winWords(m, from) { return (from != null ? at(from).replace(":00 ", " ").replace(/ [AP]M$/, "") : hr(m[0], true)) + " to " + hr(m[1], true); }
+  // Today, from now: when the fishing can start, on getting there. Now, the
+  // drive and a quarter hour (the leave time's own sum), to the next 5 minutes.
+  function arrival(now, drive) { return Math.ceil((now + (drive || 0) / 60 + 0.25) * 12 - 1e-6) / 12; }
   var GRADE = { good: 2, fair: 1, tough: 0 };
   var GRADE_SAY = { good: "good", fair: "fair, not great", tough: "tough" };
   // The tide's height at an hour: a cosine between the two turns around it.
@@ -586,7 +592,7 @@
     var w = (input.wx || {})[spot.id], iso = input.iso;
     var sun = (w && w.sun && w.sun[iso]) || null, dark = sun ? sun.set + 0.6 : null;
     var t = det.status === "ok" ? det.trip : null;
-    var win, mine = winOf(input), now = input.nowHour, fromNow = false;
+    var win, mine = winOf(input), now = input.nowHour, fromNow = false, arr = now != null ? arrival(now, spot.drive) : null;
     if (t) win = [t.from, t.to];
     else {
       var a = input.from == null ? (p.dark && sun ? dark : sun ? sun.rise : 7) : +input.from;
@@ -594,10 +600,10 @@
       win = b > a ? [a, b] : [a, a + 2];
     }
 
-    // Today, and the hours are over (the window's, when there is one): done,
-    // and the next good day.
+    // Today, and under half an hour of the hours is left once you get there
+    // (the window's, when there is one): done, and the next good day.
     var live = t || (mine && (det.status === "nogo" || det.status === "dark"));
-    if (live && now != null && now >= (mine ? mine[1] : win[1])) {
+    if (live && arr != null && arr > (mine ? mine[1] : win[1]) - 0.5) {
       out.call = "done"; out.headline = "Done for today";
       if (mine) {
         var nd = nextDay(input, mine, GRADE.good, null);
@@ -616,25 +622,29 @@
       return out;
     }
     if (mine) {
-      // The window, from now once it has started: the planner reads those
-      // hours (full dark for a night trip, daylight for the rest).
-      fromNow = now != null && now > mine[0];
-      var wf = fromNow ? now : mine[0];
+      // The window, from when you can get there once that is after its
+      // start: the planner reads those hours (full dark for a night trip,
+      // daylight for the rest).
+      fromNow = arr != null && arr > mine[0];
+      var wf = fromNow ? arr : mine[0];
       det = T().detail({ planId: p.id, iso: iso, from: wf, to: mine[1], wx: input.wx, tides: input.tides, flow: input.flow });
       out.status = det.status;
       t = det.status === "ok" ? det.trip : null;
       win = t ? [t.from, t.to] : [wf, mine[1]];
       out.mine = mine;
-    } else if (t && now != null && now > win[0]) {
-      // The trip has started: it is read from now.
+    } else if (t && arr != null && arr > win[0]) {
+      // Leaving now gets you there after the start: it is read from then.
       fromNow = true;
-      win = [now, win[1]];
+      win = [arr, win[1]];
     }
     out.win = win;
     out.hours = t ? [win[0], win[1]] : null;
     var hrs = hoursIn(w, iso, win[0], win[1]), rain = rainIn(w, iso, win[0], win[1]);
     var turns = turnsFor(spot, input.tides, iso);
     var key = t ? keyTurn(p, turns, win, dark) : null;
+    // What two spots' tides are compared by when there is no turn to time on.
+    out.station = spot.tide || "";
+    out.edge = turns.length ? [level(turns, win[0]), level(turns, win[1])] : null;
     out.sum = wxSum(hrs, rain);
     out.flow = !!(t && t.flow);
     out.facts = FACTS[spot.id] || {};
@@ -648,13 +658,13 @@
       var best, unknown = t.flow && t.flow.call === "unknown";
       if (mine) {
         // The window, judged.
-        var jd = judge(p, t, turns, win, hrs, rain, t.beach ? p.digs && p.digs[iso] : null), label = winWords(mine, fromNow);
+        var jd = judge(p, t, turns, win, hrs, rain, t.beach ? p.digs && p.digs[iso] : null), label = winWords(mine, fromNow ? wf : null);
         var pt = jd.part || win, say = [jd.part ? up4(pt[0]) : pt[0], jd.part ? down4(pt[1]) : pt[1]];
         if (say[1] <= say[0]) say = [pt[0], pt[1]];
         best = { from: pt[0], to: pt[1], say: say, why: "", own: !!jd.part };
         out.grade = jd.grade; out.rank = GRADE[jd.grade]; out.tideJudged = jd.tide;
         // Cut by the dark or the light: said first.
-        var cut = p.dark && win[0] > (fromNow ? now : mine[0]) + 0.1 && Math.abs(win[0] - dark) < 0.1 ? "Full dark at " + at(dark) + "."
+        var cut = p.dark && win[0] > wf + 0.1 && Math.abs(win[0] - dark) < 0.1 ? "Full dark at " + at(dark) + "."
           : !p.dark && sun && win[1] < mine[1] - 0.1 && Math.abs(win[1] - sun.set) < 0.1 ? "Sunset at " + at(sun.set) + "." : "";
         if (unknown) { out.call = "none"; out.headline = label + ": no river reading yet"; }
         else { out.call = jd.grade === "good" ? "go" : "slow"; out.headline = label + ": " + GRADE_SAY[jd.grade]; }
@@ -675,9 +685,10 @@
       }
       out.best = best;
       if (!unknown) {
-        // A leave time that has gone by is never said: leave now.
+        // A leave time that has gone by is never said: leave now. Read from
+        // when you get there, it is now.
         var lh = win[0] - (spot.drive || 0) / 60 - 0.25;
-        out.leave = now != null && lh <= now ? "Leave now" : "Leave by " + T().leaveBy({ from: win[0], drive: spot.drive });
+        out.leave = fromNow || (now != null && lh <= now) ? "Leave now" : "Leave by " + T().leaveBy({ from: win[0], drive: spot.drive });
       }
       // How many hours of the best ones (or the trip) are wet: what a rain cover is worth.
       var bw = best.own ? [best.from, best.to] : win;
@@ -767,9 +778,14 @@
       return o.id !== p.id && o.species === p.species && o.how === p.how && open.indexOf(o.id) !== -1 && s && s.drive <= reach;
     });
   }
+  // The same tide: the same turn to time on. With none in either: the same
+  // NOAA station, or the water at the same height (1.2 ft) at both ends of the hours.
   function sameTide(a, b) {
-    if (!a.key || !b.key) return false;
-    return a.key.type === b.key.type && Math.abs(a.key.h - b.key.h) <= 0.34 && Math.abs(a.key.v - b.key.v) <= 1.2;
+    if (a.key || b.key) return !!(a.key && b.key) && a.key.type === b.key.type && Math.abs(a.key.h - b.key.h) <= 0.34 && Math.abs(a.key.v - b.key.v) <= 1.2;
+    if (!a.station || !b.station) return false;
+    if (a.station === b.station) return true;
+    var e = a.edge, f = b.edge;
+    return !!(e && f && e[0] != null && e[1] != null && f[0] != null && f[1] != null && Math.abs(e[0] - f[0]) <= 1.2 && Math.abs(e[1] - f[1]) <= 1.2);
   }
   function sameWx(a, b) {
     var pa = a.sum.pop == null ? (a.sum.wet ? 60 : 0) : a.sum.pop, pb = b.sum.pop == null ? (b.sum.wet ? 60 : 0) : b.sum.pop;
@@ -885,7 +901,8 @@
     // Nothing to call, or a trip done for today: no others.
     if (!p || !self.call || self.call === "done") return strip(self);
     var others = othersFor(input, p).map(function (o) {
-      var r = core({ planId: o.id, iso: input.iso, from: input.from, to: input.to, winFrom: input.winFrom, winTo: input.winTo, wx: input.wx, tides: input.tides, flow: input.flow });
+      // The same hours, from now when this one is: never a turn that has gone by.
+      var r = core({ planId: o.id, iso: input.iso, from: input.from, to: input.to, winFrom: input.winFrom, winTo: input.winTo, wx: input.wx, tides: input.tides, flow: input.flow, nowHour: input.nowHour });
       r.plan = o;
       return r;
     }).filter(called);
