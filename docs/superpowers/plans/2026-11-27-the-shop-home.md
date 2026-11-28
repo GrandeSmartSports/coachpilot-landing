@@ -16,7 +16,7 @@
 - The shop shows only gear the app knows he owns. Nothing is drawn as his that no data confirms. No brand or model names on the drawn gear.
 - No jerseys. One crew.
 - The address stays `coachpilot.org/rigs`; the gold hook icon stays.
-- The app's name is "Pro Staff" (Coach, 11/27) and lives in one place (`rigs/brand.js`).
+- The app's name lives in one place (`rigs/brand.js`); the placeholder stays "Rig Card" until Coach picks.
 - Every new file is in `rigs/sw.js`'s SHELL list and `CACHE` is bumped once per merge.
 - No em dashes in text a person reads. Few words. Every colour from the sky variables.
 - Tests use fixtures and stubs; the live crew walk uses the ZZTEST crew only.
@@ -39,8 +39,7 @@
 - Test: `tests/rigs-brand.test.mjs` (add to `npm test` and `test:rigs`)
 
 **Interfaces:**
-- Produces: `RIG.brand = { name: "Pro Staff", short: "Pro Staff" }` (Coach picked the name on 11/27).
-- Also: the crew server's text that says "on Rig Card" (invite text in rigs/index.html shareHtml, alert wording in supabase/functions/castai-crew/crew-core.mjs and alerts.ts) says the brand name; redeploy castai-crew and run npm run test:crew-live.
+- Produces: `RIG.brand = { name: "Rig Card", short: "Rig Card" }`.
 
 - [ ] **Step 1: Write the failing test.** `tests/rigs-brand.test.mjs` loads `rigs/brand.js` in node and asserts: the manifest's `name` and `short_name` equal `RIG.brand.name` and `RIG.brand.short`; `rigs/index.html`'s `<title>` equals `RIG.brand.name`; no other literal "Rig Card" appears in text a person reads in `rigs/index.html`, `rigs/content.js`, `rigs/guides.js` (comments and test files excluded).
 - [ ] **Step 2: Run it.** `node tests/rigs-brand.test.mjs`. Expected: FAIL (no brand.js).
