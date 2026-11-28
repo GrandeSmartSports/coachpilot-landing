@@ -13,7 +13,7 @@
 // Bump CACHE whenever the precache LIST changes. Content changes inside
 // these files do not need a bump: stale-while-revalidate picks them up.
 
-const CACHE = "rigs-v41";
+const CACHE = "rigs-v42";
 
 // This one file runs under two registrations. "/rigs/" is the app, and
 // everything below is for it. "/rigs" with no slash is the address a person
@@ -28,7 +28,8 @@ const BARE_ONLY = new URL(self.registration.scope).pathname === "/rigs";
 // cache in place. kit.css, scene.css and scene.js are the look: the page is
 // unstyled without them; spots-scene.js gives each spot its own picture.
 // fish.css and fish.js are the animals drawn on the Fish tab and on every
-// fish's page.
+// fish's page. library.js is CastAI's knots, casts, guides and gear (written
+// by scripts/import-castai-library.mjs), loaded after the first screen.
 const SHELL = [
   "/rigs/index.html",
   "/rigs/kit.css",
@@ -37,6 +38,7 @@ const SHELL = [
   "/rigs/spots-scene.js",
   "/rigs/fish.css",
   "/rigs/fish.js",
+  "/rigs/library.js",
   "/rigs/diagrams.js",
   "/rigs/content.js",
   "/rigs/trips.js",

@@ -1,0 +1,381 @@
+{
+  "_about": "Corrections the Rig Card makes when it imports CastAI's library (scripts/import-castai-library.mjs). Keyed by CastAI file and id. 'set' uses CastAI's own field names and format, so the CastAI lane can paste it upstream. When CastAI ships the fix, delete the entry here and rerun the import. docs/castai-library-fixes.md is written from this file.",
+  "FishingKnots/uni": {
+    "set": {
+      "tips": "Use 8 wraps on braid and 5 to 6 on mono or fluoro. Braid is slippery and needs more wraps, not fewer."
+    },
+    "reason": "CastAI says braid needs fewer wraps (5) than mono (6) because it is slipperier. That is backwards: slippery braid needs more wraps. CastAI's own Double Uni card says 8 on braid.",
+    "source": "CastAI FishingKnots.json double-uni tips; Fishthatwontquit uni knot video (f1pFMWc0ZP0)"
+  },
+  "FishingKnots/egg-loop-knot": {
+    "set": {
+      "description": "A snell with a loop at the eye. The loop clamps a roe cluster, yarn or bait to the hook so it stays on the cast.",
+      "bestFor": "Holding roe, yarn or bait on the hook for salmon and steelhead",
+      "steps": [
+        "Step 1: Run the leader through the eye from the point side and lay a long tag back along the shank",
+        "Step 2: Wrap the tag 8 to 10 times down the shank, trapping the leader under the wraps",
+        "Step 3: Take the tag back up through the eye, the same direction as the first pass",
+        "Step 4: Pull the standing line so the wraps slide tight and a loop opens at the eye",
+        "Step 5: Put the roe or yarn in the loop and pull the standing line to clamp it"
+      ],
+      "tips": "Bait hooks only. Pre-snelled egg loop hooks come tied, and beat tying one in the cold.",
+      "youtubeVideoId": "hNcNZpyyHF8"
+    },
+    "reason": "CastAI calls it a fly fishing knot whose loop hangs below the hook, and its steps do not tie an egg loop. It is a bait snell: the loop sits at the eye and clamps roe to the shank. No video in CastAI.",
+    "source": "Rig Card egg loop card (salmon-egg-loop, rigs/content.js); Fishthatwontquit egg loop video (hNcNZpyyHF8)"
+  },
+  "FishingKnots/rapala-knot": {
+    "set": {
+      "steps": [
+        "Step 1: Tie a loose overhand knot about 5 inches from the end of the line",
+        "Step 2: Pass the tag through the lure eye and back through the overhand knot",
+        "Step 3: Wrap the tag 3 times around the standing line",
+        "Step 4: Pass the tag back through the overhand knot, then through the loop you just made",
+        "Step 5: Wet it and pull the standing line, the tag and the loop to tighten",
+        "Step 6: Trim the tag"
+      ],
+      "youtubeVideoId": "OmeEudIttCI"
+    },
+    "reason": "CastAI ties the overhand after threading the eye and leaves out the last pass through the loop, which is what locks the knot. No video in CastAI.",
+    "source": "animatedknots.com/rapala-knot; Salt Strong Rapala knot video (OmeEudIttCI)"
+  },
+  "FishingKnots/rapala-loop": {
+    "set": {
+      "description": "The Rapala knot under its fly fishing name. A fixed loop at the lure or fly so it swims free.",
+      "bestFor": "Flies, plugs and crankbaits that need to swing free",
+      "steps": [
+        "Step 1: Tie a loose overhand knot about 5 inches from the end of the line",
+        "Step 2: Pass the tag through the fly or lure eye and back through the overhand knot",
+        "Step 3: Wrap the tag 3 times around the standing line",
+        "Step 4: Pass the tag back through the overhand knot, then through the loop you just made",
+        "Step 5: Wet it and pull the standing line, the tag and the loop to tighten",
+        "Step 6: Trim the tag"
+      ],
+      "tips": "Same knot as the Rapala knot. The last pass through the loop is what locks it.",
+      "youtubeVideoId": "ooxBDHQZeUs"
+    },
+    "reason": "CastAI's steps never pass through an eye, so they tie no knot that holds anything. The Rapala loop is the Rapala knot by its fly fishing name.",
+    "source": "Fulling Mill, How To Tie The Rapala Loop Knot (ooxBDHQZeUs); animatedknots.com/rapala-knot"
+  },
+  "FishingKnots/bristol-knot": {
+    "set": {
+      "description": "Joins a heavy leader to a doubled main line. Slim, and it runs through the guides.",
+      "bestFor": "A heavy mono or fluoro leader to a doubled main line (a Bimini twist)",
+      "steps": [
+        "Step 1: Tie a short Bimini twist in the main line to make a doubled line",
+        "Step 2: Pass the leader's tag through the loop of doubled line",
+        "Step 3: Hold a small loop of leader open with a finger and wrap the leader tag around the doubled line 5 to 7 times",
+        "Step 4: Bring the tag back and pass it through the loop your finger holds",
+        "Step 5: Wet it and pull the leader and the doubled line to tighten",
+        "Step 6: Trim the tag"
+      ],
+      "tips": "Double the wraps when the main line is braid.",
+      "youtubeVideoId": "e2anRbw6-1s"
+    },
+    "reason": "CastAI's Bristol knot is two overhand knots for lines of the same size. That is a different knot. The Bristol knot joins a heavy leader to a doubled line.",
+    "source": "netknots.com/fishing_knots/bristol-knot; Mercury Marine, How to Tie the Bristol Knot (e2anRbw6-1s)"
+  },
+  "FishingKnots/slim-beauty": {
+    "set": {
+      "description": "Joins a heavy leader or bite tippet to lighter line, slim enough for the guides.",
+      "bestFor": "A heavy leader or bite tippet to lighter main line, braid or mono",
+      "steps": [
+        "Step 1: Tie a loose double overhand knot in the heavy leader so it makes two loops",
+        "Step 2: Pass a doubled bight of the main line through both loops",
+        "Step 3: Wrap the bight 4 times around the leader, then 4 more turns back over the first four",
+        "Step 4: Tuck the bight back under itself",
+        "Step 5: Wet it, pull it tight and trim both tags"
+      ],
+      "youtubeVideoId": "7wRswCcowgQ"
+    },
+    "reason": "CastAI's steps make a loop in the leader and wrap single braid around it, which is closer to an Albright. The Slim Beauty starts with a double overhand in the leader and a doubled main line.",
+    "source": "animatedknots.com/slim-beauty-knot; Orvis, Slim Beauty Knot (7wRswCcowgQ)"
+  },
+  "FishingKnots/berkley-braid-knot": {
+    "set": {
+      "steps": [
+        "Step 1: Double the line and push the loop through the hook eye",
+        "Step 2: Lay the loop back up along the doubled line",
+        "Step 3: Working down toward the hook, wrap the loop around both lines 8 times",
+        "Step 4: Thread the loop through the gap between the hook eye and the last wrap",
+        "Step 5: Wet it and pull the main line, the tag end and the loop to tighten",
+        "Step 6: Trim the tag end and the loop"
+      ],
+      "youtubeVideoId": "8H88QrRNrKg"
+    },
+    "reason": "CastAI's steps are not Berkley's knot. Berkley ties it with the line doubled, 8 wraps, and the loop through the gap at the eye.",
+    "source": "Berkley Fishing, How to Tie a Berkley Braid Knot (8H88QrRNrKg), steps in the video description"
+  },
+  "FishingKnots/nail-knot": {
+    "set": {
+      "description": "Joins fly line to backing, or a leader to fly line, with a slim knot that runs through the guides.",
+      "bestFor": "Fly line to backing, or a leader to fly line",
+      "youtubeVideoId": "nlvIbFhuYcY"
+    },
+    "reason": "CastAI says it attaches backing to the fly reel. That is the arbor knot. The nail knot joins line to line. No video in CastAI.",
+    "source": "CastAI's own arbor-knot card (the knot that ties backing to the reel); Terry Corneau nail knot video (nlvIbFhuYcY); video: Terry Corneau, How to tie a nail knot using a tube (nlvIbFhuYcY)"
+  },
+  "FishingKnots/figure-eight-knot": {
+    "set": {
+      "steps": [
+        "Step 1: Make a loop by crossing the tag end over the standing line",
+        "Step 2: Take the tag around behind the standing line",
+        "Step 3: Pass the tag down through the loop from the front",
+        "Step 4: Check it shows an 8",
+        "Step 5: Pull both ends tight",
+        "Step 6: Leave a short tag"
+      ],
+      "youtubeVideoId": "ZEViTAkUbMU"
+    },
+    "reason": "CastAI's steps go under, up through the loop, then over and back through it again, which tangles into an overhand, not an 8.",
+    "source": "American Sailing, Figure-Eight Knot, or Stopper Knot (ZEViTAkUbMU)"
+  },
+  "CastingTechniques/pendulum-cast": {
+    "set": {
+      "youtubeVideoId": "bibU5cLECPA"
+    },
+    "reason": "CastAI's video (tFvbgu_x204) teaches the underhand pitch, a different cast in this library. This one shows the pendulum swing itself: 4 to 5 feet of line off the tip, let go on the upswing.",
+    "source": "South Carolina DNR, Basic Underhanded Pitch Cast (bibU5cLECPA), description: 'Use a pendulum motion, release the line on the upswing'"
+  },
+  "FishSpecies/dungeness-crab": {
+    "set": {
+      "funFact": "Named after Dungeness, a small town on the Olympic Peninsula in Washington."
+    },
+    "reason": "CastAI adds that Dungeness is \"basically the crab capital of the world\". No source backs it, so it is cut and the name fact stays.",
+    "source": "Removal only. The rest of the line is CastAI's."
+  },
+  "FishSpecies/steelhead": {
+    "set": {
+      "funFact": "Steelhead and rainbow trout are the same species. Nobody fully knows why some go to sea and some stay."
+    },
+    "reason": "CastAI says the two are \"genetically identical\". They are one species (CastAI's own Oncorhynchus mykiss for both), not identical fish.",
+    "source": "CastAI FishSpecies.json scientificName for rainbow-trout and steelhead"
+  },
+  "FishSpecies/rock-crab": {
+    "set": {
+      "funFact": null
+    },
+    "reason": "CastAI says red rock crab has \"incredibly spicy meat\". Crab meat is not spicy. Dropped until a checked fact replaces it.",
+    "source": "Removal only"
+  },
+  "FishingKnots/san-diego-jam": {
+    "set": {
+      "steps": [
+        "Step 1: Pass the line through the eye and let the lure hang, or pinch the hook in your palm",
+        "Step 2: Loop the tag over your index finger and wrap it 7 times around both lines, down toward the eye",
+        "Step 3: Pass the tag between the two lines just below the last wrap, by the eye",
+        "Step 4: Bring it back up and run it through the loop your finger holds, then take your finger out",
+        "Step 5: Wet it, pull the tag tight, then slide the knot down to the lure",
+        "Step 6: Trim the tag close"
+      ],
+      "youtubeVideoId": "eiKjTJAfT74"
+    },
+    "reason": "CastAI's steps cross the tag back and wrap it through a loop around both lines: that ties a uni knot, not a San Diego jam. The jam wraps the doubled line toward the eye, then goes between the lines and back through the finger loop. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/san-diego-jam-knot; video: Fishing with Nat, Tie a San Diego Jam Knot (eiKjTJAfT74)"
+  },
+  "FishingKnots/circle-hook-snell": {
+    "set": {
+      "youtubeVideoId": "laFLic70zZM"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Ultimate Fishing, Circle Hook Knot - The Snell Knot (laFLic70zZM), checked with YouTube oEmbed"
+  },
+  "FishingKnots/fg-knot": {
+    "set": {
+      "steps": [
+        "Step 1: Hold the braid tight (across your thumb and finger, or to the reel) and lay the leader across it",
+        "Step 2: Wrap the leader around the braid from behind, then over the front",
+        "Step 3: Keep the braid tight and weave the leader around it, alternating sides, until the wraps are about 3/4 inch long",
+        "Step 4: Pinch the wraps and tie a half hitch with the braid around the leader and the braid, pull it tight",
+        "Step 5: Tie 6 to 8 more half hitches, then pull the braid and leader hard apart to set it",
+        "Step 6: Trim the leader close, tie 3 to 4 half hitches of braid around itself, trim, and pull hard to test"
+      ],
+      "tips": "Keep strong tension on the braid the whole time. Slack braid lets the wraps slide off.",
+      "youtubeVideoId": "ZPTzkep9xlI"
+    },
+    "reason": "CastAI makes a loop in the leader and weaves the braid through it. The FG has no loop: the leader is woven around tight braid, then locked with half hitches, which CastAI leaves out. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/fg-knot; video: Salt Strong, Easiest Way to Tie the FG Knot (ZPTzkep9xlI)"
+  },
+  "FishingKnots/albright-knot": {
+    "set": {
+      "youtubeVideoId": "WV2XH0oLs1w"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Fishing with Nat, How to Tie the Albright Fishing Knot (WV2XH0oLs1w), checked with YouTube oEmbed"
+  },
+  "FishingKnots/spider-hitch": {
+    "set": {
+      "description": "Makes a doubled line fast. Not as tough as a Bimini twist, but much quicker to tie.",
+      "bestFor": "A quick double line at the end of the main line",
+      "steps": [
+        "Step 1: Double a length of line and twist a small loop in the doubled line",
+        "Step 2: Hold the small loop between thumb and forefinger",
+        "Step 3: Wrap the doubled line around your thumb and the loop 5 times (15 on braid)",
+        "Step 4: Pass the end of the doubled line through the small loop",
+        "Step 5: Pull the doubled line slowly so the wraps unwind off your thumb",
+        "Step 6: Wet it and pull all four ends evenly to tighten"
+      ],
+      "tips": "Let the wraps come off your thumb one at a time, or they tangle.",
+      "youtubeVideoId": "FXTZxfbc3-Y"
+    },
+    "reason": "CastAI calls it a loop in the middle of the line for droppers, and its steps wrap a tag around folded strands. The spider hitch doubles the end of the line, wrapped around the thumb. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/spider-hitch; video: Salt Strong, Easiest Way To Tie A Spider Hitch Loop Knot (FXTZxfbc3-Y)"
+  },
+  "FishingKnots/bimini-twist": {
+    "set": {
+      "steps": [
+        "Step 1: Double about 3 feet of line into a long loop and turn the loop to put 20 twists in it",
+        "Step 2: Hold the loop open over your knee and keep steady tension on both ends",
+        "Step 3: Ease the tag end down so it rolls back over the twists to their end",
+        "Step 4: Tie a half hitch around one leg of the loop to lock it, keeping tension on everything",
+        "Step 5: Tie 3 to 5 half hitches around both legs of the loop, working back toward the knot",
+        "Step 6: Trim the tag to about 1/4 inch"
+      ],
+      "youtubeVideoId": "jMm_zIuAdQE"
+    },
+    "reason": "CastAI pokes the end loop through the twists and wraps the base. The Bimini rolls the tag back over the 20 twists, then locks with a half hitch and 3 to 5 more around both legs. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/bimini-twist; video: Salt Strong, How To Tie The Bimini Twist Fishing Knot (jMm_zIuAdQE)"
+  },
+  "FishingKnots/bobber-stop-knot": {
+    "set": {
+      "youtubeVideoId": "OkEMNssxc4Q"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Take Me Fishing, How to Tie a Bobber Stopper Knot (OkEMNssxc4Q), checked with YouTube oEmbed"
+  },
+  "FishingKnots/arbor-knot": {
+    "set": {
+      "youtubeVideoId": "91tNuE_NNXs"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Fishing with Nat, How to Tie the Arbor Knot (91tNuE_NNXs), checked with YouTube oEmbed"
+  },
+  "FishingKnots/haywire-twist": {
+    "set": {
+      "steps": [
+        "Step 1: Thread the wire through the eye and cross the tag over the standing wire",
+        "Step 2: Hold them at more than a right angle and twist both wires around each other at least 3 and a half times",
+        "Step 3: Bend the tag to a right angle with the standing wire",
+        "Step 4: Wrap the tag tightly around the standing wire about 5 times",
+        "Step 5: Bend the tag into a small handle and rock it back and forth until it snaps at the last wrap",
+        "Step 6: Check that no sharp end sticks out"
+      ],
+      "youtubeVideoId": "cEKjXXtmjHM"
+    },
+    "reason": "CastAI wraps the tag 3 times one way, then 3 more the other way. The haywire twist is 3 and a half twists, then about 5 tight barrel wraps one way, then the tag is snapped off. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/haywire-twist; video: BlacktipH, Fishing Tips - Haywire Twist (cEKjXXtmjHM)"
+  },
+  "CastingTechniques/pitching": {
+    "set": {
+      "youtubeVideoId": "ITuTfvUXhTQ"
+    },
+    "reason": "No video in CastAI.",
+    "source": "BassResource, How To Pitch A Fishing Lure (ITuTfvUXhTQ), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/flipping": {
+    "set": {
+      "youtubeVideoId": "z8NRFFFUMVY"
+    },
+    "reason": "No video in CastAI.",
+    "source": "John Crews, How To Flip and Pitch Cast (z8NRFFFUMVY), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/bow-and-arrow-cast": {
+    "set": {
+      "youtubeVideoId": "zFBdtQfw-ZI"
+    },
+    "reason": "No video in CastAI. Shown on a fly rod; the same pull and release works on a spinning rod.",
+    "source": "Orvis, Fly Casting Lessons - The Bow And Arrow Cast (zFBdtQfw-ZI), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/two-handed-spey-cast": {
+    "set": {
+      "youtubeVideoId": "Nl-Qk4jH5II"
+    },
+    "reason": "No video in CastAI.",
+    "source": "The New Fly Fisher, Spey Casting Basics (Nl-Qk4jH5II), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/double-haul": {
+    "set": {
+      "youtubeVideoId": "d8idd4kgXY4"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Orvis, Fly Casting Lessons - The Double Haul (d8idd4kgXY4), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/water-haul": {
+    "set": {
+      "youtubeVideoId": "ZfPKL1jZDAQ"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Orvis, Fly Casting Lessons - Water Haul (ZfPKL1jZDAQ), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/kayak-cast": {
+    "set": {
+      "youtubeVideoId": "RpPVF9X4mo8"
+    },
+    "reason": "No video in CastAI.",
+    "source": "Saltwater Buffalo Fishing, How to Cast from a Kayak (RpPVF9X4mo8), checked with YouTube oEmbed"
+  },
+  "CastingTechniques/lob-cast": {
+    "set": {
+      "youtubeVideoId": "cJbg5evCcfI"
+    },
+    "reason": "No video in CastAI.",
+    "source": "South Carolina DNR, Basic Lob Cast (cJbg5evCcfI), checked with YouTube oEmbed"
+  },
+  "FishingKnots/anchor-hitch": {
+    "add": {
+      "id": "anchor-hitch",
+      "name": "Anchor Hitch",
+      "category": "Terminal",
+      "difficulty": 1,
+      "description": "Ties a rope to an anchor ring or chain. Two turns on the ring take the load, so it holds and does not chafe through.",
+      "bestFor": "Anchor line to the anchor ring or the last chain link",
+      "steps": [
+        "Step 1: Pass the end through the ring or chain link twice, making a round turn",
+        "Step 2: Take the end around behind the standing part",
+        "Step 3: Tuck the end through both turns on the ring",
+        "Step 4: Pull the standing part so the turns grip the ring",
+        "Step 5: Finish with a half hitch around the standing part",
+        "Step 6: Zip tie or tape the tag to the standing part"
+      ],
+      "tips": "Two full turns on the ring, not one. One turn saws back and forth under load.",
+      "youtubeVideoId": "pEWcxx8998U"
+    },
+    "reason": "CastAI has no rope knots. The Rig Card's kayak anchor card ties the anchor line to the chain with this knot (rigs/content.js, kayak-anchor).",
+    "source": "InnerBark Outdoors, How to Tie the Anchor Bend Knot (pEWcxx8998U); The Ashley Book of Knots, anchor bend"
+  },
+  "FishingKnots/bowline": {
+    "add": {
+      "id": "bowline",
+      "name": "Bowline",
+      "category": "Loop",
+      "difficulty": 1,
+      "description": "A fixed loop in the end of a rope that will not slip or jam, and unties after a load.",
+      "bestFor": "A loop in a rope: the anchor float, a dock line, a tie off",
+      "steps": [
+        "Step 1: Make a small loop in the standing part, with the standing part underneath",
+        "Step 2: Pass the end up through the small loop from below",
+        "Step 3: Take the end around behind the standing part",
+        "Step 4: Bring the end back down through the small loop",
+        "Step 5: Hold the end against the side of the big loop and pull the standing part to set it",
+        "Step 6: To lock it, tie the end around the side of the big loop with a double overhand"
+      ],
+      "tips": "A bowline can shake loose when it is not under load, which is why the float end is locked.",
+      "youtubeVideoId": "eQYVnOWlIZI"
+    },
+    "reason": "CastAI has no rope knots. The Rig Card's kayak anchor card puts a locked bowline at the float end (rigs/content.js, kayak-anchor).",
+    "source": "The How To Channel, How to tie a Bowline Knot (eQYVnOWlIZI); The Ashley Book of Knots, bowline"
+  },
+  "FishingKnots/davy-knot": {
+    "set": {
+      "steps": [
+        "Step 1: Thread 3 to 4 inches of tippet through the hook eye",
+        "Step 2: Tie a loose overhand knot with the tag around the standing line, ahead of the hook",
+        "Step 3: Bring the tag back through the loop, passing between the overhand knot and the hook",
+        "Step 4: Pull the tag first to draw it up, then the main line to set it",
+        "Step 5: Trim the tag close"
+      ]
+    },
+    "reason": "CastAI stops at the overhand knot. The Davy knot takes the tag back through the loop, between the overhand and the hook; that pass is the knot.",
+    "source": "netknots.com/fishing_knots/davy-knot"
+  }
+}
