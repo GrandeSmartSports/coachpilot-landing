@@ -343,8 +343,10 @@ ok(T.season(kingsDP, { y: 2027, m: 7, d: 10, iso: "2027-07-10" }) === null && T.
   "Marine Area 11 open water is closed July 1 to 22: kings, coho and pinks off Dash Point");
 ok(T.ruleOn(kingsDP, { y: 2027, m: 7, d: 23, iso: "2027-07-23" }) === "2027 dates not read yet. WDFW sets them in the 2027-28 pamphlet", "past Apr 30, 2027 the kayak kings wait for the 2027-28 pamphlet");
 const W = (id) => G.text("{when:" + id + "}").replace(/\u00a0/g, " ");
-ok(W("king-dash-point") === "late July to September in 2026" && W("coho-dash-point") === "August to October in 2026" && W("salmon-redondo") === "October to April" &&
-  W("coho-green-river") === "mid September to November in 2026" && W("steelhead-tokul") === "December to mid February" && W("coho-puyallup-sumner") === "mid September to October in 2026",
+// The clock is pinned to Nov 27, 2026: seasons that ended say so (the check of 11/27).
+G.now = "2026-11-27T12:00:00";
+ok(W("king-dash-point") === "late July to September (2026 season over)" && W("coho-dash-point") === "August to October (2026 season over)" && W("salmon-redondo") === "October to April" &&
+  W("coho-green-river") === "mid September to November in 2026" && W("steelhead-tokul") === "December to mid February" && W("coho-puyallup-sumner") === "mid September to October (2026 season over)",
   "the months say a season that starts or ends inside a month, and the year when only that year's dates are read",
   ["king-dash-point", "coho-dash-point", "salmon-redondo", "coho-green-river", "steelhead-tokul", "coho-puyallup-sumner"].map((id) => id + ": " + W(id)));
 const part = (w) => w.replace(/ (more|go|row)$/, "");
@@ -365,7 +367,7 @@ ok(all.some((t) => /pots only in the pot season/.test(t)) && !all.some((t) => /r
 ok(all.some((t) => /Eat only the meat/i.test(t)) && all.some((t) => /back shell in the field, all the way home/.test(t)) && all.some((t) => /Department of Health/.test(t)),
   "crab: clean it and eat only the meat, the back shell all the way home, and the two checks before any beach");
 ok(all.some((t) => /Puget Sound Dungeness crab also needs the crab endorsement/.test(t)) && !all.some((t) => /shellfish license alone covers crab,/i.test(t)), "a shellfish license alone is not enough for Puget Sound Dungeness");
-ok(all.some((t) => /no live fish or other live water animals as bait/.test(t)) && !all.some((t) => /bans most live bait/i.test(t)) && all.some((t) => /selective gear or fly fishing only: no bait/i.test(t)),
+ok(all.some((t) => /no live fish or other live water animals as bait/.test(t)) && !all.some((t) => /bans most live bait/i.test(t)) && all.some((t) => /selective gear or fly fishing only/i.test(t)),
   "bait: the live bait rule as the pamphlet says it, and stocked lakes that ban bait");
 ok(all.some((t) => /as dangerous in 50 to 60 F water as in 35 F water/.test(t)) && all.some((t) => /head out of the water/.test(t)) && G.guide("safety").sections[0].points[0].startsWith("Wear the life jacket"),
   "cold water opens on the life jacket, says cold shock is as dangerous at 50 to 60 F as at 35 F, and keeps the head out of the water");
@@ -412,5 +414,28 @@ ok(missed.length === 0 && wrongly.length === 0, "self test: the guards catch liv
 ok(screen("#/learn/guides/nope") && screen("#/trips/2026-11-23~squid-redondo") && screen("#/coho/green-river/no-card") && !screen("#/coho/green-river/green-river-rules"),
   "self test: the link check fails a missing guide, a week-old Hot Trip and a missing card, and passes a real one");
 
+// ---- the final check of 11/27 ---------------------------------------------------
+// Selective gear is not only "no bait": barbless single point hooks too (Definitions).
+const sel = all.filter((t) => /selective gear/i.test(t));
+ok(sel.length && sel.every((t) => /barbless single[- ]point/i.test(t)), "every selective gear line says barbless single point hooks as well as no bait", sel.filter((t) => !/barbless single[- ]point/i.test(t)));
+ok(all.some((t) => /Rooster Tail/.test(t) && /barbless single-point hook/i.test(t) && /selective gear/i.test(t)), "a treble spinner sent to the lakes says to swap it for a barbless single-point hook on selective gear lakes");
+// Cold water: no manual inflatable for the lakes without the cold shock reason.
+ok(!all.some((t) => /Inflatable on manual for the lakes/i.test(t)) && all.some((t) => /foam or an automatic inflatable/i.test(t) && /cold/i.test(t)),
+  "cold water: foam or an automatic inflatable, never a manual vest recommended for cold lakes");
+ok(all.some((t) => /manual/i.test(t) && /cold shock/i.test(t)), "and why: a manual vest needs a pull you may not manage during cold shock");
+// Tokul shuts Feb 15: its February chip says so.
+const feb = G.year("2027-02-01")[0], tok = [].concat(feb.peak, feb.good).flatMap((g) => g.places).find((x) => x.plan === "steelhead-tokul");
+ok(tok && tok.until === "to Feb 15", "a season that ends inside the month carries its last day on the chip: Tokul to Feb 15", tok);
+// River spinners: single barbless, and the anti-snagging limit.
+ok(all.some((t) => /Coho in the river/.test(t) && /single barbless hook/i.test(t) && /anti-snagging rule/.test(t)), "river spinners: one single barbless hook, and the anti-snagging rule (its numbers stay on the rules card)");
+// Barbless for every species in Marine Areas 5 to 13: the cutthroat lures say so.
+const cut = (G.about.cutthroat && G.about.cutthroat.takes) || [];
+ok(cut.length && cut.every((t) => /barbless/i.test(t)), "every cutthroat lure says barbless (Marine Areas 5 to 13)", cut);
+ok(all.some((t) => /Clouser/.test(t) && /barbless/i.test(t)), "the Clouser line says barbless");
+// A season already over is never said as this year's.
+const over = all.filter((t) => /\b(January|February|March|April|May|June|July|August|September|October) in\u00a02026/.test(t));
+ok(over.length === 0, "no season that has passed is said as 'in 2026' on 11/27", over);
+// App internals stay out of the guides.
+ok(!all.some((t) => /Go or no go card's wind line|nearest NOAA station/.test(t)), "no app internals in a guide");
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

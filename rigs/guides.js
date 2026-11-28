@@ -137,7 +137,6 @@
             "No whitecaps and no Small Craft Advisory.",
             "Nobody takes a boat onto the Sound until they have climbed back on from deep water, alone, on a warm lake first.",
             "A wetsuit before any winter trip on the Sound."],
-          more: ["The Go or no go card's wind line is 10 kt. Hot Trips holds to the mph line, a little stricter."],
           go: [["Go or no go", "#/learn/kayak-gonogo"], ["Re entry", "#/learn/kayak-reentry"], ["Kit 5: the kayak", "#/learn/gear/kit-kayak"]], src: ["appKayak", "appTrips"] },
         { id: "rivers", pic: { view: "river", o: { seed: 9 } }, title: "Rivers and wading", line: "Read the gauge first.",
           points: ["Check the gauge before you go. A river run card's River tile says go or no-go.",
@@ -170,8 +169,7 @@
             "Salmon: moving tide is the window. Slack water is the break.",
             "Squid hold where the lit water meets the dark, not in the bright middle.",
             "Squid: a slack tide at dark with a soft ebb beats a night that runs hard. A dark moon beats a full one."],
-          more: ["The app reads each pier's tide at the nearest NOAA station. Redondo uses Des Moines, East Passage.",
-            "Des Moines Pier has a tire reef below it and a cleaning station at the end."],
+          more: ["Des Moines Pier has a tire reef below it and a cleaning station at the end."],
           go: [["Squid at Redondo", "#/squid/redondo"], ["What makes a good night", "#/squid/redondo/squid-conditions"]],
           src: ["appRuns", "appFish", "appWater"] },
         { id: "beach", pic: { view: "sound", o: { seed: 9 } }, title: "Puget Sound from the beach", line: "Cutthroat cruise close to shore.",
@@ -205,7 +203,7 @@
         { id: "lakes", pic: { view: "lake", o: { seed: 5 } }, title: "Lowland lakes", line: "Plants, perch schools, bass edges.",
           points: ["Fish a lake in the days after a plant. Fresh trout cruise in schools: no bites in 20 minutes, move.",
             "Trout: PowerBait floating just off the bottom on a sliding sinker, where the lake allows bait.",
-            "Selective gear and fly fishing only lakes ban bait, PowerBait included. The lake's page shows its pamphlet entry.",
+            "Selective gear and fly fishing only lakes: no bait, PowerBait included, and only flies or lures on barbless single-point hooks. The lake's page shows its pamphlet entry.",
             "Winter perch school deep, 20 to 40 ft. Find one and there are more.",
             "Bass hold on the edges, the wood and the stumps."],
           more: ["Cold water shuts bass down. One good bass evening at Lake Fenwick was overcast and glassy.",
@@ -300,7 +298,7 @@
           src: ["appFly"] },
         { id: "beach", pic: { plate: "cutthroat" }, title: "Sea-run cutthroat on the beach", line: "Dash Point, the incoming tide.",
           points: ["[Dash Point](#/cutthroat/dash-point), {when:cutthroat-dash-point}. [Every one goes back](#/cutthroat/dash-point/src-rules).",
-            "Clouser minnows in olive and white, or a pink Smile Blade Fly that looks like a shrimp.",
+            "Clouser minnows in olive and white, or a pink Smile Blade Fly that looks like a shrimp, on barbless hooks.",
             "Let the fly sit until the rings on the water settle. Then strip at an even pace.",
             "Wind is the problem for a 4 weight. Beach anglers mostly use 5 to 7 weights."],
           more: ["Brighter colors when the water is murky.", "A first trip with no fish is normal."],
@@ -309,7 +307,7 @@
         { id: "lakes", pic: { plate: "rainbow" }, title: "Trout lakes", line: "A streamer on stocked trout.",
           points: ["A streamer such as a Woolly Bugger, cast and stripped back.",
             "Fish the days after a plant. [Lakes near you](#/lakes) shows WDFW's plants.",
-            "Some lakes are fly fishing only or selective gear. The lake's page shows its pamphlet entry."],
+            "Some lakes are fly fishing only or selective gear: flies or lures on barbless single-point hooks, no bait. The lake's page shows its pamphlet entry."],
           src: ["appFly", "appLakes"] },
         { id: "rivers", pic: { view: "river", o: { seed: 4, flip: true } }, title: "Rivers", line: "Dead drift, one mend.",
           points: ["Cast up and across at 45 degrees. The fly floats at the speed of the current, no wake.",
@@ -366,7 +364,8 @@
       pic: { plate: "jig", view: "lake", o: { seed: 9 } }, home: "#/learn/gear",
       sections: [
         { id: "lures", pic: { plate: "jig" }, title: "Lures and what they are for", line: "Spinners, jigs, metal, plastics.",
-          points: ["Spinners (Rooster Tail, Blue Fox): trout and bass in the lakes. Coho in the river, with the treble swapped for one single hook.",
+          points: ["Spinners (Rooster Tail, Blue Fox): trout and bass in the lakes. On selective gear lakes, a barbless single-point hook.",
+            "Coho in the river: one single barbless hook, inside the anti-snagging rule on that river's rules card.",
             "Jigs under a float: river coho, chum, pinks and steelhead.",
             "Metal that flutters (Buzz Bomb, Point Wilson Dart): salmon from a pier or the kayak, treble swapped for a single barbless siwash.",
             "Squid jigs: squid, under the pier lights.",
@@ -391,12 +390,12 @@
             "Herring, cut plug, for kings.", "Razor clam, shrimp or Gulp sandworm for surf perch.",
             "PowerBait for stocked trout, where the lake allows bait. A bit of worm on a small jig for perch."],
           more: ["In fresh water, no live fish or other live water animals as bait, with three exceptions on the pamphlet's freshwater page. Worms are fine.",
-            "Selective gear and fly fishing only waters ban all bait, scented lures too."],
+            "Selective gear and fly fishing only waters: no bait, scented lures included, and barbless single-point hooks only."],
           src: ["appRuns", "appFish", "pamFresh", "pamDefs"] },
         { id: "kit-lake", pic: { view: "lake", o: { seed: 3 } }, title: "Kit 1: the lake", group: "Kits, smallest first", line: "Smallest kit, most stocked lakes.",
           points: ["A light spinning rod with 4 to 6 lb line.", "PowerBait, sliding sinkers, small hooks.",
             "Small perch jigs and a 1/8 oz Rooster Tail.", "Pliers, a small cooler, a freshwater license.",
-            "Some stocked lakes are selective gear or fly fishing only: no bait. The lake's page shows its pamphlet entry."],
+            "Some stocked lakes are selective gear or fly fishing only: no bait, barbless single-point hooks only. The lake's page shows its pamphlet entry."],
           more: ["That kit fishes Lake Fenwick, Bonney Lake and most stocked lakes on the list."],
           go: [["Lakes near you", "#/lakes"]], src: ["appRuns", "appLakes", "pamDefs"] },
         { id: "kit-river", pic: { view: "river", o: { seed: 2 } }, title: "Kit 2: the river", group: "Kits, smallest first", line: "Floats, corkies, eggs.",
@@ -416,7 +415,7 @@
             "Never turn your back on the waves. Check the ocean forecast before you leave."],
           go: [["What to bring for clams", "#/clams/ocean-shores/clam-gear"], ["Pots, ring nets and buoys", "#/crab/westport/crab-gear"]], src: ["appRuns", "appFish"] },
         { id: "kit-kayak", pic: { view: "kayak-lake" }, title: "Kit 5: the kayak", group: "Kits, smallest first", line: "Safety gear before fishing gear.",
-          points: ["A PFD, worn. Inflatable on manual for the lakes, auto on the Sound.", "Cylinder screwed in and the indicator green, or it is not a PFD.",
+          points: ["A PFD, worn. Foam or an automatic inflatable when the water is cold, which here is most of the year: a manual vest needs a pull you may not manage during cold shock.", "Cylinder screwed in and the indicator green, or it is not a PFD.",
             "An anchor with a long rode, flaked into a bucket.", "A white light for after dark.", "A wetsuit before any winter trip on the Sound.", "Pliers mounted on the boat, in reach."],
           go: [["Inflatable PFD", "#/learn/kayak-pfd"], ["Anchor and scope", "#/learn/kayak-anchor"], ["Staying safe", "#/learn/guides/safety"]], src: ["appKayak", "appFish"] }
       ] }
@@ -458,7 +457,7 @@
     cutthroat: { what: "Sea-run cutthroat live along the Sound's beaches and cruise close to shore. [In salt water every one goes back](#/cutthroat/dash-point/src-rules).",
       tell: ["The upper jaw bone usually reaches past the back of the eye.", "There may be a red or orange slash under the jaw.", "Many close spots toward the back fin and the tail."],
       where: ["[The Dash Point beach](#/cutthroat/dash-point), {when:cutthroat-dash-point}, best on the incoming tide."],
-      takes: ["Clouser minnow, olive and white", "Smile Blade Fly, pink", "Small silver spoon"],
+      takes: ["Clouser minnow, olive and white, barbless", "Smile Blade Fly, pink, barbless", "Small silver spoon, single barbless hook"],
       src: ["pamFwId", "appRuns", "appFish"] },
     surfperch: { what: "Perch of the surf line on the ocean beaches. They school: where you catch one, cast right back.",
       tell: ["The redtail surfperch, the one drawn here: deep silver, bars down the side, a red tail.",
@@ -542,8 +541,14 @@
   function when(id, want) {
     var p = planById(id), r = reach(p, want), s = span(r.months, r);
     if (!p || !s) return "";
-    return s + ((p.ruleYear || p.rulesUntil) && r.years.length === 1 ? " in" + NB + r.years[0] : "");
+    if (!((p.ruleYear || p.rulesUntil) && r.years.length === 1)) return s;
+    // A season wholly in one year that has already ended: say so, and that
+    // next year's dates wait for the next pamphlet, never "in 2026" as if open.
+    var lastM = r.months.reduce(function (a, b) { return Math.max(a, b); }, 0);
+    var ended = lastM && new Date(r.years[0], lastM - 1, r.last[lastM] || 1, 23, 59) < nowDate();
+    return ended ? s + " (" + r.years[0] + " season over)" : s + " in" + NB + r.years[0];
   }
+  function nowDate() { return (RIG.guides && RIG.guides.now) ? new Date(RIG.guides.now) : new Date(); }
   function drive(id) {
     var s = spotById(id), m = s ? Math.round(s.drive) : 0, h = Math.floor(m / 60);
     if (!m) return "";
@@ -616,7 +621,7 @@
       var groups = {}, order = [], held = {}, heldOrder = [], listed = {};
       T.plans.forEach(function (p) {
         if (p.gen || !spotById(p.spot)) return;
-        var best = "", why = "", ramp = false;
+        var best = "", why = "", ramp = false, d0 = 0, d1 = 0;
         for (var d = 1; d <= daysIn(y, m); d++) {
           var day = dayOf(y, m, d), s = T.season(p, day);
           if (!s) continue;
@@ -624,12 +629,19 @@
           if (r !== "confirmed") { why = why || r; continue; }
           if (p.access) { if (!why) { why = p.access; ramp = true; } continue; }
           if (s === "peak") best = "peak"; else if (!best) best = "ok";
+          if (!d0) d0 = d;
+          d1 = d;
         }
         if (best) {
           var g = groupOf(p);
           if (!groups[g.key]) { groups[g.key] = { key: g.key, name: g.name, view: g.view, note: g.note || "", peak: false, places: [] }; order.push(g.key); }
           if (best === "peak") groups[g.key].peak = true;
-          groups[g.key].places.push({ plan: p.id, name: placeOf(p), href: hrefOf(p), peak: best === "peak" });
+          // A season that opens or shuts inside the month says its day on the
+          // chip: Tokul shuts Feb 15, so February reads "to Feb 15".
+          var mon = MONTHS[m - 1].slice(0, 3), pl = { plan: p.id, name: placeOf(p), href: hrefOf(p), peak: best === "peak" };
+          if (d0 > 3) pl.from = "from " + mon + " " + d0;
+          if (d1 && d1 < daysIn(y, m) - 3) pl.until = "to " + mon + " " + d1;
+          groups[g.key].places.push(pl);
           listed[p.listAs || p.id] = true;
         } else if (why) {
           if (ramp && said[p.id]) return;

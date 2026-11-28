@@ -793,7 +793,7 @@
     "group": "fundamental",
     "title": "Inflatable PFD",
     "section": "Kayak",
-    "body": "<ol class=\"steps\"><li>Run it <b>manual on lake days</b>. You sit in scupper water and an auto vest can fire from spray or rain.</li><li>Run it <b>auto on the Sound</b>.</li><li>Cylinder screwed in and the indicator green, or it is not a PFD.</li><li>Check the expiration date on the auto bobbin.</li><li>Never store it damp.</li></ol><div class=\"box tip\"><b>leak test</b>Blow it up by mouth and leave it overnight. Never waste a CO2 cartridge on a test.</div><div class=\"box\"><b>spare</b>The Ascend foam vest is the spare for whoever paddles the second boat.</div>"
+    "body": "<ol class=\"steps\"><li><b>Cold water</b>, most of the year here: wear foam, or set it to auto. A manual vest needs a pull you may not manage during cold shock.</li><li>Run it <b>manual on lake days</b> only in warm water. You sit in scupper water and an auto vest can fire from spray or rain.</li><li>Run it <b>auto on the Sound</b>.</li><li>Cylinder screwed in and the indicator green, or it is not a PFD.</li><li>Check the expiration date on the auto bobbin.</li><li>Never store it damp.</li></ol><div class=\"box tip\"><b>leak test</b>Blow it up by mouth and leave it overnight. Never waste a CO2 cartridge on a test.</div><div class=\"box\"><b>spare</b>The Ascend foam vest is the spare for whoever paddles the second boat.</div>"
   },
   {
     "id": "kayak-reentry",

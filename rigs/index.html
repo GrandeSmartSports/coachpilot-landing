@@ -2887,7 +2887,8 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return list.length ? '<p class="mhead"><em class="eyebrow">' + head + "</em></p>" + list.map(function (g) {
       return '<div class="ygrp" data-ygroup="' + esc(g.key) + '">' + viewHtml(g.view || "lake", "tile") + '<div class="ytx"><b>' + esc(g.name) + "</b>" +
         (g.note ? "<span>" + esc(g.note) + "</span>" : "") + '<div class="rulechips">' + g.places.map(function (p) {
-          return '<a class="chip' + (g.peak && !p.peak ? " ok" : "") + '" href="' + esc(p.href) + '" data-glink data-plan="' + esc(p.plan) + '"><b>' + esc(p.name) + "</b></a>";
+          return '<a class="chip' + (g.peak && !p.peak ? " ok" : "") + '" href="' + esc(p.href) + '" data-glink data-plan="' + esc(p.plan) + '"><b>' + esc(p.name) + "</b>" +
+            (p.from || p.until ? " <span>" + esc([p.from, p.until].filter(Boolean).join(" ")) + "</span>" : "") + "</a>";
         }).join("") + "</div></div></div>";
     }).join("") : "";
   }
