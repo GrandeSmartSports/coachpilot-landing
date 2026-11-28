@@ -441,6 +441,14 @@ const TIDES = {
   const nine = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 21, winFrom: 20, winTo: 0 });
   ok(/^9:50 to 12: /.test(nine.headline) && nine.leave === "Leave now" && Math.abs(nine.hours[0] - (21 + 50 / 60)) < 1e-6 && nine.fig.a === nine.hours[0],
     "9 PM, 35 min away: 9:50 to 12, leave now", [nine.headline, nine.leave, nine.hours]);
+  // The others are read over THIS read's hours, never their own later
+  // arrival: a pier with the same tide and weather is not "better" because
+  // you would get there later (the check of 11/27: from 9:21 to 9:31 PM the
+  // Redondo card picked Point Defiance, Les Davis, then Des Moines).
+  for (const m of [21.35, 21.43, 21.52]) {
+    const rr = T.read({ planId: "squid-redondo", iso: NIGHT, wx, tides: TIDES, others: ["squid-les-davis", "squid-des-moines"], nowHour: m, winFrom: 20, winTo: 0 });
+    ok(!rr.pick || rr.pick.self || rr.pick.planId === "squid-redondo", "at " + m + " h the Redondo card does not send you to a farther pier with the same tide and weather", [rr.pick, line(rr, "or")]);
+  }
   // 7:45 PM, before the window, but 8 PM can not be made: from 8:45.
   const soon = T.read({ planId: "squid-les-davis", iso: NIGHT, wx, tides: TIDES, others: [], nowHour: 19.75, winFrom: 20, winTo: 0 });
   ok(/^8:45 to 12: /.test(soon.headline) && soon.leave === "Leave now" && soon.hours[0] === 20.75, "a window you can not be there for at its start: from when you can", [soon.headline, soon.leave, soon.hours]);

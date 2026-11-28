@@ -901,8 +901,11 @@
     // Nothing to call, or a trip done for today: no others.
     if (!p || !self.call || self.call === "done") return strip(self);
     var others = othersFor(input, p).map(function (o) {
-      // The same hours, from now when this one is: never a turn that has gone by.
-      var r = core({ planId: o.id, iso: input.iso, from: input.from, to: input.to, winFrom: input.winFrom, winTo: input.winTo, wx: input.wx, tides: input.tides, flow: input.flow, nowHour: input.nowHour });
+      // The same hours as this read, from now when this one is: each other
+      // spot is read as if you got there when you get here, so a pier is
+      // never "better" only because you would arrive later.
+      var lag = ((self.drive || 0) - ((spotOf(o.spot) || {}).drive || 0)) / 60;
+      var r = core({ planId: o.id, iso: input.iso, from: input.from, to: input.to, winFrom: input.winFrom, winTo: input.winTo, wx: input.wx, tides: input.tides, flow: input.flow, nowHour: input.nowHour == null ? null : input.nowHour + lag });
       r.plan = o;
       return r;
     }).filter(called);
