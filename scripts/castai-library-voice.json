@@ -1,5 +1,5 @@
 {
-  "_about": "The Rig Card's own words for CastAI's library: each knot's and cast's name, one line, and the one mistake that makes it fail, which group it sits in, the guide titles, and which CastAI fish fills which Fish tab page. These are not corrections (CastAI keeps its own voice). Facts stay CastAI's; a wrong fact is fixed in castai-library-overrides.json, never here. Used by scripts/import-castai-library.mjs.",
+  "_about": "The Rig Card's own words for CastAI's library: each knot's and cast's name, one line, and the one mistake that makes it fail, which group it sits in, the guide titles, and which CastAI fish fills which Fish tab page. These are not corrections (CastAI keeps its own voice). Facts stay CastAI's; a wrong fact is fixed in castai-library-overrides.json, never here. Used by scripts/import-castai-library.mjs. Also the Rig Card's one line for each guide section (sectionLines) and its own words for what each Fish tab fish is (fish.text).",
   "firstKnots": [
     "arbor-knot",
     "double-uni",
@@ -44,7 +44,7 @@
         "fisherman's knot"
       ],
       "line": "The workhorse. Line to hook, swivel or snap.",
-      "fails": "Pulled tight dry, it burns and slips. Wet it first."
+      "fails": "On braid it slips. Tie a Palomar."
     },
     "palomar": {
       "name": "Palomar",
@@ -202,14 +202,16 @@
         "egg loop snell"
       ],
       "line": "A snell with a loop that clamps roe or yarn on the hook.",
-      "fails": "The tag goes back through the eye the same way it went in, or the wraps slide off."
+      "fails": "Wrap with the long end, the one to the swivel. Wrap with the short end and it pulls out."
     },
     "circle-hook-snell": {
       "name": "Circle hook snell",
       "joins": "hook",
-      "aka": [],
+      "aka": [
+        "circle hook knot"
+      ],
       "line": "A snell for circle hooks, so the fish hooks itself.",
-      "fails": "Do not set the hook hard. Just reel."
+      "fails": "The line has to leave the eye on the point side. Tied the other way, the hook will not turn into the jaw."
     },
     "fg-knot": {
       "name": "FG knot",
@@ -353,7 +355,6 @@
     "kayak-cast",
     "pitching",
     "flipping",
-    "pitch-flip",
     "skip-cast",
     "bow-and-arrow-cast",
     "roll-cast",
@@ -372,7 +373,8 @@
         "underhand cast"
       ],
       "line": "The pier swing: an underhand swing out over the rail.",
-      "fails": "Let go late and the rig drops at your feet. Let go as the swing comes up."
+      "fails": "Let go late and the rig drops at your feet. Let go as the swing comes up.",
+      "best": "The pier rail and close in. Calm water, sight fishing, and a boat with no room to swing the rod back"
     },
     "overhead-cast": {
       "name": "Overhead cast",
@@ -448,7 +450,8 @@
       "group": "spin",
       "aka": [],
       "line": "Pull the lure back and let the rod shoot it. For tiny gaps.",
-      "fails": "Never hold it by the hooks. Hold the body."
+      "fails": "Never hold it by the hooks. Hold the body.",
+      "videoNote": "Shown on a fly rod. The same pull and let go works on a spinning rod."
     },
     "roll-cast": {
       "name": "Roll cast",
@@ -507,8 +510,8 @@
     {
       "id": "seasons",
       "file": "SeasonalGuide",
-      "title": "Seasons",
-      "line": "What bites when, all year",
+      "title": "Lake seasons",
+      "line": "Bass, panfish and trout by the month",
       "view": "lake"
     },
     {
@@ -548,7 +551,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "The biggest Pacific salmon. Most run 15 to 30 pounds. Kings that stay in the Sound through the winter are called blackmouth."
     },
     "coho": {
       "from": "coho-salmon",
@@ -557,7 +561,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "Bright, fast fish that jump when hooked. Most run 6 to 12 pounds. They come into the rivers in the fall."
     },
     "pink": {
       "from": "pink-salmon",
@@ -566,7 +571,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "The smallest Pacific salmon, mostly 3 to 5 pounds, and the most plentiful. They hit small pink spoons and jigs. A good first salmon for a kid."
     },
     "steelhead": {
       "from": "steelhead",
@@ -575,7 +581,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "Rainbow trout that go to sea and come back up the river to spawn. Bigger and stronger than a lake rainbow, and harder to find."
     },
     "cutthroat": {
       "from": "cutthroat-trout",
@@ -583,7 +590,8 @@
         "text",
         "fact"
       ],
-      "why": "CastAI's habitat is the inland trout of mountain streams; the Rig Card's cutthroat are sea-run, on the Sound's beaches."
+      "why": "CastAI's habitat is the inland trout of mountain streams; the Rig Card's cutthroat are sea-run, on the Sound's beaches.",
+      "text": "Named for the red slash under the jaw. Sea-run cutthroat live along the Sound's beaches and run up small streams to spawn."
     },
     "surfperch": {
       "from": "surf-perch",
@@ -592,7 +600,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "Silver fish of the surf line on sandy ocean beaches. A sand shrimp or a small grub just past the breakers. No boat needed."
     },
     "bass": {
       "from": "largemouth-bass",
@@ -601,7 +610,8 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "Largemouth hold in weeds, under docks and around lily pads in warm lakes. They eat almost anything that moves past."
     },
     "perch": {
       "from": "yellow-perch",
@@ -617,7 +627,8 @@
       "dropLures": [
         "Ice jig"
       ],
-      "why": "The Rig Card's perch lakes do not freeze over."
+      "why": "The Rig Card's perch lakes do not freeze over.",
+      "text": "Yellow perch school, so where you catch one there are more. Small, and very good to eat."
     },
     "crab": {
       "from": "dungeness-crab",
@@ -626,7 +637,104 @@
         "habitat",
         "lures",
         "fact"
-      ]
+      ],
+      "text": "Dungeness crab live on sandy bottom in the bays and the Sound. Sweet meat, caught off a dock or a boat with a ring or a pot."
     }
+  },
+  "sectionLines": {
+    "SalmonFishingGuide/salmon-species": "Five salmon and steelhead, and how to tell them apart",
+    "SalmonFishingGuide/gear": "Rods, reels, line and tackle for river and salt",
+    "SalmonFishingGuide/river-techniques": "Floats, drift rigs, plugs and spinners on the river",
+    "SalmonFishingGuide/ocean-bay-fishing": "Trolling, mooching and jigging in the salt",
+    "SalmonFishingGuide/where-to-fish": "Rivers and salt water, by region",
+    "SalmonFishingGuide/fishing-calendar": "What runs when, month by month",
+    "SalmonFishingGuide/preparing-catch": "Bleed it, clean it, keep it cold, cook it",
+    "SalmonFishingGuide/safety": "Cold rivers, boats, bars and the ocean",
+    "SalmonFishingGuide/first-trip-checklist": "What to bring on your first salmon trip",
+    "BeginnersGuide/first-trip": "What to know before your first trip",
+    "BeginnersGuide/basic-gear": "Simple gear that costs little",
+    "BeginnersGuide/basics": "The skills every angler needs",
+    "BeginnersGuide/catch-release": "Handle a fish so it swims away",
+    "BeginnersGuide/kids": "Short, easy and fun",
+    "BeginnersGuide/mistakes": "What beginners get wrong, and the fix",
+    "BeginnersGuide/weather-conditions": "How weather moves fish",
+    "BeginnersGuide/fishing-etiquette": "Sharing the water",
+    "BeginnersGuide/fishing-reports": "Read a report, find fish faster",
+    "BeginnersGuide/bank-fishing": "Fishing from shore, no boat",
+    "BeginnersGuide/reading-water": "Where fish live and why",
+    "ReadingWaterGuide/lake-structure": "What holds fish under a lake",
+    "ReadingWaterGuide/river-reading": "Where fish hold in moving water",
+    "ReadingWaterGuide/reservoir-tactics": "Fishing lakes behind dams",
+    "ReadingWaterGuide/finding-structure": "Maps, sonar and your own eyes",
+    "ReadingWaterGuide/cover-vs-structure": "Weeds and docks, drop offs and humps",
+    "ReadingWaterGuide/seasonal-water": "Follow the water temperature",
+    "ReadingWaterGuide/saltwater-reading": "Tide, current and structure in the salt",
+    "ReadingWaterGuide/pond-fishing": "Small water, where to look",
+    "ReadingWaterGuide/using-electronics": "What a fish finder shows you",
+    "SeasonalGuide/spring": "Fish move shallow to spawn",
+    "SeasonalGuide/summer": "Early, late and deep in the heat",
+    "SeasonalGuide/fall": "Fish feed up before winter",
+    "SeasonalGuide/winter": "Slow down and go deep",
+    "SeasonalGuide/ice-fishing": "East of the Cascades and high lakes",
+    "SeasonalGuide/monthly": "January through June",
+    "SeasonalGuide/monthly-2": "July through December",
+    "FlyFishingGuide/gear-essentials": "What you need to start",
+    "FlyFishingGuide/essential-knots": "Five knots every fly angler ties",
+    "FlyFishingGuide/casting-basics": "From the first cast to fishing, in an afternoon",
+    "FlyFishingGuide/reading-water": "Where trout hold",
+    "FlyFishingGuide/fly-selection": "Match the hatch, or tie on an Adams",
+    "FlyFishingGuide/techniques": "Dry flies, nymphs and streamers",
+    "FlyFishingGuide/wa-spots": "Places to start near Bonney Lake",
+    "FlyFishingGuide/first-day": "A plan for your first day",
+    "DehookingGuide/basic-dehook": "A hook in the lip or jaw. Most fish you catch",
+    "DehookingGuide/deep-hook-removal": "A hook in the throat or near the gills",
+    "DehookingGuide/treble-hook-removal": "Three points: one in the fish, two for you",
+    "DehookingGuide/gut-hooked-fish": "The hook is down in the stomach",
+    "DehookingGuide/catch-and-release": "The minute that decides if it lives",
+    "DehookingGuide/fish-handling-safety": "Spines, teeth and gill plates",
+    "TackleGuide/soft-plastics": "Soft worms, grubs and minnows",
+    "TackleGuide/crankbaits": "Hard lures that dive and wobble",
+    "TackleGuide/spinnerbaits": "Wire lures with spinning blades",
+    "TackleGuide/jigs": "A weighted hook with a skirt or a trailer",
+    "TackleGuide/topwater": "Lures that float and splash on top",
+    "TackleGuide/live-bait": "Worms, crickets and what the fish eat",
+    "TackleGuide/spoons": "Metal that flashes and wobbles",
+    "TackleGuide/flies": "Feathers and thread, on a fly rod or under a float",
+    "TackleGuide/swimbaits": "Lures that swim like a fish",
+    "TackleGuide/terminal-tackle": "Hooks, weights, swivels and floats",
+    "GearBudgetGuide/budget-50": "The least that gets you fishing",
+    "GearBudgetGuide/budget-100": "A complete rig that will not hold you back",
+    "GearBudgetGuide/budget-250": "Gear that lasts for years",
+    "GearBudgetGuide/budget-500": "Top gear, for the long run",
+    "GearBudgetGuide/accessories": "The small stuff that saves a trip",
+    "GearBudgetGuide/dont-buy": "Money traps and gear you will not use"
+  },
+  "notHere": {
+    "why": "Fish CastAI's own species table marks as not in Washington (blue and flathead catfish, stripers and hybrids, redear, threadfin and gizzard shad, sauger, white and spotted bass). A seasons bullet that names one is a lake down south, so it goes.",
+    "files": [
+      "SeasonalGuide"
+    ],
+    "words": [
+      "blue cat",
+      "blue cats",
+      "blue catfish",
+      "blues",
+      "flathead",
+      "flatheads",
+      "striper",
+      "stripers",
+      "striped bass",
+      "hybrid",
+      "hybrids",
+      "wiper",
+      "wipers",
+      "redear",
+      "threadfin",
+      "gizzard",
+      "sauger",
+      "saugeye",
+      "white bass",
+      "spotted bass"
+    ]
   }
 }

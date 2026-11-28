@@ -16,7 +16,8 @@ CastAI shows them with `CastAI/Features/Library/*.swift`.
 
 1. `node scripts/import-castai-library.mjs` reads those files (set `CASTAI_RESOURCES` to read another copy) and writes `rigs/library.js`. Rerun it and you get the same file. Nothing in it is typed by hand.
 2. On the way in it:
-   - applies the corrections in `scripts/castai-library-overrides.json` (a wrong step, a missing or wrong video, a claim with no source). Each has a reason and a source.
+   - applies the corrections in `scripts/castai-library-overrides.json`: a wrong step, a missing or wrong video, a claim with no source, a spot or a method that is wrong for Washington, a duplicate card folded into the one it repeats. A correction can set a field, replace or cut words, drop a section, or fix one item of a guide by its CastAI name. Each has a reason and a source, and one that no longer finds its words stops the import.
+   - drops a seasons bullet that names a fish CastAI's own species table says is not in Washington.
    - cuts every rule (limits, seasons, sizes, closures, licenses). The Rig Card's rules are checked per trip; a guide links to them instead.
    - puts it in the Rig Card's voice: no dashes, no hype, short. The names, one lines and "where it fails" lines are in `scripts/castai-library-voice.json`.
    - ships a video only if YouTube answered for it and its title names the knot or cast (`--check-videos` refreshes `tests/fixtures/castai-videos.json`).

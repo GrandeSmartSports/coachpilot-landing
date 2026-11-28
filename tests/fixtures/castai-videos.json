@@ -1,5 +1,5 @@
 {
-  "checked": "2026-11-27",
+  "checked": "2026-11-28",
   "how": "YouTube oEmbed answered 200 and the title names the card's subject",
   "videos": {
     "-NTVZAZ0xQA": {
@@ -26,6 +26,11 @@
       "title": "Fishing Knots: Double Uni Knot - How to Tie Braid to Fluorocarbon or Braid to Mono",
       "by": "Fishthatwontquit",
       "for": "knot double-uni"
+    },
+    "7Qx4SOjdN-8": {
+      "title": "Ott’s Garage | The Side Arm Cast",
+      "by": "OttDeFoe",
+      "for": "cast sidearm-cast"
     },
     "7wRswCcowgQ": {
       "title": "ORVIS - Fly Fishing Knots - Slim Beauty Knot",
@@ -101,11 +106,6 @@
       "title": "How to Cast from a Kayak (Beginner Friendly)",
       "by": "Saltwater Buffalo Fishing",
       "for": "cast kayak-cast"
-    },
-    "TDJuy2ypTgM": {
-      "title": "Bass Fishing for Beginners: How to Sidearm Roll Cast with a BAITCASTER (VERY USEFUL CAST)",
-      "by": "DEBO'S Fishing",
-      "for": "cast sidearm-cast"
     },
     "TFk_Ktw2f1w": {
       "title": "Palomar Knot - Quick Tutorial on How to Tie This Strong Knot",
@@ -217,11 +217,6 @@
       "by": "Fishthatwontquit",
       "for": "knot egg-loop-knot"
     },
-    "jCxdR9js9nQ": {
-      "title": "The Ultimate Bass Fishing Flipping and Pitching Tutorial",
-      "by": "Wired2Fish",
-      "for": "cast pitch-flip"
-    },
     "jMm_zIuAdQE": {
       "title": "How To Tie The Bimini Twist Fishing Knot: Quick and Easy Method",
       "by": "Salt Strong",
@@ -251,11 +246,6 @@
       "title": "How to tie a nail knot using a tube.",
       "by": "Terry Corneau",
       "for": "knot nail-knot"
-    },
-    "ooxBDHQZeUs": {
-      "title": "How To Tie The Rapala Loop Knot from Fulling Mill",
-      "by": "Fulling Mill Fly Fishing ",
-      "for": "knot rapala-loop"
     },
     "pEWcxx8998U": {
       "title": "How to Tie the ANCHOR BEND KNOT | Boating Knots",

@@ -7,8 +7,11 @@
 // they join; every knot card and every cast card renders its steps (or the
 // app's own drawing), the mistake that makes it fail and its checked video;
 // the casting list leads with the pendulum cast, the pier swing, under the
-// pier; the guides are tiles, a guide's sections are headlines and one opens
-// at a time; the salmon guide's rules open on a link to the checked rules; a
+// pier; the guides are tiles, each its own picture; a guide's sections are
+// headlines, every part closed, a part opening on its points with CastAI's
+// paragraph behind More; the salmon guide's rules open on two chips to the
+// checked rules, and no other section repeats a rules note; rows carry their
+// level, not "1 video", and a video is labelled by its card, not YouTube; a
 // fish's page shows what the fish is; a knot named in a rig's steps opens its
 // card; a library knot goes into a trip and shows in Field mode; and a knot
 // card, a cast card and a guide section read under all eight skies.
@@ -60,13 +63,16 @@ try {
 
   // ---- Learn: the four parts ---------------------------------------------
   await sky("overcast", "#/learn");
-  await page.waitForFunction(() => /34 knots/.test(document.querySelector('[data-sec-tile="knots"] .meta')?.textContent || ""));
+  await page.waitForFunction(() => /33 knots/.test(document.querySelector('[data-sec-tile="knots"] .meta')?.textContent || ""));
   const tiles = await page.evaluate(() => [...document.querySelectorAll("[data-learn-tiles] [data-sec-tile]")].map((t) => ({ id: t.dataset.secTile, nm: t.querySelector(".nm").textContent, meta: t.querySelector(".meta").textContent, shapes: t.querySelectorAll(".pic svg *").length })));
   ok(tiles.map((t) => t.id).join() === "knots,casting,guides,gear" && tiles.every((t) => t.shapes >= 8 && /\d/.test(t.meta)),
     "the Learn tab shows the four groups, Knots, Casting, Guides and Gear, each a picture tile with its count", tiles);
   ok(await crosses("[data-learn-tiles] .ptile"), "and they cross the waterline");
   const first = await page.evaluate(() => [...document.querySelectorAll("[data-learn-first] .row")].map((r) => r.dataset.knot || r.dataset.cast));
-  ok(first.join() === "arbor-knot,double-uni,palomar,dropper-loop,pendulum-cast", "Tie these first: arbor, double uni, Palomar, dropper loop, and the pier swing", first);
+  ok(first.join() === "arbor-knot,double-uni,palomar,dropper-loop,pendulum-cast", "Learn these first: arbor, double uni, Palomar, dropper loop, and the pier swing", first);
+  ok(/^Learn these first/.test(await page.textContent("[data-learn-first] .sect")), "and the heading says learn, since the pier swing is not tied");
+  const lv = await page.evaluate(() => [...document.querySelectorAll("[data-learn-first] .row")].map((r) => ({ lv: (r.querySelector(".badge.lv") || {}).textContent || "", any: [...r.querySelectorAll(".badge")].map((b) => b.textContent).join() })));
+  ok(lv.every((r) => /^(Easy|Medium|Tricky|Hard)$/.test(r.lv) && !/video/i.test(r.any)), "each row carries its level as a tinted badge, and no \"1 video\" pill", lv);
   ok(await page.locator("[data-course-tile]").count() === 3, "the app's own courses (Rods, Kayak, Fly) are still there");
   const jump = await page.evaluate(() => [...document.querySelectorAll(".dock .jump [data-sec]")].map((c) => c.dataset.sec));
   ok(jump.slice(0, 4).join() === "knots,casting,guides,gear" && jump.includes("rods") && !jump.includes("knots", 1), "the filter row under the dock leads with the four parts", jump);
@@ -80,7 +86,9 @@ try {
     heads: [...document.querySelectorAll("[data-knot-group] .sect")].map((h) => h.textContent.replace(/\d+/, "").trim())
   }));
   ok(kl.first.join() === "arbor-knot,double-uni,palomar,dropper-loop", "the knot list leads with the four for this week", kl.first);
-  ok(kl.groups.join() === "reel,line,hook,loop,rope" && kl.rows === 34, "then every knot, grouped by what it joins", kl);
+  const again = await page.evaluate(() => [...document.querySelectorAll("[data-knot-group] .row")].map((r) => r.dataset.knot).filter((id) => ["arbor-knot", "double-uni", "palomar", "dropper-loop"].includes(id)));
+  ok(kl.groups.join() === "line,hook,loop,rope" && kl.first.length + kl.rows === 33 && again.length === 0,
+    "then every other knot, grouped by what it joins, none of the four twice and no group of one (the arbor knot is the only reel knot)", kl);
   ok(await crosses("[data-knot-first]") && await sceneKind() === "lake", "the four cross the waterline under the lake");
   const ids = await page.evaluate(() => RIG.library.knots.map((k) => k.id));
   const bad = [];
@@ -101,12 +109,14 @@ try {
   await go("#/learn/knots/double-uni", '[data-card="lib-knot-double-uni"]');
   const du = await page.evaluate(() => ({ h: document.querySelector(".hero h1").textContent, chips: document.querySelector(".hero .chips").textContent, next: document.querySelector(".pn .next b")?.textContent }));
   ok(du.h === "Double uni" && /Line to line/.test(du.chips) && du.next === "Palomar", "the double uni card: its name, what it joins, and Next walks the list", du);
+  const duv = await page.evaluate(() => ({ label: document.querySelector('[data-card="lib-knot-double-uni"] .vid b').textContent, steps: [...document.querySelectorAll('[data-card="lib-knot-double-uni"] .kstrip li')].map((li) => li.textContent) }));
+  ok(duv.label === "Double uni" && /8 times/.test(duv.steps[1]) && /5 times/.test(duv.steps[3]), "its video is labelled with the card's name, not YouTube's title, and its steps give the braid 8 wraps and the leader 5", duv);
 
   // ---- the casts -------------------------------------------------------------
   await go("#/learn/casting", '[data-lib="casting"] .row');
   const cl = await page.evaluate(() => ({ first: document.querySelector("[data-cast-group] .row").dataset.cast, line: document.querySelector("[data-cast-group] .row").textContent,
     n: document.querySelectorAll("[data-cast-group] .row").length, groups: [...document.querySelectorAll("[data-cast-group]")].map((g) => g.dataset.castGroup) }));
-  ok(cl.first === "pendulum-cast" && /pier swing/i.test(cl.line) && cl.n === 14 && cl.groups.join() === "spin,fly", "Casting: all 14, the pendulum cast first, called the pier swing", cl);
+  ok(cl.first === "pendulum-cast" && /pier swing/i.test(cl.line) && cl.n === 13 && cl.groups.join() === "spin,fly", "Casting: all 13 cards (Pitch and flip is Flipping), the pendulum cast first, called the pier swing", cl);
   ok(await sceneKind() === "pier" && await crosses("[data-cast-group]"), "under the pier, the first list crossing the waterline");
   const cids = await page.evaluate(() => RIG.library.casts.map((c) => c.id));
   const cbad = [];
@@ -116,24 +126,37 @@ try {
       return { strip: card.querySelectorAll(".kstrip li").length, fails: !!card.querySelector("[data-fails]"), vid: (card.querySelector(".vid") || {}).dataset?.video || "" }; });
     if (!(c.strip >= 4 && c.fails && FIX[c.vid])) cbad.push(id + " " + JSON.stringify(c));
   }
-  ok(cbad.length === 0, "each of the 14 cast cards renders its steps, where it fails and its checked video", cbad.slice(0, 3));
+  ok(cbad.length === 0, "each of the 13 cast cards renders its steps, where it fails and its checked video", cbad.slice(0, 3));
 
   // ---- guides and gear -------------------------------------------------------
   await go("#/learn/guides", "[data-guide-tiles] [data-guide-tile]");
-  const gt = await page.evaluate(() => [...document.querySelectorAll("[data-guide-tile]")].map((t) => ({ id: t.dataset.guideTile, shapes: t.querySelectorAll(".pic svg *").length })));
-  ok(gt.length === 6 && gt.every((t) => t.shapes >= 8), "Guides: six tiles, each with its picture", gt);
+  await page.waitForSelector('[data-guide-tile="unhooking"] .pic[data-plate]');
+  const gt = await page.evaluate(() => [...document.querySelectorAll("[data-guide-tile]")].map((t) => {
+    const p = t.querySelector(".pic"), svg = p.querySelector("svg");
+    return { id: t.dataset.guideTile, shapes: p.querySelectorAll("svg *").length, plate: p.dataset.plate || "", kind: p.dataset.viewKind || "",
+      look: svg ? svg.innerHTML.replace(/vw\d+/g, "").length + ":" + [...svg.querySelectorAll("path")].slice(4, 7).map((x) => (x.getAttribute("d") || "").slice(0, 40)).join("|") : "" };
+  }));
+  ok(gt.length === 6 && gt.every((t) => t.shapes >= 8), "Guides: six tiles, each with its picture", gt.map((t) => t.id + " " + t.shapes));
+  ok(new Set(gt.map((t) => t.look)).size === 6 && gt.find((t) => t.id === "unhooking").plate === "hook", "and no two the same picture: unhooking is a hook, the rivers and lakes each their own shore", gt.map((t) => t.id + " " + (t.plate || t.kind)));
+
   await go("#/learn/guides/salmon", '[data-guide="salmon"] [data-gsec]');
   const gs = await page.evaluate(() => ({ rows: document.querySelectorAll('[data-guide] .row[data-gsec]').length, rule: document.querySelectorAll('[data-guide] .rule[data-gsec="regulations"]').length }));
   ok(gs.rows === 9 && gs.rule === 1, "a guide's sections are headlines; its rules are a rule row with the red edge", gs);
   await go("#/learn/guides/salmon/regulations", "[data-rules-pointer]");
   const rp = await page.evaluate(() => ({ links: [...document.querySelectorAll("[data-rules-pointer] a")].map((a) => a.getAttribute("href")), text: document.querySelector('[data-view="card"] .card').textContent }));
   ok(rp.links.includes("#/trips") && rp.links.some((h) => /wdfw\.wa\.gov/.test(h)) && !/\$\d|daily limit|catch record/i.test(rp.text),
-    "the salmon guide's rules open on a link to the checked rules, never CastAI's rules", rp);
+    "the salmon guide's rules open on two chips, Trips and WDFW emergency rules, never CastAI's rules", rp);
+  const pager = await page.evaluate(() => ({ prev: document.querySelector(".pn .prev b")?.textContent || "", next: !!document.querySelector(".pn .next b") }));
+  ok(!pager.next && /safety|checklist|calendar|catch/i.test(pager.prev), "the pager puts Rules last, as the list does", pager);
   await go("#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem');
-  const sec = await page.evaluate(() => ({ items: document.querySelectorAll(".gitem").length, open: document.querySelectorAll(".gitem[open]").length }));
-  ok(sec.items === 6 && sec.open === 1, "one section per tap: its parts as headlines, the first open", sec);
-  await page.click(".gitem:nth-child(2) summary");
-  ok(await page.locator(".gitem[open]").count() === 2, "a tap opens the next part in place");
+  const sec = await page.evaluate(() => ({ items: document.querySelectorAll(".gitem").length, open: document.querySelectorAll(".gitem[open]").length,
+    notes: document.querySelectorAll('[data-view="card"] .box.law, [data-view="card"] [data-rules-pointer]').length }));
+  ok(sec.items === 6 && sec.open === 0 && sec.notes === 0, "one section per tap: its parts as headlines, all closed, and no rules note repeated in it", sec);
+  await page.click(".gitem:nth-child(2) > summary");
+  const part = await page.evaluate(() => { const g = document.querySelector(".gitem[open] .gbody"); return { first: g.firstElementChild.tagName, more: !!g.querySelector(".gmore:not([open])"), shown: g.innerText.length }; });
+  ok(await page.locator(".gitem[open]").count() === 1 && part.first === "UL" && part.more, "a tap opens that part in place, on its points, with CastAI's paragraph behind More", part);
+  await page.click(".gitem[open] .gmore > summary");
+  ok(await page.locator(".gitem[open] .gmore[open] p").count() === 1, "and More shows the paragraph");
   await go("#/learn/gear", '[data-lib="gear"] [data-gsec]');
   const gr = await page.evaluate(() => ({ parts: [...document.querySelectorAll("[data-gear]")].map((g) => g.dataset.gear), rows: document.querySelectorAll("[data-gear] [data-gsec]").length }));
   ok(gr.parts.join() === "tackle,budget" && gr.rows === 16, "Gear: tackle and gear on a budget, as headlines", gr);
@@ -143,7 +166,8 @@ try {
   // ---- a fish's page, a rig's knot, a trip -------------------------------------
   await go("#/coho/green-river", '[data-about="coho-salmon"]');
   const ab = await page.evaluate(() => { const a = document.querySelector("[data-about]"); return { text: a.textContent, lures: a.querySelectorAll(".lures .tag").length }; });
-  ok(/silver salmon/i.test(ab.text) && ab.lures >= 3 && /Did you know/.test(ab.text), "a fish's page gains what CastAI knows about it: what it is, where it lives, lures, a fact", ab);
+  ok(/jump when hooked/i.test(ab.text) && ab.lures >= 3 && /Did you know\?/.test(ab.text) && !/Silvers/.test(ab.text) && /by smell/.test(ab.text),
+    "a fish's page gains what the fish is, in the Rig Card's words, where it lives, lures and a checked fact", ab);
   await go("#/coho/green-river/salmon-float-eggs-build", '[data-view="card"] .card a.k[data-knot-link]');
   const kk = await page.evaluate(() => [...document.querySelectorAll("a.k[data-knot-link]")].map((a) => a.dataset.knotLink));
   ok(kk.includes("improved-clinch") && kk.includes("egg-loop-knot"), "a knot named in a rig's steps opens its card", kk);
@@ -157,13 +181,17 @@ try {
   await page.waitForSelector('[data-view]:not([data-view="field"])');
 
   // ---- every word can be read --------------------------------------------------
+  const openPart = async () => { await page.click(".gitem:nth-child(2) > summary"); await page.click(".gitem[open] .gmore > summary"); await page.waitForSelector(".gitem[open] .gmore[open] p"); };
   const SCREENS = [["a knot card", "#/learn/knots/double-uni", '[data-card="lib-knot-double-uni"]'], ["a cast card", "#/learn/casting/pendulum-cast", '[data-card="lib-cast-pendulum-cast"]'],
-    ["a guide section", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem'], ["the Learn tab", "#/learn", "[data-learn-first] .row"]];
-  for (const [name, hash, sel] of SCREENS) {
+    ["a guide section", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem'],
+    ["a guide part opened, its More open", "#/learn/guides/salmon/salmon-species", '[data-view="card"] .gitem', openPart],
+    ["the rules page", "#/learn/guides/salmon/regulations", "[data-rules-pointer] .chip"], ["the Learn tab", "#/learn", "[data-learn-first] .row"]];
+  for (const [name, hash, sel, then] of SCREENS) {
     const worst = [];
     for (const id of SKIES) {
       await sky(id, hash);
       await page.waitForSelector(sel);
+      if (then) await then();
       const r = await unreadable(page);
       if (r.bad.length || r.n < 10) worst.push(id + ": " + (r.n < 10 ? "only " + r.n + " texts" : r.bad.slice(0, 3).join(" | ")));
     }

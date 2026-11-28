@@ -4527,26 +4527,29 @@
   function view(kind, o) {
     if (o && o.spot) return viewSpot(kind, standOf(kind, o));
     o = o || {};
+    // o.seed: the same kind of water with its own shore (a guide's tile is
+    // not its neighbour's); o.flip: the view from the other bank.
+    var sd = +o.seed || 0;
     var id = "vw" + (view.n = (view.n || 0) + 1), base = kind === "fly" ? "sound" : kind.replace(/^kayak-/, "");
-    var r = rnd(kind.length * 17 + 5), s = "", k, x, wl = VZ;
+    var r = rnd(kind.length * 17 + 5 + sd), s = "", k, x, wl = VZ;
     var lamps = "", glows = "";
     function ridge(seed, y, h, cls) { return '<path class="' + cls + '" d="' + headland({ seed: seed, from: -20, to: 260, base: y, h: h, tree: 1.1, gap: 1.6, shape: 9, freq: 0.022, tipFade: 60 }).land + '"/>'; }
     function water(y) { wl = y; return '<rect y="' + y + '" width="' + VW + '" height="' + (VH - y) + '" fill="url(#' + id + '-w)"/><rect y="' + y + '" width="' + VW + '" height="16" fill="url(#' + id + '-h)"/>'; }
     if (base === "river") {
-      var bank = headland({ seed: 71, from: -20, to: 240, base: 66, h: 3, tree: 17, trees: true, shape: 12, tipFade: 60, tfreq: 0.05 });
-      var near = headland({ seed: 83, from: 222, to: 128, base: function (xx) { return 68 + Math.pow(Math.max(0, xx - 128) / 72, 1.3) * 30; }, h: 6, tree: 30, trees: true, shape: 2.6, tfreq: 0.06, tipFade: 5,
+      var bank = headland({ seed: 71 + sd, from: -20, to: 240, base: 66, h: 3, tree: 17, trees: true, shape: 12, tipFade: 60, tfreq: 0.05 });
+      var near = headland({ seed: 83 + sd, from: 222, to: 128, base: function (xx) { return 68 + Math.pow(Math.max(0, xx - 128) / 72, 1.3) * 30; }, h: 6, tree: 30, trees: true, shape: 2.6, tfreq: 0.06, tipFade: 5,
         grow: function (xx) { return 0.5 + Math.max(0, xx - 128) / 60; } });
-      s += ridge(72, 62, 24, "w-l0") + ridge(73, 65, 13, "w-l1") + water(64) + vGlass(bank, 0.6, "w-l3") + vLand(bank, "w-l3") +
-        '<path class="w-beach" d="M-2 66.3H130"/>' + litWindow(id, rnd(75), 58, 61, 66) + vGlints(74, 72, VH, 0.9) + vLand(near, "w-l5");
+      s += ridge(72 + sd, 62, 24, "w-l0") + ridge(73 + sd, 65, 13, "w-l1") + water(64) + vGlass(bank, 0.6, "w-l3") + vLand(bank, "w-l3") +
+        '<path class="w-beach" d="M-2 66.3H130"/>' + litWindow(id, rnd(75 + sd), 58, 61, 66) + vGlints(74 + sd, 72, VH, 0.9) + vLand(near, "w-l5");
       var bar = [[-2, 84], [22, 85], [48, 89], [74, 96], [96, 106], [110, 122]], st = "";
       for (k = 0; k < 44; k++) { var u = r(), sx = u * 104, sy = 86 + Math.pow(sx / 110, 1.7) * 34 + r() * r() * 22; st += '<ellipse class="' + (r() < 0.3 ? "w-st-l" : "w-st-d") + '" cx="' + n(sx) + '" cy="' + n(sy) + '" rx="' + n(0.5 + r() * 1.3) + '" ry="' + n(0.3 + r() * 0.5) + '"/>'; }
       s += '<path class="w-shorewet" d="' + line(bar.map(function (q) { return [q[0] + 3, q[1] - 3]; })) + 'L-2 122Z"/><path class="w-shore" d="' + line(bar) + 'L-2 122Z"/><path class="w-foam" d="' + line(bar) + '"/>' + st +
         '<g class="w-log"><path class="w-pile" d="' + poly([[14, 90.4], [46, 93.6], [70, 97], [71.4, 100], [46, 97.6], [14, 93.6]]) + '"/><path class="w-pile" d="' + poly([[40, 93], [36.6, 86.4], [38.4, 86], [43, 93.2]]) + '"/><path class="w-liteb" d="M15 90.8L46 94L69 97.3"/></g>';
     } else if (base === "lake") {
-      var shore = headland({ seed: 61, from: -20, to: 240, base: 62, h: 3, tree: 16, trees: true, shape: 12, tipFade: 60, tfreq: 0.045 });
-      var pt = headland({ seed: 65, from: -8, to: 74, base: 67, h: 4, tree: 24, trees: true, shape: 2.3, tfreq: 0.07 });
-      s += ridge(62, 60, 18, "w-l0") + water(60) + vGlass(shore, 0.9, "w-l3") + vLand(shore, "w-l3") + '<path class="w-beach" d="M-2 62.3H202"/>' +
-        vGlass(pt, 0.84, "w-l5") + vLand(pt, "w-l5") + vGlints(63, 70, VH, 0.4);
+      var shore = headland({ seed: 61 + sd, from: -20, to: 240, base: 62, h: 3, tree: 16, trees: true, shape: 12, tipFade: 60, tfreq: 0.045 });
+      var pt = headland({ seed: 65 + sd, from: -8, to: 74, base: 67, h: 4, tree: 24, trees: true, shape: 2.3, tfreq: 0.07 });
+      s += ridge(62 + sd, 60, 18, "w-l0") + water(60) + vGlass(shore, 0.9, "w-l3") + vLand(shore, "w-l3") + '<path class="w-beach" d="M-2 62.3H202"/>' +
+        vGlass(pt, 0.84, "w-l5") + vLand(pt, "w-l5") + vGlints(63 + sd, 70, VH, 0.4);
       if (kind === "lake" && o.dock !== false) {
         // the dock, from the right
         var dk = poly([[206, 92], [206, 86], [118, 74.6], [112, 77]]), posts = "";
@@ -4554,13 +4557,13 @@
         s += '<path class="w-under" d="' + poly([[206, 94], [112, 78], [110, 84], [206, 106]]) + '"/><path class="w-decktop" d="' + dk + '"/><path class="w-pile" d="' + poly([[206, 92], [112, 77], [112, 79], [206, 95.6]]) + '"/>' + posts;
         lamps += '<path class="w-pole" d="M116 76V62.6Q116 61 114 61" stroke-width=".9"/><ellipse class="w-bulb" cx="113.6" cy="62" rx="1.6" ry=".8"/>';
         glows += '<circle cx="114" cy="62.4" r="20" fill="url(#' + id + '-lamp)"/><g class="w-poolg">' + [0, 1, 2, 3, 4, 5].map(function (j) { return '<rect x="' + n(104 - j * 0.6 + (r() - 0.5) * 4) + '" y="' + n(82 + j * 3.4) + '" width="' + n(6 + j * 2.2) + '" height="1" rx=".5" opacity="' + n(0.8 - j * 0.11) + '"/>'; }).join("") + "</g>";
-      } else s += litWindow(id, rnd(66), 150, 58.6, 62) + (kind === "lake" ? "" : vKayak(118, 86, 1.25, true));
+      } else s += litWindow(id, rnd(66 + sd), 150, 58.6, 62) + (kind === "lake" ? "" : vKayak(118, 86, 1.25, true));
       var reeds = "";
       for (k = 0; k < 26; k++) { var bx = -4 + Math.pow(r(), 1.4) * 60, by = 112 + r() * 10, bh = (14 + r() * 24) * (1 - bx / 130), ln = (r() - 0.35) * 9; reeds += "M" + n(bx - 0.7) + " " + n(by) + "Q" + n(bx + ln * 0.2) + " " + n(by - bh * 0.55) + " " + n(bx + ln) + " " + n(by - bh) + "Q" + n(bx + ln * 0.3 + 0.6) + " " + n(by - bh * 0.5) + " " + n(bx + 0.8) + " " + n(by) + "Z"; }
       s += '<path class="w-reed" d="' + reeds + '"/>';
     } else if (base === "pier") {
-      var A = headland({ seed: 41, from: -20, to: 150, base: 61, h: 6, tree: 2, gap: 1.5, shape: 2.4, freq: 0.03 });
-      s += ridge(42, 60, 8, "w-far") + water(60) + vGlass(A, 0.5, "w-l1") + vLand(A, "w-l1") + '<g class="w-lights">' + shoreLights(43, A, 9, 4, 10, 140) + "</g>" + vGlints(44, 66, VH, 0.9);
+      var A = headland({ seed: 41 + sd, from: -20, to: 150, base: 61, h: 6, tree: 2, gap: 1.5, shape: 2.4, freq: 0.03 });
+      s += ridge(42 + sd, 60, 8, "w-far") + water(60) + vGlass(A, 0.5, "w-l1") + vLand(A, "w-l1") + '<g class="w-lights">' + shoreLights(43 + sd, A, 9, 4, 10, 140) + "</g>" + vGlints(44 + sd, 66, VH, 0.9);
       var VX2 = 30, PP = function (x1, dy, sc) { return [VX2 + (x1 - VX2) * sc, VZ + dy * sc]; }, SS = [1, 0.8, 0.64, 0.52, 0.43, 0.36], piles = "", glass = "", rail = "";
       s += '<path class="w-under" d="' + poly([PP(214, 44, 1.04), PP(214, 44, 0.34), PP(214, 54, 0.34), PP(214, 60, 1.04)]) + '"/>';
       SS.forEach(function (sc, i) {
@@ -4592,9 +4595,9 @@
         }
         flush();
       });
-      var lip = [], nzl = noise(88);
+      var lip = [], nzl = noise(88 + sd);
       for (x = -4; x <= VW + 4; x += 8) lip.push([x, 94 + (nzl(x * 0.04) - 0.5) * 6]);
-      s += vGlints(84, 62, 70, 1) + '<path class="w-surfsh" d="' + shade + '" stroke-width="1.6"/><path class="w-surf" d="' + foam + '"/>' +
+      s += vGlints(84 + sd, 62, 70, 1) + '<path class="w-surfsh" d="' + shade + '" stroke-width="1.6"/><path class="w-surf" d="' + foam + '"/>' +
         '<path class="w-wash" d="' + line(lip) + "L" + (VW + 4) + ' 86L-4 86Z"/><path class="w-wetsand" d="' + line(lip) + "L" + (VW + 4) + ' 110L-4 108Z"/>' +
         '<path class="w-shore" d="M-4 108Q60 103 120 107T204 106V124H-4Z"/><path class="w-foam" d="' + line(lip) + '"/>' +
         '<g class="w-log"><path class="w-pile" d="' + poly([[-4, 104], [30, 102], [52, 101.6], [55, 103.6], [52, 106.4], [30, 108], [-4, 111]]) + '"/><path class="w-pile" d="' + poly([[30, 102.4], [27, 96.6], [28.6, 96.2], [33, 102.2]]) + '"/><path class="w-liteb" d="M-3 104.4L30 102.4L51 102"/></g>' +
@@ -4604,11 +4607,11 @@
         '<g class="w-farlamps v-farlamps"><circle cx="34" cy="96" r=".9"/><circle cx="72" cy="95" r=".7"/><circle cx="96" cy="97" r="1"/><circle cx="170" cy="96" r=".9"/><circle cx="190" cy="95.4" r=".6"/></g>';
     } else {
       // the Sound: two points of land, the mountain, and a shingle beach
-      var a2 = headland({ seed: 51, from: -20, to: 124, base: 61, h: 7, tree: 2, gap: 1.5, shape: 2.4, freq: 0.03 });
-      var b2 = headland({ seed: 53, from: 214, to: 96, base: 66, h: 7, tree: 19, trees: true, shape: 2.4, tfreq: 0.06 });
-      s += '<g class="v-mtn">' + mountain(34, 33, 0.38) + '</g><rect y="42" width="' + VW + '" height="20" fill="url(#' + id + '-m)"/>' + ridge(52, 60, 9, "w-far") + water(60) +
-        vGlass(a2, 0.5, "w-l1") + vLand(a2, "w-l1") + '<g class="w-lights">' + shoreLights(55, a2, 10, 4, 6, 116) + "</g>" +
-        vGlass(b2, 0.5, "w-l5") + vLand(b2, "w-l5") + '<path class="w-beach" d="M112 66.3H202"/>' + vGlints(54, 68, VH, 0.9);
+      var a2 = headland({ seed: 51 + sd, from: -20, to: 124, base: 61, h: 7, tree: 2, gap: 1.5, shape: 2.4, freq: 0.03 });
+      var b2 = headland({ seed: 53 + sd, from: 214, to: 96, base: 66, h: 7, tree: 19, trees: true, shape: 2.4, tfreq: 0.06 });
+      s += '<g class="v-mtn">' + mountain(34, 33, 0.38) + '</g><rect y="42" width="' + VW + '" height="20" fill="url(#' + id + '-m)"/>' + ridge(52 + sd, 60, 9, "w-far") + water(60) +
+        vGlass(a2, 0.5, "w-l1") + vLand(a2, "w-l1") + '<g class="w-lights">' + shoreLights(55 + sd, a2, 10, 4, 6, 116) + "</g>" +
+        vGlass(b2, 0.5, "w-l5") + vLand(b2, "w-l5") + '<path class="w-beach" d="M112 66.3H202"/>' + vGlints(54 + sd, 68, VH, 0.9);
       if (kind === "kayak-sound") s += vKayak(86, 88, 1.3, false);
       else {
         var sh = [[-2, 98], [34, 94], [78, 96], [124, 101], [168, 103], [202, 102]], peb = "";
@@ -4635,7 +4638,8 @@
       '<radialGradient id="' + id + '-lamp"><stop offset="0" style="stop-color:var(--lampc);stop-opacity:.95"/><stop offset=".22" style="stop-color:var(--lampc);stop-opacity:.4"/><stop offset="1" style="stop-color:var(--lampc);stop-opacity:0"/></radialGradient></defs>';
     return '<svg class="view" viewBox="0 0 ' + VW + " " + VH + '" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">' + defs2 +
       '<rect width="' + VW + '" height="' + (VZ + 3) + '" fill="url(#' + id + '-s)"/><ellipse class="w-glow v-glow" cx="132" cy="' + (VZ - 22) + '" rx="60" ry="34" fill="url(#' + id + '-g)"/>' +
-      s + lamps + (glows ? '<g class="w-lampson' + (base === "surf" ? " w-dig" : "") + '">' + glows + "</g>" : "") + "</svg>";
+      (o.flip ? '<g transform="translate(' + VW + ' 0) scale(-1 1)">' : "") +
+      s + lamps + (glows ? '<g class="w-lampson' + (base === "surf" ? " w-dig" : "") + '">' + glows + "</g>" : "") + (o.flip ? "</g>" : "") + "</svg>";
   }
 
   // ---- what the page needs besides the pictures ------------------------------

@@ -108,6 +108,9 @@ export async function unreadable(page, within) {
       // map tiles, pins and controls sit on the map's own pictures; an open
       // pin's card is the page's and is measured like any other
       if (!el || el.closest(".dia, .tyer, .leaflet-tile-pane, .leaflet-marker-pane, .leaflet-control-container, svg, [hidden], .vh, option")) continue;
+      // inside a closed <details> (not its summary) nothing is on screen,
+      // though the browser may still report boxes for it
+      if (el.closest("details:not([open]) > :not(summary)")) continue;
       if (within && !el.closest(within)) continue;
       const cs = getComputedStyle(el);
       if (cs.visibility === "hidden" || cs.display === "none") continue;

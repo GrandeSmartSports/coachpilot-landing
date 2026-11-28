@@ -2,9 +2,18 @@
   "_about": "Corrections the Rig Card makes when it imports CastAI's library (scripts/import-castai-library.mjs). Keyed by CastAI file and id. 'set' uses CastAI's own field names and format, so the CastAI lane can paste it upstream. When CastAI ships the fix, delete the entry here and rerun the import. docs/castai-library-fixes.md is written from this file.",
   "FishingKnots/uni": {
     "set": {
-      "tips": "Use 8 wraps on braid and 5 to 6 on mono or fluoro. Braid is slippery and needs more wraps, not fewer."
+      "tips": "Use 8 wraps on braid and 5 to 6 on mono or fluoro. Braid is slippery and needs more wraps, not fewer.",
+      "steps": [
+        "Step 1: Thread about 8 inches of line through the hook eye",
+        "Step 2: Bring the tag end back alongside the standing line so they run parallel",
+        "Step 3: Curve the tag end back toward the hook to make a loop that crosses over both parallel lines",
+        "Step 4: Wrap the tag end through the loop and around both lines 5 to 6 times (8 on braid), working away from the hook",
+        "Step 5: Wet the knot, then pull the tag end to snug the wraps into a neat coil",
+        "Step 6: Pull the standing line to slide the knot tight against the hook eye",
+        "Step 7: Trim the tag end"
+      ]
     },
-    "reason": "CastAI says braid needs fewer wraps (5) than mono (6) because it is slipperier. That is backwards: slippery braid needs more wraps. CastAI's own Double Uni card says 8 on braid.",
+    "reason": "CastAI says braid needs fewer wraps (5) than mono (6) because it is slipperier. That is backwards: slippery braid needs more wraps. CastAI's own Double Uni card says 8 on braid. The steps say 5 to 6 wraps with no word on braid, though the card is for braid too.",
     "source": "CastAI FishingKnots.json double-uni tips; Fishthatwontquit uni knot video (f1pFMWc0ZP0)"
   },
   "FishingKnots/egg-loop-knot": {
@@ -12,17 +21,18 @@
       "description": "A snell with a loop at the eye. The loop clamps a roe cluster, yarn or bait to the hook so it stays on the cast.",
       "bestFor": "Holding roe, yarn or bait on the hook for salmon and steelhead",
       "steps": [
-        "Step 1: Run the leader through the eye from the point side and lay a long tag back along the shank",
-        "Step 2: Wrap the tag 8 to 10 times down the shank, trapping the leader under the wraps",
-        "Step 3: Take the tag back up through the eye, the same direction as the first pass",
-        "Step 4: Pull the standing line so the wraps slide tight and a loop opens at the eye",
-        "Step 5: Put the roe or yarn in the loop and pull the standing line to clamp it"
+        "Step 1: Pass the end of the leader through the eye toward the bend. Pinch a short end along the shank",
+        "Step 2: Wrap the long end tight around the shank and the short end 10 times, from the eye toward the bend",
+        "Step 3: Pass the long end back through the eye from the bend side, the opposite way to the first pass",
+        "Step 4: Use the loop this makes to wrap 5 more times toward the bend",
+        "Step 5: Pull the long end slowly to seat the wraps",
+        "Step 6: Push a little line back through the eye to open the loop, set the roe in it, and pull the leader to clamp it"
       ],
       "tips": "Bait hooks only. Pre-snelled egg loop hooks come tied, and beat tying one in the cold.",
       "youtubeVideoId": "hNcNZpyyHF8"
     },
-    "reason": "CastAI calls it a fly fishing knot whose loop hangs below the hook, and its steps do not tie an egg loop. It is a bait snell: the loop sits at the eye and clamps roe to the shank. No video in CastAI.",
-    "source": "Rig Card egg loop card (salmon-egg-loop, rigs/content.js); Fishthatwontquit egg loop video (hNcNZpyyHF8)"
+    "reason": "CastAI calls it a fly fishing knot whose loop hangs below the hook, and its steps do not tie an egg loop. It is a bait snell: the long end, the one to the swivel, wraps the shank and the short end, goes back through the eye the opposite way, and a loop pushed back through the eye clamps the roe. No video in CastAI.",
+    "source": "netknots.com/fishing_knots/egg-loop; animatedknots.com/egg-loop-knot ('Wrap the long end around the hook and short end'); theknotsmanual.com egg loop knot; video: Fishthatwontquit egg loop (hNcNZpyyHF8)"
   },
   "FishingKnots/rapala-knot": {
     "set": {
@@ -40,22 +50,9 @@
     "source": "animatedknots.com/rapala-knot; Salt Strong Rapala knot video (OmeEudIttCI)"
   },
   "FishingKnots/rapala-loop": {
-    "set": {
-      "description": "The Rapala knot under its fly fishing name. A fixed loop at the lure or fly so it swims free.",
-      "bestFor": "Flies, plugs and crankbaits that need to swing free",
-      "steps": [
-        "Step 1: Tie a loose overhand knot about 5 inches from the end of the line",
-        "Step 2: Pass the tag through the fly or lure eye and back through the overhand knot",
-        "Step 3: Wrap the tag 3 times around the standing line",
-        "Step 4: Pass the tag back through the overhand knot, then through the loop you just made",
-        "Step 5: Wet it and pull the standing line, the tag and the loop to tighten",
-        "Step 6: Trim the tag"
-      ],
-      "tips": "Same knot as the Rapala knot. The last pass through the loop is what locks it.",
-      "youtubeVideoId": "ooxBDHQZeUs"
-    },
-    "reason": "CastAI's steps never pass through an eye, so they tie no knot that holds anything. The Rapala loop is the Rapala knot by its fly fishing name.",
-    "source": "Fulling Mill, How To Tie The Rapala Loop Knot (ooxBDHQZeUs); animatedknots.com/rapala-knot"
+    "mergeInto": "rapala-knot",
+    "reason": "The Rapala loop is the Rapala knot under its fly fishing name, with the same steps. One card, and its name finds it.",
+    "source": "animatedknots.com/rapala-knot; Fulling Mill, How To Tie The Rapala Loop Knot (ooxBDHQZeUs)"
   },
   "FishingKnots/bristol-knot": {
     "set": {
@@ -69,10 +66,10 @@
         "Step 5: Wet it and pull the leader and the doubled line to tighten",
         "Step 6: Trim the tag"
       ],
-      "tips": "Double the wraps when the main line is braid.",
+      "tips": null,
       "youtubeVideoId": "e2anRbw6-1s"
     },
-    "reason": "CastAI's Bristol knot is two overhand knots for lines of the same size. That is a different knot. The Bristol knot joins a heavy leader to a doubled line.",
+    "reason": "CastAI's Bristol knot is two overhand knots for lines of the same size. That is a different knot. The Bristol knot joins a heavy leader to a doubled line. The Rig Card's first tip (double the wraps on braid) had no source, so there is no tip.",
     "source": "netknots.com/fishing_knots/bristol-knot; Mercury Marine, How to Tie the Bristol Knot (e2anRbw6-1s)"
   },
   "FishingKnots/slim-beauty": {
@@ -86,9 +83,10 @@
         "Step 4: Tuck the bight back under itself",
         "Step 5: Wet it, pull it tight and trim both tags"
       ],
-      "youtubeVideoId": "7wRswCcowgQ"
+      "youtubeVideoId": "7wRswCcowgQ",
+      "tips": "Eight wraps, four out and four back over them. Lay them side by side for a slim knot."
     },
-    "reason": "CastAI's steps make a loop in the leader and wrap single braid around it, which is closer to an Albright. The Slim Beauty starts with a double overhand in the leader and a doubled main line.",
+    "reason": "CastAI's steps make a loop in the leader and wrap single braid around it, which is closer to an Albright. The Slim Beauty starts with a double overhand in the leader and a doubled main line. CastAI's tip says ten wraps, five on each side, which does not match the corrected steps.",
     "source": "animatedknots.com/slim-beauty-knot; Orvis, Slim Beauty Knot (7wRswCcowgQ)"
   },
   "FishingKnots/berkley-braid-knot": {
@@ -110,10 +108,19 @@
     "set": {
       "description": "Joins fly line to backing, or a leader to fly line, with a slim knot that runs through the guides.",
       "bestFor": "Fly line to backing, or a leader to fly line",
-      "youtubeVideoId": "nlvIbFhuYcY"
+      "youtubeVideoId": "nlvIbFhuYcY",
+      "steps": [
+        "Step 1: Lay a small tube or a hollow pen refill alongside the end of the main line",
+        "Step 2: Lay the tag end of the backing or the other line alongside them",
+        "Step 3: Wrap the tag 6 to 7 times around the tube and both lines, each wrap beside the last",
+        "Step 4: Push the tag back through the tube, under the wraps, so it comes out where the wraps began",
+        "Step 5: Hold the wraps and slide the tube out. The wraps stay on the lines",
+        "Step 6: Wet the knot and pull both ends of the wrapping line to tighten it",
+        "Step 7: Trim both tag ends close"
+      ]
     },
-    "reason": "CastAI says it attaches backing to the fly reel. That is the arbor knot. The nail knot joins line to line. No video in CastAI.",
-    "source": "CastAI's own arbor-knot card (the knot that ties backing to the reel); Terry Corneau nail knot video (nlvIbFhuYcY); video: Terry Corneau, How to tie a nail knot using a tube (nlvIbFhuYcY)"
+    "reason": "CastAI says it attaches backing to the fly reel. That is the arbor knot. The nail knot joins line to line. No video in CastAI. CastAI's step 4 reads as if the tag goes in at the start, and step 3 leaves out that the wraps go around the tube and both lines.",
+    "source": "CastAI's own arbor-knot card (the knot that ties backing to the reel); Terry Corneau nail knot video (nlvIbFhuYcY); video: Terry Corneau, How to tie a nail knot using a tube (nlvIbFhuYcY); animatedknots.com/nail-knot-tube"
   },
   "FishingKnots/figure-eight-knot": {
     "set": {
@@ -132,10 +139,18 @@
   },
   "CastingTechniques/pendulum-cast": {
     "set": {
-      "youtubeVideoId": "bibU5cLECPA"
+      "youtubeVideoId": "bibU5cLECPA",
+      "steps": [
+        "Let 4 to 5 feet of line hang below the rod tip and hold the rod out at waist to chest height.",
+        "Open the bail, hold the line with your index finger, and face your target.",
+        "Let the lure swing back like a pendulum. Let its weight do the work.",
+        "As it swings forward, smoothly scoop the rod tip upward and forward in an underhand motion.",
+        "Let go of the line as the lure swings up toward the target. It arcs out gently.",
+        "Finish with the rod pointing at the target, and close the bail once the lure lands."
+      ]
     },
-    "reason": "CastAI's video (tFvbgu_x204) teaches the underhand pitch, a different cast in this library. This one shows the pendulum swing itself: 4 to 5 feet of line off the tip, let go on the upswing.",
-    "source": "South Carolina DNR, Basic Underhanded Pitch Cast (bibU5cLECPA), description: 'Use a pendulum motion, release the line on the upswing'"
+    "reason": "CastAI's video (tFvbgu_x204) is the bass pitch, a different cast in this library. This one is South Carolina DNR's underhand cast, which it says to swing as a pendulum: 'allow 4-5 feet of line outside of the rod tip. Use a pendulum motion, release the line on the upswing motion and finish the cast with the rod pointing at the target.' The steps follow it: 4 to 5 feet of line, let go on the upswing (CastAI said 2 to 3 feet, and let go as the lure swings past the rod).",
+    "source": "South Carolina DNR, Basic Underhanded Pitch Cast (bibU5cLECPA), its YouTube description; no checked video titled pendulum or underhand swing for a spinning rod was found"
   },
   "FishSpecies/dungeness-crab": {
     "set": {
@@ -177,8 +192,14 @@
     "set": {
       "youtubeVideoId": "laFLic70zZM"
     },
-    "reason": "No video in CastAI.",
-    "source": "Ultimate Fishing, Circle Hook Knot - The Snell Knot (laFLic70zZM), checked with YouTube oEmbed"
+    "replace": [
+      [
+        "bring the tag end back toward the bend",
+        "bring the tag end back toward the eye"
+      ]
+    ],
+    "reason": "No video in CastAI. And as on the snell knot, the loop forms when the tag comes back toward the eye, not the bend.",
+    "source": "Ultimate Fishing, Circle Hook Knot - The Snell Knot (laFLic70zZM), checked with YouTube oEmbed; animatedknots.com/snell-knot"
   },
   "FishingKnots/fg-knot": {
     "set": {
@@ -245,10 +266,11 @@
   },
   "FishingKnots/arbor-knot": {
     "set": {
-      "youtubeVideoId": "91tNuE_NNXs"
+      "youtubeVideoId": "91tNuE_NNXs",
+      "tips": "On braid, put mono backing on first, or a strip of electrical tape on the bare spool. Braid spins on a bare spool."
     },
-    "reason": "No video in CastAI.",
-    "source": "Fishing with Nat, How to Tie the Arbor Knot (91tNuE_NNXs), checked with YouTube oEmbed"
+    "reason": "No video in CastAI. And no word on braid: braid tied straight to a bare spool with an arbor knot spins, and the Rig Card's river reels carry 30 lb braid.",
+    "source": "Fishing with Nat, How to Tie the Arbor Knot (91tNuE_NNXs), checked with YouTube oEmbed; Tackle Warehouse arbor knot page; Wired2Fish and Outdoor Life on spooling braid (mono backing or tape so it does not spin)"
   },
   "FishingKnots/haywire-twist": {
     "set": {
@@ -276,8 +298,14 @@
     "set": {
       "youtubeVideoId": "z8NRFFFUMVY"
     },
-    "reason": "No video in CastAI.",
-    "source": "John Crews, How To Flip and Pitch Cast (z8NRFFFUMVY), checked with YouTube oEmbed"
+    "reason": "No video in CastAI. And CastAI says you miss 80% of your bites if you do not watch the line; no source backs the number.",
+    "source": "John Crews, How To Flip and Pitch Cast (z8NRFFFUMVY), checked with YouTube oEmbed",
+    "replace": [
+      [
+        "Not watching the line on the fall -- you'll miss 80% of your bites",
+        "Not watching the line on the fall"
+      ]
+    ]
   },
   "CastingTechniques/bow-and-arrow-cast": {
     "set": {
@@ -377,5 +405,904 @@
     },
     "reason": "CastAI stops at the overhand knot. The Davy knot takes the tag back through the loop, between the overhand and the hook; that pass is the knot.",
     "source": "netknots.com/fishing_knots/davy-knot"
+  },
+  "FishingKnots/figure-eight-loop": {
+    "set": {
+      "steps": [
+        "Step 1: Double about 6 inches of line to form a long loop",
+        "Step 2: Cross the doubled end over the standing doubled line to make a circle",
+        "Step 3: Take the doubled end around behind the standing doubled line",
+        "Step 4: Pass it down through the circle from the front. Check it shows an 8",
+        "Step 5: Wet it and pull the loop and standing line apart",
+        "Step 6: Trim the tag end"
+      ]
+    },
+    "reason": "CastAI passes the doubled end under the standing line and then up through the circle. That ties an overhand loop, which is weaker and jams. A figure eight loop is the figure eight knot tied in doubled line: around behind, then down through the circle from the front.",
+    "source": "animatedknots.com/figure-8-knot (the same knot in a doubled line)"
+  },
+  "FishingKnots/double-uni": {
+    "set": {
+      "steps": [
+        "Step 1: Overlap the braid and the leader by about 8 inches so they run alongside each other",
+        "Step 2: Take the braid's tag end, make a loop back along both lines, and wrap through the loop and around both lines 8 times",
+        "Step 3: Wet it and pull the tag end to snug that first uni knot down",
+        "Step 4: Flip everything and repeat with the leader. Loop, wrap 5 times",
+        "Step 5: Wet it and snug the second uni knot",
+        "Step 6: Pull both standing lines apart so the two knots slide together and lock against each other",
+        "Step 7: Trim both tag ends"
+      ],
+      "tips": null
+    },
+    "reason": "CastAI's steps wrap 5 to 6 times on both lines, and its own tip says braid needs 8 and the leader 5. Same wraps on both sides and the braid slips. The tip said the same thing as the card's red box, so it goes.",
+    "source": "West Marine double uni knot (6 to 8 on braid, 4 to 5 on the leader); takemefishing.org double uni (8 and 4); Tackle Warehouse double uni (the leader side gets about half the braid's wraps)"
+  },
+  "FishingKnots/surgeons-loop": {
+    "set": {
+      "tips": "Set the size of the loop by how much line you double at the start."
+    },
+    "reason": "CastAI's step 1 makes a 4 to 5 inch loop and its tip says 1 to 2 inches works great. The tip now says how to size it without a second number.",
+    "source": "CastAI FishingKnots.json surgeons-loop, steps and tips"
+  },
+  "FishingKnots/snell-knot": {
+    "replace": [
+      [
+        "bringing the tag end back toward the bend",
+        "bringing the tag end back toward the eye"
+      ]
+    ],
+    "reason": "The tag end comes through the eye and lies down the shank past the bend. A loop forms when it comes back toward the eye, not the bend.",
+    "source": "animatedknots.com/snell-knot; CastAI FishingKnots.json snell-knot steps 1 and 3"
+  },
+  "CastingTechniques/overhead-cast": {
+    "set": {
+      "steps": [
+        "Grab the rod with your dominant hand, reel facing down for spinning or up for baitcaster. Firm grip, not a death grip.",
+        "Reel in until your lure hangs 6 to 12 inches below the tip, then open the bail or hit the thumb bar.",
+        "Hold the line with your index finger (spinning) or thumb on the spool (baitcaster).",
+        "Bring the rod straight back to 2 o'clock. Keep it vertical, don't let it drift sideways.",
+        "Swing forward in one smooth motion and let go of the line at about 10 o'clock.",
+        "Follow through until the rod points at the target, lower the rod tip as the lure hits the water, and close the bail."
+      ]
+    },
+    "reason": "CastAI's step 5 says let go at 10 o'clock 'when the rod points at your target', which contradicts itself: at 10 o'clock the rod points up. You let go at 10 o'clock and follow through to the target.",
+    "source": "takemefishing.org How to Cast (release, then follow through toward the target); CastAI CastingTechniques.json overhead-cast"
+  },
+  "CastingTechniques/sidearm-cast": {
+    "set": {
+      "youtubeVideoId": "7Qx4SOjdN-8"
+    },
+    "reason": "CastAI's video (TDJuy2ypTgM) is a sidearm roll cast with a baitcaster, a different motion from this card's flat sweep. Ott DeFoe's is the sidearm sweep itself, for bridges, cover and wind, as the card says.",
+    "source": "Ott DeFoe, Ott's Garage | The Side Arm Cast (7Qx4SOjdN-8), checked with YouTube oEmbed; its description: 'A side arm cast is a powerful way to get baits a long way without too much height'"
+  },
+  "CastingTechniques/pitch-flip": {
+    "mergeInto": "flipping",
+    "reason": "Pitch and flip is the Pitching card and the Flipping card said again in one. One card each, and its names find Flipping, whose video is flipping and pitching.",
+    "source": "CastAI CastingTechniques.json pitching, flipping and pitch-flip; John Crews, How To Flip and Pitch Cast (z8NRFFFUMVY)"
+  },
+  "FlyFishingGuide/wa-spots": {
+    "items": {
+      "Rocky Ford Creek": {
+        "set": {
+          "details": [
+            "Spring-fed, so the water temperature holds steady all year",
+            "Sight fishing to big trout in clear water. You can watch them eat",
+            "Small flies: sizes 16 to 22, midges and scuds",
+            "Fish it from the bank, back from the edge",
+            "About 2.5 hours from Bonney Lake, worth the drive"
+          ]
+        },
+        "reason": "CastAI calls it flat, wade-able water to wet wade in shorts. The pamphlet: 'Bank fishing only. Fly fishing only. No wading.'",
+        "source": "eregulations.com/washington/fishing/columbia-basin-rivers-special-rules-o-s"
+      },
+      "Green River (Gorge Section)": {
+        "set": {
+          "description": "Close to home: the Green River gorge above Flaming Geyser State Park. A wadeable river with cutthroat and rainbow trout. About 30 minutes from Bonney Lake.",
+          "details": [
+            "Cutthroat and rainbow trout",
+            "Riffle, pool, riffle. Good water for learning to read a river",
+            "Walk in at Flaming Geyser State Park",
+            "Go in summer and fall",
+            "Nymphs: Pheasant Tail and Hare's Ear"
+          ],
+          "proTip": "Start at Flaming Geyser State Park: easy parking and a mix of water to practice on. Fish the riffles with a nymph rig in the morning."
+        },
+        "reason": "CastAI sends you below Howard Hanson Dam, which is inside the pamphlet's closed stretch (Tacoma Municipal Watershed Boundary Marker, 1.3 miles below the Tacoma Headworks Dam, to Friday Creek: 'CLOSED WATERS'). It says fishable year-round; trout in the open stretches is the Saturday before Memorial Day to Dec 31. 'Stocked rainbow' has no source. Kanaskat-Palmer is not proven to be below the closed stretch, so only Flaming Geyser is named.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k; SCRATCH/port/spots/flaming-geyser-card.json"
+      },
+      "Pass Lake (Fidalgo Island)": {
+        "set": {
+          "description": "A fly fishing lake on Fidalgo Island near Deception Pass, planted with big rainbow and brown trout.",
+          "details": [
+            "Float tubes, kayaks and rowboats work best. Shore fishing is limited",
+            "Damselfly and dragonfly hatches in June bring big fish to the top",
+            "Chironomids (midges) under an indicator work most of the year",
+            "About 2 hours north of Bonney Lake. Pair it with Deception Pass"
+          ]
+        },
+        "reason": "CastAI states the lake's rules as fact, and gets them wrong: 'catch and release, barbless hooks' and 'No spinning gear allowed'. The pamphlet: 'Fly fishing only. Motors prohibited.' and for game fish 'Release all trout.' Rules live on the trip card, not here.",
+        "source": "eregulations.com/washington/fishing/westside-lakes-special-rules-f-p"
+      },
+      "Carbon River": {
+        "set": {
+          "description": "A small glacial river from Mount Rainier down to Orting, with wild cutthroat. About 20 minutes from Bonney Lake.",
+          "details": [
+            "Wild cutthroat, mostly 8 to 12 inches",
+            "Tight and brushy, so roll cast",
+            "Small flies: size 14 to 18 nymphs, size 12 to 14 dry flies",
+            "Go in summer and fall"
+          ],
+          "proTip": "Short sessions close to home. Fish a size 14 Elk Hair Caddis in the riffles."
+        },
+        "reason": "CastAI says it flows right through Bonney Lake (it runs from Carbonado to Orting) and is best in spring. The mouth to Voight Creek is open Sept 1 to Oct 31 only, Voight Creek to the Hwy 162 bridge is closed water, and above that rivers open the Saturday before Memorial Day. 'Access through local parks' is not proven.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-a-c; statewide-freshwater-regulations; SCRATCH/port/spots/puyallup-research.md"
+      },
+      "Yakima River": {
+        "replace": [
+          [
+            "Year-round fishery — even winter has good nymphing",
+            "Even winter has good nymphing"
+          ]
+        ],
+        "reason": "'Year-round fishery' is a rule said as fact. True today (the pamphlet has it year-round, catch and release, selective gear) but rules live on the trip card.",
+        "source": "eregulations.com/washington/fishing/columbia-basin-rivers-special-rules-t-z"
+      }
+    },
+    "reason": "Rules said as fact in CastAI's Washington spots.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "FlyFishingGuide/reading-water": {
+    "items": {
+      "Undercut Banks": {
+        "set": {
+          "proTip": "Cast a size 10 Woolly Bugger tight against the bank and strip it slowly."
+        }
+      }
+    },
+    "reason": "CastAI's tip sends you to the Green River below Howard Hanson Dam, which is closed water.",
+    "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k"
+  },
+  "FlyFishingGuide/gear-essentials": {
+    "items": {
+      "Waders & Boots": {
+        "replace": [
+          [
+            " but are banned in some states (not WA)",
+            ""
+          ]
+        ]
+      }
+    },
+    "reason": "Where felt soles are banned is a rule said as fact.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "SalmonFishingGuide/salmon-species": {
+    "items": {
+      "Sockeye (Red Salmon)": {
+        "set": {
+          "description": "The rarest salmon here. Runs are small, and Baker Lake is the main one. Sockeye are 4 to 8 pounds, bright red when they spawn, and great eating. They eat plankton, so they rarely take bait. Use small spinners, flies or jigs.",
+          "details": [
+            "Where: Baker Lake, a few rivers",
+            "Size: 4-8 pounds, average 5-6 pounds",
+            "What makes them special: Best tasting salmon. Bright red flesh, rich flavor."
+          ],
+          "proTip": "Small spinners (size 0 or 1) in red, orange or pink."
+        },
+        "reason": "CastAI sends you to Lake Washington sockeye off the I-90 bridge. The pamphlet has salmon north of the 520 bridge only Sept 11 to Oct 31, release all salmon other than coho, and no salmon south of 520. The rule cutter had removed CastAI's '(if open)', so it read as fact, with broken text left behind.",
+        "source": "eregulations.com/washington/fishing/westside-lakes-special-rules-q-z"
+      },
+      "Chinook (King Salmon)": {
+        "replace": [
+          [
+            ", Skykomish, Cowlitz",
+            ", Cowlitz"
+          ]
+        ],
+        "reason": "The Skykomish's salmon season is Nov 1 to 30 with Chinook released; the June and July hatchery Chinook seasons were removed.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+      },
+      "Coho (Silver Salmon)": {
+        "replace": [
+          [
+            "Puget Sound (everywhere), Snoqualmie, Green River",
+            "Puget Sound (everywhere), Green River"
+          ]
+        ],
+        "reason": "The Snoqualmie has no salmon season.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+      }
+    },
+    "reason": "Where plus when, said as fact, for water that is closed.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "SalmonFishingGuide/fishing-calendar": {
+    "items": {
+      "June - July (Summer Chinook & Ocean Opener)": {
+        "set": {
+          "description": "Summer is peak salmon time. Puget Sound summer Chinook come through Possession Bar, Mid-Channel Bank, Point No Point and Admiralty Inlet. Troll with downriggers, mooch or jig. On the ocean, boats run from Westport, Ilwaco and Neah Bay for big Chinook. Summer steelhead show up in central Washington rivers.",
+          "details": [
+            "Target species: Summer Chinook (Puget Sound and ocean), summer steelhead",
+            "Where: Puget Sound (Possession Bar, Mid-Channel Bank, Point No Point), ocean (Westport, Ilwaco)",
+            "Methods: Trolling with downriggers, mooching, jigging",
+            "Tips: Early morning. Chinook bite best 5-9 AM in Puget Sound"
+          ]
+        },
+        "reason": "CastAI sends you to Lake Washington sockeye in June and July. There is no sockeye season there.",
+        "source": "eregulations.com/washington/fishing/westside-lakes-special-rules-q-z"
+      },
+      "August (Peak Ocean, Buoy 10, Early Coho)": {
+        "cut": [
+          "the Skykomish, Snohomish, and any river flowing into the Sound will have wall-to-wall pinks"
+        ],
+        "replace": [
+          [
+            ", Skykomish (pinks in odd years)",
+            ""
+          ],
+          [
+            "the bar crossing is dangerous",
+            "the ebb current near the bar is dangerous"
+          ]
+        ],
+        "set": {
+          "proTip": "In an odd year, pinks are the best first salmon for a kid: small pink spoon, cast, reel."
+        },
+        "reason": "CastAI sends kids to the Skykomish for pinks in August. The Skykomish's salmon season is Nov 1 to 30. And at Buoy 10 you fish inside the bar; the danger is the ebb current near it.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z; USCG and NOAA on the Columbia bar"
+      },
+      "September - October (Peak Coho Season)": {
+        "replace": [
+          [
+            "Where: Skykomish, Snoqualmie, Green River",
+            "Where: Green River"
+          ],
+          [
+            "Skykomish, Snoqualmie, Green River, Snohomish",
+            "Green River, Snohomish"
+          ]
+        ],
+        "set": {
+          "proTip": "The Green River in Auburn gets crowded in the fall coho run. Go on a weekday."
+        },
+        "reason": "The Snoqualmie has no salmon season and the Skykomish's is in November. CastAI's tip calls the Green in Auburn 'chaos in September and October': from the Hwy 18 bridge up it is closed water, and below it salmon opens Sept 16.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k and -s-z; SCRATCH/port/spots/auburn-narrows-card.json"
+      },
+      "November - December (Chum Salmon & Late Coho)": {
+        "replace": [
+          [
+            "Green River, Skykomish, Cowlitz",
+            "Green River, Cowlitz"
+          ]
+        ],
+        "reason": "The Skykomish's November salmon season releases chum.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+      }
+    },
+    "reason": "Where plus when, said as fact, for water that is closed then.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "SalmonFishingGuide/where-to-fish": {
+    "items": {
+      "Cascade Rivers (Skykomish, Snoqualmie, Green, Cowlitz)": {
+        "set": {
+          "description": "The Cascade rivers are where most Washington anglers start: the Skykomish, Snoqualmie, Green and Cowlitz. They are close to town, with hatchery fish and good bank access, and get crowded on weekends. The Cowlitz has spring and fall Chinook, coho and steelhead, with access from the hatchery down. Which runs are open changes by river and by year.",
+          "details": [
+            "Top rivers: Skykomish, Snoqualmie, Green River, Cowlitz (Blue Creek, Barrier Dam)",
+            "Species: Chinook, coho, chum, pinks in odd years, steelhead, by river",
+            "Methods: Float fishing, drift fishing, back-bouncing, plunking",
+            "Access: Good bank access, drift boats, easy parking"
+          ],
+          "proTip": "Weekdays beat weekends on every one of these rivers."
+        },
+        "reason": "CastAI sells the Sky for 'huge runs of Chinook' and pinks at Gold Bar in August. The Snoqualmie has no salmon season and the Skykomish's is Nov 1 to 30, Chinook and chum released.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+      },
+      "Best Spots for Bank Anglers (No Boat Needed)": {
+        "replace": [
+          [
+            "Snoqualmie (Tolt-MacDonald Park, Fall City), and Puget Sound",
+            "and Puget Sound"
+          ]
+        ],
+        "set": {
+          "proTip": "The Green River at the Auburn Narrows is a good first river. Easy parking and coho in the fall. Go on a weekday."
+        },
+        "reason": "The Snoqualmie has no salmon season. CastAI's tip sends you to the Green in Auburn; from the Hwy 18 bridge up is closed water, so the tip names the Narrows, below it.",
+        "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-d-k and -s-z; SCRATCH/port/spots/auburn-narrows-card.json"
+      },
+      "Puget Sound (Year-Round Fishing)": {
+        "set": {
+          "name": "Puget Sound"
+        },
+        "replace": [
+          [
+            "Puget Sound is a salmon fishing paradise with year-round opportunities.",
+            "Puget Sound is big salmon water, and blackmouth (resident Chinook) live in it all year."
+          ]
+        ],
+        "reason": "'Year-round fishing' is a rule said as fact; whether a marine area is open changes by area and month.",
+        "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+      },
+      "Central Washington (Yakima, Wenatchee, Methow)": {
+        "set": {
+          "description": "The Yakima and Wenatchee get small spring Chinook runs, and the Wenatchee has summer steelhead. Fewer fish, hot dry weather, less crowding than the I-5 rivers.",
+          "details": [
+            "Rivers: Yakima, Wenatchee, Methow",
+            "Runs: spring Chinook (April and May), summer steelhead on the Wenatchee",
+            "Methods: Fly fishing, float fishing, drift fishing",
+            "Access: Bank access varies, drift boat fishing popular"
+          ],
+          "proTip": "These rivers are technical. If you're new, hire a guide."
+        },
+        "reason": "After the rule cuts CastAI's text had no verb ('rivers like the Yakima, Wenatchee.'), and it called the Yakima one of the premier steelhead rivers; the pamphlet has no Yakima steelhead season, it is a catch and release trout river. Its points and tip also sold the Yakima for steelhead.",
+        "source": "eregulations.com/washington/fishing/columbia-basin-rivers-special-rules-t-z"
+      },
+      "Columbia River (Spring Chinook Heaven)": {
+        "replace": [
+          [
+            "Astoria, Ilwaco, and Cathlamet",
+            "Ilwaco and Cathlamet"
+          ],
+          [
+            "bank access at Astoria, Cathlamet, Kalama",
+            "bank access at Cathlamet, Kalama"
+          ],
+          [
+            "the bar crossing can be sketchy and",
+            "the ebb current near the bar is dangerous, and"
+          ]
+        ],
+        "reason": "Astoria is in Oregon. And at Buoy 10 you fish inside the bar; the danger is the ebb current near it.",
+        "source": "Oregon is across the river from Ilwaco; USCG and NOAA on the Columbia River bar"
+      }
+    },
+    "reason": "Where plus when, said as fact.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "SalmonFishingGuide/river-techniques": {
+    "items": {
+      "Bank Fishing vs Boat — What You Can Do Without a Drift Boat": {
+        "replace": [
+          [
+            "Skykomish, Green, Snoqualmie, Cowlitz",
+            "Skykomish, Green, Cowlitz"
+          ],
+          [
+            ", Snoqualmie (Tolt-MacDonald Park)",
+            ""
+          ]
+        ]
+      }
+    },
+    "reason": "The Snoqualmie has no salmon season.",
+    "source": "eregulations.com/washington/fishing/puget-sound-coastal-rivers-special-rules-s-z"
+  },
+  "SalmonFishingGuide/ocean-bay-fishing": {
+    "items": {
+      "Trolling with Downriggers and Flashers": {
+        "cut": [
+          "You can run 2-4 rods if you're solo or with a buddy."
+        ],
+        "reason": "Washington allows one line per angler. A two-pole endorsement covers salmon only in the marine areas WAC 220-220-160 lists.",
+        "source": "WAC 220-220-160 (as amended for 2026-27 by WSR 26-13-052); 2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+      },
+      "Jigging (Fast and Fun)": {
+        "replace": [
+          [
+            "When: Year-round for Blackmouth",
+            "When: Winter for Blackmouth"
+          ]
+        ],
+        "reason": "Year-round is a rule said as fact; blackmouth are a winter fishery.",
+        "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+      },
+      "Puget Sound Salmon Fishing Basics": {
+        "replace": [
+          [
+            ", and it's accessible year-round.",
+            "."
+          ],
+          [
+            "Chinook (summer and Blackmouth year-round)",
+            "Chinook (summer, and blackmouth, which live in the Sound all year)"
+          ]
+        ],
+        "set": {
+          "proTip": null
+        },
+        "reason": "'Accessible year-round' is a rule said as fact. The tip was about the WDFW app's rules, and after the rule cut only 'marine area maps, and catch reporting.' was left.",
+        "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+      },
+      "Ocean Fishing (Westport, Ilwaco, Neah Bay)": {
+        "replace": [
+          [
+            "Fair warning: ocean fishing is NOT for the seaside — if you get seasick",
+            "If you get seasick"
+          ]
+        ],
+        "reason": "CastAI's typo ('NOT for the seaside').",
+        "source": "CastAI SalmonFishingGuide.json"
+      }
+    },
+    "reason": "Rules said as fact in the salt.",
+    "source": "2026-27 WDFW sport fishing rules pamphlet (eregulations.com/washington/fishing, pages updated Oct 5 2026)"
+  },
+  "SalmonFishingGuide/preparing-catch": {
+    "items": {
+      "Smoking Salmon (Basic Brine Recipe)": {
+        "cut": [
+          "Smoke at 150-180°F for 3-6 hours until the fish is firm and flaky."
+        ],
+        "set": {
+          "details": [
+            "Brine: 1 gallon water, 1 cup brown sugar, 1 cup salt, garlic, soy sauce, spices (8-12 hours)",
+            "Smoker: Big Chief, Bradley, or any smoker that brings the fish to 160°F inside",
+            "Wood: Alder (traditional), apple, cherry",
+            "Process: Brine, rinse, air-dry (pellicle), smoke until the thickest piece is 160°F inside for 30 minutes, then chill or freeze"
+          ],
+          "proTip": "For less smoke taste, smoke for less time, not at a lower heat. If the smoker cannot reach 160°F inside, finish the fish in the oven."
+        }
+      }
+    },
+    "reason": "CastAI smokes at 150 to 180°F for 3 to 6 hours and says start with 3 hours. A smoker at 150°F cannot bring the fish to a safe heat: hold the fish at 160°F inside for at least 30 minutes.",
+    "source": "extension.oregonstate.edu/catalog/pub/pnw-238-smoking-fish-home-safely (OSU, WSU and UI extension)"
+  },
+  "SalmonFishingGuide/gear": {
+    "items": {
+      "River Rod Setup (Drift Fishing)": {
+        "replace": [
+          [
+            "fluorocarbon leader (20-30 feet)",
+            "fluorocarbon leader (24 to 36 inches)"
+          ],
+          [
+            "Slinky weights (2-6 oz), Gamakatsu",
+            "Slinky weights (the lightest that still ticks bottom), Gamakatsu"
+          ]
+        ],
+        "reason": "CastAI's drift leader is 20 to 30 feet; the Rig Card's own drift rig ties 24 to 36 inches and the lightest weight that taps bottom. 2 to 6 oz is for back-bouncing and plunking.",
+        "source": "rigs/content.js salmon-corky-build"
+      },
+      "Essential Terminal Tackle": {
+        "replace": [
+          [
+            "Slinky weights (2-6 oz) are perfect for bouncing",
+            "Slinky weights, the lightest that still ticks bottom, are good for bouncing"
+          ],
+          [
+            "Weights: Slinky weights 2-6 oz, pencil lead",
+            "Weights: slinky or pencil lead, the lightest that still ticks bottom (2-6 oz is for back-bouncing and plunking)"
+          ]
+        ],
+        "reason": "Weight for drifting from the bank is the lightest that ticks bottom; 2 to 6 oz is for back-bouncing and plunking.",
+        "source": "rigs/content.js salmon-corky-build"
+      }
+    },
+    "reason": "Drift gear sized for a boat.",
+    "source": "rigs/content.js"
+  },
+  "SalmonFishingGuide/first-trip-checklist": {
+    "items": {
+      "Phone Apps You Need (WDFW, Tides, Weather)": {
+        "set": {
+          "name": "Phone apps (tides, weather, maps)",
+          "description": "Your phone is one of your best fishing tools. Get a tide app (Tide Graph, Nautide) if you fish Puget Sound or tidal rivers. Tides move salmon. Get a weather app (NOAA Weather, Windy) for forecasts and marine conditions. Download offline maps (OnX, Google Maps offline) before you lose service in the mountains, and bring a portable charger.",
+          "details": [
+            "Get: Tide Graph (tides), NOAA Weather (marine forecast)",
+            "Nice to have: Windy (wind and weather), OnX Maps (offline maps), Fishbrain (catch log)",
+            "Backup: a portable charger or power bank"
+          ],
+          "proTip": null
+        },
+        "reason": "After the rule cut the text read 'best fishing tools. marine area maps, and catch reporting.' and the tip 'Also, photos are fun to look back on.' The WDFW app is for rules, which are on the trip card.",
+        "source": "CastAI SalmonFishingGuide.json"
+      },
+      "Common Beginner Mistakes to Avoid": {
+        "set": {
+          "description": "Every beginner makes the same mistakes. Gear too light for a salmon. Setting the hook too early. Wading deeper than is safe. Crowding other anglers at a busy hole. Forgetting the net. And giving up after one bad day. Salmon fishing is hard, and you will get skunked. Keep at it.",
+          "details": [
+            "Gear too light: salmon are strong, and cheap gear breaks",
+            "Setting the hook too early: let them take the bait first",
+            "Wading too deep: respect the current, wear a belt, use a wading staff"
+          ]
+        },
+        "reason": "The rule cut took mistakes (1) and (5), which left (2)(3)(4)(6)(7)(8) and 'Mistake 2' to 'Mistake 4'.",
+        "source": "CastAI SalmonFishingGuide.json"
+      }
+    },
+    "reason": "Broken text left by the rule cuts.",
+    "source": "CastAI SalmonFishingGuide.json"
+  },
+  "SalmonFishingGuide/safety": {
+    "items": {
+      "Boat Safety Basics": {
+        "replace": [
+          [
+            "Kids under 13 must wear them at all times.",
+            "Kids 12 and under wear one the whole time."
+          ],
+          [
+            "Required gear:",
+            "Gear:"
+          ]
+        ],
+        "reason": "Said as advice, not a loosely quoted law.",
+        "source": "RCW 79A.60.160 (age 12 and under, boats under 19 feet, underway)"
+      },
+      "Hypothermia Risk (PNW Water Is Cold Year-Round)": {
+        "set": {
+          "details": [
+            "Water temps: Rivers 45-55°F, ocean 50-60°F (year-round)",
+            "The first minute: cold water makes you gasp. Keep your head up and get your breathing back before you swim",
+            "Symptoms: Shivering, confusion, loss of coordination, slurred speech, unconsciousness",
+            "Prevention: Wear layers, waders with a belt, life jacket in boats, fish with a buddy",
+            "If you fall in: Get out immediately, remove wet clothes, warm up, seek medical help if symptoms worsen"
+          ]
+        },
+        "reason": "CastAI leaves out cold shock, the gasp in the first minute, which drowns people before hypothermia does.",
+        "source": "National Center for Cold Water Safety, cold shock (the 1-10-1 rule)"
+      }
+    },
+    "reason": "Safety said loosely.",
+    "source": "See each item"
+  },
+  "SeasonalGuide/saltwater-seasons": {
+    "drop": true,
+    "reason": "Redfish, mahi, tuna, stripers, bluefish, grouper, sheepshead, tarpon and pompano: Gulf and Atlantic fish. CastAI's own species table marks them not in Washington.",
+    "source": "CastAI FishSpecies.json states"
+  },
+  "ReadingWaterGuide/saltwater-reading": {
+    "items": {
+      "Mangrove Edges": {
+        "drop": true
+      },
+      "Oyster Bars": {
+        "drop": true
+      },
+      "Reef Structure": {
+        "cut": [
+          "Live bottom (coral, sponges, sea fans) on a reef holds more fish than dead rock"
+        ]
+      }
+    },
+    "reason": "Mangroves, oyster bars with redfish and snook, and coral reefs are Gulf and Atlantic water. None in Washington.",
+    "source": "CastAI FishSpecies.json states (snook, redfish not WA)"
+  },
+  "SeasonalGuide/summer": {
+    "items": {
+      "Live Bait Tactics": {
+        "drop": true
+      },
+      "Summer Crappie Patterns": {
+        "cut": [
+          "Spider rigging (multiple rods with different depths) helps you find the exact depth they're holding"
+        ]
+      },
+      "Night Fishing": {
+        "replace": [
+          [
+            "with cut bait or live shad",
+            "with cut bait"
+          ]
+        ]
+      }
+    },
+    "reason": "Live shiners, live shad and cast-net shad as bait, and several rods at once, are illegal in Washington freshwater: no live fish as bait (except listed exceptions), one line per angler.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations"
+  },
+  "SeasonalGuide/spring": {
+    "items": {
+      "Catfish Spawn Patterns": {
+        "cut": [
+          "Use jug lines, limb lines, or bank rods with cut bait near known spawning structure"
+        ]
+      },
+      "Spring Catfish": {
+        "cut": [
+          "Flatheads start biting once water temps stabilize above 60°F, targeting live bluegill or shad"
+        ]
+      },
+      "Pre-Spawn Bass": {
+        "replace": [
+          [
+            "Fish the north-facing banks first",
+            "Fish the south-facing banks (on the north shore) first"
+          ]
+        ],
+        "reason": "North-facing banks get the least sun in the northern hemisphere. South-facing banks warm first.",
+        "source": "Sun angle in the northern hemisphere"
+      }
+    },
+    "reason": "Jug lines, limb lines and live bluegill are illegal in Washington freshwater: hook and line only, one line per angler, no live fish as bait.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations"
+  },
+  "SeasonalGuide/ice-fishing": {
+    "items": {
+      "Tip-Up Pike Tactics": {
+        "drop": true
+      },
+      "Panfish Through the Ice": {
+        "set": {
+          "proTip": "For crappie through the ice, fish a small jig 6 to 12 inches off the bottom and barely jiggle it. When crappie show on your flasher but will not bite, raise the bait a foot or two. Crappie feed upward."
+        }
+      },
+      "Ice Fishing Safety Basics": {
+        "set": {
+          "details": [
+            "West of the Cascades, lowland lakes rarely freeze thick enough to stand on. Ice fishing here means eastern Washington and high lakes",
+            "Minimum safe ice thickness: 4 inches for walking, 5-7 inches for snowmobiles/ATVs, 8-12 inches for vehicles",
+            "Clear, hard ice is stronger than white or snow ice. Drill test holes as you move out",
+            "Avoid inlets, outlets, docks and bridges where current weakens ice",
+            "Carry ice picks and a throw rope, and wear a flotation suit or PFD",
+            "Never fish alone on questionable ice. Tell someone where you are"
+          ]
+        },
+        "reason": "The guide teaches the 4 inch rule but never says west side lowland lakes rarely freeze, so the app's own lakes (Tapps, Fenwick, Bonney Lake) look like ice water.",
+        "source": "northwestfishingreports.com/Articles/Details/570; heraldnet.com, Frozen lakes aren't safe to walk on"
+      }
+    },
+    "reason": "Tip-ups with live shiners, suckers and chubs, and a crappie minnow, are live fish as bait: illegal in Washington freshwater.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations"
+  },
+  "SeasonalGuide/winter": {
+    "items": {
+      "Winter Crappie": {
+        "cut": [
+          "1/16 oz jigs tipped with a minnow, fished vertically, is the most reliable winter crappie method"
+        ],
+        "replace": [
+          [
+            "Vertical jigging with tiny jigs or minnows is the method",
+            "Vertical jigging with tiny jigs is the method"
+          ]
+        ]
+      },
+      "Tailwater Fishing": {
+        "set": {
+          "proTip": "Learn the release schedule and be out of the water before the flow comes up."
+        },
+        "reason": "CastAI says to fish the first hour after generation starts. Water below a dam rises fast, and many tailraces are closed water.",
+        "source": "eregulations.com columbia-basin-rivers (closed waters below Roza and Easton dams)"
+      }
+    },
+    "reason": "Minnows as bait are live fish: illegal in Washington freshwater.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations"
+  },
+  "SeasonalGuide/monthly": {
+    "items": {
+      "June — Summer Setup": {
+        "replace": [
+          [
+            "spider rigging and vertical jigging",
+            "vertical jigging"
+          ]
+        ]
+      }
+    },
+    "reason": "Spider rigging is several rods at once: one line per angler in Washington freshwater.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations"
+  },
+  "ReadingWaterGuide/river-reading": {
+    "items": {
+      "Tailraces & Dam Outflows": {
+        "set": {
+          "proTip": "Water below a dam can rise fast with no warning. Fish from a safe bank, watch the water line, and get out when it starts coming up."
+        }
+      }
+    },
+    "reason": "CastAI says be there when the water starts moving. Water below a dam can rise fast, and many tailraces are closed water.",
+    "source": "eregulations.com columbia-basin-rivers (closed waters below Roza and Easton dams)"
+  },
+  "ReadingWaterGuide/seasonal-water": {
+    "items": {
+      "Spring Warm-up": {
+        "replace": [
+          [
+            "north-facing shorelines",
+            "south-facing shorelines (on the north shore)"
+          ]
+        ]
+      }
+    },
+    "reason": "North-facing shores get the least sun in the northern hemisphere. South-facing shores warm first.",
+    "source": "Sun angle in the northern hemisphere"
+  },
+  "TackleGuide/live-bait": {
+    "types": {
+      "Minnows": {
+        "drop": true
+      },
+      "Leeches": {
+        "drop": true
+      }
+    },
+    "reason": "Live fish and other live aquatic animals not taken from the water you fish are illegal as bait in Washington freshwater.",
+    "source": "eregulations.com/washington/fishing/statewide-freshwater-regulations ('It is unlawful to possess or use live aquatic animals as bait, except...')"
+  },
+  "BeginnersGuide/catch-release": {
+    "items": {
+      "Removing the Hook Safely": {
+        "replace": [
+          [
+            " — the hook will dissolve or pass naturally",
+            ""
+          ]
+        ],
+        "cut": [
+          "Fish can actually survive with a hook inside them — their body acids dissolve most hooks within a few weeks."
+        ]
+      },
+      "When to Keep vs Release": {
+        "set": {
+          "description": "There's nothing wrong with keeping fish for a meal. Keep only what you'll eat, and decide fast."
+        },
+        "reason": "After the rule cut the text read 'part of fishing too. keeping only what you'll eat'.",
+        "source": "CastAI BeginnersGuide.json"
+      }
+    },
+    "reason": "'The hook will dissolve' is not shown to be true, and a fish with a hook left in is not fine.",
+    "source": "Removal only"
+  },
+  "BeginnersGuide/kids": {
+    "items": {
+      "Kid-Friendly Spots": {
+        "set": {
+          "proTip": "WDFW posts its trout plants by lake. The week after a plant, kids catch fish fast."
+        }
+      }
+    },
+    "reason": "CastAI says to call the parks department about which ponds the city stocks. In Washington, WDFW plants the lakes and posts it.",
+    "source": "wdfw.wa.gov/fishing/reports/stocking/trout-plants"
+  },
+  "GearBudgetGuide/budget-100": {
+    "items": {
+      "Compact First Aid Kit": {
+        "set": {
+          "proTip": "Learn the push-through method before you need it: push the point through, cut off the barb, back the hook out. Never near an eye, a joint or a blood vessel. That is urgent care."
+        }
+      }
+    },
+    "reason": "CastAI's push-through tip has no word on where not to do it.",
+    "source": "Mayo Clinic first aid, fishhook removal"
+  },
+  "DehookingGuide/deep-hook-removal": {
+    "set": {
+      "steps": [
+        "Keep the fish in or right next to the water. A deep-hooked fish is already stressed.",
+        "Open the mouth wide (a jaw spreader helps on big fish) and find the hook before you touch anything.",
+        "If you can see the hook in the throat, slide your pliers or hook remover down the line to the shank.",
+        "Grip the shank, push forward to free the barb, then rotate and back it out.",
+        "If it is too deep to see or in the gills, do not force it. Torn gills kill fish.",
+        "For catch and release, cut the line as close to the hook as you can. Many fish shed the hook later, and it beats torn gills.",
+        "If the rules let you keep this fish, keep it and take the hook out when you clean it."
+      ]
+    },
+    "reason": "CastAI says fish dissolve hooks in a few days (not shown) and says to be more aggressive when keeping, which ignores Washington rules that make you release wild salmon and steelhead.",
+    "source": "Removal and rewording; the rules are on the trip card"
+  },
+  "DehookingGuide/gut-hooked-fish": {
+    "replace": [
+      [
+        "For catch and release: cut the line as close to the hook as possible inside the mouth — the fish's stomach acid will dissolve the hook in a few days.",
+        "For catch and release: cut the line as close to the hook as you can inside the mouth."
+      ],
+      [
+        "For keeping: this fish is a great candidate for the cooler since gut-hooked fish have lower survival rates anyway.",
+        "If the rules let you keep this fish, keep it. Gut-hooked fish often die after release."
+      ]
+    ],
+    "reason": "CastAI says stomach acid dissolves the hook in days (not shown) and calls the fish a candidate for the cooler, which ignores rules that make you release wild salmon and steelhead.",
+    "source": "Removal and rewording; the rules are on the trip card"
+  },
+  "DehookingGuide/fish-handling-safety": {
+    "replace": [
+      [
+        " — or just hit up urgent care",
+        ". Near an eye, a joint or a vessel, go to urgent care"
+      ]
+    ],
+    "reason": "The push-through method is not for a hook near an eye, a joint or a blood vessel.",
+    "source": "Mayo Clinic first aid, fishhook removal"
+  },
+  "FishSpecies/coho-salmon": {
+    "set": {
+      "funFact": "Coho find their way back to the stream where they were born, mostly by smell."
+    },
+    "reason": "CastAI says they return to 'the exact gravel bed where they were born'. They home to their stream, not one bed.",
+    "source": "NOAA Fisheries, coho salmon"
+  },
+  "FishSpecies/cutthroat-trout": {
+    "set": {
+      "funFact": "There are many kinds of cutthroat across the West, and some live in only one creek."
+    },
+    "reason": "CastAI says each of 14 subspecies is 'adapted to a specific river', which overstates it.",
+    "source": "Behnke, Trout and Salmon of North America"
+  },
+  "FishSpecies/yellow-perch": {
+    "set": {
+      "funFact": "Yellow perch lay their eggs in a long accordion-folded ribbon, up to about 7 feet long with 100,000 eggs."
+    },
+    "reason": "CastAI says over 7 feet; the record ribbons are about 7 feet.",
+    "source": "Wisconsin Sea Grant, yellow perch"
+  },
+  "FishSpecies/striped-bass": {
+    "set": {
+      "states": [
+        "AZ",
+        "TN"
+      ]
+    },
+    "reason": "CastAI's states for this fish: takes out Washington. No striped bass population in Washington; strays in the lower Columbia are not a fishery.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/muskie": {
+    "set": {
+      "states": [
+        "TN"
+      ]
+    },
+    "reason": "CastAI's states for this fish: takes out Washington. Washington has tiger muskie, a hybrid, not muskellunge.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/softshell-crab": {
+    "set": {
+      "states": [
+        "CA"
+      ]
+    },
+    "reason": "CastAI's states for this fish: takes out Washington. Softshell crab is the Atlantic blue crab, molting. Not in Washington.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/white-sucker": {
+    "set": {
+      "states": [
+        "CO",
+        "MN"
+      ]
+    },
+    "reason": "CastAI's states for this fish: takes out Washington. White sucker is not in Washington; the suckers here are largescale and others.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/burbot": {
+    "set": {
+      "states": [
+        "AK",
+        "MN",
+        "WA"
+      ]
+    },
+    "reason": "CastAI's states for this fish: adds Washington. Burbot live in Washington: Lake Roosevelt, Bead, Sullivan and other northeast lakes.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/lake-whitefish": {
+    "set": {
+      "states": [
+        "MN",
+        "WI",
+        "WA"
+      ]
+    },
+    "reason": "CastAI's states for this fish: adds Washington. Lake whitefish live in Washington: Banks Lake, Lake Roosevelt and the Columbia.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/rockfish-blue": {
+    "set": {
+      "states": [
+        "CA",
+        "WA"
+      ]
+    },
+    "reason": "CastAI's states for this fish: adds Washington. Blue rockfish range from Alaska to Baja, Washington's coast among it.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
+  },
+  "FishSpecies/golden-trout": {
+    "set": {
+      "states": [
+        "AZ",
+        "CO",
+        "WA"
+      ]
+    },
+    "reason": "CastAI's states for this fish: adds Washington. WDFW plants golden trout in some high lakes.",
+    "source": "WDFW species pages (wdfw.wa.gov/species-habitats/species)"
   }
 }

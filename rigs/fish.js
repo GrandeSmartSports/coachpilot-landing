@@ -1180,6 +1180,27 @@
   };
 
 
+  // A J hook on its own, the line snelled to it and running off the top: the
+  // Unhooking guide's picture. Eye, shank, a deep bend, the point and its barb.
+  S.hook = {
+    box: "-50 4 430 188", name: "Hook", latin: "",
+    draw: function () {
+      var id = "fphook";
+      var shank = "M196 34V118C196 160 166 176 136 176C104 176 86 156 86 128C86 112 92 102 100 96";
+      var barb = "M100 96L92 112";
+      var line = "M196 22C200 12 214 6 236 4C268 1 330 0 420 -8";
+      return '<defs><linearGradient id="' + id + '-m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--t-metal2)"/><stop offset=".5" style="stop-color:var(--t-metal)"/><stop offset="1" style="stop-color:var(--t-metal3)"/></linearGradient></defs>' +
+        '<g class="fp fp-hook"' + grain() + ' transform="rotate(12 150 96)">' +
+        '<path class="t-hooksh" d="' + shank + '" transform="translate(3 6)" filter="url(#fp-b3)"/>' +
+        // a dark edge under the steel, so the hook holds its shape on the pale bench
+        '<path class="t-hooksh" d="' + shank + barb + '" style="opacity:.35;stroke-width:10"/>' +
+        '<path class="t-hook" d="' + shank + barb + '" style="stroke-width:7"/><path class="t-hooklit" d="M192.4 40V118C192.4 152 170 168 140 170"/>' +
+        '<circle class="t-eye" cx="196" cy="24" r="10"/><circle class="t-eyelit" cx="196" cy="24" r="10"/>' +
+        '<path class="t-cord-e" d="' + line + '"/><path class="t-cord" d="' + line + '"/><path class="t-cord-l" d="M200 18C214 8 236 6 268 -1C330 -4 380 -6 420 -11"/>' +
+        "</g>";
+    }
+  };
+
   // ---- the plates, by name -------------------------------------------------
   // The filters every plate shares live once in the page, in a hidden svg.
   function defs() {

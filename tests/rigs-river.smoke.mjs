@@ -118,8 +118,8 @@ try {
   await page.locator('[data-addtrip="salmon-egg-loop"]').click();
   await page.locator("[data-mode-field]").first().click();
   await page.waitForSelector('.fieldmode [data-card="salmon-egg-loop"] .rail button');
-  ok(await page.locator('[data-card="salmon-egg-loop"] .rail button').count() === 4,
-    "egg loop player works in field mode");
+  ok(await page.locator('[data-card="salmon-egg-loop"] .rail button').count() === 6,
+    "egg loop player works in field mode (six steps: the long end wraps, back through the eye the other way, 5 more, seat, open the loop)");
 
   ok(errors.length === 0, "no page errors", errors.join(" | "));
 } catch (e) {

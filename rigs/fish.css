@@ -452,7 +452,7 @@
 .fp .c-rimlit{fill:none;stroke:var(--f-lit);stroke-width:2.4;opacity:.3;stroke-linejoin:round}
 
 /* ================= tackle on the bench ================= */
-:root .fp-rod,:root .fp-knot{
+:root .fp-rod,:root .fp-knot,:root .fp-hook{
   --t-cork:color-mix(in oklab,var(--ochre) 46%,var(--paper));
   --t-cork2:color-mix(in oklab,var(--ochre) 30%,var(--paper));
   --t-cork3:color-mix(in oklab,color-mix(in oklab,var(--ochre) 60%,var(--shore)) 62%,var(--paper));
@@ -464,7 +464,7 @@
   --t-cord-e:color-mix(in oklab,var(--shore) 70%,var(--water2));
   --t-tag:color-mix(in oklab,var(--vermilion) 80%,var(--gold));
 }
-:root[data-dark="1"] .fp-rod,:root[data-dark="1"] .fp-knot{
+:root[data-dark="1"] .fp-rod,:root[data-dark="1"] .fp-knot,:root[data-dark="1"] .fp-hook{
   --t-cork:color-mix(in oklab,var(--ochre) 54%,var(--ink2));
   --t-cork2:color-mix(in oklab,var(--ochre) 60%,var(--ink));
   --t-cork3:color-mix(in oklab,var(--ochre) 36%,var(--paper));

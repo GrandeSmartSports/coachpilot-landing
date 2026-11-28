@@ -8,6 +8,7 @@
 //   node scripts/import-castai-library.mjs                 write rigs/library.js and docs/castai-library-fixes.md
 //   node scripts/import-castai-library.mjs --check         exit 1 if either file is not what this would write
 //   node scripts/import-castai-library.mjs --check-videos  ask YouTube oEmbed about every video, rewrite the fixture
+//   node scripts/import-castai-library.mjs --said          list the tips and mistakes dropped as said twice
 //
 // Where CastAI is read from: CASTAI_RESOURCES, default below. Read only.
 //
@@ -65,21 +66,77 @@ for (const [key, o] of Object.entries(OVR)) {
 const srcHash = createHash("sha256").update(FILES.map((f) => raw[f]).join("\n")).digest("hex").slice(0, 12);
 
 // ---- what the import did, for the fixes doc ---------------------------------
-const log = { applied: [], unused: [], rules: [], sections: [], items: [], videos: [] };
+const log = { applied: [], unused: [], rules: [], sections: [], items: [], videos: [], notHere: [] };
+// Fish that are not in Washington (scripts/castai-library-voice.json, notHere):
+// a guide bullet that names one is about a lake down south.
+const NOT_HERE = VOICE.notHere ? new RegExp("\\b(" + VOICE.notHere.words.map((w) => w.replace(/ /g, "\\s+")).join("|") + ")\\b", "i") : null;
 
 // ---- corrections ---------------------------------------------------------------
 const usedOverrides = new Set();
+// One entry can: set fields (CastAI's own names), replace words in every text
+// of the entry ("replace": [[from, to]]), drop it ("drop": true), fold a
+// duplicate card into another ("mergeInto": id), and fix a guide section's
+// items or a tackle section's types by CastAI's name ("items"/"types":
+// { name: { set, cut, replace, drop } }). A cut or a replace that finds
+// nothing stops the import, so an override can never go quietly stale.
+function deepReplace(v, pairs, hits) {
+  if (typeof v === "string") return pairs.reduce((t, [a, b], i) => { if (t.includes(a)) { hits[i] = true; return t.split(a).join(b); } return t; }, v);
+  if (Array.isArray(v)) return v.map((x) => deepReplace(x, pairs, hits));
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, k === "id" ? x : deepReplace(x, pairs, hits)]));
+  return v;
+}
+function replaced(key, obj, pairs, why) {
+  if (!pairs || !pairs.length) return obj;
+  const hits = [], out = deepReplace(obj, pairs, hits);
+  pairs.forEach(([a, b], i) => {
+    if (!hits[i]) throw new Error("override " + key + ": nothing to replace for \"" + a + "\"");
+    log.applied.push({ key, field: b ? "words" : "cut", was: a, now: b || "(cut)", reason: why.reason, source: why.source });
+  });
+  return out;
+}
 function corrected(file, obj) {
   const key = file + "/" + obj.id;
   const o = OVR[key];
   if (!o) return obj;
   usedOverrides.add(key);
   if (o.add) return obj;
-  const out = { ...obj };
+  if (o.drop) { log.applied.push({ key, field: "(whole section)", was: obj.title || obj.name, now: "(dropped)", reason: o.reason, source: o.source }); return null; }
+  if (o.mergeInto) { log.applied.push({ key, field: "(whole card)", was: obj.name, now: "(folded into " + o.mergeInto + ")", reason: o.reason, source: o.source }); return null; }
+  let out = replaced(key, { ...obj }, o.replace, o);
   for (const [k, v] of Object.entries(o.set || {})) {
     log.applied.push({ key, field: k, was: obj[k], now: v, reason: o.reason, source: o.source });
     out[k] = v;
   }
+  return out;
+}
+const nmKey = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+function fixItems(key, list) {
+  const o = OVR[key], fixes = o && (o.items || o.types);
+  if (!fixes) return list;
+  const seen = new Set(), out = [];
+  for (const it0 of list) {
+    const n = Object.keys(fixes).find((k) => nmKey(k) === nmKey(it0.name));
+    if (!n) { out.push(it0); continue; }
+    seen.add(n);
+    const f = fixes[n], where = key + " › " + it0.name, why = { reason: f.reason || o.reason, source: f.source || o.source };
+    if (f.drop) { log.applied.push({ key: where, field: "(whole item)", was: it0.name, now: "(dropped)", ...why }); continue; }
+    let it = { ...it0 };
+    for (const c of f.cut || []) {
+      const fields = ["description", "proTip", "technique"].filter((k) => typeof it[k] === "string" && it[k].includes(c));
+      const inDetails = (it.details || []).some((d) => d.includes(c));
+      if (!fields.length && !inDetails) throw new Error("override " + where + ": nothing to cut for \"" + c + "\"");
+      for (const k of fields) it[k] = it[k].split(c).join("").replace(/\s{2,}/g, " ").replace(/\s+([.,])/g, "$1").trim() || null;
+      if (inDetails) it.details = it.details.map((d) => d.split(c).join("").trim()).filter((d) => /[A-Za-z0-9]/.test(d));
+      log.applied.push({ key: where, field: "cut", was: c, now: "(cut)", ...why });
+    }
+    it = replaced(where, it, f.replace, why);
+    for (const [k, v] of Object.entries(f.set || {})) {
+      log.applied.push({ key: where, field: k, was: it0[k], now: v, ...why });
+      it[k] = v;
+    }
+    out.push(it);
+  }
+  for (const k of Object.keys(fixes)) if (!seen.has(k)) throw new Error("override " + key + " names an item CastAI does not have: " + k);
   return out;
 }
 
@@ -96,10 +153,36 @@ const HYPE = [
   [/\bcrazy(?=\s+(strong|easy|accurate|good|fast))/gi, (m) => (m[0] === "C" ? "Very" : "very")],
   [/\blike crazy\b/gi, "hard"], [/\binsanely\b/gi, "very"], [/\binsane\b/gi, "huge"],
   [/\bdon'?t yeet it back\b/gi, "do not throw it"], [/\byeet\b/gi, "throw"], [/\bgnarly\b/gi, "rough"],
-  [/\bgo-to\b/gi, "first choice"], [/\bfor a sec\b/gi, "for a moment"]
+  [/\bgo-to\b/gi, "first choice"], [/\bfor a sec\b/gi, "for a moment"],
+  // the hype words of CastAI's guides, said plainly; literal danger stays
+  // ("deadly conditions", "a fall can turn deadly")
+  [/\bactually\s+/gi, ""], [/\b(an? )?(absolute )?game[- ]changers?\b/gi, "a big help"],
+  [/\b(is|are) prime time\b/gi, "$1 the best time"], [/\bprime time\b/gi, "best time"], [/\bprime real estate\b/gi, "good water"], [/\bprime\b/gi, "good"],
+  [/\bbut crushes it\b/gi, "but works"], [/\bcrush panfish\b/gi, "catch panfish"],
+  [/\b(crush|smash)(es|ed|ing)?\b/gi, (m, a, e) => (m[0] === m[0].toUpperCase() ? "H" : "h") + "it" + (e === "es" ? "s" : e === "ing" ? "ting" : "")],
+  [/\b(?<!turn )deadly\b(?! (conditions|fast))/gi, "very good"],
+  [/\bis chaos in the best way\b/gi, "is busy"], [/\bcan be chaos\b/gi, "can be crowded"], [/\bit'?s chaos and excitement\b/gi, "everyone scrambles"],
+  [/\binto the chaos\b/gi, "into the feeding fish"], [/\bsurface chaos\b/gi, "surface feeding"], [/\bcause chaos on the surface\b/gi, "splash on the surface"],
+  [/\s*for (absolute )?chaos\b/gi, ""], [/\bthe absolute\b/gi, "the"], [/\babsolute\s+/gi, ""], [/\bchaos\b/gi, "a frenzy"],
+  [/\b(is|are) legendary for\b/gi, "$1 known for"], [/\b(is|are) legendary\b/gi, "$1 well known"], [/\blegendary\b/gi, "well known"],
+  [/\bamazing\b/gi, "very good"], [/\bis killer at\b/gi, "works well at"], [/\bkiller\b/gi, "good"],
+  [/\ba monster\b/gi, "a big fish"], [/\bmonsters\b/gi, "big fish"], [/\bmonster\b/gi, "big"], [/\bawesome\b/gi, "good"],
+  [/\bwinter catfish heaven\b/gi, "a winter catfish spot"], [/\s*heaven\b/gi, ""], [/\bincredibly\b/gi, "very"], [/\bincredible\b/gi, "very good"],
+  [/\blike a hawk\b/gi, "closely"], [/\blike a missile\b/gi, "fast"], [/\blike a vise\b/gi, "tight"],
+  [/\b(\d+) is the magic number\b/gi, "$1 is the number"], [/\bit'?s magic\b/gi, "it works"], [/\bpure magic\b/gi, "the best time"],
+  [/\bwhere the magic happens\b/gi, "where the bites come"], [/\bwhen the magic starts\b/gi, "when the fishing turns on"],
+  [/,?\s*looking like a total pro\b/gi, ""], [/,?\s*cold wet awesome fishing\b/gi, ""], [/\bchrome-plated fighting machines\b/gi, "bright, strong fish"],
+  [/\bThe king of the Pacific\./g, "The biggest Pacific salmon."], [/\bThe long rod king of big rivers\./g, "The long rod for big rivers."],
+  [/\bThe king of braid-to-leader connections\./g, "The slimmest braid to leader knot."], [/\bNinja-level stealth casts\b/g, "Quiet casts"],
+  [/\bThe fly casting turbo boost\./g, "More line speed, for distance."], [/\bpiss (them|it) off\b/gi, "make $1 strike"], [/\bridiculous\b/gi, "very good"],
+  [/\bis bucket-list fishing\b/gi, "draws anglers from all over"], [/\b(have|has|is) a blast\b/gi, (m, v) => v + (v === "is" ? " fun" : " fun")],
+  [/\bPhD-level picky\b/gi, "very picky"], [/\ba bucket-list\b/gi, "a trophy"], [/\bbeast\b/gi, "fish"], [/\bThe king of (\w+)\./g, "The biggest $1."], [/\bthe scenery is unreal\b/gi, "the scenery is grand"], [/\bexplode on\b/gi, "hit"]
 ];
 const ACRONYMS = new Set(["WDFW", "NOAA", "PNW", "GPS", "PFD", "PFDs", "USCG", "LED", "UV", "ASA", "IGFA", "DNR", "EVA", "PVC", "USA", "FTWQ",
-  "ORVIS", "MLF", "BASS", "AFTCO", "YETI", "RIO", "SST", "UPF", "SPF", "DIY", "CPR", "GOAT"]);
+  "ORVIS", "MLF", "BASS", "AFTCO", "YETI", "RIO", "SST", "UPF", "SPF", "DIY", "CPR", "GOAT", "VHF", "USGS", "BWO", "BWOs", "HMG", "DOA", "PDF", "TV",
+  "BB", "II", "PB", "US", "AM", "PM"]);
+const MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec";
+const CLAUSE = /^(it|it's|this|that|they|they're|you|you're|you'll|we|there|stay|follow|keep|use|let|don't|do|try|watch|be|just|make|hold|pull|check|get|leave|bring|wait|stop|start|aim|look|go|set|fish|cast)\b/i;
 // Joins a dash's two sides: a short tail is a clause (comma), a long one a sentence.
 function undash(s) {
   let t = s.replace(/(\d)\s*[\u2013\u2014]\s*(\d)/g, "$1 to $2");
@@ -111,7 +194,10 @@ function undash(s) {
     const words = tail ? tail.split(/\s+/).length : 0;
     const before = t.slice(0, i);
     if (!tail || /[:(]\s*$/.test(before)) { t = before + (tail ? " " : "") + rest; continue; }
-    if (words <= 5 || /^[$\d(]/.test(tail) || /\($/.test(before) || /\([^)]*$/.test(before)) t = before + ", " + rest;
+    // a short tail is a clause, unless it is a sentence of its own ("it
+    // helps", "stay safe", "follow through"): then a comma would splice
+    const own = words >= 2 && CLAUSE.test(tail) && !/\([^)]*$/.test(before);
+    if (!own && (words <= 5 || /^[$\d(]/.test(tail) || /\($/.test(before) || /\([^)]*$/.test(before))) t = before + ", " + rest;
     else t = before.replace(/[,;:]$/, "") + ". " + rest.charAt(0).toUpperCase() + rest.slice(1);
   }
   return t;
@@ -122,10 +208,15 @@ function voice(s) {
   t = undash(t);
   for (const [re, to] of HYPE) t = t.replace(re, to);
   t = t.replace(/!+/g, ".").replace(/\?\./g, "?");
+  // A range reads "2 to 4", never "2-4" (it reads as a dash, and a narrow
+  // screen breaks the line at the hyphen).
+  t = t.replace(/(\d(?:\s?[ap]m)?)\s*-\s*(?=\d)/gi, "$1 to ")
+    .replace(new RegExp("\\b(" + MONTHS + ")\\s*-\\s*(?=(" + MONTHS + ")\\b)", "g"), "$1 to ");
   // SHOUTED words are said plainly; real acronyms stay.
+  t = t.replace(/\b[A-Z]{2,}['\u2019][A-Z]+\b/g, (w) => w.toLowerCase()).replace(/\b(DO|IS|GO)\b/g, (w) => w.toLowerCase());
   t = t.replace(/\b[A-Z]{3,}\b/g, (w) => (ACRONYMS.has(w) ? w : w.toLowerCase()));
-  t = t.replace(/\.\s*\.(?!\.)/g, ".").replace(/\s+([,.;:?])/g, "$1").replace(/,\s*,/g, ",").replace(/,\./g, ".")
-    .replace(/\(\s*\)/g, "").replace(/\s{2,}/g, " ").trim();
+  t = t.replace(/\(\s*\)/g, "").replace(/\.\s*\.(?!\.)/g, ".").replace(/\s+([,.;:?])/g, "$1").replace(/,\s*,/g, ",").replace(/,\./g, ".")
+    .replace(/\s{2,}/g, " ").trim().replace(/,$/, ".");
   // a sentence never starts small after we cut its first word
   t = t.replace(/(^|[.?]\s+)([a-z])/g, (m, a, b) => a + b.toUpperCase());
   return t;
@@ -141,7 +232,8 @@ const PROPER = ["Washington", "WA", "PNW", "WDFW", "Puget Sound", "Columbia Rive
   "Jan", "Feb", "Mar", "Apr", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "I", "TV", "PFD", "FG", "Bimini", "Palomar", "Rapala",
   "Albright", "Alberto", "Bristol", "Trilene", "San Diego", "Berkley", "Davy", "Spey", "Woolly Bugger", "Clouser", "Senko"];
 function sentenceCase(s) {
-  const t = voice(s).replace(/\s*&\s*/g, " and ");
+  // a dash in a heading is a colon ("Bank fishing vs boat: what you can do")
+  const t = voice(String(s).replace(/\s*[\u2013\u2014]\s*/g, ": ")).replace(/\s*&\s*/g, " and ");
   const keep = [];
   let marked = t;
   PROPER.slice().sort((a, b) => b.length - a.length).forEach((p) => {
@@ -206,7 +298,8 @@ function video(id, subject, where) {
   const v = FIX.videos[id];
   if (!v) { log.videos.push({ where, id, why: "not checked (run --check-videos)" }); return null; }
   if (!subject.test(norm(v.title))) { log.videos.push({ where, id, why: "title does not name the subject: " + v.title }); return null; }
-  return { id, title: voice(v.title), by: voice(v.by) };
+  // the channel, without the slogan some channels carry ("Bassresource - The Ultimate ...")
+  return { id, title: voice(v.title), by: voice(v.by).split(/\s[-|]\s/)[0] };
 }
 const wanted = []; // every video the import would ship, for --check-videos
 
@@ -227,22 +320,53 @@ const SUBJECT = {
   "gut-hooked-fish": ["swallowed", "gut"], "catch-and-release": ["catch and release"], "fish-handling-safety": ["hold"]
 };
 
+// ---- the same thing said twice ------------------------------------------------------
+// A card's red "where it fails" box is the Rig Card's own line. When CastAI's
+// tip (or one of a cast's mistakes) says the same thing, it goes: a card
+// says a thing once. "Same": half the shorter line's words are in the other.
+const STOPW = new Set("the and you your for with that this then than from not are its into out off but can will just one two all any get got has have".split(" "));
+const stem = (w) => w.replace(/(ing|ed|es|s)$/, "");
+const words = (s) => new Set(norm(s).split(" ").filter((w) => w.length > 2 && !STOPW.has(w)).map(stem));
+function sameAs(a, b) {
+  const A = words(a), B = words(b);
+  if (!A.size || !B.size) return false;
+  let n = 0;
+  A.forEach((w) => { if (B.has(w)) n++; });
+  return n / Math.min(A.size, B.size) >= 0.5;
+}
+const said = []; // what the import dropped as said twice, for --said
+
+// ---- duplicate cards ----------------------------------------------------------------
+// A card CastAI has twice under two names (the Rapala loop is the Rapala knot)
+// is one card here; the other name finds it.
+const merged = {};
+for (const [key, o] of Object.entries(OVR)) {
+  if (key === "_about" || !o.mergeInto) continue;
+  const [file, id] = key.split("/"), v = (file === "FishingKnots" ? VOICE.knots : VOICE.casts)[id], c = data[file].find((x) => x.id === id);
+  if (!c) continue;
+  (merged[o.mergeInto] = merged[o.mergeInto] || []).push(...[c.name].concat(v ? [v.name].concat(v.aka) : []));
+}
+
 // ---- knots -----------------------------------------------------------------------
 const knots = data.FishingKnots.map((k0) => {
-  const k = corrected("FishingKnots", k0), v = VOICE.knots[k.id];
+  const k = corrected("FishingKnots", k0);
+  if (!k) return null;
+  const v = VOICE.knots[k.id];
   if (!v) throw new Error("no voice line for knot " + k.id);
   const subj = subjectFor(v.name, SUBJECT[k.id]);
   if (k.youtubeVideoId) wanted.push({ id: k.youtubeVideoId, subject: subj.source, where: "knot " + k.id });
   const r = (f) => unrule("FishingKnots › " + k.id + " › " + f, voice(k[f])).text;
+  let tip = r("tips");
+  if (tip && sameAs(tip, v.fails)) { said.push("knot " + k.id + " tip: " + tip); tip = ""; }
   return {
     id: k.id, name: v.name, castai: k.name, joins: v.joins, level: k.difficulty, line: v.line,
-    about: r("description"), best: r("bestFor"), steps: k.steps.map(strip), fails: v.fails, tip: r("tips"),
+    about: r("description"), best: v.best || r("bestFor"), steps: k.steps.map(strip), fails: v.fails, tip,
     video: video(k.youtubeVideoId, subj, "knot " + k.id),
     hand: { "improved-clinch": "knot-improved-clinch", "non-slip-loop": "knot-non-slip-loop", "egg-loop-knot": "salmon-egg-loop" }[k.id] || null,
     added: !!k._added,
-    aka: [...new Set([v.name, k.name].concat(v.aka).map((x) => x.toLowerCase()))]
+    aka: [...new Set([v.name, k.name].concat(v.aka, merged[k.id] || []).map((x) => x.toLowerCase()))]
   };
-});
+}).filter(Boolean);
 const groupOrder = VOICE.knotGroups.map((g) => g.id);
 knots.sort((a, b) => {
   const fa = VOICE.firstKnots.indexOf(a.id), fb = VOICE.firstKnots.indexOf(b.id);
@@ -254,19 +378,23 @@ const casts = VOICE.castOrder.map((id) => {
   const c0 = data.CastingTechniques.find((x) => x.id === id);
   if (!c0) throw new Error("CastAI has no cast " + id);
   const c = corrected("CastingTechniques", c0), v = VOICE.casts[id];
+  if (!c) throw new Error("castOrder lists " + id + ", which is folded into another card");
   const subj = subjectFor(v.name, SUBJECT[id]);
   if (c.youtubeVideoId) wanted.push({ id: c.youtubeVideoId, subject: subj.source, where: "cast " + id });
   const where = "CastingTechniques › " + id;
+  const mistakes = c.commonMistakes.map((m) => voice(m.replace(/\s*=\s*/g, ": "))).map((m) => /[.?]$/.test(m) ? m : m + ".")
+    .filter((m) => { if (sameAs(m, v.fails)) { said.push("cast " + id + " mistake: " + m); return false; } return true; });
+  const vid = video(c.youtubeVideoId, subj, "cast " + id);
+  if (vid && v.videoNote) vid.note = v.videoNote;
   return {
     id, name: v.name, castai: c.name, group: v.group, level: c.difficulty, line: v.line,
-    about: unrule(where + " › description", voice(c.description)).text, best: unrule(where + " › bestFor", voice(c.bestFor)).text,
-    steps: c.steps.map(strip), fails: v.fails,
-    mistakes: c.commonMistakes.map((m) => voice(m.replace(/\s*=\s*/g, ": "))).map((m) => /[.?]$/.test(m) ? m : m + "."),
-    video: video(c.youtubeVideoId, subj, "cast " + id),
-    aka: [...new Set([v.name, c.name].concat(v.aka).map((x) => x.toLowerCase()))]
+    about: unrule(where + " › description", voice(c.description)).text, best: v.best || unrule(where + " › bestFor", voice(c.bestFor)).text,
+    steps: c.steps.map(strip), fails: v.fails, mistakes, video: vid,
+    aka: [...new Set([v.name, c.name].concat(v.aka, merged[id] || []).map((x) => x.toLowerCase()))]
   };
 });
-if (casts.length !== data.CastingTechniques.length) throw new Error("castOrder misses a cast");
+const castsHere = data.CastingTechniques.filter((x) => !(OVR["CastingTechniques/" + x.id] || {}).mergeInto).length;
+if (casts.length !== castsHere) throw new Error("castOrder misses a cast");
 
 // ---- guides ----------------------------------------------------------------------------
 // One shape for every guide: sections, each with a line and items (name, text,
@@ -276,15 +404,25 @@ function item(file, sec, it) {
   const d = unrule(where, voice(it.description));
   // In the salmon guide's fish list "Season:" is when the run comes in, not a
   // fishing season, so it says so.
-  const pts = (it.details || []).map((x) => unrule(where, voice(sec === "salmon-species" ? x.replace(/^Season:\s*/, "Runs: ") : x))).filter((x) => x.text);
-  const cutPts = (it.details || []).length - pts.length;
+  const here = (it.details || []).filter((x) => {
+    if (!NOT_HERE || !VOICE.notHere.files.includes(file) || !NOT_HERE.test(x)) return true;
+    log.notHere.push({ where, text: x });
+    return false;
+  });
+  const pts = here.map((x) => unrule(where, voice(sec === "salmon-species" ? x.replace(/^Season:\s*/, "Runs: ") : x))).filter((x) => x.text);
+  const cutPts = here.length - pts.length;
   const tip = unrule(where + " › tip", voice(it.proTip));
   // An item that is mostly rules is a rules item: it goes, and is listed.
-  if (RULES_SECTION.test(it.name) || (d.all && d.cut / d.all >= 0.5) || ((it.details || []).length && cutPts / it.details.length > 0.5 && d.cut)) {
+  if (RULES_SECTION.test(it.name) || (d.all && d.cut / d.all >= 0.5) || (here.length && cutPts / here.length > 0.5 && d.cut)) {
     log.items.push({ where });
     return null;
   }
-  const out = { name: sentenceCase(it.name), text: d.text, points: pts.map((x) => x.text) };
+  // A part opens on its points, short lines. CastAI's paragraph waits behind
+  // More. With no points, the first two sentences show and the rest waits.
+  const all = sentences(d.text), points = pts.map((x) => x.text);
+  const out = { name: sentenceCase(it.name), text: points.length ? "" : all.slice(0, 2).join(" "), points };
+  const more = (points.length ? all : all.slice(2)).join(" ");
+  if (more) out.more = more;
   if (tip.text) out.tip = tip.text;
   if (it.youtubeVideoId) { const v = video(it.youtubeVideoId, subjectFor(it.name), where); if (v) out.video = v; }
   out.ruled = !!(d.cut || cutPts || tip.cut);
@@ -298,9 +436,8 @@ function section(file, s, items, extra) {
     log.sections.push({ where, title: s.title || s.name });
     return { id: s.id, title: "Rules", line: "On your trip's card, checked", rules: true };
   }
-  const out = { id: s.id, title, line: voice(s.subtitle || s.description || ""), items: kept.map(({ ruled, ...x }) => x), ...extra };
-  if (kept.some((x) => x.ruled)) out.ruledOut = true;
-  return out;
+  const line = (VOICE.sectionLines || {})[file + "/" + s.id];
+  return { id: s.id, title, line: line != null ? line : voice(s.subtitle || s.description || ""), items: kept.map(({ ruled, ...x }) => x), ...extra };
 }
 function guideFrom(meta) {
   const file = meta.file;
@@ -320,8 +457,10 @@ function guideFrom(meta) {
     });
   } else if (file === "TackleGuide") {
     sections = data.TackleGuide.map((s0) => {
-      const s = corrected(file, s0), where = file + " › " + s.id;
-      const items = s.types.map((t) => item(file, s.id, {
+      const s = corrected(file, s0);
+      if (!s) return null;
+      const where = file + " › " + s.id;
+      const items = fixItems(file + "/" + s.id, s.types).map((t) => item(file, s.id, {
         name: t.name, description: t.description, youtubeVideoId: t.youtubeVideoId,
         details: [t.bestFor && t.bestFor.length ? "Best for: " + t.bestFor.join(", ") : null, t.technique ? "How: " + t.technique : null].filter(Boolean)
       }));
@@ -329,9 +468,12 @@ function guideFrom(meta) {
       const tip = unrule(where + " › tip", voice(s.tips)).text;
       if (tip && !sec.rules) sec.tip = tip;
       return sec;
-    });
+    }).filter(Boolean);
   } else {
-    sections = data[file].map((s0) => { const s = corrected(file, s0); return section(file, s, s.items.map((it) => item(file, s.id, it))); });
+    sections = data[file].map((s0) => {
+      const s = corrected(file, s0);
+      return s ? section(file, s, fixItems(file + "/" + s.id, s.items).map((it) => item(file, s.id, it))) : null;
+    }).filter(Boolean);
   }
   return { id: meta.id, title: meta.title, line: meta.line, view: meta.view || "", from: file, sections };
 }
@@ -355,7 +497,7 @@ for (const [rig, m] of Object.entries(VOICE.fish)) {
   if (!s) throw new Error("no CastAI fish " + m.from);
   const f = { from: m.from };
   for (const k of m.show) {
-    let v = s[k];
+    let v = k === "text" && m.text ? m.text : s[k];
     if (k === "lures") v = (v || []).filter((x) => !(m.dropLures || []).includes(x));
     if (typeof v === "string") for (const c of m.cut || []) v = v.split(c).join("");
     if (v && (!Array.isArray(v) || v.length)) f[k] = v;
@@ -422,6 +564,11 @@ const doc = [
   "",
   ...log.rules.map((r) => "- " + r.where + ": \"" + r.text.replace(/"/g, "'") + "\""),
   "",
+  "## Not in Washington (" + log.notHere.length + ")",
+  "",
+  ...(VOICE.notHere ? [VOICE.notHere.why, ""] : []),
+  ...(log.notHere.length ? log.notHere.map((r) => "- " + esc(r.where) + ": \"" + esc(r.text).replace(/"/g, "'") + "\"") : ["None."]),
+  "",
   "## Videos not shipped (" + log.videos.length + ")",
   "",
   ...(log.videos.length ? log.videos.map((v) => "- " + v.where + ": " + v.id + ", " + v.why) : ["None."]),
@@ -429,6 +576,7 @@ const doc = [
   ...(log.unused.length ? ["## Overrides CastAI no longer needs", "", ...log.unused.map((k) => "- " + k + " (the id is gone from CastAI)"), ""] : [])
 ].join("\n");
 
+if (args.has("--said")) { console.log(said.join("\n")); process.exit(0); }
 if (args.has("--check-videos")) {
   const all = new Map();
   for (const w of wanted) all.set(w.id, w);

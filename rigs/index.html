@@ -244,15 +244,36 @@ ol.kstrip li span{padding-top:4px}
 .gitems{margin:8px 0 0}
 .gitem{border-top:1px solid var(--edge)}
 .gitem:first-child{border-top:0}
-.gitem summary{list-style:none;display:flex;align-items:center;gap:12px;padding:13px 0;cursor:pointer}
+.gitem>summary{list-style:none;display:flex;align-items:center;gap:12px;padding:13px 0;cursor:pointer}
 .gitem summary::-webkit-details-marker{display:none}
-.gitem summary b{flex:1;font-weight:650;font-size:16px;line-height:1.3;color:var(--t1)}
-.gitem summary .chev{transform:rotate(90deg);transition:transform .15s}
-.gitem[open] summary .chev{transform:rotate(-90deg)}
+.gitem>summary b{flex:1;font-weight:650;font-size:16px;line-height:1.3;color:var(--t1)}
+.gitem>summary .chev{transform:rotate(90deg);transition:transform .15s}
+.gitem[open]>summary .chev{transform:rotate(-90deg)}
 .gitem .gbody{padding:0 0 15px;font-size:15px;line-height:1.5;color:var(--t2)}
 .gitem .gbody p{margin:0}
-.gitem .gbody .klist{margin-top:8px}
+.gitem .gbody p+.klist{margin-top:8px}
+.gitem .gbody .klist{margin-top:0}
 .gitem .gbody .box.tip{margin-top:12px}
+/* CastAI's paragraph, behind More: a part opens on its points */
+.gmore{margin-top:10px}
+.gmore>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px 6px 13px;border-radius:999px;cursor:pointer;
+  font:600 13.5px/1.2 Inter,system-ui,sans-serif;color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--paper))}
+.gmore>summary::after{content:"";width:6px;height:6px;border:solid currentColor;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-2px)}
+.gmore[open]>summary{display:none}
+.gmore p{margin:0}
+/* a library row's level: a tinted badge, one colour each, never the gold */
+.row .tx.hasbadge>.badge.lv{padding:3px 9px;font-size:12px}
+.row .tx.hasbadge>.badge.lv1{color:var(--go);background:color-mix(in srgb,var(--go) 13%,var(--paper))}
+.row .tx.hasbadge>.badge.lv2{color:var(--t2);background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--t3) 45%,transparent)}
+.row .tx.hasbadge>.badge.lv3{color:color-mix(in srgb,var(--warn) 84%,var(--t1));background:color-mix(in srgb,var(--warn) 13%,var(--paper))}
+.row .tx.hasbadge>.badge.lv4{color:var(--no);background:color-mix(in srgb,var(--no) 12%,var(--paper))}
+/* the rules page: where the checked rules are, as two chips */
+.rulechips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.rulechips .chip{min-height:38px;padding:7px 15px;text-decoration:none;background:color-mix(in srgb,var(--accent) 11%,var(--paper));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 26%,transparent)}
+.rulechips .chip b{font-size:14px;color:var(--accent)}
+/* an odd tile out at the end of a row of two takes the row */
+.ltiles .ptile:last-child:nth-child(odd){grid-column:1/-1}
 /* a fish's page: what the fish is */
 .about{padding:15px 16px 16px}
 .about>p{margin:0;font-size:15px;line-height:1.5;color:var(--t1)}
@@ -1420,6 +1441,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     return scratch.textContent.trim();
   }
   function metaOf(c) {
+    if (c.lib) return "";
     var b = c.body || "";
     var v = (b.match(/class="vid"/g) || []).length;
     if (v) return v + (v === 1 ? " video" : " videos");
@@ -1716,7 +1738,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       return '<a class="ptile" href="#/learn/' + x[0] + '" data-sec-tile="' + x[0] + '">' + libPic(x[0]) +
         '<span class="cap"><span class="nm">' + esc(x[1]) + '</span><span class="meta">' + (n === null ? "&nbsp;" : esc(n)) + "</span></span></a>";
     }).join("") + "</div>";
-    var first = !one && L ? '<section class="grp" data-learn-first><h2 class="sect">Tie these first</h2><div class="panel list">' +
+    var first = !one && L ? '<section class="grp" data-learn-first><h2 class="sect">Learn these first</h2><div class="panel list">' +
       L.firstKnots.map(function (id) { var k = knotById(id); return k ? libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"') : ""; }).join("") +
       libRow(castCard(castById("pendulum-cast")), "#/learn/casting/pendulum-cast", 'data-cast="pendulum-cast"') + "</div></section>" : "";
     var courses = one ? "" : '<section class="grp" data-courses><h2 class="sect">Courses</h2><div class="ptiles ltiles">' + every.map(function (n) {
@@ -1780,19 +1802,27 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var n = 0; L.gear.forEach(function (g) { n += g.sections.length; });
     return n + " parts";
   }
-  // Each part's tile: a knot on the bench, the pier the pier swing is for,
-  // a river for the guides, the Sound for the gear.
-  function libPic(sec) {
-    if (sec === "knots") {
-      var k = RIG.fish && RIG.fish.of("knot");
-      if (k) return '<span class="pic bench" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: true }) + "</span>";
-    }
-    return viewHtml({ knots: "lake", casting: "pier", guides: "river", gear: "sound" }[sec], "pic");
+  // Each tile gets its own picture, never its neighbour's: the app's own
+  // drawings on the bench (a knot, a squid jig, a hook), or a kind of water
+  // with its own shore (seed) seen from its own bank (flip). view is also
+  // what a drawing's tile shows until the drawings have loaded.
+  var LIB_PIC = { knots: { plate: "knot", view: "lake" }, casting: { view: "pier" }, guides: { view: "river", o: { seed: 11, flip: true } },
+    gear: { plate: "jig", view: "lake", o: { seed: 9 } } };
+  var GUIDE_PIC = { salmon: { view: "river" }, starting: { view: "lake" }, water: { view: "river", o: { seed: 7, flip: true } },
+    seasons: { view: "lake", o: { seed: 5, flip: true, dock: false } }, fly: { view: "fly", o: { seed: 3, flip: true } }, unhooking: { plate: "hook", view: "sound" } };
+  function picOf(x) {
+    var k = x.plate && RIG.fish && RIG.fish.of(x.plate);
+    if (k) return '<span class="pic bench" data-plate="' + k + '">' + RIG.fish.svg(k, { lite: true }) + "</span>";
+    return viewHtml(x.view || "lake", "pic", x.o);
   }
-  var LEVEL = { 1: "Easy", 2: "Some practice", 3: "Takes practice", 4: "Hard" };
-  function vidHtml(v) {
+  function libPic(sec) { return picOf(LIB_PIC[sec]); }
+  var LEVEL = { 1: "Easy", 2: "Medium", 3: "Tricky", 4: "Hard" };
+  // A video: the Rig Card's own label (what it shows, and whose channel),
+  // never YouTube's raw title (that is for the oEmbed check only).
+  function vidHtml(v, label) {
     return v ? '<div class="vids"><a class="vid" href="https://www.youtube.com/watch?v=' + esc(v.id) + '" target="_blank" rel="noopener" data-video="' + esc(v.id) + '">' +
-      '<span class="play" aria-hidden="true"></span><span class="vt"><b>' + esc(v.title) + '</b><span class="by">' + esc(v.by) + "</span></span></a></div>" : "";
+      '<span class="play" aria-hidden="true"></span><span class="vt"><b>' + esc(label) + '</b><span class="by">' + esc(v.by) + "</span>" +
+      (v.note ? '<span class="why">' + esc(v.note) + "</span>" : "") + "</span></a></div>" : "";
   }
   // The steps as a numbered strip, one move each, joined by a line.
   function stripHtml(steps) {
@@ -1806,14 +1836,14 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function knotCard(k) {
     var hand = k.hand && allCardsOwn().filter(function (c) { return c.id === k.hand; })[0];
     var fig = hand ? (hand.body.match(/<figure class="tyer"[\s\S]*?<\/figure>/) || [""])[0] : "";
-    return { id: fig ? hand.id : "lib-knot-" + k.id, title: k.name, lib: "knot", libId: k.id, group: "fundamental",
-      body: '<p class="when">' + esc(k.line) + "</p>" + (fig || stripHtml(k.steps)) + failsHtml(k.fails) + vidHtml(k.video) +
+    return { id: fig ? hand.id : "lib-knot-" + k.id, title: k.name, lib: "knot", libId: k.id, level: k.level, group: "fundamental",
+      body: '<p class="when">' + esc(k.line) + "</p>" + (fig || stripHtml(k.steps)) + failsHtml(k.fails) + vidHtml(k.video, k.name) +
         (k.tip ? '<div class="box tip"><b>tip</b>' + esc(k.tip) + "</div>" : "") +
         (k.best ? '<div class="box"><b>use it for</b>' + esc(k.best) + "</div>" : "") };
   }
   function castCard(c) {
-    return { id: "lib-cast-" + c.id, title: c.name, lib: "cast", libId: c.id, group: "fundamental",
-      body: '<p class="when">' + esc(c.line) + "</p>" + stripHtml(c.steps) + failsHtml(c.fails) + vidHtml(c.video) +
+    return { id: "lib-cast-" + c.id, title: c.name, lib: "cast", libId: c.id, level: c.level, group: "fundamental",
+      body: '<p class="when">' + esc(c.line) + "</p>" + stripHtml(c.steps) + failsHtml(c.fails) + vidHtml(c.video, c.name) +
         (c.mistakes.length ? '<div class="box"><b>also watch for</b><ul class="klist">' + c.mistakes.map(function (m) { return "<li>" + esc(m) + "</li>"; }).join("") + "</ul></div>" : "") +
         (c.best ? '<div class="box"><b>use it for</b>' + esc(c.best) + "</div>" : "") };
   }
@@ -1836,8 +1866,11 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     });
     return out;
   }
+  // A knot's or a cast's row: its name, its level as a tinted badge, its line.
   function libRow(c, href, attr) {
-    return rowHtml(c, href).replace('<a class="row"', '<a class="row" ' + attr);
+    var lv = LEVEL[c.level] ? '<span class="badge lv lv' + c.level + '" data-level="' + c.level + '">' + esc(LEVEL[c.level]) + "</span>" : "";
+    return '<a class="row" ' + attr + ' href="' + esc(href) + '" data-row="' + esc(c.id) + '"><span class="tx' + (lv ? " hasbadge" : "") + '"><b>' + esc(c.title) + "</b>" + lv +
+      lineHtml(snippet(c)) + "</span>" + IC.chev + "</a>";
   }
   // A knot named in a rig's steps opens its card: "Improved clinch", tapped.
   function knotFor(name) {
@@ -1884,7 +1917,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     var lead = '<div class="float list" data-knot-first><p class="lhead"><em class="eyebrow">Tie these first</em><span>' + esc(L.firstKnotsLine) + "</span></p>" +
       first.map(function (k) { return libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"'); }).join("") + "</div>";
     var groups = L.knotGroups.map(function (g) {
-      var mine = L.knots.filter(function (k) { return k.joins === g.id; });
+      var mine = L.knots.filter(function (k) { return k.joins === g.id && L.firstKnots.indexOf(k.id) === -1; });
       return mine.length ? '<section class="grp" data-knot-group="' + esc(g.id) + '"><h2 class="sect">' + esc(g.label) + ' <span class="n">' + mine.length + "</span></h2>" +
         '<div class="panel list">' + mine.map(function (k) { return libRow(knotCard(k), "#/learn/knots/" + k.id, 'data-knot="' + esc(k.id) + '"'); }).join("") + "</div></section>" : "";
     }).join("");
@@ -1923,7 +1956,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
   function renderGuides() {
     var L = lib();
     var tiles = L.guides.map(function (g) {
-      return '<a class="ptile" href="#/learn/guides/' + esc(g.id) + '" data-guide-tile="' + esc(g.id) + '">' + viewHtml(g.view || "lake", "pic") +
+      return '<a class="ptile" href="#/learn/guides/' + esc(g.id) + '" data-guide-tile="' + esc(g.id) + '">' + picOf(GUIDE_PIC[g.id] || { view: g.view || "lake" }) +
         '<span class="cap"><span class="nm">' + esc(g.title) + '</span><span class="meta">' + g.sections.length + " parts</span></span></a>";
     }).join("");
     app.innerHTML = topHtml("learn", "guides", "river") + '<div data-view="learn" data-lib="guides">' +
@@ -1958,29 +1991,32 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
     app.innerHTML = topHtml("learn", "gear", "lake") + '<div data-view="learn" data-lib="gear">' +
       heroHtml({ title: "Gear", back: { href: "#/learn", text: "Learn" }, chips: libChip(n + " parts") }) + parts + "</div>" + tripBarHtml();
   }
-  var RULES_LINK = '<div class="box law" data-rules-pointer><b>rules</b>Rules change by water and by week, so they are not in a guide. ' +
-    'Each trip’s card has its own, checked: <a href="#/trips">open Trips</a>, pick a trip, then Rules. New ones post at ' +
-    '<a href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener">WDFW emergency rules</a>.</div>';
-  // One section of a guide: its items as headlines that open in place, the
-  // first one open.
+  // The rules page: where the checked rules are, as two chips. (Rules are
+  // never in a guide; the code keeps them out, the page does not say so.)
+  var RULES_CHIPS = '<div class="rulechips" data-rules-pointer><a class="chip" href="#/trips"><b>Trips</b></a>' +
+    '<a class="chip" href="https://wdfw.wa.gov/fishing/regulations/emergency-rules" target="_blank" rel="noopener"><b>WDFW emergency rules</b></a></div>';
+  // One section of a guide: its parts as headlines, all closed, each opening
+  // in place on its points, with CastAI's paragraph behind More.
   function sectionCard(g, x) {
-    if (x.rules) return { id: "lib-guide-" + g.id + "-" + x.id, title: x.title, libId: x.id, body: '<p class="when">' + esc(x.line) + "</p>" + RULES_LINK };
-    var items = (x.items || []).map(function (it, i) {
-      return '<details class="gitem"' + (i === 0 ? " open" : "") + "><summary><b>" + esc(it.name) + "</b>" + IC.chev + '</summary><div class="gbody">' +
+    if (x.rules) return { id: "lib-guide-" + g.id + "-" + x.id, title: x.title, libId: x.id, body: '<p class="when">' + esc(x.line) + "</p>" + RULES_CHIPS };
+    var items = (x.items || []).map(function (it) {
+      return '<details class="gitem"><summary><b>' + esc(it.name) + "</b>" + IC.chev + '</summary><div class="gbody">' +
         (it.text ? "<p>" + esc(it.text) + "</p>" : "") +
         (it.points && it.points.length ? '<ul class="klist">' + it.points.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul>" : "") +
-        (it.tip ? '<div class="box tip"><b>tip</b>' + esc(it.tip) + "</div>" : "") + vidHtml(it.video) + "</div></details>";
+        (it.tip ? '<div class="box tip"><b>tip</b>' + esc(it.tip) + "</div>" : "") + vidHtml(it.video, it.name) +
+        (it.more ? '<details class="gmore"><summary>More</summary><p>' + esc(it.more) + "</p></details>" : "") + "</div></details>";
     }).join("");
     return { id: "lib-guide-" + g.id + "-" + x.id, title: x.title, libId: x.id,
       body: (x.line ? '<p class="when">' + esc(x.line) + "</p>" : "") + (x.steps && x.steps.length ? stripHtml(x.steps) : "") +
         (items ? '<div class="gitems">' + items + "</div>" : "") +
         (x.points && x.points.length ? '<div class="box red"><b>watch for</b><ul class="klist">' + x.points.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join("") + "</ul></div>" : "") +
         (x.tools && x.tools.length ? '<div class="box"><b>tools</b>' + esc(x.tools.join(", ")) + "</div>" : "") +
-        (x.tip ? '<div class="box tip"><b>tip</b>' + esc(x.tip) + "</div>" : "") + vidHtml(x.video) +
-        (x.ruledOut ? RULES_LINK : "") };
+        (x.tip ? '<div class="box tip"><b>tip</b>' + esc(x.tip) + "</div>" : "") + vidHtml(x.video, x.title) };
   }
+  // A guide's sections in the order its page lists them: the rules row last.
+  function secOrder(g) { return g.sections.filter(function (y) { return !y.rules; }).concat(g.sections.filter(function (y) { return y.rules; })); }
   function renderGuideSection(g, x, sec) {
-    var list = g.sections.map(function (y) { return sectionCard(g, y); });
+    var list = secOrder(g).map(function (y) { return sectionCard(g, y); });
     renderCard({ tab: "learn", active: sec, card: list.filter(function (c) { return c.libId === x.id; })[0], list: list, addable: false,
       scene: sec === "gear" ? "lake" : g.view === "fly" ? "sound" : g.view || "river",
       hrefFor: function (c) { return "#/learn/" + sec + "/" + g.id + "/" + c.libId; },
@@ -1994,7 +2030,7 @@ button.cw-pickrow+button.cw-pickrow::before{content:"";position:absolute;left:72
       (f.text ? "<p>" + esc(f.text) + "</p>" : "") +
       (f.habitat ? '<div class="box"><b>where they live</b>' + esc(f.habitat) + "</div>" : "") +
       (f.lures && f.lures.length ? '<div class="box"><b>best lures</b><span class="lures">' + f.lures.map(function (x) { return '<span class="tag">' + esc(x) + "</span>"; }).join("") + "</span></div>" : "") +
-      (f.fact ? '<div class="well"><p><b>Did you know.</b> ' + esc(f.fact) + "</p></div>" : "") + "</div></section>";
+      (f.fact ? '<div class="well"><p><b>Did you know?</b> ' + esc(f.fact) + "</p></div>" : "") + "</div></section>";
   }
 
   // One card, alone. Back goes up to the list, next and previous walk it.
